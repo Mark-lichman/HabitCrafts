@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{document} {
+      allow create: if request.auth.uid == document;
+      allow read: if true;
+      allow write: if request.auth.uid == document;
+      allow delete: if request.auth.uid == document;
+    }
+
+    match /articles/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /celebration_suggestions/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /chat_messages/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /chats/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /checkins/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /goals/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /group_member_state/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /habits/{document} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    match /user_group_search/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /groups/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /feelings/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /icons/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /categories/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /lessons/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /application_messages/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /reminders/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /users/{parent}/user_activity/{document} {
+      allow create: if request.auth.uid == parent;
+      allow read: if true;
+      allow write: if request.auth.uid == parent;
+      allow delete: if request.auth.uid == parent;
+    }
+
+    match /chat_messages/{parent}/flags/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /{path=**}/flags/{document} {
+      allow read: if true;
+    }
+
+
+    match /webinars/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /monthly_challenges/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /chat_messages/{parent}/reactions/{document} {
+      allow create: if true;
+      allow read: if true;
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /{path=**}/reactions/{document} {
+      allow read: if true;
+    }
+
+
+    match /ff_user_push_notifications/{id} {
+      allow read, update, delete: if false;
+      allow create: if /databases/$(database)/documents/users/$(request.auth.uid) == request.resource.data.sender;
+    }
+  }
+}

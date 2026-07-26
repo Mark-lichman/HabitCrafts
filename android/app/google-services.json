@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "68894759253",
+    "project_id": "tiny-habits-jf61nl",
+    "storage_bucket": "tiny-habits-jf61nl.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68894759253:android:d9499aaa061887f64bf7dc",
+        "android_client_info": {
+          "package_name": "com.reddevinc.habitcrafts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "68894759253-43tal50osscsr9f09s975ueicgojlmk0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reddevinc.habitcrafts",
+            "certificate_hash": "560a93aa888dfe38495c27f90c8f872844dda9ea"
+          }
+        },
+        {
+          "client_id": "68894759253-5ubv3etn77je1vg9p94bidvd9mb67np6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reddevinc.habitcrafts",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "68894759253-8s08s84aisik7ek48b2n6ubdoenvthdm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8LTjk10LmzqqfRIWS1GzX3cTxEXGSk_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "68894759253-8s08s84aisik7ek48b2n6ubdoenvthdm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "68894759253-ifuero6e51ekp6om0jf522gmb2k8qqoa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.reddevinc.habitcrafts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

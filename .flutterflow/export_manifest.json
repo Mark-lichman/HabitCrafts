@@ -1,0 +1,2198 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "tiny-habits-jf61nl",
+    "name": "HabitCraft",
+    "directory": "habit_craft"
+  },
+  "build": {
+    "mode": "export",
+    "format": true
+  },
+  "exported_at": "2026-07-26T22:45:24.911742Z",
+  "files": [
+    ".flutterflow/export_manifest.json",
+    "README.md",
+    "analysis_options.yaml",
+    "android/.gitignore",
+    "android/app/build.gradle",
+    "android/app/google-services.json",
+    "android/app/proguard-rules.pro",
+    "android/app/src/debug/AndroidManifest.xml",
+    "android/app/src/main/AndroidManifest.xml",
+    "android/app/src/main/kotlin/com/example/my_project/MainActivity.kt",
+    "android/app/src/main/res/drawable/launch_background.xml",
+    "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+    "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+    "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+    "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+    "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+    "android/app/src/main/res/values-night-v31/styles.xml",
+    "android/app/src/main/res/values-night/styles.xml",
+    "android/app/src/main/res/values-v31/styles.xml",
+    "android/app/src/main/res/values/strings.xml",
+    "android/app/src/main/res/values/styles.xml",
+    "android/app/src/profile/AndroidManifest.xml",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/gradle/wrapper/gradle-wrapper.properties",
+    "android/settings.gradle",
+    "assets/audios/favicon.png",
+    "assets/fonts/favicon.png",
+    "assets/images/favicon.png",
+    "assets/jsons/favicon.png",
+    "assets/pdfs/favicon.png",
+    "assets/rive_animations/favicon.png",
+    "assets/videos/favicon.png",
+    "firebase/custom_cloud_functions/add_search_terms_for_groups.js",
+    "firebase/custom_cloud_functions/add_search_terms_for_users.js",
+    "firebase/custom_cloud_functions/clean_invalid_chat_entries.js",
+    "firebase/custom_cloud_functions/clean_invalid_user_group_entries.js",
+    "firebase/custom_cloud_functions/delete_all_user_data.js",
+    "firebase/custom_cloud_functions/delete_groups_by_creator.js",
+    "firebase/custom_cloud_functions/index.js",
+    "firebase/custom_cloud_functions/new_member_joined_group.js",
+    "firebase/custom_cloud_functions/new_member_joined_group_updated.js",
+    "firebase/custom_cloud_functions/package.json",
+    "firebase/custom_cloud_functions/schedule_notifications_for_each_day.js",
+    "firebase/custom_cloud_functions/send_first_seven_day_reminders.js",
+    "firebase/firebase.json",
+    "firebase/firestore.indexes.json",
+    "firebase/firestore.rules",
+    "firebase/functions/api_manager.js",
+    "firebase/functions/index.js",
+    "firebase/functions/package.json",
+    "firebase/storage.rules",
+    "flutter_native_splash.yaml",
+    "ios/.gitignore",
+    "ios/Flutter/AppFrameworkInfo.plist",
+    "ios/Flutter/Debug.xcconfig",
+    "ios/Flutter/Release.xcconfig",
+    "ios/ImageNotification/Info.plist",
+    "ios/ImageNotification/NotificationService.swift",
+    "ios/Podfile",
+    "ios/Runner.xcodeproj/project.pbxproj",
+    "ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+    "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist",
+    "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings",
+    "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme",
+    "ios/Runner.xcworkspace/contents.xcworkspacedata",
+    "ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist",
+    "ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings",
+    "ios/Runner/AppDelegate.swift",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png",
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png",
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json",
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png",
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png",
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png",
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md",
+    "ios/Runner/Base.lproj/LaunchScreen.storyboard",
+    "ios/Runner/Base.lproj/Main.storyboard",
+    "ios/Runner/GoogleService-Info.plist",
+    "ios/Runner/Info.plist",
+    "ios/Runner/PrivacyInfo.xcprivacy",
+    "ios/Runner/Runner-Bridging-Header.h",
+    "ios/Runner/Runner.entitlements",
+    "lib/actions/actions.dart",
+    "lib/app_constants.dart",
+    "lib/app_state.dart",
+    "lib/auth/auth_manager.dart",
+    "lib/auth/base_auth_user_provider.dart",
+    "lib/auth/firebase_auth/anonymous_auth.dart",
+    "lib/auth/firebase_auth/apple_auth.dart",
+    "lib/auth/firebase_auth/auth_util.dart",
+    "lib/auth/firebase_auth/email_auth.dart",
+    "lib/auth/firebase_auth/firebase_auth_manager.dart",
+    "lib/auth/firebase_auth/firebase_user_provider.dart",
+    "lib/auth/firebase_auth/github_auth.dart",
+    "lib/auth/firebase_auth/google_auth.dart",
+    "lib/auth/firebase_auth/jwt_token_auth.dart",
+    "lib/backend/algolia/algolia_manager.dart",
+    "lib/backend/algolia/serialization_util.dart",
+    "lib/backend/backend.dart",
+    "lib/backend/cloud_functions/cloud_functions.dart",
+    "lib/backend/custom_cloud_functions/custom_cloud_function_response_manager.dart",
+    "lib/backend/firebase/firebase_config.dart",
+    "lib/backend/firebase_analytics/analytics.dart",
+    "lib/backend/firebase_storage/storage.dart",
+    "lib/backend/push_notifications/push_notifications_handler.dart",
+    "lib/backend/push_notifications/push_notifications_util.dart",
+    "lib/backend/push_notifications/serialization_util.dart",
+    "lib/backend/schema/application_messages_record.dart",
+    "lib/backend/schema/articles_record.dart",
+    "lib/backend/schema/categories_record.dart",
+    "lib/backend/schema/celebration_suggestions_record.dart",
+    "lib/backend/schema/chat_messages_record.dart",
+    "lib/backend/schema/chats_record.dart",
+    "lib/backend/schema/checkins_record.dart",
+    "lib/backend/schema/enums/enums.dart",
+    "lib/backend/schema/feelings_record.dart",
+    "lib/backend/schema/flags_record.dart",
+    "lib/backend/schema/goals_record.dart",
+    "lib/backend/schema/group_member_state_record.dart",
+    "lib/backend/schema/groups_record.dart",
+    "lib/backend/schema/habits_record.dart",
+    "lib/backend/schema/icons_record.dart",
+    "lib/backend/schema/index.dart",
+    "lib/backend/schema/lessons_record.dart",
+    "lib/backend/schema/monthly_challenges_record.dart",
+    "lib/backend/schema/reactions_record.dart",
+    "lib/backend/schema/reminders_record.dart",
+    "lib/backend/schema/structs/index.dart",
+    "lib/backend/schema/structs/reaction_count_struct.dart",
+    "lib/backend/schema/user_activity_record.dart",
+    "lib/backend/schema/user_group_search_record.dart",
+    "lib/backend/schema/users_record.dart",
+    "lib/backend/schema/util/firestore_util.dart",
+    "lib/backend/schema/util/schema_util.dart",
+    "lib/backend/schema/webinars_record.dart",
+    "lib/chat_groupwbubbles/chat_2_details/chat2_details_model.dart",
+    "lib/chat_groupwbubbles/chat_2_details/chat2_details_widget.dart",
+    "lib/chat_groupwbubbles/chat_2_invite_users/chat2_invite_users_model.dart",
+    "lib/chat_groupwbubbles/chat_2_invite_users/chat2_invite_users_widget.dart",
+    "lib/chat_groupwbubbles/chat_2_main/chat2_main_model.dart",
+    "lib/chat_groupwbubbles/chat_2_main/chat2_main_widget.dart",
+    "lib/chat_groupwbubbles/chat_details_overlay/chat_details_overlay_model.dart",
+    "lib/chat_groupwbubbles/chat_details_overlay/chat_details_overlay_widget.dart",
+    "lib/chat_groupwbubbles/chat_list_item/chat_list_item_model.dart",
+    "lib/chat_groupwbubbles/chat_list_item/chat_list_item_widget.dart",
+    "lib/chat_groupwbubbles/chat_members_view_component/chat_members_view_component_model.dart",
+    "lib/chat_groupwbubbles/chat_members_view_component/chat_members_view_component_widget.dart",
+    "lib/chat_groupwbubbles/chat_thread_checkin/chat_thread_checkin_model.dart",
+    "lib/chat_groupwbubbles/chat_thread_checkin/chat_thread_checkin_widget.dart",
+    "lib/chat_groupwbubbles/chat_thread_component/chat_thread_component_model.dart",
+    "lib/chat_groupwbubbles/chat_thread_component/chat_thread_component_widget.dart",
+    "lib/chat_groupwbubbles/chat_thread_update/chat_thread_update_model.dart",
+    "lib/chat_groupwbubbles/chat_thread_update/chat_thread_update_widget.dart",
+    "lib/chat_groupwbubbles/checkin_display_component/checkin_display_component_model.dart",
+    "lib/chat_groupwbubbles/checkin_display_component/checkin_display_component_widget.dart",
+    "lib/chat_groupwbubbles/delete_dialog/delete_dialog_model.dart",
+    "lib/chat_groupwbubbles/delete_dialog/delete_dialog_widget.dart",
+    "lib/chat_groupwbubbles/emojipicker/emojipicker_model.dart",
+    "lib/chat_groupwbubbles/emojipicker/emojipicker_widget.dart",
+    "lib/chat_groupwbubbles/empty_state_simple/empty_state_simple_model.dart",
+    "lib/chat_groupwbubbles/empty_state_simple/empty_state_simple_widget.dart",
+    "lib/chat_groupwbubbles/flag_message_component/flag_message_component_model.dart",
+    "lib/chat_groupwbubbles/flag_message_component/flag_message_component_widget.dart",
+    "lib/chat_groupwbubbles/image_details/image_details_model.dart",
+    "lib/chat_groupwbubbles/image_details/image_details_widget.dart",
+    "lib/chat_groupwbubbles/long_press_chat_options/long_press_chat_options_model.dart",
+    "lib/chat_groupwbubbles/long_press_chat_options/long_press_chat_options_widget.dart",
+    "lib/chat_groupwbubbles/media_selector_component/media_selector_component_model.dart",
+    "lib/chat_groupwbubbles/media_selector_component/media_selector_component_widget.dart",
+    "lib/chat_groupwbubbles/user_list_small/user_list_small_model.dart",
+    "lib/chat_groupwbubbles/user_list_small/user_list_small_widget.dart",
+    "lib/components/activity_list_item/activity_list_item_model.dart",
+    "lib/components/activity_list_item/activity_list_item_widget.dart",
+    "lib/components/bottom_nav_bar_component_model.dart",
+    "lib/components/bottom_nav_bar_component_widget.dart",
+    "lib/components/common_ui/loading_indicator/loading_indicator_model.dart",
+    "lib/components/common_ui/loading_indicator/loading_indicator_widget.dart",
+    "lib/components/day_time_frequency_picker_component/day_time_frequency_picker_component_model.dart",
+    "lib/components/day_time_frequency_picker_component/day_time_frequency_picker_component_widget.dart",
+    "lib/components/empty_blocked_users_model.dart",
+    "lib/components/empty_blocked_users_widget.dart",
+    "lib/components/empty_webinars_component_model.dart",
+    "lib/components/empty_webinars_component_widget.dart",
+    "lib/components/eula_modal_model.dart",
+    "lib/components/eula_modal_widget.dart",
+    "lib/components/group_components/checkin_component/checkin_component_model.dart",
+    "lib/components/group_components/checkin_component/checkin_component_widget.dart",
+    "lib/components/group_components/create_group_component/create_group_component_model.dart",
+    "lib/components/group_components/create_group_component/create_group_component_widget.dart",
+    "lib/components/group_components/create_manage_invite_group_component/create_manage_invite_group_component_model.dart",
+    "lib/components/group_components/create_manage_invite_group_component/create_manage_invite_group_component_widget.dart",
+    "lib/components/group_components/empty_groups_component/empty_groups_component_model.dart",
+    "lib/components/group_components/empty_groups_component/empty_groups_component_widget.dart",
+    "lib/components/group_components/friends_view_component/friends_view_component_model.dart",
+    "lib/components/group_components/friends_view_component/friends_view_component_widget.dart",
+    "lib/components/group_components/group_accept_decline_list_item/group_accept_decline_list_item_model.dart",
+    "lib/components/group_components/group_accept_decline_list_item/group_accept_decline_list_item_widget.dart",
+    "lib/components/group_components/group_card/group_card_model.dart",
+    "lib/components/group_components/group_card/group_card_widget.dart",
+    "lib/components/group_components/group_check_in_list_item/group_check_in_list_item_model.dart",
+    "lib/components/group_components/group_check_in_list_item/group_check_in_list_item_widget.dart",
+    "lib/components/group_components/group_checkin_list_component/group_checkin_list_component_model.dart",
+    "lib/components/group_components/group_checkin_list_component/group_checkin_list_component_widget.dart",
+    "lib/components/group_components/group_create_input/group_create_input_model.dart",
+    "lib/components/group_components/group_create_input/group_create_input_widget.dart",
+    "lib/components/group_components/group_create_modal/group_create_modal_model.dart",
+    "lib/components/group_components/group_create_modal/group_create_modal_widget.dart",
+    "lib/components/group_components/group_invite_component/group_invite_component_model.dart",
+    "lib/components/group_components/group_invite_component/group_invite_component_widget.dart",
+    "lib/components/group_components/group_invite_list_item/group_invite_list_item_model.dart",
+    "lib/components/group_components/group_invite_list_item/group_invite_list_item_widget.dart",
+    "lib/components/group_components/group_invite_list_item2/group_invite_list_item2_model.dart",
+    "lib/components/group_components/group_invite_list_item2/group_invite_list_item2_widget.dart",
+    "lib/components/group_components/group_list_contents/group_list_contents_model.dart",
+    "lib/components/group_components/group_list_contents/group_list_contents_widget.dart",
+    "lib/components/group_components/group_list_item/group_list_item_model.dart",
+    "lib/components/group_components/group_list_item/group_list_item_widget.dart",
+    "lib/components/group_components/group_manage_list_item/group_manage_list_item_model.dart",
+    "lib/components/group_components/group_manage_list_item/group_manage_list_item_widget.dart",
+    "lib/components/group_components/group_management_component/group_management_component_model.dart",
+    "lib/components/group_components/group_management_component/group_management_component_widget.dart",
+    "lib/components/group_components/in_app_notification_component/in_app_notification_component_model.dart",
+    "lib/components/group_components/in_app_notification_component/in_app_notification_component_widget.dart",
+    "lib/components/group_components/new_group_created_modal/new_group_created_modal_model.dart",
+    "lib/components/group_components/new_group_created_modal/new_group_created_modal_widget.dart",
+    "lib/components/group_components/search_list_item/search_list_item_model.dart",
+    "lib/components/group_components/search_list_item/search_list_item_widget.dart",
+    "lib/components/group_components/time_picker_component/time_picker_component_model.dart",
+    "lib/components/group_components/time_picker_component/time_picker_component_widget.dart",
+    "lib/components/habit_components/active_habit_list_item/active_habit_list_item_model.dart",
+    "lib/components/habit_components/active_habit_list_item/active_habit_list_item_widget.dart",
+    "lib/components/habit_components/category_list_display/category_list_display_model.dart",
+    "lib/components/habit_components/category_list_display/category_list_display_widget.dart",
+    "lib/components/habit_components/empty_habits/empty_habits_model.dart",
+    "lib/components/habit_components/empty_habits/empty_habits_widget.dart",
+    "lib/components/habit_components/explore_habit_component/explore_habit_component_model.dart",
+    "lib/components/habit_components/explore_habit_component/explore_habit_component_widget.dart",
+    "lib/components/habit_components/finished_habit_list_item/finished_habit_list_item_model.dart",
+    "lib/components/habit_components/finished_habit_list_item/finished_habit_list_item_widget.dart",
+    "lib/components/habit_components/goal_habit_list_item/goal_habit_list_item_model.dart",
+    "lib/components/habit_components/goal_habit_list_item/goal_habit_list_item_widget.dart",
+    "lib/components/habit_components/habit_articles_group_list_item/habit_articles_group_list_item_model.dart",
+    "lib/components/habit_components/habit_articles_group_list_item/habit_articles_group_list_item_widget.dart",
+    "lib/components/habit_components/habit_completed_snack_bar/habit_completed_snack_bar_model.dart",
+    "lib/components/habit_components/habit_completed_snack_bar/habit_completed_snack_bar_widget.dart",
+    "lib/components/habit_components/habit_confirm_delete/habit_confirm_delete_model.dart",
+    "lib/components/habit_components/habit_confirm_delete/habit_confirm_delete_widget.dart",
+    "lib/components/habit_components/habit_explore_list_item/habit_explore_list_item_model.dart",
+    "lib/components/habit_components/habit_explore_list_item/habit_explore_list_item_widget.dart",
+    "lib/components/habit_components/habit_preview_component/habit_preview_component_model.dart",
+    "lib/components/habit_components/habit_preview_component/habit_preview_component_widget.dart",
+    "lib/components/habit_components/habit_sub_category_group_list_item/habit_sub_category_group_list_item_model.dart",
+    "lib/components/habit_components/habit_sub_category_group_list_item/habit_sub_category_group_list_item_widget.dart",
+    "lib/components/habit_components/new_habit_component/new_habit_component_model.dart",
+    "lib/components/habit_components/new_habit_component/new_habit_component_widget.dart",
+    "lib/components/habit_components/single_unactive_habit_list_item/single_unactive_habit_list_item_model.dart",
+    "lib/components/habit_components/single_unactive_habit_list_item/single_unactive_habit_list_item_widget.dart",
+    "lib/components/lesson_category_list_item_model.dart",
+    "lib/components/lesson_category_list_item_widget.dart",
+    "lib/components/library_list_item/library_list_item_model.dart",
+    "lib/components/library_list_item/library_list_item_widget.dart",
+    "lib/components/lifestyle_list_component_model.dart",
+    "lib/components/lifestyle_list_component_widget.dart",
+    "lib/components/monthly_challenge_list_item_model.dart",
+    "lib/components/monthly_challenge_list_item_widget.dart",
+    "lib/components/no_webinars_component_model.dart",
+    "lib/components/no_webinars_component_widget.dart",
+    "lib/components/notes_modal_component/notes_modal_component_model.dart",
+    "lib/components/notes_modal_component/notes_modal_component_widget.dart",
+    "lib/components/pages/create_habit_page/create_habit_page_model.dart",
+    "lib/components/pages/create_habit_page/create_habit_page_widget.dart",
+    "lib/components/pages/explore_habits_page/explore_habits_page_model.dart",
+    "lib/components/pages/explore_habits_page/explore_habits_page_widget.dart",
+    "lib/components/pages/forgot_password/forgot_password_model.dart",
+    "lib/components/pages/forgot_password/forgot_password_widget.dart",
+    "lib/components/pages/free_trial_screen/free_trial_screen_model.dart",
+    "lib/components/pages/free_trial_screen/free_trial_screen_widget.dart",
+    "lib/components/pages/groups_page/groups_page_model.dart",
+    "lib/components/pages/groups_page/groups_page_widget.dart",
+    "lib/components/pages/home_page/home_page_model.dart",
+    "lib/components/pages/home_page/home_page_widget.dart",
+    "lib/components/pages/initial_page/initial_page_model.dart",
+    "lib/components/pages/initial_page/initial_page_widget.dart",
+    "lib/components/pages/library_detail_page/library_detail_page_model.dart",
+    "lib/components/pages/library_detail_page/library_detail_page_widget.dart",
+    "lib/components/pages/library_page/library_page_model.dart",
+    "lib/components/pages/library_page/library_page_widget.dart",
+    "lib/components/pages/login_page/login_page_model.dart",
+    "lib/components/pages/login_page/login_page_widget.dart",
+    "lib/components/pages/onboarding/onboarding_model.dart",
+    "lib/components/pages/onboarding/onboarding_widget.dart",
+    "lib/components/pages/profile_page/profile_page_model.dart",
+    "lib/components/pages/profile_page/profile_page_widget.dart",
+    "lib/components/pages/progress_page/progress_page_model.dart",
+    "lib/components/pages/progress_page/progress_page_widget.dart",
+    "lib/components/pages/signup_page/signup_page_model.dart",
+    "lib/components/pages/signup_page/signup_page_widget.dart",
+    "lib/components/people_icon_for_no_loading_indicator_model.dart",
+    "lib/components/people_icon_for_no_loading_indicator_widget.dart",
+    "lib/components/profile_button/profile_button_model.dart",
+    "lib/components/profile_button/profile_button_widget.dart",
+    "lib/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_model.dart",
+    "lib/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_widget.dart",
+    "lib/components/profile_components/profile_image_component/profile_image_component_model.dart",
+    "lib/components/profile_components/profile_image_component/profile_image_component_widget.dart",
+    "lib/components/profile_components/profile_line_item/profile_line_item_model.dart",
+    "lib/components/profile_components/profile_line_item/profile_line_item_widget.dart",
+    "lib/components/profile_components/profile_preview_component/profile_preview_component_model.dart",
+    "lib/components/profile_components/profile_preview_component/profile_preview_component_widget.dart",
+    "lib/components/profile_components/profile_settings_user_details_component/profile_settings_user_details_component_model.dart",
+    "lib/components/profile_components/profile_settings_user_details_component/profile_settings_user_details_component_widget.dart",
+    "lib/components/profile_components/profile_settings_visibility_component/profile_settings_visibility_component_model.dart",
+    "lib/components/profile_components/profile_settings_visibility_component/profile_settings_visibility_component_widget.dart",
+    "lib/components/profile_components/profile_settings_visibility_list_items/profile_settings_visibility_list_items_model.dart",
+    "lib/components/profile_components/profile_settings_visibility_list_items/profile_settings_visibility_list_items_widget.dart",
+    "lib/components/profile_components/profile_tag_component/profile_tag_component_model.dart",
+    "lib/components/profile_components/profile_tag_component/profile_tag_component_widget.dart",
+    "lib/components/reminder_text_component_model.dart",
+    "lib/components/reminder_text_component_widget.dart",
+    "lib/components/resource_article_list_item/resource_article_list_item_model.dart",
+    "lib/components/resource_article_list_item/resource_article_list_item_widget.dart",
+    "lib/components/resources_list_item/resources_list_item_model.dart",
+    "lib/components/resources_list_item/resources_list_item_widget.dart",
+    "lib/components/test_text_field/test_text_field_model.dart",
+    "lib/components/test_text_field/test_text_field_widget.dart",
+    "lib/components/toolip_component_model.dart",
+    "lib/components/toolip_component_widget.dart",
+    "lib/components/user_icon_model.dart",
+    "lib/components/user_icon_widget.dart",
+    "lib/components/webinar_list_item_model.dart",
+    "lib/components/webinar_list_item_widget.dart",
+    "lib/custom_code/actions/batch_delete_group_member_states.dart",
+    "lib/custom_code/actions/batch_delete_habits.dart",
+    "lib/custom_code/actions/cancel_all_reminders.dart",
+    "lib/custom_code/actions/chat_containing_user.dart",
+    "lib/custom_code/actions/delete_group_member_list_action.dart",
+    "lib/custom_code/actions/delete_search_member_list_action.dart",
+    "lib/custom_code/actions/fetch_contacts_action.dart",
+    "lib/custom_code/actions/filter_groups_that_have_today_checkin.dart",
+    "lib/custom_code/actions/get_activity_title.dart",
+    "lib/custom_code/actions/get_build_number.dart",
+    "lib/custom_code/actions/get_most_recent_completed_date_time.dart",
+    "lib/custom_code/actions/group_member_states_with_previous_checkins_removed.dart",
+    "lib/custom_code/actions/hide_keyboard.dart",
+    "lib/custom_code/actions/index.dart",
+    "lib/custom_code/actions/lock_portrait_model.dart",
+    "lib/custom_code/actions/number_of_group_member_state_to_unique_users.dart",
+    "lib/custom_code/actions/open_notification_settings.dart",
+    "lib/custom_code/actions/request_notification_permission.dart",
+    "lib/custom_code/actions/select_emoji.dart",
+    "lib/custom_code/actions/set_week_index.dart",
+    "lib/custom_code/widgets/checkin_slider_widget.dart",
+    "lib/custom_code/widgets/html_video_widget.dart",
+    "lib/custom_code/widgets/index.dart",
+    "lib/custom_code/widgets/phone_contacts_widget.dart",
+    "lib/custom_code/widgets/progress_calendar_widget.dart",
+    "lib/custom_code/widgets/progress_line_chart_widget.dart",
+    "lib/custom_code/widgets/select_emoji_widget.dart",
+    "lib/custom_code/widgets/sliding_list_item_widget.dart",
+    "lib/flutter_flow/custom_functions.dart",
+    "lib/flutter_flow/flutter_flow_animations.dart",
+    "lib/flutter_flow/flutter_flow_autocomplete_options_list.dart",
+    "lib/flutter_flow/flutter_flow_button_tabbar.dart",
+    "lib/flutter_flow/flutter_flow_choice_chips.dart",
+    "lib/flutter_flow/flutter_flow_drop_down.dart",
+    "lib/flutter_flow/flutter_flow_icon_button.dart",
+    "lib/flutter_flow/flutter_flow_media_display.dart",
+    "lib/flutter_flow/flutter_flow_model.dart",
+    "lib/flutter_flow/flutter_flow_radio_button.dart",
+    "lib/flutter_flow/flutter_flow_theme.dart",
+    "lib/flutter_flow/flutter_flow_util.dart",
+    "lib/flutter_flow/flutter_flow_video_player.dart",
+    "lib/flutter_flow/flutter_flow_widgets.dart",
+    "lib/flutter_flow/form_field_controller.dart",
+    "lib/flutter_flow/instant_timer.dart",
+    "lib/flutter_flow/keep_alive_wrapper.dart",
+    "lib/flutter_flow/lat_lng.dart",
+    "lib/flutter_flow/nav/nav.dart",
+    "lib/flutter_flow/nav/serialization_util.dart",
+    "lib/flutter_flow/place.dart",
+    "lib/flutter_flow/random_data_util.dart",
+    "lib/flutter_flow/request_manager.dart",
+    "lib/flutter_flow/upload_data.dart",
+    "lib/flutter_flow/uploaded_file.dart",
+    "lib/index.dart",
+    "lib/main.dart",
+    "pubspec.yaml",
+    "test/widget_test.dart",
+    "web/favicon.png",
+    "web/flutter_bootstrap.js",
+    "web/icons/Icon-192.png",
+    "web/icons/Icon-512.png",
+    "web/index.html"
+  ],
+  "entities": [
+    {
+      "type": "action_block",
+      "key": "58jlfq",
+      "name": "userJoinGroup",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "beb05i",
+      "name": "inviteFriendToGroup",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "dmxc7e",
+      "name": "userRequestToJoinGroup",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "f6o78r",
+      "name": "clearTempValues",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "htjh64",
+      "name": "updateGroupMemberLastActive",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "krubhy",
+      "name": "afterGroupCreatedCalls",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "ozerr1",
+      "name": "fetchContacts",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "s5gaz6",
+      "name": "createChat",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "action_block",
+      "key": "xhf5yl",
+      "name": "openChatWithUser",
+      "primary_files": [
+        "lib/actions/actions.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_08d5j737",
+      "name": "chat_DetailsOverlay",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_details_overlay/chat_details_overlay_model.dart",
+        "lib/chat_groupwbubbles/chat_details_overlay/chat_details_overlay_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_0s0vunbe",
+      "name": "activityListItem",
+      "primary_files": [
+        "lib/components/activity_list_item/activity_list_item_model.dart",
+        "lib/components/activity_list_item/activity_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_0wfj1qq3",
+      "name": "exploreHabitComponent",
+      "primary_files": [
+        "lib/components/habit_components/explore_habit_component/explore_habit_component_model.dart",
+        "lib/components/habit_components/explore_habit_component/explore_habit_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_12t8bxmz",
+      "name": "deleteDialog",
+      "primary_files": [
+        "lib/chat_groupwbubbles/delete_dialog/delete_dialog_model.dart",
+        "lib/chat_groupwbubbles/delete_dialog/delete_dialog_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_1x1sxh5y",
+      "name": "groupCreateInput",
+      "primary_files": [
+        "lib/components/group_components/group_create_input/group_create_input_model.dart",
+        "lib/components/group_components/group_create_input/group_create_input_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_3fuklgh5",
+      "name": "groupCard",
+      "primary_files": [
+        "lib/components/group_components/group_card/group_card_model.dart",
+        "lib/components/group_components/group_card/group_card_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_3yt1n1c0",
+      "name": "webinarListItem",
+      "primary_files": [
+        "lib/components/webinar_list_item_model.dart",
+        "lib/components/webinar_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_47p973bq",
+      "name": "peopleIconForNoLoadingIndicator",
+      "primary_files": [
+        "lib/components/people_icon_for_no_loading_indicator_model.dart",
+        "lib/components/people_icon_for_no_loading_indicator_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_4oq8rm6r",
+      "name": "group_list_item",
+      "primary_files": [
+        "lib/components/group_components/group_list_item/group_list_item_model.dart",
+        "lib/components/group_components/group_list_item/group_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_4vbvm5g3",
+      "name": "habitPreviewComponent",
+      "primary_files": [
+        "lib/components/habit_components/habit_preview_component/habit_preview_component_model.dart",
+        "lib/components/habit_components/habit_preview_component/habit_preview_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_5gq4nor2",
+      "name": "emojipicker",
+      "primary_files": [
+        "lib/chat_groupwbubbles/emojipicker/emojipicker_model.dart",
+        "lib/chat_groupwbubbles/emojipicker/emojipicker_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_5w4tm1ul",
+      "name": "profileImageComponent",
+      "primary_files": [
+        "lib/components/profile_components/profile_image_component/profile_image_component_model.dart",
+        "lib/components/profile_components/profile_image_component/profile_image_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_64nnktgs",
+      "name": "user_ListSmall",
+      "primary_files": [
+        "lib/chat_groupwbubbles/user_list_small/user_list_small_model.dart",
+        "lib/chat_groupwbubbles/user_list_small/user_list_small_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_6cg7gy81",
+      "name": "timePickerComponent",
+      "primary_files": [
+        "lib/components/group_components/time_picker_component/time_picker_component_model.dart",
+        "lib/components/group_components/time_picker_component/time_picker_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_735s91ib",
+      "name": "profileLineItem",
+      "primary_files": [
+        "lib/components/profile_components/profile_line_item/profile_line_item_model.dart",
+        "lib/components/profile_components/profile_line_item/profile_line_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_7dtf0jv8",
+      "name": "emptyWebinarsComponent",
+      "primary_files": [
+        "lib/components/empty_webinars_component_model.dart",
+        "lib/components/empty_webinars_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_7y8ke0ib",
+      "name": "profilePreviewComponent",
+      "primary_files": [
+        "lib/components/profile_components/profile_preview_component/profile_preview_component_model.dart",
+        "lib/components/profile_components/profile_preview_component/profile_preview_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_8ljz62ol",
+      "name": "emptyBlockedUsers",
+      "primary_files": [
+        "lib/components/empty_blocked_users_model.dart",
+        "lib/components/empty_blocked_users_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_8tz28ht6",
+      "name": "profileButton",
+      "primary_files": [
+        "lib/components/profile_button/profile_button_model.dart",
+        "lib/components/profile_button/profile_button_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_9athis50",
+      "name": "createManageInviteGroupComponent",
+      "primary_files": [
+        "lib/components/group_components/create_manage_invite_group_component/create_manage_invite_group_component_model.dart",
+        "lib/components/group_components/create_manage_invite_group_component/create_manage_invite_group_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_9xinkr05",
+      "name": "flag_message_component",
+      "primary_files": [
+        "lib/chat_groupwbubbles/flag_message_component/flag_message_component_model.dart",
+        "lib/chat_groupwbubbles/flag_message_component/flag_message_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_a166b17v",
+      "name": "profileSettingsUserDetailsComponent",
+      "primary_files": [
+        "lib/components/profile_components/profile_settings_user_details_component/profile_settings_user_details_component_model.dart",
+        "lib/components/profile_components/profile_settings_user_details_component/profile_settings_user_details_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_a20jnjqj",
+      "name": "userIcon",
+      "primary_files": [
+        "lib/components/user_icon_model.dart",
+        "lib/components/user_icon_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_atif380z",
+      "name": "EulaModal",
+      "primary_files": [
+        "lib/components/eula_modal_model.dart",
+        "lib/components/eula_modal_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_bgawozwz",
+      "name": "lessonCategoryListItem",
+      "primary_files": [
+        "lib/components/lesson_category_list_item_model.dart",
+        "lib/components/lesson_category_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_bv8fwiay",
+      "name": "chat_ThreadComponent",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_thread_component/chat_thread_component_model.dart",
+        "lib/chat_groupwbubbles/chat_thread_component/chat_thread_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_ca07wzks",
+      "name": "profileSettingsVisibilityComponent",
+      "primary_files": [
+        "lib/components/profile_components/profile_settings_visibility_component/profile_settings_visibility_component_model.dart",
+        "lib/components/profile_components/profile_settings_visibility_component/profile_settings_visibility_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_cavv5v6c",
+      "name": "groupCheckinListComponent",
+      "primary_files": [
+        "lib/components/group_components/group_checkin_list_component/group_checkin_list_component_model.dart",
+        "lib/components/group_components/group_checkin_list_component/group_checkin_list_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_citnnv0b",
+      "name": "newHabitComponent",
+      "primary_files": [
+        "lib/components/habit_components/new_habit_component/new_habit_component_model.dart",
+        "lib/components/habit_components/new_habit_component/new_habit_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_cvpd305c",
+      "name": "category_list_display",
+      "primary_files": [
+        "lib/components/habit_components/category_list_display/category_list_display_model.dart",
+        "lib/components/habit_components/category_list_display/category_list_display_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_dhvtw0lk",
+      "name": "groupAcceptDeclineListItem",
+      "primary_files": [
+        "lib/components/group_components/group_accept_decline_list_item/group_accept_decline_list_item_model.dart",
+        "lib/components/group_components/group_accept_decline_list_item/group_accept_decline_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_g2ntkv9e",
+      "name": "lifestyleListComponent",
+      "primary_files": [
+        "lib/components/lifestyle_list_component_model.dart",
+        "lib/components/lifestyle_list_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_goz6xd5u",
+      "name": "libraryListItem",
+      "primary_files": [
+        "lib/components/library_list_item/library_list_item_model.dart",
+        "lib/components/library_list_item/library_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_h9npoqsg",
+      "name": "friendsViewComponent",
+      "primary_files": [
+        "lib/components/group_components/friends_view_component/friends_view_component_model.dart",
+        "lib/components/group_components/friends_view_component/friends_view_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_hppir2lv",
+      "name": "groupManageListItem",
+      "primary_files": [
+        "lib/components/group_components/group_manage_list_item/group_manage_list_item_model.dart",
+        "lib/components/group_components/group_manage_list_item/group_manage_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_i3taem22",
+      "name": "habitCompletedSnackBar",
+      "primary_files": [
+        "lib/components/habit_components/habit_completed_snack_bar/habit_completed_snack_bar_model.dart",
+        "lib/components/habit_components/habit_completed_snack_bar/habit_completed_snack_bar_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_i3u39xk4",
+      "name": "groupInviteComponent",
+      "primary_files": [
+        "lib/components/group_components/group_invite_component/group_invite_component_model.dart",
+        "lib/components/group_components/group_invite_component/group_invite_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_jf1xmvyh",
+      "name": "emptyHabits",
+      "primary_files": [
+        "lib/components/habit_components/empty_habits/empty_habits_model.dart",
+        "lib/components/habit_components/empty_habits/empty_habits_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_jkdmrgwi",
+      "name": "newGroupCreatedModal",
+      "primary_files": [
+        "lib/components/group_components/new_group_created_modal/new_group_created_modal_model.dart",
+        "lib/components/group_components/new_group_created_modal/new_group_created_modal_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_jn3qu1ax",
+      "name": "groupInviteListItem",
+      "primary_files": [
+        "lib/components/group_components/group_invite_list_item/group_invite_list_item_model.dart",
+        "lib/components/group_components/group_invite_list_item/group_invite_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_jprfw77a",
+      "name": "notesModalComponent",
+      "primary_files": [
+        "lib/components/notes_modal_component/notes_modal_component_model.dart",
+        "lib/components/notes_modal_component/notes_modal_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_jz3sjotn",
+      "name": "chatListItem",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_list_item/chat_list_item_model.dart",
+        "lib/chat_groupwbubbles/chat_list_item/chat_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_k5y2hueb",
+      "name": "ActiveHabitListItem",
+      "primary_files": [
+        "lib/components/habit_components/active_habit_list_item/active_habit_list_item_model.dart",
+        "lib/components/habit_components/active_habit_list_item/active_habit_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_kltnpm2k",
+      "name": "chat_threadUpdate",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_thread_update/chat_thread_update_model.dart",
+        "lib/chat_groupwbubbles/chat_thread_update/chat_thread_update_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_l9m3k9mm",
+      "name": "resourcesListItem",
+      "primary_files": [
+        "lib/components/resources_list_item/resources_list_item_model.dart",
+        "lib/components/resources_list_item/resources_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_ldlesg00",
+      "name": "habitExploreListItem",
+      "primary_files": [
+        "lib/components/habit_components/habit_explore_list_item/habit_explore_list_item_model.dart",
+        "lib/components/habit_components/habit_explore_list_item/habit_explore_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mdwx0eer",
+      "name": "resourceArticleListItem",
+      "primary_files": [
+        "lib/components/resource_article_list_item/resource_article_list_item_model.dart",
+        "lib/components/resource_article_list_item/resource_article_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mixz1s9d",
+      "name": "reminderTextComponent",
+      "primary_files": [
+        "lib/components/reminder_text_component_model.dart",
+        "lib/components/reminder_text_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mlfi2cgb",
+      "name": "loading_indicator",
+      "primary_files": [
+        "lib/components/common_ui/loading_indicator/loading_indicator_model.dart",
+        "lib/components/common_ui/loading_indicator/loading_indicator_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mvg7ck8s",
+      "name": "bottomNavBarComponent",
+      "primary_files": [
+        "lib/components/bottom_nav_bar_component_model.dart",
+        "lib/components/bottom_nav_bar_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mvpugzo7",
+      "name": "monthlyChallengeListItem",
+      "primary_files": [
+        "lib/components/monthly_challenge_list_item_model.dart",
+        "lib/components/monthly_challenge_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mxv2m4zu",
+      "name": "checkinComponent",
+      "primary_files": [
+        "lib/components/group_components/checkin_component/checkin_component_model.dart",
+        "lib/components/group_components/checkin_component/checkin_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_my2mq957",
+      "name": "chatMembersViewComponent",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_members_view_component/chat_members_view_component_model.dart",
+        "lib/chat_groupwbubbles/chat_members_view_component/chat_members_view_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_mzk340rl",
+      "name": "noWebinarsComponent",
+      "primary_files": [
+        "lib/components/no_webinars_component_model.dart",
+        "lib/components/no_webinars_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_nhxw1jlq",
+      "name": "chat_threadCheckin",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_thread_checkin/chat_thread_checkin_model.dart",
+        "lib/chat_groupwbubbles/chat_thread_checkin/chat_thread_checkin_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_ni4ye5nw",
+      "name": "profileSettingsVisibilityListItems",
+      "primary_files": [
+        "lib/components/profile_components/profile_settings_visibility_list_items/profile_settings_visibility_list_items_model.dart",
+        "lib/components/profile_components/profile_settings_visibility_list_items/profile_settings_visibility_list_items_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_ntpotf2m",
+      "name": "goalHabitListItem",
+      "primary_files": [
+        "lib/components/habit_components/goal_habit_list_item/goal_habit_list_item_model.dart",
+        "lib/components/habit_components/goal_habit_list_item/goal_habit_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_o2sw14fe",
+      "name": "groupCreateModal",
+      "primary_files": [
+        "lib/components/group_components/group_create_modal/group_create_modal_model.dart",
+        "lib/components/group_components/group_create_modal/group_create_modal_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_omeumj72",
+      "name": "habitSubCategoryGroupListItem",
+      "primary_files": [
+        "lib/components/habit_components/habit_sub_category_group_list_item/habit_sub_category_group_list_item_model.dart",
+        "lib/components/habit_components/habit_sub_category_group_list_item/habit_sub_category_group_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_oofdo8gl",
+      "name": "dayTimeFrequencyPickerComponent",
+      "primary_files": [
+        "lib/components/day_time_frequency_picker_component/day_time_frequency_picker_component_model.dart",
+        "lib/components/day_time_frequency_picker_component/day_time_frequency_picker_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_p3c04iyk",
+      "name": "checkinDisplayComponent",
+      "primary_files": [
+        "lib/chat_groupwbubbles/checkin_display_component/checkin_display_component_model.dart",
+        "lib/chat_groupwbubbles/checkin_display_component/checkin_display_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_p40h7naq",
+      "name": "mediaSelectorComponent",
+      "primary_files": [
+        "lib/chat_groupwbubbles/media_selector_component/media_selector_component_model.dart",
+        "lib/chat_groupwbubbles/media_selector_component/media_selector_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_pr6zx411",
+      "name": "LongPressChatOptions",
+      "primary_files": [
+        "lib/chat_groupwbubbles/long_press_chat_options/long_press_chat_options_model.dart",
+        "lib/chat_groupwbubbles/long_press_chat_options/long_press_chat_options_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_qjcpkgkb",
+      "name": "empty_state_Simple",
+      "primary_files": [
+        "lib/chat_groupwbubbles/empty_state_simple/empty_state_simple_model.dart",
+        "lib/chat_groupwbubbles/empty_state_simple/empty_state_simple_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_rt6kjzb3",
+      "name": "searchListItem",
+      "primary_files": [
+        "lib/components/group_components/search_list_item/search_list_item_model.dart",
+        "lib/components/group_components/search_list_item/search_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_sqnmm3wz",
+      "name": "groupInviteListItem2",
+      "primary_files": [
+        "lib/components/group_components/group_invite_list_item2/group_invite_list_item2_model.dart",
+        "lib/components/group_components/group_invite_list_item2/group_invite_list_item2_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_tnbtop5r",
+      "name": "groupListContents",
+      "primary_files": [
+        "lib/components/group_components/group_list_contents/group_list_contents_model.dart",
+        "lib/components/group_components/group_list_contents/group_list_contents_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_trntoz44",
+      "name": "createGroupComponent",
+      "primary_files": [
+        "lib/components/group_components/create_group_component/create_group_component_model.dart",
+        "lib/components/group_components/create_group_component/create_group_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_tvetfljo",
+      "name": "emptyGroupsComponent",
+      "primary_files": [
+        "lib/components/group_components/empty_groups_component/empty_groups_component_model.dart",
+        "lib/components/group_components/empty_groups_component/empty_groups_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_ud8r5k79",
+      "name": "profileGoalHabitListItem",
+      "primary_files": [
+        "lib/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_model.dart",
+        "lib/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_uwtwlxeh",
+      "name": "groupCheckInListItem",
+      "primary_files": [
+        "lib/components/group_components/group_check_in_list_item/group_check_in_list_item_model.dart",
+        "lib/components/group_components/group_check_in_list_item/group_check_in_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_w311b4nt",
+      "name": "testTextField",
+      "primary_files": [
+        "lib/components/test_text_field/test_text_field_model.dart",
+        "lib/components/test_text_field/test_text_field_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_w4hok9ik",
+      "name": "inAppNotificationComponent",
+      "primary_files": [
+        "lib/components/group_components/in_app_notification_component/in_app_notification_component_model.dart",
+        "lib/components/group_components/in_app_notification_component/in_app_notification_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_wk11848o",
+      "name": "finishedHabitListItem",
+      "primary_files": [
+        "lib/components/habit_components/finished_habit_list_item/finished_habit_list_item_model.dart",
+        "lib/components/habit_components/finished_habit_list_item/finished_habit_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_xk0svxbf",
+      "name": "profileTagComponent",
+      "primary_files": [
+        "lib/components/profile_components/profile_tag_component/profile_tag_component_model.dart",
+        "lib/components/profile_components/profile_tag_component/profile_tag_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_y5gf0xdg",
+      "name": "groupManagementComponent",
+      "primary_files": [
+        "lib/components/group_components/group_management_component/group_management_component_model.dart",
+        "lib/components/group_components/group_management_component/group_management_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_z06t5609",
+      "name": "toolipComponent",
+      "primary_files": [
+        "lib/components/toolip_component_model.dart",
+        "lib/components/toolip_component_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_zg2z6bc6",
+      "name": "singleUnactiveHabitListItem",
+      "primary_files": [
+        "lib/components/habit_components/single_unactive_habit_list_item/single_unactive_habit_list_item_model.dart",
+        "lib/components/habit_components/single_unactive_habit_list_item/single_unactive_habit_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_zpj62a51",
+      "name": "habitArticlesGroupListItem",
+      "primary_files": [
+        "lib/components/habit_components/habit_articles_group_list_item/habit_articles_group_list_item_model.dart",
+        "lib/components/habit_components/habit_articles_group_list_item/habit_articles_group_list_item_widget.dart"
+      ]
+    },
+    {
+      "type": "component",
+      "key": "Container_zs98i4n0",
+      "name": "habitConfirmDelete",
+      "primary_files": [
+        "lib/components/habit_components/habit_confirm_delete/habit_confirm_delete_model.dart",
+        "lib/components/habit_components/habit_confirm_delete/habit_confirm_delete_widget.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "157o5",
+      "name": "filterGroupsThatHaveTodayCheckin",
+      "primary_files": [
+        "lib/custom_code/actions/filter_groups_that_have_today_checkin.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "26fzw",
+      "name": "numberOfGroupMemberStateToUniqueUsers",
+      "primary_files": [
+        "lib/custom_code/actions/number_of_group_member_state_to_unique_users.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "89l6k",
+      "name": "getMostRecentCompletedDateTime",
+      "primary_files": [
+        "lib/custom_code/actions/get_most_recent_completed_date_time.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "8fken",
+      "name": "groupMemberStatesWithPreviousCheckinsRemoved",
+      "primary_files": [
+        "lib/custom_code/actions/group_member_states_with_previous_checkins_removed.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "9hjc1",
+      "name": "lockPortraitModel",
+      "primary_files": [
+        "lib/custom_code/actions/lock_portrait_model.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "bb84s",
+      "name": "cancelAllReminders",
+      "primary_files": [
+        "lib/custom_code/actions/cancel_all_reminders.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "c69nk",
+      "name": "setWeekIndex",
+      "primary_files": [
+        "lib/custom_code/actions/set_week_index.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "cbaka",
+      "name": "chatContainingUser",
+      "primary_files": [
+        "lib/custom_code/actions/chat_containing_user.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "ebsva",
+      "name": "getActivityTitle",
+      "primary_files": [
+        "lib/custom_code/actions/get_activity_title.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "h6oi3",
+      "name": "selectEmoji",
+      "primary_files": [
+        "lib/custom_code/actions/select_emoji.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "jrr1r",
+      "name": "deleteGroupMemberListAction",
+      "primary_files": [
+        "lib/custom_code/actions/delete_group_member_list_action.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "owqmu",
+      "name": "openNotificationSettings",
+      "primary_files": [
+        "lib/custom_code/actions/open_notification_settings.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "p5vly",
+      "name": "batchDeleteHabits",
+      "primary_files": [
+        "lib/custom_code/actions/batch_delete_habits.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "ps81x",
+      "name": "hideKeyboard",
+      "primary_files": [
+        "lib/custom_code/actions/hide_keyboard.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "s3nu1",
+      "name": "deleteSearchMemberListAction",
+      "primary_files": [
+        "lib/custom_code/actions/delete_search_member_list_action.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "s7uwa",
+      "name": "requestNotificationPermission",
+      "primary_files": [
+        "lib/custom_code/actions/request_notification_permission.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "sqvff",
+      "name": "getBuildNumber",
+      "primary_files": [
+        "lib/custom_code/actions/get_build_number.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "sw3nw",
+      "name": "fetchContactsAction",
+      "primary_files": [
+        "lib/custom_code/actions/fetch_contacts_action.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_action",
+      "key": "xru8i",
+      "name": "batchDeleteGroupMemberStates",
+      "primary_files": [
+        "lib/custom_code/actions/batch_delete_group_member_states.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/actions/index.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "25y15",
+      "name": "howManyWeeksSinceAccountCreation",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "3tohx",
+      "name": "lastSevenDays",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "42ali",
+      "name": "localToMinute",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "4i2px",
+      "name": "minutes",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "590sq",
+      "name": "isWithinWeekOfNow",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "7jl15",
+      "name": "usersToList",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "7v9vt",
+      "name": "localToHour",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "88s0q",
+      "name": "lastIndex",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "dvtb4",
+      "name": "localToUTCMinute",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "jgci7",
+      "name": "lastSevenWeeksDates",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "lbd1k",
+      "name": "twoMonthsAgo",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "maz5z",
+      "name": "stringToList",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "mstpj",
+      "name": "filteredCheckinsByToday",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "plswo",
+      "name": "inSevenDaysCopy",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "rv9le",
+      "name": "allCaps",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "ul850",
+      "name": "isToday",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "uu53o",
+      "name": "hours",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "vtjkx",
+      "name": "ageFromBirthday",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "vzhby",
+      "name": "listToString",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "wg2ak",
+      "name": "localToUTC",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "wvnww",
+      "name": "startOfDay",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "xhbko",
+      "name": "localToUTCOffset",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "ygccm",
+      "name": "localToUTCHour",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "zeoq6",
+      "name": "lastSevenDaysDates",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_function",
+      "key": "zxxfj",
+      "name": "lastSixWeeks",
+      "primary_files": [
+        "lib/flutter_flow/custom_functions.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "1ppbb",
+      "name": "HtmlVideoWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/html_video_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "aknfy",
+      "name": "ProgressLineChartWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/progress_line_chart_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "ch4gf",
+      "name": "ProgressCalendarWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/progress_calendar_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "p18im",
+      "name": "SelectEmojiWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/select_emoji_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "r8msk",
+      "name": "PhoneContactsWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/phone_contacts_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "tn94v",
+      "name": "CheckinSliderWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/checkin_slider_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "custom_widget",
+      "key": "tpp1i",
+      "name": "SlidingListItemWidget",
+      "primary_files": [
+        "lib/custom_code/widgets/sliding_list_item_widget.dart"
+      ],
+      "related_files": [
+        "lib/custom_code/widgets/index.dart"
+      ]
+    },
+    {
+      "type": "data_struct",
+      "key": "hbxzx",
+      "name": "ReactionCount",
+      "primary_files": [
+        "lib/backend/schema/structs/reaction_count_struct.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/structs/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "enum",
+      "key": "4ujoo",
+      "name": "ActivityTypes",
+      "primary_files": [
+        "lib/backend/schema/enums/enums.dart"
+      ]
+    },
+    {
+      "type": "enum",
+      "key": "v0zrb",
+      "name": "GroupMembershipStatus",
+      "primary_files": [
+        "lib/backend/schema/enums/enums.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "0iv5tch2",
+      "name": "categories",
+      "primary_files": [
+        "lib/backend/schema/categories_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "0lzk57up",
+      "name": "application_messages",
+      "primary_files": [
+        "lib/backend/schema/application_messages_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "5jy72gxt",
+      "name": "user_activity",
+      "primary_files": [
+        "lib/backend/schema/user_activity_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "aexmd6wo",
+      "name": "feelings",
+      "primary_files": [
+        "lib/backend/schema/feelings_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "bz9t4gfx",
+      "name": "monthly_challenges",
+      "primary_files": [
+        "lib/backend/schema/monthly_challenges_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "dij4596p",
+      "name": "users",
+      "primary_files": [
+        "lib/backend/schema/users_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "eqn5sjcq",
+      "name": "user_group_search",
+      "primary_files": [
+        "lib/backend/schema/user_group_search_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "fy1vkjxv",
+      "name": "chats",
+      "primary_files": [
+        "lib/backend/schema/chats_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "i4go87wv",
+      "name": "chat_messages",
+      "primary_files": [
+        "lib/backend/schema/chat_messages_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "isyxorr0",
+      "name": "flags",
+      "primary_files": [
+        "lib/backend/schema/flags_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "ldh9wmvr",
+      "name": "articles",
+      "primary_files": [
+        "lib/backend/schema/articles_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "lwm7klbf",
+      "name": "groups",
+      "primary_files": [
+        "lib/backend/schema/groups_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "oyk3frxd",
+      "name": "webinars",
+      "primary_files": [
+        "lib/backend/schema/webinars_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "oz84v4v8",
+      "name": "group_member_state",
+      "primary_files": [
+        "lib/backend/schema/group_member_state_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "pgd33c2s",
+      "name": "checkins",
+      "primary_files": [
+        "lib/backend/schema/checkins_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "pkjun8uc",
+      "name": "reactions",
+      "primary_files": [
+        "lib/backend/schema/reactions_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "td4jlxxy",
+      "name": "goals",
+      "primary_files": [
+        "lib/backend/schema/goals_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "tew4mwc1",
+      "name": "habits",
+      "primary_files": [
+        "lib/backend/schema/habits_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "vigulqaz",
+      "name": "reminders",
+      "primary_files": [
+        "lib/backend/schema/reminders_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "vsoopjp5",
+      "name": "icons",
+      "primary_files": [
+        "lib/backend/schema/icons_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "xf6cy2dh",
+      "name": "lessons",
+      "primary_files": [
+        "lib/backend/schema/lessons_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "firestore_collection",
+      "key": "zymccuxz",
+      "name": "celebration_suggestions",
+      "primary_files": [
+        "lib/backend/schema/celebration_suggestions_record.dart"
+      ],
+      "related_files": [
+        "lib/backend/schema/index.dart",
+        "lib/backend/schema/util/schema_util.dart"
+      ]
+    },
+    {
+      "type": "global",
+      "key": "app_state",
+      "name": "app_state",
+      "primary_files": [
+        "lib/app_state.dart"
+      ]
+    },
+    {
+      "type": "global",
+      "key": "index",
+      "name": "index.dart",
+      "primary_files": [
+        "lib/index.dart"
+      ]
+    },
+    {
+      "type": "global",
+      "key": "main",
+      "name": "main.dart",
+      "primary_files": [
+        "lib/main.dart"
+      ]
+    },
+    {
+      "type": "global",
+      "key": "routing",
+      "name": "routing",
+      "primary_files": [
+        "lib/flutter_flow/nav/nav.dart",
+        "lib/flutter_flow/nav/serialization_util.dart"
+      ]
+    },
+    {
+      "type": "global",
+      "key": "theme",
+      "name": "theme",
+      "primary_files": [
+        "lib/flutter_flow/flutter_flow_theme.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_01hb9d3k",
+      "name": "chat_2_main",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_2_main/chat2_main_model.dart",
+        "lib/chat_groupwbubbles/chat_2_main/chat2_main_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_0g3mjy9x",
+      "name": "signupPage",
+      "primary_files": [
+        "lib/components/pages/signup_page/signup_page_model.dart",
+        "lib/components/pages/signup_page/signup_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_0qg140m1",
+      "name": "exploreHabitsPage",
+      "primary_files": [
+        "lib/components/pages/explore_habits_page/explore_habits_page_model.dart",
+        "lib/components/pages/explore_habits_page/explore_habits_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_2rhlqk9z",
+      "name": "libraryDetailPage",
+      "primary_files": [
+        "lib/components/pages/library_detail_page/library_detail_page_model.dart",
+        "lib/components/pages/library_detail_page/library_detail_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_3459l6u4",
+      "name": "libraryPage",
+      "primary_files": [
+        "lib/components/pages/library_page/library_page_model.dart",
+        "lib/components/pages/library_page/library_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_57nx3neu",
+      "name": "initialPage",
+      "primary_files": [
+        "lib/components/pages/initial_page/initial_page_model.dart",
+        "lib/components/pages/initial_page/initial_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_8mbzm2d8",
+      "name": "image_Details",
+      "primary_files": [
+        "lib/chat_groupwbubbles/image_details/image_details_model.dart",
+        "lib/chat_groupwbubbles/image_details/image_details_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_938vs8y1",
+      "name": "loginPage",
+      "primary_files": [
+        "lib/components/pages/login_page/login_page_model.dart",
+        "lib/components/pages/login_page/login_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_c8zav0y1",
+      "name": "chat_2_InviteUsers",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_2_invite_users/chat2_invite_users_model.dart",
+        "lib/chat_groupwbubbles/chat_2_invite_users/chat2_invite_users_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_hnxpupqq",
+      "name": "groupsPage",
+      "primary_files": [
+        "lib/components/pages/groups_page/groups_page_model.dart",
+        "lib/components/pages/groups_page/groups_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_lk6xu6g6",
+      "name": "chat_2_Details",
+      "primary_files": [
+        "lib/chat_groupwbubbles/chat_2_details/chat2_details_model.dart",
+        "lib/chat_groupwbubbles/chat_2_details/chat2_details_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_manxd0t6",
+      "name": "homePage",
+      "primary_files": [
+        "lib/components/pages/home_page/home_page_model.dart",
+        "lib/components/pages/home_page/home_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_ms488rv7",
+      "name": "createHabitPage",
+      "primary_files": [
+        "lib/components/pages/create_habit_page/create_habit_page_model.dart",
+        "lib/components/pages/create_habit_page/create_habit_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_ndjkfall",
+      "name": "forgotPassword",
+      "primary_files": [
+        "lib/components/pages/forgot_password/forgot_password_model.dart",
+        "lib/components/pages/forgot_password/forgot_password_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_vkne28lx",
+      "name": "freeTrialScreen",
+      "primary_files": [
+        "lib/components/pages/free_trial_screen/free_trial_screen_model.dart",
+        "lib/components/pages/free_trial_screen/free_trial_screen_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_xehs4d4u",
+      "name": "progressPage",
+      "primary_files": [
+        "lib/components/pages/progress_page/progress_page_model.dart",
+        "lib/components/pages/progress_page/progress_page_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_yu6y5cn5",
+      "name": "onboarding",
+      "primary_files": [
+        "lib/components/pages/onboarding/onboarding_model.dart",
+        "lib/components/pages/onboarding/onboarding_widget.dart"
+      ]
+    },
+    {
+      "type": "page",
+      "key": "Scaffold_zbdl7737",
+      "name": "profilePage",
+      "primary_files": [
+        "lib/components/pages/profile_page/profile_page_model.dart",
+        "lib/components/pages/profile_page/profile_page_widget.dart"
+      ]
+    }
+  ]
+}
