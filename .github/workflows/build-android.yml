@@ -1,0 +1,62 @@
+# Builds the RELEASE variant, not debug, and that is the whole point.
+#
+# Release differs materially from debug: minifyEnabled and shrinkResources run
+# R8, which strips classes debug keeps. Enabling minification immediately found
+# a latent crash (flutter_open_app_settings, see proguard-rules.pro), and every
+# verification before that had been debug-only. A debug-only gate cannot see
+# this class of failure at all.
+#
+# No secrets required: with no key.properties present the build falls back to
+# debug signing and prints a warning. The artifact is not shippable, but R8
+# still runs, which is what we are checking.
+name: Android release build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+  JAVA_VERSION: "17"
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Pinned to 17 to match AGP 8.9.1. Runner images ship several JDKs and
+      # change their default without notice.
+      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # R8 reports stripped-class problems as build failures, which the step
+      # above catches. Runtime survival of reflectively-referenced classes is
+      # NOT proven here -- that needs the APK driven through the journeys in
+      # docs/testing/journeys.md on a real device or emulator.
+      - name: Report artifact size
+        run: |
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          echo "### Release APK" >> "$GITHUB_STEP_SUMMARY"
+          echo "- size: $(du -h "$apk" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- dex files: $(unzip -Z1 "$apk" 'classes*.dex' | wc -l)" >> "$GITHUB_STEP_SUMMARY"

@@ -1,3 +1,8 @@
+// HAND-MAINTAINED. This file began as FlutterFlow export scaffolding but has been
+// edited by hand (release signing, minification, lint config). It is no longer
+// generated code and does not get the "generated, review lightly" discount --
+// review it in full. See .claude/skills/cto-review/references/dart-client.md.
+
 plugins {
    id "com.android.application"
    id "kotlin-android"
@@ -30,6 +35,16 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 def hasReleaseKeystore = keystorePropertiesFile.exists()
 if (hasReleaseKeystore) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+    // Validate before use. Without this, a missing or misspelled key yields
+    // file(null) and a Gradle error that never mentions key.properties.
+    def missing = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
+        .findAll { !keystoreProperties[it] }
+    if (missing) {
+        throw new GradleException(
+            "android/key.properties is missing required key(s): ${missing.join(', ')}. " +
+            "See android/KEYSTORE.md for the expected format.")
+    }
 } else {
     // Do not fail: `flutter run --release` must work on a machine with no keystore.
     // But say so loudly -- a debug-signed bundle is rejected by Google Play, and a

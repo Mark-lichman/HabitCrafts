@@ -1,0 +1,65 @@
+# Always-on quality gate. Linux only, so it costs ~1x against the Actions
+# allowance. Everything expensive lives in a separate workflow.
+#
+# Actions are pinned to full commit SHAs, not tags. Tags are mutable -- a
+# maintainer can move v7 to new code without the name changing.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned deliberately. A floating "stable" means CI can break with no commit
+  # of ours, and the toolchain that verified a release is unrecoverable.
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      # Verified passing at zero files needing changes when this gate was added,
+      # so it holds the line rather than starting red.
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Errors are fatal. Warnings and infos are NOT, deliberately: as of
+      # 2026-07-28 the tree carries 0 errors, 1854 warnings, 2249 infos. Gating
+      # on that backlog would fail on day one and train everyone to ignore CI.
+      #
+      # Ratchet: run `dart fix --apply` to clear the mechanical warnings
+      # (1285 unused_import, 461 unnecessary_non_null_assertion account for 94%
+      # of them), then delete --no-fatal-warnings so warnings cannot creep back.
+      #
+      # Check before citing those counts:
+      #   flutter analyze | awk '{print $1}' | sort | uniq -c
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      # No tests exist yet. This step states that loudly rather than passing
+      # silently -- a green check that asserted nothing would be worse than no
+      # check, and this codebase already has enough silent successes.
+      - name: Test
+        run: |
+          if [ -z "$(find test -name '*_test.dart' 2>/dev/null)" ]; then
+            echo "::warning title=No tests::test/ contains no *_test.dart files. This gate is vacuous until the tiers in docs/testing/README.md are implemented (#19, #23)."
+            exit 0
+          fi
+          flutter test

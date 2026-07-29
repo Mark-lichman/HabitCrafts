@@ -1,0 +1,67 @@
+# iOS compile check. ON-DEMAND ONLY -- never on push.
+#
+# Why not on push: macOS runners bill at roughly 10x Linux against the Actions
+# allowance (GitHub billing docs, 2026-07). A ~15 minute iOS build costs ~150
+# minutes of a 2,000/month private-repo budget, so ~13 pushes would consume the
+# entire allowance on this workflow alone.
+#
+# Why it matters anyway: iOS cannot be built or simulated on the maintainer's
+# Windows machine. This workflow is the ONLY mechanical verification that iOS
+# compiles at all, and static review is otherwise the only iOS check that
+# happens before TestFlight.
+#
+# What this catches: Dart that fails to build for iOS specifically, CocoaPods
+# resolution failures, plugins whose iOS side has broken, and Xcode/SDK minimum
+# changes as Apple moves them.
+#
+# What it does NOT catch: anything at runtime. No simulator boots, no UI
+# renders, no journey executes. This is a compile check, not a test.
+#
+# Cadence: on-demand plus release tags for now, by decision on 2026-07-28.
+# Revisit when iOS is actually on the roadmap, or when the repo goes public --
+# public repos get unmetered standard runners, which removes the cost argument
+# entirely and makes per-push affordable. Going public is gated on #1.
+name: iOS compile check
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+env:
+  FLUTTER_VERSION: "3.44.8"
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      # --no-codesign is Flutter's documented invocation for CI without signing
+      # credentials. It proves the app compiles and links; it does not produce
+      # an installable artifact.
+      - name: Build iOS (no code signing)
+        run: flutter build ios --release --no-codesign
+
+      - name: Record what this did and did not verify
+        if: always()
+        run: |
+          {
+            echo "### iOS compile check"
+            echo ""
+            echo "**Verified:** the iOS target compiles and links against Flutter ${FLUTTER_VERSION}."
+            echo ""
+            echo "**Not verified:** any runtime behaviour. No simulator was booted."
+            echo "None of the journeys in docs/testing/journeys.md were exercised."
+            echo "Signing, entitlements, and archive validity are untested."
+          } >> "$GITHUB_STEP_SUMMARY"
