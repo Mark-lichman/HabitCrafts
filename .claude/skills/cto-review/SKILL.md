@@ -48,7 +48,14 @@ tested; iOS does not, until TestFlight. This is the most important calibration i
   exhaustively.
 
 **Buckets migrate one way.** The moment a human edits a generated file it is hand-written forever
-after. Record the migration when it happens.
+after. Record the migration when it happens, in `docs/architecture/adopted-files.md`.
+
+**The rules live in `docs/standards.md`, not here.** That file states eleven standards, `S1`..`S11`,
+each exactly once. This skill is the detection half: how to find a violation in a diff and how to
+tier it. When a finding breaks a standard, **cite the ID** (`violates S4`) rather than re-arguing the
+rule, and when this skill and that file disagree, that file wins and the disagreement is a 📋.
+Mechanically checkable rules are enforced earlier still, by `lib/custom_code/analysis_options.yaml`
+and CI, so do not spend review attention on what the analyzer already fails the build over.
 
 **Personal data, not health records.** No HIPAA regime, but `users` holds email, phone, birthday,
 sex, height, and weight, and `checkins` holds free-text mood journals. Exposure of either is Critical.
@@ -238,8 +245,8 @@ Slugs are the stable identity. Cross-reference by slug, never by position.
 - **`hardcoded-ids`** · ceiling 🔴 · `always` · → `references/dart-client.md`
   Hardcoded user IDs, document IDs, bucket URLs, API keys, and unowned external URLs.
 - **`generated-vs-written`** · ceiling 🟡 · `always` · → `references/dart-client.md`
-  Which bucket? Fork-ownership cost of editing generated code, one-way bucket migration, and the
-  rule that hand-written code must not imitate generated anti-patterns.
+  Which bucket? Resolve it against `docs/architecture/adopted-files.md`, and treat an unrecorded
+  adoption as the finding (S3). Enforces S2 and S3.
 - **`journey-impact`** · ceiling 🟡 · `always` · → `references/release-and-docs.md`
   Which of J1–J12 does this touch, and does the journey doc need updating in this change?
 - **`test-adequacy`** · ceiling 🟡 · `always` · → `references/release-and-docs.md`
@@ -421,5 +428,9 @@ filler on exactly the changes where credibility matters most.
     finding actively harms a solo reader, because no colleague will push back and recalibrate: the
     hedge is the only signal received. Reserve "consider" for genuinely uncertain judgments, and
     when uncertain, say why — or file it as a ❓.
-11. **Write Warnings to be read cold.** Each must stand alone: where, mechanism, scenario, fix. A
+11. **Cite the standard, do not relitigate it.** A finding that breaks `S1`..`S11` names the ID and
+    moves on. Re-deriving the rule inside a review is how the rule ends up stated in three places
+    and trusted in none. If a standard is wrong, say so as a 📋 and change the standard; do not
+    quietly review against a different one.
+12. **Write Warnings to be read cold.** Each must stand alone: where, mechanism, scenario, fix. A
     Warning that only makes sense inside this review will be closed as unclear.

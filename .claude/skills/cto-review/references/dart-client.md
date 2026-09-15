@@ -9,12 +9,14 @@ the claim has expired — do not cite it, and apply the retirement instruction.
 
 ## `client-lifecycle`
 
-- **No stream creation inside `build()`.** A `..listen` cascade in `build()` attaches an
-  uncancellable subscription on every rebuild. Streams belong in `initState` or the model, with the
-  subscription cancelled in `dispose()`.
-- Every `StreamSubscription`, `TextEditingController`, `ValueNotifier`, and `AnimationController`
-  must be disposed.
-- Any async callback that writes after an `await` needs a `mounted` guard.
+**The rule is `docs/standards.md` S6.** Cite it; do not restate it. What belongs here is how to find
+a violation in a diff.
+
+The mechanical half is already fatal at the seam: S1 promotes `cancel_subscriptions`, `close_sinks`
+and `use_build_context_synchronously` to `error` in `lib/custom_code/analysis_options.yaml`, so a new
+instance in hand-written Dart fails CI before it reaches review. **That fence does not reach
+generated code.** Outside `lib/custom_code/`, this category is the only thing checking S6, and the
+live case below is exactly there.
 
 The live case is #15, which puts J7 assertions 4 and 5 at risk.
 
@@ -33,6 +35,9 @@ The live case is #15, which puts J7 assertions 4 and 5 at risk.
 ---
 
 ## `error-surface` — error surfaces and silent fallbacks
+
+**The rule is `docs/standards.md` S4**: every failure gets exactly one destination, and continuing as
+though nothing happened is not one of them. The catalogue below is detection, not the rule.
 
 Two families. The first swallows a failure. The second **fabricates a success**, which is worse,
 because nothing anywhere reports a problem.
@@ -90,52 +95,43 @@ If the answer is no and the value is load-bearing, it is a finding.
 
 ## `generated-vs-written`
 
-Confirm which of the three buckets a changed file falls in, and calibrate. Three rules govern the
-boundary.
+**The rules are `docs/standards.md` S2 and S3.** S2 says hand-written code sets the house style and
+generated code does not. S3 says an edit to generated code is an adoption: surgical fix or full
+rewrite, never half, one-way and permanent, recorded in `docs/architecture/adopted-files.md`, and not
+triggered by a mechanical tool pass. Cite them by ID; do not restate them in the review.
 
-### (a) Editing generated code costs fork ownership, not re-export loss
+What this category does is decide **which bucket the changed file is in**, which is a question the
+rules cannot answer for you.
 
-The project has left FlutterFlow. `docs/architecture/README.md` states the repository is now the
-source of truth, so "this will be overwritten on re-export" is false and invites dismissal. State
-the real cost: **from the first edit onward you own that file.** You maintain code you did not write
-and cannot re-derive, and every future framework or Firebase upgrade that would have arrived as a
-clean regenerated file now arrives as a manual merge you perform by hand against conventions that
-are not yours. That cost is real, permanent, and compounding — and sometimes worth paying. Say
-which, and why, in the review.
+1. **Read the register first.** `docs/architecture/adopted-files.md` lists every generated file a
+   human has already edited. A file listed there is hand-written for review purposes, whatever its
+   path suggests, and gets no verbosity discount.
 
-> **Check before citing:** `rg -n "source of truth" docs/architecture/README.md`
-> If the project ever returns to FlutterFlow as the builder, this entire rule inverts and the
-> re-export framing becomes correct again.
+   > **Check before citing:** the register's own predicate finds generated files carrying human
+   > commits that are missing a row. A missing row is itself a finding, against S3.
 
-### (b) Bucket migration is one-way and permanent
+2. **If the change edits generated code and the file is not in the register, that is the finding** —
+   not the edit itself, which may well be correct, but the unrecorded adoption. The fix is a register
+   row naming the cost, in this change.
 
-The moment a human edits a generated file, it is hand-written **forever after** — not just for this
-change. It leaves the "do not flag verbosity" bucket and joins the "review exhaustively" bucket.
-Note the migration explicitly in the review when it happens, because the next reviewer will
-otherwise apply the generated-code discount to code nobody is discounting any more.
+3. **State the cost in the review when an adoption happens**, because the next reviewer will
+   otherwise apply the generated-code discount to code nobody is discounting any more. Do not use the
+   re-export framing: the project has left FlutterFlow, so "this will be overwritten on re-export" is
+   false and invites dismissal. The real cost is permanent manual maintenance of code you did not
+   write.
 
-### (c) Generated code has no intent
+   > **Check before citing:** `rg -n "source of truth" docs/architecture/README.md`
+   > If the project ever returns to FlutterFlow as the builder, S3 inverts and the re-export framing
+   > becomes correct again.
 
-Bucket-one and bucket-two code expresses what a builder emitted, not what anyone decided. When a
-review question turns on whether some behaviour was deliberate, **the code cannot answer it and must
-not be treated as if it can.** The arbiter is `docs/testing/journeys.md`. If the journeys are
-silent, the answer is "undecided" — the change should decide it and record the decision, not infer
-intent from generated structure.
+4. **Generated code has no intent.** When a review question turns on whether some behaviour was
+   deliberate, the code cannot answer it and must not be treated as if it can. The arbiter is
+   `docs/testing/journeys.md`. If the journeys are silent, the answer is "undecided": the change
+   should decide it and record the decision.
 
-### Corollary — do not imitate generated anti-patterns
-
-State this plainly, because it inverts normal review doctrine. Ordinarily "match the surrounding
-style" is good advice. Here it is not, because the surrounding style was emitted by a tool. New
-hand-written code must not replicate:
-
-- business logic inside `build()`
-- thousand-line widget methods
-- `FFAppState` used as an argument-passing channel between screens instead of route parameters
-
-"The file next to it does this" is not a justification when the file next to it was generated.
-Hand-written code sets the house style; generated code does not.
-
----
+5. **Do not let "match the surrounding style" smuggle S2 violations in.** Ordinarily that is good
+   advice. Here the surrounding style is a build artefact, so it is not. A new `build()` full of
+   business logic is a finding even when every file around it looks the same.
 
 ## `hardcoded-ids`
 

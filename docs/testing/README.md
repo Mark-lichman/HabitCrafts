@@ -76,11 +76,21 @@ suite green.
 
 ## CI gating
 
-`flutter analyze` currently reports 4,101 issues — all `info`, zero errors and zero warnings. Gating
-on total issue count would fail immediately, so CI should gate on **errors and warnings only** at
-first, with the lint backlog addressed separately. This is tracked in issue #19.
+`flutter analyze` reports **0 errors, 1,876 warnings and 2,234 infos** (4,110 issues), measured
+2026-09-14. An earlier revision of this paragraph claimed all 4,101 were `info` with zero warnings;
+that was wrong, and `ci.yml` had the correct split. Cite the command, not the prose:
 
-Suggested gate order as tiers come online: `analyze` (errors/warnings) → `unit` → `rules` →
+```sh
+flutter analyze | awk '{print $1}' | sort | uniq -c
+```
+
+Gating on total issue count would fail immediately, so CI gates on **errors only** at the root, with
+the lint backlog addressed separately (issue #19). The strict fence lives at the hand-written seam
+instead: `lib/custom_code/analysis_options.yaml` promotes the correctness rules that are already at
+zero violations to `error`, which is the only severity CI's `--no-fatal-warnings` cannot wave
+through. See `docs/standards.md` S1.
+
+Suggested gate order as tiers come online: `analyze` (errors) → `unit` → `rules` →
 `functions` → `widget` → `integration_test`.
 
 ## Current state

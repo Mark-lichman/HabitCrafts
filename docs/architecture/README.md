@@ -8,6 +8,10 @@ FlutterFlow in July 2026.
 - [01 — System Context](01-system-context.md) — the app and the external services it depends on
 - [02 — Module Map](02-module-map.md) — how `lib/` stratifies, and where new code belongs
 - [03 — Navigation](03-navigation.md) — the 19 routes and the authentication gate
+- [Adopted Files](adopted-files.md) — generated files a human has edited, and therefore now owns
+
+Coding standards live one level up, in [`docs/standards.md`](../standards.md). This directory says
+what the system *is*; that file says how new code in it is written.
 
 ## Origin and caveats
 
