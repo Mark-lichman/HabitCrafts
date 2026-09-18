@@ -3,7 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{document} {
       allow create: if request.auth.uid == document;
-      allow read: if true;
+      // Was `if true`: every profile in the app, including email, phone
+      // number, birthday and photo, was readable by anyone on the internet
+      // who knew the project id. Signed-in is the minimum that still lets
+      // members see each other in groups and chats.
+      allow read: if request.auth != null;
       allow write: if request.auth.uid == document;
       allow delete: if request.auth.uid == document;
     }
@@ -66,7 +70,8 @@ service cloud.firestore {
 
     match /user_group_search/{document} {
       allow create: if true;
-      allow read: if true;
+      // Who belongs to which group. Was world-readable.
+      allow read: if request.auth != null;
       allow write: if false;
       allow delete: if false;
     }
@@ -115,14 +120,18 @@ service cloud.firestore {
 
     match /reminders/{document} {
       allow create: if true;
-      allow read: if true;
+      // What someone does and when. The scheduler runs as a Cloud Function on
+      // the admin SDK, which bypasses rules, so tightening this does not
+      // affect notifications.
+      allow read: if request.auth != null;
       allow write: if false;
       allow delete: if false;
     }
 
     match /users/{parent}/user_activity/{document} {
       allow create: if request.auth.uid == parent;
-      allow read: if true;
+      // Every check-in a person has ever made. Was world-readable.
+      allow read: if request.auth != null;
       allow write: if request.auth.uid == parent;
       allow delete: if request.auth.uid == parent;
     }
