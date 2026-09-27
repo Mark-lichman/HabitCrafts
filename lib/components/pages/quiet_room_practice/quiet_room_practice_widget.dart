@@ -48,6 +48,11 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget> {
 
   int _hintLevel = 0; // 0 none, 1 gloss, 2 group, 3 first mora, 4 answer
   bool _listening = false;
+
+  /// 🚨 Set from SpeechService.lastError. Without it a recogniser failure was indistinguishable
+  /// from a slow answer: the drill waited out its whole timeout and then said "could not
+  /// check", which reads as the learner's fault rather than the device's.
+  String? _micError;
   SpeechResult? _result;
   int _seen = 0;
   int _right = 0;
@@ -108,19 +113,31 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget> {
       _listening = true;
       _result = null;
       _heardVoice = false;
+      _micError = null;
     });
-    final r = await _speech.listenOnce(
-      expectedKana: card['kana'] as String,
-      kanjiForms: ((card['kanji'] as List?) ?? const []).cast<String>(),
-    );
-    if (!mounted) return;
-    setState(() {
-      _listening = false;
-      _result = r;
-      _seen++;
-      if (r.judgement == Judgement.correct || r.judgement == Judgement.close)
-        _right++;
-    });
+    try {
+      final r = await _speech.listenOnce(
+        expectedKana: card['kana'] as String,
+        kanjiForms: ((card['kanji'] as List?) ?? const []).cast<String>(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _result = r;
+        _seen++;
+        if (r.judgement == Judgement.correct ||
+            r.judgement == Judgement.close) {
+          _right++;
+        }
+      });
+    } finally {
+      // Leaving the panel open on a throw would strand the drill mid-listen.
+      if (mounted) {
+        setState(() {
+          _listening = false;
+          _micError = _speech.lastError;
+        });
+      }
+    }
   }
 
   @override
@@ -206,8 +223,11 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget> {
                   clipBehavior: Clip.antiAlias,
                   child: AspectRatio(
                     aspectRatio: 265 / 200,
+                    // 🚨 Labelled as the PROMPT, never with the word. The gloss here would
+                    // read the answer aloud to exactly the learner being asked for it.
                     child: Image.asset(card['image'] as String,
-                        fit: BoxFit.contain),
+                        fit: BoxFit.contain,
+                        semanticLabel: 'Picture prompt for this word'),
                   ),
                 ),
               ),
@@ -215,6 +235,23 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget> {
             const SizedBox(height: 16),
 
             if (_listening) _listeningPanel(t) else _micRow(t, card),
+            if (_micError != null) ...[
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: t.clay600),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      _micError!,
+                      style: GoogleFonts.schibstedGrotesk(
+                          fontSize: 12.5, color: t.clay600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (_result != null) ...[
               const SizedBox(height: 14),
               _verdict(t, card)

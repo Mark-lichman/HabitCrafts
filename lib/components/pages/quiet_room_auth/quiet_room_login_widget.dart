@@ -31,15 +31,17 @@ import '/components/pages/home_page/home_page_widget.dart';
 import '/components/pages/signup_page/signup_page_widget.dart';
 import '/components/pages/forgot_password/forgot_password_widget.dart';
 
-/// 🚨 DEBUG ONLY. `kDebugMode` is a compile-time const, so Dart's tree shaker removes this
-/// branch -- and these strings -- from any release build. Never reference it outside a
-/// `if (kDebugMode)` guard, or the credentials ship.
+/// Prefills the login form in debug builds, so design review is not a typing exercise.
 ///
-/// This is a throwaway account on the live Firebase project, created for design review. It is
-/// not a back door: it still performs a real sign-in, so nothing about the auth path is skipped
-/// or faked, and a release build sees none of it.
-const _devEmail = 'quietroomtest1@example.com';
-const _devPassword = 'QuietRoom2026';
+/// 🚨 PASSED IN, NOT WRITTEN DOWN. These were literals in this file, which put a live password
+/// in git history where no later deletion removes it. Supply them at run time instead:
+///
+///   flutter run -d chrome --dart-define=DEV_EMAIL=... --dart-define=DEV_PASSWORD=...
+///
+/// Absent, the form simply opens empty. It is not a back door either way: the prefill only fills
+/// the fields, and the real sign-in still runs.
+const _devEmail = String.fromEnvironment('DEV_EMAIL');
+const _devPassword = String.fromEnvironment('DEV_PASSWORD');
 
 /// Shared chrome so login and the launch screen cannot drift apart.
 class _Shell extends StatelessWidget {
@@ -68,8 +70,11 @@ class _Shell extends StatelessWidget {
 
 Widget _mark(QuietRoomTokens t, {double size = 64}) => Column(
       children: [
-        Image.asset('assets/images/Habit_Craft_Logo_File-09.png',
-            width: size, height: size, fit: BoxFit.contain),
+        // The name is spelled out in the Text below, so the mark is decorative.
+        ExcludeSemantics(
+          child: Image.asset('assets/images/Habit_Craft_Logo_File-09.png',
+              width: size, height: size, fit: BoxFit.contain),
+        ),
         const SizedBox(height: 10),
         Text(
           'HabitCrafts',
@@ -291,10 +296,10 @@ class _QuietRoomLoginWidgetState extends State<QuietRoomLoginWidget> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
+    if (kDebugMode && _devEmail.isNotEmpty) {
       _email.text = _devEmail;
       _password.text = _devPassword;
-      if (widget.autoSubmit) {
+      if (widget.autoSubmit && _devPassword.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _submit());
       }
     }
