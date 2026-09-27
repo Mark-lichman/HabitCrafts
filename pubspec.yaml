@@ -15,10 +15,13 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.2+38
+version: 1.2.2-waveform+44
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  # 3.3 is the floor for extension types, which the Web Audio interop in
+  # lib/components/pages/quiet_room_practice/mic_level_web.dart is written with.
+  # CI pins Flutter 3.44.8 (Dart 3.12), so this raises a stale floor rather than a real one.
+  sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -97,6 +100,9 @@ dependencies:
   flutter_open_app_settings: ^0.1.4
   flutter_plugin_android_lifecycle: 2.0.28
   flutter_slidable: ^4.0.0
+  flutter_tts: ^4.2.0
+  speech_to_text: ^7.0.0
+  permission_handler: ^11.3.1
   flutter_widget_from_html: ^0.16.0
   font_awesome_flutter: 11.0.0
   from_css_color: 2.0.0
@@ -204,6 +210,13 @@ flutter_launcher_icons:
   web:
     generate: true
   image_path: 'assets/images/app_launcher_icon.png'
+  # Android 8+ masks the launcher icon to the launcher's own shape. Without an
+  # adaptive pair, a legacy icon gets shrunk onto a plate, which on One UI leaves the
+  # mark small inside a white squircle. The background is the plate colour sampled from
+  # the source artwork (204,209,225), and the foreground is the mark alone, inset to the
+  # 66dp safe zone, so the two layers rejoin seamlessly under any mask.
+  adaptive_icon_background: "#CCD1E1"
+  adaptive_icon_foreground: 'assets/images/app_launcher_icon_foreground.png'
 
 
 # For information on the generic Dart part of this file, see the
@@ -221,6 +234,8 @@ flutter:
   assets:
     - assets/fonts/
     - assets/images/
+    - assets/lessons/
+    - assets/lessons/img/
     - assets/videos/
     - assets/audios/
     - assets/rive_animations/
