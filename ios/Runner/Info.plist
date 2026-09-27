@@ -56,7 +56,9 @@
 	<key>NSCameraUsageDescription</key>
     <string>Use the camera to upload a profile picture, or send a message in the chats!</string>
 	<key>NSMicrophoneUsageDescription</key>
-    <string>We need you&#39;re microphone so you can send audio messages in the chats!</string>
+    <string>HabitCrafts uses your microphone to record audio messages in chats, and to hear you speak during pronunciation practice.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+    <string>Speech recognition checks which word you said during pronunciation practice. It does not score how well you said it.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>We&#39;d like to access your photo library if you&#39;d like to upload messages to the chats.</string>
 	<key>NSContactsUsageDescription</key>

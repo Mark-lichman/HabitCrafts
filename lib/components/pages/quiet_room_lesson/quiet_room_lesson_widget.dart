@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 
+import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 import '/components/pages/quiet_room_practice/speech_service.dart';
@@ -260,9 +261,12 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         width: double.infinity,
         height: QuietRoomMetrics.targetMin,
         child: ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => QuietRoomPracticeWidget(lesson: lesson),
-          )),
+          onPressed: () => context.pushNamed(
+            QuietRoomPracticeWidget.routeName,
+            queryParameters: {
+              'lesson': serializeParam(lesson, ParamType.int),
+            }.withoutNulls,
+          ),
           icon: Icon(Icons.mic_none, size: 19, color: t.onBrand),
           label: Text('Practise speaking',
               style: GoogleFonts.schibstedGrotesk(
@@ -371,8 +375,12 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
                     if (i['image'] != null) ...[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(i['image'] as String,
-                            width: 54, height: 41, fit: BoxFit.contain),
+                        // Decorative: the kana and the gloss are already on the row, and
+                        // naming the picture would just say them a third time.
+                        child: ExcludeSemantics(
+                          child: Image.asset(i['image'] as String,
+                              width: 54, height: 41, fit: BoxFit.contain),
+                        ),
                       ),
                       const SizedBox(width: 11),
                     ],

@@ -56,12 +56,14 @@ class SpeechService {
   ///     implementation NEVER emits `onSoundLevelChange` -- the Web Speech API has no such
   ///     callback -- so without the tap this stays flat in Chrome.
   ///
-  /// 🚨 WHERE NEITHER SOURCE WORKS THIS STAYS AT 0 and [levelIsReal] stays false, and the
-  /// UI must then show a still "Listening" state rather than a moving one. An indicator
-  /// that animates while nothing is being measured claims to hear the person when it
-  /// cannot, which is exactly the kind of lie this feature must avoid.
+  /// 🚨 WHERE NEITHER SOURCE WORKS THIS STAYS AT 0, and the UI must then show a still
+  /// "Listening" state rather than a moving one. An indicator that animates while nothing is
+  /// being measured claims to hear the person when it cannot.
   final ValueNotifier<double> level = ValueNotifier<double>(0);
-  bool levelIsReal = false;
+
+  /// The recogniser's last complaint, or null. Read by the drill so a failure says something
+  /// instead of looking like a slow answer.
+  String? lastError;
 
   final MicLevelTap _levelTap = MicLevelTap();
 
@@ -71,7 +73,6 @@ class SpeechService {
 
   void _onLevel(double raw) {
     final v = raw.abs();
-    if (v > 0.01) levelIsReal = true;
     _levelMax = (_levelMax * 0.995).clamp(1.0, double.infinity);
     if (v > _levelMax) _levelMax = v;
     level.value = (v / _levelMax).clamp(0.0, 1.0);
@@ -173,17 +174,26 @@ class SpeechService {
   /// 🚨 On web, permission_handler is NOT the right gate and asking it here would block us: the
   /// browser owns the microphone prompt and raises it from `getUserMedia` when the recogniser
   /// starts. Skipping straight to initialise is what lets Chrome ask properly.
+  /// 🚨 Permission is re-checked every time, not cached. Revoking the microphone in Settings
+  /// while the app is backgrounded used to leave `_sttReady` true, so this reported success
+  /// and the drill then sat through its whole timeout for an answer that could never arrive.
   Future<bool> prepareMic() async {
-    if (_sttReady) return true;
     if (!kIsWeb) {
       final status = await Permission.microphone.request();
-      if (!status.isGranted) return false;
+      if (!status.isGranted) {
+        lastError = 'Microphone permission is off for HabitCrafts.';
+        return false;
+      }
     }
+    if (_sttReady) return true;
     _sttReady = await _stt.initialize(
-      onError: (_) {},
+      onError: (e) => lastError = e.errorMsg,
       onStatus: (_) {},
       debugLogging: false,
     );
+    if (!_sttReady) {
+      lastError ??= 'Speech recognition is unavailable on this device.';
+    }
     return _sttReady;
   }
 
@@ -197,34 +207,43 @@ class SpeechService {
       return const SpeechResult('', Judgement.unverified);
     }
     final done = Completer<List<String>>();
-    levelIsReal = false;
     level.value = 0;
-    // Off the web this returns false immediately and the recogniser's own callback is the
-    // only source. Failure is not worth surfacing: the indicator just stays still.
-    await _levelTap.start(_onLevel);
-    await _stt.listen(
-      localeId: 'ja_JP',
-      listenFor: limit,
-      pauseFor: const Duration(seconds: 3),
-      onSoundLevelChange: _onLevel,
-      onResult: (r) {
-        if (r.finalResult && !done.isCompleted) {
-          // Keep EVERY hypothesis, not just the top one. The recogniser often ranks a
-          // kanji spelling first and a kana spelling second; the kana one is the only
-          // hypothesis we can actually compare against this corpus.
-          done.complete(r.alternates.map((a) => a.recognizedWords).toList());
-        }
-      },
-      listenOptions: stt.SpeechListenOptions(
-        partialResults: false,
-        cancelOnError: true,
-      ),
-    );
-    final heard = await done.future.timeout(limit + const Duration(seconds: 2),
-        onTimeout: () => const <String>[]);
-    await _stt.stop();
-    await _levelTap.stop();
-    level.value = 0;
+    lastError = null;
+
+    final List<String> heard;
+    try {
+      // Off the web this returns false immediately and the recogniser's own callback is the
+      // only source. Failure is not worth surfacing: the indicator just stays still.
+      await _levelTap.start(_onLevel);
+      await _stt.listen(
+        onSoundLevelChange: _onLevel,
+        onResult: (r) {
+          if (r.finalResult && !done.isCompleted) {
+            // Keep EVERY hypothesis, not just the top one. The recogniser often ranks a
+            // kanji spelling first and a kana spelling second; the kana one is the only
+            // hypothesis we can actually compare against this corpus.
+            done.complete(r.alternates.map((a) => a.recognizedWords).toList());
+          }
+        },
+        listenOptions: stt.SpeechListenOptions(
+          localeId: 'ja_JP',
+          listenFor: limit,
+          pauseFor: const Duration(seconds: 3),
+          partialResults: false,
+          cancelOnError: true,
+        ),
+      );
+      heard = await done.future.timeout(limit + const Duration(seconds: 2),
+          onTimeout: () => const <String>[]);
+      await _stt.stop();
+    } finally {
+      // 🚨 In a finally because the tap holds a live getUserMedia track. If `listen` throws,
+      // an early return would leave it polling and the browser's recording light on with no
+      // control left to switch it off.
+      await _levelTap.stop();
+      level.value = 0;
+    }
+
     if (heard.isEmpty) return const SpeechResult('', Judgement.unverified);
 
     // Best verdict across all hypotheses: a correct kana alternate should win even when

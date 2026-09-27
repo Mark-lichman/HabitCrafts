@@ -23,6 +23,8 @@ import '/index.dart';
 import '/components/pages/quiet_room_today/quiet_room_today_widget.dart';
 import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
+import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -146,6 +148,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: LibraryPageWidget.routeName,
           path: LibraryPageWidget.routePath,
           builder: (context, params) => QuietRoomLibraryWidget(),
+        ),
+        // Registered so these two have URLs. Pushed imperatively they had none, so on web the
+        // address bar never changed, refresh dropped the learner back to Today, and neither
+        // screen could be linked.
+        FFRoute(
+          name: QuietRoomLessonWidget.routeName,
+          path: QuietRoomLessonWidget.routePath,
+          builder: (context, params) => QuietRoomLessonWidget(
+            initialLesson: params.getParam('lesson', ParamType.int),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomPracticeWidget.routeName,
+          path: QuietRoomPracticeWidget.routePath,
+          builder: (context, params) => QuietRoomPracticeWidget(
+            lesson: params.getParam('lesson', ParamType.int),
+          ),
         ),
         FFRoute(
           name: LibraryDetailPageWidget.routeName,

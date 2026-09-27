@@ -100,9 +100,11 @@ dependencies:
   flutter_open_app_settings: ^0.1.4
   flutter_plugin_android_lifecycle: 2.0.28
   flutter_slidable: ^4.0.0
-  flutter_tts: ^4.2.0
-  speech_to_text: ^7.0.0
-  permission_handler: ^11.3.1
+  # Pinned exactly, like everything else here. A caret on a plugin that owns a platform
+  # permission means `pub upgrade` can change the permission behaviour without a commit.
+  flutter_tts: 4.2.5
+  speech_to_text: 7.5.0
+  permission_handler: 11.4.0
   flutter_widget_from_html: ^0.16.0
   font_awesome_flutter: 11.0.0
   from_css_color: 2.0.0

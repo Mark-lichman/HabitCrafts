@@ -265,9 +265,7 @@ class _QuietRoomLibraryWidgetState extends State<QuietRoomLibraryWidget> {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const QuietRoomLessonWidget()),
-        ),
+        onTap: () => context.pushNamed(QuietRoomLessonWidget.routeName),
         child: Container(
           decoration: BoxDecoration(
             color: t.surfaceTinted,

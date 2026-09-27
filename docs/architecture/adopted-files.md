@@ -29,19 +29,24 @@ FlutterFlow. Each is a single line forced by a breaking change in `font_awesome_
 introduced `FaIconData` and made `FaIcon` require it. There was no version of "make the app build"
 that did not touch vendored framework code, which is exactly the case S3 says is worth paying for.
 
+The last three come from the Quiet Room build, and they are a different kind of adoption: not forced
+by a dependency, but taken deliberately because the design direction could not be expressed through
+the generated files as they stood.
+
 | File | Adopted | Edit | Why it was worth owning |
 | --- | --- | --- | --- |
 | `lib/flutter_flow/flutter_flow_choice_chips.dart` | 2026-07-28 | `FaIcon` to `Icon` at the chip avatar | Generic helper taking arbitrary `IconData` from callers, so `FaIcon` was always wrong here. `IconData` carries its own font family; a forced `FaIconData` cast would crash at runtime on any Material icon. |
 | `lib/flutter_flow/flutter_flow_widgets.dart` | 2026-07-28 | `FaIcon` to `Icon` at the button icon | Same generic-helper reasoning. |
 | `lib/flutter_flow/flutter_flow_icon_button.dart` | 2026-07-28 | `icon.icon` cast to `FaIconData?` | This one genuinely holds a FontAwesome icon it has just unwrapped, so the cast is correct rather than a workaround. |
 | `lib/flutter_flow/flutter_flow_theme.dart` | 2026-09-26 | Colour and type layers replaced to implement Quiet Room; `of()` now resolves brightness | The export hardcoded `return LightModeTheme()`, so the app could not have a second palette at all. Quiet Room specifies two. Every legacy field name is kept as an adapter because 101 files read them, and each keeps its previous colour *role* so nothing legible becomes illegible. |
-| `lib/main.dart` | 2026-09-26 | Added `darkTheme`, and `scaffoldBackgroundColor` on both themes | `themeMode: ThemeMode.system` was already present with no `darkTheme` to select, so dark mode was inert. The scaffold colour is what makes the ground inversion total (direction §5.1); without it any Scaffold that does not name its own background falls back to Material grey, outside the palette. |
+| `lib/main.dart` | 2026-09-26 | Added `darkTheme`, and `scaffoldBackgroundColor` on both themes; pinned `themeMode` to `light` | `themeMode: ThemeMode.system` was already present with no `darkTheme` to select, so dark mode was inert. The scaffold colour is what makes the ground inversion total (direction §5.1); without it any Scaffold that does not name its own background falls back to Material grey, outside the palette. ⚠️ Nightfall is built and selectable but **not reachable at runtime**: the same change pins `_themeMode` to `ThemeMode.light`, so this supplied the machinery and then switched it off. One line to revert. |
+| `lib/flutter_flow/nav/nav.dart` | 2026-09-27 | Five route builders repointed at Quiet Room screens; two new routes registered for the lesson and practice screens | The generated screens are still routed for everything not yet converted, so the route NAMES are kept and only their builders change — renaming them would have broken every generated caller. Sharpest risk in the table alongside the theme: FlutterFlow regenerates this file on any route edit in the builder, and a round-trip would silently restore the old screens app-wide. |
 
 **Consequence to remember:** these are now maintained by hand. The next Flutter or
 `font_awesome_flutter` upgrade that would have arrived as a clean regenerated file arrives here as a
-manual merge instead. `flutter_flow_theme.dart` is the sharpest case: FlutterFlow regenerates that
-file on every theme edit in the builder, so a future builder round-trip would silently revert Quiet
-Room.
+manual merge instead. `flutter_flow_theme.dart` and `nav/nav.dart` are the sharpest cases, because
+FlutterFlow regenerates both on ordinary builder edits — a theme change or a route change — and
+either round-trip would silently revert Quiet Room across the whole app.
 
 ## Not an adoption: `lib/flutter_flow/quiet_room.dart`
 
@@ -52,7 +57,7 @@ the closed Quiet Room token layer and the single home for every colour value in 
 > Check before citing this table: `git log --oneline -- <path>` for any row, and this, to find
 > generated files carrying human commits that are missing a row:
 >
-> ```
+> ```sh
 > git log --diff-filter=M --name-only --format= 2dd8e10..HEAD -- \
 >   'lib/components/**' 'lib/chat_groupwbubbles/**' 'lib/backend/schema/**' 'lib/flutter_flow/**' \
 >   | sort -u

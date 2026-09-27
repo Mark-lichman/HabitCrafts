@@ -25,8 +25,10 @@ import '/backend/backend.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
+import '/index.dart';
 import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import '/components/pages/create_habit_page/create_habit_page_widget.dart';
+import 'streak.dart';
 
 class QuietRoomTodayWidget extends StatefulWidget {
   const QuietRoomTodayWidget({super.key});
@@ -38,47 +40,47 @@ class QuietRoomTodayWidget extends StatefulWidget {
   State<QuietRoomTodayWidget> createState() => _QuietRoomTodayWidgetState();
 }
 
+/// Reads better at the call site than repeating the `any` everywhere.
+extension on HabitsRecord {
+  bool completedOn(DateTime day) => complete.any((d) => isSameDay(d, day));
+}
+
 class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
   Map<String, dynamic>? _lesson;
+
+  /// Held in a field, not built inline. `queryHabitsRecord` returns a NEW stream on every
+  /// call, so building it inside `build` resubscribed to Firestore on every setState.
+  late Stream<List<HabitsRecord>> _habits;
 
   @override
   void initState() {
     super.initState();
+    _habits = _habitsStream();
     _loadLesson();
   }
+
+  Stream<List<HabitsRecord>> _habitsStream() => queryHabitsRecord(
+        queryBuilder: (h) => h
+            .where('user', isEqualTo: currentUserReference)
+            .where('is_finished', isEqualTo: false),
+        // Bounded because `complete` grows by one timestamp per check-in forever, and
+        // every snapshot re-reads the whole document.
+        limit: 200,
+      );
+
+  void _retry() => setState(() => _habits = _habitsStream());
 
   Future<void> _loadLesson() async {
     try {
       final raw = await rootBundle.loadString('assets/lessons/jp_lessons.json');
-      if (mounted)
+      if (mounted) {
         setState(() => _lesson = json.decode(raw) as Map<String, dynamic>);
+      }
     } catch (_) {
       // A missing bundled lesson is not worth failing the screen for; the card simply
       // does not render. Silent here is deliberate and bounded, not a swallowed error:
       // the only consequence is one absent card.
     }
-  }
-
-  static bool _sameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  /// Consecutive days ending today or yesterday. Yesterday counts so a streak is not
-  /// reported as broken before the person has had their day.
-  static int _streak(List<DateTime> done) {
-    if (done.isEmpty) return 0;
-    final days = done.map((d) => DateTime(d.year, d.month, d.day)).toSet();
-    var cursor = DateTime.now();
-    cursor = DateTime(cursor.year, cursor.month, cursor.day);
-    if (!days.contains(cursor)) {
-      cursor = cursor.subtract(const Duration(days: 1));
-      if (!days.contains(cursor)) return 0;
-    }
-    var n = 0;
-    while (days.contains(cursor)) {
-      n++;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return n;
   }
 
   @override
@@ -89,83 +91,129 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
       backgroundColor: t.canvas,
       body: SafeArea(
         child: StreamBuilder<List<HabitsRecord>>(
-          stream: queryHabitsRecord(
-            queryBuilder: (h) => h
-                .where('user', isEqualTo: currentUserReference)
-                .where('is_finished', isEqualTo: false),
-          ),
+          stream: _habits,
           builder: (context, snapshot) {
-            final habits = snapshot.data ?? const <HabitsRecord>[];
-            final today = DateTime.now();
-            final doneCount = habits
-                .where((h) => h.complete.any((d) => _sameDay(d, today)))
-                .length;
-            final remaining = habits.length - doneCount;
+            if (snapshot.hasError) return _shell(t, [_problem(t)]);
+            if (!snapshot.hasData) return _shell(t, [_spinner(t)]);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                            maxWidth: QuietRoomMetrics.readMax),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _wordmark(t),
-                            const SizedBox(height: 18),
-                            _greeting(t, habits.length, doneCount, remaining),
-                            const SizedBox(height: 18),
-                            if (snapshot.hasData) ...[
-                              ...habits.map((h) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 9),
-                                    child: _habitCard(t, h, today),
-                                  )),
-                              _addHabit(t, first: habits.isEmpty),
-                            ],
-                            if (!snapshot.hasData)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 24),
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          t.inkSubtle),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(height: 9),
-                            if (_lesson != null) _lessonCard(t),
-                            const SizedBox(height: 18),
-                            _dayDots(t, habits),
-                            const SizedBox(height: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                _bottomNav(t),
-              ],
-            );
+            final habits = snapshot.data!;
+            final today = DateTime.now();
+            final doneCount = habits.where((h) => h.completedOn(today)).length;
+
+            return _shell(t, [
+              _greeting(t, habits.length, doneCount, habits.length - doneCount),
+              const SizedBox(height: 18),
+              ...habits.map((h) => Padding(
+                    padding: const EdgeInsets.only(bottom: 9),
+                    child: _habitCard(t, h, today),
+                  )),
+              _addHabit(t, first: habits.isEmpty),
+              const SizedBox(height: 9),
+              if (_lesson != null) _lessonCard(t),
+              const SizedBox(height: 18),
+              _dayDots(t, habits),
+              const SizedBox(height: 22),
+            ]);
           },
         ),
       ),
     );
   }
 
+  /// The frame every state shares: wordmark on top, nav pinned at the bottom.
+  Widget _shell(QuietRoomTokens t, List<Widget> children) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints:
+                      const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _wordmark(t),
+                      const SizedBox(height: 18),
+                      ...children,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _bottomNav(t),
+        ],
+      );
+
+  Widget _spinner(QuietRoomTokens t) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(t.inkSubtle),
+            ),
+          ),
+        ),
+      );
+
+  /// 🚨 Say when the query failed. Without this the error left `hasData` false forever, so
+  /// the screen showed a spinner that never resolved above a greeting counting zero habits,
+  /// and offered to create the first habit of someone who already had some.
+  Widget _problem(QuietRoomTokens t) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your habits did not load.',
+              style: GoogleFonts.fraunces(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: t.inkStrong,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Nothing has been lost. Check your connection and try again.',
+              style: GoogleFonts.schibstedGrotesk(
+                  fontSize: 13.5, color: t.inkMuted),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: _retry,
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, QuietRoomMetrics.targetMin),
+                side: BorderSide(color: t.borderControl),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(QuietRoomMetrics.radiusSm),
+                ),
+              ),
+              child: Text(
+                'Try again',
+                style: GoogleFonts.schibstedGrotesk(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: t.ink,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+
   Widget _wordmark(QuietRoomTokens t) => Row(
         children: [
-          Image.asset('assets/images/Habit_Craft_Logo_File-06.png',
-              width: 30, height: 30, fit: BoxFit.contain),
+          // The wordmark text sits right beside it, so the image itself is decorative.
+          ExcludeSemantics(
+            child: Image.asset('assets/images/Habit_Craft_Logo_File-06.png',
+                width: 30, height: 30, fit: BoxFit.contain),
+          ),
           const SizedBox(width: 7),
           Text(
             'HabitCrafts',
@@ -242,8 +290,8 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
   }
 
   Widget _habitCard(QuietRoomTokens t, HabitsRecord h, DateTime today) {
-    final done = h.complete.any((d) => _sameDay(d, today));
-    final streak = _streak(h.complete);
+    final done = h.completedOn(today);
+    final streak = streakFrom(h.complete, today: today);
     final gilded = streak >= 365;
 
     final when = [
@@ -410,9 +458,7 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const QuietRoomLessonWidget()),
-            ),
+            onTap: () => context.pushNamed(QuietRoomLessonWidget.routeName),
             child: Container(
               decoration: BoxDecoration(
                 color: t.surfaceTinted,
@@ -460,18 +506,10 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
   /// completed on it. Missed days are drawn small and faint on purpose: a miss is not a
   /// verdict. [§7.5]
   Widget _dayDots(QuietRoomTokens t, List<HabitsRecord> habits) {
-    final all = <DateTime>{};
-    for (final h in habits) {
-      for (final d in h.complete) {
-        all.add(DateTime(d.year, d.month, d.day));
-      }
-    }
-    final now = DateTime.now();
-    final days = List.generate(14, (i) {
-      final d = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: 13 - i));
-      return all.contains(d);
-    });
+    final days = recentDays(
+      habits.expand((h) => h.complete),
+      today: DateTime.now(),
+    );
     final kept = days.where((k) => k).length;
 
     return Row(
@@ -510,10 +548,11 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
               children: [
                 _navItem(t, Icons.home_outlined, 'Today', true, null),
                 _navItem(t, Icons.menu_book_outlined, 'Library', false,
-                    'libraryPage'),
+                    LibraryPageWidget.routeName),
                 _navItem(t, Icons.bar_chart_outlined, 'Progress', false,
-                    'progressPage'),
-                _navItem(t, Icons.person_outline, 'You', false, 'profilePage'),
+                    ProgressPageWidget.routeName),
+                _navItem(t, Icons.person_outline, 'You', false,
+                    ProfilePageWidget.routeName),
               ],
             ),
           ),
