@@ -1,0 +1,4978 @@
+{
+ "course": "Minna no Nihongo",
+ "note": "Vocabulary extracted from the Langoal word-list sheets. Kana and English only.",
+ "lessonCount": 25,
+ "itemCount": 620,
+ "missingLessons": [
+  1,
+  18,
+  19,
+  20,
+  21
+ ],
+ "lessons": [
+  {
+   "lesson": 2,
+   "source": "L2-roma.pdf",
+   "items": [
+    {
+     "kana": "ほん",
+     "gloss": "book",
+     "image": "assets/lessons/img/L02_00.webp",
+     "kanji": [
+      "本",
+      "品"
+     ]
+    },
+    {
+     "kana": "じしょ",
+     "gloss": "jisho, dictionary",
+     "image": "assets/lessons/img/L02_01.webp",
+     "kanji": [
+      "辞書",
+      "辭書",
+      "字書",
+      "璽書",
+      "自署",
+      "自書"
+     ]
+    },
+    {
+     "kana": "ざっし",
+     "gloss": "magazine",
+     "image": "assets/lessons/img/L02_02.webp",
+     "kanji": [
+      "雑誌"
+     ]
+    },
+    {
+     "kana": "しんぶん",
+     "gloss": "newspaper",
+     "image": "assets/lessons/img/L02_03.webp",
+     "kanji": [
+      "新聞"
+     ]
+    },
+    {
+     "kana": "ノート",
+     "gloss": "notebook",
+     "image": "assets/lessons/img/L02_04.webp"
+    },
+    {
+     "kana": "てちょう",
+     "gloss": "techō, pocket notebook",
+     "image": "assets/lessons/img/L02_05.webp",
+     "kanji": [
+      "手帳",
+      "手帖"
+     ]
+    },
+    {
+     "kana": "めいし",
+     "gloss": "business card",
+     "image": "assets/lessons/img/L02_06.webp",
+     "kanji": [
+      "名刺",
+      "名詞",
+      "名士",
+      "名詩",
+      "明視"
+     ]
+    },
+    {
+     "kana": "カード",
+     "gloss": "card",
+     "image": "assets/lessons/img/L02_07.webp"
+    },
+    {
+     "kana": "えんぴつ",
+     "gloss": "pencil",
+     "image": "assets/lessons/img/L02_08.webp",
+     "kanji": [
+      "鉛筆"
+     ]
+    },
+    {
+     "kana": "ボールペン",
+     "gloss": "ballpoint pen",
+     "image": "assets/lessons/img/L02_09.webp"
+    },
+    {
+     "kana": "シャープペンシル",
+     "gloss": "shāpupenshiru, mechanical pencil",
+     "image": "assets/lessons/img/L02_10.webp"
+    },
+    {
+     "kana": "かぎ",
+     "gloss": "key",
+     "image": "assets/lessons/img/L02_11.webp",
+     "kanji": [
+      "鍵",
+      "鑰",
+      "下議",
+      "科技",
+      "歌妓",
+      "鉤"
+     ]
+    },
+    {
+     "kana": "とけい",
+     "gloss": "watch, clock",
+     "image": "assets/lessons/img/L02_12.webp",
+     "kanji": [
+      "時計",
+      "土圭",
+      "自鳴鐘",
+      "徒刑"
+     ]
+    },
+    {
+     "kana": "かさ",
+     "gloss": "umbrella",
+     "image": "assets/lessons/img/L02_13.webp",
+     "kanji": [
+      "笠",
+      "傘",
+      "嵩",
+      "暈",
+      "毬",
+      "梂"
+     ]
+    },
+    {
+     "kana": "かばん",
+     "gloss": "bag, briefcase",
+     "image": "assets/lessons/img/L02_14.webp",
+     "kanji": [
+      "鞄",
+      "革包",
+      "下番",
+      "加番"
+     ]
+    },
+    {
+     "kana": "テレビ",
+     "gloss": "television",
+     "image": "assets/lessons/img/L02_15.webp"
+    },
+    {
+     "kana": "コンピュ-タ-",
+     "gloss": "computer",
+     "image": "assets/lessons/img/L02_16.webp"
+    },
+    {
+     "kana": "くるま",
+     "gloss": "car",
+     "image": "assets/lessons/img/L02_17.webp",
+     "kanji": [
+      "車",
+      "俥"
+     ]
+    },
+    {
+     "kana": "つくえ",
+     "gloss": "desk",
+     "image": "assets/lessons/img/L02_18.webp",
+     "kanji": [
+      "机",
+      "案"
+     ]
+    },
+    {
+     "kana": "いす",
+     "gloss": "chair",
+     "image": "assets/lessons/img/L02_19.webp",
+     "kanji": [
+      "椅子",
+      "倚子"
+     ]
+    },
+    {
+     "kana": "チョコレート",
+     "gloss": "chokorēto, chocolate",
+     "image": "assets/lessons/img/L02_20.webp"
+    },
+    {
+     "kana": "コーヒー",
+     "gloss": "coffee",
+     "image": "assets/lessons/img/L02_21.webp",
+     "kanji": [
+      "珈琲"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 3,
+   "source": "L3-roma.pdf",
+   "items": [
+    {
+     "kana": "きょうしつ",
+     "gloss": "classroom",
+     "image": "assets/lessons/img/L03_00.webp",
+     "kanji": [
+      "教室",
+      "狂疾"
+     ]
+    },
+    {
+     "kana": "しょくどう",
+     "gloss": "shokudō, canteen",
+     "image": "assets/lessons/img/L03_01.webp",
+     "kanji": [
+      "食堂",
+      "食道"
+     ]
+    },
+    {
+     "kana": "じむしょ",
+     "gloss": "office",
+     "image": "assets/lessons/img/L03_02.webp",
+     "kanji": [
+      "事務所",
+      "事ム所",
+      "事務処",
+      "寺務所"
+     ]
+    },
+    {
+     "kana": "かいぎしつ",
+     "gloss": "meeting room",
+     "image": "assets/lessons/img/L03_03.webp",
+     "kanji": [
+      "会議室"
+     ]
+    },
+    {
+     "kana": "うけつけ",
+     "gloss": "reception",
+     "image": "assets/lessons/img/L03_04.webp",
+     "kanji": [
+      "受付",
+      "受け付け",
+      "受付け",
+      "受けつけ",
+      "受け付",
+      "受附"
+     ]
+    },
+    {
+     "kana": "ロビ-",
+     "gloss": "lobby",
+     "image": "assets/lessons/img/L03_05.webp"
+    },
+    {
+     "kana": "へや",
+     "gloss": "room",
+     "image": "assets/lessons/img/L03_06.webp",
+     "kanji": [
+      "部屋"
+     ]
+    },
+    {
+     "kana": "トイレ",
+     "gloss": "toilet",
+     "image": "assets/lessons/img/L03_07.webp"
+    },
+    {
+     "kana": "かいだん",
+     "gloss": "staircase",
+     "image": "assets/lessons/img/L03_08.webp",
+     "kanji": [
+      "会談",
+      "怪談",
+      "階段",
+      "解団",
+      "戒壇"
+     ]
+    },
+    {
+     "kana": "エレベ-タ-",
+     "gloss": "elevator",
+     "image": "assets/lessons/img/L03_09.webp"
+    },
+    {
+     "kana": "エスカレ-タ-",
+     "gloss": "escalator",
+     "image": "assets/lessons/img/L03_10.webp"
+    },
+    {
+     "kana": "くに",
+     "gloss": "county",
+     "image": "assets/lessons/img/L03_11.webp",
+     "kanji": [
+      "訓",
+      "国",
+      "邦",
+      "國",
+      "故郷",
+      "郷里"
+     ]
+    },
+    {
+     "kana": "かいしゃ",
+     "gloss": "kaisha, company",
+     "image": "assets/lessons/img/L03_12.webp",
+     "kanji": [
+      "会社",
+      "會社",
+      "下位者",
+      "会者",
+      "膾炙"
+     ]
+    },
+    {
+     "kana": "うち",
+     "gloss": "house, home",
+     "image": "assets/lessons/img/L03_13.webp",
+     "kanji": [
+      "家",
+      "内",
+      "中",
+      "裡",
+      "裏",
+      "打ち"
+     ]
+    },
+    {
+     "kana": "でんわ",
+     "gloss": "telephone",
+     "image": "assets/lessons/img/L03_14.webp",
+     "kanji": [
+      "電話"
+     ]
+    },
+    {
+     "kana": "くつ",
+     "gloss": "shoes",
+     "image": "assets/lessons/img/L03_15.webp",
+     "kanji": [
+      "靴",
+      "沓",
+      "履",
+      "鞋"
+     ]
+    },
+    {
+     "kana": "ネクタイ",
+     "gloss": "necktie",
+     "image": "assets/lessons/img/L03_16.webp"
+    },
+    {
+     "kana": "ワイン",
+     "gloss": "wine",
+     "image": "assets/lessons/img/L03_17.webp"
+    },
+    {
+     "kana": "たばこ",
+     "gloss": "tobacco",
+     "image": "assets/lessons/img/L03_18.webp",
+     "kanji": [
+      "煙草",
+      "莨",
+      "烟草"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 4,
+   "source": "L4-roma.pdf",
+   "items": [
+    {
+     "kana": "おきます",
+     "gloss": "wake up",
+     "image": "assets/lessons/img/L04_00.webp"
+    },
+    {
+     "kana": "ねます",
+     "gloss": "sleep",
+     "image": "assets/lessons/img/L04_01.webp"
+    },
+    {
+     "kana": "はたらきます",
+     "gloss": "work",
+     "image": "assets/lessons/img/L04_02.webp"
+    },
+    {
+     "kana": "やすみます",
+     "gloss": "take a rest, take a holiday",
+     "image": "assets/lessons/img/L04_03.webp"
+    },
+    {
+     "kana": "べんきょうします",
+     "gloss": "study",
+     "image": "assets/lessons/img/L04_04.webp"
+    },
+    {
+     "kana": "おわります",
+     "gloss": "finish",
+     "image": "assets/lessons/img/L04_05.webp"
+    },
+    {
+     "kana": "デパ-ト",
+     "gloss": "department store",
+     "image": "assets/lessons/img/L04_06.webp"
+    },
+    {
+     "kana": "ぎんこう",
+     "gloss": "bank",
+     "image": "assets/lessons/img/L04_07.webp",
+     "kanji": [
+      "銀行",
+      "吟行",
+      "銀光",
+      "銀鉱",
+      "銀坑"
+     ]
+    },
+    {
+     "kana": "ゆうびんきょく",
+     "gloss": "post office",
+     "image": "assets/lessons/img/L04_08.webp",
+     "kanji": [
+      "郵便局"
+     ]
+    },
+    {
+     "kana": "としょかん",
+     "gloss": "toshokan, library",
+     "image": "assets/lessons/img/L04_09.webp",
+     "kanji": [
+      "図書館"
+     ]
+    },
+    {
+     "kana": "びじゅつかん",
+     "gloss": "bijutsukan, art museum",
+     "image": "assets/lessons/img/L04_10.webp",
+     "kanji": [
+      "美術館"
+     ]
+    },
+    {
+     "kana": "あさ",
+     "gloss": "morning",
+     "image": "assets/lessons/img/L04_11.webp",
+     "kanji": [
+      "朝",
+      "麻",
+      "苧"
+     ]
+    },
+    {
+     "kana": "ひる",
+     "gloss": "daytime, noon",
+     "image": "assets/lessons/img/L04_12.webp",
+     "kanji": [
+      "干る",
+      "乾る",
+      "昼",
+      "午",
+      "晝",
+      "簸る"
+     ]
+    },
+    {
+     "kana": "ばん",
+     "gloss": "night",
+     "image": "assets/lessons/img/L04_13.webp",
+     "kanji": [
+      "判",
+      "版",
+      "晩",
+      "番",
+      "盤",
+      "幡"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 5,
+   "source": "L5-roma.pdf",
+   "items": [
+    {
+     "kana": "いきます",
+     "gloss": "go",
+     "image": "assets/lessons/img/L05_00.webp"
+    },
+    {
+     "kana": "きます",
+     "gloss": "come",
+     "image": "assets/lessons/img/L05_01.webp"
+    },
+    {
+     "kana": "かえります",
+     "gloss": "go home",
+     "image": "assets/lessons/img/L05_02.webp"
+    },
+    {
+     "kana": "がっこう",
+     "gloss": "school",
+     "image": "assets/lessons/img/L05_03.webp",
+     "kanji": [
+      "学校",
+      "學校",
+      "楽校"
+     ]
+    },
+    {
+     "kana": "スーパー",
+     "gloss": "supermarket",
+     "image": "assets/lessons/img/L05_04.webp"
+    },
+    {
+     "kana": "えき",
+     "gloss": "station",
+     "image": "assets/lessons/img/L05_05.webp",
+     "kanji": [
+      "液",
+      "益",
+      "駅",
+      "驛",
+      "易",
+      "役"
+     ]
+    },
+    {
+     "kana": "ひこうき",
+     "gloss": "airplane",
+     "image": "assets/lessons/img/L05_06.webp",
+     "kanji": [
+      "飛行機"
+     ]
+    },
+    {
+     "kana": "ふね",
+     "gloss": "ship",
+     "image": "assets/lessons/img/L05_07.webp",
+     "kanji": [
+      "船",
+      "舟",
+      "槽"
+     ]
+    },
+    {
+     "kana": "でんしゃ",
+     "gloss": "densha, train",
+     "image": "assets/lessons/img/L05_08.webp",
+     "kanji": [
+      "電車",
+      "伝写",
+      "殿舎",
+      "田舎"
+     ]
+    },
+    {
+     "kana": "ちかてつ",
+     "gloss": "subway",
+     "image": "assets/lessons/img/L05_09.webp",
+     "kanji": [
+      "地下鉄"
+     ]
+    },
+    {
+     "kana": "しんかんせん",
+     "gloss": "bullet train",
+     "image": "assets/lessons/img/L05_10.webp",
+     "kanji": [
+      "新幹線",
+      "新甘泉"
+     ]
+    },
+    {
+     "kana": "バス",
+     "gloss": "bus",
+     "image": "assets/lessons/img/L05_11.webp"
+    },
+    {
+     "kana": "タクシー",
+     "gloss": "taxi",
+     "image": "assets/lessons/img/L05_12.webp"
+    },
+    {
+     "kana": "じてんしゃ",
+     "gloss": "bicycle",
+     "image": "assets/lessons/img/L05_13.webp",
+     "kanji": [
+      "自転車",
+      "次点者"
+     ]
+    },
+    {
+     "kana": "ともだち",
+     "gloss": "friend",
+     "image": "assets/lessons/img/L05_14.webp",
+     "kanji": [
+      "友達",
+      "友だち"
+     ]
+    },
+    {
+     "kana": "かれ",
+     "gloss": "he, boyfriend",
+     "image": "assets/lessons/img/L05_15.webp",
+     "kanji": [
+      "彼"
+     ]
+    },
+    {
+     "kana": "かのじょ",
+     "gloss": "kanojo, she, girlfriend",
+     "image": "assets/lessons/img/L05_16.webp",
+     "kanji": [
+      "彼女"
+     ]
+    },
+    {
+     "kana": "かぞく",
+     "gloss": "family",
+     "image": "assets/lessons/img/L05_17.webp",
+     "kanji": [
+      "家族",
+      "華族"
+     ]
+    },
+    {
+     "kana": "ひとりで",
+     "gloss": "alone, by oneself",
+     "image": "assets/lessons/img/L05_18.webp",
+     "kanji": [
+      "一人で",
+      "独りで",
+      "１人で"
+     ]
+    },
+    {
+     "kana": "たんじょうび",
+     "gloss": "tanjōbi, birthday",
+     "image": "assets/lessons/img/L05_19.webp",
+     "kanji": [
+      "誕生日"
+     ]
+    },
+    {
+     "kana": "ふつう",
+     "gloss": "local (train)",
+     "image": "assets/lessons/img/L05_20.webp",
+     "kanji": [
+      "不通",
+      "普通"
+     ]
+    },
+    {
+     "kana": "きゅうこう",
+     "gloss": "rapid",
+     "image": "assets/lessons/img/L05_21.webp",
+     "kanji": [
+      "休校",
+      "休講",
+      "急行",
+      "休工",
+      "休耕",
+      "休航"
+     ]
+    },
+    {
+     "kana": "とっきゅう",
+     "gloss": "express",
+     "image": "assets/lessons/img/L05_22.webp",
+     "kanji": [
+      "特急",
+      "特休",
+      "特級"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 6,
+   "source": "L6-roma.pdf",
+   "items": [
+    {
+     "kana": "たべます",
+     "gloss": "eat",
+     "image": "assets/lessons/img/L06_00.webp"
+    },
+    {
+     "kana": "のみます",
+     "gloss": "drink",
+     "image": "assets/lessons/img/L06_01.webp"
+    },
+    {
+     "kana": "すいます[たばこを]",
+     "gloss": "smoke (a cigarette)",
+     "image": "assets/lessons/img/L06_02.webp"
+    },
+    {
+     "kana": "みます",
+     "gloss": "see, look at, watch",
+     "image": "assets/lessons/img/L06_03.webp"
+    },
+    {
+     "kana": "ききます",
+     "gloss": "hear, listen",
+     "image": "assets/lessons/img/L06_04.webp"
+    },
+    {
+     "kana": "よみます",
+     "gloss": "read",
+     "image": "assets/lessons/img/L06_05.webp"
+    },
+    {
+     "kana": "かきます",
+     "gloss": "write, draw, paint",
+     "image": "assets/lessons/img/L06_06.webp"
+    },
+    {
+     "kana": "かいます",
+     "gloss": "buy",
+     "image": "assets/lessons/img/L06_07.webp",
+     "kanji": [
+      "買い増す",
+      "買増す"
+     ]
+    },
+    {
+     "kana": "とります[しゃしんを]",
+     "gloss": "torimasu(shashinwo), take (a photo)",
+     "image": "assets/lessons/img/L06_08.webp"
+    },
+    {
+     "kana": "あいます[ともだちに]",
+     "gloss": "meet, see (a friend)",
+     "image": "assets/lessons/img/L06_09.webp"
+    },
+    {
+     "kana": "ごはん",
+     "gloss": "a meal, cooked rice",
+     "image": "assets/lessons/img/L06_10.webp",
+     "kanji": [
+      "ご飯",
+      "御飯",
+      "午飯",
+      "誤判"
+     ]
+    },
+    {
+     "kana": "あさごはん",
+     "gloss": "breakfast",
+     "image": "assets/lessons/img/L06_11.webp",
+     "kanji": [
+      "朝ごはん",
+      "朝ご飯",
+      "朝御飯"
+     ]
+    },
+    {
+     "kana": "ひるごはん",
+     "gloss": "lunch",
+     "image": "assets/lessons/img/L06_12.webp",
+     "kanji": [
+      "昼ご飯",
+      "昼ごはん",
+      "昼御飯"
+     ]
+    },
+    {
+     "kana": "ばんごはん",
+     "gloss": "dinner",
+     "image": "assets/lessons/img/L06_13.webp",
+     "kanji": [
+      "晩御飯",
+      "晩ご飯",
+      "晩ごはん"
+     ]
+    },
+    {
+     "kana": "パン",
+     "gloss": "bread",
+     "image": "assets/lessons/img/L06_14.webp"
+    },
+    {
+     "kana": "たまご",
+     "gloss": "egg",
+     "image": "assets/lessons/img/L06_15.webp",
+     "kanji": [
+      "卵",
+      "玉子"
+     ]
+    },
+    {
+     "kana": "にく",
+     "gloss": "meat",
+     "image": "assets/lessons/img/L06_16.webp",
+     "kanji": [
+      "肉",
+      "二九"
+     ]
+    },
+    {
+     "kana": "ぎゅうにく",
+     "gloss": "beef",
+     "image": "assets/lessons/img/L06_17.webp",
+     "kanji": [
+      "牛肉"
+     ]
+    },
+    {
+     "kana": "ぶたにく",
+     "gloss": "pork",
+     "image": "assets/lessons/img/L06_18.webp",
+     "kanji": [
+      "豚肉",
+      "ブタ肉",
+      "ぶた肉"
+     ]
+    },
+    {
+     "kana": "とりにく",
+     "gloss": "chicken",
+     "image": "assets/lessons/img/L06_19.webp",
+     "kanji": [
+      "鶏肉",
+      "鳥肉",
+      "とり肉"
+     ]
+    },
+    {
+     "kana": "さかな",
+     "gloss": "fish",
+     "image": "assets/lessons/img/L06_20.webp",
+     "kanji": [
+      "魚",
+      "肴",
+      "酒菜"
+     ]
+    },
+    {
+     "kana": "やさい",
+     "gloss": "vegetable",
+     "image": "assets/lessons/img/L06_21.webp",
+     "kanji": [
+      "野菜"
+     ]
+    },
+    {
+     "kana": "くだもの",
+     "gloss": "fruit",
+     "image": "assets/lessons/img/L06_22.webp",
+     "kanji": [
+      "果物",
+      "菓物"
+     ]
+    },
+    {
+     "kana": "みず",
+     "gloss": "water",
+     "image": "assets/lessons/img/L06_23.webp",
+     "kanji": [
+      "水",
+      "針孔",
+      "針眼"
+     ]
+    },
+    {
+     "kana": "おちゃ",
+     "gloss": "ocha, tea, green tea",
+     "image": "assets/lessons/img/L06_24.webp",
+     "kanji": [
+      "お茶",
+      "御茶"
+     ]
+    },
+    {
+     "kana": "こうちゃ",
+     "gloss": "kōcha, black tea",
+     "image": "assets/lessons/img/L06_25.webp",
+     "kanji": [
+      "紅茶"
+     ]
+    },
+    {
+     "kana": "ぎゅうにゅう",
+     "gloss": "milk",
+     "image": "assets/lessons/img/L06_26.webp",
+     "kanji": [
+      "牛乳"
+     ]
+    },
+    {
+     "kana": "ジュース",
+     "gloss": "jūsu, juice",
+     "image": "assets/lessons/img/L06_27.webp"
+    },
+    {
+     "kana": "ビール",
+     "gloss": "beer",
+     "image": "assets/lessons/img/L06_28.webp",
+     "kanji": [
+      "麦酒"
+     ]
+    },
+    {
+     "kana": "(お)さけ",
+     "gloss": "alcohol",
+     "image": "assets/lessons/img/L06_29.webp"
+    },
+    {
+     "kana": "えいが",
+     "gloss": "movie",
+     "image": "assets/lessons/img/L06_30.webp",
+     "kanji": [
+      "映画",
+      "映畫",
+      "栄華",
+      "栄花",
+      "詠歌"
+     ]
+    },
+    {
+     "kana": "シーディー",
+     "gloss": "CD",
+     "image": "assets/lessons/img/L06_31.webp",
+     "kanji": [
+      "ＣＤ"
+     ]
+    },
+    {
+     "kana": "てがみ",
+     "gloss": "letter",
+     "image": "assets/lessons/img/L06_32.webp",
+     "kanji": [
+      "手紙"
+     ]
+    },
+    {
+     "kana": "しゃしん",
+     "gloss": "shashin, photograph",
+     "image": "assets/lessons/img/L06_33.webp",
+     "kanji": [
+      "写真",
+      "寫眞",
+      "寫真",
+      "冩眞",
+      "捨身"
+     ]
+    },
+    {
+     "kana": "みせ",
+     "gloss": "store, shop",
+     "image": "assets/lessons/img/L06_34.webp",
+     "kanji": [
+      "店",
+      "見世"
+     ]
+    },
+    {
+     "kana": "レストラン",
+     "gloss": "restaurant",
+     "image": "assets/lessons/img/L06_35.webp"
+    },
+    {
+     "kana": "しゅくだい",
+     "gloss": "shukudai, homework",
+     "image": "assets/lessons/img/L06_36.webp",
+     "kanji": [
+      "宿題",
+      "宿代"
+     ]
+    },
+    {
+     "kana": "サッカ-",
+     "gloss": "soccer",
+     "image": "assets/lessons/img/L06_37.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 7,
+   "source": "L7-roma.pdf",
+   "items": [
+    {
+     "kana": "きります",
+     "gloss": "cut, slice",
+     "image": "assets/lessons/img/L07_00.webp"
+    },
+    {
+     "kana": "おくります",
+     "gloss": "send",
+     "image": "assets/lessons/img/L07_01.webp"
+    },
+    {
+     "kana": "あげます",
+     "gloss": "give",
+     "image": "assets/lessons/img/L07_02.webp"
+    },
+    {
+     "kana": "もらいます",
+     "gloss": "receive",
+     "image": "assets/lessons/img/L07_03.webp"
+    },
+    {
+     "kana": "かします",
+     "gloss": "lend",
+     "image": "assets/lessons/img/L07_04.webp"
+    },
+    {
+     "kana": "かります",
+     "gloss": "borrow",
+     "image": "assets/lessons/img/L07_05.webp"
+    },
+    {
+     "kana": "おしえます",
+     "gloss": "teach",
+     "image": "assets/lessons/img/L07_06.webp"
+    },
+    {
+     "kana": "ならいます",
+     "gloss": "learn",
+     "image": "assets/lessons/img/L07_07.webp"
+    },
+    {
+     "kana": "かけます[でんわを]",
+     "gloss": "make (a phone call)",
+     "image": "assets/lessons/img/L07_08.webp"
+    },
+    {
+     "kana": "て",
+     "gloss": "hand, arm",
+     "image": "assets/lessons/img/L07_09.webp",
+     "kanji": [
+      "手"
+     ]
+    },
+    {
+     "kana": "はし",
+     "gloss": "chopsticks",
+     "image": "assets/lessons/img/L07_10.webp",
+     "kanji": [
+      "橋",
+      "端",
+      "箸",
+      "嘴",
+      "觜",
+      "喙"
+     ]
+    },
+    {
+     "kana": "スプーン",
+     "gloss": "spoon",
+     "image": "assets/lessons/img/L07_11.webp"
+    },
+    {
+     "kana": "ナイフ",
+     "gloss": "knife",
+     "image": "assets/lessons/img/L07_12.webp"
+    },
+    {
+     "kana": "フォ-ク",
+     "gloss": "fork",
+     "image": "assets/lessons/img/L07_13.webp"
+    },
+    {
+     "kana": "はさみ",
+     "gloss": "scissors",
+     "image": "assets/lessons/img/L07_14.webp",
+     "kanji": [
+      "鋏",
+      "剪刀",
+      "挟み",
+      "挿み",
+      "螯"
+     ]
+    },
+    {
+     "kana": "パソコン",
+     "gloss": "personal computer",
+     "image": "assets/lessons/img/L07_15.webp"
+    },
+    {
+     "kana": "パンチ",
+     "gloss": "punch",
+     "image": "assets/lessons/img/L07_16.webp"
+    },
+    {
+     "kana": "ホッチキス",
+     "gloss": "stapler",
+     "image": "assets/lessons/img/L07_17.webp"
+    },
+    {
+     "kana": "セロテ-プ",
+     "gloss": "scotch tape",
+     "image": "assets/lessons/img/L07_18.webp"
+    },
+    {
+     "kana": "けしゴム",
+     "gloss": "eraser",
+     "image": "assets/lessons/img/L07_19.webp",
+     "kanji": [
+      "消しゴム",
+      "消ゴム",
+      "消しごむ"
+     ]
+    },
+    {
+     "kana": "かみ",
+     "gloss": "paper",
+     "image": "assets/lessons/img/L07_20.webp",
+     "kanji": [
+      "加味",
+      "紙",
+      "上",
+      "神",
+      "髪",
+      "髮"
+     ]
+    },
+    {
+     "kana": "はな",
+     "gloss": "flower, blossom",
+     "image": "assets/lessons/img/L07_21.webp",
+     "kanji": [
+      "花",
+      "華",
+      "端",
+      "鼻",
+      "洟"
+     ]
+    },
+    {
+     "kana": "シャツ",
+     "gloss": "shatsu, shirt",
+     "image": "assets/lessons/img/L07_22.webp"
+    },
+    {
+     "kana": "プレゼント",
+     "gloss": "present, gift",
+     "image": "assets/lessons/img/L07_23.webp"
+    },
+    {
+     "kana": "にもつ",
+     "gloss": "baggage, parcel",
+     "image": "assets/lessons/img/L07_24.webp",
+     "kanji": [
+      "荷物"
+     ]
+    },
+    {
+     "kana": "おかね",
+     "gloss": "money",
+     "image": "assets/lessons/img/L07_25.webp",
+     "kanji": [
+      "お金",
+      "御金"
+     ]
+    },
+    {
+     "kana": "きっぷ",
+     "gloss": "ticket",
+     "image": "assets/lessons/img/L07_26.webp",
+     "kanji": [
+      "切符",
+      "気っ風",
+      "気っぷ",
+      "気風"
+     ]
+    },
+    {
+     "kana": "おとうさん",
+     "gloss": "someone else's father",
+     "image": "assets/lessons/img/L07_27.webp",
+     "kanji": [
+      "お父さん",
+      "御父さん",
+      "お義父さん",
+      "御義父さん"
+     ]
+    },
+    {
+     "kana": "おかあさん",
+     "gloss": "someone else's mother",
+     "image": "assets/lessons/img/L07_28.webp",
+     "kanji": [
+      "お母さん",
+      "御母さん",
+      "お義母さん"
+     ]
+    },
+    {
+     "kana": "いただきます。",
+     "gloss": "Thank you. (before eat/drink)",
+     "image": "assets/lessons/img/L07_29.webp"
+    },
+    {
+     "kana": "りょこう",
+     "gloss": "trip, tour",
+     "image": "assets/lessons/img/L07_30.webp",
+     "kanji": [
+      "旅行"
+     ]
+    },
+    {
+     "kana": "(お)みやげ",
+     "gloss": "souvenir, present",
+     "image": "assets/lessons/img/L07_31.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 8,
+   "source": "L8-roma.pdf",
+   "items": [
+    {
+     "kana": "ハンサム[な]",
+     "gloss": "handsome",
+     "image": "assets/lessons/img/L08_00.webp"
+    },
+    {
+     "kana": "きれい[な]",
+     "gloss": "beautiful, clean",
+     "image": "assets/lessons/img/L08_01.webp"
+    },
+    {
+     "kana": "しずか[な]",
+     "gloss": "quiet",
+     "image": "assets/lessons/img/L08_02.webp"
+    },
+    {
+     "kana": "にぎやか[な]",
+     "gloss": "lively",
+     "image": "assets/lessons/img/L08_03.webp"
+    },
+    {
+     "kana": "ゆうめい[な]",
+     "gloss": "famous",
+     "image": "assets/lessons/img/L08_04.webp"
+    },
+    {
+     "kana": "しんせつ[な]",
+     "gloss": "kind",
+     "image": "assets/lessons/img/L08_05.webp"
+    },
+    {
+     "kana": "げんき[な]",
+     "gloss": "healthy, cheerful",
+     "image": "assets/lessons/img/L08_06.webp"
+    },
+    {
+     "kana": "ひま[な]",
+     "gloss": "free(time)",
+     "image": "assets/lessons/img/L08_07.webp"
+    },
+    {
+     "kana": "べんり[な]",
+     "gloss": "convenient",
+     "image": "assets/lessons/img/L08_08.webp"
+    },
+    {
+     "kana": "すてき[な]",
+     "gloss": "nice, wonderful",
+     "image": "assets/lessons/img/L08_09.webp"
+    },
+    {
+     "kana": "おおきい",
+     "gloss": "big, large",
+     "image": "assets/lessons/img/L08_10.webp",
+     "kanji": [
+      "大きい",
+      "巨きい"
+     ]
+    },
+    {
+     "kana": "ちいさい",
+     "gloss": "small, little",
+     "image": "assets/lessons/img/L08_11.webp",
+     "kanji": [
+      "小さい"
+     ]
+    },
+    {
+     "kana": "あたらしい",
+     "gloss": "new",
+     "image": "assets/lessons/img/L08_12.webp",
+     "kanji": [
+      "新しい",
+      "新らしい"
+     ]
+    },
+    {
+     "kana": "ふるい",
+     "gloss": "old (not of age)",
+     "image": "assets/lessons/img/L08_13.webp",
+     "kanji": [
+      "古い",
+      "旧い",
+      "故い",
+      "震い",
+      "篩",
+      "篩い"
+     ]
+    },
+    {
+     "kana": "いい (よい)",
+     "gloss": "good",
+     "image": "assets/lessons/img/L08_14.webp"
+    },
+    {
+     "kana": "わるい",
+     "gloss": "bad",
+     "image": "assets/lessons/img/L08_15.webp",
+     "kanji": [
+      "悪い",
+      "惡い"
+     ]
+    },
+    {
+     "kana": "あつい",
+     "gloss": "hot",
+     "image": "assets/lessons/img/L08_16.webp",
+     "kanji": [
+      "厚い",
+      "篤い",
+      "暑い",
+      "熱い"
+     ]
+    },
+    {
+     "kana": "さむい",
+     "gloss": "cold (weather)",
+     "image": "assets/lessons/img/L08_17.webp",
+     "kanji": [
+      "寒い",
+      "作務衣"
+     ]
+    },
+    {
+     "kana": "あつい",
+     "gloss": "hot",
+     "image": "assets/lessons/img/L08_18.webp",
+     "kanji": [
+      "厚い",
+      "篤い",
+      "暑い",
+      "熱い"
+     ]
+    },
+    {
+     "kana": "つめたい",
+     "gloss": "cold (referring to touch)",
+     "image": "assets/lessons/img/L08_19.webp",
+     "kanji": [
+      "冷たい"
+     ]
+    },
+    {
+     "kana": "むずかしい",
+     "gloss": "difficult",
+     "image": "assets/lessons/img/L08_20.webp",
+     "kanji": [
+      "難しい",
+      "六借しい",
+      "六ヶ敷い",
+      "六かしい"
+     ]
+    },
+    {
+     "kana": "やさしい",
+     "gloss": "easy",
+     "image": "assets/lessons/img/L08_21.webp",
+     "kanji": [
+      "易しい",
+      "優しい"
+     ]
+    },
+    {
+     "kana": "たかい",
+     "gloss": "expensive",
+     "image": "assets/lessons/img/L08_22.webp",
+     "kanji": [
+      "高い",
+      "高価い",
+      "高ーい",
+      "他界"
+     ]
+    },
+    {
+     "kana": "やすい",
+     "gloss": "cheap",
+     "image": "assets/lessons/img/L08_23.webp",
+     "kanji": [
+      "安い",
+      "廉い",
+      "易い"
+     ]
+    },
+    {
+     "kana": "たかい",
+     "gloss": "tall, high",
+     "image": "assets/lessons/img/L08_24.webp",
+     "kanji": [
+      "高い",
+      "高価い",
+      "高ーい",
+      "他界"
+     ]
+    },
+    {
+     "kana": "ひくい",
+     "gloss": "low",
+     "image": "assets/lessons/img/L08_25.webp",
+     "kanji": [
+      "低い"
+     ]
+    },
+    {
+     "kana": "おもしろい",
+     "gloss": "interesting",
+     "image": "assets/lessons/img/L08_26.webp",
+     "kanji": [
+      "面白い"
+     ]
+    },
+    {
+     "kana": "おいしい",
+     "gloss": "delicious, tasty",
+     "image": "assets/lessons/img/L08_27.webp",
+     "kanji": [
+      "美味しい",
+      "旨味しい"
+     ]
+    },
+    {
+     "kana": "いそがしい",
+     "gloss": "busy",
+     "image": "assets/lessons/img/L08_28.webp",
+     "kanji": [
+      "忙しい",
+      "忙がしい"
+     ]
+    },
+    {
+     "kana": "たのしい",
+     "gloss": "fun",
+     "image": "assets/lessons/img/L08_29.webp",
+     "kanji": [
+      "楽しい",
+      "愉しい",
+      "樂しい",
+      "娯しい"
+     ]
+    },
+    {
+     "kana": "しろい",
+     "gloss": "white",
+     "image": "assets/lessons/img/L08_30.webp",
+     "kanji": [
+      "白い"
+     ]
+    },
+    {
+     "kana": "くろい",
+     "gloss": "black",
+     "image": "assets/lessons/img/L08_31.webp",
+     "kanji": [
+      "黒い"
+     ]
+    },
+    {
+     "kana": "あかい",
+     "gloss": "red",
+     "image": "assets/lessons/img/L08_32.webp",
+     "kanji": [
+      "赤い",
+      "紅い",
+      "朱い",
+      "緋い",
+      "赭い",
+      "丹い"
+     ]
+    },
+    {
+     "kana": "あおい",
+     "gloss": "blue",
+     "image": "assets/lessons/img/L08_33.webp",
+     "kanji": [
+      "青い",
+      "蒼い",
+      "碧い",
+      "葵"
+     ]
+    },
+    {
+     "kana": "さくら",
+     "gloss": "cherry (blossom)",
+     "image": "assets/lessons/img/L08_34.webp",
+     "kanji": [
+      "桜",
+      "櫻",
+      "偽客"
+     ]
+    },
+    {
+     "kana": "やま",
+     "gloss": "mountain",
+     "image": "assets/lessons/img/L08_35.webp",
+     "kanji": [
+      "山"
+     ]
+    },
+    {
+     "kana": "たべもの",
+     "gloss": "food",
+     "image": "assets/lessons/img/L08_36.webp",
+     "kanji": [
+      "食べ物",
+      "食べもの"
+     ]
+    },
+    {
+     "kana": "くるま",
+     "gloss": "car",
+     "image": "assets/lessons/img/L08_37.webp",
+     "kanji": [
+      "車",
+      "俥"
+     ]
+    },
+    {
+     "kana": "べんきょう",
+     "gloss": "study",
+     "image": "assets/lessons/img/L08_38.webp",
+     "kanji": [
+      "勉強"
+     ]
+    },
+    {
+     "kana": "(お)しごと",
+     "gloss": "work, business",
+     "image": "assets/lessons/img/L08_39.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 9,
+   "source": "L9-roma.pdf",
+   "items": [
+    {
+     "kana": "わかります",
+     "gloss": "understand",
+     "image": "assets/lessons/img/L09_00.webp"
+    },
+    {
+     "kana": "あります",
+     "gloss": "have",
+     "image": "assets/lessons/img/L09_01.webp"
+    },
+    {
+     "kana": "すき[な]",
+     "gloss": "like",
+     "image": "assets/lessons/img/L09_02.webp"
+    },
+    {
+     "kana": "きらい[な]",
+     "gloss": "dislike",
+     "image": "assets/lessons/img/L09_03.webp"
+    },
+    {
+     "kana": "じょうず[な]",
+     "gloss": "jōzu(na), good at",
+     "image": "assets/lessons/img/L09_04.webp"
+    },
+    {
+     "kana": "へた[な]",
+     "gloss": "bad at",
+     "image": "assets/lessons/img/L09_05.webp"
+    },
+    {
+     "kana": "りょうり",
+     "gloss": "cooking, cooked food",
+     "image": "assets/lessons/img/L09_06.webp",
+     "kanji": [
+      "料理",
+      "良吏"
+     ]
+    },
+    {
+     "kana": "のみもの",
+     "gloss": "drinks",
+     "image": "assets/lessons/img/L09_07.webp",
+     "kanji": [
+      "飲み物",
+      "飲物",
+      "飲みもの"
+     ]
+    },
+    {
+     "kana": "スポ-ツ",
+     "gloss": "sport",
+     "image": "assets/lessons/img/L09_08.webp"
+    },
+    {
+     "kana": "やきゅう",
+     "gloss": "baseball",
+     "image": "assets/lessons/img/L09_09.webp",
+     "kanji": [
+      "野球"
+     ]
+    },
+    {
+     "kana": "ダンス",
+     "gloss": "dance",
+     "image": "assets/lessons/img/L09_10.webp"
+    },
+    {
+     "kana": "おんがく",
+     "gloss": "music",
+     "image": "assets/lessons/img/L09_11.webp",
+     "kanji": [
+      "音楽",
+      "音樂"
+     ]
+    },
+    {
+     "kana": "うた",
+     "gloss": "song",
+     "image": "assets/lessons/img/L09_12.webp",
+     "kanji": [
+      "歌",
+      "唄",
+      "詩"
+     ]
+    },
+    {
+     "kana": "え",
+     "gloss": "picture, drawing",
+     "image": "assets/lessons/img/L09_13.webp",
+     "kanji": [
+      "餌",
+      "絵",
+      "画",
+      "江",
+      "柄",
+      "荏"
+     ]
+    },
+    {
+     "kana": "こまかい おかね",
+     "gloss": "small change",
+     "image": "assets/lessons/img/L09_14.webp"
+    },
+    {
+     "kana": "チケット",
+     "gloss": "ticket",
+     "image": "assets/lessons/img/L09_15.webp"
+    },
+    {
+     "kana": "ごしゅじん",
+     "gloss": "goshujin, someone else's husband",
+     "image": "assets/lessons/img/L09_16.webp",
+     "kanji": [
+      "ご主人",
+      "御主人"
+     ]
+    },
+    {
+     "kana": "しゅじん",
+     "gloss": "shujin, my husband",
+     "image": "assets/lessons/img/L09_17.webp",
+     "kanji": [
+      "主人"
+     ]
+    },
+    {
+     "kana": "おくさん",
+     "gloss": "someone else's wife",
+     "image": "assets/lessons/img/L09_18.webp",
+     "kanji": [
+      "奥さん"
+     ]
+    },
+    {
+     "kana": "つま",
+     "gloss": "my wife",
+     "image": "assets/lessons/img/L09_19.webp",
+     "kanji": [
+      "妻",
+      "具",
+      "夫",
+      "端",
+      "褄"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 10,
+   "source": "L10-roma.pdf",
+   "items": [
+    {
+     "kana": "います",
+     "gloss": "exist, be (animate things)",
+     "image": "assets/lessons/img/L10_00.webp",
+     "kanji": [
+      "在す",
+      "坐す"
+     ]
+    },
+    {
+     "kana": "あります",
+     "gloss": "exist, be (inanimate things)",
+     "image": "assets/lessons/img/L10_01.webp"
+    },
+    {
+     "kana": "いろいろ[な]",
+     "gloss": "various",
+     "image": "assets/lessons/img/L10_02.webp"
+    },
+    {
+     "kana": "おとこのひと",
+     "gloss": "man",
+     "image": "assets/lessons/img/L10_03.webp",
+     "kanji": [
+      "男の人"
+     ]
+    },
+    {
+     "kana": "おんなのひと",
+     "gloss": "woman",
+     "image": "assets/lessons/img/L10_04.webp",
+     "kanji": [
+      "女の人"
+     ]
+    },
+    {
+     "kana": "おとこのこ",
+     "gloss": "boy",
+     "image": "assets/lessons/img/L10_05.webp",
+     "kanji": [
+      "男の子",
+      "男のコ",
+      "男の娘",
+      "おとこの娘"
+     ]
+    },
+    {
+     "kana": "おんなのこ",
+     "gloss": "girl",
+     "image": "assets/lessons/img/L10_06.webp",
+     "kanji": [
+      "女の子",
+      "女のコ",
+      "オンナの子",
+      "女のこ"
+     ]
+    },
+    {
+     "kana": "いぬ",
+     "gloss": "dog",
+     "image": "assets/lessons/img/L10_07.webp",
+     "kanji": [
+      "犬",
+      "狗",
+      "戌",
+      "往ぬ",
+      "去ぬ",
+      "寝ぬ"
+     ]
+    },
+    {
+     "kana": "ねこ",
+     "gloss": "cat",
+     "image": "assets/lessons/img/L10_08.webp",
+     "kanji": [
+      "猫"
+     ]
+    },
+    {
+     "kana": "き",
+     "gloss": "tree, wood",
+     "image": "assets/lessons/img/L10_09.webp",
+     "kanji": [
+      "機",
+      "気",
+      "氣",
+      "鬼",
+      "匹",
+      "疋"
+     ]
+    },
+    {
+     "kana": "でんち",
+     "gloss": "battery",
+     "image": "assets/lessons/img/L10_10.webp",
+     "kanji": [
+      "電池",
+      "田地"
+     ]
+    },
+    {
+     "kana": "はこ",
+     "gloss": "box",
+     "image": "assets/lessons/img/L10_11.webp",
+     "kanji": [
+      "箱",
+      "函",
+      "匣",
+      "筥",
+      "筐",
+      "凾"
+     ]
+    },
+    {
+     "kana": "スイッチ",
+     "gloss": "switch",
+     "image": "assets/lessons/img/L10_12.webp"
+    },
+    {
+     "kana": "れいぞうこ",
+     "gloss": "refrigerator",
+     "image": "assets/lessons/img/L10_13.webp",
+     "kanji": [
+      "冷蔵庫",
+      "冷ぞう庫"
+     ]
+    },
+    {
+     "kana": "テーブル",
+     "gloss": "table",
+     "image": "assets/lessons/img/L10_14.webp"
+    },
+    {
+     "kana": "たな",
+     "gloss": "shelf",
+     "image": "assets/lessons/img/L10_15.webp",
+     "kanji": [
+      "棚",
+      "店"
+     ]
+    },
+    {
+     "kana": "ドア",
+     "gloss": "door",
+     "image": "assets/lessons/img/L10_16.webp"
+    },
+    {
+     "kana": "まど",
+     "gloss": "window",
+     "image": "assets/lessons/img/L10_17.webp",
+     "kanji": [
+      "窓",
+      "窗",
+      "牖",
+      "牕"
+     ]
+    },
+    {
+     "kana": "ポスト",
+     "gloss": "post",
+     "image": "assets/lessons/img/L10_18.webp"
+    },
+    {
+     "kana": "ビル",
+     "gloss": "building",
+     "image": "assets/lessons/img/L10_19.webp"
+    },
+    {
+     "kana": "こうえん",
+     "gloss": "park",
+     "image": "assets/lessons/img/L10_20.webp",
+     "kanji": [
+      "後援",
+      "公園",
+      "公苑",
+      "公演",
+      "講演",
+      "黄鉛"
+     ]
+    },
+    {
+     "kana": "きっさてん",
+     "gloss": "coffee shop",
+     "image": "assets/lessons/img/L10_21.webp",
+     "kanji": [
+      "喫茶店"
+     ]
+    },
+    {
+     "kana": "ほんや",
+     "gloss": "bookstore",
+     "image": "assets/lessons/img/L10_22.webp",
+     "kanji": [
+      "本屋"
+     ]
+    },
+    {
+     "kana": "のりば",
+     "gloss": "place to catch taxi, trains, bus",
+     "image": "assets/lessons/img/L10_23.webp",
+     "kanji": [
+      "乗り場",
+      "乗場"
+     ]
+    },
+    {
+     "kana": "うえ",
+     "gloss": "on, above",
+     "image": "assets/lessons/img/L10_24.webp",
+     "kanji": [
+      "飢え",
+      "餓え",
+      "饑え",
+      "上",
+      "筌"
+     ]
+    },
+    {
+     "kana": "した",
+     "gloss": "under, below",
+     "image": "assets/lessons/img/L10_25.webp",
+     "kanji": [
+      "下",
+      "舌",
+      "簧"
+     ]
+    },
+    {
+     "kana": "まえ",
+     "gloss": "front, before",
+     "image": "assets/lessons/img/L10_26.webp",
+     "kanji": [
+      "前"
+     ]
+    },
+    {
+     "kana": "うしろ",
+     "gloss": "back, behind",
+     "image": "assets/lessons/img/L10_27.webp",
+     "kanji": [
+      "後ろ",
+      "後"
+     ]
+    },
+    {
+     "kana": "みぎ",
+     "gloss": "right",
+     "image": "assets/lessons/img/L10_28.webp",
+     "kanji": [
+      "右"
+     ]
+    },
+    {
+     "kana": "ひだり",
+     "gloss": "left",
+     "image": "assets/lessons/img/L10_29.webp",
+     "kanji": [
+      "左"
+     ]
+    },
+    {
+     "kana": "なか",
+     "gloss": "in, inside",
+     "image": "assets/lessons/img/L10_30.webp",
+     "kanji": [
+      "中",
+      "仲"
+     ]
+    },
+    {
+     "kana": "そと",
+     "gloss": "outside",
+     "image": "assets/lessons/img/L10_31.webp",
+     "kanji": [
+      "外"
+     ]
+    },
+    {
+     "kana": "となり",
+     "gloss": "next",
+     "image": "assets/lessons/img/L10_32.webp",
+     "kanji": [
+      "隣",
+      "隣り",
+      "鄰"
+     ]
+    },
+    {
+     "kana": "ちかく",
+     "gloss": "near",
+     "image": "assets/lessons/img/L10_33.webp",
+     "kanji": [
+      "近く",
+      "知覚",
+      "智覚",
+      "地殻",
+      "地核"
+     ]
+    },
+    {
+     "kana": "あいだ",
+     "gloss": "between",
+     "image": "assets/lessons/img/L10_34.webp",
+     "kanji": [
+      "間"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 11,
+   "source": "L11-roma.pdf",
+   "items": [
+    {
+     "kana": "います[こどもが]",
+     "gloss": "have (a child)",
+     "image": "assets/lessons/img/L11_00.webp"
+    },
+    {
+     "kana": "います[にほんに]",
+     "gloss": "stay (in Japan)",
+     "image": "assets/lessons/img/L11_01.webp"
+    },
+    {
+     "kana": "かかります[おかねが]",
+     "gloss": "take (money)",
+     "image": "assets/lessons/img/L11_02.webp"
+    },
+    {
+     "kana": "かかります[じかんが]",
+     "gloss": "take (time)",
+     "image": "assets/lessons/img/L11_03.webp"
+    },
+    {
+     "kana": "やすみます[かいしゃを]",
+     "gloss": "take a day off",
+     "image": "assets/lessons/img/L11_04.webp"
+    },
+    {
+     "kana": "りんご",
+     "gloss": "apple",
+     "image": "assets/lessons/img/L11_05.webp",
+     "kanji": [
+      "林檎",
+      "苹果"
+     ]
+    },
+    {
+     "kana": "みかん",
+     "gloss": "orange",
+     "image": "assets/lessons/img/L11_06.webp",
+     "kanji": [
+      "蜜柑",
+      "未刊",
+      "未完"
+     ]
+    },
+    {
+     "kana": "カレー(ライス)",
+     "gloss": "curry and rice",
+     "image": "assets/lessons/img/L11_07.webp"
+    },
+    {
+     "kana": "きって",
+     "gloss": "postage stamp",
+     "image": "assets/lessons/img/L11_08.webp",
+     "kanji": [
+      "切手"
+     ]
+    },
+    {
+     "kana": "はがき",
+     "gloss": "post card",
+     "image": "assets/lessons/img/L11_09.webp",
+     "kanji": [
+      "葉書",
+      "葉書き",
+      "端書",
+      "端書き",
+      "羽書"
+     ]
+    },
+    {
+     "kana": "ふうとう",
+     "gloss": "envelope",
+     "image": "assets/lessons/img/L11_10.webp",
+     "kanji": [
+      "封筒",
+      "カエデ糖",
+      "楓糖",
+      "風倒",
+      "風濤",
+      "風涛"
+     ]
+    },
+    {
+     "kana": "そくたつ",
+     "gloss": "special delivery",
+     "image": "assets/lessons/img/L11_11.webp",
+     "kanji": [
+      "速達"
+     ]
+    },
+    {
+     "kana": "かきとめ",
+     "gloss": "registered mail",
+     "image": "assets/lessons/img/L11_12.webp",
+     "kanji": [
+      "書留",
+      "書き留め",
+      "書留め"
+     ]
+    },
+    {
+     "kana": "こうくうびん",
+     "gloss": "airmail",
+     "image": "assets/lessons/img/L11_13.webp",
+     "kanji": [
+      "航空便"
+     ]
+    },
+    {
+     "kana": "ふなびん",
+     "gloss": "sea mail",
+     "image": "assets/lessons/img/L11_14.webp",
+     "kanji": [
+      "船便"
+     ]
+    },
+    {
+     "kana": "りょうしん",
+     "gloss": "parents",
+     "image": "assets/lessons/img/L11_15.webp",
+     "kanji": [
+      "両親",
+      "良心"
+     ]
+    },
+    {
+     "kana": "きょうだい",
+     "gloss": "brothers and sisters",
+     "image": "assets/lessons/img/L11_16.webp",
+     "kanji": [
+      "強大",
+      "鏡台",
+      "兄弟",
+      "姉妹",
+      "弟妹",
+      "京大"
+     ]
+    },
+    {
+     "kana": "おにいさん",
+     "gloss": "someone else's older brother",
+     "image": "assets/lessons/img/L11_17.webp",
+     "kanji": [
+      "お兄さん",
+      "御兄さん",
+      "お義兄さん"
+     ]
+    },
+    {
+     "kana": "おねえさん",
+     "gloss": "someone else's older sister",
+     "image": "assets/lessons/img/L11_18.webp",
+     "kanji": [
+      "お姉さん",
+      "お姐さん",
+      "御姉さん",
+      "御姐さん",
+      "お義姉さん"
+     ]
+    },
+    {
+     "kana": "おとうとさん",
+     "gloss": "someone else's younger brother",
+     "image": "assets/lessons/img/L11_19.webp",
+     "kanji": [
+      "弟さん"
+     ]
+    },
+    {
+     "kana": "いもうとさん",
+     "gloss": "someone else's younger sister",
+     "image": "assets/lessons/img/L11_20.webp",
+     "kanji": [
+      "妹さん"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 12,
+   "source": "L12-roma.pdf",
+   "items": [
+    {
+     "kana": "かんたん[な]",
+     "gloss": "easy",
+     "image": "assets/lessons/img/L12_00.webp"
+    },
+    {
+     "kana": "ちかい",
+     "gloss": "near",
+     "image": "assets/lessons/img/L12_01.webp",
+     "kanji": [
+      "近い",
+      "誓い",
+      "知解",
+      "智解",
+      "地塊",
+      "地界"
+     ]
+    },
+    {
+     "kana": "とおい",
+     "gloss": "far",
+     "image": "assets/lessons/img/L12_02.webp",
+     "kanji": [
+      "遠い"
+     ]
+    },
+    {
+     "kana": "はやい",
+     "gloss": "early",
+     "image": "assets/lessons/img/L12_03.webp",
+     "kanji": [
+      "早い",
+      "速い",
+      "疾い",
+      "捷い",
+      "迅い"
+     ]
+    },
+    {
+     "kana": "はやい",
+     "gloss": "fast",
+     "image": "assets/lessons/img/L12_04.webp",
+     "kanji": [
+      "早い",
+      "速い",
+      "疾い",
+      "捷い",
+      "迅い"
+     ]
+    },
+    {
+     "kana": "おそい",
+     "gloss": "late",
+     "image": "assets/lessons/img/L12_05.webp",
+     "kanji": [
+      "遅い",
+      "鈍い",
+      "晩い",
+      "遲い"
+     ]
+    },
+    {
+     "kana": "おそい",
+     "gloss": "slow",
+     "image": "assets/lessons/img/L12_06.webp",
+     "kanji": [
+      "遅い",
+      "鈍い",
+      "晩い",
+      "遲い"
+     ]
+    },
+    {
+     "kana": "おおい",
+     "gloss": "many, much",
+     "image": "assets/lessons/img/L12_07.webp",
+     "kanji": [
+      "多い",
+      "大い",
+      "大",
+      "馬肥やし",
+      "馬肥",
+      "苜蓿"
+     ]
+    },
+    {
+     "kana": "すくない",
+     "gloss": "few, a little",
+     "image": "assets/lessons/img/L12_08.webp",
+     "kanji": [
+      "少ない",
+      "尠い",
+      "寡い",
+      "少い",
+      "尠ない",
+      "寡ない"
+     ]
+    },
+    {
+     "kana": "あたたかい",
+     "gloss": "warm",
+     "image": "assets/lessons/img/L12_09.webp",
+     "kanji": [
+      "暖かい",
+      "温かい",
+      "暖い"
+     ]
+    },
+    {
+     "kana": "すずしい",
+     "gloss": "cool",
+     "image": "assets/lessons/img/L12_10.webp",
+     "kanji": [
+      "涼しい",
+      "凉しい"
+     ]
+    },
+    {
+     "kana": "あまい",
+     "gloss": "sweet",
+     "image": "assets/lessons/img/L12_11.webp",
+     "kanji": [
+      "甘い"
+     ]
+    },
+    {
+     "kana": "からい",
+     "gloss": "spicy",
+     "image": "assets/lessons/img/L12_12.webp",
+     "kanji": [
+      "塩辛い",
+      "鹹い",
+      "辛い",
+      "渦雷",
+      "花蕾"
+     ]
+    },
+    {
+     "kana": "おもい",
+     "gloss": "heavy",
+     "image": "assets/lessons/img/L12_13.webp",
+     "kanji": [
+      "思い",
+      "想い",
+      "念い",
+      "重い"
+     ]
+    },
+    {
+     "kana": "かるい",
+     "gloss": "light",
+     "image": "assets/lessons/img/L12_14.webp",
+     "kanji": [
+      "軽い"
+     ]
+    },
+    {
+     "kana": "きせつ",
+     "gloss": "season",
+     "image": "assets/lessons/img/L12_15.webp",
+     "kanji": [
+      "季節",
+      "奇説",
+      "既設",
+      "気切"
+     ]
+    },
+    {
+     "kana": "はる",
+     "gloss": "spring",
+     "image": "assets/lessons/img/L12_16.webp",
+     "kanji": [
+      "春",
+      "張る",
+      "貼る"
+     ]
+    },
+    {
+     "kana": "なつ",
+     "gloss": "summer",
+     "image": "assets/lessons/img/L12_17.webp",
+     "kanji": [
+      "夏"
+     ]
+    },
+    {
+     "kana": "あき",
+     "gloss": "autumn, fall",
+     "image": "assets/lessons/img/L12_18.webp",
+     "kanji": [
+      "安芸",
+      "空き",
+      "明き",
+      "秋",
+      "飽き",
+      "厭き"
+     ]
+    },
+    {
+     "kana": "ふゆ",
+     "gloss": "winter",
+     "image": "assets/lessons/img/L12_19.webp",
+     "kanji": [
+      "冬"
+     ]
+    },
+    {
+     "kana": "てんき",
+     "gloss": "weather",
+     "image": "assets/lessons/img/L12_20.webp",
+     "kanji": [
+      "天気",
+      "転機",
+      "天機",
+      "転帰",
+      "転記"
+     ]
+    },
+    {
+     "kana": "あめ",
+     "gloss": "rain",
+     "image": "assets/lessons/img/L12_21.webp",
+     "kanji": [
+      "飴",
+      "雨",
+      "天"
+     ]
+    },
+    {
+     "kana": "ゆき",
+     "gloss": "snow",
+     "image": "assets/lessons/img/L12_22.webp",
+     "kanji": [
+      "行き",
+      "往き",
+      "雪",
+      "裄",
+      "靫",
+      "靱"
+     ]
+    },
+    {
+     "kana": "くもり",
+     "gloss": "cloudy",
+     "image": "assets/lessons/img/L12_23.webp",
+     "kanji": [
+      "曇り",
+      "曇"
+     ]
+    },
+    {
+     "kana": "ホテル",
+     "gloss": "hotel",
+     "image": "assets/lessons/img/L12_24.webp"
+    },
+    {
+     "kana": "くうこう",
+     "gloss": "airport",
+     "image": "assets/lessons/img/L12_25.webp",
+     "kanji": [
+      "空港",
+      "空孔",
+      "空劫"
+     ]
+    },
+    {
+     "kana": "うみ",
+     "gloss": "sea, ocean",
+     "image": "assets/lessons/img/L12_26.webp",
+     "kanji": [
+      "海",
+      "生み",
+      "産み",
+      "膿",
+      "膿み"
+     ]
+    },
+    {
+     "kana": "パーテイー",
+     "gloss": "party",
+     "image": "assets/lessons/img/L12_27.webp"
+    },
+    {
+     "kana": "(お)まつり",
+     "gloss": "festival",
+     "image": "assets/lessons/img/L12_28.webp"
+    },
+    {
+     "kana": "しけん",
+     "gloss": "examination",
+     "image": "assets/lessons/img/L12_29.webp",
+     "kanji": [
+      "私見",
+      "試験",
+      "私権"
+     ]
+    },
+    {
+     "kana": "(お)すし",
+     "gloss": "sushi",
+     "image": "assets/lessons/img/L12_30.webp"
+    },
+    {
+     "kana": "もみじ",
+     "gloss": "maple, red leaves of autumn",
+     "image": "assets/lessons/img/L12_31.webp",
+     "kanji": [
+      "紅葉",
+      "黄葉",
+      "椛"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 13,
+   "source": "L13-roma.pdf",
+   "items": [
+    {
+     "kana": "あそびます",
+     "gloss": "play, hang out",
+     "image": "assets/lessons/img/L13_00.webp"
+    },
+    {
+     "kana": "およぎます",
+     "gloss": "swim",
+     "image": "assets/lessons/img/L13_01.webp"
+    },
+    {
+     "kana": "むかえます",
+     "gloss": "go to meet, welcome",
+     "image": "assets/lessons/img/L13_02.webp"
+    },
+    {
+     "kana": "つかれます",
+     "gloss": "get tired",
+     "image": "assets/lessons/img/L13_03.webp"
+    },
+    {
+     "kana": "だします[てがみを]",
+     "gloss": "send [a letter]",
+     "image": "assets/lessons/img/L13_04.webp"
+    },
+    {
+     "kana": "はいります[〜に]",
+     "gloss": "enter a elevator",
+     "image": "assets/lessons/img/L13_05.webp"
+    },
+    {
+     "kana": "でます[〜を]",
+     "gloss": "go out of a elevator",
+     "image": "assets/lessons/img/L13_06.webp"
+    },
+    {
+     "kana": "けっこんします",
+     "gloss": "marry",
+     "image": "assets/lessons/img/L13_07.webp"
+    },
+    {
+     "kana": "かいものします",
+     "gloss": "do shopping",
+     "image": "assets/lessons/img/L13_08.webp"
+    },
+    {
+     "kana": "しょくじします",
+     "gloss": "shokujishimasu, have a meal",
+     "image": "assets/lessons/img/L13_09.webp"
+    },
+    {
+     "kana": "さんぽします[〜を]",
+     "gloss": "sanposhimasu(kōenwo), take a walk [in a park]",
+     "image": "assets/lessons/img/L13_10.webp"
+    },
+    {
+     "kana": "たいへん[な]",
+     "gloss": "hard",
+     "image": "assets/lessons/img/L13_11.webp"
+    },
+    {
+     "kana": "ほしい",
+     "gloss": "want",
+     "image": "assets/lessons/img/L13_12.webp",
+     "kanji": [
+      "欲しい",
+      "糒",
+      "干し飯",
+      "乾し飯",
+      "干飯",
+      "乾飯"
+     ]
+    },
+    {
+     "kana": "さびしい",
+     "gloss": "lonely",
+     "image": "assets/lessons/img/L13_13.webp",
+     "kanji": [
+      "寂しい",
+      "淋しい"
+     ]
+    },
+    {
+     "kana": "ひろい",
+     "gloss": "wide, spacious",
+     "image": "assets/lessons/img/L13_14.webp",
+     "kanji": [
+      "広い",
+      "廣い",
+      "宏い",
+      "弘い",
+      "寛い",
+      "拾い"
+     ]
+    },
+    {
+     "kana": "せまい",
+     "gloss": "narrow",
+     "image": "assets/lessons/img/L13_15.webp",
+     "kanji": [
+      "狭い",
+      "施米"
+     ]
+    },
+    {
+     "kana": "プール",
+     "gloss": "swimming pool",
+     "image": "assets/lessons/img/L13_16.webp"
+    },
+    {
+     "kana": "かわ",
+     "gloss": "river",
+     "image": "assets/lessons/img/L13_17.webp",
+     "kanji": [
+      "革",
+      "川",
+      "河",
+      "側",
+      "皮",
+      "佳話"
+     ]
+    },
+    {
+     "kana": "びじゅつ",
+     "gloss": "bijutsu, arts",
+     "image": "assets/lessons/img/L13_18.webp",
+     "kanji": [
+      "美術"
+     ]
+    },
+    {
+     "kana": "つり",
+     "gloss": "fishing",
+     "image": "assets/lessons/img/L13_19.webp",
+     "kanji": [
+      "釣り",
+      "釣",
+      "吊り"
+     ]
+    },
+    {
+     "kana": "スキー",
+     "gloss": "skiing",
+     "image": "assets/lessons/img/L13_20.webp"
+    },
+    {
+     "kana": "かいぎ",
+     "gloss": "meeting",
+     "image": "assets/lessons/img/L13_21.webp",
+     "kanji": [
+      "会議",
+      "懐疑",
+      "解義",
+      "回議",
+      "海技"
+     ]
+    },
+    {
+     "kana": "おなかがすきました。",
+     "gloss": "I'm hungry.",
+     "image": "assets/lessons/img/L13_22.webp"
+    },
+    {
+     "kana": "おなかがいっぱいです。",
+     "gloss": "I'm full.",
+     "image": "assets/lessons/img/L13_23.webp"
+    },
+    {
+     "kana": "のどがかわきました。",
+     "gloss": "I'm thirsty.",
+     "image": "assets/lessons/img/L13_24.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 14,
+   "source": "L14-roma.pdf",
+   "items": [
+    {
+     "kana": "つけます",
+     "gloss": "turn on",
+     "image": "assets/lessons/img/L14_00.webp"
+    },
+    {
+     "kana": "けします",
+     "gloss": "turn off",
+     "image": "assets/lessons/img/L14_01.webp"
+    },
+    {
+     "kana": "あけます",
+     "gloss": "open",
+     "image": "assets/lessons/img/L14_02.webp"
+    },
+    {
+     "kana": "しめます",
+     "gloss": "close, shut",
+     "image": "assets/lessons/img/L14_03.webp"
+    },
+    {
+     "kana": "いそぎます",
+     "gloss": "hurry",
+     "image": "assets/lessons/img/L14_04.webp"
+    },
+    {
+     "kana": "まちます",
+     "gloss": "wait",
+     "image": "assets/lessons/img/L14_05.webp"
+    },
+    {
+     "kana": "とめます[おんがくを]",
+     "gloss": "stop",
+     "image": "assets/lessons/img/L14_06.webp"
+    },
+    {
+     "kana": "とめます[くるまを]",
+     "gloss": "park",
+     "image": "assets/lessons/img/L14_07.webp"
+    },
+    {
+     "kana": "まがります[みぎへ ]",
+     "gloss": "turn[to the right]",
+     "image": "assets/lessons/img/L14_08.webp"
+    },
+    {
+     "kana": "もちます",
+     "gloss": "hold",
+     "image": "assets/lessons/img/L14_09.webp"
+    },
+    {
+     "kana": "とります",
+     "gloss": "take, pass",
+     "image": "assets/lessons/img/L14_10.webp"
+    },
+    {
+     "kana": "てつだいます",
+     "gloss": "help",
+     "image": "assets/lessons/img/L14_11.webp"
+    },
+    {
+     "kana": "よびます",
+     "gloss": "call",
+     "image": "assets/lessons/img/L14_12.webp"
+    },
+    {
+     "kana": "はなします",
+     "gloss": "speak, talk",
+     "image": "assets/lessons/img/L14_13.webp"
+    },
+    {
+     "kana": "みせます",
+     "gloss": "show",
+     "image": "assets/lessons/img/L14_14.webp"
+    },
+    {
+     "kana": "おしえます[じゅうしょを]",
+     "gloss": "oshiemasu(jūshowo), tell[an address]",
+     "image": "assets/lessons/img/L14_15.webp"
+    },
+    {
+     "kana": "はじめます",
+     "gloss": "start, begin",
+     "image": "assets/lessons/img/L14_16.webp"
+    },
+    {
+     "kana": "ふります[あめ が]",
+     "gloss": "rain",
+     "image": "assets/lessons/img/L14_17.webp"
+    },
+    {
+     "kana": "コピーします",
+     "gloss": "copy",
+     "image": "assets/lessons/img/L14_18.webp"
+    },
+    {
+     "kana": "エアコン",
+     "gloss": "air conditioner",
+     "image": "assets/lessons/img/L14_19.webp"
+    },
+    {
+     "kana": "パスポート",
+     "gloss": "passport",
+     "image": "assets/lessons/img/L14_20.webp"
+    },
+    {
+     "kana": "しお",
+     "gloss": "salt",
+     "image": "assets/lessons/img/L14_21.webp",
+     "kanji": [
+      "塩",
+      "潮",
+      "汐",
+      "入"
+     ]
+    },
+    {
+     "kana": "さとう",
+     "gloss": "sugar",
+     "image": "assets/lessons/img/L14_22.webp",
+     "kanji": [
+      "砂糖",
+      "左党",
+      "差等"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 15,
+   "source": "L15-roma.pdf",
+   "items": [
+    {
+     "kana": "たちます",
+     "gloss": "stand up",
+     "image": "assets/lessons/img/L15_00.webp"
+    },
+    {
+     "kana": "すわります",
+     "gloss": "sit down",
+     "image": "assets/lessons/img/L15_01.webp"
+    },
+    {
+     "kana": "つかいます",
+     "gloss": "use",
+     "image": "assets/lessons/img/L15_02.webp"
+    },
+    {
+     "kana": "おきます",
+     "gloss": "put on",
+     "image": "assets/lessons/img/L15_03.webp"
+    },
+    {
+     "kana": "つくります",
+     "gloss": "make, produce",
+     "image": "assets/lessons/img/L15_04.webp"
+    },
+    {
+     "kana": "うります",
+     "gloss": "sell",
+     "image": "assets/lessons/img/L15_05.webp"
+    },
+    {
+     "kana": "すみます",
+     "gloss": "be going to live",
+     "image": "assets/lessons/img/L15_06.webp"
+    },
+    {
+     "kana": "けんきゅうします",
+     "gloss": "do research",
+     "image": "assets/lessons/img/L15_07.webp"
+    },
+    {
+     "kana": "しりょう",
+     "gloss": "materials, data",
+     "image": "assets/lessons/img/L15_08.webp",
+     "kanji": [
+      "史料",
+      "試料",
+      "資料",
+      "飼料",
+      "思料",
+      "思量"
+     ]
+    },
+    {
+     "kana": "カタログ",
+     "gloss": "catalog",
+     "image": "assets/lessons/img/L15_09.webp",
+     "kanji": [
+      "型録"
+     ]
+    },
+    {
+     "kana": "じこくひょう",
+     "gloss": "timetable",
+     "image": "assets/lessons/img/L15_10.webp",
+     "kanji": [
+      "時刻表"
+     ]
+    },
+    {
+     "kana": "ふく",
+     "gloss": "clothes",
+     "image": "assets/lessons/img/L15_11.webp",
+     "kanji": [
+      "拭く",
+      "吹く",
+      "副",
+      "服",
+      "福",
+      "河豚"
+     ]
+    },
+    {
+     "kana": "はいしゃ",
+     "gloss": "haisha, dentist",
+     "image": "assets/lessons/img/L15_12.webp",
+     "kanji": [
+      "歯医者",
+      "齒醫者",
+      "敗者",
+      "廃社",
+      "廃車",
+      "拝謝"
+     ]
+    },
+    {
+     "kana": "とこや",
+     "gloss": "barber",
+     "image": "assets/lessons/img/L15_13.webp",
+     "kanji": [
+      "床屋"
+     ]
+    },
+    {
+     "kana": "おもいだします",
+     "gloss": "remember, recollect",
+     "image": "assets/lessons/img/L15_14.webp"
+    },
+    {
+     "kana": "こうこう",
+     "gloss": "high school",
+     "image": "assets/lessons/img/L15_15.webp",
+     "kanji": [
+      "孝行",
+      "航行",
+      "高校",
+      "黄口",
+      "後攻",
+      "後項"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 16,
+   "source": "L16-roma.pdf",
+   "items": [
+    {
+     "kana": "のります[でんしゃに ]",
+     "gloss": "ride, get on [a train]",
+     "image": "assets/lessons/img/L16_00.webp"
+    },
+    {
+     "kana": "おります[でんしゃを]",
+     "gloss": "get off [a train]",
+     "image": "assets/lessons/img/L16_01.webp"
+    },
+    {
+     "kana": "のりかえます",
+     "gloss": "change trains",
+     "image": "assets/lessons/img/L16_02.webp"
+    },
+    {
+     "kana": "あびます[〜を]",
+     "gloss": "abimasu(shawāwo), take [a shower]",
+     "image": "assets/lessons/img/L16_03.webp"
+    },
+    {
+     "kana": "いれます",
+     "gloss": "put in, insert",
+     "image": "assets/lessons/img/L16_04.webp"
+    },
+    {
+     "kana": "だします",
+     "gloss": "take out, withdraw",
+     "image": "assets/lessons/img/L16_05.webp"
+    },
+    {
+     "kana": "はいります[だいがくに]",
+     "gloss": "enter [university]",
+     "image": "assets/lessons/img/L16_06.webp"
+    },
+    {
+     "kana": "でます[だいがくを]",
+     "gloss": "graduate from [university]",
+     "image": "assets/lessons/img/L16_07.webp"
+    },
+    {
+     "kana": "やめます[かいしゃを]",
+     "gloss": "quit [a company]",
+     "image": "assets/lessons/img/L16_08.webp"
+    },
+    {
+     "kana": "おします",
+     "gloss": "push, press",
+     "image": "assets/lessons/img/L16_09.webp"
+    },
+    {
+     "kana": "わかい",
+     "gloss": "young",
+     "image": "assets/lessons/img/L16_10.webp",
+     "kanji": [
+      "若い",
+      "和解",
+      "和諧"
+     ]
+    },
+    {
+     "kana": "ながい",
+     "gloss": "long",
+     "image": "assets/lessons/img/L16_11.webp",
+     "kanji": [
+      "長い",
+      "永い",
+      "長居"
+     ]
+    },
+    {
+     "kana": "みじがい",
+     "gloss": "short",
+     "image": "assets/lessons/img/L16_12.webp"
+    },
+    {
+     "kana": "あかるい",
+     "gloss": "bright",
+     "image": "assets/lessons/img/L16_13.webp",
+     "kanji": [
+      "明るい",
+      "明い"
+     ]
+    },
+    {
+     "kana": "くらい",
+     "gloss": "dark",
+     "image": "assets/lessons/img/L16_14.webp",
+     "kanji": [
+      "暗い",
+      "昏い",
+      "冥い",
+      "闇い",
+      "位"
+     ]
+    },
+    {
+     "kana": "せがたかい",
+     "gloss": "tall (referring to person)",
+     "image": "assets/lessons/img/L16_15.webp",
+     "kanji": [
+      "背が高い",
+      "背がたかい",
+      "せが高い"
+     ]
+    },
+    {
+     "kana": "からだ",
+     "gloss": "body",
+     "image": "assets/lessons/img/L16_16.webp",
+     "kanji": [
+      "体",
+      "身体",
+      "躯",
+      "躰",
+      "體",
+      "軀"
+     ]
+    },
+    {
+     "kana": "あたま",
+     "gloss": "head",
+     "image": "assets/lessons/img/L16_17.webp",
+     "kanji": [
+      "頭"
+     ]
+    },
+    {
+     "kana": "かみ",
+     "gloss": "hair",
+     "image": "assets/lessons/img/L16_18.webp",
+     "kanji": [
+      "加味",
+      "紙",
+      "上",
+      "神",
+      "髪",
+      "髮"
+     ]
+    },
+    {
+     "kana": "かお",
+     "gloss": "face",
+     "image": "assets/lessons/img/L16_19.webp",
+     "kanji": [
+      "顔",
+      "貌",
+      "顏"
+     ]
+    },
+    {
+     "kana": "め",
+     "gloss": "eye",
+     "image": "assets/lessons/img/L16_20.webp",
+     "kanji": [
+      "芽",
+      "目",
+      "眼",
+      "雌",
+      "女",
+      "妻"
+     ]
+    },
+    {
+     "kana": "みみ",
+     "gloss": "ear",
+     "image": "assets/lessons/img/L16_21.webp",
+     "kanji": [
+      "耳"
+     ]
+    },
+    {
+     "kana": "くち",
+     "gloss": "mouth",
+     "image": "assets/lessons/img/L16_22.webp",
+     "kanji": [
+      "口"
+     ]
+    },
+    {
+     "kana": "は",
+     "gloss": "tooth",
+     "image": "assets/lessons/img/L16_23.webp",
+     "kanji": [
+      "羽",
+      "羽根",
+      "歯",
+      "齒",
+      "刃",
+      "派"
+     ]
+    },
+    {
+     "kana": "おなか",
+     "gloss": "stomach, belly, tummy",
+     "image": "assets/lessons/img/L16_24.webp",
+     "kanji": [
+      "お腹",
+      "お中",
+      "御腹",
+      "御中"
+     ]
+    },
+    {
+     "kana": "あし",
+     "gloss": "foot, leg",
+     "image": "assets/lessons/img/L16_25.webp",
+     "kanji": [
+      "足",
+      "脚",
+      "肢",
+      "悪し",
+      "葦",
+      "蘆"
+     ]
+    },
+    {
+     "kana": "ジョギング",
+     "gloss": "jogingu, jogging",
+     "image": "assets/lessons/img/L16_26.webp"
+    },
+    {
+     "kana": "[お]てら",
+     "gloss": "temple",
+     "image": "assets/lessons/img/L16_27.webp"
+    },
+    {
+     "kana": "じんじゃ",
+     "gloss": "jinja, shinto shrine",
+     "image": "assets/lessons/img/L16_28.webp",
+     "kanji": [
+      "神社"
+     ]
+    },
+    {
+     "kana": "りゅうがくせい",
+     "gloss": "foreign student",
+     "image": "assets/lessons/img/L16_29.webp",
+     "kanji": [
+      "留学生"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 17,
+   "source": "L17-roma.pdf",
+   "items": [
+    {
+     "kana": "おぼえます",
+     "gloss": "memorize",
+     "image": "assets/lessons/img/L17_00.webp"
+    },
+    {
+     "kana": "わすれます",
+     "gloss": "forget",
+     "image": "assets/lessons/img/L17_01.webp"
+    },
+    {
+     "kana": "なくします",
+     "gloss": "lose",
+     "image": "assets/lessons/img/L17_02.webp"
+    },
+    {
+     "kana": "だします[〜を]",
+     "gloss": "dashimasu(repōtowo), hand in [a report]",
+     "image": "assets/lessons/img/L17_03.webp"
+    },
+    {
+     "kana": "はらいます",
+     "gloss": "pay",
+     "image": "assets/lessons/img/L17_04.webp"
+    },
+    {
+     "kana": "かえします",
+     "gloss": "return",
+     "image": "assets/lessons/img/L17_05.webp"
+    },
+    {
+     "kana": "でかけます",
+     "gloss": "go out",
+     "image": "assets/lessons/img/L17_06.webp"
+    },
+    {
+     "kana": "ぬぎます",
+     "gloss": "take off",
+     "image": "assets/lessons/img/L17_07.webp"
+    },
+    {
+     "kana": "もっていきます",
+     "gloss": "take (something)",
+     "image": "assets/lessons/img/L17_08.webp"
+    },
+    {
+     "kana": "もって きます",
+     "gloss": "bring (something)",
+     "image": "assets/lessons/img/L17_09.webp"
+    },
+    {
+     "kana": "しんぱいします",
+     "gloss": "worry",
+     "image": "assets/lessons/img/L17_10.webp"
+    },
+    {
+     "kana": "ざんぎょうします",
+     "gloss": "work overtime",
+     "image": "assets/lessons/img/L17_11.webp"
+    },
+    {
+     "kana": "しゅっちょうします",
+     "gloss": "shucchōshimasu, go on a business trip",
+     "image": "assets/lessons/img/L17_12.webp"
+    },
+    {
+     "kana": "のみます[くすりを ]",
+     "gloss": "take [medicine]",
+     "image": "assets/lessons/img/L17_13.webp"
+    },
+    {
+     "kana": "はいります[おふろに]",
+     "gloss": "take [a bath]",
+     "image": "assets/lessons/img/L17_14.webp"
+    },
+    {
+     "kana": "たいせつ[な]",
+     "gloss": "important, precious",
+     "image": "assets/lessons/img/L17_15.webp"
+    },
+    {
+     "kana": "だいじょうぶ[な]",
+     "gloss": "daijōbu(na), all right",
+     "image": "assets/lessons/img/L17_16.webp"
+    },
+    {
+     "kana": "あぶない",
+     "gloss": "dangerous",
+     "image": "assets/lessons/img/L17_17.webp",
+     "kanji": [
+      "危ない",
+      "危い"
+     ]
+    },
+    {
+     "kana": "もんだい",
+     "gloss": "question, problem, trouble",
+     "image": "assets/lessons/img/L17_18.webp",
+     "kanji": [
+      "問題"
+     ]
+    },
+    {
+     "kana": "こたえ",
+     "gloss": "answer",
+     "image": "assets/lessons/img/L17_19.webp",
+     "kanji": [
+      "答え",
+      "答",
+      "応え",
+      "報え"
+     ]
+    },
+    {
+     "kana": "きんえん",
+     "gloss": "no smoking",
+     "image": "assets/lessons/img/L17_20.webp",
+     "kanji": [
+      "禁煙",
+      "禁烟",
+      "筋炎",
+      "近縁",
+      "金円"
+     ]
+    },
+    {
+     "kana": "かぜ",
+     "gloss": "cold, flu",
+     "image": "assets/lessons/img/L17_21.webp",
+     "kanji": [
+      "風",
+      "風邪"
+     ]
+    },
+    {
+     "kana": "ねつ",
+     "gloss": "fever",
+     "image": "assets/lessons/img/L17_22.webp",
+     "kanji": [
+      "熱"
+     ]
+    },
+    {
+     "kana": "びょうき",
+     "gloss": "illness, disease",
+     "image": "assets/lessons/img/L17_23.webp",
+     "kanji": [
+      "病気",
+      "病氣"
+     ]
+    },
+    {
+     "kana": "くすり",
+     "gloss": "medicine",
+     "image": "assets/lessons/img/L17_24.webp",
+     "kanji": [
+      "薬"
+     ]
+    },
+    {
+     "kana": "(お)ふろ",
+     "gloss": "bath",
+     "image": "assets/lessons/img/L17_25.webp"
+    },
+    {
+     "kana": "うわぎ",
+     "gloss": "jacket",
+     "image": "assets/lessons/img/L17_26.webp",
+     "kanji": [
+      "上着",
+      "上衣",
+      "表着"
+     ]
+    },
+    {
+     "kana": "したぎ",
+     "gloss": "underwear",
+     "image": "assets/lessons/img/L17_27.webp",
+     "kanji": [
+      "下着",
+      "下木"
+     ]
+    },
+    {
+     "kana": "いたいです[おなかが]",
+     "gloss": "stomachache",
+     "image": "assets/lessons/img/L17_28.webp"
+    },
+    {
+     "kana": "いたいです[あたまが]",
+     "gloss": "headache",
+     "image": "assets/lessons/img/L17_29.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 22,
+   "source": "L22-roma.pdf",
+   "items": [
+    {
+     "kana": "きます[シャツを]",
+     "gloss": "kimasu(shatsuwo), put on [a shirt]",
+     "image": "assets/lessons/img/L22_00.webp"
+    },
+    {
+     "kana": "はきます[くつを]",
+     "gloss": "put on [shoes or trousers]",
+     "image": "assets/lessons/img/L22_01.webp"
+    },
+    {
+     "kana": "かぶります[ぼうしを]",
+     "gloss": "put on [a hat]",
+     "image": "assets/lessons/img/L22_02.webp"
+    },
+    {
+     "kana": "かけます[めがねを]",
+     "gloss": "put on [glasses]",
+     "image": "assets/lessons/img/L22_03.webp"
+    },
+    {
+     "kana": "うまれます",
+     "gloss": "be born",
+     "image": "assets/lessons/img/L22_04.webp"
+    },
+    {
+     "kana": "コート",
+     "gloss": "coat",
+     "image": "assets/lessons/img/L22_05.webp"
+    },
+    {
+     "kana": "スーツ",
+     "gloss": "suit",
+     "image": "assets/lessons/img/L22_06.webp"
+    },
+    {
+     "kana": "セーター",
+     "gloss": "sweater",
+     "image": "assets/lessons/img/L22_07.webp"
+    },
+    {
+     "kana": "ぼうし",
+     "gloss": "hat, cap",
+     "image": "assets/lessons/img/L22_08.webp",
+     "kanji": [
+      "帽子",
+      "防止",
+      "茅茨",
+      "亡姉",
+      "亡子",
+      "傍視"
+     ]
+    },
+    {
+     "kana": "めがね",
+     "gloss": "glasses",
+     "image": "assets/lessons/img/L22_09.webp",
+     "kanji": [
+      "眼鏡"
+     ]
+    },
+    {
+     "kana": "おめでとう(ございます)。",
+     "gloss": "Congratulations.",
+     "image": "assets/lessons/img/L22_10.webp"
+    },
+    {
+     "kana": "アパート",
+     "gloss": "apartment",
+     "image": "assets/lessons/img/L22_11.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 23,
+   "source": "L23-roma.pdf",
+   "items": [
+    {
+     "kana": "ききます[せんせいに]",
+     "gloss": "ask [the teacher]",
+     "image": "assets/lessons/img/L23_00.webp"
+    },
+    {
+     "kana": "まわします",
+     "gloss": "turn",
+     "image": "assets/lessons/img/L23_01.webp"
+    },
+    {
+     "kana": "ひきます",
+     "gloss": "pull",
+     "image": "assets/lessons/img/L23_02.webp"
+    },
+    {
+     "kana": "かえます",
+     "gloss": "change",
+     "image": "assets/lessons/img/L23_03.webp"
+    },
+    {
+     "kana": "さわります[に]",
+     "gloss": "touch",
+     "image": "assets/lessons/img/L23_04.webp"
+    },
+    {
+     "kana": "でます[ジュースが]",
+     "gloss": "demasu(jūsuga), [juice] come out",
+     "image": "assets/lessons/img/L23_05.webp"
+    },
+    {
+     "kana": "うごきます[くるまが]",
+     "gloss": "[a car] move, work",
+     "image": "assets/lessons/img/L23_06.webp"
+    },
+    {
+     "kana": "あるきます[みちを]",
+     "gloss": "walk [along a road]",
+     "image": "assets/lessons/img/L23_07.webp"
+    },
+    {
+     "kana": "わたります[はしを ]",
+     "gloss": "cross [a bridge]",
+     "image": "assets/lessons/img/L23_08.webp"
+    },
+    {
+     "kana": "きをつけます",
+     "gloss": "kiwotsukemasu, pay attention",
+     "image": "assets/lessons/img/L23_09.webp"
+    },
+    {
+     "kana": "ひっこしします",
+     "gloss": "move (house)",
+     "image": "assets/lessons/img/L23_10.webp"
+    },
+    {
+     "kana": "でんきや",
+     "gloss": "electrician",
+     "image": "assets/lessons/img/L23_11.webp",
+     "kanji": [
+      "電気屋"
+     ]
+    },
+    {
+     "kana": "おと",
+     "gloss": "sound",
+     "image": "assets/lessons/img/L23_12.webp",
+     "kanji": [
+      "音",
+      "弟",
+      "乙"
+     ]
+    },
+    {
+     "kana": "きかい",
+     "gloss": "machine",
+     "image": "assets/lessons/img/L23_13.webp",
+     "kanji": [
+      "奇怪",
+      "奇っ怪",
+      "機会",
+      "機械",
+      "器械",
+      "棋界"
+     ]
+    },
+    {
+     "kana": "つまみ",
+     "gloss": "knob",
+     "image": "assets/lessons/img/L23_14.webp",
+     "kanji": [
+      "摘み",
+      "摘まみ",
+      "撮み",
+      "抓み"
+     ]
+    },
+    {
+     "kana": "こしょう",
+     "gloss": "koshō, break down",
+     "image": "assets/lessons/img/L23_15.webp",
+     "kanji": [
+      "呼称",
+      "故障",
+      "湖沼",
+      "胡椒",
+      "古松",
+      "古称"
+     ]
+    },
+    {
+     "kana": "みち",
+     "gloss": "road, way",
+     "image": "assets/lessons/img/L23_16.webp",
+     "kanji": [
+      "道",
+      "途",
+      "路",
+      "径",
+      "未知",
+      "蜜"
+     ]
+    },
+    {
+     "kana": "こうさてん",
+     "gloss": "crossroad",
+     "image": "assets/lessons/img/L23_17.webp",
+     "kanji": [
+      "交差点",
+      "交叉点"
+     ]
+    },
+    {
+     "kana": "しんごう",
+     "gloss": "traffic light",
+     "image": "assets/lessons/img/L23_18.webp",
+     "kanji": [
+      "信号"
+     ]
+    },
+    {
+     "kana": "かど",
+     "gloss": "corner",
+     "image": "assets/lessons/img/L23_19.webp",
+     "kanji": [
+      "過度",
+      "角",
+      "下土",
+      "門",
+      "廉",
+      "鰊"
+     ]
+    },
+    {
+     "kana": "はし",
+     "gloss": "bridge",
+     "image": "assets/lessons/img/L23_20.webp",
+     "kanji": [
+      "橋",
+      "端",
+      "箸",
+      "嘴",
+      "觜",
+      "喙"
+     ]
+    },
+    {
+     "kana": "ちゅうしゃじょう",
+     "gloss": "chūshajō, parking lot",
+     "image": "assets/lessons/img/L23_21.webp",
+     "kanji": [
+      "駐車場"
+     ]
+    },
+    {
+     "kana": "(お)しょうがつ",
+     "gloss": "(o)shōgatsu, New year's day",
+     "image": "assets/lessons/img/L23_22.webp"
+    },
+    {
+     "kana": "ごちそうさま(でした)。",
+     "gloss": "That was delicious.",
+     "image": "assets/lessons/img/L23_23.webp"
+    },
+    {
+     "kana": "たてもの",
+     "gloss": "building",
+     "image": "assets/lessons/img/L23_24.webp",
+     "kanji": [
+      "建物",
+      "建もの",
+      "建て物",
+      "建てもの",
+      "竪物",
+      "立者"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 24,
+   "source": "L24-roma.pdf",
+   "items": [
+    {
+     "kana": "くれます",
+     "gloss": "give (me)",
+     "image": "assets/lessons/img/L24_00.webp"
+    },
+    {
+     "kana": "つれていきます",
+     "gloss": "take (someone)",
+     "image": "assets/lessons/img/L24_01.webp"
+    },
+    {
+     "kana": "つれて きます",
+     "gloss": "bring (someone)",
+     "image": "assets/lessons/img/L24_02.webp"
+    },
+    {
+     "kana": "おくります[ひとを]",
+     "gloss": "send (someone)",
+     "image": "assets/lessons/img/L24_03.webp"
+    },
+    {
+     "kana": "しょうかいします",
+     "gloss": "shōkaishimasu, introduce",
+     "image": "assets/lessons/img/L24_04.webp"
+    },
+    {
+     "kana": "あんないします",
+     "gloss": "show around",
+     "image": "assets/lessons/img/L24_05.webp"
+    },
+    {
+     "kana": "せつめいします",
+     "gloss": "explain",
+     "image": "assets/lessons/img/L24_06.webp"
+    },
+    {
+     "kana": "いれます[を]",
+     "gloss": "iremasu(kōhīwo), make [coffee]",
+     "image": "assets/lessons/img/L24_07.webp"
+    },
+    {
+     "kana": "おじいちゃん",
+     "gloss": "ojīchan, grandfather",
+     "image": "assets/lessons/img/L24_08.webp",
+     "kanji": [
+      "お爺ちゃん",
+      "お祖父ちゃん",
+      "御爺ちゃん",
+      "御祖父ちゃん"
+     ]
+    },
+    {
+     "kana": "おじいさん",
+     "gloss": "old man",
+     "image": "assets/lessons/img/L24_09.webp",
+     "kanji": [
+      "お祖父さん",
+      "お爺さん",
+      "御爺さん",
+      "御祖父さん"
+     ]
+    },
+    {
+     "kana": "おばあちゃん",
+     "gloss": "obāchan, grandmother",
+     "image": "assets/lessons/img/L24_10.webp",
+     "kanji": [
+      "お婆ちゃん",
+      "お祖母ちゃん",
+      "御祖母ちゃん",
+      "御婆ちゃん"
+     ]
+    },
+    {
+     "kana": "おばあさん",
+     "gloss": "old woman",
+     "image": "assets/lessons/img/L24_11.webp",
+     "kanji": [
+      "お祖母さん",
+      "お婆さん",
+      "御祖母さん",
+      "御婆さん"
+     ]
+    },
+    {
+     "kana": "(お)かし",
+     "gloss": "sweets, snacks",
+     "image": "assets/lessons/img/L24_12.webp"
+    },
+    {
+     "kana": "(お)べんとう",
+     "gloss": "lunch box",
+     "image": "assets/lessons/img/L24_13.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 25,
+   "source": "L25-roma.pdf",
+   "items": [
+    {
+     "kana": "かんがえます",
+     "gloss": "think, consider",
+     "image": "assets/lessons/img/L25_00.webp"
+    },
+    {
+     "kana": "つきます[えきに]",
+     "gloss": "arrive [at the station]",
+     "image": "assets/lessons/img/L25_01.webp"
+    },
+    {
+     "kana": "りゅうがくします",
+     "gloss": "study abroad",
+     "image": "assets/lessons/img/L25_02.webp"
+    },
+    {
+     "kana": "とります[としを]",
+     "gloss": "grow old",
+     "image": "assets/lessons/img/L25_03.webp"
+    },
+    {
+     "kana": "いなか",
+     "gloss": "countryside, hometown",
+     "image": "assets/lessons/img/L25_04.webp",
+     "kanji": [
+      "田舎",
+      "田舍"
+     ]
+    },
+    {
+     "kana": "たいしかん",
+     "gloss": "embassy",
+     "image": "assets/lessons/img/L25_05.webp",
+     "kanji": [
+      "大使館"
+     ]
+    },
+    {
+     "kana": "てんきん",
+     "gloss": "transfer",
+     "image": "assets/lessons/img/L25_06.webp",
+     "kanji": [
+      "転勤",
+      "天金",
+      "転筋"
+     ]
+    },
+    {
+     "kana": "がんばります",
+     "gloss": "do one's best.",
+     "image": "assets/lessons/img/L25_07.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 26,
+   "source": "L26-roma.pdf",
+   "items": [
+    {
+     "kana": "みます",
+     "gloss": "check",
+     "image": "assets/lessons/img/L26_00.webp"
+    },
+    {
+     "kana": "みます",
+     "gloss": "check",
+     "image": "assets/lessons/img/L26_01.webp"
+    },
+    {
+     "kana": "さがします",
+     "gloss": "look for",
+     "image": "assets/lessons/img/L26_02.webp"
+    },
+    {
+     "kana": "さがします",
+     "gloss": "search",
+     "image": "assets/lessons/img/L26_03.webp"
+    },
+    {
+     "kana": "おくれます[に]",
+     "gloss": "okuremasu(jikanni), be late",
+     "image": "assets/lessons/img/L26_04.webp"
+    },
+    {
+     "kana": "まにあいます[に]",
+     "gloss": "maniaimasu(jikanni), be in time",
+     "image": "assets/lessons/img/L26_05.webp"
+    },
+    {
+     "kana": "さんかします[ に]",
+     "gloss": "sankashimasu(pāthīni), attend [a party]",
+     "image": "assets/lessons/img/L26_06.webp"
+    },
+    {
+     "kana": "もうしこみます",
+     "gloss": "apply for, enter for",
+     "image": "assets/lessons/img/L26_07.webp"
+    },
+    {
+     "kana": "つごうがいい",
+     "gloss": "convenient",
+     "image": "assets/lessons/img/L26_08.webp",
+     "kanji": [
+      "都合がいい",
+      "都合が良い",
+      "都合がよい"
+     ]
+    },
+    {
+     "kana": "つごうがわるい",
+     "gloss": "inconvenient",
+     "image": "assets/lessons/img/L26_09.webp",
+     "kanji": [
+      "都合が悪い",
+      "都合がわるい"
+     ]
+    },
+    {
+     "kana": "きぶんがいい",
+     "gloss": "feel well",
+     "image": "assets/lessons/img/L26_10.webp",
+     "kanji": [
+      "気分がいい",
+      "気分が良い",
+      "気分がよい"
+     ]
+    },
+    {
+     "kana": "きぶんがわるい",
+     "gloss": "feel ill",
+     "image": "assets/lessons/img/L26_11.webp",
+     "kanji": [
+      "気分が悪い",
+      "気分がわるい"
+     ]
+    },
+    {
+     "kana": "じゅうどう",
+     "gloss": "jūdō, judo",
+     "image": "assets/lessons/img/L26_12.webp",
+     "kanji": [
+      "柔道"
+     ]
+    },
+    {
+     "kana": "うんどうかい",
+     "gloss": "sports day",
+     "image": "assets/lessons/img/L26_13.webp",
+     "kanji": [
+      "運動会",
+      "運動界"
+     ]
+    },
+    {
+     "kana": "ばしょ",
+     "gloss": "basho, place",
+     "image": "assets/lessons/img/L26_14.webp",
+     "kanji": [
+      "場所"
+     ]
+    },
+    {
+     "kana": "ボランテイア",
+     "gloss": "volunteer",
+     "image": "assets/lessons/img/L26_15.webp"
+    },
+    {
+     "kana": "かたづきます[にもつが]",
+     "gloss": "[boxes] be put in order",
+     "image": "assets/lessons/img/L26_16.webp"
+    },
+    {
+     "kana": "ごみ",
+     "gloss": "garbage, trash, dust",
+     "image": "assets/lessons/img/L26_17.webp",
+     "kanji": [
+      "塵",
+      "芥",
+      "五味",
+      "寤寐"
+     ]
+    },
+    {
+     "kana": "だします[ごみを]",
+     "gloss": "put out [the trash]",
+     "image": "assets/lessons/img/L26_18.webp"
+    },
+    {
+     "kana": "もえます",
+     "gloss": "[trash] burn",
+     "image": "assets/lessons/img/L26_19.webp"
+    },
+    {
+     "kana": "おきば",
+     "gloss": "place where something is put",
+     "image": "assets/lessons/img/L26_20.webp",
+     "kanji": [
+      "置き場",
+      "置場"
+     ]
+    },
+    {
+     "kana": "びん",
+     "gloss": "bottle",
+     "image": "assets/lessons/img/L26_21.webp",
+     "kanji": [
+      "瓶",
+      "壜",
+      "罎",
+      "便",
+      "敏",
+      "緡"
+     ]
+    },
+    {
+     "kana": "かん",
+     "gloss": "can",
+     "image": "assets/lessons/img/L26_22.webp",
+     "kanji": [
+      "冠",
+      "勘",
+      "感",
+      "棺",
+      "柩",
+      "管"
+     ]
+    },
+    {
+     "kana": "(お)ゆ",
+     "gloss": "hot water",
+     "image": "assets/lessons/img/L26_23.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 27,
+   "source": "L27-roma.pdf",
+   "items": [
+    {
+     "kana": "かいます",
+     "gloss": "keep (a pet), raise (an animal)",
+     "image": "assets/lessons/img/L27_00.webp",
+     "kanji": [
+      "買い増す",
+      "買増す"
+     ]
+    },
+    {
+     "kana": "たてます",
+     "gloss": "build",
+     "image": "assets/lessons/img/L27_01.webp",
+     "kanji": [
+      "建て増す"
+     ]
+    },
+    {
+     "kana": "はしります[みちを]",
+     "gloss": "run, drive [along a road]",
+     "image": "assets/lessons/img/L27_02.webp"
+    },
+    {
+     "kana": "とります[やすみを]",
+     "gloss": "take [a holiday]",
+     "image": "assets/lessons/img/L27_03.webp"
+    },
+    {
+     "kana": "みえます[やまが]",
+     "gloss": "[a mountain] can be seen",
+     "image": "assets/lessons/img/L27_04.webp"
+    },
+    {
+     "kana": "きこえます[おとが]",
+     "gloss": "[a sound] can be heard",
+     "image": "assets/lessons/img/L27_05.webp"
+    },
+    {
+     "kana": "できます[くうこうが]",
+     "gloss": "[an airport] be made, be, completed",
+     "image": "assets/lessons/img/L27_06.webp"
+    },
+    {
+     "kana": "ひらきます[きょうしつを]",
+     "gloss": "open",
+     "image": "assets/lessons/img/L27_07.webp"
+    },
+    {
+     "kana": "とり",
+     "gloss": "bird",
+     "image": "assets/lessons/img/L27_08.webp",
+     "kanji": [
+      "鶏",
+      "鷄",
+      "雞",
+      "鳥",
+      "禽",
+      "酉"
+     ]
+    },
+    {
+     "kana": "こえ",
+     "gloss": "voice",
+     "image": "assets/lessons/img/L27_09.webp",
+     "kanji": [
+      "声",
+      "聲",
+      "肥"
+     ]
+    },
+    {
+     "kana": "なみ",
+     "gloss": "wave",
+     "image": "assets/lessons/img/L27_10.webp",
+     "kanji": [
+      "波",
+      "浪",
+      "濤",
+      "並",
+      "並み"
+     ]
+    },
+    {
+     "kana": "はなび",
+     "gloss": "fireworks",
+     "image": "assets/lessons/img/L27_11.webp",
+     "kanji": [
+      "花火",
+      "煙火",
+      "ＨＡＮＡ-ＢＩ"
+     ]
+    },
+    {
+     "kana": "けしき",
+     "gloss": "scenery, view",
+     "image": "assets/lessons/img/L27_12.webp",
+     "kanji": [
+      "景色",
+      "気色"
+     ]
+    },
+    {
+     "kana": "むかし",
+     "gloss": "old days",
+     "image": "assets/lessons/img/L27_13.webp",
+     "kanji": [
+      "昔"
+     ]
+    },
+    {
+     "kana": "どうぐ",
+     "gloss": "tool",
+     "image": "assets/lessons/img/L27_14.webp",
+     "kanji": [
+      "道具"
+     ]
+    },
+    {
+     "kana": "じどうはんばいき",
+     "gloss": "vending machine",
+     "image": "assets/lessons/img/L27_15.webp",
+     "kanji": [
+      "自動販売機",
+      "自動販売器"
+     ]
+    },
+    {
+     "kana": "つうしんはんばい",
+     "gloss": "mail order",
+     "image": "assets/lessons/img/L27_16.webp",
+     "kanji": [
+      "通信販売"
+     ]
+    },
+    {
+     "kana": "クリーニング",
+     "gloss": "cleaning, laundry",
+     "image": "assets/lessons/img/L27_17.webp"
+    },
+    {
+     "kana": "マンション",
+     "gloss": "manshon, condominium, apartment",
+     "image": "assets/lessons/img/L27_18.webp"
+    },
+    {
+     "kana": "だいどころ",
+     "gloss": "kitchen",
+     "image": "assets/lessons/img/L27_19.webp",
+     "kanji": [
+      "台所",
+      "臺處"
+     ]
+    },
+    {
+     "kana": "にちようだいく",
+     "gloss": "Sunday carpenter",
+     "image": "assets/lessons/img/L27_20.webp",
+     "kanji": [
+      "日曜大工"
+     ]
+    },
+    {
+     "kana": "ほんだな",
+     "gloss": "bookshelf",
+     "image": "assets/lessons/img/L27_21.webp",
+     "kanji": [
+      "本棚",
+      "本店"
+     ]
+    },
+    {
+     "kana": "すばらしい",
+     "gloss": "marvelous, wonderful",
+     "image": "assets/lessons/img/L27_22.webp",
+     "kanji": [
+      "素晴らしい",
+      "素晴しい",
+      "素薔薇しい"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 28,
+   "source": "L28-roma.pdf",
+   "items": [
+    {
+     "kana": "うれます[パンが]",
+     "gloss": "[bread] sell",
+     "image": "assets/lessons/img/L28_00.webp"
+    },
+    {
+     "kana": "おどります",
+     "gloss": "dance",
+     "image": "assets/lessons/img/L28_01.webp"
+    },
+    {
+     "kana": "かみます",
+     "gloss": "chew",
+     "image": "assets/lessons/img/L28_02.webp"
+    },
+    {
+     "kana": "かみます",
+     "gloss": "bite",
+     "image": "assets/lessons/img/L28_03.webp"
+    },
+    {
+     "kana": "えらびます",
+     "gloss": "choose",
+     "image": "assets/lessons/img/L28_04.webp"
+    },
+    {
+     "kana": "ちがいます",
+     "gloss": "be different",
+     "image": "assets/lessons/img/L28_05.webp"
+    },
+    {
+     "kana": "かよいます[だいがくに]",
+     "gloss": "go to and from [university]",
+     "image": "assets/lessons/img/L28_06.webp"
+    },
+    {
+     "kana": "メモします",
+     "gloss": "take a memo",
+     "image": "assets/lessons/img/L28_07.webp"
+    },
+    {
+     "kana": "まじめ[な]",
+     "gloss": "serious",
+     "image": "assets/lessons/img/L28_08.webp"
+    },
+    {
+     "kana": "ねっしん[な]",
+     "gloss": "earnest",
+     "image": "assets/lessons/img/L28_09.webp"
+    },
+    {
+     "kana": "やさしい",
+     "gloss": "gentle, kind",
+     "image": "assets/lessons/img/L28_10.webp",
+     "kanji": [
+      "易しい",
+      "優しい"
+     ]
+    },
+    {
+     "kana": "えらい",
+     "gloss": "great",
+     "image": "assets/lessons/img/L28_11.webp",
+     "kanji": [
+      "偉い",
+      "豪い"
+     ]
+    },
+    {
+     "kana": "ちょうどいい",
+     "gloss": "chōdoī, proper, just right",
+     "image": "assets/lessons/img/L28_12.webp",
+     "kanji": [
+      "ちょうど良い",
+      "丁度いい",
+      "丁度良い",
+      "丁度よい"
+     ]
+    },
+    {
+     "kana": "しゅうかん",
+     "gloss": "shūkan, custom",
+     "image": "assets/lessons/img/L28_13.webp",
+     "kanji": [
+      "習慣",
+      "週刊",
+      "週間",
+      "収監",
+      "秋官",
+      "終刊"
+     ]
+    },
+    {
+     "kana": "かたち",
+     "gloss": "form, shape",
+     "image": "assets/lessons/img/L28_14.webp",
+     "kanji": [
+      "形",
+      "容",
+      "貌"
+     ]
+    },
+    {
+     "kana": "いろ",
+     "gloss": "color",
+     "image": "assets/lessons/img/L28_15.webp",
+     "kanji": [
+      "色"
+     ]
+    },
+    {
+     "kana": "あじ",
+     "gloss": "taste",
+     "image": "assets/lessons/img/L28_16.webp",
+     "kanji": [
+      "鯵",
+      "鰺",
+      "味",
+      "阿字",
+      "按司"
+     ]
+    },
+    {
+     "kana": "ガム",
+     "gloss": "chewing gum",
+     "image": "assets/lessons/img/L28_17.webp",
+     "kanji": [
+      "瓜姆",
+      "瓦無"
+     ]
+    },
+    {
+     "kana": "しなもの",
+     "gloss": "goods",
+     "image": "assets/lessons/img/L28_18.webp",
+     "kanji": [
+      "品物",
+      "品もの"
+     ]
+    },
+    {
+     "kana": "ねだん",
+     "gloss": "price",
+     "image": "assets/lessons/img/L28_19.webp",
+     "kanji": [
+      "値段",
+      "直段"
+     ]
+    },
+    {
+     "kana": "きゅうりょう",
+     "gloss": "salary",
+     "image": "assets/lessons/img/L28_20.webp",
+     "kanji": [
+      "丘陵",
+      "給料",
+      "休漁",
+      "休猟",
+      "旧領",
+      "虬竜"
+     ]
+    },
+    {
+     "kana": "ボーナス",
+     "gloss": "bonus",
+     "image": "assets/lessons/img/L28_21.webp"
+    },
+    {
+     "kana": "ばんぐみ",
+     "gloss": "program",
+     "image": "assets/lessons/img/L28_22.webp",
+     "kanji": [
+      "番組"
+     ]
+    },
+    {
+     "kana": "ドラマ",
+     "gloss": "drama",
+     "image": "assets/lessons/img/L28_23.webp"
+    },
+    {
+     "kana": "しょうせつ",
+     "gloss": "shōsetsu, novel",
+     "image": "assets/lessons/img/L28_24.webp",
+     "kanji": [
+      "小説",
+      "勝絶",
+      "小節",
+      "小雪",
+      "承接",
+      "消雪"
+     ]
+    },
+    {
+     "kana": "しょうせつか",
+     "gloss": "shōsetsuka, novelist",
+     "image": "assets/lessons/img/L28_25.webp",
+     "kanji": [
+      "小説家",
+      "小説化"
+     ]
+    },
+    {
+     "kana": "かしゅ",
+     "gloss": "kashu, singer",
+     "image": "assets/lessons/img/L28_26.webp",
+     "kanji": [
+      "歌手",
+      "佳趣",
+      "佳酒",
+      "火手",
+      "火酒"
+     ]
+    },
+    {
+     "kana": "むすこ",
+     "gloss": "my son",
+     "image": "assets/lessons/img/L28_27.webp",
+     "kanji": [
+      "息子",
+      "息"
+     ]
+    },
+    {
+     "kana": "むすめ",
+     "gloss": "my daughter",
+     "image": "assets/lessons/img/L28_28.webp",
+     "kanji": [
+      "娘"
+     ]
+    },
+    {
+     "kana": "ホームステイ",
+     "gloss": "homestay",
+     "image": "assets/lessons/img/L28_29.webp"
+    },
+    {
+     "kana": "かいわ",
+     "gloss": "conversation",
+     "image": "assets/lessons/img/L28_30.webp",
+     "kanji": [
+      "会話",
+      "貝輪",
+      "諧和"
+     ]
+    },
+    {
+     "kana": "おしゃべりします",
+     "gloss": "oshaberishimasu, chat",
+     "image": "assets/lessons/img/L28_31.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 29,
+   "source": "L29-roma.pdf",
+   "items": [
+    {
+     "kana": "あきます[ドアが]",
+     "gloss": "[a door] open",
+     "image": "assets/lessons/img/L29_00.webp"
+    },
+    {
+     "kana": "しまります[ドアが]",
+     "gloss": "[a door] close, shut",
+     "image": "assets/lessons/img/L29_01.webp"
+    },
+    {
+     "kana": "つきます[でんきが]",
+     "gloss": "[a light] come on",
+     "image": "assets/lessons/img/L29_02.webp"
+    },
+    {
+     "kana": "きえます[でんきが]",
+     "gloss": "[a light] go off, disappear",
+     "image": "assets/lessons/img/L29_03.webp"
+    },
+    {
+     "kana": "こみます[みちが]",
+     "gloss": "[a road] get crowded",
+     "image": "assets/lessons/img/L29_04.webp"
+    },
+    {
+     "kana": "すきます[みちが]",
+     "gloss": "[a road] get empty",
+     "image": "assets/lessons/img/L29_05.webp"
+    },
+    {
+     "kana": "こわれます[いすが]",
+     "gloss": "[a chair] break",
+     "image": "assets/lessons/img/L29_06.webp"
+    },
+    {
+     "kana": "われます[コップが]",
+     "gloss": "[a glass] break, smash",
+     "image": "assets/lessons/img/L29_07.webp"
+    },
+    {
+     "kana": "おれます[きが]",
+     "gloss": "[a tree] break, snap",
+     "image": "assets/lessons/img/L29_08.webp"
+    },
+    {
+     "kana": "やぶれます[かみが]",
+     "gloss": "[the paper] tear",
+     "image": "assets/lessons/img/L29_09.webp"
+    },
+    {
+     "kana": "よごれます[ふくが]",
+     "gloss": "[the clothes] get dirty",
+     "image": "assets/lessons/img/L29_10.webp"
+    },
+    {
+     "kana": "つきます[〜が]",
+     "gloss": "tsukimasu(poketto ga), [a pocket] be attached",
+     "image": "assets/lessons/img/L29_11.webp"
+    },
+    {
+     "kana": "はずれます[〜が]",
+     "gloss": "hazuremasu(botan ga), [a button] come off",
+     "image": "assets/lessons/img/L29_12.webp"
+    },
+    {
+     "kana": "とまります[〜が]",
+     "gloss": "tomarimasu(kuruma ga), [a car] stop",
+     "image": "assets/lessons/img/L29_13.webp"
+    },
+    {
+     "kana": "まちがえます",
+     "gloss": "make a mistake",
+     "image": "assets/lessons/img/L29_14.webp"
+    },
+    {
+     "kana": "おとします",
+     "gloss": "drop, lose",
+     "image": "assets/lessons/img/L29_15.webp"
+    },
+    {
+     "kana": "かかります[かぎが]",
+     "gloss": "be locked",
+     "image": "assets/lessons/img/L29_16.webp"
+    },
+    {
+     "kana": "(お)さら",
+     "gloss": "plate, dish",
+     "image": "assets/lessons/img/L29_17.webp"
+    },
+    {
+     "kana": "おちゃわん",
+     "gloss": "ochawan, rice bowl",
+     "image": "assets/lessons/img/L29_18.webp"
+    },
+    {
+     "kana": "コップ",
+     "gloss": "glass",
+     "image": "assets/lessons/img/L29_19.webp",
+     "kanji": [
+      "洋杯",
+      "洋盃",
+      "骨杯",
+      "ＫＯＰＦ"
+     ]
+    },
+    {
+     "kana": "ガラス",
+     "gloss": "glass (material)",
+     "image": "assets/lessons/img/L29_20.webp",
+     "kanji": [
+      "硝子"
+     ]
+    },
+    {
+     "kana": "ふくろ",
+     "gloss": "bag",
+     "image": "assets/lessons/img/L29_21.webp",
+     "kanji": [
+      "袋",
+      "嚢",
+      "復路"
+     ]
+    },
+    {
+     "kana": "さいふ",
+     "gloss": "wallet",
+     "image": "assets/lessons/img/L29_22.webp",
+     "kanji": [
+      "財布",
+      "採譜"
+     ]
+    },
+    {
+     "kana": "えだ",
+     "gloss": "branch",
+     "image": "assets/lessons/img/L29_23.webp",
+     "kanji": [
+      "枝"
+     ]
+    },
+    {
+     "kana": "えきいん",
+     "gloss": "station employee",
+     "image": "assets/lessons/img/L29_24.webp",
+     "kanji": [
+      "駅員"
+     ]
+    },
+    {
+     "kana": "わすれもの",
+     "gloss": "things left behind, lost property",
+     "image": "assets/lessons/img/L29_25.webp",
+     "kanji": [
+      "忘れ物",
+      "忘れもの",
+      "忘れもん",
+      "わすれ物"
+     ]
+    },
+    {
+     "kana": "あみだな",
+     "gloss": "baggage rack",
+     "image": "assets/lessons/img/L29_26.webp",
+     "kanji": [
+      "網棚"
+     ]
+    }
+   ]
+  },
+  {
+   "lesson": 30,
+   "source": "L30-roma.pdf",
+   "items": [
+    {
+     "kana": "はります",
+     "gloss": "post, paste",
+     "verbGroup": 1,
+     "dictionary": "はる",
+     "teForm": "はって",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_00.webp"
+    },
+    {
+     "kana": "かけます",
+     "gloss": "hang",
+     "verbGroup": 2,
+     "dictionary": "かける",
+     "teForm": "かけて",
+     "groupUncertain": false,
+     "intransitive": "かかります",
+     "image": "assets/lessons/img/L30_01.webp"
+    },
+    {
+     "kana": "かざります",
+     "gloss": "display, decorate",
+     "verbGroup": 1,
+     "dictionary": "かざる",
+     "teForm": "かざって",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_02.webp"
+    },
+    {
+     "kana": "ならべます",
+     "gloss": "arrange, line up",
+     "verbGroup": 2,
+     "dictionary": "ならべる",
+     "teForm": "ならべて",
+     "groupUncertain": false,
+     "intransitive": "ならびます",
+     "image": "assets/lessons/img/L30_03.webp"
+    },
+    {
+     "kana": "うえます",
+     "gloss": "plant",
+     "verbGroup": 2,
+     "dictionary": "うえる",
+     "teForm": "うえて",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_04.webp"
+    },
+    {
+     "kana": "もどします",
+     "gloss": "return, put ~ back",
+     "verbGroup": 1,
+     "dictionary": "もどす",
+     "teForm": "もどして",
+     "groupUncertain": false,
+     "intransitive": "もどります",
+     "image": "assets/lessons/img/L30_05.webp"
+    },
+    {
+     "kana": "まとめます",
+     "gloss": "put ~ together",
+     "verbGroup": 2,
+     "dictionary": "まとめる",
+     "teForm": "まとめて",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_06.webp"
+    },
+    {
+     "kana": "まとめます",
+     "gloss": "sum up",
+     "verbGroup": 2,
+     "dictionary": "まとめる",
+     "teForm": "まとめて",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_07.webp"
+    },
+    {
+     "kana": "かたづけます",
+     "gloss": "put things in order, tidy up",
+     "verbGroup": 2,
+     "dictionary": "かたづける",
+     "teForm": "かたづけて",
+     "groupUncertain": false,
+     "intransitive": "かたづきます",
+     "image": "assets/lessons/img/L30_08.webp"
+    },
+    {
+     "kana": "しまいます",
+     "gloss": "put away",
+     "verbGroup": 1,
+     "dictionary": "しまう",
+     "teForm": "しまって",
+     "groupUncertain": true,
+     "image": "assets/lessons/img/L30_09.webp"
+    },
+    {
+     "kana": "きめます",
+     "gloss": "decide",
+     "verbGroup": 2,
+     "dictionary": "きめる",
+     "teForm": "きめて",
+     "groupUncertain": false,
+     "intransitive": "きまります",
+     "image": "assets/lessons/img/L30_10.webp"
+    },
+    {
+     "kana": "しらせます",
+     "gloss": "inform",
+     "verbGroup": 2,
+     "dictionary": "しらせる",
+     "teForm": "しらせて",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_11.webp"
+    },
+    {
+     "kana": "そうだんします",
+     "gloss": "consult, discuss",
+     "verbGroup": 3,
+     "dictionary": "そうだんする",
+     "teForm": "そうだんして",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_12.webp"
+    },
+    {
+     "kana": "よしゅうします",
+     "gloss": "yoshūshimasu, prepare one's lesson",
+     "verbGroup": 3,
+     "dictionary": "よしゅうする",
+     "teForm": "よしゅうして",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_13.webp"
+    },
+    {
+     "kana": "ふくしゅうします",
+     "gloss": "fukushūshimasu, review one's lesson",
+     "verbGroup": 3,
+     "dictionary": "ふくしゅうする",
+     "teForm": "ふくしゅうして",
+     "groupUncertain": true,
+     "image": "assets/lessons/img/L30_14.webp"
+    },
+    {
+     "kana": "そのままにします",
+     "gloss": "leave things as they are",
+     "verbGroup": 3,
+     "dictionary": "そのままにする",
+     "teForm": "そのままにして",
+     "groupUncertain": false,
+     "image": "assets/lessons/img/L30_15.webp"
+    },
+    {
+     "kana": "じゅぎょう",
+     "gloss": "jugyō, class",
+     "image": "assets/lessons/img/L30_16.webp",
+     "kanji": [
+      "授業"
+     ]
+    },
+    {
+     "kana": "こうぎ",
+     "gloss": "lecture",
+     "image": "assets/lessons/img/L30_17.webp",
+     "kanji": [
+      "抗議",
+      "講義",
+      "後戯",
+      "交誼",
+      "交宜",
+      "公儀"
+     ]
+    },
+    {
+     "kana": "ミーティング",
+     "gloss": "meeting",
+     "image": "assets/lessons/img/L30_18.webp"
+    },
+    {
+     "kana": "よてい",
+     "gloss": "plan, schedule",
+     "image": "assets/lessons/img/L30_19.webp",
+     "kanji": [
+      "予定",
+      "輿丁"
+     ]
+    },
+    {
+     "kana": "カレンダー",
+     "gloss": "calendar",
+     "image": "assets/lessons/img/L30_20.webp"
+    },
+    {
+     "kana": "ごみばこ",
+     "gloss": "trash box",
+     "image": "assets/lessons/img/L30_21.webp",
+     "kanji": [
+      "ゴミ箱",
+      "ごみ箱",
+      "護美箱",
+      "塵箱",
+      "芥箱"
+     ]
+    },
+    {
+     "kana": "にんぎょう",
+     "gloss": "doll",
+     "image": "assets/lessons/img/L30_22.webp",
+     "kanji": [
+      "人形"
+     ]
+    },
+    {
+     "kana": "かびん",
+     "gloss": "vase",
+     "image": "assets/lessons/img/L30_23.webp",
+     "kanji": [
+      "花瓶",
+      "花びん",
+      "過敏"
+     ]
+    },
+    {
+     "kana": "かがみ",
+     "gloss": "mirror",
+     "image": "assets/lessons/img/L30_24.webp",
+     "kanji": [
+      "鏡",
+      "鑑",
+      "鑒"
+     ]
+    },
+    {
+     "kana": "ひきだし",
+     "gloss": "drawer",
+     "image": "assets/lessons/img/L30_25.webp",
+     "kanji": [
+      "引き出し",
+      "引出し",
+      "抽き出し",
+      "抽斗",
+      "抽出し",
+      "抽匣"
+     ]
+    },
+    {
+     "kana": "げんかん",
+     "gloss": "front door",
+     "image": "assets/lessons/img/L30_26.webp",
+     "kanji": [
+      "玄関",
+      "玄關",
+      "厳寒",
+      "減感",
+      "阮咸"
+     ]
+    },
+    {
+     "kana": "ろうか",
+     "gloss": "corridor",
+     "image": "assets/lessons/img/L30_27.webp",
+     "kanji": [
+      "廊下",
+      "老化",
+      "弄火",
+      "弄花",
+      "狼火"
+     ]
+    },
+    {
+     "kana": "かべ",
+     "gloss": "wall",
+     "image": "assets/lessons/img/L30_28.webp",
+     "kanji": [
+      "壁"
+     ]
+    },
+    {
+     "kana": "いけ",
+     "gloss": "pond",
+     "image": "assets/lessons/img/L30_29.webp",
+     "kanji": [
+      "池"
+     ]
+    },
+    {
+     "kana": "こうばん",
+     "gloss": "police box",
+     "image": "assets/lessons/img/L30_30.webp",
+     "kanji": [
+      "交番",
+      "鋼板",
+      "鋼鈑",
+      "降板",
+      "硬盤",
+      "項番"
+     ]
+    },
+    {
+     "kana": "まわり",
+     "gloss": "round, around",
+     "image": "assets/lessons/img/L30_31.webp",
+     "kanji": [
+      "回り",
+      "廻り",
+      "周り"
+     ]
+    },
+    {
+     "kana": "まんなか",
+     "gloss": "center",
+     "image": "assets/lessons/img/L30_32.webp",
+     "kanji": [
+      "真ん中",
+      "まん中"
+     ]
+    },
+    {
+     "kana": "すみ",
+     "gloss": "corner",
+     "image": "assets/lessons/img/L30_33.webp",
+     "kanji": [
+      "隅",
+      "角",
+      "酸味",
+      "酸み",
+      "炭",
+      "墨"
+     ]
+    },
+    {
+     "kana": "ミュージカル",
+     "gloss": "musical",
+     "image": "assets/lessons/img/L30_34.webp"
+    }
+   ]
+  }
+ ],
+ "readingSource": "EDICT2 (EDRDG), CC BY-SA 4.0"
+}

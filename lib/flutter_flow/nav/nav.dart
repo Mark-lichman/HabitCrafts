@@ -20,6 +20,9 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 import '/index.dart';
+import '/components/pages/quiet_room_today/quiet_room_today_widget.dart';
+import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
+import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -86,20 +89,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? HomePageWidget() : InitialPageWidget(),
+      errorBuilder: (context, state) => appStateNotifier.loggedIn
+          ? QuietRoomTodayWidget()
+          : QuietRoomLaunchWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
           builder: (context, _) => appStateNotifier.loggedIn
-              ? HomePageWidget()
-              : InitialPageWidget(),
+              ? QuietRoomTodayWidget()
+              : QuietRoomLaunchWidget(),
         ),
         FFRoute(
           name: InitialPageWidget.routeName,
           path: InitialPageWidget.routePath,
-          builder: (context, params) => InitialPageWidget(),
+          builder: (context, params) => QuietRoomLaunchWidget(),
         ),
         FFRoute(
           name: ForgotPasswordWidget.routeName,
@@ -114,7 +118,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: HomePageWidget.routeName,
           path: HomePageWidget.routePath,
-          builder: (context, params) => HomePageWidget(),
+          builder: (context, params) => QuietRoomTodayWidget(),
         ),
         FFRoute(
           name: LoginPageWidget.routeName,
@@ -141,7 +145,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: LibraryPageWidget.routeName,
           path: LibraryPageWidget.routePath,
-          builder: (context, params) => LibraryPageWidget(),
+          builder: (context, params) => QuietRoomLibraryWidget(),
         ),
         FFRoute(
           name: LibraryDetailPageWidget.routeName,
