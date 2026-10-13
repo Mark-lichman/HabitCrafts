@@ -29,6 +29,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # The release build exhausted the runner's disk (PR #64: "No space left
+      # on device", and the job log was lost with it). Remove preinstalled
+      # toolchains this job never uses. The Android SDK/NDK stay: the Gradle
+      # build may need the NDK, and deleting it would only force a re-download.
+      - name: Free runner disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup \
+            /usr/share/swift /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          df -h /
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Pinned to 17 to match AGP 8.9.1. Runner images ship several JDKs and
@@ -49,6 +60,11 @@ jobs:
 
       - name: Build release APK
         run: flutter build apk --release
+
+      # Runs even when the build fails, so a disk problem shows up in the log.
+      - name: Disk usage after build
+        if: always()
+        run: df -h /
 
       # R8 reports stripped-class problems as build failures, which the step
       # above catches. Runtime survival of reflectively-referenced classes is
