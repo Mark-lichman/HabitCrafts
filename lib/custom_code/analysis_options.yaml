@@ -1,0 +1,109 @@
+# Analysis options for hand-written Dart ONLY.
+#
+# The Dart analyzer resolves the NEAREST enclosing analysis_options.yaml per
+# directory, so this file governs lib/custom_code/** and nothing else. The root
+# file stays permissive because it governs ~63,000 lines of FlutterFlow output
+# carrying an inherited backlog. Gating that globally would fail on day one and
+# train the maintainer to ignore CI.
+#
+# This is the enforcement half of docs/standards.md S1. New rules are added
+# HERE, at the seam, never to the root file.
+#
+# Measured 2026-09-14.
+#   Whole tree, before this file existed: 0 errors, 1854 warnings, 2249 infos.
+#   Whole tree, with this file:           0 errors, 1876 warnings, 2234 infos.
+#   lib/custom_code/ with this file:      0 errors,  229 warnings,   94 infos.
+# Zero errors in every column is the point: this file goes in green, and the
+# 11 ratcheted violations below are counted rather than gated.
+#
+#   Check before citing any of those numbers:
+#     flutter analyze | awk '{print $1}' | sort | uniq -c
+#     flutter analyze lib/custom_code/ | awk '{print $1}' | sort | uniq -c
+#
+# ---------------------------------------------------------------------------
+# Why two severity groups
+#
+# CI runs `flutter analyze --no-fatal-infos --no-fatal-warnings`, so `error` is
+# the only severity that actually stops a push. A `warn` fence blocks nothing.
+#
+# A rule is therefore promoted to `error` ONLY if it currently has ZERO
+# violations here. Those fences hold a clean line: they cannot fire except on
+# code written after this file existed.
+#
+# A rule with existing violations stays at `warning` and carries its live count
+# plus a ratchet: clear the count, then promote it. Promoting it now would make
+# the gate red on day one, which is how a gate gets disabled.
+# ---------------------------------------------------------------------------
+
+include: ../../analysis_options.yaml
+
+linter:
+  rules:
+    # --- S4, no silent success ---------------------------------------------
+    # An empty catch is the exact shape of this project's signature defect:
+    # deletion, search indexing and the onboarding drip each ran for months
+    # doing nothing behind a catch that returned success.
+    empty_catches: true
+    # A floating Future swallows its own failure and its own ordering.
+    unawaited_futures: true
+    avoid_print: true
+
+    # --- S6, every widget owns what it creates -----------------------------
+    cancel_subscriptions: true
+    close_sinks: true
+    # Using a BuildContext after an await is the mechanical half of the
+    # `mounted` guard rule.
+    use_build_context_synchronously: true
+
+    # --- General correctness at the seam -----------------------------------
+    # Defects concentrate in this directory precisely because FlutterFlow
+    # neither generated nor validated it.
+    avoid_dynamic_calls: true
+    avoid_empty_else: true
+    always_declare_return_types: true
+
+analyzer:
+  errors:
+    # ===== Fatal. Verified at zero violations on 2026-09-14. ================
+    # These cannot fire except on new code, so they cost nothing today and
+    # block the worst classes from the moment this file lands.
+    empty_catches: error
+    cancel_subscriptions: error
+    close_sinks: error
+    use_build_context_synchronously: error
+    avoid_empty_else: error
+
+    # ===== Ratchet. Live violations, so fatal would mean red on day one. ====
+    # Promote each to `error` the moment its count reaches zero. The count is
+    # the whole point of recording it: a ratchet with no number is a wish.
+    #
+    #   flutter analyze lib/custom_code/ | grep -c '<rule name>'
+    #
+    # unawaited_futures                4  (delete_group_member_list_action:26,
+    #                                      delete_search_member_list_action:26,
+    #                                      lock_portrait_model:18,
+    #                                      open_notification_settings:21)
+    # avoid_dynamic_calls              3  (filter_groups_that_have_today_checkin:30 x2,
+    #                                      progress_calendar_widget:96)
+    # invalid_null_aware_operator      2  (progress_calendar_widget:310, :358)
+    # unnecessary_null_comparison      1  (progress_calendar_widget:162)
+    # body_might_complete_normally_nullable
+    #                                  1  (progress_calendar_widget:258)
+    #
+    # The two delete actions are the highest-value entries on that list: an
+    # unawaited delete in a deletion path is the same failure mode as the
+    # catch-and-continue above, and this project has already shipped a deletion
+    # path that deleted nothing.
+    unawaited_futures: warning
+    avoid_dynamic_calls: warning
+    invalid_null_aware_operator: warning
+    unnecessary_null_comparison: warning
+    body_might_complete_normally_nullable: warning
+
+    # ===== Style. Kept visible, never fatal. ================================
+    # A style rule that can block a push is a style rule that gets disabled the
+    # first time it is inconvenient. `dart format` already owns layout.
+    avoid_print: warning
+    always_declare_return_types: warning
+    unused_import: warning
+    prefer_const_constructors: info
