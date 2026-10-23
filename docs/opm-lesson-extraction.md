@@ -1,10 +1,12 @@
 # OPM: Content Extracting → Language Lesson Extracting
 
-Three OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
+Four OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
 
 - **SD — Content Extracting**: the general framework. Any document in, classified, routed to a kind-specific extractor.
 - **SD1 — Language Lesson Extracting**: the in-zoom, entered once SD has classified the document as a *language lesson*. Carries the types from `pipeline/extraction_schemas.py`.
 - **SD2 — Evaluating & Optimizing**: one metric set per optimizable module, and the DSPy compile loop.
+- **SD3 — Structured Sources**: Normalizing split by source shape (table, sheet, image), and the
+  tutor path where grammar points are given, not mined. Added 2026-10-23 after five real sources.
 
 The OPL sentences below are the spec — edit these. The diagram is generated from
 `opm-lesson-extraction.gen.js`; regenerate rather than hand-editing coordinates if the model changes.
@@ -127,10 +129,41 @@ OPL sentences:
     produced by learners working through published items.
 23. **Optimizing** consumes **Eval Report** and **Attempt Record** and affects **Extraction Spec**.
 
+## SD3 — Structured Sources
+
+Five real sources ran through SD on 2026-10-23 (`pipeline/jp/s01..s05`). Only one of the five was
+prose. The rest were a picture of a table, a vector table, a scanned page, and a tutor's
+spreadsheet. SD's single Normalizing step to Canonical Text loses what matters in each.
+
+OPL sentences:
+
+1. **Source Document** exhibits *shape*, which can be **text**, **picture table**, **image**, or **sheet**.
+2. **Normalizing (picture table)** consumes **Raw Asset** and yields **Canonical Table**. It samples
+   each cell's fill from the rendered page, because the fill is data (sound change, special reading).
+3. **Normalizing (sheet)** consumes **Raw Asset** and yields **Canonical Table**, with merged cells
+   filled, hyperlink targets kept, and each formula kept beside its cached value.
+4. **Transcribing** requires **LLM Engine** and **OCR Engine**, consumes an **image** **Raw Asset**,
+   and yields **Canonical Table**. Its output is always **needs review**: OCR narrows the review,
+   it never replaces it.
+5. **Table Extracting** consumes **Canonical Table** and yields **Reference Item**, **Verb Pair**,
+   and **Paradigm Cell**.
+6. **Curriculum Importing** requires **Tutor** as its agent, consumes **Canonical Table**, and yields
+   **Curriculum Spec**, **Grammar Point**, and **External Resource**. **Mining** does not run on a
+   tutor's source: the tutor already did that work.
+7. **Grammar Point** exhibits *provenance*, which can be **mined** or **tutor**, and *requires forms*,
+   the verb forms the pattern needs.
+8. **Conjugation Engine** is plain code. **Paradigm Cell** is its gold set: the engine must
+   reproduce every tutor cell before it generates a drill item.
+9. **Validating (cross-source)** consumes the items of several bundles. Two sources that cover the
+   same fact must agree (verb pairs, counter readings in example sentences).
+10. **Lesson Bundle** can also be **blocked**: written, so a reviewer sees why, but not approvable.
+
 ## Open questions
 
-- **Scoping picks one teachable unit** — is one lesson one grammar point, or can a lesson carry a
-  grammar point plus an unrelated lexical set? Changes sentence 8 and the item budget.
+- ~~**Scoping picks one teachable unit**~~ — answered by the tutor's sheet: a lesson carries 2 to 6
+  grammar points (Mari, lessons 26 to 50). One lesson is a set of points, not one point.
+- **Level framework** — `GrammarPoint.cefr` is now `level` with a framework prefix. Japanese is
+  graded by JLPT (N5 to N1), and CEFR alignment for it is contested.
 - **Validating vs Evaluating** — Validating is a hard gate (sentence 19 refuses to assemble). Should a
   low Eval Report score also block, or only flag for the reviewer?
 - **Do Vocab Item and Grammar Point deserve their own Firestore collections?** Right now they are
