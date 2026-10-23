@@ -1,2 +1,6 @@
 pydantic>=2
 dspy>=3.4
+# pipeline/jp (structured lesson sources)
+pymupdf==1.27.2
+openpyxl==3.1.5
+numpy>=2

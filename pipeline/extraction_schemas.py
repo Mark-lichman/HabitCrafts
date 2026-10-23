@@ -59,8 +59,32 @@ class GrammarItemKind(str, Enum):
 
 class BundleState(str, Enum):
     NEEDS_REVIEW = "needs_review"
+    # DECISION (SD3, 2026-10-23): added. A bundle whose hard checks fail is still
+    # written so a reviewer can see why, but it cannot be approved until re-run.
+    BLOCKED = "blocked"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class SourceShape(str, Enum):
+    """SD3. Detected from the file, and it picks the Normalizing variant.
+
+    Running five real Japanese sources showed SD's one Normalizing step is wrong for
+    three of them: prose is the minority shape for language material."""
+
+    TEXT = "text"  # real text layer, read by geometry (PyMuPDF)
+    PICTURE_TABLE = "picture_table"  # table drawn as an image, OCR text layer on top
+    IMAGE = "image"  # no text layer at all: needs Transcribing (LM)
+    SHEET = "sheet"  # spreadsheet: merged cells, hyperlinks, formulas
+
+
+class ReadingMark(str, Enum):
+    """The legend on a reference table. It is data: the color says which cells to
+    learn as a sound change and which as a special word."""
+
+    REGULAR = "regular"
+    SOUND_CHANGE = "sound_change"
+    SPECIAL = "special"
 
 
 class JobState(str, Enum):
@@ -194,14 +218,21 @@ class VocabItem(BaseModel):
 
 
 class GrammarPoint(BaseModel):
-    # MISSING: pattern_id and LessonScope.target_grammar_point_id must share an id
-    # space with CurriculumSpec, or Scoping cannot check prerequisites and
-    # rule_ref_valid is uncheckable. No such namespace exists in the OPM.
+    # RESOLVED for tutor sources (SD3): the tutor's sheet IS the namespace. Mari's
+    # ids are "mari.L<lesson>.<n>", and her lessons are the curriculum order. Mined
+    # grammar points still have no shared namespace.
     pattern_id: str
     construction: str = Field(description="The pattern itself, e.g. 'ir + a + infinitive'.")
-    cefr: CEFR
-    l1_contrast_note: str
+    # DECISION (SD3): CEFR is European. Japanese material is graded by JLPT (Mari's
+    # sheet is "N4"). A level is a (framework, value) pair, not a CEFR.
+    level: str | None = Field(default=None, description="'CEFR:A2', 'JLPT:N4', ...")
+    l1_contrast_note: str = ""
     example_sentence_id: str
+    provenance: Literal["mined", "tutor"] = "mined"
+    goal: str = ""  # tutor sources state the communicative goal; mined ones cannot
+    requires_forms: list[str] = Field(
+        default_factory=list,
+        description="Verb forms the pattern needs (te, nai, plain...). Prerequisites.")
 
 
 class LessonScope(BaseModel):
@@ -250,6 +281,69 @@ class GrammarPracticeItem(BaseModel):
 
 
 PracticeItem = SentencePracticeItem | GrammarPracticeItem
+
+
+# ───────────────────────────── SD3 — structured sources ─────────────────────────────
+
+
+class TableCell(BaseModel):
+    x: float
+    y: float
+    fill: str = Field(description="Fill class from the legend, or 'header'.")
+    lines: list[str]
+
+
+class CanonicalTable(BaseModel):
+    """What Normalizing yields for a table, sheet or transcribed image. The prose
+    CanonicalText cannot carry a cell's color, and the color is part of the answer."""
+
+    id: str
+    raw_asset_id: str
+    shape: SourceShape
+    cells: list[TableCell]
+    loose_text: list[str] = Field(default_factory=list, description="Titles, footnotes.")
+    transcribed_by: str | None = Field(
+        default=None, description="Set when an LM produced this. Then Reviewing is mandatory.")
+
+
+class ReferenceItem(BaseModel):
+    """One cell of a lookup table: 3 + 本 -> さんぼん."""
+
+    id: str
+    table: str
+    key: str  # the row label, e.g. "3"
+    column: str  # the column header, e.g. "本 ほん pens, bottles"
+    reading: str
+    alt_readings: list[str] = Field(default_factory=list)
+    mark: ReadingMark
+
+
+class VerbPair(BaseModel):
+    id: str
+    transitive: str
+    intransitive: str
+    transitive_group: int | None = None  # None = undecidable from the form; say so
+    intransitive_group: int | None = None
+    gloss: str = ""
+    example_transitive: str = ""
+    example_intransitive: str = ""
+
+
+class ParadigmCell(BaseModel):
+    """A tutor's worked conjugation. Gold for the Conjugation Engine."""
+
+    dictionary: str
+    group: int
+    form: str
+    result: str
+
+
+class ExternalResource(BaseModel):
+    """A tutor tool that is linked, not extracted (Canva deck, web drill)."""
+
+    kind: str
+    label: str
+    url: str
 
 
 # ───────────────────────────── gates and reports ─────────────────────────────
@@ -461,6 +555,15 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     # Outputs () on purpose: Optimizing's real product is a recompiled DSPy
     # program, which has no honest pydantic type. See MISSING note below.
     "Optimizing": (DET, (EvalReport, AttemptRecord), ()),
+    # ── SD3 (pipeline/jp/). Normalizing splits by SourceShape.
+    "NormalizingPictureTable": (DET, (RawAsset,), (CanonicalTable,)),
+    "NormalizingSheet": (DET, (RawAsset,), (CanonicalTable,)),
+    "Transcribing": (LM, (RawAsset,), (CanonicalTable,)),
+    "TableExtracting": (DET, (CanonicalTable,), (ReferenceItem, VerbPair, ParadigmCell)),
+    # The tutor is the author; the code only reads her sheet. No LM touches it.
+    "CurriculumImporting": (DET, (CanonicalTable,), (CurriculumSpec, GrammarPoint, ExternalResource)),
+    "ValidatingSources": (DET, (ReferenceItem, VerbPair, ParadigmCell, CurriculumSpec,
+                                ExternalResource), (ValidationResult,)),
 }
 
 # MISSING: Optimizing's real output is a new compiled DSPy program, not a model.

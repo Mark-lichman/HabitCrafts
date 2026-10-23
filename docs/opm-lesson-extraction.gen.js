@@ -1,4 +1,4 @@
-// Generates opm-lesson-extraction.drawio (3 OPDs). Edit coords here, re-run:
+// Generates opm-lesson-extraction.drawio (4 OPDs). Edit coords here, re-run:
 //   node opm-lesson-extraction.gen.js
 // Types and stage kinds are kept in sync by hand with ../pipeline/extraction_schemas.py.
 const fs = require('fs');
@@ -319,5 +319,75 @@ raw('LEG2', S.note, 40, 1120, 260, 120, esc('<b>DET vs JUDGE</b><br>DET metrics 
 
 const p2 = page('SD2 &#8212; Evaluating &amp; Optimizing', 'opd-sd2', 1550, 1300);
 
-fs.writeFileSync(OUT, `<mxfile host="app.diagrams.net">\n${p0}\n${p1}\n${p2}\n</mxfile>\n`);
+/* ═══════════════ SD3 — Structured Sources (tables, tutor sheets, images) ═══════════════ */
+// Added 2026-10-23 after running five real sources (pipeline/jp/s01..s05). SD assumed
+// every source normalizes to prose. Three of five did not.
+
+raw('F3', S.frame, 330, 40, 1120, 1500, esc('<b>SD3 &#8212; Structured Sources</b> &#8212; Normalizing in-zoomed by source shape, plus the tutor path that skips Mining. Code: <i>pipeline/jp/</i>.'));
+
+node('X0', S.obj, 700, 80, 380, 80, 'Source Document', 'shape: text' + bar + 'picture table' + bar + 'image' + bar + 'sheet|detected from the file, not guessed');
+
+node('N1', S.det, 360, 220, 240, 70, 'Normalizing (text)', 'PyMuPDF geometry, never a stream');
+node('N2', S.det, 620, 220, 240, 70, 'Normalizing (picture table)', 'render + sample cell fill');
+node('N3', S.lm,  880, 220, 240, 70, 'Transcribing', 'vision; no text layer');
+node('N4', S.det, 1140, 220, 240, 70, 'Normalizing (sheet)', 'merged cells, links, formulas');
+
+node('Y1', S.obj, 360, 340, 240, 60, 'Canonical Text', 'see SD');
+node('Y2', S.obj, 620, 330, 500, 90, 'Canonical Table', 'cells: x, y, fill class, lines|fill class is DATA (legend: sound change, special)|header cells merged per column');
+node('OCR', S.ctrl, 880, 450, 240, 60, 'OCR Engine', 'Windows.Media.Ocr ja|independent second reading');
+node('Y4', S.obj, 1140, 340, 240, 80, 'Sheet Table', 'rows with merged cells filled|hyperlink targets|formula + cached value');
+
+node('T1', S.det, 620, 560, 240, 70, 'Table Extracting', 'row + column headers to cells');
+node('T2', S.det, 1140, 560, 240, 70, 'Curriculum Importing', 'given, not mined');
+
+node('R1', S.obj, 360, 680, 240, 110, 'Reference Item', 'number + counter &#8594; reading|alt readings|mark: regular' + bar + 'sound change' + bar + 'special');
+node('R2', S.obj, 620, 680, 240, 110, 'Verb Pair', 'transitive ' + dot + 'intransitive|groups ' + dot + 'gloss|example per side');
+node('R3', S.obj, 880, 680, 240, 110, 'Paradigm Cell', 'dictionary form ' + dot + 'group|form ' + dot + 'result|= gold for the engine');
+node('R4', S.obj, 1140, 680, 240, 150, 'Curriculum Spec', 'lesson &#8594; Grammar Point[]|pattern ' + dot + 'example ' + dot + 'goal|requires_forms (prerequisites)|resource: tutor notes link|self-check: after class' + bar + 'can use it' + bar + 'review needed');
+
+node('ENG', S.ctrl, 880, 870, 240, 80, 'Conjugation Engine', 'plain code, 12 forms|group() returns every group that fits;|ambiguous verbs never resolve silently');
+
+node('V3', S.det, 560, 1000, 360, 80, 'Validating (cross-source)', 'kana only ' + dot + 'grid complete ' + dot + 'legend consistent|engine = tutor gold ' + dot + 'pairs agree across sources|examples confirm verb + group');
+node('A6', S.objTop, 560, 1130, 360, 110, 'Lesson Bundle', 'one per source, state:');
+node('B6a', S.state, 575, 1190, 120, 30, 'needs review', '');
+node('B6b', S.state, 705, 1190, 80, 30, 'blocked', '');
+node('B6c', S.state, 795, 1190, 110, 30, 'approved', '');
+node('RV3', S.human, 600, 1290, 280, 70, 'Reviewing', 'review notes name the exact cells');
+node('COACH3', S.ctrl, 960, 1300, 200, 50, 'Coach (Mark)', '');
+node('TUT3', S.ctrl, 1220, 1300, 200, 50, 'Tutor (Mari)', '');
+
+node('G7', S.gap, 40, 220, 260, 150, 'GAP &#8212; image sources', 'An image has no text layer, so Transcribing is an LM call and its output can never skip Reviewing. The OCR cross-check narrows what a person reads; it does not replace them.');
+node('G8', S.gap, 40, 420, 260, 170, 'GAP &#8212; external tutor tools', 'Mari\'s Canva decks (25 links) and the web conjugation drill are linked, not extracted. Canva needs a login; the drill is a third-party page. Keep them as resources until Mari can export.');
+raw('LEG3', S.note, 40, 1120, 420, 150, LEGEND('<b>SD3 rule:</b> a source a tutor wrote is curriculum, not raw text. It enters as given, through a human-authored path, and Mining (an LM) never touches it.'));
+
+edge('consume', 'X0', 'N1', { exit: [0.1, 1], entry: [0.5, 0] });
+edge('consume', 'X0', 'N2', { exit: [0.35, 1], entry: [0.5, 0] });
+edge('consume', 'X0', 'N3', { exit: [0.65, 1], entry: [0.5, 0] });
+edge('consume', 'X0', 'N4', { exit: [0.9, 1], entry: [0.5, 0] });
+edge('result', 'N1', 'Y1', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'N2', 'Y2', { exit: [0.5, 1], entry: [0.25, 0] });
+edge('result', 'N3', 'Y2', { exit: [0.5, 1], entry: [0.75, 0], label: 'needs review' });
+edge('instr', 'OCR', 'N3', { exit: [1, 0.3], entry: [1, 0.5], pts: [[1135, 468], [1135, 255]] });
+edge('result', 'N4', 'Y4', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'Y2', 'T1', { exit: [0.25, 1], entry: [0.5, 0] });
+edge('consume', 'Y4', 'T1', { exit: [0, 0.9], entry: [1, 0.5], pts: [[1000, 412], [1000, 595]] });
+edge('consume', 'Y4', 'T2', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'T1', 'R1', { exit: [0, 0.5], entry: [0.5, 0], pts: [[480, 595]] });
+edge('result', 'T1', 'R2', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'T1', 'R3', { exit: [1, 0.8], entry: [0.5, 0], pts: [[1000, 616]] });
+edge('result', 'T2', 'R4', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('agent', 'TUT3', 'T2', { exit: [1, 0.5], entry: [1, 0.5], pts: [[1430, 1325], [1430, 595]] });
+edge('instr', 'ENG', 'V3', { exit: [0.5, 1], entry: [0.85, 0] });
+edge('consume', 'R1', 'V3', { exit: [0.5, 1], entry: [0.1, 0], pts: [[480, 960], [596, 960]] });
+edge('consume', 'R2', 'V3', { exit: [0.5, 1], entry: [0.4, 0] });
+edge('consume', 'R3', 'ENG', { exit: [0.5, 1], entry: [0.5, 0], label: 'gold' });
+edge('consume', 'R4', 'V3', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1260, 1040]] });
+edge('result', 'V3', 'A6', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'A6', 'RV3', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('agent', 'COACH3', 'RV3', { exit: [0, 0.5], entry: [1, 0.5] });
+edge('effect', 'RV3', 'A6', { exit: [0, 0.5], entry: [0, 0.8], pts: [[540, 1325], [540, 1218]] });
+
+const p3 = page('SD3 &#8212; Structured Sources', 'opd-sd3', 1500, 1600);
+
+fs.writeFileSync(OUT, `<mxfile host="app.diagrams.net">\n${p0}\n${p1}\n${p2}\n${p3}\n</mxfile>\n`);
 console.log('wrote', OUT, fs.statSync(OUT).size, 'bytes');
