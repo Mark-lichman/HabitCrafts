@@ -27,6 +27,4641 @@
    }
   ]
  },
+ "types": [
+  {
+   "id": "grammar_point",
+   "label": "Grammar"
+  },
+  {
+   "id": "particle",
+   "label": "Particle"
+  },
+  {
+   "id": "reference_table",
+   "label": "Numbers and counters"
+  },
+  {
+   "id": "verb_pair",
+   "label": "Verb pair"
+  },
+  {
+   "id": "conjugation",
+   "label": "Conjugation"
+  },
+  {
+   "id": "vocabulary",
+   "label": "Vocabulary"
+  }
+ ],
+ "uses": [
+  {
+   "id": "ask_advice",
+   "label": "Asking for advice"
+  },
+  {
+   "id": "request",
+   "label": "Asking someone to do something"
+  },
+  {
+   "id": "advise",
+   "label": "Giving advice"
+  },
+  {
+   "id": "plan",
+   "label": "Saying what you plan to do"
+  },
+  {
+   "id": "certain",
+   "label": "Stating something definite"
+  },
+  {
+   "id": "guess",
+   "label": "Guessing what is likely"
+  },
+  {
+   "id": "regret",
+   "label": "Showing regret or displeasure"
+  },
+  {
+   "id": "opinion",
+   "label": "Giving your opinion"
+  },
+  {
+   "id": "reason",
+   "label": "Explaining why"
+  },
+  {
+   "id": "purpose",
+   "label": "Saying what it is for"
+  },
+  {
+   "id": "condition",
+   "label": "If and when"
+  },
+  {
+   "id": "contrast",
+   "label": "Contrasting"
+  },
+  {
+   "id": "state",
+   "label": "Describing how things are now"
+  },
+  {
+   "id": "done",
+   "label": "Finished, or not yet"
+  },
+  {
+   "id": "change",
+   "label": "Describing a change"
+  },
+  {
+   "id": "ability",
+   "label": "Saying what you can do"
+  },
+  {
+   "id": "habit",
+   "label": "Habits and routines"
+  },
+  {
+   "id": "time",
+   "label": "When: before, after, during"
+  },
+  {
+   "id": "manner",
+   "label": "How you do something"
+  },
+  {
+   "id": "appearance",
+   "label": "How things look or seem"
+  },
+  {
+   "id": "hearsay",
+   "label": "Passing on what you heard or read"
+  },
+  {
+   "id": "question",
+   "label": "Wondering or asking whether"
+  },
+  {
+   "id": "emphasis",
+   "label": "Stressing how much or how little"
+  },
+  {
+   "id": "command",
+   "label": "Commands, rules, making someone"
+  },
+  {
+   "id": "favor",
+   "label": "Giving and receiving favors"
+  },
+  {
+   "id": "polite",
+   "label": "Polite and honorific speech"
+  },
+  {
+   "id": "counting",
+   "label": "Counting, dates and time"
+  },
+  {
+   "id": "transitivity",
+   "label": "Who did it: が or を"
+  },
+  {
+   "id": "forms",
+   "label": "Verb forms to learn"
+  }
+ ],
+ "catalog": [
+  {
+   "id": "mari.L26.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 26,
+   "title": "ふつうForm＋んです（explanation）",
+   "summary": "Explain a reason or circumstance",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "あたまが いたいんです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 26,
+    "point": "mari.L26.1"
+   }
+  },
+  {
+   "id": "mari.L26.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 26,
+   "title": "ふつうForm＋んですが、てForm＋いただけませんか（request）",
+   "summary": "Politely ask for help after explaining the situation",
+   "uses": [
+    "request"
+   ],
+   "search": [
+    "にもつが おおいんですが、てつだって いただけませんか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 26,
+    "point": "mari.L26.2"
+   }
+  },
+  {
+   "id": "mari.L26.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 26,
+   "title": "ふつうForm＋んですが、ぎもんし＋たらいいですか（listen to advice）",
+   "summary": "Ask for advice about what to do",
+   "uses": [
+    "ask_advice"
+   ],
+   "search": [
+    "かぜを ひいたんですが、どう したら いいですか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 26,
+    "point": "mari.L26.3"
+   }
+  },
+  {
+   "id": "mari.L27.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "Nが かのうどうし（Potential form）",
+   "summary": "Describe what you are able to do using potential verbs",
+   "uses": [
+    "ability",
+    "forms"
+   ],
+   "search": [
+    "わたしは かんじが よめます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.1"
+   }
+  },
+  {
+   "id": "mari.L27.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "Nが みえます／きこえます",
+   "summary": "Describe what you can see or hear",
+   "uses": [
+    "ability"
+   ],
+   "search": [
+    "ここから ふじさんが みえます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.2"
+   }
+  },
+  {
+   "id": "mari.L27.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "Nが できます",
+   "summary": "Describe abilities using a noun",
+   "uses": [
+    "ability"
+   ],
+   "search": [
+    "にほんごが できます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.3"
+   }
+  },
+  {
+   "id": "mari.L27.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "Nしか〜ません",
+   "summary": "Emphasize a limited amount using 'only'",
+   "uses": [
+    "emphasis"
+   ],
+   "search": [
+    "100えんしか ありません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.4"
+   }
+  },
+  {
+   "id": "mari.L27.5",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "〜は〜、〜は〜（Contrast）",
+   "summary": "Contrast two things",
+   "uses": [
+    "contrast"
+   ],
+   "search": [
+    "にくは たべますが、さかなは たべません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.5"
+   }
+  },
+  {
+   "id": "mari.L27.6",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "Compound particle（には・へは・とはなど）",
+   "summary": "Combine particles to add nuance",
+   "uses": [
+    "contrast"
+   ],
+   "search": [
+    "とうきょうには ともだちが います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27,
+    "point": "mari.L27.6"
+   }
+  },
+  {
+   "id": "mari.L28.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 28,
+   "title": "ますForm＋ながら、〜（simultaneous）",
+   "summary": "Describe two actions done at the same time",
+   "uses": [
+    "manner",
+    "time"
+   ],
+   "search": [
+    "おんがくを ききながら、べんきょうします。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 28,
+    "point": "mari.L28.1"
+   }
+  },
+  {
+   "id": "mari.L28.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 28,
+   "title": "てForm＋います（habit）",
+   "summary": "Describe a habitual action",
+   "uses": [
+    "habit"
+   ],
+   "search": [
+    "まいあさ ジョギングを しています。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 28,
+    "point": "mari.L28.2"
+   }
+  },
+  {
+   "id": "mari.L28.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 28,
+   "title": "〜し、〜し（Parallel / reason）",
+   "summary": "List multiple qualities or reasons",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "この まちは べんりだし、にぎやかです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 28,
+    "point": "mari.L28.3"
+   }
+  },
+  {
+   "id": "mari.L29.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 29,
+   "title": "Nが てForm (intransitive)＋います（Result status）",
+   "summary": "Describe the resulting state of an event",
+   "uses": [
+    "state"
+   ],
+   "search": [
+    "まどが あいて います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 29,
+    "point": "mari.L29.1"
+   }
+  },
+  {
+   "id": "mari.L29.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 29,
+   "title": "Nは てForm (intransitive)＋います（The topic has been decided）",
+   "summary": "Describe an ongoing resulting state with a defined topic",
+   "uses": [
+    "state"
+   ],
+   "search": [
+    "でんきは ついて います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 29,
+    "point": "mari.L29.2"
+   }
+  },
+  {
+   "id": "mari.L29.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 29,
+   "title": "てForm＋しまいます（Complete）",
+   "summary": "Emphasize that something is completely finished",
+   "uses": [
+    "done"
+   ],
+   "search": [
+    "レポートを かいて しまいました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 29,
+    "point": "mari.L29.3"
+   }
+  },
+  {
+   "id": "mari.L29.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 29,
+   "title": "てForm＋しまいました（Regret）",
+   "summary": "Express regret about something that happened",
+   "uses": [
+    "regret"
+   ],
+   "search": [
+    "だいじな しゃしんを なくして しまいました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 29,
+    "point": "mari.L29.4"
+   }
+  },
+  {
+   "id": "mari.L30.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 30,
+   "title": "てForm＋あります（Pre-arranged results）",
+   "summary": "Describe a state that was intentionally arranged",
+   "uses": [
+    "state"
+   ],
+   "search": [
+    "かべに ポスターが はって あります。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 30,
+    "point": "mari.L30.1"
+   }
+  },
+  {
+   "id": "mari.L30.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 30,
+   "title": "てForm＋おきます（Preparation）",
+   "summary": "Describe preparing something in advance",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "パーティーの まえに りょうりを つくって おきます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 30,
+    "point": "mari.L30.2"
+   }
+  },
+  {
+   "id": "mari.L30.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 30,
+   "title": "てForm＋おきます（Leave it as it is）",
+   "summary": "Describe leaving something as-is for later",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "つかれたので、そうじは あした して おきます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 30,
+    "point": "mari.L30.3"
+   }
+  },
+  {
+   "id": "mari.L31.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 31,
+   "title": "いこうけい (Volitional form)",
+   "summary": "Correctly form the volitional form",
+   "uses": [
+    "plan",
+    "forms"
+   ],
+   "search": [
+    "いこう／たべよう／しよう／こよう"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 31,
+    "point": "mari.L31.1"
+   }
+  },
+  {
+   "id": "mari.L31.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 31,
+   "title": "いこうけい＋とおもっています（intention）",
+   "summary": "Express your own intention or plan",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "らいねん りゅうがくしようと おもっています。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 31,
+    "point": "mari.L31.2"
+   }
+  },
+  {
+   "id": "mari.L31.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 31,
+   "title": "まだ てForm＋いません",
+   "summary": "Say something has not happened yet",
+   "uses": [
+    "done"
+   ],
+   "search": [
+    "まだ しゅうしょくさきが きまって いません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 31,
+    "point": "mari.L31.3"
+   }
+  },
+  {
+   "id": "mari.L31.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 31,
+   "title": "じしょForm・ないForm＋つもりです",
+   "summary": "State a future intention",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "らいねん けっこんする つもりです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 31,
+    "point": "mari.L31.4"
+   }
+  },
+  {
+   "id": "mari.L31.5",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 31,
+   "title": "じしょForm・Nounの＋よていです",
+   "summary": "State a scheduled plan",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "らいしゅう しゅっちょうする よていです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 31,
+    "point": "mari.L31.5"
+   }
+  },
+  {
+   "id": "mari.L32.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 32,
+   "title": "たForm / ないForm ＋ほうが いいです",
+   "summary": "Give advice or a recommendation",
+   "uses": [
+    "advise"
+   ],
+   "search": [
+    "はやく びょういんへ いった ほうが いいです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 32,
+    "point": "mari.L32.1"
+   }
+  },
+  {
+   "id": "mari.L32.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 32,
+   "title": "ふつうForm＋でしょう（Conjecture）",
+   "summary": "Express a confident guess about the future",
+   "uses": [
+    "guess"
+   ],
+   "search": [
+    "あしたは はれるでしょう。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 32,
+    "point": "mari.L32.2"
+   }
+  },
+  {
+   "id": "mari.L32.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 32,
+   "title": "ふつうForm＋かもしれません（possibility）",
+   "summary": "Express a weaker possibility",
+   "uses": [
+    "guess"
+   ],
+   "search": [
+    "あした あめが ふるかもしれません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 32,
+    "point": "mari.L32.3"
+   }
+  },
+  {
+   "id": "mari.L33.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 33,
+   "title": "めいれいけい／きんしけいの かつよう　（Imperative form）",
+   "summary": "Correctly form imperative and prohibitive forms",
+   "uses": [
+    "command",
+    "forms"
+   ],
+   "search": [
+    "とまれ！／はいるな！"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 33,
+    "point": "mari.L33.1"
+   }
+  },
+  {
+   "id": "mari.L33.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 33,
+   "title": "「〜」と かいて あります／よみます",
+   "summary": "Explain what a sign or text says",
+   "uses": [
+    "hearsay"
+   ],
+   "search": [
+    "かんばんに「きんえん」と かいて あります。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 33,
+    "point": "mari.L33.2"
+   }
+  },
+  {
+   "id": "mari.L33.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 33,
+   "title": "〜は〜という いみです",
+   "summary": "Explain the meaning of a word or phrase",
+   "uses": [
+    "hearsay"
+   ],
+   "search": [
+    "「立入禁止」は はいっては いけないという いみです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 33,
+    "point": "mari.L33.3"
+   }
+  },
+  {
+   "id": "mari.L33.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 33,
+   "title": "〜と いって いました／つたえて いただけませんか",
+   "summary": "Relay someone else's message",
+   "uses": [
+    "hearsay",
+    "request"
+   ],
+   "search": [
+    "たなかさんは あした やすむと いって いました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 33,
+    "point": "mari.L33.4"
+   }
+  },
+  {
+   "id": "mari.L34.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 34,
+   "title": "じしょForm / たForm / Noun の ＋とおりに、〜",
+   "summary": "Describe doing something exactly as instructed",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "せんせいの いう とおりに かいて ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 34,
+    "point": "mari.L34.1"
+   }
+  },
+  {
+   "id": "mari.L34.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 34,
+   "title": "たForm / Nounの＋あとで、〜",
+   "summary": "Describe an action after another is completed",
+   "uses": [
+    "time"
+   ],
+   "search": [
+    "しごとが おわった あとで、のみに いきます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 34,
+    "point": "mari.L34.2"
+   }
+  },
+  {
+   "id": "mari.L34.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 34,
+   "title": "てForm／ないForm＋で、〜（Attendant circumstances）",
+   "summary": "Describe the manner or accompanying condition of an action",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "たって テレビを みます。／なにも たべないで がっこうへ いきます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 34,
+    "point": "mari.L34.3"
+   }
+  },
+  {
+   "id": "mari.L34.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 34,
+   "title": "ないForm＋で、〜",
+   "summary": "Say you do one thing without doing another",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "じしょを つかわないで、よんで ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 34,
+    "point": "mari.L34.4"
+   }
+  },
+  {
+   "id": "mari.L35.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 35,
+   "title": "じょうけんけい（Conditional Form）",
+   "summary": "Express a conditional using verbs",
+   "uses": [
+    "condition",
+    "forms"
+   ],
+   "search": [
+    "はやく おきれば、まにあいます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 35,
+    "point": "mari.L35.1"
+   }
+  },
+  {
+   "id": "mari.L35.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 35,
+   "title": "いadj ＋ければ、〜",
+   "summary": "Express a conditional using i-adjectives",
+   "uses": [
+    "condition"
+   ],
+   "search": [
+    "やすければ、かいます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 35,
+    "point": "mari.L35.2"
+   }
+  },
+  {
+   "id": "mari.L35.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 35,
+   "title": "なadj／Noun ＋なら、〜",
+   "summary": "Express a conditional using na-adjectives or nouns",
+   "uses": [
+    "condition"
+   ],
+   "search": [
+    "ひまなら、てつだって ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 35,
+    "point": "mari.L35.3"
+   }
+  },
+  {
+   "id": "mari.L35.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 35,
+   "title": "ぎもんし＋じょうけんけい＋いいですか",
+   "summary": "Ask for advice using a conditional question",
+   "uses": [
+    "ask_advice",
+    "condition"
+   ],
+   "search": [
+    "どこで きっぷを かえば いいですか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 35,
+    "point": "mari.L35.4"
+   }
+  },
+  {
+   "id": "mari.L35.5",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 35,
+   "title": "Noun＋なら、〜（topic）",
+   "summary": "Introduce a topic using 'if we're talking about'",
+   "uses": [
+    "advise"
+   ],
+   "search": [
+    "すしなら、あの みせが おいしいです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 35,
+    "point": "mari.L35.5"
+   }
+  },
+  {
+   "id": "mari.L36.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 36,
+   "title": "じしょForm / ないForm＋ように、〜（goal）",
+   "summary": "Express a goal or purpose ('so that')",
+   "uses": [
+    "purpose"
+   ],
+   "search": [
+    "よく きこえるように、おおきい こえで はなして ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 36,
+    "point": "mari.L36.1"
+   }
+  },
+  {
+   "id": "mari.L36.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 36,
+   "title": "じしょForm ＋ように なります／ないForm＋くなります（change）",
+   "summary": "Describe a gradual change in ability or state",
+   "uses": [
+    "change"
+   ],
+   "search": [
+    "ひらがなが よめるように なりました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 36,
+    "point": "mari.L36.2"
+   }
+  },
+  {
+   "id": "mari.L36.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 36,
+   "title": "じしょForm / ないForm ＋ように します（Effort）",
+   "summary": "Describe making an effort to form a habit",
+   "uses": [
+    "habit",
+    "plan"
+   ],
+   "search": [
+    "まいにち うんどうする ように します。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 36,
+    "point": "mari.L36.3"
+   }
+  },
+  {
+   "id": "mari.L37.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 37,
+   "title": "うけみけい (Passive Form)",
+   "summary": "Correctly form the passive voice",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "よまれる／たべられる／される／こられる"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 37,
+    "point": "mari.L37.1"
+   }
+  },
+  {
+   "id": "mari.L37.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 37,
+   "title": "Personは Personに＋Passive Form",
+   "summary": "Describe an action done to you by someone (with inconvenience)",
+   "uses": [
+    "regret"
+   ],
+   "search": [
+    "わたしは あにに おかしを たべられました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 37,
+    "point": "mari.L37.2"
+   }
+  },
+  {
+   "id": "mari.L37.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 37,
+   "title": "Personは Personにpossessionsを＋Passive Form",
+   "summary": "Describe someone affecting your belongings",
+   "uses": [
+    "regret"
+   ],
+   "search": [
+    "わたしは でんしゃで あしを ふまれました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 37,
+    "point": "mari.L37.3"
+   }
+  },
+  {
+   "id": "mari.L37.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 37,
+   "title": "objectが／は＋Passive Form",
+   "summary": "Describe historical facts or general truths using the passive",
+   "uses": [
+    "certain"
+   ],
+   "search": [
+    "この おてらは 1400ねんに たてられました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 37,
+    "point": "mari.L37.4"
+   }
+  },
+  {
+   "id": "mari.L38.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 38,
+   "title": "じしょForm + のは［ adj ］です",
+   "summary": "Describe a quality of an action using nominalization",
+   "uses": [
+    "opinion"
+   ],
+   "search": [
+    "にほんごを はなすのは たのしいです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 38,
+    "point": "mari.L38.1"
+   }
+  },
+  {
+   "id": "mari.L38.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 38,
+   "title": "じしょForm + のが［ adj ］です",
+   "summary": "Describe difficulty or ease of an action",
+   "uses": [
+    "opinion"
+   ],
+   "search": [
+    "かんじを おぼえるのが たいへんです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 38,
+    "point": "mari.L38.2"
+   }
+  },
+  {
+   "id": "mari.L38.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 38,
+   "title": "じしょForm + の をわすれました",
+   "summary": "Say you forgot to do something",
+   "uses": [
+    "regret"
+   ],
+   "search": [
+    "かぎを かけるのを わすれました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 38,
+    "point": "mari.L38.3"
+   }
+  },
+  {
+   "id": "mari.L38.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 38,
+   "title": "ふつうForm + の をしっていますか",
+   "summary": "Say you know that something is happening",
+   "uses": [
+    "hearsay"
+   ],
+   "search": [
+    "たなかさんが けっこんするのを しって います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 38,
+    "point": "mari.L38.4"
+   }
+  },
+  {
+   "id": "mari.L38.5",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 38,
+   "title": "ふつうForm + のは Nです",
+   "summary": "Identify a specific thing using nominalization",
+   "uses": [
+    "certain",
+    "emphasis"
+   ],
+   "search": [
+    "わたしが すきなのは なつです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 38,
+    "point": "mari.L38.5"
+   }
+  },
+  {
+   "id": "mari.L39.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 39,
+   "title": "てForm、〜（reason）",
+   "summary": "Give a reason using the te-form",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "かぜを ひいて、がっこうを やすみました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 39,
+    "point": "mari.L39.1"
+   }
+  },
+  {
+   "id": "mari.L39.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 39,
+   "title": "いadj（くて）／なadj（で）、〜（reason）",
+   "summary": "Give a reason using an adjective",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "からくて たべられませんでした。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 39,
+    "point": "mari.L39.2"
+   }
+  },
+  {
+   "id": "mari.L39.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 39,
+   "title": "Noun（で）、〜（reason）",
+   "summary": "Give a reason using a noun",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "びょうきで、かいしゃを やすみました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 39,
+    "point": "mari.L39.3"
+   }
+  },
+  {
+   "id": "mari.L39.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 39,
+   "title": "ふつうFrom＋ので、〜（Reason・Polite）",
+   "summary": "Give a polite, objective reason",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "あめが ふって いるので、でかけません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 39,
+    "point": "mari.L39.4"
+   }
+  },
+  {
+   "id": "mari.L40.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 40,
+   "title": "ぎもんし＋か、〜（Uncertain）",
+   "summary": "Express an embedded uncertain question",
+   "uses": [
+    "question"
+   ],
+   "search": [
+    "どこで うって いるか、しりません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 40,
+    "point": "mari.L40.1"
+   }
+  },
+  {
+   "id": "mari.L40.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 40,
+   "title": "〜かどうか、〜",
+   "summary": "Ask whether something is true or not",
+   "uses": [
+    "question"
+   ],
+   "search": [
+    "あした ひまかどうか、おしえて ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 40,
+    "point": "mari.L40.2"
+   }
+  },
+  {
+   "id": "mari.L40.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 40,
+   "title": "てForm＋みます（Attempt）",
+   "summary": "Say you will try doing something",
+   "uses": [
+    "plan"
+   ],
+   "search": [
+    "この りょうりを たべて みて ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 40,
+    "point": "mari.L40.3"
+   }
+  },
+  {
+   "id": "mari.L41.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 41,
+   "title": "Nounを いただきます／くださいます／やります",
+   "summary": "Use humble and respectful giving/receiving verbs",
+   "uses": [
+    "favor",
+    "polite"
+   ],
+   "search": [
+    "せんせいから ほんを いただきました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 41,
+    "point": "mari.L41.1"
+   }
+  },
+  {
+   "id": "mari.L41.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 41,
+   "title": "てForm＋いただきます／くださいます／やります",
+   "summary": "Describe favors using humble and respectful forms",
+   "uses": [
+    "favor",
+    "polite"
+   ],
+   "search": [
+    "せんせいに さくぶんを なおして いただきました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 41,
+    "point": "mari.L41.2"
+   }
+  },
+  {
+   "id": "mari.L41.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 41,
+   "title": "てForm＋くださいませんか（Polite request）",
+   "summary": "Make a very polite request",
+   "uses": [
+    "request",
+    "polite"
+   ],
+   "search": [
+    "もういちど せつめいして くださいませんか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 41,
+    "point": "mari.L41.3"
+   }
+  },
+  {
+   "id": "mari.L42.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 42,
+   "title": "じしょForm／Nounの＋ために、〜（purpose）",
+   "summary": "Express a purpose ('in order to')",
+   "uses": [
+    "purpose"
+   ],
+   "search": [
+    "けんこうの ために、まいあさ はしって います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 42,
+    "point": "mari.L42.1"
+   }
+  },
+  {
+   "id": "mari.L42.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 42,
+   "title": "じしょForm／Nounの＋のに、〜（use / purpose）",
+   "summary": "Explain what something is used for",
+   "uses": [
+    "purpose"
+   ],
+   "search": [
+    "この はさみは かみを きるのに つかいます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 42,
+    "point": "mari.L42.2"
+   }
+  },
+  {
+   "id": "mari.L42.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 42,
+   "title": "すうりょうし(quantifier)＋は／も（emphasis）",
+   "summary": "Emphasize a quantity as surprisingly large or small",
+   "uses": [
+    "emphasis"
+   ],
+   "search": [
+    "この しごとに 3にちも かかりました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 42,
+    "point": "mari.L42.3"
+   }
+  },
+  {
+   "id": "mari.L43.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 43,
+   "title": "ますForm／adj＋そうです（manner; state; appearance）",
+   "summary": "Describe the appearance of a situation ('looks like')",
+   "uses": [
+    "appearance",
+    "guess"
+   ],
+   "search": [
+    "この ケーキは おいしそうです。／あめが ふりそうです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 43,
+    "point": "mari.L43.1"
+   }
+  },
+  {
+   "id": "mari.L43.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 43,
+   "title": "てForm＋きます（to do… and come back）",
+   "summary": "Describe a change beginning or a quick round trip",
+   "uses": [
+    "change"
+   ],
+   "search": [
+    "あめが ふって きました。／ちょっと コンビニへ いって きます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 43,
+    "point": "mari.L43.2"
+   }
+  },
+  {
+   "id": "mari.L44.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 44,
+   "title": "ますForm / いadjい / なadj＋すぎます（too much）",
+   "summary": "Say something was done to excess",
+   "uses": [
+    "regret",
+    "opinion"
+   ],
+   "search": [
+    "ゆうべ たべすぎました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 44,
+    "point": "mari.L44.1"
+   }
+  },
+  {
+   "id": "mari.L44.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 44,
+   "title": "ますForm＋やすい／にくいです",
+   "summary": "Describe how easy or hard something is",
+   "uses": [
+    "opinion"
+   ],
+   "search": [
+    "この じは よみやすいです。／この かんじは おぼえにくいです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 44,
+    "point": "mari.L44.2"
+   }
+  },
+  {
+   "id": "mari.L44.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 44,
+   "title": "いadj（く）／なadj（に）＋します（Deliberate change）",
+   "summary": "Describe deliberately changing something",
+   "uses": [
+    "change"
+   ],
+   "search": [
+    "へやを きれいに しました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 44,
+    "point": "mari.L44.3"
+   }
+  },
+  {
+   "id": "mari.L44.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 44,
+   "title": "adj → adverb",
+   "summary": "Use an adjective as an adverb.",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "じを おおきく かきます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 44,
+    "point": "mari.L44.4"
+   }
+  },
+  {
+   "id": "mari.L45.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 45,
+   "title": "ふつうForm＋ばあい (は)、〜",
+   "summary": "Describe what to do in a certain case",
+   "uses": [
+    "condition"
+   ],
+   "search": [
+    "ちこくする ばあいは、れんらくして ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 45,
+    "point": "mari.L45.1"
+   }
+  },
+  {
+   "id": "mari.L45.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 45,
+   "title": "ふつうForm＋のに、〜（Paradox）",
+   "summary": "Express a surprising or disappointing contrast",
+   "uses": [
+    "regret",
+    "contrast"
+   ],
+   "search": [
+    "いっしょうけんめい べんきょうしたのに、おちて しまいました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 45,
+    "point": "mari.L45.2"
+   }
+  },
+  {
+   "id": "mari.L46.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 46,
+   "title": "じしょForm／〜ている／たForm＋ところです",
+   "summary": "Describe the exact stage of an action",
+   "uses": [
+    "time"
+   ],
+   "search": [
+    "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 46,
+    "point": "mari.L46.1"
+   }
+  },
+  {
+   "id": "mari.L46.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 46,
+   "title": "たForm＋ばかりです",
+   "summary": "Say something happened only a short time ago",
+   "uses": [
+    "time",
+    "done"
+   ],
+   "search": [
+    "さっき たべたばかりです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 46,
+    "point": "mari.L46.2"
+   }
+  },
+  {
+   "id": "mari.L46.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 46,
+   "title": "ふつうForm＋はずです（Considering objective reasons）",
+   "summary": "Express strong confidence in an expectation",
+   "uses": [
+    "certain"
+   ],
+   "search": [
+    "たなかさんは くる はずです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 46,
+    "point": "mari.L46.3"
+   }
+  },
+  {
+   "id": "mari.L47.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 47,
+   "title": "ふつうForm＋そうです（hearsay）",
+   "summary": "Report information heard from another source",
+   "uses": [
+    "hearsay"
+   ],
+   "search": [
+    "てんきよほうに よると、あした ゆきが ふるそうです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 47,
+    "point": "mari.L47.1"
+   }
+  },
+  {
+   "id": "mari.L47.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 47,
+   "title": "ふつうForm＋ようです（Estimation）",
+   "summary": "Express a conclusion based on evidence or observation",
+   "uses": [
+    "guess",
+    "appearance"
+   ],
+   "search": [
+    "だれも いないようです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 47,
+    "point": "mari.L47.2"
+   }
+  },
+  {
+   "id": "mari.L48.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 48,
+   "title": "しえきけい (Causative verbs)",
+   "summary": "Correctly form the causative",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "いかせる／たべさせる／させる／こさせる"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 48,
+    "point": "mari.L48.1"
+   }
+  },
+  {
+   "id": "mari.L48.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 48,
+   "title": "Personを〜（さ）せます（compulsion・permission）",
+   "summary": "Describe making or letting someone do something",
+   "uses": [
+    "command"
+   ],
+   "search": [
+    "せんせいは がくせいを たたせました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 48,
+    "point": "mari.L48.2"
+   }
+  },
+  {
+   "id": "mari.L48.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 48,
+   "title": "Personに（もの）を〜（さ）せます",
+   "summary": "Describe making someone do something to an object",
+   "uses": [
+    "command"
+   ],
+   "search": [
+    "ははは わたしに へやを そうじさせました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 48,
+    "point": "mari.L48.3"
+   }
+  },
+  {
+   "id": "mari.L48.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 48,
+   "title": "しえきけい（て）＋いただけませんか（Request for permission）",
+   "summary": "Politely ask permission to do something",
+   "uses": [
+    "request",
+    "polite"
+   ],
+   "search": [
+    "すこし やすませて いただけませんか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 48,
+    "point": "mari.L48.4"
+   }
+  },
+  {
+   "id": "mari.L49.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 49,
+   "title": "そんけいごの うけみがた（〜（ら）れます）",
+   "summary": "Use respectful language for someone else's action",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "しゃちょうは もう かえられました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 49,
+    "point": "mari.L49.1"
+   }
+  },
+  {
+   "id": "mari.L49.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 49,
+   "title": "お＋ますけい＋に なります",
+   "summary": "Use the polite honorific pattern for respect",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "しゃちょうは もう おかえりに なりました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 49,
+    "point": "mari.L49.2"
+   }
+  },
+  {
+   "id": "mari.L49.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 49,
+   "title": "とくべつな そんけいご（いらっしゃる・めしあがる など）",
+   "summary": "Use special honorific verbs",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "せんせいは もう めしあがりましたか。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 49,
+    "point": "mari.L49.3"
+   }
+  },
+  {
+   "id": "mari.L49.4",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 49,
+   "title": "お＋ますけい＋ください",
+   "summary": "Make a respectful request",
+   "uses": [
+    "polite",
+    "request"
+   ],
+   "search": [
+    "どうぞ おかけください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 49,
+    "point": "mari.L49.4"
+   }
+  },
+  {
+   "id": "mari.L50.1",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 50,
+   "title": "お／ご＋ますけい＋します（けんじょうご）",
+   "summary": "Use humble language to lower yourself when helping someone",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "にもつを おもちします。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 50,
+    "point": "mari.L50.1"
+   }
+  },
+  {
+   "id": "mari.L50.2",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 50,
+   "title": "とくべつな けんじょうご（もうす・まいる・いただく など）",
+   "summary": "Use special humble verbs",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "わたしは たなかと もうします。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 50,
+    "point": "mari.L50.2"
+   }
+  },
+  {
+   "id": "mari.L50.3",
+   "type": "grammar_point",
+   "source": "Mari",
+   "lesson": 50,
+   "title": "ていねいご（です・ます／ございます）",
+   "summary": "Use polite language appropriately in formal contexts",
+   "uses": [
+    "polite"
+   ],
+   "search": [
+    "こちらに ございます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 50,
+    "point": "mari.L50.3"
+   }
+  },
+  {
+   "id": "mari.particle.1",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "によって",
+   "summary": "By (means of) / depending on",
+   "uses": [
+    "manner",
+    "condition"
+   ],
+   "search": [
+    "この おてらは ゆうめいな だいくに よって たてられました。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "によって"
+   }
+  },
+  {
+   "id": "mari.particle.2",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "として",
+   "summary": "As (in the capacity/role of)",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "つうやくとして はたらいて います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "として"
+   }
+  },
+  {
+   "id": "mari.particle.3",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "にとって",
+   "summary": "For (from someone's perspective)",
+   "uses": [
+    "opinion"
+   ],
+   "search": [
+    "これは わたしに とって たいせつな ものです。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "にとって"
+   }
+  },
+  {
+   "id": "mari.particle.4",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "について",
+   "summary": "About / concerning",
+   "uses": [
+    "hearsay"
+   ],
+   "search": [
+    "にほんの れきしに ついて しらべて います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "について"
+   }
+  },
+  {
+   "id": "mari.particle.5",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 36,
+   "title": "ように",
+   "summary": "So that (purpose)",
+   "uses": [
+    "change",
+    "habit",
+    "plan",
+    "purpose"
+   ],
+   "search": [
+    "わすれないように、メモを します。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 36
+   }
+  },
+  {
+   "id": "mari.particle.6",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 42,
+   "title": "ために",
+   "summary": "For the sake of / in order to",
+   "uses": [
+    "purpose"
+   ],
+   "search": [
+    "かぞくの ために、はたらいて います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 42
+   }
+  },
+  {
+   "id": "mari.particle.7",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 42,
+   "title": "のに",
+   "summary": "Even though (contrast)",
+   "uses": [
+    "contrast",
+    "purpose",
+    "regret"
+   ],
+   "search": [
+    "やくそくしたのに、きませんでした。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 42
+   }
+  },
+  {
+   "id": "mari.particle.8",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 46,
+   "title": "ばかり",
+   "summary": "Only / just",
+   "uses": [
+    "done",
+    "time"
+   ],
+   "search": [
+    "あそんで ばかり います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 46
+   }
+  },
+  {
+   "id": "mari.particle.9",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "でも",
+   "summary": "Even (emphasis)",
+   "uses": [
+    "emphasis"
+   ],
+   "search": [
+    "こどもでも わかります。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "でも"
+   }
+  },
+  {
+   "id": "mari.particle.10",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 28,
+   "title": "ながら",
+   "summary": "While (two actions at once)",
+   "uses": [
+    "manner",
+    "time"
+   ],
+   "search": [
+    "あるきながら、はなします。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 28
+   }
+  },
+  {
+   "id": "mari.particle.11",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 34,
+   "title": "とおりに",
+   "summary": "Exactly as",
+   "uses": [
+    "manner"
+   ],
+   "search": [
+    "せつめいの とおりに やって ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 34
+   }
+  },
+  {
+   "id": "mari.particle.12",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 27,
+   "title": "しか〜ません",
+   "summary": "Only (with a negative verb)",
+   "uses": [
+    "emphasis"
+   ],
+   "search": [
+    "すこししか わかりません。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 27
+   }
+  },
+  {
+   "id": "mari.particle.13",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "けれど（も）",
+   "summary": "Though / but",
+   "uses": [
+    "contrast"
+   ],
+   "search": [
+    "たかいけれど、かいます。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "けれど"
+   }
+  },
+  {
+   "id": "mari.particle.14",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": 39,
+   "title": "ので",
+   "summary": "Because (polite, objective reason)",
+   "uses": [
+    "reason"
+   ],
+   "search": [
+    "あめなので、いえに います。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "lesson": 39
+   }
+  },
+  {
+   "id": "mari.particle.15",
+   "type": "particle",
+   "source": "Mari",
+   "lesson": null,
+   "title": "まま",
+   "summary": "As it is / while in a certain state",
+   "uses": [
+    "state",
+    "manner"
+   ],
+   "search": [
+    "くつを はいた まま、はいらないで ください。"
+   ],
+   "open": {
+    "screen": "grammar",
+    "query": "まま"
+   }
+  },
+  {
+   "id": "s01.counters",
+   "type": "reference_table",
+   "source": "number.pdf",
+   "title": "Counters",
+   "summary": "Counting things: つ, 個, 人, 本, 枚, 匹, 冊, 台...",
+   "uses": [
+    "counting"
+   ],
+   "search": [
+    "つ general things",
+    "人 people",
+    "個 apples, eggs",
+    "冊 books, notebooks",
+    "分 minutes",
+    "匹 dogs, cats, fish",
+    "台 cars, computers",
+    "回 times (how often)",
+    "本 pens, bottles",
+    "杯 cups, bowls",
+    "枚 paper, shirts",
+    "歳 age",
+    "階 floors"
+   ],
+   "open": {
+    "screen": "reference",
+    "table": "counters"
+   }
+  },
+  {
+   "id": "s01.months",
+   "type": "reference_table",
+   "source": "number.pdf",
+   "title": "Months",
+   "summary": "Month names and numbers of months",
+   "uses": [
+    "counting"
+   ],
+   "search": [
+    "〜か月 number of months",
+    "〜月 month name"
+   ],
+   "open": {
+    "screen": "reference",
+    "table": "months"
+   }
+  },
+  {
+   "id": "s01.dates",
+   "type": "reference_table",
+   "source": "number.pdf",
+   "title": "Dates",
+   "summary": "Days of the month, 1日 to 31日",
+   "uses": [
+    "counting"
+   ],
+   "search": [
+    "日 day of the month"
+   ],
+   "open": {
+    "screen": "reference",
+    "table": "dates"
+   }
+  },
+  {
+   "id": "s01.durations",
+   "type": "reference_table",
+   "source": "number.pdf",
+   "title": "Lengths of time",
+   "summary": "Minutes, hours, days, weeks, months, years",
+   "uses": [
+    "counting"
+   ],
+   "search": [
+    "か月 months",
+    "分(間) minutes",
+    "年(間) years",
+    "日(間) days",
+    "時間 hours",
+    "週間 weeks"
+   ],
+   "open": {
+    "screen": "reference",
+    "table": "durations"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.1",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "あく / あける",
+   "summary": "open",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "あく",
+    "あける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.2",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "しまる / しめる",
+   "summary": "close",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "しまる",
+    "しめる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.3",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "つく / つける",
+   "summary": "turn on",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "つく",
+    "つける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.4",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "きえる / けす",
+   "summary": "turn off",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "きえる",
+    "けす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.5",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "こわれる / こわす",
+   "summary": "break",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "こわれる",
+    "こわす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.6",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "われる / わる",
+   "summary": "break (glass, plate)",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "われる",
+    "わる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.7",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "おれる / おる",
+   "summary": "break, snap",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "おれる",
+    "おる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.8",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "やぶれる / やぶる",
+   "summary": "tear",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "やぶれる",
+    "やぶる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.9",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "よごれる / よごす",
+   "summary": "get/make dirty",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "よごれる",
+    "よごす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.10",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "つく / つける",
+   "summary": "attach, put on",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "つく",
+    "つける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.1.11",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "はずれる / はずす",
+   "summary": "come off, remove",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "はずれる",
+    "はずす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.2.1",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "とまる / とめる",
+   "summary": "stop",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "とまる",
+    "とめる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.2.2",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "かかる / かける",
+   "summary": "be locked / lock",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "かかる",
+    "かける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.2.3",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "はいる / いれる",
+   "summary": "enter / put in",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "はいる",
+    "いれる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s02_pairs_mari.2.4",
+   "type": "verb_pair",
+   "source": "Mari",
+   "title": "でる / だす",
+   "summary": "go out / take out",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "でる",
+    "だす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.1",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "つく / つける",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "つく",
+    "つける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.2",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "しまる / しめる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "しまる",
+    "しめる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.3",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "おちる / おとす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "おちる",
+    "おとす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.4",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "ならぶ / ならべる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "ならぶ",
+    "ならべる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.5",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "みつかる / みつける",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "みつかる",
+    "みつける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.6",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "つづく / つづける",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "つづく",
+    "つづける"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.7",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "あがる / あげる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "あがる",
+    "あげる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.8",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "さがる / さげる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "さがる",
+    "さげる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.9",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "おれる / おる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "おれる",
+    "おる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.10",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "こわれる / こわす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "こわれる",
+    "こわす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.11",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "おきる / おこす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "おきる",
+    "おこす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.12",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "やける / やく",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "やける",
+    "やく"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.13",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "とまる / とめる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "とまる",
+    "とめる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.14",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "はじまる / はじめる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "はじまる",
+    "はじめる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.15",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "はいる / いれる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "はいる",
+    "いれる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.16",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "なくなる / なくす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "なくなる",
+    "なくす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.17",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "なおる / なおす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "なおる",
+    "なおす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.18",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "なおる / なおす",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "なおる",
+    "なおす"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.19",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "かわる / かえる",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "かわる",
+    "かえる"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "s03_pairs_textbook.20",
+   "type": "verb_pair",
+   "source": "Textbook 8課",
+   "title": "あたたかく なる / あたたかく する",
+   "summary": "",
+   "uses": [
+    "transitivity"
+   ],
+   "search": [
+    "あたたかく なる",
+    "あたたかく する"
+   ],
+   "open": {
+    "screen": "pairs"
+   }
+  },
+  {
+   "id": "conj.masu",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "ます form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "masu"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "masu"
+   }
+  },
+  {
+   "id": "conj.te",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "て form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "te"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "te"
+   }
+  },
+  {
+   "id": "conj.ta",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "た form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "ta"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "ta"
+   }
+  },
+  {
+   "id": "conj.nai",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "ない form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "nai"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "nai"
+   }
+  },
+  {
+   "id": "conj.potential",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "potential form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "potential"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "potential"
+   }
+  },
+  {
+   "id": "conj.volitional",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "volitional form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "volitional"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "volitional"
+   }
+  },
+  {
+   "id": "conj.conditional",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "conditional (ば) form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "conditional"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "conditional"
+   }
+  },
+  {
+   "id": "conj.imperative",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "imperative form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "imperative"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "imperative"
+   }
+  },
+  {
+   "id": "conj.prohibitive",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "negative imperative (な)",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "prohibitive"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "prohibitive"
+   }
+  },
+  {
+   "id": "conj.passive",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "passive form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "passive"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "passive"
+   }
+  },
+  {
+   "id": "conj.causative",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "causative form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "causative"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "causative"
+   }
+  },
+  {
+   "id": "conj.causative_passive",
+   "type": "conjugation",
+   "source": "Mari (verb forms)",
+   "title": "causative passive form",
+   "summary": "Conjugation drill",
+   "uses": [
+    "forms"
+   ],
+   "search": [
+    "causative_passive"
+   ],
+   "open": {
+    "screen": "conjugation",
+    "form": "causative_passive"
+   }
+  },
+  {
+   "id": "vocab.L2",
+   "type": "vocabulary",
+   "source": "L2-roma.pdf",
+   "lesson": 2,
+   "title": "第2課 words",
+   "summary": "22 words",
+   "uses": [],
+   "search": [
+    "book",
+    "jisho, dictionary",
+    "magazine",
+    "newspaper",
+    "notebook",
+    "techō, pocket notebook",
+    "business card",
+    "card",
+    "pencil",
+    "ballpoint pen",
+    "shāpupenshiru, mechanical pencil",
+    "key",
+    "watch, clock",
+    "umbrella",
+    "bag, briefcase",
+    "television",
+    "computer",
+    "car",
+    "desk",
+    "chair",
+    "chokorēto, chocolate",
+    "coffee",
+    "ほん",
+    "じしょ",
+    "ざっし",
+    "しんぶん",
+    "ノート",
+    "てちょう",
+    "めいし",
+    "カード",
+    "えんぴつ",
+    "ボールペン",
+    "シャープペンシル",
+    "かぎ",
+    "とけい",
+    "かさ",
+    "かばん",
+    "テレビ",
+    "コンピュ-タ-",
+    "くるま",
+    "つくえ",
+    "いす",
+    "チョコレート",
+    "コーヒー"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 2
+   }
+  },
+  {
+   "id": "vocab.L3",
+   "type": "vocabulary",
+   "source": "L3-roma.pdf",
+   "lesson": 3,
+   "title": "第3課 words",
+   "summary": "19 words",
+   "uses": [],
+   "search": [
+    "classroom",
+    "shokudō, canteen",
+    "office",
+    "meeting room",
+    "reception",
+    "lobby",
+    "room",
+    "toilet",
+    "staircase",
+    "elevator",
+    "escalator",
+    "county",
+    "kaisha, company",
+    "house, home",
+    "telephone",
+    "shoes",
+    "necktie",
+    "wine",
+    "tobacco",
+    "きょうしつ",
+    "しょくどう",
+    "じむしょ",
+    "かいぎしつ",
+    "うけつけ",
+    "ロビ-",
+    "へや",
+    "トイレ",
+    "かいだん",
+    "エレベ-タ-",
+    "エスカレ-タ-",
+    "くに",
+    "かいしゃ",
+    "うち",
+    "でんわ",
+    "くつ",
+    "ネクタイ",
+    "ワイン",
+    "たばこ"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 3
+   }
+  },
+  {
+   "id": "vocab.L4",
+   "type": "vocabulary",
+   "source": "L4-roma.pdf",
+   "lesson": 4,
+   "title": "第4課 words",
+   "summary": "14 words",
+   "uses": [],
+   "search": [
+    "wake up",
+    "sleep",
+    "work",
+    "take a rest, take a holiday",
+    "study",
+    "finish",
+    "department store",
+    "bank",
+    "post office",
+    "toshokan, library",
+    "bijutsukan, art museum",
+    "morning",
+    "daytime, noon",
+    "night",
+    "おきます",
+    "ねます",
+    "はたらきます",
+    "やすみます",
+    "べんきょうします",
+    "おわります",
+    "デパ-ト",
+    "ぎんこう",
+    "ゆうびんきょく",
+    "としょかん",
+    "びじゅつかん",
+    "あさ",
+    "ひる",
+    "ばん"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 4
+   }
+  },
+  {
+   "id": "vocab.L5",
+   "type": "vocabulary",
+   "source": "L5-roma.pdf",
+   "lesson": 5,
+   "title": "第5課 words",
+   "summary": "23 words",
+   "uses": [],
+   "search": [
+    "go",
+    "come",
+    "go home",
+    "school",
+    "supermarket",
+    "station",
+    "airplane",
+    "ship",
+    "densha, train",
+    "subway",
+    "bullet train",
+    "bus",
+    "taxi",
+    "bicycle",
+    "friend",
+    "he, boyfriend",
+    "kanojo, she, girlfriend",
+    "family",
+    "alone, by oneself",
+    "tanjōbi, birthday",
+    "local (train)",
+    "rapid",
+    "express",
+    "いきます",
+    "きます",
+    "かえります",
+    "がっこう",
+    "スーパー",
+    "えき",
+    "ひこうき",
+    "ふね",
+    "でんしゃ",
+    "ちかてつ",
+    "しんかんせん",
+    "バス",
+    "タクシー",
+    "じてんしゃ",
+    "ともだち",
+    "かれ",
+    "かのじょ",
+    "かぞく",
+    "ひとりで",
+    "たんじょうび",
+    "ふつう",
+    "きゅうこう",
+    "とっきゅう"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 5
+   }
+  },
+  {
+   "id": "vocab.L6",
+   "type": "vocabulary",
+   "source": "L6-roma.pdf",
+   "lesson": 6,
+   "title": "第6課 words",
+   "summary": "38 words",
+   "uses": [],
+   "search": [
+    "eat",
+    "drink",
+    "smoke (a cigarette)",
+    "see, look at, watch",
+    "hear, listen",
+    "read",
+    "write, draw, paint",
+    "buy",
+    "torimasu(shashinwo), take (a photo)",
+    "meet, see (a friend)",
+    "a meal, cooked rice",
+    "breakfast",
+    "lunch",
+    "dinner",
+    "bread",
+    "egg",
+    "meat",
+    "beef",
+    "pork",
+    "chicken",
+    "fish",
+    "vegetable",
+    "fruit",
+    "water",
+    "ocha, tea, green tea",
+    "kōcha, black tea",
+    "milk",
+    "jūsu, juice",
+    "beer",
+    "alcohol",
+    "movie",
+    "CD",
+    "letter",
+    "shashin, photograph",
+    "store, shop",
+    "restaurant",
+    "shukudai, homework",
+    "soccer",
+    "たべます",
+    "のみます",
+    "すいます[たばこを]",
+    "みます",
+    "ききます",
+    "よみます",
+    "かきます",
+    "かいます",
+    "とります[しゃしんを]",
+    "あいます[ともだちに]",
+    "ごはん",
+    "あさごはん",
+    "ひるごはん",
+    "ばんごはん",
+    "パン",
+    "たまご",
+    "にく",
+    "ぎゅうにく",
+    "ぶたにく",
+    "とりにく",
+    "さかな",
+    "やさい",
+    "くだもの",
+    "みず",
+    "おちゃ",
+    "こうちゃ",
+    "ぎゅうにゅう",
+    "ジュース",
+    "ビール",
+    "(お)さけ",
+    "えいが",
+    "シーディー",
+    "てがみ",
+    "しゃしん",
+    "みせ",
+    "レストラン",
+    "しゅくだい",
+    "サッカ-"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 6
+   }
+  },
+  {
+   "id": "vocab.L7",
+   "type": "vocabulary",
+   "source": "L7-roma.pdf",
+   "lesson": 7,
+   "title": "第7課 words",
+   "summary": "32 words",
+   "uses": [],
+   "search": [
+    "cut, slice",
+    "send",
+    "give",
+    "receive",
+    "lend",
+    "borrow",
+    "teach",
+    "learn",
+    "make (a phone call)",
+    "hand, arm",
+    "chopsticks",
+    "spoon",
+    "knife",
+    "fork",
+    "scissors",
+    "personal computer",
+    "punch",
+    "stapler",
+    "scotch tape",
+    "eraser",
+    "paper",
+    "flower, blossom",
+    "shatsu, shirt",
+    "present, gift",
+    "baggage, parcel",
+    "money",
+    "ticket",
+    "someone else's father",
+    "someone else's mother",
+    "Thank you. (before eat/drink)",
+    "trip, tour",
+    "souvenir, present",
+    "きります",
+    "おくります",
+    "あげます",
+    "もらいます",
+    "かします",
+    "かります",
+    "おしえます",
+    "ならいます",
+    "かけます[でんわを]",
+    "て",
+    "はし",
+    "スプーン",
+    "ナイフ",
+    "フォ-ク",
+    "はさみ",
+    "パソコン",
+    "パンチ",
+    "ホッチキス",
+    "セロテ-プ",
+    "けしゴム",
+    "かみ",
+    "はな",
+    "シャツ",
+    "プレゼント",
+    "にもつ",
+    "おかね",
+    "きっぷ",
+    "おとうさん",
+    "おかあさん",
+    "いただきます。",
+    "りょこう",
+    "(お)みやげ"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 7
+   }
+  },
+  {
+   "id": "vocab.L8",
+   "type": "vocabulary",
+   "source": "L8-roma.pdf",
+   "lesson": 8,
+   "title": "第8課 words",
+   "summary": "40 words",
+   "uses": [],
+   "search": [
+    "handsome",
+    "beautiful, clean",
+    "quiet",
+    "lively",
+    "famous",
+    "kind",
+    "healthy, cheerful",
+    "free(time)",
+    "convenient",
+    "nice, wonderful",
+    "big, large",
+    "small, little",
+    "new",
+    "old (not of age)",
+    "good",
+    "bad",
+    "hot",
+    "cold (weather)",
+    "hot",
+    "cold (referring to touch)",
+    "difficult",
+    "easy",
+    "expensive",
+    "cheap",
+    "tall, high",
+    "low",
+    "interesting",
+    "delicious, tasty",
+    "busy",
+    "fun",
+    "white",
+    "black",
+    "red",
+    "blue",
+    "cherry (blossom)",
+    "mountain",
+    "food",
+    "car",
+    "study",
+    "work, business",
+    "ハンサム[な]",
+    "きれい[な]",
+    "しずか[な]",
+    "にぎやか[な]",
+    "ゆうめい[な]",
+    "しんせつ[な]",
+    "げんき[な]",
+    "ひま[な]",
+    "べんり[な]",
+    "すてき[な]",
+    "おおきい",
+    "ちいさい",
+    "あたらしい",
+    "ふるい",
+    "いい (よい)",
+    "わるい",
+    "あつい",
+    "さむい",
+    "あつい",
+    "つめたい",
+    "むずかしい",
+    "やさしい",
+    "たかい",
+    "やすい",
+    "たかい",
+    "ひくい",
+    "おもしろい",
+    "おいしい",
+    "いそがしい",
+    "たのしい",
+    "しろい",
+    "くろい",
+    "あかい",
+    "あおい",
+    "さくら",
+    "やま",
+    "たべもの",
+    "くるま",
+    "べんきょう",
+    "(お)しごと"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 8
+   }
+  },
+  {
+   "id": "vocab.L9",
+   "type": "vocabulary",
+   "source": "L9-roma.pdf",
+   "lesson": 9,
+   "title": "第9課 words",
+   "summary": "20 words",
+   "uses": [],
+   "search": [
+    "understand",
+    "have",
+    "like",
+    "dislike",
+    "jōzu(na), good at",
+    "bad at",
+    "cooking, cooked food",
+    "drinks",
+    "sport",
+    "baseball",
+    "dance",
+    "music",
+    "song",
+    "picture, drawing",
+    "small change",
+    "ticket",
+    "goshujin, someone else's husband",
+    "shujin, my husband",
+    "someone else's wife",
+    "my wife",
+    "わかります",
+    "あります",
+    "すき[な]",
+    "きらい[な]",
+    "じょうず[な]",
+    "へた[な]",
+    "りょうり",
+    "のみもの",
+    "スポ-ツ",
+    "やきゅう",
+    "ダンス",
+    "おんがく",
+    "うた",
+    "え",
+    "こまかい おかね",
+    "チケット",
+    "ごしゅじん",
+    "しゅじん",
+    "おくさん",
+    "つま"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 9
+   }
+  },
+  {
+   "id": "vocab.L10",
+   "type": "vocabulary",
+   "source": "L10-roma.pdf",
+   "lesson": 10,
+   "title": "第10課 words",
+   "summary": "35 words",
+   "uses": [],
+   "search": [
+    "exist, be (animate things)",
+    "exist, be (inanimate things)",
+    "various",
+    "man",
+    "woman",
+    "boy",
+    "girl",
+    "dog",
+    "cat",
+    "tree, wood",
+    "battery",
+    "box",
+    "switch",
+    "refrigerator",
+    "table",
+    "shelf",
+    "door",
+    "window",
+    "post",
+    "building",
+    "park",
+    "coffee shop",
+    "bookstore",
+    "place to catch taxi, trains, bus",
+    "on, above",
+    "under, below",
+    "front, before",
+    "back, behind",
+    "right",
+    "left",
+    "in, inside",
+    "outside",
+    "next",
+    "near",
+    "between",
+    "います",
+    "あります",
+    "いろいろ[な]",
+    "おとこのひと",
+    "おんなのひと",
+    "おとこのこ",
+    "おんなのこ",
+    "いぬ",
+    "ねこ",
+    "き",
+    "でんち",
+    "はこ",
+    "スイッチ",
+    "れいぞうこ",
+    "テーブル",
+    "たな",
+    "ドア",
+    "まど",
+    "ポスト",
+    "ビル",
+    "こうえん",
+    "きっさてん",
+    "ほんや",
+    "のりば",
+    "うえ",
+    "した",
+    "まえ",
+    "うしろ",
+    "みぎ",
+    "ひだり",
+    "なか",
+    "そと",
+    "となり",
+    "ちかく",
+    "あいだ"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 10
+   }
+  },
+  {
+   "id": "vocab.L11",
+   "type": "vocabulary",
+   "source": "L11-roma.pdf",
+   "lesson": 11,
+   "title": "第11課 words",
+   "summary": "21 words",
+   "uses": [],
+   "search": [
+    "have (a child)",
+    "stay (in Japan)",
+    "take (money)",
+    "take (time)",
+    "take a day off",
+    "apple",
+    "orange",
+    "curry and rice",
+    "postage stamp",
+    "post card",
+    "envelope",
+    "special delivery",
+    "registered mail",
+    "airmail",
+    "sea mail",
+    "parents",
+    "brothers and sisters",
+    "someone else's older brother",
+    "someone else's older sister",
+    "someone else's younger brother",
+    "someone else's younger sister",
+    "います[こどもが]",
+    "います[にほんに]",
+    "かかります[おかねが]",
+    "かかります[じかんが]",
+    "やすみます[かいしゃを]",
+    "りんご",
+    "みかん",
+    "カレー(ライス)",
+    "きって",
+    "はがき",
+    "ふうとう",
+    "そくたつ",
+    "かきとめ",
+    "こうくうびん",
+    "ふなびん",
+    "りょうしん",
+    "きょうだい",
+    "おにいさん",
+    "おねえさん",
+    "おとうとさん",
+    "いもうとさん"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 11
+   }
+  },
+  {
+   "id": "vocab.L12",
+   "type": "vocabulary",
+   "source": "L12-roma.pdf",
+   "lesson": 12,
+   "title": "第12課 words",
+   "summary": "32 words",
+   "uses": [],
+   "search": [
+    "easy",
+    "near",
+    "far",
+    "early",
+    "fast",
+    "late",
+    "slow",
+    "many, much",
+    "few, a little",
+    "warm",
+    "cool",
+    "sweet",
+    "spicy",
+    "heavy",
+    "light",
+    "season",
+    "spring",
+    "summer",
+    "autumn, fall",
+    "winter",
+    "weather",
+    "rain",
+    "snow",
+    "cloudy",
+    "hotel",
+    "airport",
+    "sea, ocean",
+    "party",
+    "festival",
+    "examination",
+    "sushi",
+    "maple, red leaves of autumn",
+    "かんたん[な]",
+    "ちかい",
+    "とおい",
+    "はやい",
+    "はやい",
+    "おそい",
+    "おそい",
+    "おおい",
+    "すくない",
+    "あたたかい",
+    "すずしい",
+    "あまい",
+    "からい",
+    "おもい",
+    "かるい",
+    "きせつ",
+    "はる",
+    "なつ",
+    "あき",
+    "ふゆ",
+    "てんき",
+    "あめ",
+    "ゆき",
+    "くもり",
+    "ホテル",
+    "くうこう",
+    "うみ",
+    "パーテイー",
+    "(お)まつり",
+    "しけん",
+    "(お)すし",
+    "もみじ"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 12
+   }
+  },
+  {
+   "id": "vocab.L13",
+   "type": "vocabulary",
+   "source": "L13-roma.pdf",
+   "lesson": 13,
+   "title": "第13課 words",
+   "summary": "25 words",
+   "uses": [],
+   "search": [
+    "play, hang out",
+    "swim",
+    "go to meet, welcome",
+    "get tired",
+    "send [a letter]",
+    "enter a elevator",
+    "go out of a elevator",
+    "marry",
+    "do shopping",
+    "shokujishimasu, have a meal",
+    "sanposhimasu(kōenwo), take a walk [in a park]",
+    "hard",
+    "want",
+    "lonely",
+    "wide, spacious",
+    "narrow",
+    "swimming pool",
+    "river",
+    "bijutsu, arts",
+    "fishing",
+    "skiing",
+    "meeting",
+    "I'm hungry.",
+    "I'm full.",
+    "I'm thirsty.",
+    "あそびます",
+    "およぎます",
+    "むかえます",
+    "つかれます",
+    "だします[てがみを]",
+    "はいります[〜に]",
+    "でます[〜を]",
+    "けっこんします",
+    "かいものします",
+    "しょくじします",
+    "さんぽします[〜を]",
+    "たいへん[な]",
+    "ほしい",
+    "さびしい",
+    "ひろい",
+    "せまい",
+    "プール",
+    "かわ",
+    "びじゅつ",
+    "つり",
+    "スキー",
+    "かいぎ",
+    "おなかがすきました。",
+    "おなかがいっぱいです。",
+    "のどがかわきました。"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 13
+   }
+  },
+  {
+   "id": "vocab.L14",
+   "type": "vocabulary",
+   "source": "L14-roma.pdf",
+   "lesson": 14,
+   "title": "第14課 words",
+   "summary": "23 words",
+   "uses": [],
+   "search": [
+    "turn on",
+    "turn off",
+    "open",
+    "close, shut",
+    "hurry",
+    "wait",
+    "stop",
+    "park",
+    "turn[to the right]",
+    "hold",
+    "take, pass",
+    "help",
+    "call",
+    "speak, talk",
+    "show",
+    "oshiemasu(jūshowo), tell[an address]",
+    "start, begin",
+    "rain",
+    "copy",
+    "air conditioner",
+    "passport",
+    "salt",
+    "sugar",
+    "つけます",
+    "けします",
+    "あけます",
+    "しめます",
+    "いそぎます",
+    "まちます",
+    "とめます[おんがくを]",
+    "とめます[くるまを]",
+    "まがります[みぎへ ]",
+    "もちます",
+    "とります",
+    "てつだいます",
+    "よびます",
+    "はなします",
+    "みせます",
+    "おしえます[じゅうしょを]",
+    "はじめます",
+    "ふります[あめ が]",
+    "コピーします",
+    "エアコン",
+    "パスポート",
+    "しお",
+    "さとう"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 14
+   }
+  },
+  {
+   "id": "vocab.L15",
+   "type": "vocabulary",
+   "source": "L15-roma.pdf",
+   "lesson": 15,
+   "title": "第15課 words",
+   "summary": "16 words",
+   "uses": [],
+   "search": [
+    "stand up",
+    "sit down",
+    "use",
+    "put on",
+    "make, produce",
+    "sell",
+    "be going to live",
+    "do research",
+    "materials, data",
+    "catalog",
+    "timetable",
+    "clothes",
+    "haisha, dentist",
+    "barber",
+    "remember, recollect",
+    "high school",
+    "たちます",
+    "すわります",
+    "つかいます",
+    "おきます",
+    "つくります",
+    "うります",
+    "すみます",
+    "けんきゅうします",
+    "しりょう",
+    "カタログ",
+    "じこくひょう",
+    "ふく",
+    "はいしゃ",
+    "とこや",
+    "おもいだします",
+    "こうこう"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 15
+   }
+  },
+  {
+   "id": "vocab.L16",
+   "type": "vocabulary",
+   "source": "L16-roma.pdf",
+   "lesson": 16,
+   "title": "第16課 words",
+   "summary": "30 words",
+   "uses": [],
+   "search": [
+    "ride, get on [a train]",
+    "get off [a train]",
+    "change trains",
+    "abimasu(shawāwo), take [a shower]",
+    "put in, insert",
+    "take out, withdraw",
+    "enter [university]",
+    "graduate from [university]",
+    "quit [a company]",
+    "push, press",
+    "young",
+    "long",
+    "short",
+    "bright",
+    "dark",
+    "tall (referring to person)",
+    "body",
+    "head",
+    "hair",
+    "face",
+    "eye",
+    "ear",
+    "mouth",
+    "tooth",
+    "stomach, belly, tummy",
+    "foot, leg",
+    "jogingu, jogging",
+    "temple",
+    "jinja, shinto shrine",
+    "foreign student",
+    "のります[でんしゃに ]",
+    "おります[でんしゃを]",
+    "のりかえます",
+    "あびます[〜を]",
+    "いれます",
+    "だします",
+    "はいります[だいがくに]",
+    "でます[だいがくを]",
+    "やめます[かいしゃを]",
+    "おします",
+    "わかい",
+    "ながい",
+    "みじがい",
+    "あかるい",
+    "くらい",
+    "せがたかい",
+    "からだ",
+    "あたま",
+    "かみ",
+    "かお",
+    "め",
+    "みみ",
+    "くち",
+    "は",
+    "おなか",
+    "あし",
+    "ジョギング",
+    "[お]てら",
+    "じんじゃ",
+    "りゅうがくせい"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 16
+   }
+  },
+  {
+   "id": "vocab.L17",
+   "type": "vocabulary",
+   "source": "L17-roma.pdf",
+   "lesson": 17,
+   "title": "第17課 words",
+   "summary": "30 words",
+   "uses": [],
+   "search": [
+    "memorize",
+    "forget",
+    "lose",
+    "dashimasu(repōtowo), hand in [a report]",
+    "pay",
+    "return",
+    "go out",
+    "take off",
+    "take (something)",
+    "bring (something)",
+    "worry",
+    "work overtime",
+    "shucchōshimasu, go on a business trip",
+    "take [medicine]",
+    "take [a bath]",
+    "important, precious",
+    "daijōbu(na), all right",
+    "dangerous",
+    "question, problem, trouble",
+    "answer",
+    "no smoking",
+    "cold, flu",
+    "fever",
+    "illness, disease",
+    "medicine",
+    "bath",
+    "jacket",
+    "underwear",
+    "stomachache",
+    "headache",
+    "おぼえます",
+    "わすれます",
+    "なくします",
+    "だします[〜を]",
+    "はらいます",
+    "かえします",
+    "でかけます",
+    "ぬぎます",
+    "もっていきます",
+    "もって きます",
+    "しんぱいします",
+    "ざんぎょうします",
+    "しゅっちょうします",
+    "のみます[くすりを ]",
+    "はいります[おふろに]",
+    "たいせつ[な]",
+    "だいじょうぶ[な]",
+    "あぶない",
+    "もんだい",
+    "こたえ",
+    "きんえん",
+    "かぜ",
+    "ねつ",
+    "びょうき",
+    "くすり",
+    "(お)ふろ",
+    "うわぎ",
+    "したぎ",
+    "いたいです[おなかが]",
+    "いたいです[あたまが]"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 17
+   }
+  },
+  {
+   "id": "vocab.L22",
+   "type": "vocabulary",
+   "source": "L22-roma.pdf",
+   "lesson": 22,
+   "title": "第22課 words",
+   "summary": "12 words",
+   "uses": [],
+   "search": [
+    "kimasu(shatsuwo), put on [a shirt]",
+    "put on [shoes or trousers]",
+    "put on [a hat]",
+    "put on [glasses]",
+    "be born",
+    "coat",
+    "suit",
+    "sweater",
+    "hat, cap",
+    "glasses",
+    "Congratulations.",
+    "apartment",
+    "きます[シャツを]",
+    "はきます[くつを]",
+    "かぶります[ぼうしを]",
+    "かけます[めがねを]",
+    "うまれます",
+    "コート",
+    "スーツ",
+    "セーター",
+    "ぼうし",
+    "めがね",
+    "おめでとう(ございます)。",
+    "アパート"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 22
+   }
+  },
+  {
+   "id": "vocab.L23",
+   "type": "vocabulary",
+   "source": "L23-roma.pdf",
+   "lesson": 23,
+   "title": "第23課 words",
+   "summary": "25 words",
+   "uses": [],
+   "search": [
+    "ask [the teacher]",
+    "turn",
+    "pull",
+    "change",
+    "touch",
+    "demasu(jūsuga), [juice] come out",
+    "[a car] move, work",
+    "walk [along a road]",
+    "cross [a bridge]",
+    "kiwotsukemasu, pay attention",
+    "move (house)",
+    "electrician",
+    "sound",
+    "machine",
+    "knob",
+    "koshō, break down",
+    "road, way",
+    "crossroad",
+    "traffic light",
+    "corner",
+    "bridge",
+    "chūshajō, parking lot",
+    "(o)shōgatsu, New year's day",
+    "That was delicious.",
+    "building",
+    "ききます[せんせいに]",
+    "まわします",
+    "ひきます",
+    "かえます",
+    "さわります[に]",
+    "でます[ジュースが]",
+    "うごきます[くるまが]",
+    "あるきます[みちを]",
+    "わたります[はしを ]",
+    "きをつけます",
+    "ひっこしします",
+    "でんきや",
+    "おと",
+    "きかい",
+    "つまみ",
+    "こしょう",
+    "みち",
+    "こうさてん",
+    "しんごう",
+    "かど",
+    "はし",
+    "ちゅうしゃじょう",
+    "(お)しょうがつ",
+    "ごちそうさま(でした)。",
+    "たてもの"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 23
+   }
+  },
+  {
+   "id": "vocab.L24",
+   "type": "vocabulary",
+   "source": "L24-roma.pdf",
+   "lesson": 24,
+   "title": "第24課 words",
+   "summary": "14 words",
+   "uses": [],
+   "search": [
+    "give (me)",
+    "take (someone)",
+    "bring (someone)",
+    "send (someone)",
+    "shōkaishimasu, introduce",
+    "show around",
+    "explain",
+    "iremasu(kōhīwo), make [coffee]",
+    "ojīchan, grandfather",
+    "old man",
+    "obāchan, grandmother",
+    "old woman",
+    "sweets, snacks",
+    "lunch box",
+    "くれます",
+    "つれていきます",
+    "つれて きます",
+    "おくります[ひとを]",
+    "しょうかいします",
+    "あんないします",
+    "せつめいします",
+    "いれます[を]",
+    "おじいちゃん",
+    "おじいさん",
+    "おばあちゃん",
+    "おばあさん",
+    "(お)かし",
+    "(お)べんとう"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 24
+   }
+  },
+  {
+   "id": "vocab.L25",
+   "type": "vocabulary",
+   "source": "L25-roma.pdf",
+   "lesson": 25,
+   "title": "第25課 words",
+   "summary": "8 words",
+   "uses": [],
+   "search": [
+    "think, consider",
+    "arrive [at the station]",
+    "study abroad",
+    "grow old",
+    "countryside, hometown",
+    "embassy",
+    "transfer",
+    "do one's best.",
+    "かんがえます",
+    "つきます[えきに]",
+    "りゅうがくします",
+    "とります[としを]",
+    "いなか",
+    "たいしかん",
+    "てんきん",
+    "がんばります"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 25
+   }
+  },
+  {
+   "id": "vocab.L26",
+   "type": "vocabulary",
+   "source": "L26-roma.pdf",
+   "lesson": 26,
+   "title": "第26課 words",
+   "summary": "24 words",
+   "uses": [],
+   "search": [
+    "check",
+    "check",
+    "look for",
+    "search",
+    "okuremasu(jikanni), be late",
+    "maniaimasu(jikanni), be in time",
+    "sankashimasu(pāthīni), attend [a party]",
+    "apply for, enter for",
+    "convenient",
+    "inconvenient",
+    "feel well",
+    "feel ill",
+    "jūdō, judo",
+    "sports day",
+    "basho, place",
+    "volunteer",
+    "[boxes] be put in order",
+    "garbage, trash, dust",
+    "put out [the trash]",
+    "[trash] burn",
+    "place where something is put",
+    "bottle",
+    "can",
+    "hot water",
+    "みます",
+    "みます",
+    "さがします",
+    "さがします",
+    "おくれます[に]",
+    "まにあいます[に]",
+    "さんかします[ に]",
+    "もうしこみます",
+    "つごうがいい",
+    "つごうがわるい",
+    "きぶんがいい",
+    "きぶんがわるい",
+    "じゅうどう",
+    "うんどうかい",
+    "ばしょ",
+    "ボランテイア",
+    "かたづきます[にもつが]",
+    "ごみ",
+    "だします[ごみを]",
+    "もえます",
+    "おきば",
+    "びん",
+    "かん",
+    "(お)ゆ"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 26
+   }
+  },
+  {
+   "id": "vocab.L27",
+   "type": "vocabulary",
+   "source": "L27-roma.pdf",
+   "lesson": 27,
+   "title": "第27課 words",
+   "summary": "23 words",
+   "uses": [],
+   "search": [
+    "keep (a pet), raise (an animal)",
+    "build",
+    "run, drive [along a road]",
+    "take [a holiday]",
+    "[a mountain] can be seen",
+    "[a sound] can be heard",
+    "[an airport] be made, be, completed",
+    "open",
+    "bird",
+    "voice",
+    "wave",
+    "fireworks",
+    "scenery, view",
+    "old days",
+    "tool",
+    "vending machine",
+    "mail order",
+    "cleaning, laundry",
+    "manshon, condominium, apartment",
+    "kitchen",
+    "Sunday carpenter",
+    "bookshelf",
+    "marvelous, wonderful",
+    "かいます",
+    "たてます",
+    "はしります[みちを]",
+    "とります[やすみを]",
+    "みえます[やまが]",
+    "きこえます[おとが]",
+    "できます[くうこうが]",
+    "ひらきます[きょうしつを]",
+    "とり",
+    "こえ",
+    "なみ",
+    "はなび",
+    "けしき",
+    "むかし",
+    "どうぐ",
+    "じどうはんばいき",
+    "つうしんはんばい",
+    "クリーニング",
+    "マンション",
+    "だいどころ",
+    "にちようだいく",
+    "ほんだな",
+    "すばらしい"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 27
+   }
+  },
+  {
+   "id": "vocab.L28",
+   "type": "vocabulary",
+   "source": "L28-roma.pdf",
+   "lesson": 28,
+   "title": "第28課 words",
+   "summary": "32 words",
+   "uses": [],
+   "search": [
+    "[bread] sell",
+    "dance",
+    "chew",
+    "bite",
+    "choose",
+    "be different",
+    "go to and from [university]",
+    "take a memo",
+    "serious",
+    "earnest",
+    "gentle, kind",
+    "great",
+    "chōdoī, proper, just right",
+    "shūkan, custom",
+    "form, shape",
+    "color",
+    "taste",
+    "chewing gum",
+    "goods",
+    "price",
+    "salary",
+    "bonus",
+    "program",
+    "drama",
+    "shōsetsu, novel",
+    "shōsetsuka, novelist",
+    "kashu, singer",
+    "my son",
+    "my daughter",
+    "homestay",
+    "conversation",
+    "oshaberishimasu, chat",
+    "うれます[パンが]",
+    "おどります",
+    "かみます",
+    "かみます",
+    "えらびます",
+    "ちがいます",
+    "かよいます[だいがくに]",
+    "メモします",
+    "まじめ[な]",
+    "ねっしん[な]",
+    "やさしい",
+    "えらい",
+    "ちょうどいい",
+    "しゅうかん",
+    "かたち",
+    "いろ",
+    "あじ",
+    "ガム",
+    "しなもの",
+    "ねだん",
+    "きゅうりょう",
+    "ボーナス",
+    "ばんぐみ",
+    "ドラマ",
+    "しょうせつ",
+    "しょうせつか",
+    "かしゅ",
+    "むすこ",
+    "むすめ",
+    "ホームステイ",
+    "かいわ",
+    "おしゃべりします"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 28
+   }
+  },
+  {
+   "id": "vocab.L29",
+   "type": "vocabulary",
+   "source": "L29-roma.pdf",
+   "lesson": 29,
+   "title": "第29課 words",
+   "summary": "27 words",
+   "uses": [],
+   "search": [
+    "[a door] open",
+    "[a door] close, shut",
+    "[a light] come on",
+    "[a light] go off, disappear",
+    "[a road] get crowded",
+    "[a road] get empty",
+    "[a chair] break",
+    "[a glass] break, smash",
+    "[a tree] break, snap",
+    "[the paper] tear",
+    "[the clothes] get dirty",
+    "tsukimasu(poketto ga), [a pocket] be attached",
+    "hazuremasu(botan ga), [a button] come off",
+    "tomarimasu(kuruma ga), [a car] stop",
+    "make a mistake",
+    "drop, lose",
+    "be locked",
+    "plate, dish",
+    "ochawan, rice bowl",
+    "glass",
+    "glass (material)",
+    "bag",
+    "wallet",
+    "branch",
+    "station employee",
+    "things left behind, lost property",
+    "baggage rack",
+    "あきます[ドアが]",
+    "しまります[ドアが]",
+    "つきます[でんきが]",
+    "きえます[でんきが]",
+    "こみます[みちが]",
+    "すきます[みちが]",
+    "こわれます[いすが]",
+    "われます[コップが]",
+    "おれます[きが]",
+    "やぶれます[かみが]",
+    "よごれます[ふくが]",
+    "つきます[〜が]",
+    "はずれます[〜が]",
+    "とまります[〜が]",
+    "まちがえます",
+    "おとします",
+    "かかります[かぎが]",
+    "(お)さら",
+    "おちゃわん",
+    "コップ",
+    "ガラス",
+    "ふくろ",
+    "さいふ",
+    "えだ",
+    "えきいん",
+    "わすれもの",
+    "あみだな"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 29
+   }
+  },
+  {
+   "id": "vocab.L30",
+   "type": "vocabulary",
+   "source": "L30-roma.pdf",
+   "lesson": 30,
+   "title": "第30課 words",
+   "summary": "35 words",
+   "uses": [],
+   "search": [
+    "post, paste",
+    "hang",
+    "display, decorate",
+    "arrange, line up",
+    "plant",
+    "return, put ~ back",
+    "put ~ together",
+    "sum up",
+    "put things in order, tidy up",
+    "put away",
+    "decide",
+    "inform",
+    "consult, discuss",
+    "yoshūshimasu, prepare one's lesson",
+    "fukushūshimasu, review one's lesson",
+    "leave things as they are",
+    "jugyō, class",
+    "lecture",
+    "meeting",
+    "plan, schedule",
+    "calendar",
+    "trash box",
+    "doll",
+    "vase",
+    "mirror",
+    "drawer",
+    "front door",
+    "corridor",
+    "wall",
+    "pond",
+    "police box",
+    "round, around",
+    "center",
+    "corner",
+    "musical",
+    "はります",
+    "かけます",
+    "かざります",
+    "ならべます",
+    "うえます",
+    "もどします",
+    "まとめます",
+    "まとめます",
+    "かたづけます",
+    "しまいます",
+    "きめます",
+    "しらせます",
+    "そうだんします",
+    "よしゅうします",
+    "ふくしゅうします",
+    "そのままにします",
+    "じゅぎょう",
+    "こうぎ",
+    "ミーティング",
+    "よてい",
+    "カレンダー",
+    "ごみばこ",
+    "にんぎょう",
+    "かびん",
+    "かがみ",
+    "ひきだし",
+    "げんかん",
+    "ろうか",
+    "かべ",
+    "いけ",
+    "こうばん",
+    "まわり",
+    "まんなか",
+    "すみ",
+    "ミュージカル"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 30
+   }
+  }
+ ],
  "grammar": [
   {
    "lesson": 26,
@@ -37,6 +4672,9 @@
      "id": "mari.L26.1",
      "pattern": "ふつうForm＋んです（explanation）",
      "goal": "Explain a reason or circumstance",
+     "uses": [
+      "reason"
+     ],
      "example": "あたまが いたいんです。",
      "explain": "Adding んです to a plain form gives or asks for an explanation, reason, or background. It sounds softer and more personal than a bare statement.",
      "form": "ふつうForm + んです",
@@ -72,6 +4710,40 @@
        ],
        "accepted": [],
        "hint": "Plain form before んです"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この へやは ＿＿んです。",
+       "en": "This room is quiet, you see.",
+       "answer": "しずかな",
+       "accepted": [],
+       "options": [
+        "しずかだ",
+        "しずか",
+        "しずかな"
+       ],
+       "hint": "A な-adjective changes だ to な before んです.",
+       "why_wrong": {
+        "しずかだ": "だ cannot come right before んです; it changes to な.",
+        "しずか": "A な-adjective needs な before んです."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かぜを ひいて、きのう がっこうを ＿＿んです。",
+       "en": "I caught a cold and missed school yesterday, you see.",
+       "answer": "やすんだ",
+       "accepted": [],
+       "options": [
+        "やすみました",
+        "やすんだ",
+        "やすんで"
+       ],
+       "hint": "んです follows the plain form, so the past is the plain たForm やすんだ.",
+       "why_wrong": {
+        "やすみました": "The polite ました form cannot come before んです.",
+        "やすんで": "The てForm cannot come before んです."
+       }
       }
      ]
     },
@@ -79,6 +4751,9 @@
      "id": "mari.L26.2",
      "pattern": "ふつうForm＋んですが、てForm＋いただけませんか（request）",
      "goal": "Politely ask for help after explaining the situation",
+     "uses": [
+      "request"
+     ],
      "example": "にもつが おおいんですが、てつだって いただけませんか。",
      "explain": "Explain your situation with んですが, then ask a favor with てForm + いただけませんか. It is a polite, soft way to ask for help.",
      "form": "ふつうForm + んですが、てForm + いただけませんか",
@@ -114,6 +4789,40 @@
        ],
        "accepted": [],
        "hint": "Plain form before んですが"
+      },
+      {
+       "kind": "choose",
+       "prompt": "にほんごで てがみを ＿＿んですが、みて いただけませんか。",
+       "en": "I wrote a letter in Japanese. Could you look it over?",
+       "answer": "かいた",
+       "accepted": [],
+       "options": [
+        "かきました",
+        "かいた",
+        "かきます"
+       ],
+       "hint": "んですが follows the plain form, and the letter is already written, so use the plain past.",
+       "why_wrong": {
+        "かきました": "The polite ました form cannot come before んですが.",
+        "かきます": "The polite ます form cannot come before んですが."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "でんきが つかないんですが、みて ＿＿。",
+       "en": "The light won't turn on. Could you take a look?",
+       "answer": "いただけませんか",
+       "accepted": [],
+       "options": [
+        "いただきませんか",
+        "いただきましょうか",
+        "いただけませんか"
+       ],
+       "hint": "A polite request uses the potential いただけませんか, 'could I receive this favor?'",
+       "why_wrong": {
+        "いただきませんか": "This is not the potential form, so it does not make a request.",
+        "いただきましょうか": "This offers 'shall I receive it?', not a request for help."
+       }
       }
      ]
     },
@@ -121,6 +4830,9 @@
      "id": "mari.L26.3",
      "pattern": "ふつうForm＋んですが、ぎもんし＋たらいいですか（listen to advice）",
      "goal": "Ask for advice about what to do",
+     "uses": [
+      "ask_advice"
+     ],
      "example": "かぜを ひいたんですが、どう したら いいですか。",
      "explain": "Explain your problem with んですが, then ask what you should do with a question word + たら いいですか.",
      "form": "ふつうForm + んですが、ぎもんし + Vたら いいですか",
@@ -158,6 +4870,40 @@
        ],
        "accepted": [],
        "hint": "たら form of かいます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "パスポートを なくしたんですが、だれに ＿＿ いいですか。",
+       "en": "I lost my passport. Who should I ask?",
+       "answer": "きいたら",
+       "accepted": [],
+       "options": [
+        "ききたら",
+        "きいたら",
+        "きくたら"
+       ],
+       "hint": "Make たら from the たForm: きいた → きいたら.",
+       "why_wrong": {
+        "ききたら": "たら comes from the たForm きいた, not the ますStem きき.",
+        "きくたら": "たら does not attach to the dictionary form; use きいた + ら."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かんじを おぼえたいんですが、どう ＿＿ いいですか。",
+       "en": "I want to memorize kanji. How should I study?",
+       "answer": "べんきょうしたら",
+       "accepted": [],
+       "options": [
+        "べんきょうするたら",
+        "べんきょうしたり",
+        "べんきょうしたら"
+       ],
+       "hint": "Ask for advice with a question word + たら いいですか; したら comes from した.",
+       "why_wrong": {
+        "べんきょうするたら": "たら attaches to the たForm した, not to する.",
+        "べんきょうしたり": "たり lists actions; it cannot ask for advice with いいですか."
+       }
       }
      ]
     }
@@ -172,6 +4918,10 @@
      "id": "mari.L27.1",
      "pattern": "Nが かのうどうし（Potential form）",
      "goal": "Describe what you are able to do using potential verbs",
+     "uses": [
+      "ability",
+      "forms"
+     ],
      "example": "わたしは かんじが よめます。",
      "explain": "The potential form says what someone can do. The object usually takes が instead of を.",
      "form": "Nが + かのうどうし",
@@ -214,6 +4964,9 @@
      "id": "mari.L27.2",
      "pattern": "Nが みえます／きこえます",
      "goal": "Describe what you can see or hear",
+     "uses": [
+      "ability"
+     ],
      "example": "ここから ふじさんが みえます。",
      "explain": "みえます and きこえます mean something can be seen or heard naturally, without trying. The thing seen or heard takes が.",
      "form": "Nが みえます／きこえます",
@@ -256,6 +5009,9 @@
      "id": "mari.L27.3",
      "pattern": "Nが できます",
      "goal": "Describe abilities using a noun",
+     "uses": [
+      "ability"
+     ],
      "example": "にほんごが できます。",
      "explain": "Noun + が できます means you are able to do that skill or activity, like a language or a sport.",
      "form": "Nが できます",
@@ -298,6 +5054,9 @@
      "id": "mari.L27.4",
      "pattern": "Nしか〜ません",
      "goal": "Emphasize a limited amount using 'only'",
+     "uses": [
+      "emphasis"
+     ],
      "example": "100えんしか ありません。",
      "explain": "しか with a negative verb means 'only', stressing that the amount is small or less than expected.",
      "form": "N + しか + Vません",
@@ -340,6 +5099,9 @@
      "id": "mari.L27.5",
      "pattern": "〜は〜、〜は〜（Contrast）",
      "goal": "Contrast two things",
+     "uses": [
+      "contrast"
+     ],
      "example": "にくは たべますが、さかなは たべません。",
      "explain": "Put は on two items to contrast them: one thing is true for the first, something different for the second.",
      "form": "Aは 〜が、Bは 〜",
@@ -384,6 +5146,9 @@
      "id": "mari.L27.6",
      "pattern": "Compound particle（には・へは・とはなど）",
      "goal": "Combine particles to add nuance",
+     "uses": [
+      "contrast"
+     ],
      "example": "とうきょうには ともだちが います。",
      "explain": "You can add は after particles like に, へ, で, and と to make that phrase the topic or to contrast it.",
      "form": "N + に／へ／で／と + は",
@@ -433,6 +5198,10 @@
      "id": "mari.L28.1",
      "pattern": "ますForm＋ながら、〜（simultaneous）",
      "goal": "Describe two actions done at the same time",
+     "uses": [
+      "manner",
+      "time"
+     ],
      "example": "おんがくを ききながら、べんきょうします。",
      "explain": "ながら joins two actions one person does at the same time. The main action comes at the end of the sentence.",
      "form": "ますForm + ながら、〜",
@@ -475,6 +5244,9 @@
      "id": "mari.L28.2",
      "pattern": "てForm＋います（habit）",
      "goal": "Describe a habitual action",
+     "uses": [
+      "habit"
+     ],
      "example": "まいあさ ジョギングを しています。",
      "explain": "てForm + います can describe something you do regularly, like a habit, a routine, or your job.",
      "form": "てForm + います",
@@ -517,6 +5289,9 @@
      "id": "mari.L28.3",
      "pattern": "〜し、〜し（Parallel / reason）",
      "goal": "List multiple qualities or reasons",
+     "uses": [
+      "reason"
+     ],
      "example": "この まちは べんりだし、にぎやかです。",
      "explain": "し lists several qualities or reasons and suggests there may be more. It often gives reasons that lead to a conclusion.",
      "form": "ふつうForm + し、〜",
@@ -566,6 +5341,9 @@
      "id": "mari.L29.1",
      "pattern": "Nが てForm (intransitive)＋います（Result status）",
      "goal": "Describe the resulting state of an event",
+     "uses": [
+      "state"
+     ],
      "example": "まどが あいて います。",
      "explain": "An intransitive verb in てForm + います describes a state that remains after something happened, like a window that is open now.",
      "form": "Nが てForm (intransitive) + います",
@@ -608,6 +5386,9 @@
      "id": "mari.L29.2",
      "pattern": "Nは てForm (intransitive)＋います（The topic has been decided）",
      "goal": "Describe an ongoing resulting state with a defined topic",
+     "uses": [
+      "state"
+     ],
      "example": "でんきは ついて います。",
      "explain": "Use は instead of が when the thing is already the topic, for example when answering a question about it or contrasting it with something else.",
      "form": "Nは てForm (intransitive) + います",
@@ -650,6 +5431,9 @@
      "id": "mari.L29.3",
      "pattern": "てForm＋しまいます（Complete）",
      "goal": "Emphasize that something is completely finished",
+     "uses": [
+      "done"
+     ],
      "example": "レポートを かいて しまいました。",
      "explain": "てForm + しまいます stresses that an action is completely finished, often with もう or ぜんぶ.",
      "form": "てForm + しまいます",
@@ -692,6 +5476,9 @@
      "id": "mari.L29.4",
      "pattern": "てForm＋しまいました（Regret）",
      "goal": "Express regret about something that happened",
+     "uses": [
+      "regret"
+     ],
      "example": "だいじな しゃしんを なくして しまいました。",
      "explain": "てForm + しまいました also shows regret or embarrassment about something that happened, often by accident.",
      "form": "てForm + しまいました",
@@ -741,6 +5528,9 @@
      "id": "mari.L30.1",
      "pattern": "てForm＋あります（Pre-arranged results）",
      "goal": "Describe a state that was intentionally arranged",
+     "uses": [
+      "state"
+     ],
      "example": "かべに ポスターが はって あります。",
      "explain": "A transitive verb in てForm + あります describes a state someone set up on purpose, like a poster put on a wall.",
      "form": "Nが てForm (transitive) + あります",
@@ -783,6 +5573,9 @@
      "id": "mari.L30.2",
      "pattern": "てForm＋おきます（Preparation）",
      "goal": "Describe preparing something in advance",
+     "uses": [
+      "plan"
+     ],
      "example": "パーティーの まえに りょうりを つくって おきます。",
      "explain": "てForm + おきます means doing something in advance to get ready for a later event.",
      "form": "てForm + おきます",
@@ -825,6 +5618,9 @@
      "id": "mari.L30.3",
      "pattern": "てForm＋おきます（Leave it as it is）",
      "goal": "Describe leaving something as-is for later",
+     "uses": [
+      "plan"
+     ],
      "example": "つかれたので、そうじは あした して おきます。",
      "explain": "ておきます can also mean leaving something as it is, or setting a task aside to deal with later. Ask someone to leave things as they are with ておいて ください.",
      "form": "てForm + おきます／おいて ください",
@@ -874,6 +5670,10 @@
      "id": "mari.L31.1",
      "pattern": "いこうけい (Volitional form)",
      "goal": "Correctly form the volitional form",
+     "uses": [
+      "plan",
+      "forms"
+     ],
      "example": "いこう／たべよう／しよう／こよう",
      "explain": "The volitional form is the plain version of ましょう ('let's'). It is also used to talk about your own intentions.",
      "form": "G1 -u→-ou (いこう)／G2 +よう／しよう／こよう",
@@ -916,6 +5716,9 @@
      "id": "mari.L31.2",
      "pattern": "いこうけい＋とおもっています（intention）",
      "goal": "Express your own intention or plan",
+     "uses": [
+      "plan"
+     ],
      "example": "らいねん りゅうがくしようと おもっています。",
      "explain": "Volitional form + と おもって います tells someone about your intention or plan, often one you have had for a while.",
      "form": "いこうけい + と おもって います",
@@ -958,6 +5761,9 @@
      "id": "mari.L31.3",
      "pattern": "まだ てForm＋いません",
      "goal": "Say something has not happened yet",
+     "uses": [
+      "done"
+     ],
      "example": "まだ しゅうしょくさきが きまって いません。",
      "explain": "まだ + てForm + いません says something has not happened yet but is still expected to.",
      "form": "まだ + てForm + いません",
@@ -1000,6 +5806,9 @@
      "id": "mari.L31.4",
      "pattern": "じしょForm・ないForm＋つもりです",
      "goal": "State a future intention",
+     "uses": [
+      "plan"
+     ],
      "example": "らいねん けっこんする つもりです。",
      "explain": "つもりです states a firm intention. Use the dictionary form for what you plan to do and the ない form for what you plan not to do.",
      "form": "じしょForm／ないForm + つもりです",
@@ -1042,6 +5851,9 @@
      "id": "mari.L31.5",
      "pattern": "じしょForm・Nounの＋よていです",
      "goal": "State a scheduled plan",
+     "uses": [
+      "plan"
+     ],
      "example": "らいしゅう しゅっちょうする よていです。",
      "explain": "よていです states a scheduled plan, such as a trip, a meeting, or an arrival time.",
      "form": "じしょForm／Nの + よていです",
@@ -1091,6 +5903,9 @@
      "id": "mari.L32.1",
      "pattern": "たForm / ないForm ＋ほうが いいです",
      "goal": "Give advice or a recommendation",
+     "uses": [
+      "advise"
+     ],
      "example": "はやく びょういんへ いった ほうが いいです。",
      "explain": "Use たForm + ほうが いいです to advise doing something, and ないForm + ほうが いいです to advise not doing it.",
      "form": "たForm／ないForm + ほうが いいです",
@@ -1133,6 +5948,9 @@
      "id": "mari.L32.2",
      "pattern": "ふつうForm＋でしょう（Conjecture）",
      "goal": "Express a confident guess about the future",
+     "uses": [
+      "guess"
+     ],
      "example": "あしたは はれるでしょう。",
      "explain": "でしょう after a plain form makes a guess the speaker is fairly sure about, like in a weather forecast.",
      "form": "ふつうForm + でしょう",
@@ -1175,6 +5993,9 @@
      "id": "mari.L32.3",
      "pattern": "ふつうForm＋かもしれません（possibility）",
      "goal": "Express a weaker possibility",
+     "uses": [
+      "guess"
+     ],
      "example": "あした あめが ふるかもしれません。",
      "explain": "かもしれません after a plain form says something might happen or might be true. It is less certain than でしょう.",
      "form": "ふつうForm + かもしれません",
@@ -1224,6 +6045,10 @@
      "id": "mari.L33.1",
      "pattern": "めいれいけい／きんしけいの かつよう　（Imperative form）",
      "goal": "Correctly form imperative and prohibitive forms",
+     "uses": [
+      "command",
+      "forms"
+     ],
      "example": "とまれ！／はいるな！",
      "explain": "The imperative gives a blunt command, and the prohibitive (dictionary form + な) says 'don't'. You see them on signs, in emergencies, and in cheering.",
      "form": "G1 -u→-e (とまれ)／G2 +ろ／しろ／こい；じしょForm+な",
@@ -1266,6 +6091,9 @@
      "id": "mari.L33.2",
      "pattern": "「〜」と かいて あります／よみます",
      "goal": "Explain what a sign or text says",
+     "uses": [
+      "hearsay"
+     ],
      "example": "かんばんに「きんえん」と かいて あります。",
      "explain": "と かいて あります tells what is written on a sign or paper; と よみます tells how something is read.",
      "form": "「〜」と かいて あります／よみます",
@@ -1308,6 +6136,9 @@
      "id": "mari.L33.3",
      "pattern": "〜は〜という いみです",
      "goal": "Explain the meaning of a word or phrase",
+     "uses": [
+      "hearsay"
+     ],
      "example": "「立入禁止」は はいっては いけないという いみです。",
      "explain": "〜は 〜という いみです explains what a word, sign, or phrase means.",
      "form": "Xは + ふつうForm + という いみです",
@@ -1350,6 +6181,10 @@
      "id": "mari.L33.4",
      "pattern": "〜と いって いました／つたえて いただけませんか",
      "goal": "Relay someone else's message",
+     "uses": [
+      "hearsay",
+      "request"
+     ],
      "example": "たなかさんは あした やすむと いって いました。",
      "explain": "Use と いって いました to pass on what someone said, and と つたえて いただけませんか to ask someone to pass a message on.",
      "form": "ふつうForm + と いって いました／つたえて いただけませんか",
@@ -1401,6 +6236,9 @@
      "id": "mari.L34.1",
      "pattern": "じしょForm / たForm / Noun の ＋とおりに、〜",
      "goal": "Describe doing something exactly as instructed",
+     "uses": [
+      "manner"
+     ],
      "example": "せんせいの いう とおりに かいて ください。",
      "explain": "とおりに means 'just as' or 'the way.' Use it to say you do something exactly as someone said, showed, or did.",
      "form": "じしょForm／たForm／Nounの ＋ とおりに、〜",
@@ -1436,6 +6274,40 @@
        ],
        "accepted": [],
        "hint": "a noun needs a linking particle before とおりに"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしが ＿＿ とおりに、つくって ください。",
+       "en": "Please make it just the way I made it.",
+       "answer": "つくった",
+       "accepted": [],
+       "options": [
+        "つくって",
+        "つくった",
+        "つくったの"
+       ],
+       "hint": "A verb connects to とおりに directly in its plain form, with no の.",
+       "why_wrong": {
+        "つくって": "The て form cannot come right before とおりに.",
+        "つくったの": "Only nouns take の before とおりに; verbs connect directly."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "＿＿ とおりに、ならべて ください。",
+       "en": "Please line them up as shown in the picture.",
+       "answer": "えの",
+       "accepted": [],
+       "options": [
+        "え",
+        "えが",
+        "えの"
+       ],
+       "hint": "A noun needs の before とおりに.",
+       "why_wrong": {
+        "え": "A noun cannot attach to とおりに without の.",
+        "えが": "が marks a subject; a noun links to とおりに with の."
+       }
       }
      ]
     },
@@ -1443,6 +6315,9 @@
      "id": "mari.L34.2",
      "pattern": "たForm / Nounの＋あとで、〜",
      "goal": "Describe an action after another is completed",
+     "uses": [
+      "time"
+     ],
      "example": "しごとが おわった あとで、のみに いきます。",
      "explain": "あとで means 'after.' Use it to say one action happens after another one is finished.",
      "form": "たForm／Nounの ＋ あとで、〜",
@@ -1478,6 +6353,40 @@
        ],
        "accepted": [],
        "hint": "a noun needs a linking particle before あとで"
+      },
+      {
+       "kind": "choose",
+       "prompt": "おふろに ＿＿ あとで、ビールを のみます。",
+       "en": "After I take a bath, I drink beer.",
+       "answer": "はいった",
+       "accepted": [],
+       "options": [
+        "はいる",
+        "はいって",
+        "はいった"
+       ],
+       "hint": "あとで always follows the た form, even for habits or future plans.",
+       "why_wrong": {
+        "はいる": "The dictionary form goes with まえに, not あとで.",
+        "はいって": "The て form cannot come right before あとで."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "はを みがいた ＿＿、なにも たべません。",
+       "en": "After I brush my teeth, I don't eat anything.",
+       "answer": "あとで",
+       "accepted": [],
+       "options": [
+        "まえに",
+        "あとで",
+        "ながら"
+       ],
+       "hint": "A た form followed by あとで means 'after doing.'",
+       "why_wrong": {
+        "まえに": "まえに means 'before' and needs the dictionary form, not the た form.",
+        "ながら": "ながら means 'while' and attaches to the ます stem, not the た form."
+       }
       }
      ]
     },
@@ -1485,6 +6394,9 @@
      "id": "mari.L34.3",
      "pattern": "てForm／ないForm＋で、〜（Attendant circumstances）",
      "goal": "Describe the manner or accompanying condition of an action",
+     "uses": [
+      "manner"
+     ],
      "example": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
      "explain": "Use a て form or ないで before the main verb to say how you do it: in what state, or without doing something.",
      "form": "てForm／ないFormで ＋ main verb",
@@ -1520,6 +6432,40 @@
        ],
        "accepted": [],
        "hint": "ないで form"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ぼうしを ＿＿ そとへ でました。",
+       "en": "I went outside wearing a hat.",
+       "answer": "かぶって",
+       "accepted": [],
+       "options": [
+        "かぶります",
+        "かぶって",
+        "かぶるて"
+       ],
+       "hint": "A て form before the main verb shows the state you do it in.",
+       "why_wrong": {
+        "かぶります": "A ます form ends a sentence; it cannot link to another verb.",
+        "かぶるて": "て attaches to the て form, not the dictionary form: かぶって."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かさを ＿＿ でかけたので、ぬれました。",
+       "en": "I went out without an umbrella, so I got wet.",
+       "answer": "もたないで",
+       "accepted": [],
+       "options": [
+        "もって",
+        "もたないで",
+        "もたなくて"
+       ],
+       "hint": "ないで before the main verb means 'without doing.'",
+       "why_wrong": {
+        "もって": "This means 'carrying an umbrella,' so getting wet makes no sense.",
+        "もたなくて": "なくて gives a reason; it cannot describe how you went out."
+       }
       }
      ]
     },
@@ -1527,6 +6473,9 @@
      "id": "mari.L34.4",
      "pattern": "ないForm＋で、〜",
      "goal": "Say you do one thing without doing another",
+     "uses": [
+      "manner"
+     ],
      "example": "じしょを つかわないで、よんで ください。",
      "explain": "ないで means 'without doing.' Use it to say you do the main action without doing something, or do one thing instead of another.",
      "form": "ないForm＋で、〜",
@@ -1557,6 +6506,40 @@
        "answer": "けさないで",
        "accepted": [],
        "hint": "ないで form of けします"
+      },
+      {
+       "kind": "choose",
+       "prompt": "テキストを ＿＿ こたえて ください。",
+       "en": "Please answer without looking at the textbook.",
+       "answer": "みないで",
+       "accepted": [],
+       "options": [
+        "みなくて",
+        "みらないで",
+        "みないで"
+       ],
+       "hint": "Use ないで, not なくて, to say 'without doing.'",
+       "why_wrong": {
+        "みなくて": "なくて gives a reason and cannot lead into a request.",
+        "みらないで": "みます is Group II: drop ます and add ない, so みない."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "でんしゃに ＿＿、あるいて かえりました。",
+       "en": "I walked home instead of taking the train.",
+       "answer": "のらないで",
+       "accepted": [],
+       "options": [
+        "のらないで",
+        "のりないで",
+        "のらない"
+       ],
+       "hint": "ないで means doing one thing instead of another.",
+       "why_wrong": {
+        "のりないで": "のります is Group I: the ない form is のらない.",
+        "のらない": "Without で, the ない form cannot link to the next verb."
+       }
       }
      ]
     }
@@ -1571,6 +6554,10 @@
      "id": "mari.L35.1",
      "pattern": "じょうけんけい（Conditional Form）",
      "goal": "Express a conditional using verbs",
+     "uses": [
+      "condition",
+      "forms"
+     ],
      "example": "はやく おきれば、まにあいます。",
      "explain": "The ば form of a verb means 'if.' Use it to say that when a condition is met, a certain result follows.",
      "form": "I: かく→かけば II: みる→みれば III: すれば／くれば",
@@ -1606,6 +6593,40 @@
        ],
        "accepted": [],
        "hint": "ば form of あります"
+      },
+      {
+       "kind": "choose",
+       "prompt": "まっすぐ ＿＿、ゆうびんきょくが あります。",
+       "en": "If you go straight, there's a post office.",
+       "answer": "いけば",
+       "accepted": [],
+       "options": [
+        "いくば",
+        "いきば",
+        "いけば"
+       ],
+       "hint": "Group I verbs change the last sound to the え row and add ば.",
+       "why_wrong": {
+        "いくば": "ば does not attach to the dictionary form; く changes to け.",
+        "いきば": "ば does not attach to the ます stem; use the え row: いけば."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "いま ＿＿、まにあいません。",
+       "en": "If you don't leave now, you won't make it in time.",
+       "answer": "でなければ",
+       "accepted": [],
+       "options": [
+        "でれば",
+        "でなければ",
+        "でないば"
+       ],
+       "hint": "For a negative condition, change ない to なければ.",
+       "why_wrong": {
+        "でれば": "This means 'if you leave,' the opposite of what is needed.",
+        "でないば": "ない becomes なければ; ば never attaches directly to ない."
+       }
       }
      ]
     },
@@ -1613,6 +6634,9 @@
      "id": "mari.L35.2",
      "pattern": "いadj ＋ければ、〜",
      "goal": "Express a conditional using i-adjectives",
+     "uses": [
+      "condition"
+     ],
      "example": "やすければ、かいます。",
      "explain": "For い adjectives, drop the final い and add ければ to say 'if it is ...'.",
      "form": "いadj（〜い→〜ければ）、〜",
@@ -1643,6 +6667,40 @@
        "answer": "たかければ",
        "accepted": [],
        "hint": "ければ form of たかい"
+      },
+      {
+       "kind": "choose",
+       "prompt": "つごうが ＿＿、きて ください。",
+       "en": "If it's convenient for you, please come.",
+       "answer": "よければ",
+       "accepted": [],
+       "options": [
+        "いいければ",
+        "よければ",
+        "いければ"
+       ],
+       "hint": "いい is irregular: its ければ form is よければ.",
+       "why_wrong": {
+        "いいければ": "Drop the final い before ければ; and いい uses よ: よければ.",
+        "いければ": "いい changes to よ before ければ, so it is よければ."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "えきが ＿＿、タクシーで いきます。",
+       "en": "If the station is far, I'll go by taxi.",
+       "answer": "とおければ",
+       "accepted": [],
+       "options": [
+        "とおければ",
+        "とおいば",
+        "とおいければ"
+       ],
+       "hint": "For an い adjective, drop the final い and add ければ.",
+       "why_wrong": {
+        "とおいば": "い adjectives take ければ, not ば.",
+        "とおいければ": "The final い must be dropped before ければ."
+       }
       }
      ]
     },
@@ -1650,6 +6708,9 @@
      "id": "mari.L35.3",
      "pattern": "なadj／Noun ＋なら、〜",
      "goal": "Express a conditional using na-adjectives or nouns",
+     "uses": [
+      "condition"
+     ],
      "example": "ひまなら、てつだって ください。",
      "explain": "For な adjectives and nouns, add なら to say 'if it is ...'.",
      "form": "なadj／Noun ＋ なら、〜",
@@ -1687,6 +6748,40 @@
        ],
        "accepted": [],
        "hint": "きらい is a な adjective"
+      },
+      {
+       "kind": "choose",
+       "prompt": "からだが ＿＿、なんでも できます。",
+       "en": "If you're healthy, you can do anything.",
+       "answer": "げんきなら",
+       "accepted": [],
+       "options": [
+        "げんきければ",
+        "げんきななら",
+        "げんきなら"
+       ],
+       "hint": "A な adjective takes なら directly, with no な in between.",
+       "why_wrong": {
+        "げんきければ": "ければ is only for い adjectives; げんき is a な adjective.",
+        "げんきななら": "Do not add な before なら."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あめ＿＿、しあいは ありません。",
+       "en": "If it rains, there's no game.",
+       "answer": "なら",
+       "accepted": [],
+       "options": [
+        "ななら",
+        "なら",
+        "だなら"
+       ],
+       "hint": "A noun takes なら directly to say 'if it is.'",
+       "why_wrong": {
+        "ななら": "Nouns never take な before なら.",
+        "だなら": "Do not put だ before なら."
+       }
       }
      ]
     },
@@ -1694,6 +6789,10 @@
      "id": "mari.L35.4",
      "pattern": "ぎもんし＋じょうけんけい＋いいですか",
      "goal": "Ask for advice using a conditional question",
+     "uses": [
+      "ask_advice",
+      "condition"
+     ],
      "example": "どこで きっぷを かえば いいですか。",
      "explain": "Use a question word with a ば form and いいですか to ask for advice: 'What should I do?' or 'Where should I go?'",
      "form": "ぎもんし ＋ Verbば ＋ いいですか",
@@ -1731,6 +6830,40 @@
        ],
        "accepted": [],
        "hint": "ば form of ききます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "どの ボタンを ＿＿ いいですか。",
+       "en": "Which button should I press?",
+       "answer": "おせば",
+       "accepted": [],
+       "options": [
+        "おすば",
+        "おせば",
+        "おしば"
+       ],
+       "hint": "Question word ＋ ば form ＋ いいですか asks what you should do; す becomes せ.",
+       "why_wrong": {
+        "おすば": "ば does not attach to the dictionary form; す changes to せ.",
+        "おしば": "ば does not attach to the ます stem; use the え row: おせば."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "パーティーの じゅんびは なにを ＿＿ いいですか。",
+       "en": "What should I do to get ready for the party?",
+       "answer": "すれば",
+       "accepted": [],
+       "options": [
+        "すれば",
+        "するば",
+        "しれば"
+       ],
+       "hint": "します is irregular: its ば form is すれば.",
+       "why_wrong": {
+        "するば": "ば does not attach to the dictionary form; する becomes すれば.",
+        "しれば": "The ば form of します is すれば, not しれば."
+       }
       }
      ]
     },
@@ -1738,6 +6871,9 @@
      "id": "mari.L35.5",
      "pattern": "Noun＋なら、〜（topic）",
      "goal": "Introduce a topic using 'if we're talking about'",
+     "uses": [
+      "advise"
+     ],
      "example": "すしなら、あの みせが おいしいです。",
      "explain": "Noun ＋ なら picks up a topic someone just mentioned, like 'If it's X you want, ...'. Use it to give advice or information about that topic.",
      "form": "Noun ＋ なら、〜",
@@ -1775,6 +6911,40 @@
        ],
        "accepted": [],
        "hint": "the word that picks up a topic"
+      },
+      {
+       "kind": "choose",
+       "prompt": "パソコン＿＿、あきはばらが いいですよ。",
+       "en": "If it's a computer you want, Akihabara is good.",
+       "answer": "なら",
+       "accepted": [],
+       "options": [
+        "ので",
+        "なら",
+        "ば"
+       ],
+       "hint": "Noun ＋ なら picks up a topic and gives advice about it.",
+       "why_wrong": {
+        "ので": "ので gives a reason, and after a noun it needs な: なので.",
+        "ば": "ば attaches to verbs, never directly to a noun."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "テニス＿＿、わたしも できますよ。",
+       "en": "If it's tennis, I can play too.",
+       "answer": "なら",
+       "accepted": [],
+       "options": [
+        "ので",
+        "ければ",
+        "なら"
+       ],
+       "hint": "Noun ＋ なら means 'if it's that topic.'",
+       "why_wrong": {
+        "ので": "ので gives a reason, and after a noun it needs な: なので.",
+        "ければ": "ければ is only for い adjectives, not nouns."
+       }
       }
      ]
     }
@@ -1789,6 +6959,9 @@
      "id": "mari.L36.1",
      "pattern": "じしょForm / ないForm＋ように、〜（goal）",
      "goal": "Express a goal or purpose ('so that')",
+     "uses": [
+      "purpose"
+     ],
      "example": "よく きこえるように、おおきい こえで はなして ください。",
      "explain": "ように means 'so that.' It shows the goal of an action, usually a state you want to reach or avoid.",
      "form": "じしょForm／ないForm ＋ ように、〜",
@@ -1819,6 +6992,40 @@
        "answer": "およげる",
        "accepted": [],
        "hint": "potential form of およぎます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "じが よく ＿＿ ように、おおきく かきます。",
+       "en": "I write big so that the letters can be seen clearly.",
+       "answer": "みえる",
+       "accepted": [],
+       "options": [
+        "みる",
+        "みます",
+        "みえる"
+       ],
+       "hint": "ように follows a non-deliberate verb like みえる to show the state you aim for.",
+       "why_wrong": {
+        "みる": "みる is looking on purpose; letters cannot look. Use みえる, 'can be seen.'",
+        "みます": "ように needs a plain form, not a ます form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "でんしゃに ＿＿ ように、はやく でます。",
+       "en": "I leave early so that I won't miss the train.",
+       "answer": "おくれない",
+       "accepted": [],
+       "options": [
+        "おくれる",
+        "おくれない",
+        "おくれなくて"
+       ],
+       "hint": "ない form ＋ ように means 'so that something won't happen.'",
+       "why_wrong": {
+        "おくれる": "This means 'so that I'll miss the train,' the opposite.",
+        "おくれなくて": "ように follows the plain ない form, not the なくて form."
+       }
       }
      ]
     },
@@ -1826,6 +7033,9 @@
      "id": "mari.L36.2",
      "pattern": "じしょForm ＋ように なります／ないForm＋くなります（change）",
      "goal": "Describe a gradual change in ability or state",
+     "uses": [
+      "change"
+     ],
      "example": "ひらがなが よめるように なりました。",
      "explain": "ように なります means 'come to' or 'become able to.' Use it for a gradual change in ability or habit.",
      "form": "じしょForm＋ように なります／ない→なく なります",
@@ -1861,6 +7071,40 @@
        ],
        "accepted": [],
        "hint": "ない changes to なく before なります"
+      },
+      {
+       "kind": "choose",
+       "prompt": "やっと じてんしゃに ＿＿ ように なりました。",
+       "en": "I finally became able to ride a bicycle.",
+       "answer": "のれる",
+       "accepted": [],
+       "options": [
+        "のられる",
+        "のれる",
+        "のれます"
+       ],
+       "hint": "Potential form ＋ ように なります means 'became able to.'",
+       "why_wrong": {
+        "のられる": "This is the passive form, not the potential. のります becomes のれる.",
+        "のれます": "ように needs a plain form, not a ます form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "めが わるく なって、ちいさい じが ＿＿ なりました。",
+       "en": "My eyes got worse, and I can no longer read small letters.",
+       "answer": "よめなく",
+       "accepted": [],
+       "options": [
+        "よめない",
+        "よめなくて",
+        "よめなく"
+       ],
+       "hint": "To say you can no longer do something, change ない to なく before なります.",
+       "why_wrong": {
+        "よめない": "ない must change to なく before なります.",
+        "よめなくて": "Use なく, not なくて, directly before なります."
+       }
       }
      ]
     },
@@ -1868,6 +7112,10 @@
      "id": "mari.L36.3",
      "pattern": "じしょForm / ないForm ＋ように します（Effort）",
      "goal": "Describe making an effort to form a habit",
+     "uses": [
+      "habit",
+      "plan"
+     ],
      "example": "まいにち うんどうする ように します。",
      "explain": "ように します means 'make a point of' or 'try to.' Use it for an ongoing effort to build or keep a habit.",
      "form": "じしょForm／ないForm ＋ ように します",
@@ -1898,6 +7146,40 @@
        "answer": "おくれない",
        "accepted": [],
        "hint": "ない form of おくれます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ねる まえに コーヒーを ＿＿ ように して います。",
+       "en": "I make a point of not drinking coffee before bed.",
+       "answer": "のまない",
+       "accepted": [],
+       "options": [
+        "のまないで",
+        "のまない",
+        "のみません"
+       ],
+       "hint": "ように して います follows the plain ない form for something you avoid.",
+       "why_wrong": {
+        "のまないで": "ように follows the plain ない form, not ないで.",
+        "のみません": "ように needs a plain form, not a ます form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かいだんを ＿＿ ように して います。",
+       "en": "I make a point of using the stairs.",
+       "answer": "つかう",
+       "accepted": [],
+       "options": [
+        "つかって",
+        "つかいます",
+        "つかう"
+       ],
+       "hint": "ように して います follows the dictionary form for a habit you keep.",
+       "why_wrong": {
+        "つかって": "ように follows the dictionary form, not the て form.",
+        "つかいます": "ように needs a plain form, not a ます form."
+       }
       }
      ]
     }
@@ -1912,6 +7194,9 @@
      "id": "mari.L37.1",
      "pattern": "うけみけい (Passive Form)",
      "goal": "Correctly form the passive voice",
+     "uses": [
+      "forms"
+     ],
      "example": "よまれる／たべられる／される／こられる",
      "explain": "The passive form shows that the subject receives an action, like 'is read' or 'was eaten.' Each verb group builds it differently.",
      "form": "I: あ row＋れる／II: る→られる／する→される／くる→こられる",
@@ -1956,6 +7241,9 @@
      "id": "mari.L37.2",
      "pattern": "Personは Personに＋Passive Form",
      "goal": "Describe an action done to you by someone (with inconvenience)",
+     "uses": [
+      "regret"
+     ],
      "example": "わたしは あにに おかしを たべられました。",
      "explain": "Use this to say someone did something to you, often something unwelcome. You are the topic with は, and the doer takes に.",
      "form": "Personは Personに ＋ Passive",
@@ -1998,6 +7286,9 @@
      "id": "mari.L37.3",
      "pattern": "Personは Personにpossessionsを＋Passive Form",
      "goal": "Describe someone affecting your belongings",
+     "uses": [
+      "regret"
+     ],
      "example": "わたしは でんしゃで あしを ふまれました。",
      "explain": "Use this when someone does something to your belongings or body. You stay the topic, and the thing affected takes を.",
      "form": "Personは Personに Nを ＋ Passive",
@@ -2042,6 +7333,9 @@
      "id": "mari.L37.4",
      "pattern": "objectが／は＋Passive Form",
      "goal": "Describe historical facts or general truths using the passive",
+     "uses": [
+      "certain"
+     ],
      "example": "この おてらは 1400ねんに たてられました。",
      "explain": "Use the passive with a thing as the subject when the doer is unknown or unimportant, for facts like when something was built or what it is made from.",
      "form": "Nが／は ＋ Passive",
@@ -2091,6 +7385,9 @@
      "id": "mari.L38.1",
      "pattern": "じしょForm + のは［ adj ］です",
      "goal": "Describe a quality of an action using nominalization",
+     "uses": [
+      "opinion"
+     ],
      "example": "にほんごを はなすのは たのしいです。",
      "explain": "Add の to a dictionary form to turn an action into a noun. Then のは ... です says what that action is like.",
      "form": "じしょForm ＋ のは ＋ adj ＋ です",
@@ -2133,6 +7430,9 @@
      "id": "mari.L38.2",
      "pattern": "じしょForm + のが［ adj ］です",
      "goal": "Describe difficulty or ease of an action",
+     "uses": [
+      "opinion"
+     ],
      "example": "かんじを おぼえるのが たいへんです。",
      "explain": "Add のが to a dictionary form before words like すき, じょうず, はやい, or たいへん to talk about likes, skills, or how you do an action.",
      "form": "じしょForm ＋ のが ＋ adj ＋ です",
@@ -2175,6 +7475,9 @@
      "id": "mari.L38.3",
      "pattern": "じしょForm + の をわすれました",
      "goal": "Say you forgot to do something",
+     "uses": [
+      "regret"
+     ],
      "example": "かぎを かけるのを わすれました。",
      "explain": "Add のを to a dictionary form before わすれました to say you forgot to do something.",
      "form": "じしょForm ＋ のを わすれました",
@@ -2217,6 +7520,9 @@
      "id": "mari.L38.4",
      "pattern": "ふつうForm + の をしっていますか",
      "goal": "Say you know that something is happening",
+     "uses": [
+      "hearsay"
+     ],
      "example": "たなかさんが けっこんするのを しって います。",
      "explain": "Add のを to a plain form before しって います to say you know a fact, or ask with しって いますか whether someone knows some news.",
      "form": "ふつうForm ＋ のを しって いますか",
@@ -2259,6 +7565,10 @@
      "id": "mari.L38.5",
      "pattern": "ふつうForm + のは Nです",
      "goal": "Identify a specific thing using nominalization",
+     "uses": [
+      "certain",
+      "emphasis"
+     ],
      "example": "わたしが すきなのは なつです。",
      "explain": "Use のは ... です to put the spotlight on one piece of information, like 'What I like is summer.' The key point comes right before です.",
      "form": "ふつうForm ＋ のは ＋ N ＋ です",
@@ -2308,6 +7618,9 @@
      "id": "mari.L39.1",
      "pattern": "てForm、〜（reason）",
      "goal": "Give a reason using the te-form",
+     "uses": [
+      "reason"
+     ],
      "example": "かぜを ひいて、がっこうを やすみました。",
      "explain": "A て form can give a cause, often for a feeling or something you could not control. The second part tells the result.",
      "form": "てForm、〜",
@@ -2350,6 +7663,9 @@
      "id": "mari.L39.2",
      "pattern": "いadj（くて）／なadj（で）、〜（reason）",
      "goal": "Give a reason using an adjective",
+     "uses": [
+      "reason"
+     ],
      "example": "からくて たべられませんでした。",
      "explain": "Use the くて form of an い adjective or the で form of a な adjective to give a reason, often for a feeling or something you can't do.",
      "form": "いadj: い→くて／なadj: ＋で、〜",
@@ -2392,6 +7708,9 @@
      "id": "mari.L39.3",
      "pattern": "Noun（で）、〜（reason）",
      "goal": "Give a reason using a noun",
+     "uses": [
+      "reason"
+     ],
      "example": "びょうきで、かいしゃを やすみました。",
      "explain": "Noun ＋ で gives a cause, usually an event or condition like an illness, accident, or earthquake.",
      "form": "Noun ＋ で、〜",
@@ -2434,6 +7753,9 @@
      "id": "mari.L39.4",
      "pattern": "ふつうFrom＋ので、〜（Reason・Polite）",
      "goal": "Give a polite, objective reason",
+     "uses": [
+      "reason"
+     ],
      "example": "あめが ふって いるので、でかけません。",
      "explain": "ので means 'because' or 'so.' It sounds softer and more polite than から, so it works well for excuses and asking permission.",
      "form": "ふつうForm ＋ ので（N／なadj ＋ なので）",
@@ -2483,6 +7805,9 @@
      "id": "mari.L40.1",
      "pattern": "ぎもんし＋か、〜（Uncertain）",
      "goal": "Express an embedded uncertain question",
+     "uses": [
+      "question"
+     ],
      "example": "どこで うって いるか、しりません。",
      "explain": "Put か after a question that has a question word to fit it inside a bigger sentence, like 'I don't know where ...'.",
      "form": "ぎもんし ＋ ふつうForm ＋ か、〜",
@@ -2527,6 +7852,9 @@
      "id": "mari.L40.2",
      "pattern": "〜かどうか、〜",
      "goal": "Ask whether something is true or not",
+     "uses": [
+      "question"
+     ],
      "example": "あした ひまかどうか、おしえて ください。",
      "explain": "Use かどうか for a yes-or-no question inside a sentence. It means 'whether or not.'",
      "form": "ふつうForm ＋ かどうか、〜",
@@ -2569,6 +7897,9 @@
      "id": "mari.L40.3",
      "pattern": "てForm＋みます（Attempt）",
      "goal": "Say you will try doing something",
+     "uses": [
+      "plan"
+     ],
      "example": "この りょうりを たべて みて ください。",
      "explain": "て みます means 'try doing' something to see what it is like. Use it for testing or trying something new.",
      "form": "てForm ＋ みます",
@@ -2618,6 +7949,10 @@
      "id": "mari.L41.1",
      "pattern": "Nounを いただきます／くださいます／やります",
      "goal": "Use humble and respectful giving/receiving verbs",
+     "uses": [
+      "favor",
+      "polite"
+     ],
      "example": "せんせいから ほんを いただきました。",
      "explain": "いただきます is the humble 'receive' for things from superiors. くださいます is the respectful 'give me.' やります is 'give' to animals, plants, or juniors.",
      "form": "Nを いただきます／くださいます／やります",
@@ -2662,6 +7997,10 @@
      "id": "mari.L41.2",
      "pattern": "てForm＋いただきます／くださいます／やります",
      "goal": "Describe favors using humble and respectful forms",
+     "uses": [
+      "favor",
+      "polite"
+     ],
      "example": "せんせいに さくぶんを なおして いただきました。",
      "explain": "Add these to a て form for favors: て いただきます (I receive a favor from a superior), て くださいます (a superior does it for me), て やります (for a junior or animal).",
      "form": "てForm ＋ いただきます／くださいます／やります",
@@ -2704,6 +8043,10 @@
      "id": "mari.L41.3",
      "pattern": "てForm＋くださいませんか（Polite request）",
      "goal": "Make a very polite request",
+     "uses": [
+      "request",
+      "polite"
+     ],
      "example": "もういちど せつめいして くださいませんか。",
      "explain": "て くださいませんか is a very polite way to ask a favor, softer than て ください. Use it with superiors or people you don't know well.",
      "form": "てForm ＋ くださいませんか",
@@ -2753,6 +8096,9 @@
      "id": "mari.L42.1",
      "pattern": "じしょForm／Nounの＋ために、〜（purpose）",
      "goal": "Express a purpose ('in order to')",
+     "uses": [
+      "purpose"
+     ],
      "example": "けんこうの ために、まいあさ はしって います。",
      "explain": "ために after a dictionary-form verb or a noun + の states a purpose: 'in order to' or 'for the sake of'. The verb before it is something you do on purpose.",
      "form": "じしょForm / Nounの + ために",
@@ -2788,6 +8134,40 @@
         "のに",
         "ので"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "しけん＿＿ ために、まいばん べんきょうして います。",
+       "en": "I study every night for the exam.",
+       "answer": "の",
+       "accepted": [],
+       "options": [
+        "に",
+        "の",
+        "な"
+       ],
+       "hint": "A noun joins ために with の, just like けんこうの ために.",
+       "why_wrong": {
+        "に": "に cannot link a noun to ために; nouns take の here.",
+        "な": "な is for な-adjectives; しけん is a noun, so it takes の."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "だいがくに ＿＿ ために、べんきょうして います。",
+       "en": "I'm studying to get into college.",
+       "answer": "はいる",
+       "accepted": [],
+       "options": [
+        "はいれる",
+        "はいって",
+        "はいる"
+       ],
+       "hint": "ために takes the dictionary form of a verb you do on purpose.",
+       "why_wrong": {
+        "はいれる": "Potential verbs are not volitional, so they take ように, not ために.",
+        "はいって": "ために follows the dictionary form, not the てForm."
+       }
       }
      ]
     },
@@ -2795,6 +8175,9 @@
      "id": "mari.L42.2",
      "pattern": "じしょForm／Nounの＋のに、〜（use / purpose）",
      "goal": "Explain what something is used for",
+     "uses": [
+      "purpose"
+     ],
      "example": "この はさみは かみを きるのに つかいます。",
      "explain": "Dictionary-form verb + のに tells what something is used for or needed for. It often goes with つかいます, べんりです, or いります.",
      "form": "じしょForm + のに / Noun + に",
@@ -2830,6 +8213,40 @@
         "を",
         "が"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "この はこは しゃしんを いれる＿＿ つかって います。",
+       "en": "I use this box to keep photos in.",
+       "answer": "のに",
+       "accepted": [],
+       "options": [
+        "のを",
+        "のに",
+        "のが"
+       ],
+       "hint": "Dictionary form + のに + つかいます tells what a thing is used for.",
+       "why_wrong": {
+        "のを": "The box is what you use; the action is the purpose, so it takes のに.",
+        "のが": "が cannot mark a purpose with つかいます; use のに."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この じてんしゃは かいもの＿＿ べんりです。",
+       "en": "This bicycle is handy for shopping.",
+       "answer": "に",
+       "accepted": [],
+       "options": [
+        "の",
+        "を",
+        "に"
+       ],
+       "hint": "After a noun, use just に to show what something is good for.",
+       "why_wrong": {
+        "の": "の cannot link a noun to べんりです; a noun of use takes に.",
+        "を": "べんりです is an adjective and takes no を object."
+       }
       }
      ]
     },
@@ -2837,6 +8254,9 @@
      "id": "mari.L42.3",
      "pattern": "すうりょうし(quantifier)＋は／も（emphasis）",
      "goal": "Emphasize a quantity as surprisingly large or small",
+     "uses": [
+      "emphasis"
+     ],
      "example": "この しごとに みっかも かかりました。",
      "explain": "After an amount, も stresses that it feels like a lot: 'as many as' or 'as long as'. は after an amount gives a minimum: 'at least'.",
      "form": "Quantifier + も / は",
@@ -2867,6 +8287,40 @@
        "answer": "は",
        "accepted": [],
        "hint": "Particle for a minimum estimate"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この かばんは ごまんえん＿＿ しました。",
+       "en": "This bag cost as much as fifty thousand yen.",
+       "answer": "も",
+       "accepted": [],
+       "options": [
+        "は",
+        "も",
+        "を"
+       ],
+       "hint": "も after an amount shows surprise that it is a lot.",
+       "why_wrong": {
+        "は": "は after an amount means 'at least', not surprise at a big amount.",
+        "を": "An amount with しました takes no を; use も to stress it."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "くうこうまで いちじかん＿＿ かかります。",
+       "en": "It takes at least an hour to get to the airport.",
+       "answer": "は",
+       "accepted": [],
+       "options": [
+        "で",
+        "も",
+        "は"
+       ],
+       "hint": "は after an amount gives the minimum: 'at least'.",
+       "why_wrong": {
+        "で": "で does not attach to an amount with かかります.",
+        "も": "も means 'as long as', stressing a lot, not 'at least'."
+       }
       }
      ]
     }
@@ -2881,6 +8335,10 @@
      "id": "mari.L43.1",
      "pattern": "ますForm／adj＋そうです（manner; state; appearance）",
      "goal": "Describe the appearance of a situation ('looks like')",
+     "uses": [
+      "appearance",
+      "guess"
+     ],
      "example": "この ケーキは おいしそうです。／あめが ふりそうです。",
      "explain": "Use a verb's ます stem or an adjective stem + そうです to say how something looks, or what seems about to happen, based on what you see.",
      "form": "ますForm / いadj(い) / なadj + そうです",
@@ -2916,6 +8374,40 @@
         "からいそう",
         "からいだそう"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "あの ひとは ＿＿です。",
+       "en": "That person looks kind.",
+       "answer": "しんせつそう",
+       "accepted": [],
+       "options": [
+        "しんせつなそう",
+        "しんせつそう",
+        "しんせつだそう"
+       ],
+       "hint": "For 'looks', a な-adjective stem joins そう directly with nothing added.",
+       "why_wrong": {
+        "しんせつなそう": "Do not add な before the 'looks like' そう.",
+        "しんせつだそう": "だ + そう is hearsay, 'I hear he is kind', not 'looks kind'."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "シャツの ボタンが ＿＿です。",
+       "en": "The shirt button looks like it's about to come off.",
+       "answer": "とれそう",
+       "accepted": [],
+       "options": [
+        "とれるそう",
+        "とれそうな",
+        "とれそう"
+       ],
+       "hint": "For 'about to happen', use the ます stem + そう.",
+       "why_wrong": {
+        "とれるそう": "Dictionary form + そう is hearsay, 'I hear it will come off'.",
+        "とれそうな": "そうな only goes before a noun, not before です."
+       }
       }
      ]
     },
@@ -2923,6 +8415,9 @@
      "id": "mari.L43.2",
      "pattern": "てForm＋きます（to do… and come back）",
      "goal": "Describe a change beginning or a quick round trip",
+     "uses": [
+      "change"
+     ],
      "example": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
      "explain": "てForm + きます means going to do something and coming back. It can also show a change that has started and continues up to now.",
      "form": "てForm + きます",
@@ -2958,6 +8453,40 @@
         "なり",
         "なる"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "としょかんで ほんを ＿＿ きます。",
+       "en": "I'll go borrow a book at the library and come back.",
+       "answer": "かりて",
+       "accepted": [],
+       "options": [
+        "かりる",
+        "かりて",
+        "かり"
+       ],
+       "hint": "きます joins the てForm of the verb to mean 'go do it and come back'.",
+       "why_wrong": {
+        "かりる": "The dictionary form cannot link to きます; use the てForm.",
+        "かり": "The ます stem cannot link to きます; use the てForm."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "にほんの せいかつに ＿＿ きました。",
+       "en": "I've gotten used to life in Japan.",
+       "answer": "なれて",
+       "accepted": [],
+       "options": [
+        "なれて",
+        "なれる",
+        "なれ"
+       ],
+       "hint": "てForm + きました shows a change that has come about up to now.",
+       "why_wrong": {
+        "なれる": "The dictionary form cannot link to きました; use the てForm.",
+        "なれ": "The ます stem cannot link to きました; use the てForm."
+       }
       }
      ]
     }
@@ -2972,6 +8501,10 @@
      "id": "mari.L44.1",
      "pattern": "ますForm / いadjい / なadj＋すぎます（too much）",
      "goal": "Say something was done to excess",
+     "uses": [
+      "regret",
+      "opinion"
+     ],
      "example": "ゆうべ たべすぎました。",
      "explain": "Add すぎます to a verb's ます stem or an adjective stem to say something is 'too' much or done too much, usually in a bad way.",
      "form": "ますForm / いadj(い) / なadj + すぎます",
@@ -3007,6 +8540,40 @@
         "ふくざつな",
         "ふくざつに"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "この コーヒーは ＿＿すぎます。",
+       "en": "This coffee is too sweet.",
+       "answer": "あま",
+       "accepted": [],
+       "options": [
+        "あまい",
+        "あまく",
+        "あま"
+       ],
+       "hint": "Drop the い of an い-adjective before すぎます.",
+       "why_wrong": {
+        "あまい": "Keep the い off: あますぎます, not あまいすぎます.",
+        "あまく": "The く form is for verbs like なります, not for すぎます."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ゲームを ＿＿すぎて、めが いたいです。",
+       "en": "I played games too much and my eyes hurt.",
+       "answer": "し",
+       "accepted": [],
+       "options": [
+        "する",
+        "し",
+        "して"
+       ],
+       "hint": "すぎます joins the ます stem of a verb; します becomes し.",
+       "why_wrong": {
+        "する": "The dictionary form cannot join すぎます; use the ます stem.",
+        "して": "The てForm cannot join すぎます; use the ます stem."
+       }
       }
      ]
     },
@@ -3014,6 +8581,9 @@
      "id": "mari.L44.2",
      "pattern": "ますForm＋やすい／にくいです",
      "goal": "Describe how easy or hard something is",
+     "uses": [
+      "opinion"
+     ],
      "example": "この じは よみやすいです。／この かんじは おぼえにくいです。",
      "explain": "ます stem + やすいです means something is easy to do. ます stem + にくいです means it is hard to do.",
      "form": "ますForm + やすいです / にくいです",
@@ -3049,6 +8619,40 @@
         "かく",
         "かいて"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "この くつは ＿＿にくいです。",
+       "en": "These shoes are hard to walk in.",
+       "answer": "あるき",
+       "accepted": [],
+       "options": [
+        "あるく",
+        "あるいて",
+        "あるき"
+       ],
+       "hint": "にくいです joins the ます stem of a verb.",
+       "why_wrong": {
+        "あるく": "The dictionary form cannot join にくい; use the ます stem.",
+        "あるいて": "The てForm cannot join にくい; use the ます stem."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんせいの せつめいは ＿＿です。",
+       "en": "The teacher's explanation is easy to understand.",
+       "answer": "わかりやすい",
+       "accepted": [],
+       "options": [
+        "わかりにくい",
+        "わかりやすい",
+        "わかるやすい"
+       ],
+       "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
+       "why_wrong": {
+        "わかりにくい": "にくい means hard to understand, the opposite meaning.",
+        "わかるやすい": "やすい joins the ます stem わかり, not the dictionary form."
+       }
       }
      ]
     },
@@ -3056,6 +8660,9 @@
      "id": "mari.L44.3",
      "pattern": "いadj（く）／なadj（に）＋します（Deliberate change）",
      "goal": "Describe deliberately changing something",
+     "uses": [
+      "change"
+     ],
      "example": "へやを きれいに しました。",
      "explain": "い-adjective stem + くします or な-adjective + にします means someone deliberately makes something that way.",
      "form": "いadj(い→く) / なadj + に + します",
@@ -3091,6 +8698,40 @@
         "みじかい",
         "みじかに"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "ちょっと ＿＿ して ください。",
+       "en": "Please be quiet for a moment.",
+       "answer": "しずかに",
+       "accepted": [],
+       "options": [
+        "しずかな",
+        "しずかに",
+        "しずかく"
+       ],
+       "hint": "A な-adjective takes に before します.",
+       "why_wrong": {
+        "しずかな": "な goes before a noun; before します use に.",
+        "しずかく": "く is only for い-adjectives; しずか is a な-adjective."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "エアコンで へやを すずしく ＿＿。",
+       "en": "I cooled the room with the air conditioner.",
+       "answer": "しました",
+       "accepted": [],
+       "options": [
+        "なりました",
+        "ありました",
+        "しました"
+       ],
+       "hint": "With を, someone makes the change, so use します, not なります.",
+       "why_wrong": {
+        "なりました": "なります is a change that just happens and cannot take へやを.",
+        "ありました": "あります does not follow the く form to show a change."
+       }
       }
      ]
     },
@@ -3098,6 +8739,9 @@
      "id": "mari.L44.4",
      "pattern": "adj → adverb",
      "goal": "Use an adjective as an adverb.",
+     "uses": [
+      "manner"
+     ],
      "example": "じを おおきく かきます。",
      "explain": "To describe how an action is done, change an い-adjective to く (はやく) or add に to a な-adjective (しずかに), then put it before the verb.",
      "form": "いadj(い→く) / なadj + に + Verb",
@@ -3135,6 +8779,40 @@
         "はやい",
         "はやに"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "もっと ＿＿ せつめいして ください。",
+       "en": "Please explain it more simply.",
+       "answer": "かんたんに",
+       "accepted": [],
+       "options": [
+        "かんたんな",
+        "かんたんく",
+        "かんたんに"
+       ],
+       "hint": "A な-adjective takes に to describe how an action is done.",
+       "why_wrong": {
+        "かんたんな": "な goes before a noun; before a verb use に.",
+        "かんたんく": "く is only for い-adjectives; かんたん is a な-adjective."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ゆうべは ＿＿ ねました。",
+       "en": "I slept well last night.",
+       "answer": "よく",
+       "accepted": [],
+       "options": [
+        "いいく",
+        "よく",
+        "いいに"
+       ],
+       "hint": "いい is irregular: its く form is よく.",
+       "why_wrong": {
+        "いいく": "いい changes to よく, never いいく.",
+        "いいに": "に is for な-adjectives; いい becomes よく."
+       }
       }
      ]
     }
@@ -3149,6 +8827,9 @@
      "id": "mari.L45.1",
      "pattern": "ふつうForm＋ばあい (は)、〜",
      "goal": "Describe what to do in a certain case",
+     "uses": [
+      "condition"
+     ],
      "example": "ちこくする ばあいは、れんらくして ください。",
      "explain": "ばあいは means 'in case' or 'if that happens'. It is used to say what to do in a possible situation, often in instructions.",
      "form": "ふつうForm + ばあいは",
@@ -3184,6 +8865,40 @@
         "まにあわなくて",
         "まにあいません"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。",
+       "en": "In case of an earthquake, please don't go outside.",
+       "answer": "の",
+       "accepted": [],
+       "options": [
+        "な",
+        "で",
+        "の"
+       ],
+       "hint": "A noun joins ばあい with の.",
+       "why_wrong": {
+        "な": "な is for な-adjectives; じしん is a noun, so it takes の.",
+        "で": "で cannot link a noun to ばあい; use の."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。",
+       "en": "If you lose your key, please tell the front desk.",
+       "answer": "なくした",
+       "accepted": [],
+       "options": [
+        "なくして",
+        "なくした",
+        "なくします"
+       ],
+       "hint": "ばあい follows a plain form, such as the plain past.",
+       "why_wrong": {
+        "なくして": "The てForm cannot go before ばあい; use a plain form.",
+        "なくします": "The polite ます form cannot go before ばあい; use a plain form."
+       }
       }
      ]
     },
@@ -3191,6 +8906,10 @@
      "id": "mari.L45.2",
      "pattern": "ふつうForm＋のに、〜（Paradox）",
      "goal": "Express a surprising or disappointing contrast",
+     "uses": [
+      "regret",
+      "contrast"
+     ],
      "example": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
      "explain": "Plain form + のに means 'even though'. It shows the result was not what you expected, often with surprise, regret, or complaint.",
      "form": "ふつうForm + のに",
@@ -3226,6 +8945,40 @@
         "のみ",
         "のんで"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "さむい＿＿、かれは コートを きないで でかけました。",
+       "en": "Even though it's cold, he went out without a coat.",
+       "answer": "のに",
+       "accepted": [],
+       "options": [
+        "ので",
+        "のに",
+        "ために"
+       ],
+       "hint": "のに links two facts when the result goes against what you expect.",
+       "why_wrong": {
+        "ので": "ので means 'because', and cold is no reason to skip a coat.",
+        "ために": "ために shows purpose and cannot follow an い-adjective like さむい."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "まどを ＿＿のに、へやが さむいです。",
+       "en": "Even though I closed the window, the room is cold.",
+       "answer": "しめた",
+       "accepted": [],
+       "options": [
+        "しめて",
+        "しめ",
+        "しめた"
+       ],
+       "hint": "のに follows a plain form; here the plain past.",
+       "why_wrong": {
+        "しめて": "The てForm cannot go before のに; use a plain form.",
+        "しめ": "The ます stem cannot go before のに; use a plain form."
+       }
       }
      ]
     }
@@ -3240,6 +8993,9 @@
      "id": "mari.L46.1",
      "pattern": "じしょForm／〜ている／たForm＋ところです",
      "goal": "Describe the exact stage of an action",
+     "uses": [
+      "time"
+     ],
      "example": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。",
      "explain": "ところです shows the stage of an action: dictionary form means about to do it, ている form means in the middle of it, and た form means just finished.",
      "form": "じしょForm / ているForm / たForm + ところです",
@@ -3275,6 +9031,40 @@
         "つく",
         "ついて"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "これから かいぎが ＿＿ ところです。",
+       "en": "The meeting is just about to start.",
+       "answer": "はじまる",
+       "accepted": [],
+       "options": [
+        "はじまった",
+        "はじまる",
+        "はじまって"
+       ],
+       "hint": "Dictionary form + ところです means 'about to'.",
+       "why_wrong": {
+        "はじまった": "た form + ところ means it just started, which clashes with これから.",
+        "はじまって": "The てForm alone cannot go before ところ."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "いま おふろに ＿＿ ところです。",
+       "en": "I'm in the middle of taking a bath right now.",
+       "answer": "はいって いる",
+       "accepted": [],
+       "options": [
+        "はいる",
+        "はいって",
+        "はいって いる"
+       ],
+       "hint": "ている form + ところです means 'in the middle of'.",
+       "why_wrong": {
+        "はいる": "Dictionary form + ところ means about to get in, not in the middle.",
+        "はいって": "The てForm alone cannot go before ところ; it needs いる."
+       }
       }
      ]
     },
@@ -3282,6 +9072,10 @@
      "id": "mari.L46.2",
      "pattern": "たForm＋ばかりです",
      "goal": "Say something happened only a short time ago",
+     "uses": [
+      "time",
+      "done"
+     ],
      "example": "さっき たべたばかりです。",
      "explain": "たForm + ばかりです means something happened only a short time ago, from the speaker's point of view.",
      "form": "たForm + ばかりです",
@@ -3317,6 +9111,40 @@
         "はじめる",
         "はじめて"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。",
+       "en": "I just joined the company, so I don't understand the work well.",
+       "answer": "はいった",
+       "accepted": [],
+       "options": [
+        "はいる",
+        "はいった",
+        "はいって"
+       ],
+       "hint": "ばかり follows the た form to mean 'just did'.",
+       "why_wrong": {
+        "はいる": "ばかり in this meaning needs the た form, not the dictionary form.",
+        "はいって": "The てForm cannot go before ばかり here; use the た form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんげつ けっこんした＿＿です。",
+       "en": "I just got married last month.",
+       "answer": "ばかり",
+       "accepted": [],
+       "options": [
+        "ところ",
+        "ながら",
+        "ばかり"
+       ],
+       "hint": "ばかり is for something that feels recent, even a month ago.",
+       "why_wrong": {
+        "ところ": "た form + ところ is only for the moment right after, not last month.",
+        "ながら": "ながら means 'while' and joins the ます stem, not the た form."
+       }
       }
      ]
     },
@@ -3324,6 +9152,9 @@
      "id": "mari.L46.3",
      "pattern": "ふつうForm＋はずです（Considering objective reasons）",
      "goal": "Express strong confidence in an expectation",
+     "uses": [
+      "certain"
+     ],
      "example": "たなかさんは くる はずです。",
      "explain": "はずです means 'should' or 'is expected to'. Use it when you have a solid reason to believe something is true or will happen.",
      "form": "ふつうForm + はずです",
@@ -3361,6 +9192,40 @@
         "やすみな",
         "やすみだ"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "たなかさんは えいごの せんせいだから、えいごが できる＿＿です。",
+       "en": "Mr. Tanaka is an English teacher, so he should be able to speak English.",
+       "answer": "はず",
+       "accepted": [],
+       "options": [
+        "つもり",
+        "はず",
+        "ところ"
+       ],
+       "hint": "はずです states what you firmly expect to be true about someone.",
+       "why_wrong": {
+        "つもり": "つもり is a plan you choose; できる is an ability, not a plan.",
+        "ところ": "ところ marks the stage of an action; できる has no such stage."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この こうえんは よる ＿＿ はずです。",
+       "en": "This park should be quiet at night.",
+       "answer": "しずかな",
+       "accepted": [],
+       "options": [
+        "しずかの",
+        "しずかだ",
+        "しずかな"
+       ],
+       "hint": "A な-adjective keeps な before はずです.",
+       "why_wrong": {
+        "しずかの": "の is for nouns; しずか is a な-adjective, so it takes な.",
+        "しずかだ": "だ cannot go before はず; a な-adjective takes な."
+       }
       }
      ]
     }
@@ -3375,6 +9240,9 @@
      "id": "mari.L47.1",
      "pattern": "ふつうForm＋そうです（hearsay）",
      "goal": "Report information heard from another source",
+     "uses": [
+      "hearsay"
+     ],
      "example": "てんきよほうに よると、あした ゆきが ふるそうです。",
      "explain": "Plain form + そうです reports something you heard or read: 'I hear that'. Name the source with 〜に よると.",
      "form": "ふつうForm + そうです",
@@ -3410,6 +9278,40 @@
         "あめ",
         "あめな"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "ともだちの はなしに よると、あの みせは ＿＿そうです。",
+       "en": "According to my friend, that restaurant is expensive.",
+       "answer": "たかい",
+       "accepted": [],
+       "options": [
+        "たか",
+        "たかい",
+        "たかいだ"
+       ],
+       "hint": "Hearsay そうです follows the full plain form, keeping the い.",
+       "why_wrong": {
+        "たか": "たかそう means 'looks expensive', not something you heard.",
+        "たかいだ": "い-adjectives never take だ before hearsay そうです."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "たなかさんに よると、あの こうえんは ＿＿そうです。",
+       "en": "According to Mr. Tanaka, that park is quiet.",
+       "answer": "しずかだ",
+       "accepted": [],
+       "options": [
+        "しずかだ",
+        "しずかな",
+        "しずか"
+       ],
+       "hint": "For hearsay, a な-adjective takes だ before そうです.",
+       "why_wrong": {
+        "しずかな": "な cannot go before hearsay そうです; use だ.",
+        "しずか": "しずかそう means 'looks quiet', not something you heard."
+       }
       }
      ]
     },
@@ -3417,6 +9319,10 @@
      "id": "mari.L47.2",
      "pattern": "ふつうForm＋ようです（Estimation）",
      "goal": "Express a conclusion based on evidence or observation",
+     "uses": [
+      "guess",
+      "appearance"
+     ],
      "example": "だれも いないようです。",
      "explain": "Plain form + ようです means 'it seems'. It is your own conclusion from what you see, hear, or notice.",
      "form": "ふつうForm + ようです",
@@ -3452,6 +9358,40 @@
         "るすな",
         "るすだ"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "げんかんに くつが あります。だれか ＿＿ようです。",
+       "en": "There are shoes at the entrance. It seems someone has come.",
+       "answer": "きた",
+       "accepted": [],
+       "options": [
+        "きて",
+        "き",
+        "きた"
+       ],
+       "hint": "ようです follows a plain form; here the plain past of きます.",
+       "why_wrong": {
+        "きて": "The てForm cannot go before ようです; use a plain form.",
+        "き": "The ます stem cannot go before ようです; use a plain form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
+       "en": "He's always playing games. It seems he likes games.",
+       "answer": "すきな",
+       "accepted": [],
+       "options": [
+        "すきの",
+        "すきな",
+        "すきだ"
+       ],
+       "hint": "A な-adjective keeps な before ようです.",
+       "why_wrong": {
+        "すきの": "の is for nouns; すき is a な-adjective, so it takes な.",
+        "すきだ": "だ cannot go before ようです; a な-adjective takes な."
+       }
       }
      ]
     }
@@ -3466,6 +9406,9 @@
      "id": "mari.L48.1",
      "pattern": "しえきけい (Causative verbs)",
      "goal": "Correctly form the causative",
+     "uses": [
+      "forms"
+     ],
      "example": "いかせる／たべさせる／させる／こさせる",
      "explain": "Causative verbs mean 'make or let someone do'. Group 1 verbs change the last sound to the あ row + せる; Group 2 verbs add させる to the stem.",
      "form": "Group1: あ row + せる / Group2: stem + させる",
@@ -3501,6 +9444,40 @@
         "かきさせました",
         "かくさせました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "ははは こどもに やさいを ＿＿。",
+       "en": "My mother made the children eat vegetables.",
+       "answer": "たべさせました",
+       "accepted": [],
+       "options": [
+        "たべられました",
+        "たべさせました",
+        "たべせました"
+       ],
+       "hint": "Group 2 verbs add させる to the stem: たべる becomes たべさせる.",
+       "why_wrong": {
+        "たべられました": "られる is the passive, 'was eaten', not 'made someone eat'.",
+        "たべせました": "Group 2 verbs need させる, not just せる."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ぶちょうは あさ はやく わたしを かいしゃに ＿＿。",
+       "en": "The manager made me come to the office early in the morning.",
+       "answer": "こさせました",
+       "accepted": [],
+       "options": [
+        "きさせました",
+        "こせました",
+        "こさせました"
+       ],
+       "hint": "くる is irregular: its causative is こさせる.",
+       "why_wrong": {
+        "きさせました": "くる changes to こ, not き, in the causative.",
+        "こせました": "The causative of くる needs させる: こさせる."
+       }
       }
      ]
     },
@@ -3508,6 +9485,9 @@
      "id": "mari.L48.2",
      "pattern": "Personを〜（さ）せます（compulsion・permission）",
      "goal": "Describe making or letting someone do something",
+     "uses": [
+      "command"
+     ],
      "example": "せんせいは がくせいを たたせました。",
      "explain": "With verbs that take no object, like いく or たつ, mark the person you make or let act with を. It can mean forcing or allowing.",
      "form": "Personを + しえきけい",
@@ -3543,6 +9523,40 @@
         "わらいさせました",
         "わらわれました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "むすこ＿＿ イギリスへ りゅうがくさせました。",
+       "en": "I had my son study abroad in England.",
+       "answer": "を",
+       "accepted": [],
+       "options": [
+        "が",
+        "を",
+        "で"
+       ],
+       "hint": "With a verb that has no object, the person you make act takes を.",
+       "why_wrong": {
+        "が": "が would make your son the one causing it, not the one who goes.",
+        "で": "で marks a place or means, not the person you make act."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "いもうとを ＿＿ しまいました。",
+       "en": "I ended up making my little sister cry.",
+       "answer": "なかせて",
+       "accepted": [],
+       "options": [
+        "なかせて",
+        "なかれて",
+        "なきさせて"
+       ],
+       "hint": "Group 1: なく becomes なかせる, then the てForm なかせて.",
+       "why_wrong": {
+        "なかれて": "なかれる is the passive, which does not fit いもうとを here.",
+        "なきさせて": "Group 1 verbs use the あ row + せる, not ます stem + させる."
+       }
       }
      ]
     },
@@ -3550,6 +9564,9 @@
      "id": "mari.L48.3",
      "pattern": "Personに（もの）を〜（さ）せます",
      "goal": "Describe making someone do something to an object",
+     "uses": [
+      "command"
+     ],
      "example": "ははは わたしに へやを そうじさせました。",
      "explain": "When the verb already has an object with を, mark the person you make or let do it with に, so the sentence has only one を.",
      "form": "Personに + Nounを + しえきけい",
@@ -3585,6 +9602,40 @@
         "おぼえせました",
         "おぼえさせりました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "こども＿＿ かばんを もたせました。",
+       "en": "I had the child carry the bag.",
+       "answer": "に",
+       "accepted": [],
+       "options": [
+        "を",
+        "で",
+        "に"
+       ],
+       "hint": "The verb already has かばんを, so the person takes に.",
+       "why_wrong": {
+        "を": "かばん already has を; two を in one causative sentence is wrong.",
+        "で": "で marks a place or means, not the person you make act."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ははは わたしに ピアノを ＿＿。",
+       "en": "My mother made me learn the piano.",
+       "answer": "ならわせました",
+       "accepted": [],
+       "options": [
+        "ならいさせました",
+        "ならわせました",
+        "ならさせました"
+       ],
+       "hint": "Verbs ending in う use わ: ならう becomes ならわせる.",
+       "why_wrong": {
+        "ならいさせました": "Group 1 verbs use the あ row + せる, not ます stem + させる.",
+        "ならさせました": "う changes to わ before せる: ならわせる."
+       }
       }
      ]
     },
@@ -3592,6 +9643,10 @@
      "id": "mari.L48.4",
      "pattern": "しえきけい（て）＋いただけませんか（Request for permission）",
      "goal": "Politely ask permission to do something",
+     "uses": [
+      "request",
+      "polite"
+     ],
      "example": "すこし やすませて いただけませんか。",
      "explain": "Causative てForm + いただけませんか politely asks for permission to do something yourself: 'Could you let me...?'",
      "form": "しえきけい(て) + いただけませんか",
@@ -3627,6 +9682,40 @@
         "させって",
         "されせて"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "ここで しゃしんを ＿＿ いただけませんか。",
+       "en": "Could you let me take photos here?",
+       "answer": "とらせて",
+       "accepted": [],
+       "options": [
+        "とって",
+        "とらせて",
+        "とられて"
+       ],
+       "hint": "To ask to do it yourself, use the causative てForm.",
+       "why_wrong": {
+        "とって": "とって いただけませんか asks the listener to take the photo.",
+        "とられて": "とられる is the passive, not 'let me take'."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "すこし ＿＿ いただけませんか。",
+       "en": "Could you let me think about it a little?",
+       "answer": "かんがえさせて",
+       "accepted": [],
+       "options": [
+        "かんがえて",
+        "かんがえせて",
+        "かんがえさせて"
+       ],
+       "hint": "Group 2 causative is stem + させる, then the てForm.",
+       "why_wrong": {
+        "かんがえて": "かんがえて いただけませんか asks the listener to think.",
+        "かんがえせて": "Group 2 verbs need させる, not just せる."
+       }
       }
      ]
     }
@@ -3641,6 +9730,9 @@
      "id": "mari.L49.1",
      "pattern": "そんけいごの うけみがた（〜（ら）れます）",
      "goal": "Use respectful language for someone else's action",
+     "uses": [
+      "polite"
+     ],
      "example": "しゃちょうは もう かえられました。",
      "explain": "The passive form can also show respect for what someone else does, like a boss or teacher. The meaning stays active.",
      "form": "うけみけい (〜(ら)れます)",
@@ -3676,6 +9768,40 @@
         "でかけられせました",
         "でかけされました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんせいは なんじに ＿＿か。",
+       "en": "What time will the teacher come?",
+       "answer": "こられます",
+       "accepted": [],
+       "options": [
+        "きられます",
+        "まいります",
+        "こられます"
+       ],
+       "hint": "くる is irregular: its respectful passive is こられる.",
+       "why_wrong": {
+        "きられます": "くる changes to こ, not き: こられます.",
+        "まいります": "まいります is humble, for your own coming, never the teacher's."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しゃちょうは らいしゅう アメリカへ しゅっちょう＿＿。",
+       "en": "The company president will go on a business trip to America next week.",
+       "answer": "されます",
+       "accepted": [],
+       "options": [
+        "させます",
+        "されます",
+        "いたします"
+       ],
+       "hint": "する becomes される to show respect for someone else's action.",
+       "why_wrong": {
+        "させます": "させる is causative, 'make someone go', not respect.",
+        "いたします": "いたします is humble, for your own actions, not the president's."
+       }
       }
      ]
     },
@@ -3683,6 +9809,9 @@
      "id": "mari.L49.2",
      "pattern": "お＋ますけい＋に なります",
      "goal": "Use the polite honorific pattern for respect",
+     "uses": [
+      "polite"
+     ],
      "example": "しゃちょうは もう おかえりに なりました。",
      "explain": "お + ます stem + に なります is a respectful way to describe what a superior or customer does. It is more polite than the passive form.",
      "form": "お + ますForm + に なります",
@@ -3718,6 +9847,40 @@
         "おかうに",
         "かいに"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんせいが この ほんを ＿＿か。",
+       "en": "Did the teacher write this book?",
+       "answer": "おかきに なりました",
+       "accepted": [],
+       "options": [
+        "おかきしました",
+        "おかきに なりました",
+        "おかきに しました"
+       ],
+       "hint": "For a superior's action, use お + ます stem + に なります.",
+       "why_wrong": {
+        "おかきしました": "お + stem + します is humble, for your own actions only.",
+        "おかきに しました": "The respectful pattern ends in なります, not します."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しゃちょうは もう ＿＿ なりました。",
+       "en": "The company president has already gone to bed.",
+       "answer": "おやすみに",
+       "accepted": [],
+       "options": [
+        "おやすむに",
+        "おやすみで",
+        "おやすみに"
+       ],
+       "hint": "Use お + the ます stem やすみ + に before なります.",
+       "why_wrong": {
+        "おやすむに": "Use the ます stem やすみ, not the dictionary form やすむ.",
+        "おやすみで": "The pattern needs に before なります, not で."
+       }
       }
      ]
     },
@@ -3725,6 +9888,9 @@
      "id": "mari.L49.3",
      "pattern": "とくべつな そんけいご（いらっしゃる・めしあがる など）",
      "goal": "Use special honorific verbs",
+     "uses": [
+      "polite"
+     ],
      "example": "せんせいは もう めしあがりましたか。",
      "explain": "Some common verbs have their own respectful forms, such as いらっしゃいます (go, come, be), めしあがります (eat, drink), and おっしゃいます (say).",
      "form": "いらっしゃいます・めしあがります・おっしゃいます など",
@@ -3762,6 +9928,40 @@
         "もうしました",
         "まいりました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんせい、なにを ＿＿か。",
+       "en": "Sensei, what would you like to drink?",
+       "answer": "めしあがります",
+       "accepted": [],
+       "options": [
+        "いただきます",
+        "めしあがります",
+        "おのみします"
+       ],
+       "hint": "めしあがります is the respectful verb for another person's eating or drinking.",
+       "why_wrong": {
+        "いただきます": "いただきます is humble, for your own eating, not the teacher's.",
+        "おのみします": "お + stem + します is humble, never for the listener's actions."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しゃちょうは いま どちらに ＿＿か。",
+       "en": "Where is the company president now?",
+       "answer": "いらっしゃいます",
+       "accepted": [],
+       "options": [
+        "おります",
+        "いらっしゃいます",
+        "まいります"
+       ],
+       "hint": "いらっしゃいます is the respectful verb for a superior being somewhere.",
+       "why_wrong": {
+        "おります": "おります is humble, for yourself or your group, not the president.",
+        "まいります": "まいります is humble 'go or come', not 'be', and only for yourself."
+       }
       }
      ]
     },
@@ -3769,6 +9969,10 @@
      "id": "mari.L49.4",
      "pattern": "お＋ますけい＋ください",
      "goal": "Make a respectful request",
+     "uses": [
+      "polite",
+      "request"
+     ],
      "example": "どうぞ おかけください。",
      "explain": "お + ます stem + ください is a respectful way to ask a customer or superior to do something. It is more polite than てください.",
      "form": "お + ますForm + ください",
@@ -3804,6 +10008,40 @@
         "おみ",
         "おみて"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "どうぞ なかへ ＿＿ください。",
+       "en": "Please come inside.",
+       "answer": "おはいり",
+       "accepted": [],
+       "options": [
+        "おはいって",
+        "はいり",
+        "おはいり"
+       ],
+       "hint": "Use お + the ます stem directly before ください.",
+       "why_wrong": {
+        "おはいって": "お joins the ます stem はいり, not the てForm.",
+        "はいり": "Without お, the ます stem cannot go before ください."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "どうぞ この ペンを ＿＿。",
+       "en": "Please use this pen.",
+       "answer": "おつかいください",
+       "accepted": [],
+       "options": [
+        "おつかいください",
+        "おつかいします",
+        "つかいください"
+       ],
+       "hint": "To ask a customer to act, use お + ます stem + ください.",
+       "why_wrong": {
+        "おつかいします": "お + stem + します is humble: 'I will use it', not a request.",
+        "つかいください": "The ます stem needs お in front before ください."
+       }
       }
      ]
     }
@@ -3818,6 +10056,9 @@
      "id": "mari.L50.1",
      "pattern": "お／ご＋ますけい＋します（けんじょうご）",
      "goal": "Use humble language to lower yourself when helping someone",
+     "uses": [
+      "polite"
+     ],
      "example": "にもつを おもちします。",
      "explain": "お or ご + ます stem + します is humble. Use it for something you do for a superior or customer, to lower yourself politely.",
      "form": "お / ご + ますForm + します",
@@ -3853,6 +10094,40 @@
         "おあんない",
         "あんないに"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしが ＿＿しましょうか。",
+       "en": "Shall I help you?",
+       "answer": "おてつだい",
+       "accepted": [],
+       "options": [
+        "ごてつだい",
+        "おてつだい",
+        "おてつだって"
+       ],
+       "hint": "てつだう is a native verb, so it takes お + the ます stem.",
+       "why_wrong": {
+        "ごてつだい": "ご is for する-verb nouns like あんない; てつだう takes お.",
+        "おてつだって": "お joins the ます stem てつだい, not the てForm."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この きかいの つかいかたは わたしが ＿＿。",
+       "en": "I will explain how to use this machine.",
+       "answer": "ごせつめいします",
+       "accepted": [],
+       "options": [
+        "ごせつめいに なります",
+        "ごせつめいください",
+        "ごせつめいします"
+       ],
+       "hint": "For your own action, use the humble ご + noun + します.",
+       "why_wrong": {
+        "ごせつめいに なります": "に なります is respectful, for others' actions, never your own.",
+        "ごせつめいください": "ください asks someone else to explain, not you."
+       }
       }
      ]
     },
@@ -3860,6 +10135,9 @@
      "id": "mari.L50.2",
      "pattern": "とくべつな けんじょうご（もうす・まいる・いただく など）",
      "goal": "Use special humble verbs",
+     "uses": [
+      "polite"
+     ],
      "example": "わたしは たなかと もうします。",
      "explain": "Some verbs have special humble forms for your own actions: もうします (say), まいります (go, come), いただきます (eat, receive), and おります (be).",
      "form": "もうします・まいります・いただきます・おります など",
@@ -3895,6 +10173,40 @@
         "めしあがりました",
         "おたべしました"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは らいしゅう アメリカへ ＿＿。",
+       "en": "I will go to America next week.",
+       "answer": "まいります",
+       "accepted": [],
+       "options": [
+        "いらっしゃいます",
+        "まいります",
+        "おいきします"
+       ],
+       "hint": "まいります is the humble verb for your own going or coming.",
+       "why_wrong": {
+        "いらっしゃいます": "いらっしゃいます is respectful, for others, never for yourself.",
+        "おいきします": "いきます has no お + stem + します form; use まいります."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ちちは いま うちに ＿＿。",
+       "en": "My father is at home now.",
+       "answer": "おります",
+       "accepted": [],
+       "options": [
+        "ございます",
+        "いらっしゃいます",
+        "おります"
+       ],
+       "hint": "Your own family counts as your group, so use humble おります.",
+       "why_wrong": {
+        "ございます": "ございます is for things, not people.",
+        "いらっしゃいます": "Do not use respectful verbs for your own family to outsiders."
+       }
       }
      ]
     },
@@ -3902,6 +10214,9 @@
      "id": "mari.L50.3",
      "pattern": "ていねいご（です・ます／ございます）",
      "goal": "Use polite language appropriately in formal contexts",
+     "uses": [
+      "polite"
+     ],
      "example": "こちらに ございます。",
      "explain": "ございます is a very polite form of あります, and でございます is a very polite form of です. Store and hotel staff use them with customers.",
      "form": "あります → ございます / です → でございます",
@@ -3937,6 +10252,40 @@
         "でいらっしゃいます",
         "でおります"
        ]
+      },
+      {
+       "kind": "choose",
+       "prompt": "エレベーターは あちらに ＿＿。",
+       "en": "The elevator is over there.",
+       "answer": "ございます",
+       "accepted": [],
+       "options": [
+        "いらっしゃいます",
+        "ございます",
+        "おります"
+       ],
+       "hint": "ございます is the very polite あります, used for things.",
+       "why_wrong": {
+        "いらっしゃいます": "いらっしゃいます is for people you respect, not things.",
+        "おります": "おります is the humble います, for people, not things."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "こちらは ごせんえん＿＿。",
+       "en": "This one is five thousand yen.",
+       "answer": "でございます",
+       "accepted": [],
+       "options": [
+        "にございます",
+        "でいらっしゃいます",
+        "でございます"
+       ],
+       "hint": "でございます is the very polite form of です.",
+       "why_wrong": {
+        "にございます": "に ございます means 'is located at'; for 'is', use でございます.",
+        "でいらっしゃいます": "でいらっしゃいます shows respect for a person, not a price."
+       }
       }
      ]
     }

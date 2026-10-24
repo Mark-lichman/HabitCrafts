@@ -21,23 +21,28 @@ import 'jp_study_kit.dart';
 enum JpDrill { reference, pairs, conjugation }
 
 class QuietRoomDrillsWidget extends StatelessWidget {
-  const QuietRoomDrillsWidget({super.key, this.mode = 'reference'});
+  const QuietRoomDrillsWidget(
+      {super.key, this.mode = 'reference', this.table, this.form});
 
   final String mode;
+
+  /// Deep links from the catalog search: which table or form to open on.
+  final String? table;
+  final String? form;
 
   static String routeName = 'quietRoomDrills';
   static String routePath = '/quietRoomDrills';
 
   @override
   Widget build(BuildContext context) {
-    final drill = JpDrill.values.firstWhere((d) => d.name == mode,
-        orElse: () => JpDrill.reference);
+    final drill = JpDrill.values
+        .firstWhere((d) => d.name == mode, orElse: () => JpDrill.reference);
     return QrStudyScaffold(
       child: QrLoad(
         builder: (context, doc) => switch (drill) {
-          JpDrill.reference => _Reference(doc: doc),
+          JpDrill.reference => _Reference(doc: doc, table: table),
           JpDrill.pairs => _Pairs(doc: doc),
-          JpDrill.conjugation => _Conjugation(doc: doc),
+          JpDrill.conjugation => _Conjugation(doc: doc, form: form),
         },
       ),
     );
@@ -47,17 +52,18 @@ class QuietRoomDrillsWidget extends StatelessWidget {
 Future<void> _speak(BuildContext context, String text) async {
   final err = await SpeechService.instance.speak(text);
   if (err != null && context.mounted) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(err), duration: const Duration(seconds: 5)));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err), duration: const Duration(seconds: 5)));
   }
 }
 
 // ───────────────────────────── reference tables ─────────────────────────────
 
 class _Reference extends StatefulWidget {
-  const _Reference({required this.doc});
+  const _Reference({required this.doc, this.table});
 
   final Map<String, dynamic> doc;
+  final String? table;
 
   @override
   State<_Reference> createState() => _ReferenceState();
@@ -65,6 +71,14 @@ class _Reference extends StatefulWidget {
 
 class _ReferenceState extends State<_Reference> {
   int _table = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final ids = (widget.doc['reference'] as List).map((t) => t['id']).toList();
+    _table = ids.indexOf(widget.table).clamp(0, ids.length - 1);
+  }
+
   int _col = 0;
   final Set<String> _shown = {};
   bool _all = false;
@@ -72,7 +86,8 @@ class _ReferenceState extends State<_Reference> {
   @override
   Widget build(BuildContext context) {
     final t = QuietRoomTokens.of(context);
-    final tables = (widget.doc['reference'] as List).cast<Map<String, dynamic>>();
+    final tables =
+        (widget.doc['reference'] as List).cast<Map<String, dynamic>>();
     final table = tables[_table];
     final cols = (table['columns'] as List).cast<Map<String, dynamic>>();
     final col = cols[_col.clamp(0, cols.length - 1)];
@@ -86,7 +101,8 @@ class _ReferenceState extends State<_Reference> {
       children: [
         Text('Numbers and counters', style: qrTitle(t)),
         const SizedBox(height: 5),
-        Text('Say the reading, then tap to check.', style: qrText(t, color: t.inkMuted)),
+        Text('Say the reading, then tap to check.',
+            style: qrText(t, color: t.inkMuted)),
         const SizedBox(height: 16),
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (var i = 0; i < tables.length; i++)
@@ -126,7 +142,9 @@ class _ReferenceState extends State<_Reference> {
         Row(children: [
           Expanded(
             child: Text(
-              [col['kana'], col['gloss']].where((s) => (s as String).isNotEmpty).join(' · '),
+              [col['kana'], col['gloss']]
+                  .where((s) => (s as String).isNotEmpty)
+                  .join(' · '),
               style: qrText(t, size: 13, color: t.inkMuted),
             ),
           ),
@@ -135,9 +153,11 @@ class _ReferenceState extends State<_Reference> {
               _all = !_all;
               _shown.clear();
             }),
-            style: TextButton.styleFrom(minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
+            style: TextButton.styleFrom(
+                minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
             child: Text(_all ? 'Hide all' : 'Show all',
-                style: qrText(t, size: 12.5, weight: FontWeight.w600, color: t.brand600)),
+                style: qrText(t,
+                    size: 12.5, weight: FontWeight.w600, color: t.brand600)),
           ),
         ]),
         const SizedBox(height: 6),
@@ -168,13 +188,14 @@ class _ReferenceState extends State<_Reference> {
             ),
           ),
           const SizedBox(width: 6),
-          Text(ReadingMark.label(m), style: qrText(t, size: 12, color: t.inkMuted)),
+          Text(ReadingMark.label(m),
+              style: qrText(t, size: 12, color: t.inkMuted)),
           const SizedBox(width: 16),
         ],
       ]);
 
-  Widget _cell(QuietRoomTokens t, Map<String, dynamic> table, Map<String, dynamic> col,
-      Map<String, dynamic> c) {
+  Widget _cell(QuietRoomTokens t, Map<String, dynamic> table,
+      Map<String, dynamic> col, Map<String, dynamic> c) {
     final key = '${c['row']}';
     final shown = _all || _shown.contains(key);
     final mark = c['mark'] as String;
@@ -199,7 +220,10 @@ class _ReferenceState extends State<_Reference> {
             // The legend color shows only once the answer does. Showing it first
             // would give away whether the reading is regular.
             color: shown ? ReadingMark.fill(t, mark) : t.surface,
-            border: Border.all(color: shown && mark != 'regular' ? ReadingMark.ink(t, mark) : t.border),
+            border: Border.all(
+                color: shown && mark != 'regular'
+                    ? ReadingMark.ink(t, mark)
+                    : t.border),
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(8),
@@ -217,7 +241,8 @@ class _ReferenceState extends State<_Reference> {
                     color: shown ? ReadingMark.ink(t, mark) : t.inkSubtle),
               ),
               if (shown && alt.isNotEmpty)
-                Text('(${alt.join('、')})', style: qrText(t, size: 11.5, color: t.inkMuted)),
+                Text('(${alt.join('、')})',
+                    style: qrText(t, size: 11.5, color: t.inkMuted)),
             ],
           ),
         ),
@@ -250,11 +275,14 @@ class _PairsState extends State<_Pairs> {
       children: [
         Text('Verb pairs', style: qrTitle(t)),
         const SizedBox(height: 5),
-        Text('が: it happens. を: someone does it. See one side, recall the other.',
+        Text(
+            'が: it happens. を: someone does it. See one side, recall the other.',
             style: qrText(t, color: t.inkMuted)),
         const SizedBox(height: 16),
         for (var i = 0; i < pairs.length; i++)
-          Padding(padding: const EdgeInsets.only(bottom: 9), child: _pair(t, i, pairs[i])),
+          Padding(
+              padding: const EdgeInsets.only(bottom: 9),
+              child: _pair(t, i, pairs[i])),
       ],
     );
   }
@@ -278,15 +306,20 @@ class _PairsState extends State<_Pairs> {
               child: Icon(Icons.swap_horiz, size: 18, color: t.inkSubtle),
             ),
             shown
-                ? _side(t, 'を', p['transitive'] as String, p['transitive_group'])
-                : Text('を ?', style: qrText(t, size: 18, weight: FontWeight.w600, color: t.inkSubtle)),
+                ? _side(
+                    t, 'を', p['transitive'] as String, p['transitive_group'])
+                : Text('を ?',
+                    style: qrText(t,
+                        size: 18, weight: FontWeight.w600, color: t.inkSubtle)),
             const Spacer(),
             if (hasKanji)
               TextButton(
-                onPressed: () => setState(() => kanji ? _kanji.remove(i) : _kanji.add(i)),
+                onPressed: () =>
+                    setState(() => kanji ? _kanji.remove(i) : _kanji.add(i)),
                 style: TextButton.styleFrom(minimumSize: const Size(44, 36)),
                 child: Text(kanji ? 'かな' : '漢字',
-                    style: qrText(t, size: 13, weight: FontWeight.w600, color: t.brand600)),
+                    style: qrText(t,
+                        size: 13, weight: FontWeight.w600, color: t.brand600)),
               ),
           ]),
           if (gloss.isNotEmpty) ...[
@@ -294,13 +327,15 @@ class _PairsState extends State<_Pairs> {
             Text(gloss, style: qrText(t, size: 13, color: t.inkMuted)),
           ],
           const SizedBox(height: 8),
-          Text(exIn as String, style: qrText(t, size: 15.5, color: t.inkStrong)),
+          Text(exIn as String,
+              style: qrText(t, size: 15.5, color: t.inkStrong)),
           AnimatedSize(
             duration: QuietRoomMotion.base,
             curve: QuietRoomMotion.standard,
             alignment: Alignment.topLeft,
             child: shown
-                ? Text(exTr as String, style: qrText(t, size: 15.5, color: t.amber700))
+                ? Text(exTr as String,
+                    style: qrText(t, size: 15.5, color: t.amber700))
                 : const SizedBox(width: double.infinity),
           ),
         ],
@@ -308,14 +343,19 @@ class _PairsState extends State<_Pairs> {
     );
   }
 
-  Widget _side(QuietRoomTokens t, String particle, String verb, Object? group) => Row(children: [
+  Widget _side(
+          QuietRoomTokens t, String particle, String verb, Object? group) =>
+      Row(children: [
         Text(particle, style: qrText(t, size: 13, color: t.inkMuted)),
         const SizedBox(width: 4),
-        Text(verb, style: qrText(t, size: 18, weight: FontWeight.w600, color: t.inkStrong)),
+        Text(verb,
+            style: qrText(t,
+                size: 18, weight: FontWeight.w600, color: t.inkStrong)),
         if (group != null) ...[
           const SizedBox(width: 5),
           Text(['', 'I', 'II', 'III'][group as int],
-              style: qrText(t, size: 11, weight: FontWeight.w600, color: t.sage700)),
+              style: qrText(t,
+                  size: 11, weight: FontWeight.w600, color: t.sage700)),
         ],
       ]);
 }
@@ -338,9 +378,10 @@ const _formLabels = {
 };
 
 class _Conjugation extends StatefulWidget {
-  const _Conjugation({required this.doc});
+  const _Conjugation({required this.doc, this.form});
 
   final Map<String, dynamic> doc;
+  final String? form;
 
   @override
   State<_Conjugation> createState() => _ConjugationState();
@@ -357,11 +398,14 @@ class _ConjugationState extends State<_Conjugation> {
   @override
   void initState() {
     super.initState();
+    _form = widget.form ?? _form;
     _shuffle();
   }
 
   void _shuffle() {
-    _deck = (widget.doc['conjugation']['verbs'] as List).cast<Map<String, dynamic>>().toList()
+    _deck = (widget.doc['conjugation']['verbs'] as List)
+        .cast<Map<String, dynamic>>()
+        .toList()
       ..shuffle(_rng);
     _i = 0;
     _shown = false;
@@ -405,9 +449,16 @@ class _ConjugationState extends State<_Conjugation> {
             padding: const EdgeInsets.symmetric(vertical: 18),
             child: Column(children: [
               Text(v['dictionary'] as String,
-                  style: qrText(t, size: 30, weight: FontWeight.w600, color: t.inkStrong)),
+                  style: qrText(t,
+                      size: 30, weight: FontWeight.w600, color: t.inkStrong)),
               const SizedBox(height: 4),
-              Text('group ${['', 'I', 'II', 'III'][v['group'] as int]}  →  ${_formLabels[_form]}',
+              Text(
+                  'group ${[
+                    '',
+                    'I',
+                    'II',
+                    'III'
+                  ][v['group'] as int]}  →  ${_formLabels[_form]}',
                   style: qrText(t, size: 13, color: t.inkMuted)),
               const SizedBox(height: 18),
               AnimatedSwitcher(
@@ -415,7 +466,10 @@ class _ConjugationState extends State<_Conjugation> {
                 child: _shown
                     ? Text(answer,
                         key: const ValueKey('a'),
-                        style: qrText(t, size: 26, weight: FontWeight.w600, color: t.brand600))
+                        style: qrText(t,
+                            size: 26,
+                            weight: FontWeight.w600,
+                            color: t.brand600))
                     : Text('Say it, then tap',
                         key: const ValueKey('q'),
                         style: qrText(t, size: 14, color: t.inkSubtle)),
@@ -433,7 +487,8 @@ class _ConjugationState extends State<_Conjugation> {
         const SizedBox(height: 12),
         if (_seen > 0)
           Text('$_right of $_seen this session',
-              textAlign: TextAlign.center, style: qrText(t, size: 12.5, color: t.inkMuted)),
+              textAlign: TextAlign.center,
+              style: qrText(t, size: 12.5, color: t.inkMuted)),
       ],
     );
   }
@@ -457,7 +512,9 @@ class _ConjugationState extends State<_Conjugation> {
           ),
           child: Text(label,
               style: qrText(t,
-                  size: 14.5, weight: FontWeight.w600, color: right ? t.onBrand : t.ink)),
+                  size: 14.5,
+                  weight: FontWeight.w600,
+                  color: right ? t.onBrand : t.ink)),
         ),
       );
 }

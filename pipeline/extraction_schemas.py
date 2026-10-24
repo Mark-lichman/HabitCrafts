@@ -346,6 +346,33 @@ class ExternalResource(BaseModel):
     url: str
 
 
+class CatalogEntry(BaseModel):
+    """SD3 Cataloging. One findable thing. Typed at extraction time so the app's search
+    and sort never guess what a piece of content is."""
+
+    id: str
+    type: Literal["grammar_point", "particle", "reference_table", "verb_pair",
+                  "conjugation", "vocabulary"]
+    source: str
+    lesson: int | None = None
+    title: str
+    summary: str = ""
+    uses: list[str] = Field(default_factory=list, description="Ids from the Use Taxonomy.")
+    search: list[str] = Field(default_factory=list, description="Extra text to match.")
+    open: dict[str, str | int] = Field(description="Which screen, with which parameters.")
+
+
+class Query(BaseModel):
+    """What the learner asks the app. Text wins, then use, then type order."""
+
+    text: str | None = None
+    use: str | None = None
+
+
+class ResultList(BaseModel):
+    entries: list[CatalogEntry]
+
+
 # ───────────────────────────── gates and reports ─────────────────────────────
 
 
@@ -564,6 +591,12 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     "CurriculumImporting": (DET, (CanonicalTable,), (CurriculumSpec, GrammarPoint, ExternalResource)),
     "ValidatingSources": (DET, (ReferenceItem, VerbPair, ParadigmCell, CurriculumSpec,
                                 ExternalResource), (ValidationResult,)),
+    # Type is deterministic (which extractor made the item). Uses come from a reviewed
+    # data file, so Cataloging itself makes no LM call.
+    "Cataloging": (DET, (LessonBundle,), (CatalogEntry,)),
+    "PublishingApp": (DET, (LessonBundle, CatalogEntry), ()),
+    # Runs in the app, on the published file.
+    "Finding": (DET, (CatalogEntry, Query), (ResultList,)),
 }
 
 # MISSING: Optimizing's real output is a new compiled DSPy program, not a model.
@@ -573,10 +606,10 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
 # a category error and should be redrawn.
 
 # Stages with no upstream producer — pipeline roots and control objects.
-_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample}
+_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query}
 
 # Produced but deliberately consumed by nothing — the pipeline's end products.
-_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob}
+_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList}
 
 
 def _check() -> None:

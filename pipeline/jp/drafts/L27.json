@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "わたしは ピアノが ＿＿。", "en": "I can play the piano.", "answer": "ひけます", "accepted": [], "hint": "Potential form of ひきます"},
-        {"kind": "choose", "prompt": "にほんごが すこし ＿＿。", "en": "I can speak a little Japanese.", "answer": "はなせます", "options": ["はなせます", "はなします", "はなせられます"], "accepted": [], "hint": "Group 1 potential form"}
+        {"kind": "choose", "prompt": "にほんごが すこし ＿＿。", "en": "I can speak a little Japanese.", "answer": "はなせます", "options": ["はなせます", "はなします", "はなせられます"], "accepted": [], "hint": "Group 1 potential form"},
+        {"kind": "choose", "prompt": "わたしは じてんしゃに ＿＿。", "en": "I can ride a bicycle.", "answer": "のれます", "accepted": [], "options": ["のります", "のられます", "のれます"], "hint": "Group 1 potential changes -u to -e: のる → のれる → のれます.", "why_wrong": {"のります": "This is the plain ます form: 'I ride', not 'I can ride'.", "のられます": "Group 1 verbs do not add られ for the potential; it is のれます."}},
+        {"kind": "choose", "prompt": "あしたの パーティーに ＿＿か。", "en": "Can you come to tomorrow's party?", "answer": "こられます", "accepted": [], "options": ["きられます", "こられます", "くられます"], "hint": "The potential of くる is irregular: こられる → こられます.", "why_wrong": {"きられます": "The potential of くる starts with こ, not き: こられます.", "くられます": "The potential of くる starts with こ, not く: こられます."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "まどから うみが ＿＿。", "en": "You can see the sea from the window.", "answer": "みえます", "accepted": [], "hint": "Verb for naturally seeing"},
-        {"kind": "choose", "prompt": "インターネットで えいがが ＿＿。", "en": "You can watch movies on the internet.", "answer": "みられます", "options": ["みられます", "みえます", "きこえます"], "accepted": [], "hint": "A chosen action needs the potential form"}
+        {"kind": "choose", "prompt": "インターネットで えいがが ＿＿。", "en": "You can watch movies on the internet.", "answer": "みられます", "options": ["みられます", "みえます", "きこえます"], "accepted": [], "hint": "A chosen action needs the potential form"},
+        {"kind": "choose", "prompt": "となりの へやから ピアノの おとが ＿＿。", "en": "I can hear a piano from the next room.", "answer": "きこえます", "accepted": [], "options": ["ききます", "みえます", "きこえます"], "hint": "A sound that reaches you naturally uses きこえます with が.", "why_wrong": {"ききます": "ききます is listening on purpose and takes を, not が.", "みえます": "みえます is for seeing, but a sound is heard."}},
+        {"kind": "choose", "prompt": "その えいがは どこで ＿＿か。", "en": "Where can I see that movie?", "answer": "みられます", "accepted": [], "options": ["みえます", "みられます", "みえられます"], "hint": "Watching a movie is a chosen action, so use the potential みられます.", "why_wrong": {"みえます": "みえます is for things that come into view naturally, not watching a movie.", "みえられます": "みえます is already 'can be seen'; do not add られ to it."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "わたしは スキーが ＿＿。", "en": "I can ski.", "answer": "できます", "accepted": [], "hint": "Verb meaning 'can do'"},
-        {"kind": "choose", "prompt": "マリアさんは りょうり＿＿ できます。", "en": "Maria can cook.", "answer": "が", "options": ["が", "を", "で"], "accepted": [], "hint": "Particle used with できます"}
+        {"kind": "choose", "prompt": "マリアさんは りょうり＿＿ できます。", "en": "Maria can cook.", "answer": "が", "options": ["が", "を", "で"], "accepted": [], "hint": "Particle used with できます"},
+        {"kind": "choose", "prompt": "わたしは ゴルフが ＿＿。", "en": "I can play golf.", "answer": "できます", "accepted": [], "options": ["します", "できられます", "できます"], "hint": "With a skill + が, use できます to say you can do it.", "why_wrong": {"します": "します means 'do', not 'can do', and it takes を, not が.", "できられます": "できます is already the potential; do not add られ."}},
+        {"kind": "choose", "prompt": "わたしは ＿＿が できます。", "en": "I can drive.", "answer": "うんてん", "accepted": [], "options": ["うんてんする", "うんてん", "うんてんして"], "hint": "Nが できます takes a noun; a verb would need ことが.", "why_wrong": {"うんてんする": "A verb needs こと before が: うんてんする ことが できます.", "うんてんして": "The てForm cannot take が before できます."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "さいふに せんえん＿＿ ありません。", "en": "I only have 1,000 yen in my wallet.", "answer": "しか", "accepted": [], "hint": "Word for 'only' with a negative verb"},
-        {"kind": "choose", "prompt": "ひらがなしか ＿＿。", "en": "I can only read hiragana.", "answer": "よめません", "options": ["よめません", "よめます", "よみます"], "accepted": [], "hint": "しか needs a negative verb"}
+        {"kind": "choose", "prompt": "ひらがなしか ＿＿。", "en": "I can only read hiragana.", "answer": "よめません", "options": ["よめません", "よめます", "よみます"], "accepted": [], "hint": "しか needs a negative verb"},
+        {"kind": "choose", "prompt": "あさは コーヒーしか ＿＿。", "en": "I only drink coffee in the morning.", "answer": "のみません", "accepted": [], "options": ["のみます", "のんで います", "のみません"], "hint": "しか always pairs with a negative verb.", "why_wrong": {"のみます": "しか cannot go with a positive verb; use だけ for that.", "のんで います": "This is a positive verb, but しか needs a negative one."}},
+        {"kind": "choose", "prompt": "なつやすみは みっか＿＿ ありません。", "en": "Summer vacation is only three days long.", "answer": "しか", "accepted": [], "options": ["だけ", "しか", "まで"], "hint": "With a negative verb like ありません, 'only' is しか.", "why_wrong": {"だけ": "だけ goes with a positive verb, not with ありません.", "まで": "まで means 'until', not 'only'."}}
       ]
     },
     {
@@ -69,7 +77,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "やさいは すきですが、くだものは ＿＿。", "en": "I like vegetables, but I don't like fruit.", "answer": "すきじゃ ありません", "accepted": ["すきでは ありません"], "hint": "Negative of すきです"},
-        {"kind": "choose", "prompt": "テニスは しますが、ゴルフは ＿＿。", "en": "I play tennis, but I don't play golf.", "answer": "しません", "options": ["しません", "します", "して"], "accepted": [], "hint": "The second half contrasts the first"}
+        {"kind": "choose", "prompt": "テニスは しますが、ゴルフは ＿＿。", "en": "I play tennis, but I don't play golf.", "answer": "しません", "options": ["しません", "します", "して"], "accepted": [], "hint": "The second half contrasts the first"},
+        {"kind": "choose", "prompt": "ビールは のみますが、ワインは ＿＿。", "en": "I drink beer, but I don't drink wine.", "answer": "のみません", "accepted": [], "options": ["のみます", "のみませんか", "のみません"], "hint": "The は contrast pairs a positive half with a negative half.", "why_wrong": {"のみます": "This says you drink wine too, so there is no contrast.", "のみませんか": "This is an invitation, 'won't you drink?', not a contrast."}},
+        {"kind": "choose", "prompt": "やまへは いきましたが、うみへは ＿＿。", "en": "I went to the mountains, but I didn't go to the sea.", "answer": "いきませんでした", "accepted": [], "options": ["いきませんでした", "いきました", "いきません"], "hint": "The contrast needs a negative, and the trip is over, so use the past negative.", "why_wrong": {"いきました": "This says you went, but the contrast needs 'didn't go'.", "いきません": "This is present 'don't go', but the trip already happened."}}
       ]
     },
     {
@@ -83,7 +93,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この としょかんで＿＿ パソコンが つかえます。", "en": "You can use computers at this library.", "answer": "は", "accepted": [], "hint": "Topic particle added after で"},
-        {"kind": "choose", "prompt": "わたしの まち＿＿ えいがかんが ありません。", "en": "My town doesn't have a movie theater.", "answer": "には", "options": ["には", "をは", "がは"], "accepted": [], "hint": "Place particle + topic particle"}
+        {"kind": "choose", "prompt": "わたしの まち＿＿ えいがかんが ありません。", "en": "My town doesn't have a movie theater.", "answer": "には", "options": ["には", "をは", "がは"], "accepted": [], "hint": "Place particle + topic particle"},
+        {"kind": "choose", "prompt": "この こうえん＿＿ やきゅうが できません。", "en": "You can't play baseball in this park.", "answer": "では", "accepted": [], "options": ["をは", "では", "がは"], "hint": "The place of an activity takes で, and adding は makes it the topic: では.", "why_wrong": {"をは": "を is replaced by は, never combined with it.", "がは": "が is replaced by は, never combined with it."}},
+        {"kind": "choose", "prompt": "あの ひと＿＿ はなした ことが ありません。", "en": "I have never talked with that person.", "answer": "とは", "accepted": [], "options": ["をは", "へは", "とは"], "hint": "Talking with someone uses と, and adding は makes it the topic: とは.", "why_wrong": {"をは": "を is replaced by は, never combined with it.", "へは": "へ shows the direction of movement; talking with someone uses と."}}
       ]
     }
   ]

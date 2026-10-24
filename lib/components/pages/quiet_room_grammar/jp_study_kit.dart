@@ -33,11 +33,14 @@ class SelfCheck {
 
   static Future<void> set(String id, String? value) async {
     final p = await SharedPreferences.getInstance();
-    value == null ? await p.remove('$_prefix$id') : await p.setString('$_prefix$id', value);
+    value == null
+        ? await p.remove('$_prefix$id')
+        : await p.setString('$_prefix$id', value);
   }
 }
 
-TextStyle qrTitle(QuietRoomTokens t, {double size = 26}) => GoogleFonts.fraunces(
+TextStyle qrTitle(QuietRoomTokens t, {double size = 26}) =>
+    GoogleFonts.fraunces(
       fontSize: size,
       fontWeight: FontWeight.w600,
       letterSpacing: size * -0.015,
@@ -46,9 +49,15 @@ TextStyle qrTitle(QuietRoomTokens t, {double size = 26}) => GoogleFonts.fraunces
     );
 
 TextStyle qrText(QuietRoomTokens t,
-        {double size = 14, Color? color, FontWeight weight = FontWeight.w400, double height = 1.4}) =>
+        {double size = 14,
+        Color? color,
+        FontWeight weight = FontWeight.w400,
+        double height = 1.4}) =>
     GoogleFonts.schibstedGrotesk(
-        fontSize: size, fontWeight: weight, height: height, color: color ?? t.ink);
+        fontSize: size,
+        fontWeight: weight,
+        height: height,
+        color: color ?? t.ink);
 
 /// Canvas ground, a back arrow, and content held to the reading width.
 class QrStudyScaffold extends StatelessWidget {
@@ -80,7 +89,8 @@ class QrStudyScaffold extends StatelessWidget {
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
+            constraints:
+                const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
             child: child,
           ),
         ),
@@ -112,7 +122,8 @@ class QrLoad extends StatelessWidget {
               width: 22,
               height: 22,
               child: CircularProgressIndicator(
-                  strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(t.inkSubtle)),
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(t.inkSubtle)),
             ),
           );
         }
@@ -124,7 +135,12 @@ class QrLoad extends StatelessWidget {
 
 /// Surface card with a hairline and no shadow at rest [direction §4.3].
 class QrCard extends StatelessWidget {
-  const QrCard({super.key, required this.child, this.onTap, this.color, this.borderColor});
+  const QrCard(
+      {super.key,
+      required this.child,
+      this.onTap,
+      this.color,
+      this.borderColor});
 
   final Widget child;
   final VoidCallback? onTap;
@@ -147,7 +163,8 @@ class QrCard extends StatelessWidget {
     if (onTap == null) return box;
     return Material(
       color: Colors.transparent,
-      child: InkWell(borderRadius: BorderRadius.circular(12), onTap: onTap, child: box),
+      child: InkWell(
+          borderRadius: BorderRadius.circular(12), onTap: onTap, child: box),
     );
   }
 }
@@ -155,7 +172,10 @@ class QrCard extends StatelessWidget {
 /// A horizontal strip of numbered pills, the same control as the vocabulary screen.
 class QrNumberStrip extends StatelessWidget {
   const QrNumberStrip(
-      {super.key, required this.values, required this.selected, required this.onSelect});
+      {super.key,
+      required this.values,
+      required this.selected,
+      required this.onSelect});
 
   final List<int> values;
   final int selected;
@@ -163,7 +183,6 @@ class QrNumberStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = QuietRoomTokens.of(context);
     return SizedBox(
       height: 40,
       child: ListView.separated(
@@ -172,7 +191,8 @@ class QrNumberStrip extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 7),
         itemBuilder: (context, i) {
           final on = values[i] == selected;
-          return QrPill(label: '${values[i]}', on: on, onTap: () => onSelect(values[i]));
+          return QrPill(
+              label: '${values[i]}', on: on, onTap: () => onSelect(values[i]));
         },
       ),
     );
@@ -180,7 +200,12 @@ class QrNumberStrip extends StatelessWidget {
 }
 
 class QrPill extends StatelessWidget {
-  const QrPill({super.key, required this.label, required this.on, required this.onTap, this.solid = true});
+  const QrPill(
+      {super.key,
+      required this.label,
+      required this.on,
+      required this.onTap,
+      this.solid = true});
 
   final String label;
   final bool on;
@@ -215,7 +240,9 @@ class QrPill extends StatelessWidget {
             children: [
               Text(label,
                   style: qrText(t,
-                      size: 13.5, color: ink, weight: on ? FontWeight.w600 : FontWeight.w500)),
+                      size: 13.5,
+                      color: ink,
+                      weight: on ? FontWeight.w600 : FontWeight.w500)),
             ],
           ),
         ),

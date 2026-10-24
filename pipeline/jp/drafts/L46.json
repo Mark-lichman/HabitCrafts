@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "いま レポートを ＿＿ ところです。", "en": "I'm in the middle of writing the report right now.", "answer": "かいて いる", "accepted": [], "hint": "ている form of かきます"},
-        {"kind": "choose", "prompt": "たったいま えきに ＿＿ ところです。", "en": "I just arrived at the station a moment ago.", "answer": "ついた", "accepted": [], "hint": "た Form for 'just finished'", "options": ["ついた", "つく", "ついて"]}
+        {"kind": "choose", "prompt": "たったいま えきに ＿＿ ところです。", "en": "I just arrived at the station a moment ago.", "answer": "ついた", "accepted": [], "hint": "た Form for 'just finished'", "options": ["ついた", "つく", "ついて"]},
+        {"kind": "choose", "prompt": "これから かいぎが ＿＿ ところです。", "en": "The meeting is just about to start.", "answer": "はじまる", "accepted": [], "options": ["はじまった", "はじまる", "はじまって"], "hint": "Dictionary form + ところです means 'about to'.", "why_wrong": {"はじまった": "た form + ところ means it just started, which clashes with これから.", "はじまって": "The てForm alone cannot go before ところ."}},
+        {"kind": "choose", "prompt": "いま おふろに ＿＿ ところです。", "en": "I'm in the middle of taking a bath right now.", "answer": "はいって いる", "accepted": [], "options": ["はいる", "はいって", "はいって いる"], "hint": "ている form + ところです means 'in the middle of'.", "why_wrong": {"はいる": "Dictionary form + ところ means about to get in, not in the middle.", "はいって": "The てForm alone cannot go before ところ; it needs いる."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この パソコンは かった＿＿なのに、もう こわれました。", "en": "I just bought this computer, but it's already broken.", "answer": "ばかり", "accepted": [], "hint": "Word meaning 'just did' after た Form"},
-        {"kind": "choose", "prompt": "にほんごの べんきょうを ＿＿ばかりです。", "en": "I just started studying Japanese.", "answer": "はじめた", "accepted": [], "hint": "た Form", "options": ["はじめた", "はじめる", "はじめて"]}
+        {"kind": "choose", "prompt": "にほんごの べんきょうを ＿＿ばかりです。", "en": "I just started studying Japanese.", "answer": "はじめた", "accepted": [], "hint": "た Form", "options": ["はじめた", "はじめる", "はじめて"]},
+        {"kind": "choose", "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。", "en": "I just joined the company, so I don't understand the work well.", "answer": "はいった", "accepted": [], "options": ["はいる", "はいった", "はいって"], "hint": "ばかり follows the た form to mean 'just did'.", "why_wrong": {"はいる": "ばかり in this meaning needs the た form, not the dictionary form.", "はいって": "The てForm cannot go before ばかり here; use the た form."}},
+        {"kind": "choose", "prompt": "せんげつ けっこんした＿＿です。", "en": "I just got married last month.", "answer": "ばかり", "accepted": [], "options": ["ところ", "ながら", "ばかり"], "hint": "ばかり is for something that feels recent, even a month ago.", "why_wrong": {"ところ": "た form + ところ is only for the moment right after, not last month.", "ながら": "ながら means 'while' and joins the ます stem, not the た form."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "きのう だしたから、てがみは あした ＿＿ はずです。", "en": "I sent it yesterday, so the letter should arrive tomorrow.", "answer": "つく", "accepted": ["とどく"], "hint": "Dictionary form of つきます"},
-        {"kind": "choose", "prompt": "きょうは にちようびだから、ぎんこうは ＿＿ はずです。", "en": "Today is Sunday, so the bank should be closed.", "answer": "やすみの", "accepted": [], "hint": "Noun + the right connector", "options": ["やすみの", "やすみな", "やすみだ"]}
+        {"kind": "choose", "prompt": "きょうは にちようびだから、ぎんこうは ＿＿ はずです。", "en": "Today is Sunday, so the bank should be closed.", "answer": "やすみの", "accepted": [], "hint": "Noun + the right connector", "options": ["やすみの", "やすみな", "やすみだ"]},
+        {"kind": "choose", "prompt": "たなかさんは えいごの せんせいだから、えいごが できる＿＿です。", "en": "Mr. Tanaka is an English teacher, so he should be able to speak English.", "answer": "はず", "accepted": [], "options": ["つもり", "はず", "ところ"], "hint": "はずです states what you firmly expect to be true about someone.", "why_wrong": {"つもり": "つもり is a plan you choose; できる is an ability, not a plan.", "ところ": "ところ marks the stage of an action; できる has no such stage."}},
+        {"kind": "choose", "prompt": "この こうえんは よる ＿＿ はずです。", "en": "This park should be quiet at night.", "answer": "しずかな", "accepted": [], "options": ["しずかの", "しずかだ", "しずかな"], "hint": "A な-adjective keeps な before はずです.", "why_wrong": {"しずかの": "の is for nouns; しずか is a な-adjective, so it takes な.", "しずかだ": "だ cannot go before はず; a な-adjective takes な."}}
       ]
     }
   ]
