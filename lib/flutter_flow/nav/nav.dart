@@ -25,6 +25,9 @@ import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
 import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
+import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
+import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
+import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -91,16 +94,18 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
+      // Single-user Japanese build (2026-10-24): no login. Signed out, the app opens on
+      // Japanese study instead of the launch screen. Signing in still reaches Today.
       errorBuilder: (context, state) => appStateNotifier.loggedIn
           ? QuietRoomTodayWidget()
-          : QuietRoomLaunchWidget(),
+          : QuietRoomJapaneseWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
           builder: (context, _) => appStateNotifier.loggedIn
               ? QuietRoomTodayWidget()
-              : QuietRoomLaunchWidget(),
+              : QuietRoomJapaneseWidget(),
         ),
         FFRoute(
           name: InitialPageWidget.routeName,
@@ -157,6 +162,25 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: QuietRoomLessonWidget.routePath,
           builder: (context, params) => QuietRoomLessonWidget(
             initialLesson: params.getParam('lesson', ParamType.int),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomJapaneseWidget.routeName,
+          path: QuietRoomJapaneseWidget.routePath,
+          builder: (context, params) => QuietRoomJapaneseWidget(),
+        ),
+        FFRoute(
+          name: QuietRoomGrammarWidget.routeName,
+          path: QuietRoomGrammarWidget.routePath,
+          builder: (context, params) => QuietRoomGrammarWidget(
+            initialLesson: params.getParam('lesson', ParamType.int),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomDrillsWidget.routeName,
+          path: QuietRoomDrillsWidget.routePath,
+          builder: (context, params) => QuietRoomDrillsWidget(
+            mode: params.getParam('mode', ParamType.String) ?? 'reference',
           ),
         ),
         FFRoute(

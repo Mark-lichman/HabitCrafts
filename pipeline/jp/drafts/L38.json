@@ -1,0 +1,76 @@
+{
+  "lesson": 38,
+  "title": "Turning Verbs into Nouns",
+  "points": [
+    {
+      "id": "mari.L38.1",
+      "explain": "Add の to a dictionary form to turn an action into a noun. Then のは ... です says what that action is like.",
+      "form": "じしょForm ＋ のは ＋ adj ＋ です",
+      "note": "Only the end of the sentence is polite: はなすのは, not はなしますのは.",
+      "examples": [
+        {"jp": "にほんごを はなすのは たのしいです。", "en": "Speaking Japanese is fun."},
+        {"jp": "ひとりで よる あるくのは あぶないです。", "en": "Walking alone at night is dangerous."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "えを ＿＿ のは たのしいです。", "en": "Drawing pictures is fun.", "answer": "かく", "accepted": [], "hint": "dictionary form of かきます"},
+        {"kind": "choose", "prompt": "あさ はやく ＿＿ きもちが いいです。", "en": "Getting up early in the morning feels good.", "answer": "おきるのは", "options": ["おきるのは", "おきますのは", "おきるは"], "accepted": [], "hint": "dictionary form ＋ のは"}
+      ]
+    },
+    {
+      "id": "mari.L38.2",
+      "explain": "Add のが to a dictionary form before words like すき, じょうず, はやい, or たいへん to talk about likes, skills, or how you do an action.",
+      "form": "じしょForm ＋ のが ＋ adj ＋ です",
+      "note": "Words like すき, きらい, じょうず, and へた normally take のが: えを かくのが すきです.",
+      "examples": [
+        {"jp": "かんじを おぼえるのが たいへんです。", "en": "Memorizing kanji is hard work."},
+        {"jp": "わたしは りょうりを つくるのが すきです。", "en": "I like cooking."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "わたしは うたを ＿＿ へたです。", "en": "I'm bad at singing.", "answer": "うたうのが", "accepted": [], "hint": "dictionary form ＋ のが"},
+        {"kind": "choose", "prompt": "ははは あるく＿＿ はやいです。", "en": "My mother walks fast.", "answer": "のが", "options": ["のが", "のを", "のに"], "accepted": [], "hint": "the particle used with はやい"}
+      ]
+    },
+    {
+      "id": "mari.L38.3",
+      "explain": "Add のを to a dictionary form before わすれました to say you forgot to do something.",
+      "form": "じしょForm ＋ のを わすれました",
+      "note": "Use the dictionary form for 'forgot to do': かけるのを わすれました. A た form here changes the meaning.",
+      "examples": [
+        {"jp": "かぎを かけるのを わすれました。", "en": "I forgot to lock the door."},
+        {"jp": "メールを おくるのを わすれました。", "en": "I forgot to send the email."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "でんきを ＿＿ わすれました。", "en": "I forgot to turn off the light.", "answer": "けすのを", "accepted": [], "hint": "dictionary form of けします ＋ のを"},
+        {"kind": "choose", "prompt": "しゅくだいを ＿＿ わすれました。", "en": "I forgot to hand in my homework.", "answer": "だすのを", "options": ["だすのを", "だすのが", "だすのは"], "accepted": [], "hint": "わすれます takes を"}
+      ]
+    },
+    {
+      "id": "mari.L38.4",
+      "explain": "Add のを to a plain form before しって います to say you know a fact, or ask with しって いますか whether someone knows some news.",
+      "form": "ふつうForm ＋ のを しって いますか",
+      "note": "The negative answer is しりません, not しって いません.",
+      "examples": [
+        {"jp": "たなかさんが けっこんするのを しって います。", "en": "I know that Mr. Tanaka is getting married."},
+        {"jp": "らいしゅう テストが あるのを しって いますか。", "en": "Do you know there's a test next week?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。", "en": "Do you know that Ms. Kimura quit her company?", "answer": "のを", "accepted": [], "hint": "turns the clause into the object of しって います"},
+        {"kind": "choose", "prompt": "ミラーさんが かえるのを しって いますか。 いいえ、＿＿。", "en": "Do you know that Mr. Miller is going back home? No, I don't.", "answer": "しりません", "options": ["しりません", "しって いません", "しって います"], "accepted": [], "hint": "the negative of しって います is special"}
+      ]
+    },
+    {
+      "id": "mari.L38.5",
+      "explain": "Use のは ... です to put the spotlight on one piece of information, like 'What I like is summer.' The key point comes right before です.",
+      "form": "ふつうForm ＋ のは ＋ N ＋ です",
+      "note": "A な adjective keeps な before の: すきなのは, not すきのは.",
+      "examples": [
+        {"jp": "わたしが すきなのは なつです。", "en": "What I like is summer."},
+        {"jp": "わたしが うまれたのは おおさかです。", "en": "The place where I was born is Osaka."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "きのう ＿＿ のは あにです。", "en": "The one who came yesterday was my older brother.", "answer": "きた", "accepted": [], "hint": "た form of きます"},
+        {"kind": "choose", "prompt": "わたしが いちばん ほしい＿＿ じかんです。", "en": "What I want most is time.", "answer": "のは", "options": ["のは", "のが", "のを"], "accepted": [], "hint": "it marks the topic before です"}
+      ]
+    }
+  ]
+}

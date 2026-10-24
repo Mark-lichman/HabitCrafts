@@ -1,0 +1,48 @@
+{
+  "lesson": 30,
+  "title": "Preparation and Arranged States",
+  "points": [
+    {
+      "id": "mari.L30.1",
+      "explain": "A transitive verb in てForm + あります describes a state someone set up on purpose, like a poster put on a wall.",
+      "form": "Nが てForm (transitive) + あります",
+      "note": "Compare: まどが あいて います (the window is open) and まどが あけて あります (someone opened it on purpose).",
+      "examples": [
+        {"jp": "かべに ポスターが はって あります。", "en": "A poster has been put up on the wall."},
+        {"jp": "つくえの うえに メモが おいて あります。", "en": "A memo has been left on the desk."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "カレンダーに よていが ＿＿ あります。", "en": "The plans are written on the calendar.", "answer": "かいて", "accepted": [], "hint": "てForm of a transitive verb"},
+        {"kind": "choose", "prompt": "れいぞうこに ビールが ＿＿ あります。", "en": "Beer has been put in the fridge.", "answer": "いれて", "options": ["いれて", "はいって", "いれる"], "accepted": [], "hint": "Transitive verb in てForm"}
+      ]
+    },
+    {
+      "id": "mari.L30.2",
+      "explain": "てForm + おきます means doing something in advance to get ready for a later event.",
+      "form": "てForm + おきます",
+      "note": "Often paired with まえに or までに to show what you are preparing for.",
+      "examples": [
+        {"jp": "パーティーの まえに りょうりを つくって おきます。", "en": "I'll make the food before the party."},
+        {"jp": "りょこうの まえに ホテルを よやくして おきます。", "en": "I'll book a hotel before the trip."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "テストの まえに かんじを ＿＿ おきます。", "en": "I'll memorize the kanji before the test.", "answer": "おぼえて", "accepted": [], "hint": "てForm of おぼえます"},
+        {"kind": "choose", "prompt": "おきゃくさんが きますから、ビールを ＿＿ おきます。", "en": "Guests are coming, so I'll buy beer ahead of time.", "answer": "かって", "options": ["かって", "かい", "かった"], "accepted": [], "hint": "てForm before おきます"}
+      ]
+    },
+    {
+      "id": "mari.L30.3",
+      "explain": "ておきます can also mean leaving something as it is, or setting a task aside to deal with later. Ask someone to leave things as they are with ておいて ください.",
+      "form": "てForm + おきます／おいて ください",
+      "note": "Context decides the meaning: preparing in advance, or leaving things as they are.",
+      "examples": [
+        {"jp": "つかれたので、そうじは あした して おきます。", "en": "I'm tired, so I'll leave the cleaning for tomorrow."},
+        {"jp": "まどを あけて おいて ください。", "en": "Please leave the window open."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "あとで みますから、テレビは ＿＿ おいて ください。", "en": "I'll watch it later, so please leave the TV on.", "answer": "つけて", "accepted": [], "hint": "てForm of つけます"},
+        {"kind": "choose", "prompt": "いすは そのままに して ＿＿ ください。", "en": "Please leave the chairs as they are.", "answer": "おいて", "options": ["おいて", "おきて", "あって"], "accepted": [], "hint": "てForm of おきます (to leave)"}
+      ]
+    }
+  ]
+}

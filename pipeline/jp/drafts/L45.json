@@ -1,0 +1,34 @@
+{
+  "lesson": 45,
+  "title": "In Case and Even Though",
+  "points": [
+    {
+      "id": "mari.L45.1",
+      "explain": "ばあいは means 'in case' or 'if that happens'. It is used to say what to do in a possible situation, often in instructions.",
+      "form": "ふつうForm + ばあいは",
+      "note": "With nouns use の (かじの ばあいは); with な-adjectives use な (ふべんな ばあいは).",
+      "examples": [
+        {"jp": "ちこくする ばあいは、れんらくして ください。", "en": "If you are going to be late, please let us know."},
+        {"jp": "かじの ばあいは、エレベーターを つかわないで ください。", "en": "In case of fire, please don't use the elevator."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "かぜを ひいた ＿＿は、やすんで ください。", "en": "If you catch a cold, please rest.", "answer": "ばあい", "accepted": [], "hint": "Word meaning 'case'"},
+        {"kind": "choose", "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。", "en": "If you can't make the bus, please come by taxi.", "answer": "まにあわない", "accepted": [], "hint": "Plain negative form", "options": ["まにあわない", "まにあわなくて", "まにあいません"]}
+      ]
+    },
+    {
+      "id": "mari.L45.2",
+      "explain": "Plain form + のに means 'even though'. It shows the result was not what you expected, often with surprise, regret, or complaint.",
+      "form": "ふつうForm + のに",
+      "note": "With な-adjectives and nouns, use な: ひまなのに, にちようびなのに. Don't end with a request or plan after のに.",
+      "examples": [
+        {"jp": "いっしょうけんめい べんきょうしたのに、おちて しまいました。", "en": "Even though I studied very hard, I failed."},
+        {"jp": "やくそくを したのに、かれは きませんでした。", "en": "Even though he promised, he didn't come."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "にちようび＿＿、かいしゃへ いかなければ なりません。", "en": "Even though it's Sunday, I have to go to work.", "answer": "なのに", "accepted": [], "hint": "Noun + な + paradox word"},
+        {"kind": "choose", "prompt": "くすりを ＿＿のに、まだ ねつが あります。", "en": "Even though I took medicine, I still have a fever.", "answer": "のんだ", "accepted": [], "hint": "Plain past form", "options": ["のんだ", "のみ", "のんで"]}
+      ]
+    }
+  ]
+}

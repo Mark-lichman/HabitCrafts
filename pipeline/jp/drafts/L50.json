@@ -1,0 +1,48 @@
+{
+  "lesson": 50,
+  "title": "Humble and Polite Language",
+  "points": [
+    {
+      "id": "mari.L50.1",
+      "explain": "お or ご + ます stem + します is humble. Use it for something you do for a superior or customer, to lower yourself politely.",
+      "form": "お / ご + ますForm + します",
+      "note": "Use お with most native verbs (おもちします) and ご with many する verbs (ごあんないします). Never use it for the listener's actions.",
+      "examples": [
+        {"jp": "にもつを おもちします。", "en": "I'll carry your bags for you."},
+        {"jp": "しりょうを おおくりします。", "en": "I will send you the materials."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "かさを ＿＿しましょうか。", "en": "Shall I lend you an umbrella?", "answer": "おかし", "accepted": [], "hint": "お + ます stem of かします"},
+        {"kind": "choose", "prompt": "わたしが こうじょうを ＿＿します。", "en": "I will show you around the factory.", "answer": "ごあんない", "accepted": [], "hint": "ご + a する-verb noun", "options": ["ごあんない", "おあんない", "あんないに"]}
+      ]
+    },
+    {
+      "id": "mari.L50.2",
+      "explain": "Some verbs have special humble forms for your own actions: もうします (say), まいります (go, come), いただきます (eat, receive), and おります (be).",
+      "form": "もうします・まいります・いただきます・おります など",
+      "note": "Use these for yourself or your own group, never for the listener: せんせいが もうしました is wrong.",
+      "examples": [
+        {"jp": "わたしは たなかと もうします。", "en": "My name is Tanaka."},
+        {"jp": "あした そちらへ まいります。", "en": "I will come to your office tomorrow."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ごぜんちゅうは じむしょに ＿＿。", "en": "I will be at the office in the morning.", "answer": "おります", "accepted": [], "hint": "Special humble verb for います"},
+        {"kind": "choose", "prompt": "きのう せんせいの おたくで ばんごはんを ＿＿。", "en": "Yesterday I had dinner at my teacher's home.", "answer": "いただきました", "accepted": [], "hint": "Special humble verb for your own eating", "options": ["いただきました", "めしあがりました", "おたべしました"]}
+      ]
+    },
+    {
+      "id": "mari.L50.3",
+      "explain": "ございます is a very polite form of あります, and でございます is a very polite form of です. Store and hotel staff use them with customers.",
+      "form": "あります → ございます / です → でございます",
+      "note": "ございます is polite, not honorific, so it is fine for your own things. Don't use it for people; for others say いらっしゃいます.",
+      "examples": [
+        {"jp": "こちらに ございます。", "en": "It's right here."},
+        {"jp": "トイレは あちらでございます。", "en": "The restroom is over there."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "はい、あかい かさも ＿＿。", "en": "Yes, we have red umbrellas too.", "answer": "ございます", "accepted": [], "hint": "Very polite form of あります"},
+        {"kind": "choose", "prompt": "こちらは ちいさい サイズ＿＿。", "en": "This is the small size.", "answer": "でございます", "accepted": [], "hint": "Very polite form of です", "options": ["でございます", "でいらっしゃいます", "でおります"]}
+      ]
+    }
+  ]
+}

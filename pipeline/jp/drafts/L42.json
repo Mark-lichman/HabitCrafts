@@ -1,0 +1,48 @@
+{
+  "lesson": 42,
+  "title": "Purpose, Use, and Emphasis",
+  "points": [
+    {
+      "id": "mari.L42.1",
+      "explain": "ために after a dictionary-form verb or a noun + の states a purpose: 'in order to' or 'for the sake of'. The verb before it is something you do on purpose.",
+      "form": "じしょForm / Nounの + ために",
+      "note": "Use ために with verbs you control (かう, いく). With できる or other non-volitional verbs, use ように instead.",
+      "examples": [
+        {"jp": "けんこうの ために、まいあさ はしって います。", "en": "I run every morning for my health."},
+        {"jp": "くるまを かう ために、ちょきんして います。", "en": "I'm saving money to buy a car."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "にほんごを べんきょうする ＿＿、にほんへ いきます。", "en": "I'm going to Japan to study Japanese.", "answer": "ために", "accepted": [], "hint": "Purpose word after a dictionary-form verb"},
+        {"kind": "choose", "prompt": "かぞくの ＿＿、まいにち はたらいて います。", "en": "I work every day for my family.", "answer": "ために", "accepted": [], "hint": "Noun + の + purpose word", "options": ["ために", "のに", "ので"]}
+      ]
+    },
+    {
+      "id": "mari.L42.2",
+      "explain": "Dictionary-form verb + のに tells what something is used for or needed for. It often goes with つかいます, べんりです, or いります.",
+      "form": "じしょForm + のに / Noun + に",
+      "note": "With a noun, use just に: しごとに つかいます. Saying しごとの のに is wrong.",
+      "examples": [
+        {"jp": "この はさみは かみを きるのに つかいます。", "en": "I use these scissors to cut paper."},
+        {"jp": "この かばんは りょこうに べんりです。", "en": "This bag is handy for traveling."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この ナイフは パンを きる＿＿ つかいます。", "en": "I use this knife to cut bread.", "answer": "のに", "accepted": [], "hint": "What follows a dictionary-form verb to show use"},
+        {"kind": "choose", "prompt": "この ノートは しごと＿＿ つかって います。", "en": "I use this notebook for work.", "answer": "に", "accepted": [], "hint": "Particle after a noun to show use", "options": ["に", "を", "が"]}
+      ]
+    },
+    {
+      "id": "mari.L42.3",
+      "explain": "After an amount, も stresses that it feels like a lot: 'as many as' or 'as long as'. は after an amount gives a minimum: 'at least'.",
+      "form": "Quantifier + も / は",
+      "note": "も shows surprise at a big amount. は gives the lowest guess: ふつかは かかります means 'it will take at least two days.'",
+      "examples": [
+        {"jp": "この しごとに みっかも かかりました。", "en": "This job took as long as three days."},
+        {"jp": "えきまで にじかんも かかりました。", "en": "It took as long as two hours to get to the station."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "きのう ビールを ごほん＿＿ のみました。", "en": "Yesterday I drank as many as five bottles of beer.", "answer": "も", "accepted": [], "hint": "Particle that stresses a large amount"},
+        {"kind": "fill", "prompt": "この ほんを よむのに みっか＿＿ かかります。", "en": "It will take at least three days to read this book.", "answer": "は", "accepted": [], "hint": "Particle for a minimum estimate"}
+      ]
+    }
+  ]
+}

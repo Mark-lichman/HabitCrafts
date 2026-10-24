@@ -1,0 +1,62 @@
+{
+  "lesson": 49,
+  "title": "Respectful Language for Others",
+  "points": [
+    {
+      "id": "mari.L49.1",
+      "explain": "The passive form can also show respect for what someone else does, like a boss or teacher. The meaning stays active.",
+      "form": "うけみけい (〜(ら)れます)",
+      "note": "Never use it for your own actions. It is a lighter level of respect than お + ますForm + に なります.",
+      "examples": [
+        {"jp": "しゃちょうは もう かえられました。", "en": "The company president has already gone home."},
+        {"jp": "ぶちょうは あした おおさかへ いかれます。", "en": "The department manager will go to Osaka tomorrow."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せんせいは まいあさ しんぶんを ＿＿か。", "en": "Does the teacher read the newspaper every morning?", "answer": "よまれます", "accepted": [], "hint": "Respectful passive form of よみます"},
+        {"kind": "choose", "prompt": "しゃちょうは さっき ＿＿。", "en": "The company president went out a little while ago.", "answer": "でかけられました", "accepted": [], "hint": "Group 2 verb + られます", "options": ["でかけられました", "でかけられせました", "でかけされました"]}
+      ]
+    },
+    {
+      "id": "mari.L49.2",
+      "explain": "お + ます stem + に なります is a respectful way to describe what a superior or customer does. It is more polite than the passive form.",
+      "form": "お + ますForm + に なります",
+      "note": "It doesn't work for short verbs like みます or います. Use special verbs like ごらんに なります or いらっしゃいます instead.",
+      "examples": [
+        {"jp": "しゃちょうは もう おかえりに なりました。", "en": "The company president has already gone home."},
+        {"jp": "ぶちょうは もう この しりょうを およみに なりましたか。", "en": "Has the manager already read these documents?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "しゃちょうは もう ＿＿ なりましたか。", "en": "Has the company president already gone out?", "answer": "おでかけに", "accepted": [], "hint": "お + ます stem of でかけます + に"},
+        {"kind": "choose", "prompt": "せんせいは どの ほんを ＿＿ なりましたか。", "en": "Which book did the teacher buy?", "answer": "おかいに", "accepted": [], "hint": "お + ます stem + に", "options": ["おかいに", "おかうに", "かいに"]}
+      ]
+    },
+    {
+      "id": "mari.L49.3",
+      "explain": "Some common verbs have their own respectful forms, such as いらっしゃいます (go, come, be), めしあがります (eat, drink), and おっしゃいます (say).",
+      "form": "いらっしゃいます・めしあがります・おっしゃいます など",
+      "note": "Use these only for other people. For your own eating, say いただきます (humble), never めしあがります.",
+      "examples": [
+        {"jp": "せんせいは もう めしあがりましたか。", "en": "Have you already eaten, sensei?"},
+        {"jp": "しゃちょうは いま かいぎしつに いらっしゃいます。", "en": "The company president is in the meeting room now."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せんせい、あした パーティーに ＿＿か。", "en": "Sensei, will you come to the party tomorrow?", "answer": "いらっしゃいます", "accepted": ["おいでに なります"], "hint": "Special respectful verb for きます"},
+        {"kind": "choose", "prompt": "ぶちょうが そう ＿＿。", "en": "The department manager said so.", "answer": "おっしゃいました", "accepted": [], "hint": "Special respectful verb for いいます", "options": ["おっしゃいました", "もうしました", "まいりました"]}
+      ]
+    },
+    {
+      "id": "mari.L49.4",
+      "explain": "お + ます stem + ください is a respectful way to ask a customer or superior to do something. It is more polite than てください.",
+      "form": "お + ますForm + ください",
+      "note": "Like お〜に なります, it doesn't work for short verbs such as みます. Say ごらんください instead.",
+      "examples": [
+        {"jp": "どうぞ おかけください。", "en": "Please have a seat."},
+        {"jp": "こちらで おまちください。", "en": "Please wait here."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ここに なまえを ＿＿ください。", "en": "Please write your name here.", "answer": "おかき", "accepted": [], "hint": "お + ます stem of かきます"},
+        {"kind": "choose", "prompt": "どうぞ ＿＿ください。", "en": "Please take a look.", "answer": "ごらん", "accepted": [], "hint": "Special respectful word for みます", "options": ["ごらん", "おみ", "おみて"]}
+      ]
+    }
+  ]
+}

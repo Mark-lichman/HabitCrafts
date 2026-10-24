@@ -1,0 +1,62 @@
+{
+  "lesson": 37,
+  "title": "The Passive Voice",
+  "points": [
+    {
+      "id": "mari.L37.1",
+      "explain": "The passive form shows that the subject receives an action, like 'is read' or 'was eaten.' Each verb group builds it differently.",
+      "form": "I: あ row＋れる／II: る→られる／する→される／くる→こられる",
+      "note": "Group I verbs ending in う use わ: かう becomes かわれる, and いう becomes いわれる.",
+      "examples": [
+        {"jp": "よまれる／たべられる／される／こられる", "en": "passive of よむ, たべる, する, くる"},
+        {"jp": "いわれる／しかられる／ほめられる", "en": "passive of いう, しかる, ほめる"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せんせいに ＿＿。", "en": "I was scolded by my teacher.", "answer": "しかられました", "accepted": ["おこられました"], "hint": "passive of しかります, polite past"},
+        {"kind": "choose", "prompt": "ともだちに パーティーに ＿＿。", "en": "I was invited to a party by a friend.", "answer": "よばれました", "options": ["よばれました", "よばられました", "よびれました"], "accepted": [], "hint": "Group I: change the last sound to the あ row"}
+      ]
+    },
+    {
+      "id": "mari.L37.2",
+      "explain": "Use this to say someone did something to you, often something unwelcome. You are the topic with は, and the doer takes に.",
+      "form": "Personは Personに ＋ Passive",
+      "note": "The doer takes に, not が: わたしは せんせいに しかられました.",
+      "examples": [
+        {"jp": "わたしは あにに おかしを たべられました。", "en": "My older brother ate my sweets (and I was upset)."},
+        {"jp": "わたしは せんせいに ほめられました。", "en": "I was praised by my teacher."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "わたしは ぶちょう＿＿ よばれました。", "en": "I was called by the department manager.", "answer": "に", "accepted": [], "hint": "the particle that marks the doer"},
+        {"kind": "choose", "prompt": "わたしは あさ はやく おとうとに ＿＿。", "en": "I was woken up early in the morning by my little brother.", "answer": "おこされました", "options": ["おこされました", "おこしました", "おこして"], "accepted": [], "hint": "passive of おこします, polite past"}
+      ]
+    },
+    {
+      "id": "mari.L37.3",
+      "explain": "Use this when someone does something to your belongings or body. You stay the topic, and the thing affected takes を.",
+      "form": "Personは Personに Nを ＋ Passive",
+      "note": "Say わたしは あしを ふまれました, not わたしの あしは ふまれました.",
+      "examples": [
+        {"jp": "わたしは でんしゃで あしを ふまれました。", "en": "Someone stepped on my foot on the train."},
+        {"jp": "わたしは おとうとに パソコンを こわされました。", "en": "My little brother broke my computer."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "わたしは だれかに さいふを ＿＿。", "en": "Someone stole my wallet.", "answer": "とられました", "accepted": ["ぬすまれました"], "hint": "passive of とります, polite past"},
+        {"kind": "choose", "prompt": "わたしは いもうとに にっきを ＿＿。", "en": "My little sister read my diary.", "answer": "よまれました", "options": ["よまれました", "よみられました", "よまらました"], "accepted": [], "hint": "passive of よみます, polite past"}
+      ]
+    },
+    {
+      "id": "mari.L37.4",
+      "explain": "Use the passive with a thing as the subject when the doer is unknown or unimportant, for facts like when something was built or what it is made from.",
+      "form": "Nが／は ＋ Passive",
+      "note": "To name the creator of a work, use によって, not に: この えは ピカソによって かかれました.",
+      "examples": [
+        {"jp": "この おてらは 1400ねんに たてられました。", "en": "This temple was built in 1400."},
+        {"jp": "ワインは ぶどうから つくられます。", "en": "Wine is made from grapes."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この ほんは せかいじゅうで ＿＿ います。", "en": "This book is read all over the world.", "answer": "よまれて", "accepted": [], "hint": "passive て form of よみます"},
+        {"kind": "choose", "prompt": "らいげつ ここで かいぎが ＿＿。", "en": "A meeting will be held here next month.", "answer": "ひらかれます", "options": ["ひらかれます", "ひらかられます", "ひらけられます"], "accepted": [], "hint": "passive of ひらきます"}
+      ]
+    }
+  ]
+}
