@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ここで たばこを ＿＿。", "en": "Don't smoke here.", "answer": "すうな", "accepted": [], "hint": "Prohibitive form of すいます"},
-        {"kind": "choose", "prompt": "はやく ＿＿！", "en": "Come quickly!", "answer": "こい", "options": ["こい", "くろ", "きろ"], "accepted": [], "hint": "Imperative form of くる"}
+        {"kind": "choose", "prompt": "はやく ＿＿！", "en": "Come quickly!", "answer": "こい", "options": ["こい", "くろ", "きろ"], "accepted": [], "hint": "Imperative form of くる"},
+        {"kind": "choose", "prompt": "あぶない！ はやく ＿＿！", "en": "Danger! Run away, quick!", "answer": "にげろ", "accepted": [], "options": ["にげるな", "にげれろ", "にげろ"], "hint": "Group 2 imperative adds ろ to the stem: にげ → にげろ.", "why_wrong": {"にげるな": "Dictionary form + な means 'don't run away', the opposite.", "にげれろ": "Group 2 just adds ろ to the stem: にげろ."}},
+        {"kind": "choose", "prompt": "この ボタンに ＿＿。", "en": "Don't touch this button.", "answer": "さわるな", "accepted": [], "options": ["さわれ", "さわるな", "さわないな"], "hint": "The prohibitive is the dictionary form + な.", "why_wrong": {"さわれ": "さわれ is the imperative 'touch it', the opposite meaning.", "さわないな": "な follows the dictionary form さわる, not a ない form."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ドアに「おす」と ＿＿ あります。", "en": "The door says 'Push.'", "answer": "かいて", "accepted": [], "hint": "てForm of かきます"},
-        {"kind": "choose", "prompt": "この なまえは なんと ＿＿か。", "en": "How do you read this name?", "answer": "よみます", "options": ["よみます", "よみ", "よんで"], "accepted": [], "hint": "Polite form of the verb 'to read'"}
+        {"kind": "choose", "prompt": "この なまえは なんと ＿＿か。", "en": "How do you read this name?", "answer": "よみます", "options": ["よみます", "よみ", "よんで"], "accepted": [], "hint": "Polite form of the verb 'to read'"},
+        {"kind": "choose", "prompt": "あの かんばんには なんと ＿＿か。", "en": "What does that sign say?", "answer": "かいて あります", "accepted": [], "options": ["かいて しまいます", "かいて あります", "かいて おきます"], "hint": "What is written on something uses と かいて あります.", "why_wrong": {"かいて しまいます": "てしまいます means finishing or regret, not what is written.", "かいて おきます": "ておきます means writing in advance, not what a sign says."}},
+        {"kind": "choose", "prompt": "この かんじは「みず」＿＿ よみます。", "en": "This kanji is read as mizu.", "answer": "と", "accepted": [], "options": ["を", "が", "と"], "hint": "A reading is a quote, so mark it with と before よみます.", "why_wrong": {"を": "The reading is a quote, so it takes と, not を.", "が": "が does not mark a quoted reading; use と."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "「でぐち」は そとへ でる ところ＿＿ いみです。", "en": "'でぐち' means the place where you go out.", "answer": "という", "accepted": [], "hint": "Quoting phrase before いみ"},
-        {"kind": "choose", "prompt": "「ちゅうしゃきんし」は くるまを とめては ＿＿という いみです。", "en": "'ちゅうしゃきんし' means you must not park your car.", "answer": "いけない", "options": ["いけない", "いけなく", "いけないで"], "accepted": [], "hint": "Plain form before という"}
+        {"kind": "choose", "prompt": "「ちゅうしゃきんし」は くるまを とめては ＿＿という いみです。", "en": "'ちゅうしゃきんし' means you must not park your car.", "answer": "いけない", "options": ["いけない", "いけなく", "いけないで"], "accepted": [], "hint": "Plain form before という"},
+        {"kind": "choose", "prompt": "「ちゅうい」は きを つけろ＿＿ いみです。", "en": "'ちゅうい' means 'be careful.'", "answer": "という", "accepted": [], "options": ["の", "という", "が"], "hint": "Join the explanation to いみ with という.", "why_wrong": {"の": "A quoted phrase needs という before いみ, not の.", "が": "が cannot link the phrase to いみ; use という."}},
+        {"kind": "choose", "prompt": "「やすみ」は みせが ＿＿という いみです。", "en": "'やすみ' means the store is closed.", "answer": "しまって いる", "accepted": [], "options": ["しめて いる", "しまって ある", "しまって いる"], "hint": "The store's state uses an intransitive verb + ている, in plain form before という.", "why_wrong": {"しめて いる": "しめます is transitive; a state with が needs intransitive しまって いる.", "しまって ある": "てある needs a transitive verb, and しまります is intransitive."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "やまださんは あとで でんわすると ＿＿。", "en": "Ms. Yamada said she would call later.", "answer": "いって いました", "accepted": ["いっていました"], "hint": "てForm of いいます + いました"},
-        {"kind": "choose", "prompt": "あした いけないと ＿＿ いただけませんか。", "en": "Could you tell them I can't come tomorrow?", "answer": "つたえて", "options": ["つたえて", "つたえ", "つたえる"], "accepted": [], "hint": "てForm of つたえます"}
+        {"kind": "choose", "prompt": "あした いけないと ＿＿ いただけませんか。", "en": "Could you tell them I can't come tomorrow?", "answer": "つたえて", "options": ["つたえて", "つたえ", "つたえる"], "accepted": [], "hint": "てForm of つたえます"},
+        {"kind": "choose", "prompt": "やまださんは かいぎに おくれると ＿＿。", "en": "Mr. Yamada said he'd be late for the meeting.", "answer": "いって いました", "accepted": [], "options": ["いいて いました", "いって あります", "いって いました"], "hint": "Pass on what someone said with と いって いました.", "why_wrong": {"いいて いました": "The てForm of いいます is いって, not いいて.", "いって あります": "てあります describes an arranged state, not reporting what someone said."}},
+        {"kind": "choose", "prompt": "ミラーさんに あした ＿＿と つたえて いただけませんか。", "en": "Could you tell Mr. Miller that I'll be off tomorrow?", "answer": "やすむ", "accepted": [], "options": ["やすむの", "やすんで", "やすむ"], "hint": "A message before と uses the plain form.", "why_wrong": {"やすむの": "No の is needed; the plain form goes right before と.", "やすんで": "The てForm cannot come before the quoting と."}}
       ]
     }
   ]
