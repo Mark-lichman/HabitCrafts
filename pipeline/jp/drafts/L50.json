@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "かさを ＿＿しましょうか。", "en": "Shall I lend you an umbrella?", "answer": "おかし", "accepted": [], "hint": "お + ます stem of かします"},
-        {"kind": "choose", "prompt": "わたしが こうじょうを ＿＿します。", "en": "I will show you around the factory.", "answer": "ごあんない", "accepted": [], "hint": "ご + a する-verb noun", "options": ["ごあんない", "おあんない", "あんないに"]}
+        {"kind": "choose", "prompt": "わたしが こうじょうを ＿＿します。", "en": "I will show you around the factory.", "answer": "ごあんない", "accepted": [], "hint": "ご + a する-verb noun", "options": ["ごあんない", "おあんない", "あんないに"]},
+        {"kind": "choose", "prompt": "わたしが ＿＿しましょうか。", "en": "Shall I help you?", "answer": "おてつだい", "accepted": [], "options": ["ごてつだい", "おてつだい", "おてつだって"], "hint": "てつだう is a native verb, so it takes お + the ます stem.", "why_wrong": {"ごてつだい": "ご is for する-verb nouns like あんない; てつだう takes お.", "おてつだって": "お joins the ます stem てつだい, not the てForm."}},
+        {"kind": "choose", "prompt": "この きかいの つかいかたは わたしが ＿＿。", "en": "I will explain how to use this machine.", "answer": "ごせつめいします", "accepted": [], "options": ["ごせつめいに なります", "ごせつめいください", "ごせつめいします"], "hint": "For your own action, use the humble ご + noun + します.", "why_wrong": {"ごせつめいに なります": "に なります is respectful, for others' actions, never your own.", "ごせつめいください": "ください asks someone else to explain, not you."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ごぜんちゅうは じむしょに ＿＿。", "en": "I will be at the office in the morning.", "answer": "おります", "accepted": [], "hint": "Special humble verb for います"},
-        {"kind": "choose", "prompt": "きのう せんせいの おたくで ばんごはんを ＿＿。", "en": "Yesterday I had dinner at my teacher's home.", "answer": "いただきました", "accepted": [], "hint": "Special humble verb for your own eating", "options": ["いただきました", "めしあがりました", "おたべしました"]}
+        {"kind": "choose", "prompt": "きのう せんせいの おたくで ばんごはんを ＿＿。", "en": "Yesterday I had dinner at my teacher's home.", "answer": "いただきました", "accepted": [], "hint": "Special humble verb for your own eating", "options": ["いただきました", "めしあがりました", "おたべしました"]},
+        {"kind": "choose", "prompt": "わたしは らいしゅう アメリカへ ＿＿。", "en": "I will go to America next week.", "answer": "まいります", "accepted": [], "options": ["いらっしゃいます", "まいります", "おいきします"], "hint": "まいります is the humble verb for your own going or coming.", "why_wrong": {"いらっしゃいます": "いらっしゃいます is respectful, for others, never for yourself.", "おいきします": "いきます has no お + stem + します form; use まいります."}},
+        {"kind": "choose", "prompt": "ちちは いま うちに ＿＿。", "en": "My father is at home now.", "answer": "おります", "accepted": [], "options": ["ございます", "いらっしゃいます", "おります"], "hint": "Your own family counts as your group, so use humble おります.", "why_wrong": {"ございます": "ございます is for things, not people.", "いらっしゃいます": "Do not use respectful verbs for your own family to outsiders."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "はい、あかい かさも ＿＿。", "en": "Yes, we have red umbrellas too.", "answer": "ございます", "accepted": [], "hint": "Very polite form of あります"},
-        {"kind": "choose", "prompt": "こちらは ちいさい サイズ＿＿。", "en": "This is the small size.", "answer": "でございます", "accepted": [], "hint": "Very polite form of です", "options": ["でございます", "でいらっしゃいます", "でおります"]}
+        {"kind": "choose", "prompt": "こちらは ちいさい サイズ＿＿。", "en": "This is the small size.", "answer": "でございます", "accepted": [], "hint": "Very polite form of です", "options": ["でございます", "でいらっしゃいます", "でおります"]},
+        {"kind": "choose", "prompt": "エレベーターは あちらに ＿＿。", "en": "The elevator is over there.", "answer": "ございます", "accepted": [], "options": ["いらっしゃいます", "ございます", "おります"], "hint": "ございます is the very polite あります, used for things.", "why_wrong": {"いらっしゃいます": "いらっしゃいます is for people you respect, not things.", "おります": "おります is the humble います, for people, not things."}},
+        {"kind": "choose", "prompt": "こちらは ごせんえん＿＿。", "en": "This one is five thousand yen.", "answer": "でございます", "accepted": [], "options": ["にございます", "でいらっしゃいます", "でございます"], "hint": "でございます is the very polite form of です.", "why_wrong": {"にございます": "に ございます means 'is located at'; for 'is', use でございます.", "でいらっしゃいます": "でいらっしゃいます shows respect for a person, not a price."}}
       ]
     }
   ]

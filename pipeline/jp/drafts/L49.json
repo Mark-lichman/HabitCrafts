@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "せんせいは まいあさ しんぶんを ＿＿か。", "en": "Does the teacher read the newspaper every morning?", "answer": "よまれます", "accepted": [], "hint": "Respectful passive form of よみます"},
-        {"kind": "choose", "prompt": "しゃちょうは さっき ＿＿。", "en": "The company president went out a little while ago.", "answer": "でかけられました", "accepted": [], "hint": "Group 2 verb + られます", "options": ["でかけられました", "でかけられせました", "でかけされました"]}
+        {"kind": "choose", "prompt": "しゃちょうは さっき ＿＿。", "en": "The company president went out a little while ago.", "answer": "でかけられました", "accepted": [], "hint": "Group 2 verb + られます", "options": ["でかけられました", "でかけられせました", "でかけされました"]},
+        {"kind": "choose", "prompt": "せんせいは なんじに ＿＿か。", "en": "What time will the teacher come?", "answer": "こられます", "accepted": [], "options": ["きられます", "まいります", "こられます"], "hint": "くる is irregular: its respectful passive is こられる.", "why_wrong": {"きられます": "くる changes to こ, not き: こられます.", "まいります": "まいります is humble, for your own coming, never the teacher's."}},
+        {"kind": "choose", "prompt": "しゃちょうは らいしゅう アメリカへ しゅっちょう＿＿。", "en": "The company president will go on a business trip to America next week.", "answer": "されます", "accepted": [], "options": ["させます", "されます", "いたします"], "hint": "する becomes される to show respect for someone else's action.", "why_wrong": {"させます": "させる is causative, 'make someone go', not respect.", "いたします": "いたします is humble, for your own actions, not the president's."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "しゃちょうは もう ＿＿ なりましたか。", "en": "Has the company president already gone out?", "answer": "おでかけに", "accepted": [], "hint": "お + ます stem of でかけます + に"},
-        {"kind": "choose", "prompt": "せんせいは どの ほんを ＿＿ なりましたか。", "en": "Which book did the teacher buy?", "answer": "おかいに", "accepted": [], "hint": "お + ます stem + に", "options": ["おかいに", "おかうに", "かいに"]}
+        {"kind": "choose", "prompt": "せんせいは どの ほんを ＿＿ なりましたか。", "en": "Which book did the teacher buy?", "answer": "おかいに", "accepted": [], "hint": "お + ます stem + に", "options": ["おかいに", "おかうに", "かいに"]},
+        {"kind": "choose", "prompt": "せんせいが この ほんを ＿＿か。", "en": "Did the teacher write this book?", "answer": "おかきに なりました", "accepted": [], "options": ["おかきしました", "おかきに なりました", "おかきに しました"], "hint": "For a superior's action, use お + ます stem + に なります.", "why_wrong": {"おかきしました": "お + stem + します is humble, for your own actions only.", "おかきに しました": "The respectful pattern ends in なります, not します."}},
+        {"kind": "choose", "prompt": "しゃちょうは もう ＿＿ なりました。", "en": "The company president has already gone to bed.", "answer": "おやすみに", "accepted": [], "options": ["おやすむに", "おやすみで", "おやすみに"], "hint": "Use お + the ます stem やすみ + に before なります.", "why_wrong": {"おやすむに": "Use the ます stem やすみ, not the dictionary form やすむ.", "おやすみで": "The pattern needs に before なります, not で."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "せんせい、あした パーティーに ＿＿か。", "en": "Sensei, will you come to the party tomorrow?", "answer": "いらっしゃいます", "accepted": ["おいでに なります"], "hint": "Special respectful verb for きます"},
-        {"kind": "choose", "prompt": "ぶちょうが そう ＿＿。", "en": "The department manager said so.", "answer": "おっしゃいました", "accepted": [], "hint": "Special respectful verb for いいます", "options": ["おっしゃいました", "もうしました", "まいりました"]}
+        {"kind": "choose", "prompt": "ぶちょうが そう ＿＿。", "en": "The department manager said so.", "answer": "おっしゃいました", "accepted": [], "hint": "Special respectful verb for いいます", "options": ["おっしゃいました", "もうしました", "まいりました"]},
+        {"kind": "choose", "prompt": "せんせい、なにを ＿＿か。", "en": "Sensei, what would you like to drink?", "answer": "めしあがります", "accepted": [], "options": ["いただきます", "めしあがります", "おのみします"], "hint": "めしあがります is the respectful verb for another person's eating or drinking.", "why_wrong": {"いただきます": "いただきます is humble, for your own eating, not the teacher's.", "おのみします": "お + stem + します is humble, never for the listener's actions."}},
+        {"kind": "choose", "prompt": "しゃちょうは いま どちらに ＿＿か。", "en": "Where is the company president now?", "answer": "いらっしゃいます", "accepted": [], "options": ["おります", "いらっしゃいます", "まいります"], "hint": "いらっしゃいます is the respectful verb for a superior being somewhere.", "why_wrong": {"おります": "おります is humble, for yourself or your group, not the president.", "まいります": "まいります is humble 'go or come', not 'be', and only for yourself."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ここに なまえを ＿＿ください。", "en": "Please write your name here.", "answer": "おかき", "accepted": [], "hint": "お + ます stem of かきます"},
-        {"kind": "choose", "prompt": "どうぞ ＿＿ください。", "en": "Please take a look.", "answer": "ごらん", "accepted": [], "hint": "Special respectful word for みます", "options": ["ごらん", "おみ", "おみて"]}
+        {"kind": "choose", "prompt": "どうぞ ＿＿ください。", "en": "Please take a look.", "answer": "ごらん", "accepted": [], "hint": "Special respectful word for みます", "options": ["ごらん", "おみ", "おみて"]},
+        {"kind": "choose", "prompt": "どうぞ なかへ ＿＿ください。", "en": "Please come inside.", "answer": "おはいり", "accepted": [], "options": ["おはいって", "はいり", "おはいり"], "hint": "Use お + the ます stem directly before ください.", "why_wrong": {"おはいって": "お joins the ます stem はいり, not the てForm.", "はいり": "Without お, the ます stem cannot go before ください."}},
+        {"kind": "choose", "prompt": "どうぞ この ペンを ＿＿。", "en": "Please use this pen.", "answer": "おつかいください", "accepted": [], "options": ["おつかいください", "おつかいします", "つかいください"], "hint": "To ask a customer to act, use お + ます stem + ください.", "why_wrong": {"おつかいします": "お + stem + します is humble: 'I will use it', not a request.", "つかいください": "The ます stem needs お in front before ください."}}
       ]
     }
   ]

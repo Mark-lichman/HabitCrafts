@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ドアに かぎが ＿＿ います。", "en": "The door is locked.", "answer": "かかって", "accepted": [], "hint": "てForm of an intransitive verb"},
-        {"kind": "choose", "prompt": "でんきが ＿＿ います。", "en": "The light is off.", "answer": "きえて", "options": ["きえて", "けして", "きえる"], "accepted": [], "hint": "Intransitive verb in てForm"}
+        {"kind": "choose", "prompt": "でんきが ＿＿ います。", "en": "The light is off.", "answer": "きえて", "options": ["きえて", "けして", "きえる"], "accepted": [], "hint": "Intransitive verb in てForm"},
+        {"kind": "choose", "prompt": "ほら、みちに さいふが ＿＿ いますよ。", "en": "Look, there's a wallet lying on the road.", "answer": "おちて", "accepted": [], "options": ["おとして", "おちる", "おちて"], "hint": "A resulting state uses an intransitive verb in てForm + います.", "why_wrong": {"おとして": "おとします is transitive; a state with が needs intransitive おちて.", "おちる": "います follows the てForm, not the dictionary form."}},
+        {"kind": "choose", "prompt": "えきの まえに くるまが ＿＿ います。", "en": "A car is stopped in front of the station.", "answer": "とまって", "accepted": [], "options": ["とまって", "とめて", "とまり"], "hint": "Nが + intransitive てForm + います shows the current state.", "why_wrong": {"とめて": "とめます is transitive; a state with が needs intransitive とまって.", "とまり": "います follows the てForm, not the ますStem."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この いすは ＿＿ います。", "en": "This chair is broken.", "answer": "こわれて", "accepted": [], "hint": "てForm of こわれます"},
-        {"kind": "choose", "prompt": "この みせは もう ＿＿ います。", "en": "This store is already closed.", "answer": "しまって", "options": ["しまって", "しめて", "しまります"], "accepted": [], "hint": "Intransitive verb in てForm"}
+        {"kind": "choose", "prompt": "この みせは もう ＿＿ います。", "en": "This store is already closed.", "answer": "しまって", "options": ["しまって", "しめて", "しまります"], "accepted": [], "hint": "Intransitive verb in てForm"},
+        {"kind": "choose", "prompt": "まどは しまって いますか。いいえ、＿＿。", "en": "Is the window closed? No, it's open.", "answer": "あいて います", "accepted": [], "options": ["あいて あります", "あいて います", "あいた います"], "hint": "An intransitive verb in てForm + います shows a resulting state.", "why_wrong": {"あいて あります": "てあります needs a transitive verb, and あきます is intransitive.", "あいた います": "います follows the てForm あいて, not the たForm."}},
+        {"kind": "choose", "prompt": "この シャツは ＿＿ います。", "en": "This shirt is dirty.", "answer": "よごれて", "accepted": [], "options": ["よごれる", "よごれって", "よごれて"], "hint": "A resulting state uses the てForm of an intransitive verb + います.", "why_wrong": {"よごれる": "います follows the てForm, not the dictionary form.", "よごれって": "よごれます is Group 2, so its てForm is よごれて."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ケーキを ぜんぶ たべて ＿＿。", "en": "I ate the whole cake.", "answer": "しまいました", "accepted": [], "hint": "Completion helper verb, past tense"},
-        {"kind": "choose", "prompt": "あしたまでに しごとを ＿＿ しまいます。", "en": "I'll get the work done by tomorrow.", "answer": "して", "options": ["して", "し", "する"], "accepted": [], "hint": "てForm before しまいます"}
+        {"kind": "choose", "prompt": "あしたまでに しごとを ＿＿ しまいます。", "en": "I'll get the work done by tomorrow.", "answer": "して", "options": ["して", "し", "する"], "accepted": [], "hint": "てForm before しまいます"},
+        {"kind": "choose", "prompt": "この ほんは きょう ぜんぶ ＿＿ しまいます。", "en": "I'll finish reading this whole book today.", "answer": "よんで", "accepted": [], "options": ["よむ", "よんで", "よみ"], "hint": "しまいます follows the てForm: よみます → よんで.", "why_wrong": {"よむ": "しまいます follows the てForm, not the dictionary form.", "よみ": "しまいます follows the てForm, not the ますStem."}},
+        {"kind": "choose", "prompt": "しゅくだいは もう して ＿＿。", "en": "I've already finished my homework.", "answer": "しまいました", "accepted": [], "options": ["しまりました", "しめました", "しまいました"], "hint": "The helper verb for finishing is しまいます, here in the past.", "why_wrong": {"しまりました": "しまります means 'to close' by itself, not 'to finish'.", "しめました": "しめます means 'to close something', not 'to finish'."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "パソコンが こわれて ＿＿。", "en": "Oh no, my computer broke.", "answer": "しまいました", "accepted": [], "hint": "Helper verb showing regret, past tense"},
-        {"kind": "choose", "prompt": "さいふを ＿＿ しまいました。", "en": "I dropped my wallet.", "answer": "おとして", "options": ["おとして", "おちて", "おとした"], "accepted": [], "hint": "Transitive verb in てForm"}
+        {"kind": "choose", "prompt": "さいふを ＿＿ しまいました。", "en": "I dropped my wallet.", "answer": "おとして", "options": ["おとして", "おちて", "おとした"], "accepted": [], "hint": "Transitive verb in てForm"},
+        {"kind": "choose", "prompt": "でんしゃの なかで ＿＿ しまいました。", "en": "I fell asleep on the train.", "answer": "ねて", "accepted": [], "options": ["ねた", "ねって", "ねて"], "hint": "Regret uses the てForm + しまいました, and ねます is Group 2: ねて.", "why_wrong": {"ねた": "しまいました follows the てForm, not the たForm.", "ねって": "ねます is Group 2, so its てForm is ねて."}},
+        {"kind": "choose", "prompt": "みちを ＿＿ しまいました。", "en": "I took the wrong road.", "answer": "まちがえて", "accepted": [], "options": ["まちがえった", "まちがえて", "まちがえた"], "hint": "Regret uses the てForm + しまいました.", "why_wrong": {"まちがえった": "まちがえます is Group 2, so its てForm is まちがえて.", "まちがえた": "しまいました follows the てForm, not the たForm."}}
       ]
     }
   ]

@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "せんせいに ＿＿。", "en": "I was scolded by my teacher.", "answer": "しかられました", "accepted": ["おこられました"], "hint": "passive of しかります, polite past"},
-        {"kind": "choose", "prompt": "ともだちに パーティーに ＿＿。", "en": "I was invited to a party by a friend.", "answer": "よばれました", "options": ["よばれました", "よばられました", "よびれました"], "accepted": [], "hint": "Group I: change the last sound to the あ row"}
+        {"kind": "choose", "prompt": "ともだちに パーティーに ＿＿。", "en": "I was invited to a party by a friend.", "answer": "よばれました", "options": ["よばれました", "よばられました", "よびれました"], "accepted": [], "hint": "Group I: change the last sound to the あ row"},
+        {"kind": "choose", "prompt": "わたしは ともだちに えいがに ＿＿。", "en": "I was invited to a movie by a friend.", "answer": "さそわれました", "accepted": [], "options": ["さそいれました", "さそわれました", "さそられました"], "hint": "Group I verbs ending in う use わ in the passive: さそう becomes さそわれる.", "why_wrong": {"さそいれました": "Group I passive uses the あ row; for う that sound is わ.", "さそられました": "The う ending changes to わ, not ら: さそわれました."}},
+        {"kind": "choose", "prompt": "この スポーツは せかいじゅうで ＿＿ います。", "en": "This sport is played all over the world.", "answer": "されて", "accepted": [], "options": ["すられて", "されて", "されれて"], "hint": "します is irregular: its passive is される.", "why_wrong": {"すられて": "する does not follow the Group I pattern; its passive is される.", "されれて": "There is only one れ: される becomes されて."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "わたしは ぶちょう＿＿ よばれました。", "en": "I was called by the department manager.", "answer": "に", "accepted": [], "hint": "the particle that marks the doer"},
-        {"kind": "choose", "prompt": "わたしは あさ はやく おとうとに ＿＿。", "en": "I was woken up early in the morning by my little brother.", "answer": "おこされました", "options": ["おこされました", "おこしました", "おこして"], "accepted": [], "hint": "passive of おこします, polite past"}
+        {"kind": "choose", "prompt": "わたしは あさ はやく おとうとに ＿＿。", "en": "I was woken up early in the morning by my little brother.", "answer": "おこされました", "options": ["おこされました", "おこしました", "おこして"], "accepted": [], "hint": "passive of おこします, polite past"},
+        {"kind": "choose", "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。", "en": "I was invited to the wedding by Mr. Kimura.", "answer": "きむらさんに", "accepted": [], "options": ["きむらさんが", "きむらさんを", "きむらさんに"], "hint": "In a passive sentence, the person who does the action takes に.", "why_wrong": {"きむらさんが": "わたしは is the subject; the doer of a passive takes に, not が.", "きむらさんを": "を marks an object; the doer of a passive takes に."}},
+        {"kind": "choose", "prompt": "わたしは ぶちょうに ＿＿。", "en": "I was warned by the department manager.", "answer": "ちゅういされました", "accepted": [], "options": ["ちゅういしられました", "ちゅういされました", "ちゅういされれました"], "hint": "For します verbs, the passive is される: ちゅういされます.", "why_wrong": {"ちゅういしられました": "します becomes される in the passive, not しられる.", "ちゅういされれました": "There is only one れ: ちゅういされました."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "わたしは だれかに さいふを ＿＿。", "en": "Someone stole my wallet.", "answer": "とられました", "accepted": ["ぬすまれました"], "hint": "passive of とります, polite past"},
-        {"kind": "choose", "prompt": "わたしは いもうとに にっきを ＿＿。", "en": "My little sister read my diary.", "answer": "よまれました", "options": ["よまれました", "よみられました", "よまらました"], "accepted": [], "hint": "passive of よみます, polite past"}
+        {"kind": "choose", "prompt": "わたしは いもうとに にっきを ＿＿。", "en": "My little sister read my diary.", "answer": "よまれました", "options": ["よまれました", "よみられました", "よまらました"], "accepted": [], "hint": "passive of よみます, polite past"},
+        {"kind": "choose", "prompt": "わたしは ねこに カップ＿＿ こわされました。", "en": "My cat broke my cup.", "answer": "を", "accepted": [], "options": ["が", "に", "を"], "hint": "The thing that was affected keeps を in this passive.", "why_wrong": {"が": "わたしは is the subject; the affected thing keeps を.", "に": "に already marks the cat, the doer; the cup takes を."}},
+        {"kind": "choose", "prompt": "わたしは こどもに ふくを ＿＿。", "en": "A child got my clothes dirty.", "answer": "よごされました", "accepted": [], "options": ["よごしました", "よごしられました", "よごされました"], "hint": "Use the passive when someone does something to your things: よごします becomes よごされます.", "why_wrong": {"よごしました": "This is active: it says I got them dirty, but the child did.", "よごしられました": "Group I passive uses the あ row: よごさ＋れる, so よごされる."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この ほんは せかいじゅうで ＿＿ います。", "en": "This book is read all over the world.", "answer": "よまれて", "accepted": [], "hint": "passive て form of よみます"},
-        {"kind": "choose", "prompt": "らいげつ ここで かいぎが ＿＿。", "en": "A meeting will be held here next month.", "answer": "ひらかれます", "options": ["ひらかれます", "ひらかられます", "ひらけられます"], "accepted": [], "hint": "passive of ひらきます"}
+        {"kind": "choose", "prompt": "らいげつ ここで かいぎが ＿＿。", "en": "A meeting will be held here next month.", "answer": "ひらかれます", "options": ["ひらかれます", "ひらかられます", "ひらけられます"], "accepted": [], "hint": "passive of ひらきます"},
+        {"kind": "choose", "prompt": "この カメラは にほんで ＿＿。", "en": "This camera was made in Japan.", "answer": "つくられました", "accepted": [], "options": ["つくらられました", "つくられました", "つくりられました"], "hint": "Group I passive: change the last sound to the あ row and add れる.", "why_wrong": {"つくらられました": "Group I verbs add れる, not られる: つくられる.", "つくりられました": "Use the あ row, not the ます stem: つくら＋れる."}},
+        {"kind": "choose", "prompt": "この えは ゴッホ＿＿ かかれました。", "en": "This painting was painted by Van Gogh.", "answer": "によって", "accepted": [], "options": ["から", "によって", "を"], "hint": "To name the creator of a work in the passive, use によって.", "why_wrong": {"から": "から shows a source or material, not who created a work.", "を": "を marks an object; the creator takes によって."}}
       ]
     }
   ]

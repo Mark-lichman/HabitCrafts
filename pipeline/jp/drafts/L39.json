@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "てがみを ＿＿、あんしんしました。", "en": "I was relieved to read the letter.", "answer": "よんで", "accepted": [], "hint": "て form of よみます"},
-        {"kind": "choose", "prompt": "じこが ＿＿、でんしゃが おくれました。", "en": "There was an accident, so the train was late.", "answer": "あって", "options": ["あって", "あるて", "あくて"], "accepted": [], "hint": "て form of あります"}
+        {"kind": "choose", "prompt": "じこが ＿＿、でんしゃが おくれました。", "en": "There was an accident, so the train was late.", "answer": "あって", "options": ["あって", "あるて", "あくて"], "accepted": [], "hint": "て form of あります"},
+        {"kind": "choose", "prompt": "さいふを ＿＿、こまりました。", "en": "I lost my wallet, so I was in trouble.", "answer": "おとして", "accepted": [], "options": ["おちて", "おとした", "おとして"], "hint": "A て form gives the cause, and the next part tells the result.", "why_wrong": {"おちて": "おちます is intransitive and cannot take を; use おとします.", "おとした": "A た form cannot link two clauses; use the て form."}},
+        {"kind": "choose", "prompt": "しあいに ＿＿、うれしかったです。", "en": "I was happy that we won the game.", "answer": "かって", "accepted": [], "options": ["かちて", "かって", "かった"], "hint": "A て form gives the cause of a feeling; かちます becomes かって.", "why_wrong": {"かちて": "かちます is Group I: ち becomes って, so かって.", "かった": "A た form cannot link two clauses; use the て form."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この もんだいは ＿＿、わかりません。", "en": "This problem is difficult, so I can't figure it out.", "answer": "むずかしくて", "accepted": [], "hint": "くて form of むずかしい"},
-        {"kind": "choose", "prompt": "かぞくの ことが ＿＿、ねられません。", "en": "I'm worried about my family, so I can't sleep.", "answer": "しんぱいで", "options": ["しんぱいで", "しんぱいくて", "しんぱいなくて"], "accepted": [], "hint": "しんぱい is a な adjective"}
+        {"kind": "choose", "prompt": "かぞくの ことが ＿＿、ねられません。", "en": "I'm worried about my family, so I can't sleep.", "answer": "しんぱいで", "options": ["しんぱいで", "しんぱいくて", "しんぱいなくて"], "accepted": [], "hint": "しんぱい is a な adjective"},
+        {"kind": "choose", "prompt": "へやが ＿＿、ベッドが はいりません。", "en": "The room is so small that the bed won't fit.", "answer": "せまくて", "accepted": [], "options": ["せまいくて", "せまくて", "せまいで"], "hint": "For an い adjective, change the final い to くて to give a reason.", "why_wrong": {"せまいくて": "Drop the final い before くて.", "せまいで": "で is for な adjectives; い adjectives use くて."}},
+        {"kind": "choose", "prompt": "しごとが ＿＿、ねる じかんが ありません。", "en": "Work is so hard that I have no time to sleep.", "answer": "たいへんで", "accepted": [], "options": ["たいへんで", "たいへんなで", "たいへんくて"], "hint": "A な adjective takes で to give a reason.", "why_wrong": {"たいへんなで": "Do not keep な before で.", "たいへんくて": "くて is for い adjectives; たいへん is a な adjective."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "じこ＿＿ ちかてつが とまりました。", "en": "The subway stopped because of an accident.", "answer": "で", "accepted": [], "hint": "the particle that marks a cause"},
-        {"kind": "choose", "prompt": "たいふう＿＿ がっこうが やすみに なりました。", "en": "School was canceled because of the typhoon.", "answer": "で", "options": ["で", "を", "に"], "accepted": [], "hint": "the particle that marks a cause"}
+        {"kind": "choose", "prompt": "たいふう＿＿ がっこうが やすみに なりました。", "en": "School was canceled because of the typhoon.", "answer": "で", "options": ["で", "を", "に"], "accepted": [], "hint": "the particle that marks a cause"},
+        {"kind": "choose", "prompt": "つよい かぜ＿＿ きが たおれました。", "en": "The tree fell over because of the strong wind.", "answer": "で", "accepted": [], "options": ["を", "が", "で"], "hint": "Noun ＋ で marks the event that caused something.", "why_wrong": {"を": "を marks an object; たおれます has no object.", "が": "The tree already takes が; the cause takes で."}},
+        {"kind": "choose", "prompt": "あしの ＿＿、はしれません。", "en": "I can't run because of my leg injury.", "answer": "けがで", "accepted": [], "options": ["けがを", "けがで", "けがくて"], "hint": "A noun for a condition takes で to give the cause.", "why_wrong": {"けがを": "を marks an object, not a cause.", "けがくて": "くて is only for い adjectives; けが is a noun."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "あたまが ＿＿ ので、はやく かえります。", "en": "I have a headache, so I'll go home early.", "answer": "いたい", "accepted": [], "hint": "plain form of いたいです"},
-        {"kind": "choose", "prompt": "あしたは やすみ＿＿、どこかへ いきたいです。", "en": "Tomorrow is a day off, so I want to go somewhere.", "answer": "なので", "options": ["なので", "ので", "だので"], "accepted": [], "hint": "やすみ is a noun"}
+        {"kind": "choose", "prompt": "あしたは やすみ＿＿、どこかへ いきたいです。", "en": "Tomorrow is a day off, so I want to go somewhere.", "answer": "なので", "options": ["なので", "ので", "だので"], "accepted": [], "hint": "やすみ is a noun"},
+        {"kind": "choose", "prompt": "ねつが ある＿＿、きょうは やすんでも いいですか。", "en": "I have a fever, so may I take today off?", "answer": "ので", "accepted": [], "options": ["のに", "ので", "なので"], "hint": "ので gives a polite reason, which suits asking permission.", "why_wrong": {"のに": "のに means 'although,' which does not fit a reason.", "なので": "なので is for nouns and な adjectives; verbs take ので directly."}},
+        {"kind": "choose", "prompt": "この へんは ＿＿、よく ねられます。", "en": "This area is quiet, so I can sleep well.", "answer": "しずかなので", "accepted": [], "options": ["しずかだので", "しずかので", "しずかなので"], "hint": "A な adjective takes なので.", "why_wrong": {"しずかだので": "Never use だ before ので; use な.", "しずかので": "A な adjective needs な before ので."}}
       ]
     }
   ]

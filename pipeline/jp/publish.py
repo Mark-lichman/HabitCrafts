@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 from common import OUT_DIR, is_kana
+from catalog import build as build_catalog
 from conjugate import conjugate, group
 
 HERE = Path(__file__).parent
@@ -66,8 +67,11 @@ def check_draft(d: dict, mari: dict) -> list[str]:
         if len(ex) != 2 or ex[0].get("jp") != mari[pid]["example"]:
             errs.append(f"{pid}: first example must be Mari's, verbatim")
         pr = p.get("practice", [])
-        if len(pr) != 2:
-            errs.append(f"{pid}: needs exactly 2 practice items")
+        if len(pr) < 2:
+            errs.append(f"{pid}: needs at least 2 practice items")
+        prompts = [q.get("prompt") for q in pr]
+        if len(set(prompts)) != len(prompts):
+            errs.append(f"{pid}: two practice items share a prompt")
         for e in ex:
             if not kana_ok(e.get("jp", "")) and pid != "mari.L33.3":
                 errs.append(f"{pid}: example not kana: {e.get('jp')!r}")
@@ -84,6 +88,9 @@ def check_draft(d: dict, mari: dict) -> list[str]:
                 opts = q.get("options", [])
                 if len(opts) != 3 or opts.count(ans) != 1 or len(set(opts)) != 3:
                     errs.append(f"{pid}: choose needs 3 distinct options, answer once")
+                wrong = set(q.get("why_wrong", {}))
+                if wrong and (ans in wrong or not wrong <= set(opts)):
+                    errs.append(f"{pid}: why_wrong must explain only the wrong options")
             if re.search(r"\d(にち|ほん|ひき|はい|ふん|ぷん|さつ|かい|こ|にん|か)", prompt + ans):
                 errs.append(f"{pid}: digit before a kana counter hides the reading")
     return errs
@@ -164,6 +171,13 @@ def run() -> None:
             skipped += [f"{f.name}: {e}" for e in errs]
             continue
         lessons[d["lesson"]] = d
+    # Cataloging runs before Publishing: every item's type and uses come from it, so the
+    # app's search and sort read the same catalog the pipeline checked.
+    catalog = build_catalog()
+    cat_uses = {e["id"]: e["uses"] for e in catalog["entries"]}
+    missing = set(mari) - set(cat_uses)
+    if missing:
+        raise SystemExit(f"catalog: grammar points with no entry {sorted(missing)}")
     grammar = []
     for n in s04["lessons"]:
         pts = [p for p in s04["items"] if p["lesson"] == n]
@@ -173,6 +187,7 @@ def run() -> None:
             "lesson": n, "title": d.get("title", ""),
             "status": "draft" if d else "outline",
             "points": [{"id": p["id"], "pattern": p["pattern"], "goal": p["goal"],
+                        "uses": cat_uses[p["id"]],
                         "example": p["example"], **{k: v for k, v in drafted.get(p["id"], {}).items()
                                                      if k not in ("id",)}} for p in pts],
         })
@@ -181,6 +196,9 @@ def run() -> None:
         "note": "Grammar from Mari's N4 checklist (lessons 26 to 50), with short lessons drafted "
                 "for review. Reference tables, verb pairs and conjugations are extracted and checked.",
         "reviewed": {"by": review["reviewed_by"], "at": review["reviewed_at"], "corrections": applied},
+        "types": catalog["types"],
+        "uses": catalog["uses"],
+        "catalog": catalog["entries"],
         "grammar": grammar,
         "particles": [{k: p[k] for k in ("expression", "meaning", "example", "taught_in")}
                       for p in s04["particles"]],

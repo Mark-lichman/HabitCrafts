@@ -174,6 +174,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: QuietRoomGrammarWidget.routePath,
           builder: (context, params) => QuietRoomGrammarWidget(
             initialLesson: params.getParam('lesson', ParamType.int),
+            initialQuery: params.getParam('query', ParamType.String),
           ),
         ),
         FFRoute(
@@ -181,6 +182,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: QuietRoomDrillsWidget.routePath,
           builder: (context, params) => QuietRoomDrillsWidget(
             mode: params.getParam('mode', ParamType.String) ?? 'reference',
+            table: params.getParam('table', ParamType.String),
+            form: params.getParam('form', ParamType.String),
           ),
         ),
         FFRoute(

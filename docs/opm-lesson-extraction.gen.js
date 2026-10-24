@@ -323,7 +323,7 @@ const p2 = page('SD2 &#8212; Evaluating &amp; Optimizing', 'opd-sd2', 1550, 1300
 // Added 2026-10-23 after running five real sources (pipeline/jp/s01..s05). SD assumed
 // every source normalizes to prose. Three of five did not.
 
-raw('F3', S.frame, 330, 40, 1120, 1500, esc('<b>SD3 &#8212; Structured Sources</b> &#8212; Normalizing in-zoomed by source shape, plus the tutor path that skips Mining. Code: <i>pipeline/jp/</i>.'));
+raw('F3', S.frame, 330, 40, 1120, 1880, esc('<b>SD3 &#8212; Structured Sources</b> &#8212; Normalizing in-zoomed by source shape, the tutor path that skips Mining, cataloging (type + uses), and how the learner finds a pattern (search, sort by use). Code: <i>pipeline/jp/</i>.'));
 
 node('X0', S.obj, 700, 80, 380, 80, 'Source Document', 'shape: text' + bar + 'picture table' + bar + 'image' + bar + 'sheet|detected from the file, not guessed');
 
@@ -354,11 +354,11 @@ node('B6b', S.state, 705, 1190, 80, 30, 'blocked', '');
 node('B6c', S.state, 795, 1190, 110, 30, 'approved', '');
 node('RV3', S.human, 600, 1290, 280, 70, 'Reviewing', 'review notes name the exact cells');
 node('COACH3', S.ctrl, 960, 1300, 200, 50, 'Coach (Mark)', '');
-node('TUT3', S.ctrl, 1220, 1300, 200, 50, 'Tutor (Mari)', '');
+node('TUT3', S.ctrl, 1480, 1300, 200, 50, 'Tutor (Mari)', '');
 
 node('G7', S.gap, 40, 220, 260, 150, 'GAP &#8212; image sources', 'An image has no text layer, so Transcribing is an LM call and its output can never skip Reviewing. The OCR cross-check narrows what a person reads; it does not replace them.');
 node('G8', S.gap, 40, 420, 260, 170, 'GAP &#8212; external tutor tools', 'Mari\'s Canva decks (25 links) and the web conjugation drill are linked, not extracted. Canva needs a login; the drill is a third-party page. Keep them as resources until Mari can export.');
-raw('LEG3', S.note, 40, 1120, 420, 150, LEGEND('<b>SD3 rule:</b> a source a tutor wrote is curriculum, not raw text. It enters as given, through a human-authored path, and Mining (an LM) never touches it.'));
+raw('LEG3', S.note, 40, 1700, 270, 230, LEGEND('<b>SD3 rule:</b> a source a tutor wrote is curriculum, not raw text. It enters as given, through a human-authored path, and Mining (an LM) never touches it.'));
 
 edge('consume', 'X0', 'N1', { exit: [0.1, 1], entry: [0.5, 0] });
 edge('consume', 'X0', 'N2', { exit: [0.35, 1], entry: [0.5, 0] });
@@ -376,7 +376,7 @@ edge('result', 'T1', 'R1', { exit: [0, 0.5], entry: [0.5, 0], pts: [[480, 595]] 
 edge('result', 'T1', 'R2', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('result', 'T1', 'R3', { exit: [1, 0.8], entry: [0.5, 0], pts: [[1000, 616]] });
 edge('result', 'T2', 'R4', { exit: [0.5, 1], entry: [0.5, 0] });
-edge('agent', 'TUT3', 'T2', { exit: [1, 0.5], entry: [1, 0.5], pts: [[1430, 1325], [1430, 595]] });
+edge('agent', 'TUT3', 'T2', { exit: [0.5, 0], entry: [1, 0.5], pts: [[1580, 595]] });
 edge('instr', 'ENG', 'V3', { exit: [0.5, 1], entry: [0.85, 0] });
 edge('consume', 'R1', 'V3', { exit: [0.5, 1], entry: [0.1, 0], pts: [[480, 960], [596, 960]] });
 edge('consume', 'R2', 'V3', { exit: [0.5, 1], entry: [0.4, 0] });
@@ -387,7 +387,35 @@ edge('consume', 'A6', 'RV3', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('agent', 'COACH3', 'RV3', { exit: [0, 0.5], entry: [1, 0.5] });
 edge('effect', 'RV3', 'A6', { exit: [0, 0.5], entry: [0, 0.8], pts: [[540, 1325], [540, 1218]] });
 
-const p3 = page('SD3 &#8212; Structured Sources', 'opd-sd3', 1500, 1600);
+// ── Cataloging and finding (added 2026-10-24). Every extracted item gets a lesson TYPE
+// (from the extractor that made it, deterministic) and its USES (what it is for, an LM
+// judgment kept as reviewable data in uses.json). The app searches and sorts this
+// catalog, so it never guesses what a piece of content is.
+node('CATG', S.det, 960, 1150, 230, 70, 'Cataloging', 'type: from the extractor|uses: from Use Taxonomy');
+node('UTAX', S.ctrl, 1220, 1140, 210, 90, 'Use Taxonomy', '29 uses: asking advice' + bar + 'plan' + bar + 'regret...|LM-tagged, reviewed|pipeline/jp/uses.json');
+node('CAT', S.obj, 1220, 1260, 210, 110, 'Catalog Entry', 'type ' + dot + 'uses[] ' + dot + 'lesson?|title ' + dot + 'summary|search text ' + dot + 'open target');
+edge('consume', 'A6', 'CATG', { exit: [1, 0.3], entry: [0, 0.5] });
+edge('instr', 'UTAX', 'CATG', { exit: [0, 0.5], entry: [1, 0.4] });
+edge('result', 'CATG', 'CAT', { exit: [0.5, 1], entry: [0, 0.5], pts: [[1075, 1315]] });
+
+node('PUB3', S.det, 600, 1400, 280, 70, 'Publishing', 'approved only + corrections|stale correction = fail');
+node('CORR', S.ctrl, 960, 1420, 220, 70, 'Corrections', 'reviewed decisions|item + field + from + to + why');
+node('ASSET', S.store, 590, 1510, 300, 80, 'App Lesson File', 'jp_grammar.json: lessons + catalog');
+edge('consume', 'RV3', 'PUB3', { exit: [0.5, 1], entry: [0.5, 0], label: 'approved' });
+edge('instr', 'CORR', 'PUB3', { exit: [0, 0.5], entry: [1, 0.5] });
+edge('consume', 'CAT', 'PUB3', { exit: [0.5, 1], entry: [1, 0.15], pts: [[1325, 1410]] });
+edge('result', 'PUB3', 'ASSET', { exit: [0.5, 1], entry: [0.5, 0] });
+
+node('FIND', S.det, 600, 1650, 280, 75, 'Finding', 'search the catalog ' + bar + 'sort by use, then type|runs in the app, no LM');
+node('QRY', S.obj, 960, 1640, 240, 95, 'Query', 'text: str?|use: str?|type order: grammar, particle, numbers, pairs, conjugation, vocabulary');
+node('LRN', S.ctrl, 1240, 1660, 180, 50, 'Learner', '');
+node('RES', S.obj, 590, 1770, 300, 80, 'Result List', 'Catalog Entry[] across types|labeled type + lesson|tap opens the right screen');
+edge('consume', 'ASSET', 'FIND', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'QRY', 'FIND', { exit: [0, 0.5], entry: [1, 0.5] });
+edge('agent', 'LRN', 'QRY', { exit: [0, 0.5], entry: [1, 0.5] });
+edge('result', 'FIND', 'RES', { exit: [0.5, 1], entry: [0.5, 0] });
+
+const p3 = page('SD3 &#8212; Structured Sources', 'opd-sd3', 1750, 1980);
 
 fs.writeFileSync(OUT, `<mxfile host="app.diagrams.net">\n${p0}\n${p1}\n${p2}\n${p3}\n</mxfile>\n`);
 console.log('wrote', OUT, fs.statSync(OUT).size, 'bytes');

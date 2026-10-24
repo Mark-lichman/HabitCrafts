@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "かいぎは ＿＿ はじまるか、おしえて ください。", "en": "Please tell me what time the meeting starts.", "answer": "なんじに", "accepted": ["なんじから"], "hint": "the question word for 'what time'"},
-        {"kind": "choose", "prompt": "この ことばは どういう いみ＿＿、しらべます。", "en": "I'll look up what this word means.", "answer": "か", "options": ["か", "かどうか", "だか"], "accepted": [], "hint": "there is already a question word"}
+        {"kind": "choose", "prompt": "この ことばは どういう いみ＿＿、しらべます。", "en": "I'll look up what this word means.", "answer": "か", "options": ["か", "かどうか", "だか"], "accepted": [], "hint": "there is already a question word"},
+        {"kind": "choose", "prompt": "かぎを どこに ＿＿、わすれました。", "en": "I forgot where I put my key.", "answer": "おいたか", "accepted": [], "options": ["おいたかどうか", "おいたか", "おきましたか"], "hint": "With a question word, use plain form ＋ か inside the sentence.", "why_wrong": {"おいたかどうか": "かどうか is only for yes or no questions; どこ is a question word.", "おきましたか": "Use the plain form inside an embedded question, not ます."}},
+        {"kind": "choose", "prompt": "あの ひとが ＿＿、しって いますか。", "en": "Do you know who that person is?", "answer": "だれか", "accepted": [], "options": ["だれが", "だれかどうか", "だれか"], "hint": "Question word ＋ か fits a question inside a bigger sentence.", "why_wrong": {"だれが": "An embedded question must end with か.", "だれかどうか": "かどうか is never used with a question word like だれ."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "かれが くる＿＿、わかりません。", "en": "I don't know whether he will come.", "answer": "かどうか", "accepted": [], "hint": "the phrase meaning 'whether or not'"},
-        {"kind": "choose", "prompt": "この みせが やすい＿＿、ともだちに ききます。", "en": "I'll ask a friend whether this shop is cheap.", "answer": "かどうか", "options": ["かどうか", "どうか", "かどう"], "accepted": [], "hint": "the phrase meaning 'whether or not'"}
+        {"kind": "choose", "prompt": "この みせが やすい＿＿、ともだちに ききます。", "en": "I'll ask a friend whether this shop is cheap.", "answer": "かどうか", "options": ["かどうか", "どうか", "かどう"], "accepted": [], "hint": "the phrase meaning 'whether or not'"},
+        {"kind": "choose", "prompt": "この みずは ＿＿、わかりません。", "en": "I don't know whether this water is safe to drink.", "answer": "のめるかどうか", "accepted": [], "options": ["のめますかどうか", "のめるかどうか", "のめるどうか"], "hint": "Plain form ＋ かどうか means 'whether or not.'", "why_wrong": {"のめますかどうか": "Use the plain form before かどうか, not the ます form.", "のめるどうか": "The か is missing; the phrase is かどうか."}},
+        {"kind": "choose", "prompt": "あした ＿＿、インターネットで しらべます。", "en": "I'll check online whether it will rain tomorrow.", "answer": "あめかどうか", "accepted": [], "options": ["あめかどうか", "あめだかどうか", "あめなかどうか"], "hint": "A noun takes かどうか directly, with no だ.", "why_wrong": {"あめだかどうか": "Drop だ after a noun before かどうか.", "あめなかどうか": "A noun takes かどうか directly, with no な."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この くつを ＿＿ みても いいですか。", "en": "May I try on these shoes?", "answer": "はいて", "accepted": [], "hint": "て form of はきます"},
-        {"kind": "choose", "prompt": "わからない ことばは じしょで ＿＿ みます。", "en": "I'll try looking up words I don't know in the dictionary.", "answer": "しらべて", "options": ["しらべて", "しらべる", "しらべ"], "accepted": [], "hint": "て form of しらべます"}
+        {"kind": "choose", "prompt": "わからない ことばは じしょで ＿＿ みます。", "en": "I'll try looking up words I don't know in the dictionary.", "answer": "しらべて", "options": ["しらべて", "しらべる", "しらべ"], "accepted": [], "hint": "て form of しらべます"},
+        {"kind": "choose", "prompt": "あたらしい レストランへ ＿＿ みたいです。", "en": "I'd like to try going to the new restaurant.", "answer": "いって", "accepted": [], "options": ["いく", "いきて", "いって"], "hint": "て form ＋ みます means 'try doing'; いきます is irregular: いって.", "why_wrong": {"いく": "みます follows the て form, not the dictionary form.", "いきて": "いきます is an exception: its て form is いって."}},
+        {"kind": "choose", "prompt": "この ペンで ＿＿ みて ください。", "en": "Please try writing with this pen.", "answer": "かいて", "accepted": [], "options": ["かきて", "かいて", "かく"], "hint": "て form ＋ みます means 'try doing'; き becomes いて.", "why_wrong": {"かきて": "かきます is Group I: き becomes いて, so かいて.", "かく": "みます follows the て form, not the dictionary form."}}
       ]
     }
   ]

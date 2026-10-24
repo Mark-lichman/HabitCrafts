@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ともだちを ながく ＿＿ しまいました。", "en": "I ended up making my friend wait a long time.", "answer": "またせて", "accepted": [], "hint": "Causative of まちます, in てForm"},
-        {"kind": "choose", "prompt": "せんせいは がくせいに さくぶんを ＿＿。", "en": "The teacher made the students write an essay.", "answer": "かかせました", "accepted": [], "hint": "Group 1 causative: あ row + せる", "options": ["かかせました", "かきさせました", "かくさせました"]}
+        {"kind": "choose", "prompt": "せんせいは がくせいに さくぶんを ＿＿。", "en": "The teacher made the students write an essay.", "answer": "かかせました", "accepted": [], "hint": "Group 1 causative: あ row + せる", "options": ["かかせました", "かきさせました", "かくさせました"]},
+        {"kind": "choose", "prompt": "ははは こどもに やさいを ＿＿。", "en": "My mother made the children eat vegetables.", "answer": "たべさせました", "accepted": [], "options": ["たべられました", "たべさせました", "たべせました"], "hint": "Group 2 verbs add させる to the stem: たべる becomes たべさせる.", "why_wrong": {"たべられました": "られる is the passive, 'was eaten', not 'made someone eat'.", "たべせました": "Group 2 verbs need させる, not just せる."}},
+        {"kind": "choose", "prompt": "ぶちょうは あさ はやく わたしを かいしゃに ＿＿。", "en": "The manager made me come to the office early in the morning.", "answer": "こさせました", "accepted": [], "options": ["きさせました", "こせました", "こさせました"], "hint": "くる is irregular: its causative is こさせる.", "why_wrong": {"きさせました": "くる changes to こ, not き, in the causative.", "こせました": "The causative of くる needs させる: こさせる."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ぶちょうは ミラーさんを おおさかへ ＿＿。", "en": "The manager sent Mr. Miller on a business trip to Osaka.", "answer": "しゅっちょうさせました", "accepted": [], "hint": "Causative of しゅっちょうします, polite past"},
-        {"kind": "choose", "prompt": "おもしろい はなしで みんなを ＿＿。", "en": "I made everyone laugh with a funny story.", "answer": "わらわせました", "accepted": [], "hint": "Causative of わらいます", "options": ["わらわせました", "わらいさせました", "わらわれました"]}
+        {"kind": "choose", "prompt": "おもしろい はなしで みんなを ＿＿。", "en": "I made everyone laugh with a funny story.", "answer": "わらわせました", "accepted": [], "hint": "Causative of わらいます", "options": ["わらわせました", "わらいさせました", "わらわれました"]},
+        {"kind": "choose", "prompt": "むすこ＿＿ イギリスへ りゅうがくさせました。", "en": "I had my son study abroad in England.", "answer": "を", "accepted": [], "options": ["が", "を", "で"], "hint": "With a verb that has no object, the person you make act takes を.", "why_wrong": {"が": "が would make your son the one causing it, not the one who goes.", "で": "で marks a place or means, not the person you make act."}},
+        {"kind": "choose", "prompt": "いもうとを ＿＿ しまいました。", "en": "I ended up making my little sister cry.", "answer": "なかせて", "accepted": [], "options": ["なかせて", "なかれて", "なきさせて"], "hint": "Group 1: なく becomes なかせる, then the てForm なかせて.", "why_wrong": {"なかれて": "なかれる is the passive, which does not fit いもうとを here.", "なきさせて": "Group 1 verbs use the あ row + せる, not ます stem + させる."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "ぶちょうは わたし＿＿ しりょうを コピーさせました。", "en": "The manager made me copy the documents.", "answer": "に", "accepted": [], "hint": "Particle for the person when there is already a を object"},
-        {"kind": "choose", "prompt": "せんせいは がくせいに かんじを ＿＿。", "en": "The teacher made the students memorize kanji.", "answer": "おぼえさせました", "accepted": [], "hint": "Group 2 causative: stem + させる", "options": ["おぼえさせました", "おぼえせました", "おぼえさせりました"]}
+        {"kind": "choose", "prompt": "せんせいは がくせいに かんじを ＿＿。", "en": "The teacher made the students memorize kanji.", "answer": "おぼえさせました", "accepted": [], "hint": "Group 2 causative: stem + させる", "options": ["おぼえさせました", "おぼえせました", "おぼえさせりました"]},
+        {"kind": "choose", "prompt": "こども＿＿ かばんを もたせました。", "en": "I had the child carry the bag.", "answer": "に", "accepted": [], "options": ["を", "で", "に"], "hint": "The verb already has かばんを, so the person takes に.", "why_wrong": {"を": "かばん already has を; two を in one causative sentence is wrong.", "で": "で marks a place or means, not the person you make act."}},
+        {"kind": "choose", "prompt": "ははは わたしに ピアノを ＿＿。", "en": "My mother made me learn the piano.", "answer": "ならわせました", "accepted": [], "options": ["ならいさせました", "ならわせました", "ならさせました"], "hint": "Verbs ending in う use わ: ならう becomes ならわせる.", "why_wrong": {"ならいさせました": "Group 1 verbs use the あ row + せる, not ます stem + させる.", "ならさせました": "う changes to わ before せる: ならわせる."}}
       ]
     },
     {
@@ -55,7 +61,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "きょうは はやく ＿＿ いただけませんか。", "en": "Could you let me go home early today?", "answer": "かえらせて", "accepted": [], "hint": "Causative てForm of かえります"},
-        {"kind": "choose", "prompt": "その しごとを わたしに ＿＿ いただけませんか。", "en": "Could you let me do that job?", "answer": "させて", "accepted": [], "hint": "Causative てForm of します", "options": ["させて", "させって", "されせて"]}
+        {"kind": "choose", "prompt": "その しごとを わたしに ＿＿ いただけませんか。", "en": "Could you let me do that job?", "answer": "させて", "accepted": [], "hint": "Causative てForm of します", "options": ["させて", "させって", "されせて"]},
+        {"kind": "choose", "prompt": "ここで しゃしんを ＿＿ いただけませんか。", "en": "Could you let me take photos here?", "answer": "とらせて", "accepted": [], "options": ["とって", "とらせて", "とられて"], "hint": "To ask to do it yourself, use the causative てForm.", "why_wrong": {"とって": "とって いただけませんか asks the listener to take the photo.", "とられて": "とられる is the passive, not 'let me take'."}},
+        {"kind": "choose", "prompt": "すこし ＿＿ いただけませんか。", "en": "Could you let me think about it a little?", "answer": "かんがえさせて", "accepted": [], "options": ["かんがえて", "かんがえせて", "かんがえさせて"], "hint": "Group 2 causative is stem + させる, then the てForm.", "why_wrong": {"かんがえて": "かんがえて いただけませんか asks the listener to think.", "かんがえせて": "Group 2 verbs need させる, not just せる."}}
       ]
     }
   ]

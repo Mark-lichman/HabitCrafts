@@ -13,7 +13,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "にほんごを べんきょうする ＿＿、にほんへ いきます。", "en": "I'm going to Japan to study Japanese.", "answer": "ために", "accepted": [], "hint": "Purpose word after a dictionary-form verb"},
-        {"kind": "choose", "prompt": "かぞくの ＿＿、まいにち はたらいて います。", "en": "I work every day for my family.", "answer": "ために", "accepted": [], "hint": "Noun + の + purpose word", "options": ["ために", "のに", "ので"]}
+        {"kind": "choose", "prompt": "かぞくの ＿＿、まいにち はたらいて います。", "en": "I work every day for my family.", "answer": "ために", "accepted": [], "hint": "Noun + の + purpose word", "options": ["ために", "のに", "ので"]},
+        {"kind": "choose", "prompt": "しけん＿＿ ために、まいばん べんきょうして います。", "en": "I study every night for the exam.", "answer": "の", "accepted": [], "options": ["に", "の", "な"], "hint": "A noun joins ために with の, just like けんこうの ために.", "why_wrong": {"に": "に cannot link a noun to ために; nouns take の here.", "な": "な is for な-adjectives; しけん is a noun, so it takes の."}},
+        {"kind": "choose", "prompt": "だいがくに ＿＿ ために、べんきょうして います。", "en": "I'm studying to get into college.", "answer": "はいる", "accepted": [], "options": ["はいれる", "はいって", "はいる"], "hint": "ために takes the dictionary form of a verb you do on purpose.", "why_wrong": {"はいれる": "Potential verbs are not volitional, so they take ように, not ために.", "はいって": "ために follows the dictionary form, not the てForm."}}
       ]
     },
     {
@@ -27,7 +29,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "この ナイフは パンを きる＿＿ つかいます。", "en": "I use this knife to cut bread.", "answer": "のに", "accepted": [], "hint": "What follows a dictionary-form verb to show use"},
-        {"kind": "choose", "prompt": "この ノートは しごと＿＿ つかって います。", "en": "I use this notebook for work.", "answer": "に", "accepted": [], "hint": "Particle after a noun to show use", "options": ["に", "を", "が"]}
+        {"kind": "choose", "prompt": "この ノートは しごと＿＿ つかって います。", "en": "I use this notebook for work.", "answer": "に", "accepted": [], "hint": "Particle after a noun to show use", "options": ["に", "を", "が"]},
+        {"kind": "choose", "prompt": "この はこは しゃしんを いれる＿＿ つかって います。", "en": "I use this box to keep photos in.", "answer": "のに", "accepted": [], "options": ["のを", "のに", "のが"], "hint": "Dictionary form + のに + つかいます tells what a thing is used for.", "why_wrong": {"のを": "The box is what you use; the action is the purpose, so it takes のに.", "のが": "が cannot mark a purpose with つかいます; use のに."}},
+        {"kind": "choose", "prompt": "この じてんしゃは かいもの＿＿ べんりです。", "en": "This bicycle is handy for shopping.", "answer": "に", "accepted": [], "options": ["の", "を", "に"], "hint": "After a noun, use just に to show what something is good for.", "why_wrong": {"の": "の cannot link a noun to べんりです; a noun of use takes に.", "を": "べんりです is an adjective and takes no を object."}}
       ]
     },
     {
@@ -41,7 +45,9 @@
       ],
       "practice": [
         {"kind": "fill", "prompt": "きのう ビールを ごほん＿＿ のみました。", "en": "Yesterday I drank as many as five bottles of beer.", "answer": "も", "accepted": [], "hint": "Particle that stresses a large amount"},
-        {"kind": "fill", "prompt": "この ほんを よむのに みっか＿＿ かかります。", "en": "It will take at least three days to read this book.", "answer": "は", "accepted": [], "hint": "Particle for a minimum estimate"}
+        {"kind": "fill", "prompt": "この ほんを よむのに みっか＿＿ かかります。", "en": "It will take at least three days to read this book.", "answer": "は", "accepted": [], "hint": "Particle for a minimum estimate"},
+        {"kind": "choose", "prompt": "この かばんは ごまんえん＿＿ しました。", "en": "This bag cost as much as fifty thousand yen.", "answer": "も", "accepted": [], "options": ["は", "も", "を"], "hint": "も after an amount shows surprise that it is a lot.", "why_wrong": {"は": "は after an amount means 'at least', not surprise at a big amount.", "を": "An amount with しました takes no を; use も to stress it."}},
+        {"kind": "choose", "prompt": "くうこうまで いちじかん＿＿ かかります。", "en": "It takes at least an hour to get to the airport.", "answer": "は", "accepted": [], "options": ["で", "も", "は"], "hint": "は after an amount gives the minimum: 'at least'.", "why_wrong": {"で": "で does not attach to an amount with かかります.", "も": "も means 'as long as', stressing a lot, not 'at least'."}}
       ]
     }
   ]
