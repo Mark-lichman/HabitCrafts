@@ -1,0 +1,48 @@
+{
+  "lesson": 41,
+  "title": "Giving and Receiving Politely",
+  "points": [
+    {
+      "id": "mari.L41.1",
+      "explain": "いただきます is the humble 'receive' for things from superiors. くださいます is the respectful 'give me.' やります is 'give' to animals, plants, or juniors.",
+      "form": "Nを いただきます／くださいます／やります",
+      "note": "The ます form is くださいます, not くださります.",
+      "examples": [
+        {"jp": "せんせいから ほんを いただきました。", "en": "I received a book from my teacher."},
+        {"jp": "しゃちょうが わたしに おみやげを くださいました。", "en": "The company president gave me a souvenir."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "まいにち いぬに えさを ＿＿。", "en": "I feed my dog every day.", "answer": "やります", "accepted": ["あげます"], "hint": "the 'give' verb used for animals"},
+        {"kind": "choose", "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。", "en": "The department manager's wife gave me a necktie.", "answer": "くださいました", "options": ["くださいました", "いただきました", "やりました"], "accepted": [], "hint": "a superior gives to me"}
+      ]
+    },
+    {
+      "id": "mari.L41.2",
+      "explain": "Add these to a て form for favors: て いただきます (I receive a favor from a superior), て くださいます (a superior does it for me), て やります (for a junior or animal).",
+      "form": "てForm ＋ いただきます／くださいます／やります",
+      "note": "With て いただきます, the person doing the favor takes に. With て くださいます, that person takes が.",
+      "examples": [
+        {"jp": "せんせいに さくぶんを なおして いただきました。", "en": "My teacher kindly corrected my composition."},
+        {"jp": "ぶちょうが えきまで おくって くださいました。", "en": "The department manager kindly took me to the station."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せんせいに みちを ＿＿ いただきました。", "en": "My teacher kindly showed me the way.", "answer": "おしえて", "accepted": [], "hint": "て form of おしえます"},
+        {"kind": "choose", "prompt": "むすこに じてんしゃを なおして ＿＿。", "en": "I fixed my son's bicycle for him.", "answer": "やりました", "options": ["やりました", "くださいました", "いただきました"], "accepted": [], "hint": "I do a favor for a junior"}
+      ]
+    },
+    {
+      "id": "mari.L41.3",
+      "explain": "て くださいませんか is a very polite way to ask a favor, softer than て ください. Use it with superiors or people you don't know well.",
+      "form": "てForm ＋ くださいませんか",
+      "note": "て いただけませんか is about equally polite. Both are softer than て ください.",
+      "examples": [
+        {"jp": "もういちど せつめいして くださいませんか。", "en": "Could you please explain it once more?"},
+        {"jp": "この ことばの いみを おしえて くださいませんか。", "en": "Could you please tell me what this word means?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "すみませんが、しゃしんを ＿＿ くださいませんか。", "en": "Excuse me, could you please take a photo?", "answer": "とって", "accepted": [], "hint": "て form of とります"},
+        {"kind": "choose", "prompt": "ちょっと ＿＿ くださいませんか。", "en": "Could you please wait a moment?", "answer": "まって", "options": ["まって", "まち", "まつ"], "accepted": [], "hint": "て form of まちます"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "lesson": 27,
+  "title": "Ability, Senses, and Contrast",
+  "points": [
+    {
+      "id": "mari.L27.1",
+      "explain": "The potential form says what someone can do. The object usually takes が instead of を.",
+      "form": "Nが + かのうどうし",
+      "note": "Group 1: -u → -e + る (よむ → よめる). Group 2: + られる (たべられる). する → できる, くる → こられる.",
+      "examples": [
+        {"jp": "わたしは かんじが よめます。", "en": "I can read kanji."},
+        {"jp": "ミラーさんは さしみが たべられます。", "en": "Mr. Miller can eat sashimi."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "わたしは ピアノが ＿＿。", "en": "I can play the piano.", "answer": "ひけます", "accepted": [], "hint": "Potential form of ひきます"},
+        {"kind": "choose", "prompt": "にほんごが すこし ＿＿。", "en": "I can speak a little Japanese.", "answer": "はなせます", "options": ["はなせます", "はなします", "はなせられます"], "accepted": [], "hint": "Group 1 potential form"}
+      ]
+    },
+    {
+      "id": "mari.L27.2",
+      "explain": "みえます and きこえます mean something can be seen or heard naturally, without trying. The thing seen or heard takes が.",
+      "form": "Nが みえます／きこえます",
+      "note": "For something you choose to do, like watching a movie, use the potential form: みられます, きけます.",
+      "examples": [
+        {"jp": "ここから ふじさんが みえます。", "en": "You can see Mt. Fuji from here."},
+        {"jp": "とりの こえが きこえます。", "en": "I can hear birds singing."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "まどから うみが ＿＿。", "en": "You can see the sea from the window.", "answer": "みえます", "accepted": [], "hint": "Verb for naturally seeing"},
+        {"kind": "choose", "prompt": "インターネットで えいがが ＿＿。", "en": "You can watch movies on the internet.", "answer": "みられます", "options": ["みられます", "みえます", "きこえます"], "accepted": [], "hint": "A chosen action needs the potential form"}
+      ]
+    },
+    {
+      "id": "mari.L27.3",
+      "explain": "Noun + が できます means you are able to do that skill or activity, like a language or a sport.",
+      "form": "Nが できます",
+      "note": "The skill takes が, not を: テニスが できます.",
+      "examples": [
+        {"jp": "にほんごが できます。", "en": "I can speak Japanese."},
+        {"jp": "サッカーが できますか。", "en": "Can you play soccer?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "わたしは スキーが ＿＿。", "en": "I can ski.", "answer": "できます", "accepted": [], "hint": "Verb meaning 'can do'"},
+        {"kind": "choose", "prompt": "マリアさんは りょうり＿＿ できます。", "en": "Maria can cook.", "answer": "が", "options": ["が", "を", "で"], "accepted": [], "hint": "Particle used with できます"}
+      ]
+    },
+    {
+      "id": "mari.L27.4",
+      "explain": "しか with a negative verb means 'only', stressing that the amount is small or less than expected.",
+      "form": "N + しか + Vません",
+      "note": "しか always takes a negative verb. With a positive verb, use だけ instead: ひゃくえんだけ あります.",
+      "examples": [
+        {"jp": "100えんしか ありません。", "en": "I only have 100 yen."},
+        {"jp": "きのうは さんじかんしか ねませんでした。", "en": "I only slept three hours yesterday."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "さいふに せんえん＿＿ ありません。", "en": "I only have 1,000 yen in my wallet.", "answer": "しか", "accepted": [], "hint": "Word for 'only' with a negative verb"},
+        {"kind": "choose", "prompt": "ひらがなしか ＿＿。", "en": "I can only read hiragana.", "answer": "よめません", "options": ["よめません", "よめます", "よみます"], "accepted": [], "hint": "しか needs a negative verb"}
+      ]
+    },
+    {
+      "id": "mari.L27.5",
+      "explain": "Put は on two items to contrast them: one thing is true for the first, something different for the second.",
+      "form": "Aは 〜が、Bは 〜",
+      "note": "は replaces を or が to show contrast: にくを たべます becomes にくは たべます.",
+      "examples": [
+        {"jp": "にくは たべますが、さかなは たべません。", "en": "I eat meat, but I don't eat fish."},
+        {"jp": "ひらがなは かけますが、かんじは かけません。", "en": "I can write hiragana, but I can't write kanji."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "やさいは すきですが、くだものは ＿＿。", "en": "I like vegetables, but I don't like fruit.", "answer": "すきじゃ ありません", "accepted": ["すきでは ありません"], "hint": "Negative of すきです"},
+        {"kind": "choose", "prompt": "テニスは しますが、ゴルフは ＿＿。", "en": "I play tennis, but I don't play golf.", "answer": "しません", "options": ["しません", "します", "して"], "accepted": [], "hint": "The second half contrasts the first"}
+      ]
+    },
+    {
+      "id": "mari.L27.6",
+      "explain": "You can add は after particles like に, へ, で, and と to make that phrase the topic or to contrast it.",
+      "form": "N + に／へ／で／と + は",
+      "note": "を and が are replaced by は, never combined: say パンは たべます, not パンをは.",
+      "examples": [
+        {"jp": "とうきょうには ともだちが います。", "en": "I have friends in Tokyo."},
+        {"jp": "この みせでは カードが つかえません。", "en": "You can't use cards at this store."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この としょかんで＿＿ パソコンが つかえます。", "en": "You can use computers at this library.", "answer": "は", "accepted": [], "hint": "Topic particle added after で"},
+        {"kind": "choose", "prompt": "わたしの まち＿＿ えいがかんが ありません。", "en": "My town doesn't have a movie theater.", "answer": "には", "options": ["には", "をは", "がは"], "accepted": [], "hint": "Place particle + topic particle"}
+      ]
+    }
+  ]
+}

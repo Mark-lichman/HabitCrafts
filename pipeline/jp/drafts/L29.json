@@ -1,0 +1,62 @@
+{
+  "lesson": 29,
+  "title": "Resulting States and Completion",
+  "points": [
+    {
+      "id": "mari.L29.1",
+      "explain": "An intransitive verb in てForm + います describes a state that remains after something happened, like a window that is open now.",
+      "form": "Nが てForm (intransitive) + います",
+      "note": "This is a current state, not an action in progress: まどが あいて います means the window is open, not opening.",
+      "examples": [
+        {"jp": "まどが あいて います。", "en": "The window is open."},
+        {"jp": "コップが われて います。", "en": "The glass is broken."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ドアに かぎが ＿＿ います。", "en": "The door is locked.", "answer": "かかって", "accepted": [], "hint": "てForm of an intransitive verb"},
+        {"kind": "choose", "prompt": "でんきが ＿＿ います。", "en": "The light is off.", "answer": "きえて", "options": ["きえて", "けして", "きえる"], "accepted": [], "hint": "Intransitive verb in てForm"}
+      ]
+    },
+    {
+      "id": "mari.L29.2",
+      "explain": "Use は instead of が when the thing is already the topic, for example when answering a question about it or contrasting it with something else.",
+      "form": "Nは てForm (intransitive) + います",
+      "note": "が reports a scene you just noticed; は talks about something already being discussed.",
+      "examples": [
+        {"jp": "でんきは ついて います。", "en": "The light is on."},
+        {"jp": "まどは しまって いますが、ドアは あいて います。", "en": "The window is closed, but the door is open."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この いすは ＿＿ います。", "en": "This chair is broken.", "answer": "こわれて", "accepted": [], "hint": "てForm of こわれます"},
+        {"kind": "choose", "prompt": "この みせは もう ＿＿ います。", "en": "This store is already closed.", "answer": "しまって", "options": ["しまって", "しめて", "しまります"], "accepted": [], "hint": "Intransitive verb in てForm"}
+      ]
+    },
+    {
+      "id": "mari.L29.3",
+      "explain": "てForm + しまいます stresses that an action is completely finished, often with もう or ぜんぶ.",
+      "form": "てForm + しまいます",
+      "note": "It can also point to the future: あしたまでに かいて しまいます means you will get it all done by tomorrow.",
+      "examples": [
+        {"jp": "レポートを かいて しまいました。", "en": "I finished writing the report."},
+        {"jp": "その ほんは もう よんで しまいました。", "en": "I've already finished reading that book."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ケーキを ぜんぶ たべて ＿＿。", "en": "I ate the whole cake.", "answer": "しまいました", "accepted": [], "hint": "Completion helper verb, past tense"},
+        {"kind": "choose", "prompt": "あしたまでに しごとを ＿＿ しまいます。", "en": "I'll get the work done by tomorrow.", "answer": "して", "options": ["して", "し", "する"], "accepted": [], "hint": "てForm before しまいます"}
+      ]
+    },
+    {
+      "id": "mari.L29.4",
+      "explain": "てForm + しまいました also shows regret or embarrassment about something that happened, often by accident.",
+      "form": "てForm + しまいました",
+      "note": "Context decides between 'finished' and 'regret': さいふを わすれて しまいました is clearly regret.",
+      "examples": [
+        {"jp": "だいじな しゃしんを なくして しまいました。", "en": "I lost an important photo."},
+        {"jp": "でんしゃに かさを わすれて しまいました。", "en": "I left my umbrella on the train."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "パソコンが こわれて ＿＿。", "en": "Oh no, my computer broke.", "answer": "しまいました", "accepted": [], "hint": "Helper verb showing regret, past tense"},
+        {"kind": "choose", "prompt": "さいふを ＿＿ しまいました。", "en": "I dropped my wallet.", "answer": "おとして", "options": ["おとして", "おちて", "おとした"], "accepted": [], "hint": "Transitive verb in てForm"}
+      ]
+    }
+  ]
+}

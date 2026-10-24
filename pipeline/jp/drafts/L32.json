@@ -1,0 +1,48 @@
+{
+  "lesson": 32,
+  "title": "Advice, Guesses, and Possibility",
+  "points": [
+    {
+      "id": "mari.L32.1",
+      "explain": "Use たForm + ほうが いいです to advise doing something, and ないForm + ほうが いいです to advise not doing it.",
+      "form": "たForm／ないForm + ほうが いいです",
+      "note": "For negative advice use the ない form, not the past negative: いかない ほうが いいです.",
+      "examples": [
+        {"jp": "はやく びょういんへ いった ほうが いいです。", "en": "You should go to the hospital soon."},
+        {"jp": "あまり おさけを のまない ほうが いいです。", "en": "You shouldn't drink too much."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "かぜの ときは、はやく ＿＿ ほうが いいです。", "en": "When you have a cold, you should go to bed early.", "answer": "ねた", "accepted": [], "hint": "たForm of ねます"},
+        {"kind": "choose", "prompt": "よる おそく コーヒーを ＿＿ ほうが いいです。", "en": "You shouldn't drink coffee late at night.", "answer": "のまない", "options": ["のまない", "のまなかった", "のまないで"], "accepted": [], "hint": "ないForm for negative advice"}
+      ]
+    },
+    {
+      "id": "mari.L32.2",
+      "explain": "でしょう after a plain form makes a guess the speaker is fairly sure about, like in a weather forecast.",
+      "form": "ふつうForm + でしょう",
+      "note": "With な-adjectives and nouns, drop だ: ひまでしょう, あめでしょう.",
+      "examples": [
+        {"jp": "あしたは はれるでしょう。", "en": "It will probably be sunny tomorrow."},
+        {"jp": "やまださんは きょう こないでしょう。", "en": "Mr. Yamada probably won't come today."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "しけんは むずかしい＿＿。", "en": "The exam will probably be difficult.", "answer": "でしょう", "accepted": [], "hint": "Word for a confident guess"},
+        {"kind": "choose", "prompt": "あしたの よるは ＿＿でしょう。", "en": "It will probably snow tomorrow night.", "answer": "ゆき", "options": ["ゆき", "ゆきだ", "ゆきな"], "accepted": [], "hint": "Nouns drop だ before でしょう"}
+      ]
+    },
+    {
+      "id": "mari.L32.3",
+      "explain": "かもしれません after a plain form says something might happen or might be true. It is less certain than でしょう.",
+      "form": "ふつうForm + かもしれません",
+      "note": "With な-adjectives and nouns, drop だ: びょうきかもしれません.",
+      "examples": [
+        {"jp": "あした あめが ふるかもしれません。", "en": "It might rain tomorrow."},
+        {"jp": "みちが こんで いるかもしれません。", "en": "The roads might be crowded."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "やくそくの じかんに ＿＿かもしれません。", "en": "I might not make it in time for the appointment.", "answer": "まにあわない", "accepted": [], "hint": "ないForm of まにあいます"},
+        {"kind": "choose", "prompt": "あの ひとは ＿＿かもしれません。", "en": "That person might be a teacher.", "answer": "せんせい", "options": ["せんせい", "せんせいだ", "せんせいな"], "accepted": [], "hint": "Nouns drop だ before かもしれません"}
+      ]
+    }
+  ]
+}

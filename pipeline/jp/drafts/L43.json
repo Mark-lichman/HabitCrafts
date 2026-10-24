@@ -1,0 +1,34 @@
+{
+  "lesson": 43,
+  "title": "Looks Like and Coming Back",
+  "points": [
+    {
+      "id": "mari.L43.1",
+      "explain": "Use a verb's ます stem or an adjective stem + そうです to say how something looks, or what seems about to happen, based on what you see.",
+      "form": "ますForm / いadj(い) / なadj + そうです",
+      "note": "Drop the い of い-adjectives: おいしそう, not おいしいそう. いい becomes よさそう and ない becomes なさそう.",
+      "examples": [
+        {"jp": "この ケーキは おいしそうです。／あめが ふりそうです。", "en": "This cake looks delicious. It looks like it's going to rain."},
+        {"jp": "ミラーさんは うれしそうです。", "en": "Mr. Miller looks happy."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "にもつが ＿＿そうです。", "en": "The luggage looks like it's about to fall.", "answer": "おち", "accepted": [], "hint": "ます stem of おちます"},
+        {"kind": "choose", "prompt": "この りょうりは ＿＿です。", "en": "This dish looks spicy.", "answer": "からそう", "accepted": [], "hint": "い-adjective without い + そう", "options": ["からそう", "からいそう", "からいだそう"]}
+      ]
+    },
+    {
+      "id": "mari.L43.2",
+      "explain": "てForm + きます means going to do something and coming back. It can also show a change that has started and continues up to now.",
+      "form": "てForm + きます",
+      "note": "いって きます, said when leaving home, literally means 'I'll go and come back.'",
+      "examples": [
+        {"jp": "あめが ふって きました。／ちょっと コンビニへ いって きます。", "en": "It has started to rain. I'm just going to the convenience store; I'll be right back."},
+        {"jp": "ちょっと きってを かって きます。", "en": "I'll just go buy some stamps and come back."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ちょっと コーヒーを ＿＿ きます。", "en": "I'll go buy some coffee and be right back.", "answer": "かって", "accepted": [], "hint": "てForm of かいます"},
+        {"kind": "choose", "prompt": "さむく ＿＿ きましたね。", "en": "It has gotten cold, hasn't it?", "answer": "なって", "accepted": [], "hint": "てForm of なります", "options": ["なって", "なり", "なる"]}
+      ]
+    }
+  ]
+}

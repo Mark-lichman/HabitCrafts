@@ -1,0 +1,62 @@
+{
+  "lesson": 34,
+  "title": "Following Instructions and Order",
+  "points": [
+    {
+      "id": "mari.L34.1",
+      "explain": "とおりに means 'just as' or 'the way.' Use it to say you do something exactly as someone said, showed, or did.",
+      "form": "じしょForm／たForm／Nounの ＋ とおりに、〜",
+      "note": "After a noun, add の: せつめいしょの とおりに. Verbs connect directly, with no の.",
+      "examples": [
+        {"jp": "せんせいの いう とおりに かいて ください。", "en": "Please write it just as the teacher says."},
+        {"jp": "わたしが やった とおりに、やって ください。", "en": "Please do it just the way I did."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せんせいが いった ＿＿ かいて ください。", "en": "Please write it just as the teacher said.", "answer": "とおりに", "accepted": [], "hint": "the phrase meaning 'just as'"},
+        {"kind": "choose", "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。", "en": "Please assemble it according to the instructions.", "answer": "の", "options": ["の", "が", "を"], "accepted": [], "hint": "a noun needs a linking particle before とおりに"}
+      ]
+    },
+    {
+      "id": "mari.L34.2",
+      "explain": "あとで means 'after.' Use it to say one action happens after another one is finished.",
+      "form": "たForm／Nounの ＋ あとで、〜",
+      "note": "Use the た form even for future plans: たべた あとで, not たべる あとで.",
+      "examples": [
+        {"jp": "しごとが おわった あとで、のみに いきます。", "en": "After work is over, I'll go out for drinks."},
+        {"jp": "しょくじの あとで、さんぽします。", "en": "After the meal, I take a walk."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "しゅくだいを ＿＿ あとで、テレビを みます。", "en": "After I do my homework, I'll watch TV.", "answer": "した", "accepted": [], "hint": "た form of します"},
+        {"kind": "choose", "prompt": "かいぎ＿＿ あとで、でんわします。", "en": "I'll call after the meeting.", "answer": "の", "options": ["の", "が", "を"], "accepted": [], "hint": "a noun needs a linking particle before あとで"}
+      ]
+    },
+    {
+      "id": "mari.L34.3",
+      "explain": "Use a て form or ないで before the main verb to say how you do it: in what state, or without doing something.",
+      "form": "てForm／ないFormで ＋ main verb",
+      "note": "The first verb describes the manner of the second, not a separate step: かさを もって でかけます means you go out carrying an umbrella.",
+      "examples": [
+        {"jp": "たって テレビを みます。／なにも たべないで がっこうへ いきます。", "en": "I watch TV standing up. / I go to school without eating anything."},
+        {"jp": "かさを もって でかけます。", "en": "I go out with an umbrella."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "めがねを ＿＿ しんぶんを よみます。", "en": "I read the newspaper with my glasses on.", "answer": "かけて", "accepted": [], "hint": "て form of かけます"},
+        {"kind": "choose", "prompt": "あさごはんを ＿＿ かいしゃへ いきました。", "en": "I went to work without eating breakfast.", "answer": "たべないで", "options": ["たべないで", "たべないの", "たべません"], "accepted": [], "hint": "ないで form"}
+      ]
+    },
+    {
+      "id": "mari.L34.4",
+      "explain": "ないで means 'without doing.' Use it to say you do the main action without doing something, or do one thing instead of another.",
+      "form": "ないForm＋で、〜",
+      "note": "Do not use なくて here. なくて gives a reason; ないで shows how you act or what you do instead.",
+      "examples": [
+        {"jp": "じしょを つかわないで、よんで ください。", "en": "Please read it without using a dictionary."},
+        {"jp": "にちようびは どこも いかないで、うちで やすみます。", "en": "On Sundays I don't go anywhere; I rest at home."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "さとうを ＿＿ コーヒーを のみます。", "en": "I drink coffee without putting in sugar.", "answer": "いれないで", "accepted": [], "hint": "ないで form of いれます"},
+        {"kind": "fill", "prompt": "でんきを ＿＿ ねて しまいました。", "en": "I fell asleep without turning off the light.", "answer": "けさないで", "accepted": [], "hint": "ないで form of けします"}
+      ]
+    }
+  ]
+}

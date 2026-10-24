@@ -1,0 +1,62 @@
+{
+  "lesson": 39,
+  "title": "Giving Reasons and Causes",
+  "points": [
+    {
+      "id": "mari.L39.1",
+      "explain": "A て form can give a cause, often for a feeling or something you could not control. The second part tells the result.",
+      "form": "てForm、〜",
+      "note": "The result cannot be a request, invitation, or plan. For those, use から: あついから、まどを あけて ください.",
+      "examples": [
+        {"jp": "かぜを ひいて、がっこうを やすみました。", "en": "I caught a cold, so I missed school."},
+        {"jp": "ニュースを きいて、びっくりしました。", "en": "I was surprised to hear the news."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "てがみを ＿＿、あんしんしました。", "en": "I was relieved to read the letter.", "answer": "よんで", "accepted": [], "hint": "て form of よみます"},
+        {"kind": "choose", "prompt": "じこが ＿＿、でんしゃが おくれました。", "en": "There was an accident, so the train was late.", "answer": "あって", "options": ["あって", "あるて", "あくて"], "accepted": [], "hint": "て form of あります"}
+      ]
+    },
+    {
+      "id": "mari.L39.2",
+      "explain": "Use the くて form of an い adjective or the で form of a な adjective to give a reason, often for a feeling or something you can't do.",
+      "form": "いadj: い→くて／なadj: ＋で、〜",
+      "note": "The result is usually a feeling or a can't: むずかしくて わかりません. Do not end with a request.",
+      "examples": [
+        {"jp": "からくて たべられませんでした。", "en": "It was so spicy that I couldn't eat it."},
+        {"jp": "ふくざつで、よく わかりません。", "en": "It's complicated, so I don't really understand it."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この もんだいは ＿＿、わかりません。", "en": "This problem is difficult, so I can't figure it out.", "answer": "むずかしくて", "accepted": [], "hint": "くて form of むずかしい"},
+        {"kind": "choose", "prompt": "かぞくの ことが ＿＿、ねられません。", "en": "I'm worried about my family, so I can't sleep.", "answer": "しんぱいで", "options": ["しんぱいで", "しんぱいくて", "しんぱいなくて"], "accepted": [], "hint": "しんぱい is a な adjective"}
+      ]
+    },
+    {
+      "id": "mari.L39.3",
+      "explain": "Noun ＋ で gives a cause, usually an event or condition like an illness, accident, or earthquake.",
+      "form": "Noun ＋ で、〜",
+      "note": "Use nouns for events or conditions, like じこ, びょうき, or じしん. The result is a fact or state, not a request.",
+      "examples": [
+        {"jp": "びょうきで、かいしゃを やすみました。", "en": "I was sick, so I took the day off work."},
+        {"jp": "じしんで ビルが たおれました。", "en": "The building collapsed in the earthquake."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "じこ＿＿ ちかてつが とまりました。", "en": "The subway stopped because of an accident.", "answer": "で", "accepted": [], "hint": "the particle that marks a cause"},
+        {"kind": "choose", "prompt": "たいふう＿＿ がっこうが やすみに なりました。", "en": "School was canceled because of the typhoon.", "answer": "で", "options": ["で", "を", "に"], "accepted": [], "hint": "the particle that marks a cause"}
+      ]
+    },
+    {
+      "id": "mari.L39.4",
+      "explain": "ので means 'because' or 'so.' It sounds softer and more polite than から, so it works well for excuses and asking permission.",
+      "form": "ふつうForm ＋ ので（N／なadj ＋ なので）",
+      "note": "After a noun or な adjective, use な: あめなので, ひまなので. Never だので.",
+      "examples": [
+        {"jp": "あめが ふって いるので、でかけません。", "en": "It's raining, so I won't go out."},
+        {"jp": "ようじが あるので、さきに かえっても いいですか。", "en": "I have something to take care of, so may I leave first?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "あたまが ＿＿ ので、はやく かえります。", "en": "I have a headache, so I'll go home early.", "answer": "いたい", "accepted": [], "hint": "plain form of いたいです"},
+        {"kind": "choose", "prompt": "あしたは やすみ＿＿、どこかへ いきたいです。", "en": "Tomorrow is a day off, so I want to go somewhere.", "answer": "なので", "options": ["なので", "ので", "だので"], "accepted": [], "hint": "やすみ is a noun"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "lesson": 46,
+  "title": "Action Timing and Expectations",
+  "points": [
+    {
+      "id": "mari.L46.1",
+      "explain": "ところです shows the stage of an action: dictionary form means about to do it, ている form means in the middle of it, and た form means just finished.",
+      "form": "じしょForm / ているForm / たForm + ところです",
+      "note": "It often appears with いま, これから, or たったいま to make the timing clear.",
+      "examples": [
+        {"jp": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。", "en": "I'm just about to go out. I'm in the middle of eating now. I just got home."},
+        {"jp": "これから ばんごはんを たべる ところです。", "en": "I'm just about to eat dinner."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "いま レポートを ＿＿ ところです。", "en": "I'm in the middle of writing the report right now.", "answer": "かいて いる", "accepted": [], "hint": "ている form of かきます"},
+        {"kind": "choose", "prompt": "たったいま えきに ＿＿ ところです。", "en": "I just arrived at the station a moment ago.", "answer": "ついた", "accepted": [], "hint": "た Form for 'just finished'", "options": ["ついた", "つく", "ついて"]}
+      ]
+    },
+    {
+      "id": "mari.L46.2",
+      "explain": "たForm + ばかりです means something happened only a short time ago, from the speaker's point of view.",
+      "form": "たForm + ばかりです",
+      "note": "ばかり is about how recent it feels, so even a month can count. た Form + ところ is only for the moment right after.",
+      "examples": [
+        {"jp": "さっき たべたばかりです。", "en": "I just ate a little while ago."},
+        {"jp": "せんげつ にほんへ きたばかりです。", "en": "I only came to Japan last month."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この パソコンは かった＿＿なのに、もう こわれました。", "en": "I just bought this computer, but it's already broken.", "answer": "ばかり", "accepted": [], "hint": "Word meaning 'just did' after た Form"},
+        {"kind": "choose", "prompt": "にほんごの べんきょうを ＿＿ばかりです。", "en": "I just started studying Japanese.", "answer": "はじめた", "accepted": [], "hint": "た Form", "options": ["はじめた", "はじめる", "はじめて"]}
+      ]
+    },
+    {
+      "id": "mari.L46.3",
+      "explain": "はずです means 'should' or 'is expected to'. Use it when you have a solid reason to believe something is true or will happen.",
+      "form": "ふつうForm + はずです",
+      "note": "With nouns use の (やすみの はずです), with な-adjectives use な. For your own plans, use つもりです instead.",
+      "examples": [
+        {"jp": "たなかさんは くる はずです。", "en": "Mr. Tanaka should be coming."},
+        {"jp": "かいぎは さんじに おわる はずです。", "en": "The meeting should end at three."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "きのう だしたから、てがみは あした ＿＿ はずです。", "en": "I sent it yesterday, so the letter should arrive tomorrow.", "answer": "つく", "accepted": ["とどく"], "hint": "Dictionary form of つきます"},
+        {"kind": "choose", "prompt": "きょうは にちようびだから、ぎんこうは ＿＿ はずです。", "en": "Today is Sunday, so the bank should be closed.", "answer": "やすみの", "accepted": [], "hint": "Noun + the right connector", "options": ["やすみの", "やすみな", "やすみだ"]}
+      ]
+    }
+  ]
+}

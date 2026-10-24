@@ -1,0 +1,62 @@
+{
+  "lesson": 44,
+  "title": "Excess, Ease, and Change",
+  "points": [
+    {
+      "id": "mari.L44.1",
+      "explain": "Add すぎます to a verb's ます stem or an adjective stem to say something is 'too' much or done too much, usually in a bad way.",
+      "form": "ますForm / いadj(い) / なadj + すぎます",
+      "note": "Drop the い: たかすぎます, not たかいすぎます. いい becomes よすぎます.",
+      "examples": [
+        {"jp": "ゆうべ たべすぎました。", "en": "I ate too much last night."},
+        {"jp": "この くつは おおきすぎます。", "en": "These shoes are too big."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "おさけを ＿＿すぎて、あたまが いたいです。", "en": "I drank too much and I have a headache.", "answer": "のみ", "accepted": [], "hint": "ます stem of のみます"},
+        {"kind": "choose", "prompt": "この もんだいは ＿＿すぎます。", "en": "This problem is too complicated.", "answer": "ふくざつ", "accepted": [], "hint": "な-adjective stem, nothing added", "options": ["ふくざつ", "ふくざつな", "ふくざつに"]}
+      ]
+    },
+    {
+      "id": "mari.L44.2",
+      "explain": "ます stem + やすいです means something is easy to do. ます stem + にくいです means it is hard to do.",
+      "form": "ますForm + やすいです / にくいです",
+      "note": "Both work like い-adjectives: わかりやすくて, よみにくかったです.",
+      "examples": [
+        {"jp": "この じは よみやすいです。／この かんじは おぼえにくいです。", "en": "These letters are easy to read. This kanji is hard to remember."},
+        {"jp": "この まちは すみやすいです。", "en": "This town is easy to live in."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この くすりは おおきくて、＿＿にくいです。", "en": "This pill is big and hard to take.", "answer": "のみ", "accepted": [], "hint": "ます stem of のみます"},
+        {"kind": "choose", "prompt": "この ペンは ＿＿やすいです。", "en": "This pen is easy to write with.", "answer": "かき", "accepted": [], "hint": "ます stem of かきます", "options": ["かき", "かく", "かいて"]}
+      ]
+    },
+    {
+      "id": "mari.L44.3",
+      "explain": "い-adjective stem + くします or な-adjective + にします means someone deliberately makes something that way.",
+      "form": "いadj(い→く) / なadj + に + します",
+      "note": "なります is a change that happens; します is a change someone makes: へやが きれいに なりました vs へやを きれいに しました.",
+      "examples": [
+        {"jp": "へやを きれいに しました。", "en": "I cleaned up the room."},
+        {"jp": "おとを ちいさく して ください。", "en": "Please turn the volume down."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "テレビの おとを ＿＿ して ください。", "en": "Please turn up the TV volume.", "answer": "おおきく", "accepted": [], "hint": "い-adjective in its く form"},
+        {"kind": "choose", "prompt": "かみを ＿＿ しました。", "en": "I got my hair cut short.", "answer": "みじかく", "accepted": [], "hint": "い-adjective in its く form", "options": ["みじかく", "みじかい", "みじかに"]}
+      ]
+    },
+    {
+      "id": "mari.L44.4",
+      "explain": "To describe how an action is done, change an い-adjective to く (はやく) or add に to a な-adjective (しずかに), then put it before the verb.",
+      "form": "いadj(い→く) / なadj + に + Verb",
+      "note": "いい becomes よく: よく できました.",
+      "examples": [
+        {"jp": "じを おおきく かきます。", "en": "I write the letters large."},
+        {"jp": "しずかに あるいて ください。", "en": "Please walk quietly."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "じを ＿＿ かいて ください。", "en": "Please write the letters neatly.", "answer": "きれいに", "accepted": ["ていねいに"], "hint": "な-adjective + に"},
+        {"kind": "choose", "prompt": "あさ ＿＿ おきました。", "en": "I got up early in the morning.", "answer": "はやく", "accepted": [], "hint": "い-adjective in its く form", "options": ["はやく", "はやい", "はやに"]}
+      ]
+    }
+  ]
+}

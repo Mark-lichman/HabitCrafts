@@ -1,0 +1,76 @@
+{
+  "lesson": 35,
+  "title": "If: The Conditional Form",
+  "points": [
+    {
+      "id": "mari.L35.1",
+      "explain": "The ば form of a verb means 'if.' Use it to say that when a condition is met, a certain result follows.",
+      "form": "I: かく→かけば II: みる→みれば III: すれば／くれば",
+      "note": "For the negative, change ない to なければ: いかない becomes いかなければ.",
+      "examples": [
+        {"jp": "はやく おきれば、まにあいます。", "en": "If you get up early, you'll make it in time."},
+        {"jp": "ボタンを おせば、きっぷが でます。", "en": "If you press the button, the ticket comes out."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この くすりを ＿＿、すぐ なおります。", "en": "If you take this medicine, you'll get better soon.", "answer": "のめば", "accepted": [], "hint": "ば form of のみます"},
+        {"kind": "choose", "prompt": "じかんが ＿＿、いきます。", "en": "If I have time, I'll go.", "answer": "あれば", "options": ["あれば", "あるば", "あれは"], "accepted": [], "hint": "ば form of あります"}
+      ]
+    },
+    {
+      "id": "mari.L35.2",
+      "explain": "For い adjectives, drop the final い and add ければ to say 'if it is ...'.",
+      "form": "いadj（〜い→〜ければ）、〜",
+      "note": "いい becomes よければ, not いければ.",
+      "examples": [
+        {"jp": "やすければ、かいます。", "en": "If it's cheap, I'll buy it."},
+        {"jp": "てんきが よければ、さんぽします。", "en": "If the weather is good, I'll take a walk."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "＿＿、まどを しめて ください。", "en": "If you're cold, please close the window.", "answer": "さむければ", "accepted": [], "hint": "ければ form of さむい"},
+        {"kind": "fill", "prompt": "その かばんは ＿＿、かいません。", "en": "If that bag is expensive, I won't buy it.", "answer": "たかければ", "accepted": [], "hint": "ければ form of たかい"}
+      ]
+    },
+    {
+      "id": "mari.L35.3",
+      "explain": "For な adjectives and nouns, add なら to say 'if it is ...'.",
+      "form": "なadj／Noun ＋ なら、〜",
+      "note": "Do not add な before なら: ひまなら, not ひまななら.",
+      "examples": [
+        {"jp": "ひまなら、てつだって ください。", "en": "If you're free, please help me."},
+        {"jp": "あした ひまなら、いっしょに えいがを みませんか。", "en": "If you're free tomorrow, would you like to see a movie together?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "しずか＿＿、ここで べんきょうします。", "en": "If it's quiet, I'll study here.", "answer": "なら", "accepted": ["だったら"], "hint": "the conditional word that follows な adjectives"},
+        {"kind": "choose", "prompt": "きらい＿＿、たべなくても いいです。", "en": "If you don't like it, you don't have to eat it.", "answer": "なら", "options": ["なら", "ければ", "ば"], "accepted": [], "hint": "きらい is a な adjective"}
+      ]
+    },
+    {
+      "id": "mari.L35.4",
+      "explain": "Use a question word with a ば form and いいですか to ask for advice: 'What should I do?' or 'Where should I go?'",
+      "form": "ぎもんし ＋ Verbば ＋ いいですか",
+      "note": "たら いいですか means the same thing: どう したら いいですか and どう すれば いいですか are both correct.",
+      "examples": [
+        {"jp": "どこで きっぷを かえば いいですか。", "en": "Where should I buy a ticket?"},
+        {"jp": "なんじに くれば いいですか。", "en": "What time should I come?"}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "この かみは どこに ＿＿ いいですか。", "en": "Where should I hand in this paper?", "answer": "だせば", "accepted": ["だしたら"], "hint": "ば form of だします"},
+        {"kind": "choose", "prompt": "だれに ＿＿ いいですか。", "en": "Who should I ask?", "answer": "きけば", "options": ["きけば", "ききば", "きくば"], "accepted": [], "hint": "ば form of ききます"}
+      ]
+    },
+    {
+      "id": "mari.L35.5",
+      "explain": "Noun ＋ なら picks up a topic someone just mentioned, like 'If it's X you want, ...'. Use it to give advice or information about that topic.",
+      "form": "Noun ＋ なら、〜",
+      "note": "This usually responds to what the other person said or wants. It is not a plain 'if' about events.",
+      "examples": [
+        {"jp": "すしなら、あの みせが おいしいです。", "en": "If it's sushi you want, that restaurant is good."},
+        {"jp": "えいごなら、ミラーさんに きいて ください。", "en": "If it's about English, please ask Mr. Miller."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "カメラ＿＿、この みせが やすいですよ。", "en": "If it's a camera you want, this shop is cheap.", "answer": "なら", "accepted": ["だったら"], "hint": "the word that picks up a topic"},
+        {"kind": "choose", "prompt": "りょこう＿＿、きょうとが いいですよ。", "en": "If it's a trip you're planning, Kyoto is good.", "answer": "なら", "options": ["なら", "ので", "から"], "accepted": [], "hint": "the word that picks up a topic"}
+      ]
+    }
+  ]
+}

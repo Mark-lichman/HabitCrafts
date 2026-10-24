@@ -1,0 +1,34 @@
+{
+  "lesson": 47,
+  "title": "Hearsay and Educated Guesses",
+  "points": [
+    {
+      "id": "mari.L47.1",
+      "explain": "Plain form + そうです reports something you heard or read: 'I hear that'. Name the source with 〜に よると.",
+      "form": "ふつうForm + そうです",
+      "note": "Don't mix it up with the 'looks like' そうです: ふりそうです means it looks like rain; ふるそうです means I hear it will rain.",
+      "examples": [
+        {"jp": "てんきよほうに よると、あした ゆきが ふるそうです。", "en": "According to the weather forecast, it will snow tomorrow."},
+        {"jp": "ミラーさんは らいげつ けっこんするそうです。", "en": "I hear Mr. Miller is getting married next month."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "ニュースに よると、きのう じしんが ＿＿そうです。", "en": "According to the news, there was an earthquake yesterday.", "answer": "あった", "accepted": [], "hint": "Plain past of あります"},
+        {"kind": "choose", "prompt": "てんきよほうに よると、あしたは ＿＿そうです。", "en": "According to the weather forecast, it will rain tomorrow.", "answer": "あめだ", "accepted": [], "hint": "Noun in plain form", "options": ["あめだ", "あめ", "あめな"]}
+      ]
+    },
+    {
+      "id": "mari.L47.2",
+      "explain": "Plain form + ようです means 'it seems'. It is your own conclusion from what you see, hear, or notice.",
+      "form": "ふつうForm + ようです",
+      "note": "With nouns use の (じこの ようです), with な-adjectives use な. Use hearsay そうです for what someone told you.",
+      "examples": [
+        {"jp": "だれも いないようです。", "en": "It seems nobody is here."},
+        {"jp": "ひとが おおぜい あつまって いますね。じこの ようです。", "en": "A lot of people have gathered. It seems there was an accident."}
+      ],
+      "practice": [
+        {"kind": "fill", "prompt": "せきも ねつも あります。かぜを ＿＿ようです。", "en": "I have a cough and a fever. It seems I've caught a cold.", "answer": "ひいた", "accepted": [], "hint": "Plain past of ひきます"},
+        {"kind": "choose", "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。", "en": "The room is dark. It seems Mr. Tanaka is out.", "answer": "るすの", "accepted": [], "hint": "Noun + the right connector", "options": ["るすの", "るすな", "るすだ"]}
+      ]
+    }
+  ]
+}
