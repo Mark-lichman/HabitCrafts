@@ -97,3 +97,17 @@ def conjugate(dic: str, g: int) -> dict[str, str]:
 
 def masu_candidates(dic: str) -> dict[int, str]:
     return {g: conjugate(dic, g)["masu"] for g in sorted(group(dic))}
+
+
+# Mari's checklist lists example conjugations for four "form" lessons. Each entry is the
+# dictionary verbs, in order, that her example conjugates. Gold for the engine.
+MARI_DRILLS = {
+    "いこうけい (Volitional form)": [("いく", "volitional"), ("たべる", "volitional"),
+                                    ("する", "volitional"), ("くる", "volitional")],
+    "うけみけい (Passive Form)": [("よむ", "passive"), ("たべる", "passive"),
+                                  ("する", "passive"), ("くる", "passive")],
+    "しえきけい (Causative verbs)": [("いく", "causative"), ("たべる", "causative"),
+                                     ("する", "causative"), ("くる", "causative")],
+    "めいれいけい／きんしけいの かつよう　（Imperative form）": [("とまる", "imperative"),
+                                                       ("はいる", "prohibitive")],
+}

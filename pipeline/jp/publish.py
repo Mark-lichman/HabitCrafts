@@ -153,7 +153,7 @@ def drill(s02: dict, s03: dict, review: dict) -> dict:
             "verbs": [{"dictionary": v, "group": g, **conjugate(v, g)} for v, g in sorted(verbs.items())]}
 
 
-def run() -> None:
+def run(out: Path = ASSET) -> tuple[dict, list[str]]:
     review = json.loads((HERE / "corrections.json").read_text(encoding="utf-8"))
     bundles = {s: load(s) for s in review["approved_sources"]}
     for s, b in bundles.items():
@@ -206,13 +206,14 @@ def run() -> None:
         "pairs": pairs(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"]),
         "conjugation": drill(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"], review),
     }
-    ASSET.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
     drafted = sum(1 for g in grammar if g["status"] == "draft")
-    print(f"wrote {ASSET.name}: {len(grammar)} lessons ({drafted} drafted), "
+    print(f"wrote {out.name}: {len(grammar)} lessons ({drafted} drafted), "
           f"{len(doc['pairs'])} pairs, {len(doc['conjugation']['verbs'])} drill verbs, "
           f"{len(applied)} corrections")
     for s in skipped:
         print("SKIP", s)
+    return doc, skipped
 
 
 if __name__ == "__main__":

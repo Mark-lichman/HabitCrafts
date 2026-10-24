@@ -24,7 +24,7 @@ from pathlib import Path
 import openpyxl
 
 from common import bundle, ingest, is_kana, nfc, write
-from conjugate import conjugate, group
+from conjugate import MARI_DRILLS as FORM_DRILLS, conjugate, group
 from s01_counters import NUM as NUMBERS
 
 SOURCE_ID = "s04_mari_checklist"
@@ -40,17 +40,6 @@ SLOTS = [
 ]
 
 # Lessons whose example cell is a list of conjugations, to test the engine with.
-# Each entry lists the dictionary verbs, in order, that Mari's example conjugates.
-FORM_DRILLS = {
-    "いこうけい (Volitional form)": [("いく", "volitional"), ("たべる", "volitional"),
-                                    ("する", "volitional"), ("くる", "volitional")],
-    "うけみけい (Passive Form)": [("よむ", "passive"), ("たべる", "passive"),
-                                  ("する", "passive"), ("くる", "passive")],
-    "しえきけい (Causative verbs)": [("いく", "causative"), ("たべる", "causative"),
-                                     ("する", "causative"), ("くる", "causative")],
-    "めいれいけい／きんしけいの かつよう　（Imperative form）": [("とまる", "imperative"),
-                                                       ("はいる", "prohibitive")],
-}
 
 
 def _sheet_rows(ws):

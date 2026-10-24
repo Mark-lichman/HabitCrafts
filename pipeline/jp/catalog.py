@@ -41,7 +41,7 @@ def _bundle(source: str) -> dict:
     return json.loads((OUT_DIR / source / "lesson_bundle.json").read_text(encoding="utf-8"))
 
 
-def build() -> dict:
+def build(save: bool = False) -> dict:
     uses = json.loads((HERE / "uses.json").read_text(encoding="utf-8"))
     tags = uses["points"]
     entries: list[dict] = []
@@ -125,12 +125,13 @@ def build() -> dict:
 
     catalog = {"types": [{"id": k, "label": v} for k, v in TYPES.items()],
                "uses": uses["uses"], "entries": entries}
-    write("catalog", "catalog", catalog)
+    if save:  # only the stage run saves; publish and tests just read it
+        write("catalog", "catalog", catalog)
     return catalog
 
 
 if __name__ == "__main__":
-    c = build()
+    c = build(save=True)
     from collections import Counter
     print(len(c["entries"]), "entries", dict(Counter(e["type"] for e in c["entries"])))
     untagged = [e["id"] for e in c["entries"] if not e["uses"] and e["type"] != "vocabulary"]
