@@ -4957,6 +4957,40 @@
        ],
        "accepted": [],
        "hint": "Group 1 potential form"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは じてんしゃに ＿＿。",
+       "en": "I can ride a bicycle.",
+       "answer": "のれます",
+       "accepted": [],
+       "options": [
+        "のります",
+        "のられます",
+        "のれます"
+       ],
+       "hint": "Group 1 potential changes -u to -e: のる → のれる → のれます.",
+       "why_wrong": {
+        "のります": "This is the plain ます form: 'I ride', not 'I can ride'.",
+        "のられます": "Group 1 verbs do not add られ for the potential; it is のれます."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あしたの パーティーに ＿＿か。",
+       "en": "Can you come to tomorrow's party?",
+       "answer": "こられます",
+       "accepted": [],
+       "options": [
+        "きられます",
+        "こられます",
+        "くられます"
+       ],
+       "hint": "The potential of くる is irregular: こられる → こられます.",
+       "why_wrong": {
+        "きられます": "The potential of くる starts with こ, not き: こられます.",
+        "くられます": "The potential of くる starts with こ, not く: こられます."
+       }
       }
      ]
     },
@@ -5002,6 +5036,40 @@
        ],
        "accepted": [],
        "hint": "A chosen action needs the potential form"
+      },
+      {
+       "kind": "choose",
+       "prompt": "となりの へやから ピアノの おとが ＿＿。",
+       "en": "I can hear a piano from the next room.",
+       "answer": "きこえます",
+       "accepted": [],
+       "options": [
+        "ききます",
+        "みえます",
+        "きこえます"
+       ],
+       "hint": "A sound that reaches you naturally uses きこえます with が.",
+       "why_wrong": {
+        "ききます": "ききます is listening on purpose and takes を, not が.",
+        "みえます": "みえます is for seeing, but a sound is heard."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "その えいがは どこで ＿＿か。",
+       "en": "Where can I see that movie?",
+       "answer": "みられます",
+       "accepted": [],
+       "options": [
+        "みえます",
+        "みられます",
+        "みえられます"
+       ],
+       "hint": "Watching a movie is a chosen action, so use the potential みられます.",
+       "why_wrong": {
+        "みえます": "みえます is for things that come into view naturally, not watching a movie.",
+        "みえられます": "みえます is already 'can be seen'; do not add られ to it."
+       }
       }
      ]
     },
@@ -5047,6 +5115,40 @@
        ],
        "accepted": [],
        "hint": "Particle used with できます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ゴルフが ＿＿。",
+       "en": "I can play golf.",
+       "answer": "できます",
+       "accepted": [],
+       "options": [
+        "します",
+        "できられます",
+        "できます"
+       ],
+       "hint": "With a skill + が, use できます to say you can do it.",
+       "why_wrong": {
+        "します": "します means 'do', not 'can do', and it takes を, not が.",
+        "できられます": "できます is already the potential; do not add られ."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ＿＿が できます。",
+       "en": "I can drive.",
+       "answer": "うんてん",
+       "accepted": [],
+       "options": [
+        "うんてんする",
+        "うんてん",
+        "うんてんして"
+       ],
+       "hint": "Nが できます takes a noun; a verb would need ことが.",
+       "why_wrong": {
+        "うんてんする": "A verb needs こと before が: うんてんする ことが できます.",
+        "うんてんして": "The てForm cannot take が before できます."
+       }
       }
      ]
     },
@@ -5092,6 +5194,40 @@
        ],
        "accepted": [],
        "hint": "しか needs a negative verb"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あさは コーヒーしか ＿＿。",
+       "en": "I only drink coffee in the morning.",
+       "answer": "のみません",
+       "accepted": [],
+       "options": [
+        "のみます",
+        "のんで います",
+        "のみません"
+       ],
+       "hint": "しか always pairs with a negative verb.",
+       "why_wrong": {
+        "のみます": "しか cannot go with a positive verb; use だけ for that.",
+        "のんで います": "This is a positive verb, but しか needs a negative one."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "なつやすみは みっか＿＿ ありません。",
+       "en": "Summer vacation is only three days long.",
+       "answer": "しか",
+       "accepted": [],
+       "options": [
+        "だけ",
+        "しか",
+        "まで"
+       ],
+       "hint": "With a negative verb like ありません, 'only' is しか.",
+       "why_wrong": {
+        "だけ": "だけ goes with a positive verb, not with ありません.",
+        "まで": "まで means 'until', not 'only'."
+       }
       }
      ]
     },
@@ -5139,6 +5275,40 @@
        ],
        "accepted": [],
        "hint": "The second half contrasts the first"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ビールは のみますが、ワインは ＿＿。",
+       "en": "I drink beer, but I don't drink wine.",
+       "answer": "のみません",
+       "accepted": [],
+       "options": [
+        "のみます",
+        "のみませんか",
+        "のみません"
+       ],
+       "hint": "The は contrast pairs a positive half with a negative half.",
+       "why_wrong": {
+        "のみます": "This says you drink wine too, so there is no contrast.",
+        "のみませんか": "This is an invitation, 'won't you drink?', not a contrast."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "やまへは いきましたが、うみへは ＿＿。",
+       "en": "I went to the mountains, but I didn't go to the sea.",
+       "answer": "いきませんでした",
+       "accepted": [],
+       "options": [
+        "いきませんでした",
+        "いきました",
+        "いきません"
+       ],
+       "hint": "The contrast needs a negative, and the trip is over, so use the past negative.",
+       "why_wrong": {
+        "いきました": "This says you went, but the contrast needs 'didn't go'.",
+        "いきません": "This is present 'don't go', but the trip already happened."
+       }
       }
      ]
     },
@@ -5184,6 +5354,40 @@
        ],
        "accepted": [],
        "hint": "Place particle + topic particle"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この こうえん＿＿ やきゅうが できません。",
+       "en": "You can't play baseball in this park.",
+       "answer": "では",
+       "accepted": [],
+       "options": [
+        "をは",
+        "では",
+        "がは"
+       ],
+       "hint": "The place of an activity takes で, and adding は makes it the topic: では.",
+       "why_wrong": {
+        "をは": "を is replaced by は, never combined with it.",
+        "がは": "が is replaced by は, never combined with it."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あの ひと＿＿ はなした ことが ありません。",
+       "en": "I have never talked with that person.",
+       "answer": "とは",
+       "accepted": [],
+       "options": [
+        "をは",
+        "へは",
+        "とは"
+       ],
+       "hint": "Talking with someone uses と, and adding は makes it the topic: とは.",
+       "why_wrong": {
+        "をは": "を is replaced by は, never combined with it.",
+        "へは": "へ shows the direction of movement; talking with someone uses と."
+       }
       }
      ]
     }
@@ -5237,6 +5441,40 @@
        ],
        "accepted": [],
        "hint": "ますForm + ながら"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ラジオを ＿＿ りょうりを します。",
+       "en": "I cook while listening to the radio.",
+       "answer": "ききながら",
+       "accepted": [],
+       "options": [
+        "きくながら",
+        "ききながら",
+        "きいたながら"
+       ],
+       "hint": "ながら attaches to the ますStem: ききます → ききながら.",
+       "why_wrong": {
+        "きくながら": "ながら does not attach to the dictionary form; drop ます from ききます.",
+        "きいたながら": "ながら does not attach to the たForm; drop ます from ききます."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "メモを ＿＿ せんせいの はなしを ききます。",
+       "en": "I listen to the teacher while taking notes.",
+       "answer": "とりながら",
+       "accepted": [],
+       "options": [
+        "とったり",
+        "とって ながら",
+        "とりながら"
+       ],
+       "hint": "Two actions at the same time use ますStem + ながら: とります → とりながら.",
+       "why_wrong": {
+        "とったり": "たり lists actions and needs another たり plus します; it does not mean 'while'.",
+        "とって ながら": "ながら does not follow the てForm; drop ます from とります."
+       }
       }
      ]
     },
@@ -5282,6 +5520,40 @@
        ],
        "accepted": [],
        "hint": "てForm + います for a regular activity"
+      },
+      {
+       "kind": "choose",
+       "prompt": "まいにち じてんしゃで かいしゃへ ＿＿。",
+       "en": "I go to work by bicycle every day.",
+       "answer": "いって います",
+       "accepted": [],
+       "options": [
+        "いって あります",
+        "いって います",
+        "いって おきます"
+       ],
+       "hint": "てForm + います describes a regular habit.",
+       "why_wrong": {
+        "いって あります": "てあります needs a transitive verb, and いきます is not one.",
+        "いって おきます": "ておきます means doing something in advance, not a daily habit."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ちちは だいがくで えいごを ＿＿。",
+       "en": "My father teaches English at a university.",
+       "answer": "おしえて います",
+       "accepted": [],
+       "options": [
+        "おしえる います",
+        "おしえながら",
+        "おしえて います"
+       ],
+       "hint": "A job or regular activity uses てForm + います.",
+       "why_wrong": {
+        "おしえる います": "います follows the てForm, not the dictionary form.",
+        "おしえながら": "ながら needs a main verb after it, so the sentence is unfinished."
+       }
       }
      ]
     },
@@ -5327,6 +5599,40 @@
        ],
        "accepted": [],
        "hint": "い-adjectives add し directly"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あしたは ＿＿し、てんきも いいし、でかけましょう。",
+       "en": "Tomorrow is a day off and the weather is good, so let's go out.",
+       "answer": "やすみだ",
+       "accepted": [],
+       "options": [
+        "やすみ",
+        "やすみな",
+        "やすみだ"
+       ],
+       "hint": "A noun takes だ before し.",
+       "why_wrong": {
+        "やすみ": "A noun needs だ before し.",
+        "やすみな": "な links a な-adjective to a noun; a noun takes だ before し."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "きのうは ねつが ＿＿し、がっこうを やすみました。",
+       "en": "I had a fever yesterday, so I stayed home from school.",
+       "answer": "あった",
+       "accepted": [],
+       "options": [
+        "あって",
+        "あった",
+        "あり"
+       ],
+       "hint": "し follows the plain form, and for the past that is the たForm あった.",
+       "why_wrong": {
+        "あって": "The てForm cannot come before し.",
+        "あり": "The ますStem cannot come before し."
+       }
       }
      ]
     }
@@ -5379,6 +5685,40 @@
        ],
        "accepted": [],
        "hint": "Intransitive verb in てForm"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ほら、みちに さいふが ＿＿ いますよ。",
+       "en": "Look, there's a wallet lying on the road.",
+       "answer": "おちて",
+       "accepted": [],
+       "options": [
+        "おとして",
+        "おちる",
+        "おちて"
+       ],
+       "hint": "A resulting state uses an intransitive verb in てForm + います.",
+       "why_wrong": {
+        "おとして": "おとします is transitive; a state with が needs intransitive おちて.",
+        "おちる": "います follows the てForm, not the dictionary form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "えきの まえに くるまが ＿＿ います。",
+       "en": "A car is stopped in front of the station.",
+       "answer": "とまって",
+       "accepted": [],
+       "options": [
+        "とまって",
+        "とめて",
+        "とまり"
+       ],
+       "hint": "Nが + intransitive てForm + います shows the current state.",
+       "why_wrong": {
+        "とめて": "とめます is transitive; a state with が needs intransitive とまって.",
+        "とまり": "います follows the てForm, not the ますStem."
+       }
       }
      ]
     },
@@ -5424,6 +5764,40 @@
        ],
        "accepted": [],
        "hint": "Intransitive verb in てForm"
+      },
+      {
+       "kind": "choose",
+       "prompt": "まどは しまって いますか。いいえ、＿＿。",
+       "en": "Is the window closed? No, it's open.",
+       "answer": "あいて います",
+       "accepted": [],
+       "options": [
+        "あいて あります",
+        "あいて います",
+        "あいた います"
+       ],
+       "hint": "An intransitive verb in てForm + います shows a resulting state.",
+       "why_wrong": {
+        "あいて あります": "てあります needs a transitive verb, and あきます is intransitive.",
+        "あいた います": "います follows the てForm あいて, not the たForm."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この シャツは ＿＿ います。",
+       "en": "This shirt is dirty.",
+       "answer": "よごれて",
+       "accepted": [],
+       "options": [
+        "よごれる",
+        "よごれって",
+        "よごれて"
+       ],
+       "hint": "A resulting state uses the てForm of an intransitive verb + います.",
+       "why_wrong": {
+        "よごれる": "います follows the てForm, not the dictionary form.",
+        "よごれって": "よごれます is Group 2, so its てForm is よごれて."
+       }
       }
      ]
     },
@@ -5469,6 +5843,40 @@
        ],
        "accepted": [],
        "hint": "てForm before しまいます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この ほんは きょう ぜんぶ ＿＿ しまいます。",
+       "en": "I'll finish reading this whole book today.",
+       "answer": "よんで",
+       "accepted": [],
+       "options": [
+        "よむ",
+        "よんで",
+        "よみ"
+       ],
+       "hint": "しまいます follows the てForm: よみます → よんで.",
+       "why_wrong": {
+        "よむ": "しまいます follows the てForm, not the dictionary form.",
+        "よみ": "しまいます follows the てForm, not the ますStem."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しゅくだいは もう して ＿＿。",
+       "en": "I've already finished my homework.",
+       "answer": "しまいました",
+       "accepted": [],
+       "options": [
+        "しまりました",
+        "しめました",
+        "しまいました"
+       ],
+       "hint": "The helper verb for finishing is しまいます, here in the past.",
+       "why_wrong": {
+        "しまりました": "しまります means 'to close' by itself, not 'to finish'.",
+        "しめました": "しめます means 'to close something', not 'to finish'."
+       }
       }
      ]
     },
@@ -5514,6 +5922,40 @@
        ],
        "accepted": [],
        "hint": "Transitive verb in てForm"
+      },
+      {
+       "kind": "choose",
+       "prompt": "でんしゃの なかで ＿＿ しまいました。",
+       "en": "I fell asleep on the train.",
+       "answer": "ねて",
+       "accepted": [],
+       "options": [
+        "ねた",
+        "ねって",
+        "ねて"
+       ],
+       "hint": "Regret uses the てForm + しまいました, and ねます is Group 2: ねて.",
+       "why_wrong": {
+        "ねた": "しまいました follows the てForm, not the たForm.",
+        "ねって": "ねます is Group 2, so its てForm is ねて."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "みちを ＿＿ しまいました。",
+       "en": "I took the wrong road.",
+       "answer": "まちがえて",
+       "accepted": [],
+       "options": [
+        "まちがえった",
+        "まちがえて",
+        "まちがえた"
+       ],
+       "hint": "Regret uses the てForm + しまいました.",
+       "why_wrong": {
+        "まちがえった": "まちがえます is Group 2, so its てForm is まちがえて.",
+        "まちがえた": "しまいました follows the てForm, not the たForm."
+       }
       }
      ]
     }
@@ -5566,6 +6008,40 @@
        ],
        "accepted": [],
        "hint": "Transitive verb in てForm"
+      },
+      {
+       "kind": "choose",
+       "prompt": "かべに ちずが ＿＿ あります。",
+       "en": "A map has been hung on the wall.",
+       "answer": "かけて",
+       "accepted": [],
+       "options": [
+        "かかって",
+        "かける",
+        "かけて"
+       ],
+       "hint": "てあります needs a transitive verb in てForm.",
+       "why_wrong": {
+        "かかって": "かかります is intransitive; it pairs with います, not あります.",
+        "かける": "あります follows the てForm, not the dictionary form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "いえの まえに じてんしゃが ＿＿。",
+       "en": "A bicycle has been parked in front of the house.",
+       "answer": "とめて あります",
+       "accepted": [],
+       "options": [
+        "とめて います",
+        "とめて あります",
+        "とまって あります"
+       ],
+       "hint": "Nが + transitive てForm + あります shows a state someone set up.",
+       "why_wrong": {
+        "とめて います": "With が, transitive + います would mean the bicycle is parking something.",
+        "とまって あります": "とまります is intransitive, but てあります needs a transitive verb."
+       }
       }
      ]
     },
@@ -5611,6 +6087,40 @@
        ],
        "accepted": [],
        "hint": "てForm before おきます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "じゅぎょうの まえに きょうかしょを ＿＿ おきます。",
+       "en": "I'll read the textbook before class.",
+       "answer": "よんで",
+       "accepted": [],
+       "options": [
+        "よまない",
+        "よんだ",
+        "よんで"
+       ],
+       "hint": "おきます follows the てForm: よみます → よんで.",
+       "why_wrong": {
+        "よまない": "おきます follows the てForm; a ないForm cannot connect to it directly.",
+        "よんだ": "おきます follows the てForm, not the たForm."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "おきゃくさんが ＿＿ まえに、へやを そうじして おきます。",
+       "en": "I'll clean the room before the guests come.",
+       "answer": "くる",
+       "accepted": [],
+       "options": [
+        "きた",
+        "くる",
+        "きて"
+       ],
+       "hint": "まえに always follows the dictionary form.",
+       "why_wrong": {
+        "きた": "まえに never follows the たForm, even for past events.",
+        "きて": "まえに never follows the てForm."
+       }
       }
      ]
     },
@@ -5656,6 +6166,40 @@
        ],
        "accepted": [],
        "hint": "てForm of おきます (to leave)"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あついですから、ドアを ＿＿ おいて ください。",
+       "en": "It's hot, so please leave the door open.",
+       "answer": "あけて",
+       "accepted": [],
+       "options": [
+        "あいて",
+        "あけて",
+        "あける"
+       ],
+       "hint": "ておいて ください needs a transitive verb in てForm, since the door takes を.",
+       "why_wrong": {
+        "あいて": "あきます is intransitive and cannot take を.",
+        "あける": "おいて ください follows the てForm, not the dictionary form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あとで かたづけますから、そのままに ＿＿ ください。",
+       "en": "I'll tidy up later, so please leave it as it is.",
+       "answer": "して おいて",
+       "accepted": [],
+       "options": [
+        "して あって",
+        "して おいて",
+        "して おきて"
+       ],
+       "hint": "そのままに して おいて ください asks someone to leave things as they are.",
+       "why_wrong": {
+        "して あって": "てあります describes a state; it cannot make a request with ください.",
+        "して おきて": "The てForm of おきます (to leave) is おいて, not おきて."
+       }
       }
      ]
     }
@@ -5709,6 +6253,40 @@
        ],
        "accepted": [],
        "hint": "Volitional form of くる"
+      },
+      {
+       "kind": "choose",
+       "prompt": "おなかが すいたね。なにか ＿＿。",
+       "en": "I'm hungry. Let's eat something.",
+       "answer": "たべよう",
+       "accepted": [],
+       "options": [
+        "たべろう",
+        "たべおう",
+        "たべよう"
+       ],
+       "hint": "Group 2 volitional adds よう to the stem: たべ → たべよう.",
+       "why_wrong": {
+        "たべろう": "Group 2 verbs add よう, not ろう.",
+        "たべおう": "Group 2 verbs add よう; the -ou change is only for Group 1."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "みんなで しゃしんを ＿＿。",
+       "en": "Let's all take a photo.",
+       "answer": "とろう",
+       "accepted": [],
+       "options": [
+        "とろう",
+        "とりよう",
+        "とおう"
+       ],
+       "hint": "Group 1 volitional changes -u to -ou: とる → とろう.",
+       "why_wrong": {
+        "とりよう": "よう is for Group 2; Group 1 とる changes to とろう.",
+        "とおう": "The る becomes ろう, so the form is とろう."
+       }
       }
      ]
     },
@@ -5754,6 +6332,40 @@
        ],
        "accepted": [],
        "hint": "Plain volitional form"
+      },
+      {
+       "kind": "choose",
+       "prompt": "らいねん にほんへ ＿＿と おもって います。",
+       "en": "I'm thinking of going to Japan next year.",
+       "answer": "いこう",
+       "accepted": [],
+       "options": [
+        "いきよう",
+        "いこう",
+        "いけよう"
+       ],
+       "hint": "Group 1 volitional changes -u to -ou: いく → いこう.",
+       "why_wrong": {
+        "いきよう": "よう is for Group 2; Group 1 いく changes to いこう.",
+        "いけよう": "This mixes the potential stem with よう; the volitional is いこう."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しごとを ＿＿と おもって います。",
+       "en": "I'm thinking of quitting my job.",
+       "answer": "やめよう",
+       "accepted": [],
+       "options": [
+        "やめましょう",
+        "やめろう",
+        "やめよう"
+       ],
+       "hint": "と おもって います follows the plain volitional form.",
+       "why_wrong": {
+        "やめましょう": "Use the plain volitional, not ましょう, before と おもって います.",
+        "やめろう": "Group 2 verbs add よう, not ろう: やめよう."
+       }
       }
      ]
     },
@@ -5799,6 +6411,40 @@
        ],
        "accepted": [],
        "hint": "まだ + てForm + いません"
+      },
+      {
+       "kind": "choose",
+       "prompt": "レポートは もう だしましたか。いいえ、まだ ＿＿。",
+       "en": "Have you turned in the report yet? No, not yet.",
+       "answer": "だして いません",
+       "accepted": [],
+       "options": [
+        "だしませんでした",
+        "だして いません",
+        "だして いました"
+       ],
+       "hint": "Answer もう 〜ましたか with まだ + てForm + いません.",
+       "why_wrong": {
+        "だしませんでした": "This means you did not turn it in; 'not yet' needs まだ 〜て いません.",
+        "だして いました": "This is positive, but the answer means 'not yet'."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "たなかさんから ＿＿ メールが きて いません。",
+       "en": "I still haven't gotten an email from Mr. Tanaka.",
+       "answer": "まだ",
+       "accepted": [],
+       "options": [
+        "もう",
+        "よく",
+        "まだ"
+       ],
+       "hint": "まだ + てForm + いません means 'not yet'.",
+       "why_wrong": {
+        "もう": "もう with a negative means 'no longer', not 'not yet'.",
+        "よく": "よく means 'often' or 'well', not 'yet'."
+       }
       }
      ]
     },
@@ -5844,6 +6490,40 @@
        ],
        "accepted": [],
        "hint": "ないForm before つもり"
+      },
+      {
+       "kind": "choose",
+       "prompt": "らいねん だいがくに ＿＿ つもりです。",
+       "en": "I plan to enter university next year.",
+       "answer": "はいる",
+       "accepted": [],
+       "options": [
+        "はいろう",
+        "はいる",
+        "はいります"
+       ],
+       "hint": "つもりです follows the dictionary form.",
+       "why_wrong": {
+        "はいろう": "The volitional form cannot come before つもり.",
+        "はいります": "The polite ます form cannot come before つもり."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "もう あの みせには ＿＿ つもりです。",
+       "en": "I don't plan to go to that store anymore.",
+       "answer": "いかない",
+       "accepted": [],
+       "options": [
+        "いかないで",
+        "いきません",
+        "いかない"
+       ],
+       "hint": "A plan not to do something uses the ないForm + つもりです.",
+       "why_wrong": {
+        "いかないで": "つもり follows the ないForm itself, not ないで.",
+        "いきません": "The polite form cannot come before つもり."
+       }
       }
      ]
     },
@@ -5889,6 +6569,40 @@
        ],
        "accepted": [],
        "hint": "Particle joining a noun to よてい"
+      },
+      {
+       "kind": "choose",
+       "prompt": "しんかんせんは ごじに とうきょうを ＿＿ よていです。",
+       "en": "The bullet train is scheduled to leave Tokyo at five.",
+       "answer": "でる",
+       "accepted": [],
+       "options": [
+        "でた",
+        "でます",
+        "でる"
+       ],
+       "hint": "A scheduled plan uses the dictionary form + よていです.",
+       "why_wrong": {
+        "でた": "A plan that has not happened yet uses the dictionary form, not the たForm.",
+        "でます": "The polite form cannot come before よてい."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "つまは らいげつ くにへ ＿＿ よていです。",
+       "en": "My wife is scheduled to go back to her country next month.",
+       "answer": "かえる",
+       "accepted": [],
+       "options": [
+        "かえって",
+        "かえる",
+        "かえろう"
+       ],
+       "hint": "よていです follows the dictionary form.",
+       "why_wrong": {
+        "かえって": "The てForm cannot come before よてい.",
+        "かえろう": "The volitional form cannot come before よてい."
+       }
       }
      ]
     }
@@ -5941,6 +6655,40 @@
        ],
        "accepted": [],
        "hint": "ないForm for negative advice"
+      },
+      {
+       "kind": "choose",
+       "prompt": "つかれたら、すこし ＿＿ ほうが いいですよ。",
+       "en": "If you're tired, you should rest a little.",
+       "answer": "やすんだ",
+       "accepted": [],
+       "options": [
+        "やすみた",
+        "やすんだ",
+        "やすんで"
+       ],
+       "hint": "Positive advice uses the たForm + ほうが いいです.",
+       "why_wrong": {
+        "やすみた": "The たForm of やすみます is やすんだ.",
+        "やすんで": "The てForm cannot come before ほう."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あぶないですから、よる ひとりで ＿＿ ほうが いいです。",
+       "en": "It's dangerous, so you shouldn't go out alone at night.",
+       "answer": "でかけない",
+       "accepted": [],
+       "options": [
+        "でかけた",
+        "でかけません",
+        "でかけない"
+       ],
+       "hint": "Negative advice uses the ないForm + ほうが いいです.",
+       "why_wrong": {
+        "でかけた": "This advises going out, the opposite of the meaning.",
+        "でかけません": "The polite form cannot come before ほう."
+       }
       }
      ]
     },
@@ -5986,6 +6734,40 @@
        ],
        "accepted": [],
        "hint": "Nouns drop だ before でしょう"
+      },
+      {
+       "kind": "choose",
+       "prompt": "にちようびの こうえんは ＿＿でしょう。",
+       "en": "The park will probably be lively on Sunday.",
+       "answer": "にぎやか",
+       "accepted": [],
+       "options": [
+        "にぎやかだ",
+        "にぎやかな",
+        "にぎやか"
+       ],
+       "hint": "な-adjectives drop だ before でしょう.",
+       "why_wrong": {
+        "にぎやかだ": "だ is dropped before でしょう.",
+        "にぎやかな": "な is only used before a noun, not before でしょう."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "たなかさんは もう ＿＿でしょう。",
+       "en": "Mr. Tanaka has probably already gone home.",
+       "answer": "かえった",
+       "accepted": [],
+       "options": [
+        "かえった",
+        "かえりました",
+        "かえって"
+       ],
+       "hint": "でしょう follows the plain form, and the plain past is the たForm.",
+       "why_wrong": {
+        "かえりました": "The polite ました form cannot come before でしょう.",
+        "かえって": "The てForm cannot come before でしょう."
+       }
       }
      ]
     },
@@ -6031,6 +6813,40 @@
        ],
        "accepted": [],
        "hint": "Nouns drop だ before かもしれません"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ミラーさんは パーティーに ＿＿かもしれません。",
+       "en": "Mr. Miller might not come to the party.",
+       "answer": "こない",
+       "accepted": [],
+       "options": [
+        "きない",
+        "こない",
+        "くない"
+       ],
+       "hint": "かもしれません follows the plain form, and the ないForm of くる is こない.",
+       "why_wrong": {
+        "きない": "The ないForm of くる starts with こ: こない.",
+        "くない": "The ないForm of くる starts with こ: こない."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あしたの テストは ＿＿かもしれません。",
+       "en": "Tomorrow's test might be easy.",
+       "answer": "かんたん",
+       "accepted": [],
+       "options": [
+        "かんたんな",
+        "かんたん",
+        "かんたんだ"
+       ],
+       "hint": "な-adjectives drop だ before かもしれません.",
+       "why_wrong": {
+        "かんたんな": "な is only used before a noun, not before かもしれません.",
+        "かんたんだ": "だ is dropped before かもしれません."
+       }
       }
      ]
     }
@@ -6084,6 +6900,40 @@
        ],
        "accepted": [],
        "hint": "Imperative form of くる"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あぶない！ はやく ＿＿！",
+       "en": "Danger! Run away, quick!",
+       "answer": "にげろ",
+       "accepted": [],
+       "options": [
+        "にげるな",
+        "にげれろ",
+        "にげろ"
+       ],
+       "hint": "Group 2 imperative adds ろ to the stem: にげ → にげろ.",
+       "why_wrong": {
+        "にげるな": "Dictionary form + な means 'don't run away', the opposite.",
+        "にげれろ": "Group 2 just adds ろ to the stem: にげろ."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この ボタンに ＿＿。",
+       "en": "Don't touch this button.",
+       "answer": "さわるな",
+       "accepted": [],
+       "options": [
+        "さわれ",
+        "さわるな",
+        "さわないな"
+       ],
+       "hint": "The prohibitive is the dictionary form + な.",
+       "why_wrong": {
+        "さわれ": "さわれ is the imperative 'touch it', the opposite meaning.",
+        "さわないな": "な follows the dictionary form さわる, not a ない form."
+       }
       }
      ]
     },
@@ -6129,6 +6979,40 @@
        ],
        "accepted": [],
        "hint": "Polite form of the verb 'to read'"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あの かんばんには なんと ＿＿か。",
+       "en": "What does that sign say?",
+       "answer": "かいて あります",
+       "accepted": [],
+       "options": [
+        "かいて しまいます",
+        "かいて あります",
+        "かいて おきます"
+       ],
+       "hint": "What is written on something uses と かいて あります.",
+       "why_wrong": {
+        "かいて しまいます": "てしまいます means finishing or regret, not what is written.",
+        "かいて おきます": "ておきます means writing in advance, not what a sign says."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この かんじは「みず」＿＿ よみます。",
+       "en": "This kanji is read as mizu.",
+       "answer": "と",
+       "accepted": [],
+       "options": [
+        "を",
+        "が",
+        "と"
+       ],
+       "hint": "A reading is a quote, so mark it with と before よみます.",
+       "why_wrong": {
+        "を": "The reading is a quote, so it takes と, not を.",
+        "が": "が does not mark a quoted reading; use と."
+       }
       }
      ]
     },
@@ -6174,6 +7058,40 @@
        ],
        "accepted": [],
        "hint": "Plain form before という"
+      },
+      {
+       "kind": "choose",
+       "prompt": "「ちゅうい」は きを つけろ＿＿ いみです。",
+       "en": "'ちゅうい' means 'be careful.'",
+       "answer": "という",
+       "accepted": [],
+       "options": [
+        "の",
+        "という",
+        "が"
+       ],
+       "hint": "Join the explanation to いみ with という.",
+       "why_wrong": {
+        "の": "A quoted phrase needs という before いみ, not の.",
+        "が": "が cannot link the phrase to いみ; use という."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "「やすみ」は みせが ＿＿という いみです。",
+       "en": "'やすみ' means the store is closed.",
+       "answer": "しまって いる",
+       "accepted": [],
+       "options": [
+        "しめて いる",
+        "しまって ある",
+        "しまって いる"
+       ],
+       "hint": "The store's state uses an intransitive verb + ている, in plain form before という.",
+       "why_wrong": {
+        "しめて いる": "しめます is transitive; a state with が needs intransitive しまって いる.",
+        "しまって ある": "てある needs a transitive verb, and しまります is intransitive."
+       }
       }
      ]
     },
@@ -6222,6 +7140,40 @@
        ],
        "accepted": [],
        "hint": "てForm of つたえます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "やまださんは かいぎに おくれると ＿＿。",
+       "en": "Mr. Yamada said he'd be late for the meeting.",
+       "answer": "いって いました",
+       "accepted": [],
+       "options": [
+        "いいて いました",
+        "いって あります",
+        "いって いました"
+       ],
+       "hint": "Pass on what someone said with と いって いました.",
+       "why_wrong": {
+        "いいて いました": "The てForm of いいます is いって, not いいて.",
+        "いって あります": "てあります describes an arranged state, not reporting what someone said."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ミラーさんに あした ＿＿と つたえて いただけませんか。",
+       "en": "Could you tell Mr. Miller that I'll be off tomorrow?",
+       "answer": "やすむ",
+       "accepted": [],
+       "options": [
+        "やすむの",
+        "やすんで",
+        "やすむ"
+       ],
+       "hint": "A message before と uses the plain form.",
+       "why_wrong": {
+        "やすむの": "No の is needed; the plain form goes right before と.",
+        "やすんで": "The てForm cannot come before the quoting と."
+       }
       }
      ]
     }
@@ -7234,6 +8186,40 @@
        ],
        "accepted": [],
        "hint": "Group I: change the last sound to the あ row"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ともだちに えいがに ＿＿。",
+       "en": "I was invited to a movie by a friend.",
+       "answer": "さそわれました",
+       "accepted": [],
+       "options": [
+        "さそいれました",
+        "さそわれました",
+        "さそられました"
+       ],
+       "hint": "Group I verbs ending in う use わ in the passive: さそう becomes さそわれる.",
+       "why_wrong": {
+        "さそいれました": "Group I passive uses the あ row; for う that sound is わ.",
+        "さそられました": "The う ending changes to わ, not ら: さそわれました."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この スポーツは せかいじゅうで ＿＿ います。",
+       "en": "This sport is played all over the world.",
+       "answer": "されて",
+       "accepted": [],
+       "options": [
+        "すられて",
+        "されて",
+        "されれて"
+       ],
+       "hint": "します is irregular: its passive is される.",
+       "why_wrong": {
+        "すられて": "する does not follow the Group I pattern; its passive is される.",
+        "されれて": "There is only one れ: される becomes されて."
+       }
       }
      ]
     },
@@ -7279,6 +8265,40 @@
        ],
        "accepted": [],
        "hint": "passive of おこします, polite past"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。",
+       "en": "I was invited to the wedding by Mr. Kimura.",
+       "answer": "きむらさんに",
+       "accepted": [],
+       "options": [
+        "きむらさんが",
+        "きむらさんを",
+        "きむらさんに"
+       ],
+       "hint": "In a passive sentence, the person who does the action takes に.",
+       "why_wrong": {
+        "きむらさんが": "わたしは is the subject; the doer of a passive takes に, not が.",
+        "きむらさんを": "を marks an object; the doer of a passive takes に."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ぶちょうに ＿＿。",
+       "en": "I was warned by the department manager.",
+       "answer": "ちゅういされました",
+       "accepted": [],
+       "options": [
+        "ちゅういしられました",
+        "ちゅういされました",
+        "ちゅういされれました"
+       ],
+       "hint": "For します verbs, the passive is される: ちゅういされます.",
+       "why_wrong": {
+        "ちゅういしられました": "します becomes される in the passive, not しられる.",
+        "ちゅういされれました": "There is only one れ: ちゅういされました."
+       }
       }
      ]
     },
@@ -7326,6 +8346,40 @@
        ],
        "accepted": [],
        "hint": "passive of よみます, polite past"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは ねこに カップ＿＿ こわされました。",
+       "en": "My cat broke my cup.",
+       "answer": "を",
+       "accepted": [],
+       "options": [
+        "が",
+        "に",
+        "を"
+       ],
+       "hint": "The thing that was affected keeps を in this passive.",
+       "why_wrong": {
+        "が": "わたしは is the subject; the affected thing keeps を.",
+        "に": "に already marks the cat, the doer; the cup takes を."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは こどもに ふくを ＿＿。",
+       "en": "A child got my clothes dirty.",
+       "answer": "よごされました",
+       "accepted": [],
+       "options": [
+        "よごしました",
+        "よごしられました",
+        "よごされました"
+       ],
+       "hint": "Use the passive when someone does something to your things: よごします becomes よごされます.",
+       "why_wrong": {
+        "よごしました": "This is active: it says I got them dirty, but the child did.",
+        "よごしられました": "Group I passive uses the あ row: よごさ＋れる, so よごされる."
+       }
       }
      ]
     },
@@ -7371,6 +8425,40 @@
        ],
        "accepted": [],
        "hint": "passive of ひらきます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この カメラは にほんで ＿＿。",
+       "en": "This camera was made in Japan.",
+       "answer": "つくられました",
+       "accepted": [],
+       "options": [
+        "つくらられました",
+        "つくられました",
+        "つくりられました"
+       ],
+       "hint": "Group I passive: change the last sound to the あ row and add れる.",
+       "why_wrong": {
+        "つくらられました": "Group I verbs add れる, not られる: つくられる.",
+        "つくりられました": "Use the あ row, not the ます stem: つくら＋れる."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この えは ゴッホ＿＿ かかれました。",
+       "en": "This painting was painted by Van Gogh.",
+       "answer": "によって",
+       "accepted": [],
+       "options": [
+        "から",
+        "によって",
+        "を"
+       ],
+       "hint": "To name the creator of a work in the passive, use によって.",
+       "why_wrong": {
+        "から": "から shows a source or material, not who created a work.",
+        "を": "を marks an object; the creator takes によって."
+       }
       }
      ]
     }
@@ -7423,6 +8511,40 @@
        ],
        "accepted": [],
        "hint": "dictionary form ＋ のは"
+      },
+      {
+       "kind": "choose",
+       "prompt": "やさいを ＿＿ からだに いいです。",
+       "en": "Eating vegetables is good for your body.",
+       "answer": "たべるのは",
+       "accepted": [],
+       "options": [
+        "たべるのを",
+        "たべるのは",
+        "たべますのは"
+       ],
+       "hint": "Dictionary form ＋ のは makes the action the topic you describe.",
+       "why_wrong": {
+        "たべるのを": "を marks an object, but いいです needs a topic marked with は.",
+        "たべますのは": "Only the end of the sentence is polite; use the dictionary form before の."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ひとりで ＿＿ さびしいです。",
+       "en": "Living alone is lonely.",
+       "answer": "すむのは",
+       "accepted": [],
+       "options": [
+        "すんでのは",
+        "すみますのは",
+        "すむのは"
+       ],
+       "hint": "Add のは to the dictionary form to turn the action into a topic.",
+       "why_wrong": {
+        "すんでのは": "の attaches to the dictionary form, not the て form.",
+        "すみますのは": "Only the end of the sentence is polite; use すむ before の."
+       }
       }
      ]
     },
@@ -7468,6 +8590,40 @@
        ],
        "accepted": [],
        "hint": "the particle used with はやい"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは えいがを ＿＿ すきです。",
+       "en": "I like watching movies.",
+       "answer": "みるのが",
+       "accepted": [],
+       "options": [
+        "みるのが",
+        "みるが",
+        "みますのが"
+       ],
+       "hint": "すき takes dictionary form ＋ のが.",
+       "why_wrong": {
+        "みるが": "A verb needs の to become a noun before が.",
+        "みますのが": "Use the dictionary form before の, not the ます form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "サントスさんは ＿＿ じょうずです。",
+       "en": "Mr. Santos is good at swimming.",
+       "answer": "およぐのが",
+       "accepted": [],
+       "options": [
+        "およいでのが",
+        "およぎますのが",
+        "およぐのが"
+       ],
+       "hint": "じょうず takes dictionary form ＋ のが.",
+       "why_wrong": {
+        "およいでのが": "の attaches to the dictionary form, not the て form.",
+        "およぎますのが": "Use the dictionary form before の, not the ます form."
+       }
       }
      ]
     },
@@ -7513,6 +8669,40 @@
        ],
        "accepted": [],
        "hint": "わすれます takes を"
+      },
+      {
+       "kind": "choose",
+       "prompt": "まどを ＿＿ わすれました。",
+       "en": "I forgot to close the window.",
+       "answer": "しめるのを",
+       "accepted": [],
+       "options": [
+        "しめるのに",
+        "しめるのを",
+        "しめますのを"
+       ],
+       "hint": "Dictionary form ＋ のを わすれました means 'forgot to do.'",
+       "why_wrong": {
+        "しめるのに": "わすれます takes its object with を, not に.",
+        "しめますのを": "Use the dictionary form before の, not the ます form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "くすりを ＿＿ わすれないで ください。",
+       "en": "Please don't forget to take your medicine.",
+       "answer": "のむのを",
+       "accepted": [],
+       "options": [
+        "のむを",
+        "のみますのを",
+        "のむのを"
+       ],
+       "hint": "A verb needs の before を to become the object of わすれます.",
+       "why_wrong": {
+        "のむを": "を cannot attach directly to a verb; add の first.",
+        "のみますのを": "Use the dictionary form before の, not the ます form."
+       }
       }
      ]
     },
@@ -7558,6 +8748,40 @@
        ],
        "accepted": [],
        "hint": "the negative of しって います is special"
+      },
+      {
+       "kind": "choose",
+       "prompt": "やまださんが けがを した＿＿ しって いますか。",
+       "en": "Do you know that Mr. Yamada got hurt?",
+       "answer": "のを",
+       "accepted": [],
+       "options": [
+        "のが",
+        "のを",
+        "のに"
+       ],
+       "hint": "のを turns the news into the object of しって います.",
+       "why_wrong": {
+        "のが": "しって います takes its object with を, not が.",
+        "のに": "のに means 'although'; here the clause is what you know."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "ミラーさんが ＿＿ のを しって いますか。",
+       "en": "Do you know that Mr. Miller is sick?",
+       "answer": "びょうきな",
+       "accepted": [],
+       "options": [
+        "びょうきだ",
+        "びょうきな",
+        "びょうき"
+       ],
+       "hint": "Before の, a noun or な adjective takes な: びょうきなのを.",
+       "why_wrong": {
+        "びょうきだ": "だ changes to な before の.",
+        "びょうき": "A noun needs な before this の."
+       }
       }
      ]
     },
@@ -7604,6 +8828,40 @@
        ],
        "accepted": [],
        "hint": "it marks the topic before です"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしが いちばん ＿＿ のは きょうとです。",
+       "en": "The place I want to go most is Kyoto.",
+       "answer": "いきたい",
+       "accepted": [],
+       "options": [
+        "いきたいな",
+        "いきたい",
+        "いきたいだ"
+       ],
+       "hint": "たい ends like an い adjective, so it connects to のは directly.",
+       "why_wrong": {
+        "いきたいな": "たい acts like an い adjective; な is only for な adjectives.",
+        "いきたいだ": "Do not put だ before の."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしが ＿＿ のは さかなです。",
+       "en": "What I dislike is fish.",
+       "answer": "きらいな",
+       "accepted": [],
+       "options": [
+        "きらい",
+        "きらいだ",
+        "きらいな"
+       ],
+       "hint": "A な adjective keeps な before のは.",
+       "why_wrong": {
+        "きらい": "きらい is a な adjective, so it needs な before の.",
+        "きらいだ": "だ changes to な before の."
+       }
       }
      ]
     }
@@ -7656,6 +8914,40 @@
        ],
        "accepted": [],
        "hint": "て form of あります"
+      },
+      {
+       "kind": "choose",
+       "prompt": "さいふを ＿＿、こまりました。",
+       "en": "I lost my wallet, so I was in trouble.",
+       "answer": "おとして",
+       "accepted": [],
+       "options": [
+        "おちて",
+        "おとした",
+        "おとして"
+       ],
+       "hint": "A て form gives the cause, and the next part tells the result.",
+       "why_wrong": {
+        "おちて": "おちます is intransitive and cannot take を; use おとします.",
+        "おとした": "A た form cannot link two clauses; use the て form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しあいに ＿＿、うれしかったです。",
+       "en": "I was happy that we won the game.",
+       "answer": "かって",
+       "accepted": [],
+       "options": [
+        "かちて",
+        "かって",
+        "かった"
+       ],
+       "hint": "A て form gives the cause of a feeling; かちます becomes かって.",
+       "why_wrong": {
+        "かちて": "かちます is Group I: ち becomes って, so かって.",
+        "かった": "A た form cannot link two clauses; use the て form."
+       }
       }
      ]
     },
@@ -7701,6 +8993,40 @@
        ],
        "accepted": [],
        "hint": "しんぱい is a な adjective"
+      },
+      {
+       "kind": "choose",
+       "prompt": "へやが ＿＿、ベッドが はいりません。",
+       "en": "The room is so small that the bed won't fit.",
+       "answer": "せまくて",
+       "accepted": [],
+       "options": [
+        "せまいくて",
+        "せまくて",
+        "せまいで"
+       ],
+       "hint": "For an い adjective, change the final い to くて to give a reason.",
+       "why_wrong": {
+        "せまいくて": "Drop the final い before くて.",
+        "せまいで": "で is for な adjectives; い adjectives use くて."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しごとが ＿＿、ねる じかんが ありません。",
+       "en": "Work is so hard that I have no time to sleep.",
+       "answer": "たいへんで",
+       "accepted": [],
+       "options": [
+        "たいへんで",
+        "たいへんなで",
+        "たいへんくて"
+       ],
+       "hint": "A な adjective takes で to give a reason.",
+       "why_wrong": {
+        "たいへんなで": "Do not keep な before で.",
+        "たいへんくて": "くて is for い adjectives; たいへん is a な adjective."
+       }
       }
      ]
     },
@@ -7746,6 +9072,40 @@
        ],
        "accepted": [],
        "hint": "the particle that marks a cause"
+      },
+      {
+       "kind": "choose",
+       "prompt": "つよい かぜ＿＿ きが たおれました。",
+       "en": "The tree fell over because of the strong wind.",
+       "answer": "で",
+       "accepted": [],
+       "options": [
+        "を",
+        "が",
+        "で"
+       ],
+       "hint": "Noun ＋ で marks the event that caused something.",
+       "why_wrong": {
+        "を": "を marks an object; たおれます has no object.",
+        "が": "The tree already takes が; the cause takes で."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あしの ＿＿、はしれません。",
+       "en": "I can't run because of my leg injury.",
+       "answer": "けがで",
+       "accepted": [],
+       "options": [
+        "けがを",
+        "けがで",
+        "けがくて"
+       ],
+       "hint": "A noun for a condition takes で to give the cause.",
+       "why_wrong": {
+        "けがを": "を marks an object, not a cause.",
+        "けがくて": "くて is only for い adjectives; けが is a noun."
+       }
       }
      ]
     },
@@ -7791,6 +9151,40 @@
        ],
        "accepted": [],
        "hint": "やすみ is a noun"
+      },
+      {
+       "kind": "choose",
+       "prompt": "ねつが ある＿＿、きょうは やすんでも いいですか。",
+       "en": "I have a fever, so may I take today off?",
+       "answer": "ので",
+       "accepted": [],
+       "options": [
+        "のに",
+        "ので",
+        "なので"
+       ],
+       "hint": "ので gives a polite reason, which suits asking permission.",
+       "why_wrong": {
+        "のに": "のに means 'although,' which does not fit a reason.",
+        "なので": "なので is for nouns and な adjectives; verbs take ので directly."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この へんは ＿＿、よく ねられます。",
+       "en": "This area is quiet, so I can sleep well.",
+       "answer": "しずかなので",
+       "accepted": [],
+       "options": [
+        "しずかだので",
+        "しずかので",
+        "しずかなので"
+       ],
+       "hint": "A な adjective takes なので.",
+       "why_wrong": {
+        "しずかだので": "Never use だ before ので; use な.",
+        "しずかので": "A な adjective needs な before ので."
+       }
       }
      ]
     }
@@ -7841,10 +9235,48 @@
        "options": [
         "か",
         "かどうか",
-        "だか"
+        "を"
        ],
        "accepted": [],
-       "hint": "there is already a question word"
+       "hint": "A question word (どういう) is already in the clause, so end it with か, not かどうか.",
+       "why_wrong": {
+        "かどうか": "かどうか is for yes or no questions. どういう already asks what.",
+        "を": "The clause needs か to embed the question."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "かぎを どこに ＿＿、わすれました。",
+       "en": "I forgot where I put my key.",
+       "answer": "おいたか",
+       "accepted": [],
+       "options": [
+        "おいたかどうか",
+        "おいたか",
+        "おきましたか"
+       ],
+       "hint": "With a question word, use plain form ＋ か inside the sentence.",
+       "why_wrong": {
+        "おいたかどうか": "かどうか is only for yes or no questions; どこ is a question word.",
+        "おきましたか": "Use the plain form inside an embedded question, not ます."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あの ひとが ＿＿、しって いますか。",
+       "en": "Do you know who that person is?",
+       "answer": "だれか",
+       "accepted": [],
+       "options": [
+        "だれが",
+        "だれかどうか",
+        "だれか"
+       ],
+       "hint": "Question word ＋ か fits a question inside a bigger sentence.",
+       "why_wrong": {
+        "だれが": "An embedded question must end with か.",
+        "だれかどうか": "かどうか is never used with a question word like だれ."
+       }
       }
      ]
     },
@@ -7890,6 +9322,40 @@
        ],
        "accepted": [],
        "hint": "the phrase meaning 'whether or not'"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この みずは ＿＿、わかりません。",
+       "en": "I don't know whether this water is safe to drink.",
+       "answer": "のめるかどうか",
+       "accepted": [],
+       "options": [
+        "のめますかどうか",
+        "のめるかどうか",
+        "のめるどうか"
+       ],
+       "hint": "Plain form ＋ かどうか means 'whether or not.'",
+       "why_wrong": {
+        "のめますかどうか": "Use the plain form before かどうか, not the ます form.",
+        "のめるどうか": "The か is missing; the phrase is かどうか."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "あした ＿＿、インターネットで しらべます。",
+       "en": "I'll check online whether it will rain tomorrow.",
+       "answer": "あめかどうか",
+       "accepted": [],
+       "options": [
+        "あめかどうか",
+        "あめだかどうか",
+        "あめなかどうか"
+       ],
+       "hint": "A noun takes かどうか directly, with no だ.",
+       "why_wrong": {
+        "あめだかどうか": "Drop だ after a noun before かどうか.",
+        "あめなかどうか": "A noun takes かどうか directly, with no な."
+       }
       }
      ]
     },
@@ -7935,6 +9401,40 @@
        ],
        "accepted": [],
        "hint": "て form of しらべます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "あたらしい レストランへ ＿＿ みたいです。",
+       "en": "I'd like to try going to the new restaurant.",
+       "answer": "いって",
+       "accepted": [],
+       "options": [
+        "いく",
+        "いきて",
+        "いって"
+       ],
+       "hint": "て form ＋ みます means 'try doing'; いきます is irregular: いって.",
+       "why_wrong": {
+        "いく": "みます follows the て form, not the dictionary form.",
+        "いきて": "いきます is an exception: its て form is いって."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "この ペンで ＿＿ みて ください。",
+       "en": "Please try writing with this pen.",
+       "answer": "かいて",
+       "accepted": [],
+       "options": [
+        "かきて",
+        "かいて",
+        "かく"
+       ],
+       "hint": "て form ＋ みます means 'try doing'; き becomes いて.",
+       "why_wrong": {
+        "かきて": "かきます is Group I: き becomes いて, so かいて.",
+        "かく": "みます follows the て form, not the dictionary form."
+       }
       }
      ]
     }
@@ -7990,6 +9490,40 @@
        ],
        "accepted": [],
        "hint": "a superior gives to me"
+      },
+      {
+       "kind": "choose",
+       "prompt": "わたしは しゃちょうに とけいを ＿＿。",
+       "en": "I received a watch from the company president.",
+       "answer": "いただきました",
+       "accepted": [],
+       "options": [
+        "やりました",
+        "いただきました",
+        "くださいました"
+       ],
+       "hint": "When I receive from a superior, use the humble いただきます.",
+       "why_wrong": {
+        "やりました": "やります is giving to juniors or animals, not receiving.",
+        "くださいました": "With くださいます the giver is the subject; here わたしは is."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "せんせいが わたしに じしょを ＿＿。",
+       "en": "The teacher gave me a dictionary.",
+       "answer": "くださいました",
+       "accepted": [],
+       "options": [
+        "くださりました",
+        "いただきました",
+        "くださいました"
+       ],
+       "hint": "When a superior gives to me, use くださいます.",
+       "why_wrong": {
+        "くださりました": "The ます form is irregular: くださいます, not くださります.",
+        "いただきました": "いただきます is for the receiver; here the teacher is the giver."
+       }
       }
      ]
     },
@@ -8036,6 +9570,40 @@
        ],
        "accepted": [],
        "hint": "I do a favor for a junior"
+      },
+      {
+       "kind": "choose",
+       "prompt": "＿＿ にもつを もって いただきました。",
+       "en": "The department manager kindly carried my bags for me.",
+       "answer": "ぶちょうに",
+       "accepted": [],
+       "options": [
+        "ぶちょうが",
+        "ぶちょうに",
+        "ぶちょうを"
+       ],
+       "hint": "With て いただきます, the person doing the favor takes に.",
+       "why_wrong": {
+        "ぶちょうが": "が goes with て くださいます; て いただきます takes に.",
+        "ぶちょうを": "を marks an object; the favor doer takes に."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "しらない かたが かさを かして ＿＿。",
+       "en": "A stranger kindly lent me an umbrella.",
+       "answer": "くださいました",
+       "accepted": [],
+       "options": [
+        "いただきました",
+        "やりました",
+        "くださいました"
+       ],
+       "hint": "When the favor doer takes が, use て くださいます.",
+       "why_wrong": {
+        "いただきました": "With が on the favor doer, use くださいます, not いただきます.",
+        "やりました": "て やります is a favor I do for a junior, not one done for me."
+       }
       }
      ]
     },
@@ -8082,6 +9650,40 @@
        ],
        "accepted": [],
        "hint": "て form of まちます"
+      },
+      {
+       "kind": "choose",
+       "prompt": "この にもつを ＿＿ くださいませんか。",
+       "en": "Could you please hold this luggage?",
+       "answer": "もって",
+       "accepted": [],
+       "options": [
+        "もちて",
+        "もつ",
+        "もって"
+       ],
+       "hint": "くださいませんか follows the て form; ち becomes って.",
+       "why_wrong": {
+        "もちて": "もちます is Group I: ち becomes って, so もって.",
+        "もつ": "くださいませんか follows the て form, not the dictionary form."
+       }
+      },
+      {
+       "kind": "choose",
+       "prompt": "まどを あけて ＿＿。",
+       "en": "Could you please open the window?",
+       "answer": "くださいませんか",
+       "accepted": [],
+       "options": [
+        "くださりませんか",
+        "くださいませんか",
+        "いただきませんか"
+       ],
+       "hint": "て form ＋ くださいませんか is a very polite request.",
+       "why_wrong": {
+        "くださりませんか": "The ます form is irregular: くださいませんか.",
+        "いただきませんか": "The request form is いただけませんか; いただきませんか is not one."
+       }
       }
      ]
     }
