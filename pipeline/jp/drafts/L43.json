@@ -8,14 +8,71 @@
       "form": "ますForm / いadj(い) / なadj + そうです",
       "note": "Drop the い of い-adjectives: おいしそう, not おいしいそう. いい becomes よさそう and ない becomes なさそう.",
       "examples": [
-        {"jp": "この ケーキは おいしそうです。／あめが ふりそうです。", "en": "This cake looks delicious. It looks like it's going to rain."},
-        {"jp": "ミラーさんは うれしそうです。", "en": "Mr. Miller looks happy."}
+        {
+          "jp": "この ケーキは おいしそうです。／あめが ふりそうです。",
+          "en": "This cake looks delicious. It looks like it's going to rain."
+        },
+        {
+          "jp": "ミラーさんは うれしそうです。",
+          "en": "Mr. Miller looks happy."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "にもつが ＿＿そうです。", "en": "The luggage looks like it's about to fall.", "answer": "おち", "accepted": [], "hint": "ます stem of おちます"},
-        {"kind": "choose", "prompt": "この りょうりは ＿＿です。", "en": "This dish looks spicy.", "answer": "からそう", "accepted": [], "hint": "い-adjective without い + そう", "options": ["からそう", "からいそう", "からいだそう"]},
-        {"kind": "choose", "prompt": "あの ひとは ＿＿です。", "en": "That person looks kind.", "answer": "しんせつそう", "accepted": [], "options": ["しんせつなそう", "しんせつそう", "しんせつだそう"], "hint": "For 'looks', a な-adjective stem joins そう directly with nothing added.", "why_wrong": {"しんせつなそう": "Do not add な before the 'looks like' そう.", "しんせつだそう": "だ + そう is hearsay, 'I hear he is kind', not 'looks kind'."}},
-        {"kind": "choose", "prompt": "シャツの ボタンが ＿＿です。", "en": "The shirt button looks like it's about to come off.", "answer": "とれそう", "accepted": [], "options": ["とれるそう", "とれそうな", "とれそう"], "hint": "For 'about to happen', use the ます stem + そう.", "why_wrong": {"とれるそう": "Dictionary form + そう is hearsay, 'I hear it will come off'.", "とれそうな": "そうな only goes before a noun, not before です."}}
+        {
+          "kind": "fill",
+          "prompt": "にもつが ＿＿そうです。",
+          "en": "The luggage looks like it's about to fall.",
+          "answer": "おち",
+          "accepted": [],
+          "hint": "ます stem of おちます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この りょうりは ＿＿です。",
+          "en": "This dish looks spicy.",
+          "answer": "からそう",
+          "accepted": [],
+          "hint": "い-adjective without い + そう",
+          "options": [
+            "からそう",
+            "からいそう",
+            "からいだそう"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "あの ひとは ＿＿です。",
+          "en": "That person looks kind.",
+          "answer": "しんせつそう",
+          "accepted": [],
+          "options": [
+            "しんせつなそう",
+            "しんせつそう",
+            "しんせつだそう"
+          ],
+          "hint": "For 'looks', a な-adjective stem joins そう directly with nothing added.",
+          "why_wrong": {
+            "しんせつなそう": "Do not add な before the 'looks like' そう.",
+            "しんせつだそう": "だ + そう is hearsay, 'I hear he is kind', not 'looks kind'."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "シャツの ボタンが ＿＿です。",
+          "en": "The shirt button looks like it's about to come off.",
+          "answer": "とれそう",
+          "accepted": [],
+          "options": [
+            "とれるそう",
+            "とれそうな",
+            "とれそう"
+          ],
+          "hint": "For 'about to happen', use the ます stem + そう.",
+          "why_wrong": {
+            "とれるそう": "Dictionary form + そう is hearsay, 'I hear it will come off'.",
+            "とれそうな": "そうな only goes before a noun, not before です."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "てForm + きます",
       "note": "いって きます, said when leaving home, literally means 'I'll go and come back.'",
       "examples": [
-        {"jp": "あめが ふって きました。／ちょっと コンビニへ いって きます。", "en": "It has started to rain. I'm just going to the convenience store; I'll be right back."},
-        {"jp": "ちょっと きってを かって きます。", "en": "I'll just go buy some stamps and come back."}
+        {
+          "jp": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
+          "en": "It has started to rain. I'm just going to the convenience store; I'll be right back."
+        },
+        {
+          "jp": "ちょっと きってを かって きます。",
+          "en": "I'll just go buy some stamps and come back."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "ちょっと コーヒーを ＿＿ きます。", "en": "I'll go buy some coffee and be right back.", "answer": "かって", "accepted": [], "hint": "てForm of かいます"},
-        {"kind": "choose", "prompt": "さむく ＿＿ きましたね。", "en": "It has gotten cold, hasn't it?", "answer": "なって", "accepted": [], "hint": "てForm of なります", "options": ["なって", "なり", "なる"]},
-        {"kind": "choose", "prompt": "としょかんで ほんを ＿＿ きます。", "en": "I'll go borrow a book at the library and come back.", "answer": "かりて", "accepted": [], "options": ["かりる", "かりて", "かり"], "hint": "きます joins the てForm of the verb to mean 'go do it and come back'.", "why_wrong": {"かりる": "The dictionary form cannot link to きます; use the てForm.", "かり": "The ます stem cannot link to きます; use the てForm."}},
-        {"kind": "choose", "prompt": "にほんの せいかつに ＿＿ きました。", "en": "I've gotten used to life in Japan.", "answer": "なれて", "accepted": [], "options": ["なれて", "なれる", "なれ"], "hint": "てForm + きました shows a change that has come about up to now.", "why_wrong": {"なれる": "The dictionary form cannot link to きました; use the てForm.", "なれ": "The ます stem cannot link to きました; use the てForm."}}
+        {
+          "kind": "fill",
+          "prompt": "ちょっと コーヒーを ＿＿ きます。",
+          "en": "I'll go buy some coffee and be right back.",
+          "answer": "かって",
+          "accepted": [],
+          "hint": "てForm of かいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "さむく ＿＿ きましたね。",
+          "en": "It has gotten cold, hasn't it?",
+          "answer": "なって",
+          "accepted": [],
+          "hint": "てForm of なります",
+          "options": [
+            "なって",
+            "なり",
+            "なる"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "としょかんで ほんを ＿＿ きます。",
+          "en": "I'll go borrow a book at the library and come back.",
+          "answer": "かりて",
+          "accepted": [],
+          "options": [
+            "かりる",
+            "かりて",
+            "かり"
+          ],
+          "hint": "きます joins the てForm of the verb to mean 'go do it and come back'.",
+          "why_wrong": {
+            "かりる": "The dictionary form cannot link to きます; use the てForm.",
+            "かり": "The ます stem cannot link to きます; use the てForm."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "にほんの せいかつに ＿＿ きました。",
+          "en": "I've gotten used to life in Japan.",
+          "answer": "なれて",
+          "accepted": [],
+          "options": [
+            "なれて",
+            "なれる",
+            "なれ"
+          ],
+          "hint": "てForm + きました shows a change that has come about up to now.",
+          "why_wrong": {
+            "なれる": "The dictionary form cannot link to きました; use the てForm.",
+            "なれ": "The ます stem cannot link to きました; use the てForm."
+          }
+        }
       ]
     }
   ]

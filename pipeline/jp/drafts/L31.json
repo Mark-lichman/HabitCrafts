@@ -8,14 +8,71 @@
       "form": "G1 -u→-ou (いこう)／G2 +よう／しよう／こよう",
       "note": "Use it with friends and family: いきましょう becomes いこう in casual speech.",
       "examples": [
-        {"jp": "いこう／たべよう／しよう／こよう", "en": "let's go / let's eat / let's do it / let's come"},
-        {"jp": "いっしょに かえろう。", "en": "Let's go home together."}
+        {
+          "jp": "いこう／たべよう／しよう／こよう",
+          "en": "let's go / let's eat / let's do it / let's come"
+        },
+        {
+          "jp": "いっしょに かえろう。",
+          "en": "Let's go home together."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "つかれたね。ちょっと ＿＿。", "en": "We're tired, huh. Let's take a short rest.", "answer": "やすもう", "accepted": [], "hint": "Volitional form of やすみます"},
-        {"kind": "choose", "prompt": "あした また ＿＿。", "en": "Let's come again tomorrow.", "answer": "こよう", "options": ["こよう", "きよう", "くろう"], "accepted": [], "hint": "Volitional form of くる"},
-        {"kind": "choose", "prompt": "おなかが すいたね。なにか ＿＿。", "en": "I'm hungry. Let's eat something.", "answer": "たべよう", "accepted": [], "options": ["たべろう", "たべおう", "たべよう"], "hint": "Group 2 volitional adds よう to the stem: たべ → たべよう.", "why_wrong": {"たべろう": "Group 2 verbs add よう, not ろう.", "たべおう": "Group 2 verbs add よう; the -ou change is only for Group 1."}},
-        {"kind": "choose", "prompt": "みんなで しゃしんを ＿＿。", "en": "Let's all take a photo.", "answer": "とろう", "accepted": [], "options": ["とろう", "とりよう", "とおう"], "hint": "Group 1 volitional changes -u to -ou: とる → とろう.", "why_wrong": {"とりよう": "よう is for Group 2; Group 1 とる changes to とろう.", "とおう": "The る becomes ろう, so the form is とろう."}}
+        {
+          "kind": "fill",
+          "prompt": "つかれたね。ちょっと ＿＿。",
+          "en": "We're tired, huh. Let's take a short rest.",
+          "answer": "やすもう",
+          "accepted": [],
+          "hint": "Volitional form of やすみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あした また ＿＿。",
+          "en": "Let's come again tomorrow.",
+          "answer": "こよう",
+          "options": [
+            "こよう",
+            "きよう",
+            "くろう"
+          ],
+          "accepted": [],
+          "hint": "Volitional form of くる"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おなかが すいたね。なにか ＿＿。",
+          "en": "I'm hungry. Let's eat something.",
+          "answer": "たべよう",
+          "accepted": [],
+          "options": [
+            "たべろう",
+            "たべおう",
+            "たべよう"
+          ],
+          "hint": "Group 2 volitional adds よう to the stem: たべ → たべよう.",
+          "why_wrong": {
+            "たべろう": "Group 2 verbs add よう, not ろう.",
+            "たべおう": "Group 2 verbs add よう; the -ou change is only for Group 1."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "みんなで しゃしんを ＿＿。",
+          "en": "Let's all take a photo.",
+          "answer": "とろう",
+          "accepted": [],
+          "options": [
+            "とろう",
+            "とりよう",
+            "とおう"
+          ],
+          "hint": "Group 1 volitional changes -u to -ou: とる → とろう.",
+          "why_wrong": {
+            "とりよう": "よう is for Group 2; Group 1 とる changes to とろう.",
+            "とおう": "The る becomes ろう, so the form is とろう."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "いこうけい + と おもって います",
       "note": "と おもって います can describe other people's plans too; と おもいます is only for the speaker's own decision.",
       "examples": [
-        {"jp": "らいねん りゅうがくしようと おもっています。", "en": "I'm thinking of studying abroad next year."},
-        {"jp": "なつやすみに うみへ いこうと おもって います。", "en": "I'm thinking of going to the beach during summer vacation."}
+        {
+          "jp": "らいねん りゅうがくしようと おもっています。",
+          "en": "I'm thinking of studying abroad next year."
+        },
+        {
+          "jp": "なつやすみに うみへ いこうと おもって います。",
+          "en": "I'm thinking of going to the beach during summer vacation."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "らいげつ あたらしい パソコンを ＿＿と おもって います。", "en": "I'm thinking of buying a new computer next month.", "answer": "かおう", "accepted": [], "hint": "Volitional form of かいます"},
-        {"kind": "choose", "prompt": "しゅうまつは へやを ＿＿と おもって います。", "en": "I'm thinking of cleaning my room this weekend.", "answer": "そうじしよう", "options": ["そうじしよう", "そうじしましょう", "そうじして"], "accepted": [], "hint": "Plain volitional form"},
-        {"kind": "choose", "prompt": "らいねん にほんへ ＿＿と おもって います。", "en": "I'm thinking of going to Japan next year.", "answer": "いこう", "accepted": [], "options": ["いきよう", "いこう", "いけよう"], "hint": "Group 1 volitional changes -u to -ou: いく → いこう.", "why_wrong": {"いきよう": "よう is for Group 2; Group 1 いく changes to いこう.", "いけよう": "This mixes the potential stem with よう; the volitional is いこう."}},
-        {"kind": "choose", "prompt": "しごとを ＿＿と おもって います。", "en": "I'm thinking of quitting my job.", "answer": "やめよう", "accepted": [], "options": ["やめましょう", "やめろう", "やめよう"], "hint": "と おもって います follows the plain volitional form.", "why_wrong": {"やめましょう": "Use the plain volitional, not ましょう, before と おもって います.", "やめろう": "Group 2 verbs add よう, not ろう: やめよう."}}
+        {
+          "kind": "fill",
+          "prompt": "らいげつ あたらしい パソコンを ＿＿と おもって います。",
+          "en": "I'm thinking of buying a new computer next month.",
+          "answer": "かおう",
+          "accepted": [],
+          "hint": "Volitional form of かいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゅうまつは へやを ＿＿と おもって います。",
+          "en": "I'm thinking of cleaning my room this weekend.",
+          "answer": "そうじしよう",
+          "options": [
+            "そうじしよう",
+            "そうじしましょう",
+            "そうじして"
+          ],
+          "accepted": [],
+          "hint": "Plain volitional form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "らいねん にほんへ ＿＿と おもって います。",
+          "en": "I'm thinking of going to Japan next year.",
+          "answer": "いこう",
+          "accepted": [],
+          "options": [
+            "いきよう",
+            "いこう",
+            "いけよう"
+          ],
+          "hint": "Group 1 volitional changes -u to -ou: いく → いこう.",
+          "why_wrong": {
+            "いきよう": "よう is for Group 2; Group 1 いく changes to いこう.",
+            "いけよう": "This mixes the potential stem with よう; the volitional is いこう."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しごとを ＿＿と おもって います。",
+          "en": "I'm thinking of quitting my job.",
+          "answer": "やめよう",
+          "accepted": [],
+          "options": [
+            "やめましょう",
+            "やめろう",
+            "やめよう"
+          ],
+          "hint": "と おもって います follows the plain volitional form.",
+          "why_wrong": {
+            "やめましょう": "Use the plain volitional, not ましょう, before と おもって います.",
+            "やめろう": "Group 2 verbs add よう, not ろう: やめよう."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,71 @@
       "form": "まだ + てForm + いません",
       "note": "Answer もう 〜ましたか with まだ 〜て いません, not まだ 〜ませんでした.",
       "examples": [
-        {"jp": "まだ しゅうしょくさきが きまって いません。", "en": "I still haven't found a job."},
-        {"jp": "しゅくだいは まだ おわって いません。", "en": "My homework isn't finished yet."}
+        {
+          "jp": "まだ しゅうしょくさきが きまって いません。",
+          "en": "I still haven't found a job."
+        },
+        {
+          "jp": "しゅくだいは まだ おわって いません。",
+          "en": "My homework isn't finished yet."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "もう ひるごはんを たべましたか。いいえ、まだ ＿＿ いません。", "en": "Have you had lunch yet? No, not yet.", "answer": "たべて", "accepted": [], "hint": "てForm of たべます"},
-        {"kind": "choose", "prompt": "てがみは まだ ＿＿。", "en": "The letter hasn't come yet.", "answer": "きて いません", "options": ["きて いません", "きませんでした", "きて ください"], "accepted": [], "hint": "まだ + てForm + いません"},
-        {"kind": "choose", "prompt": "レポートは もう だしましたか。いいえ、まだ ＿＿。", "en": "Have you turned in the report yet? No, not yet.", "answer": "だして いません", "accepted": [], "options": ["だしませんでした", "だして いません", "だして いました"], "hint": "Answer もう 〜ましたか with まだ + てForm + いません.", "why_wrong": {"だしませんでした": "This means you did not turn it in; 'not yet' needs まだ 〜て いません.", "だして いました": "This is positive, but the answer means 'not yet'."}},
-        {"kind": "choose", "prompt": "たなかさんから ＿＿ メールが きて いません。", "en": "I still haven't gotten an email from Mr. Tanaka.", "answer": "まだ", "accepted": [], "options": ["もう", "よく", "まだ"], "hint": "まだ + てForm + いません means 'not yet'.", "why_wrong": {"もう": "もう with a negative means 'no longer', not 'not yet'.", "よく": "よく means 'often' or 'well', not 'yet'."}}
+        {
+          "kind": "fill",
+          "prompt": "もう ひるごはんを たべましたか。いいえ、まだ ＿＿ いません。",
+          "en": "Have you had lunch yet? No, not yet.",
+          "answer": "たべて",
+          "accepted": [],
+          "hint": "てForm of たべます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "てがみは まだ ＿＿。",
+          "en": "The letter hasn't come yet.",
+          "answer": "きて いません",
+          "options": [
+            "きて いません",
+            "きませんでした",
+            "きて ください"
+          ],
+          "accepted": [],
+          "hint": "まだ + てForm + いません"
+        },
+        {
+          "kind": "choose",
+          "prompt": "レポートは もう だしましたか。いいえ、まだ ＿＿。",
+          "en": "Have you turned in the report yet? No, not yet.",
+          "answer": "だして いません",
+          "accepted": [],
+          "options": [
+            "だしませんでした",
+            "だして いません",
+            "だして いました"
+          ],
+          "hint": "Answer もう 〜ましたか with まだ + てForm + いません.",
+          "why_wrong": {
+            "だしませんでした": "This means you did not turn it in; 'not yet' needs まだ 〜て いません.",
+            "だして いました": "This is positive, but the answer means 'not yet'."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "たなかさんから ＿＿ メールが きて いません。",
+          "en": "I still haven't gotten an email from Mr. Tanaka.",
+          "answer": "まだ",
+          "accepted": [],
+          "options": [
+            "もう",
+            "よく",
+            "まだ"
+          ],
+          "hint": "まだ + てForm + いません means 'not yet'.",
+          "why_wrong": {
+            "もう": "もう with a negative means 'no longer', not 'not yet'.",
+            "よく": "よく means 'often' or 'well', not 'yet'."
+          }
+        }
       ]
     },
     {
@@ -56,14 +227,71 @@
       "form": "じしょForm／ないForm + つもりです",
       "note": "Do not use the volitional before つもり: say いく つもりです, not いこう つもりです.",
       "examples": [
-        {"jp": "らいねん けっこんする つもりです。", "en": "I plan to get married next year."},
-        {"jp": "もう たばこは すわない つもりです。", "en": "I don't plan to smoke anymore."}
+        {
+          "jp": "らいねん けっこんする つもりです。",
+          "en": "I plan to get married next year."
+        },
+        {
+          "jp": "もう たばこは すわない つもりです。",
+          "en": "I don't plan to smoke anymore."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "なつやすみは くにへ ＿＿ つもりです。", "en": "I plan to go back to my country over summer vacation.", "answer": "かえる", "accepted": [], "hint": "Dictionary form of かえります"},
-        {"kind": "choose", "prompt": "きょうは おさけを ＿＿ つもりです。", "en": "I plan not to drink today.", "answer": "のまない", "options": ["のまない", "のみません", "のもう"], "accepted": [], "hint": "ないForm before つもり"},
-        {"kind": "choose", "prompt": "らいねん だいがくに ＿＿ つもりです。", "en": "I plan to enter university next year.", "answer": "はいる", "accepted": [], "options": ["はいろう", "はいる", "はいります"], "hint": "つもりです follows the dictionary form.", "why_wrong": {"はいろう": "The volitional form cannot come before つもり.", "はいります": "The polite ます form cannot come before つもり."}},
-        {"kind": "choose", "prompt": "もう あの みせには ＿＿ つもりです。", "en": "I don't plan to go to that store anymore.", "answer": "いかない", "accepted": [], "options": ["いかないで", "いきません", "いかない"], "hint": "A plan not to do something uses the ないForm + つもりです.", "why_wrong": {"いかないで": "つもり follows the ないForm itself, not ないで.", "いきません": "The polite form cannot come before つもり."}}
+        {
+          "kind": "fill",
+          "prompt": "なつやすみは くにへ ＿＿ つもりです。",
+          "en": "I plan to go back to my country over summer vacation.",
+          "answer": "かえる",
+          "accepted": [],
+          "hint": "Dictionary form of かえります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "きょうは おさけを ＿＿ つもりです。",
+          "en": "I plan not to drink today.",
+          "answer": "のまない",
+          "options": [
+            "のまない",
+            "のみません",
+            "のもう"
+          ],
+          "accepted": [],
+          "hint": "ないForm before つもり"
+        },
+        {
+          "kind": "choose",
+          "prompt": "らいねん だいがくに ＿＿ つもりです。",
+          "en": "I plan to enter university next year.",
+          "answer": "はいる",
+          "accepted": [],
+          "options": [
+            "はいろう",
+            "はいる",
+            "はいります"
+          ],
+          "hint": "つもりです follows the dictionary form.",
+          "why_wrong": {
+            "はいろう": "The volitional form cannot come before つもり.",
+            "はいります": "The polite ます form cannot come before つもり."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "もう あの みせには ＿＿ つもりです。",
+          "en": "I don't plan to go to that store anymore.",
+          "answer": "いかない",
+          "accepted": [],
+          "options": [
+            "いかないで",
+            "いきません",
+            "いかない"
+          ],
+          "hint": "A plan not to do something uses the ないForm + つもりです.",
+          "why_wrong": {
+            "いかないで": "つもり follows the ないForm itself, not ないで.",
+            "いきません": "The polite form cannot come before つもり."
+          }
+        }
       ]
     },
     {
@@ -72,14 +300,71 @@
       "form": "じしょForm／Nの + よていです",
       "note": "After a noun, add の: しゅっちょうの よていです.",
       "examples": [
-        {"jp": "らいしゅう しゅっちょうする よていです。", "en": "I'm scheduled to go on a business trip next week."},
-        {"jp": "ひこうきは さんじに つく よていです。", "en": "The plane is scheduled to arrive at three."}
+        {
+          "jp": "らいしゅう しゅっちょうする よていです。",
+          "en": "I'm scheduled to go on a business trip next week."
+        },
+        {
+          "jp": "ひこうきは さんじに つく よていです。",
+          "en": "The plane is scheduled to arrive at three."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "かいぎは ごご にじに ＿＿ よていです。", "en": "The meeting is scheduled to start at 2 p.m.", "answer": "はじまる", "accepted": [], "hint": "Dictionary form of はじまります"},
-        {"kind": "choose", "prompt": "あしたは テスト＿＿ よていです。", "en": "A test is scheduled for tomorrow.", "answer": "の", "options": ["の", "な", "を"], "accepted": [], "hint": "Particle joining a noun to よてい"},
-        {"kind": "choose", "prompt": "しんかんせんは ごじに とうきょうを ＿＿ よていです。", "en": "The bullet train is scheduled to leave Tokyo at five.", "answer": "でる", "accepted": [], "options": ["でた", "でます", "でる"], "hint": "A scheduled plan uses the dictionary form + よていです.", "why_wrong": {"でた": "A plan that has not happened yet uses the dictionary form, not the たForm.", "でます": "The polite form cannot come before よてい."}},
-        {"kind": "choose", "prompt": "つまは らいげつ くにへ ＿＿ よていです。", "en": "My wife is scheduled to go back to her country next month.", "answer": "かえる", "accepted": [], "options": ["かえって", "かえる", "かえろう"], "hint": "よていです follows the dictionary form.", "why_wrong": {"かえって": "The てForm cannot come before よてい.", "かえろう": "The volitional form cannot come before よてい."}}
+        {
+          "kind": "fill",
+          "prompt": "かいぎは ごご にじに ＿＿ よていです。",
+          "en": "The meeting is scheduled to start at 2 p.m.",
+          "answer": "はじまる",
+          "accepted": [],
+          "hint": "Dictionary form of はじまります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あしたは テスト＿＿ よていです。",
+          "en": "A test is scheduled for tomorrow.",
+          "answer": "の",
+          "options": [
+            "の",
+            "な",
+            "を"
+          ],
+          "accepted": [],
+          "hint": "Particle joining a noun to よてい"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しんかんせんは ごじに とうきょうを ＿＿ よていです。",
+          "en": "The bullet train is scheduled to leave Tokyo at five.",
+          "answer": "でる",
+          "accepted": [],
+          "options": [
+            "でた",
+            "でます",
+            "でる"
+          ],
+          "hint": "A scheduled plan uses the dictionary form + よていです.",
+          "why_wrong": {
+            "でた": "A plan that has not happened yet uses the dictionary form, not the たForm.",
+            "でます": "The polite form cannot come before よてい."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "つまは らいげつ くにへ ＿＿ よていです。",
+          "en": "My wife is scheduled to go back to her country next month.",
+          "answer": "かえる",
+          "accepted": [],
+          "options": [
+            "かえって",
+            "かえる",
+            "かえろう"
+          ],
+          "hint": "よていです follows the dictionary form.",
+          "why_wrong": {
+            "かえって": "The てForm cannot come before よてい.",
+            "かえろう": "The volitional form cannot come before よてい."
+          }
+        }
       ]
     }
   ]

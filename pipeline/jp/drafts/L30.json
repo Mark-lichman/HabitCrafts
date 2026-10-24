@@ -8,14 +8,71 @@
       "form": "Nが てForm (transitive) + あります",
       "note": "Compare: まどが あいて います (the window is open) and まどが あけて あります (someone opened it on purpose).",
       "examples": [
-        {"jp": "かべに ポスターが はって あります。", "en": "A poster has been put up on the wall."},
-        {"jp": "つくえの うえに メモが おいて あります。", "en": "A memo has been left on the desk."}
+        {
+          "jp": "かべに ポスターが はって あります。",
+          "en": "A poster has been put up on the wall."
+        },
+        {
+          "jp": "つくえの うえに メモが おいて あります。",
+          "en": "A memo has been left on the desk."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "カレンダーに よていが ＿＿ あります。", "en": "The plans are written on the calendar.", "answer": "かいて", "accepted": [], "hint": "てForm of a transitive verb"},
-        {"kind": "choose", "prompt": "れいぞうこに ビールが ＿＿ あります。", "en": "Beer has been put in the fridge.", "answer": "いれて", "options": ["いれて", "はいって", "いれる"], "accepted": [], "hint": "Transitive verb in てForm"},
-        {"kind": "choose", "prompt": "かべに ちずが ＿＿ あります。", "en": "A map has been hung on the wall.", "answer": "かけて", "accepted": [], "options": ["かかって", "かける", "かけて"], "hint": "てあります needs a transitive verb in てForm.", "why_wrong": {"かかって": "かかります is intransitive; it pairs with います, not あります.", "かける": "あります follows the てForm, not the dictionary form."}},
-        {"kind": "choose", "prompt": "いえの まえに じてんしゃが ＿＿。", "en": "A bicycle has been parked in front of the house.", "answer": "とめて あります", "accepted": [], "options": ["とめて います", "とめて あります", "とまって あります"], "hint": "Nが + transitive てForm + あります shows a state someone set up.", "why_wrong": {"とめて います": "With が, transitive + います would mean the bicycle is parking something.", "とまって あります": "とまります is intransitive, but てあります needs a transitive verb."}}
+        {
+          "kind": "fill",
+          "prompt": "カレンダーに よていが ＿＿ あります。",
+          "en": "The plans are written on the calendar.",
+          "answer": "かいて",
+          "accepted": [],
+          "hint": "てForm of a transitive verb"
+        },
+        {
+          "kind": "choose",
+          "prompt": "れいぞうこに ビールが ＿＿ あります。",
+          "en": "Beer has been put in the fridge.",
+          "answer": "いれて",
+          "options": [
+            "いれて",
+            "はいって",
+            "いれる"
+          ],
+          "accepted": [],
+          "hint": "Transitive verb in てForm"
+        },
+        {
+          "kind": "choose",
+          "prompt": "かべに ちずが ＿＿ あります。",
+          "en": "A map has been hung on the wall.",
+          "answer": "かけて",
+          "accepted": [],
+          "options": [
+            "かかって",
+            "かける",
+            "かけて"
+          ],
+          "hint": "てあります needs a transitive verb in てForm.",
+          "why_wrong": {
+            "かかって": "かかります is intransitive; it pairs with います, not あります.",
+            "かける": "あります follows the てForm, not the dictionary form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "いえの まえに じてんしゃが ＿＿。",
+          "en": "A bicycle has been parked in front of the house.",
+          "answer": "とめて あります",
+          "accepted": [],
+          "options": [
+            "とめて います",
+            "とめて あります",
+            "とまって あります"
+          ],
+          "hint": "Nが + transitive てForm + あります shows a state someone set up.",
+          "why_wrong": {
+            "とめて います": "With が, transitive + います would mean the bicycle is parking something.",
+            "とまって あります": "とまります is intransitive, but てあります needs a transitive verb."
+          }
+        }
       ]
     },
     {
@@ -24,30 +81,144 @@
       "form": "てForm + おきます",
       "note": "Often paired with まえに or までに to show what you are preparing for.",
       "examples": [
-        {"jp": "パーティーの まえに りょうりを つくって おきます。", "en": "I'll make the food before the party."},
-        {"jp": "りょこうの まえに ホテルを よやくして おきます。", "en": "I'll book a hotel before the trip."}
+        {
+          "jp": "パーティーの まえに りょうりを つくって おきます。",
+          "en": "I'll make the food before the party."
+        },
+        {
+          "jp": "りょこうの まえに ホテルを よやくして おきます。",
+          "en": "I'll book a hotel before the trip."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "テストの まえに かんじを ＿＿ おきます。", "en": "I'll memorize the kanji before the test.", "answer": "おぼえて", "accepted": [], "hint": "てForm of おぼえます"},
-        {"kind": "choose", "prompt": "おきゃくさんが きますから、ビールを ＿＿ おきます。", "en": "Guests are coming, so I'll buy beer ahead of time.", "answer": "かって", "options": ["かって", "かい", "かった"], "accepted": [], "hint": "てForm before おきます"},
-        {"kind": "choose", "prompt": "じゅぎょうの まえに きょうかしょを ＿＿ おきます。", "en": "I'll read the textbook before class.", "answer": "よんで", "accepted": [], "options": ["よまない", "よんだ", "よんで"], "hint": "おきます follows the てForm: よみます → よんで.", "why_wrong": {"よまない": "おきます follows the てForm; a ないForm cannot connect to it directly.", "よんだ": "おきます follows the てForm, not the たForm."}},
-        {"kind": "choose", "prompt": "おきゃくさんが ＿＿ まえに、へやを そうじして おきます。", "en": "I'll clean the room before the guests come.", "answer": "くる", "accepted": [], "options": ["きた", "くる", "きて"], "hint": "まえに always follows the dictionary form.", "why_wrong": {"きた": "まえに never follows the たForm, even for past events.", "きて": "まえに never follows the てForm."}}
+        {
+          "kind": "fill",
+          "prompt": "テストの まえに かんじを ＿＿ おきます。",
+          "en": "I'll memorize the kanji before the test.",
+          "answer": "おぼえて",
+          "accepted": [],
+          "hint": "てForm of おぼえます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おきゃくさんが きますから、ビールを ＿＿ おきます。",
+          "en": "Guests are coming, so I'll buy beer ahead of time.",
+          "answer": "かって",
+          "options": [
+            "かって",
+            "かい",
+            "かった"
+          ],
+          "accepted": [],
+          "hint": "てForm before おきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "じゅぎょうの まえに きょうかしょを ＿＿ おきます。",
+          "en": "I'll read the textbook before class.",
+          "answer": "よんで",
+          "accepted": [],
+          "options": [
+            "よまない",
+            "よんだ",
+            "よんで"
+          ],
+          "hint": "おきます follows the てForm: よみます → よんで.",
+          "why_wrong": {
+            "よまない": "おきます follows the てForm; a ないForm cannot connect to it directly.",
+            "よんだ": "おきます follows the てForm, not the たForm."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "おきゃくさんが ＿＿ まえに、へやを そうじして おきます。",
+          "en": "I'll clean the room before the guests come.",
+          "answer": "くる",
+          "accepted": [],
+          "options": [
+            "きた",
+            "くる",
+            "きて"
+          ],
+          "hint": "まえに always follows the dictionary form.",
+          "why_wrong": {
+            "きた": "まえに never follows the たForm, even for past events.",
+            "きて": "まえに never follows the てForm."
+          }
+        }
       ]
     },
     {
       "id": "mari.L30.3",
-      "explain": "ておきます can also mean leaving something as it is, or setting a task aside to deal with later. Ask someone to leave things as they are with ておいて ください.",
+      "explain": "ておきます can also mean leaving something as it is, or getting a task done so it is taken care of. Ask someone to leave things as they are with ておいて ください.",
       "form": "てForm + おきます／おいて ください",
       "note": "Context decides the meaning: preparing in advance, or leaving things as they are.",
       "examples": [
-        {"jp": "つかれたので、そうじは あした して おきます。", "en": "I'm tired, so I'll leave the cleaning for tomorrow."},
-        {"jp": "まどを あけて おいて ください。", "en": "Please leave the window open."}
+        {
+          "jp": "つかれたので、そうじは あした して おきます。",
+          "en": "I'm tired, so I'll leave the cleaning for tomorrow."
+        },
+        {
+          "jp": "まどを あけて おいて ください。",
+          "en": "Please leave the window open."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "あとで みますから、テレビは ＿＿ おいて ください。", "en": "I'll watch it later, so please leave the TV on.", "answer": "つけて", "accepted": [], "hint": "てForm of つけます"},
-        {"kind": "choose", "prompt": "いすは そのままに して ＿＿ ください。", "en": "Please leave the chairs as they are.", "answer": "おいて", "options": ["おいて", "おきて", "あって"], "accepted": [], "hint": "てForm of おきます (to leave)"},
-        {"kind": "choose", "prompt": "あついですから、ドアを ＿＿ おいて ください。", "en": "It's hot, so please leave the door open.", "answer": "あけて", "accepted": [], "options": ["あいて", "あけて", "あける"], "hint": "ておいて ください needs a transitive verb in てForm, since the door takes を.", "why_wrong": {"あいて": "あきます is intransitive and cannot take を.", "あける": "おいて ください follows the てForm, not the dictionary form."}},
-        {"kind": "choose", "prompt": "あとで かたづけますから、そのままに ＿＿ ください。", "en": "I'll tidy up later, so please leave it as it is.", "answer": "して おいて", "accepted": [], "options": ["して あって", "して おいて", "して おきて"], "hint": "そのままに して おいて ください asks someone to leave things as they are.", "why_wrong": {"して あって": "てあります describes a state; it cannot make a request with ください.", "して おきて": "The てForm of おきます (to leave) is おいて, not おきて."}}
+        {
+          "kind": "fill",
+          "prompt": "あとで みますから、テレビは ＿＿ おいて ください。",
+          "en": "I'll watch it later, so please leave the TV on.",
+          "answer": "つけて",
+          "accepted": [],
+          "hint": "てForm of つけます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "いすは そのままに して ＿＿ ください。",
+          "en": "Please leave the chairs as they are.",
+          "answer": "おいて",
+          "options": [
+            "おいて",
+            "おきて",
+            "あって"
+          ],
+          "accepted": [],
+          "hint": "てForm of おきます (to leave)"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あついですから、ドアを ＿＿ おいて ください。",
+          "en": "It's hot, so please leave the door open.",
+          "answer": "あけて",
+          "accepted": [],
+          "options": [
+            "あいて",
+            "あけて",
+            "あける"
+          ],
+          "hint": "ておいて ください needs a transitive verb in てForm, since the door takes を.",
+          "why_wrong": {
+            "あいて": "あきます is intransitive and cannot take を.",
+            "あける": "おいて ください follows the てForm, not the dictionary form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あとで かたづけますから、そのままに ＿＿ ください。",
+          "en": "I'll tidy up later, so please leave it as it is.",
+          "answer": "して おいて",
+          "accepted": [],
+          "options": [
+            "して あって",
+            "して おいて",
+            "して おきて"
+          ],
+          "hint": "そのままに して おいて ください asks someone to leave things as they are.",
+          "why_wrong": {
+            "して あって": "てあります describes a state; it cannot make a request with ください.",
+            "して おきて": "The てForm of おきます (to leave) is おいて, not おきて."
+          }
+        }
       ]
     }
   ]

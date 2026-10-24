@@ -114,6 +114,10 @@
    "label": "Who did it: が or を"
   },
   {
+   "id": "meaning",
+   "label": "Explaining what something means"
+  },
+  {
    "id": "forms",
    "label": "Verb forms to learn"
   }
@@ -176,7 +180,8 @@
    "plan"
   ],
   "mari.L30.3": [
-   "plan"
+   "request",
+   "state"
   ],
   "mari.L31.1": [
    "plan",
@@ -211,7 +216,7 @@
    "hearsay"
   ],
   "mari.L33.3": [
-   "hearsay"
+   "meaning"
   ],
   "mari.L33.4": [
    "hearsay",
@@ -281,8 +286,7 @@
    "hearsay"
   ],
   "mari.L38.5": [
-   "certain",
-   "emphasis"
+   "certain"
   ],
   "mari.L39.1": [
    "reason"
@@ -335,7 +339,8 @@
   ],
   "mari.L44.1": [
    "regret",
-   "opinion"
+   "opinion",
+   "emphasis"
   ],
   "mari.L44.2": [
    "opinion"
@@ -361,7 +366,8 @@
    "done"
   ],
   "mari.L46.3": [
-   "certain"
+   "certain",
+   "guess"
   ],
   "mari.L47.1": [
    "hearsay"

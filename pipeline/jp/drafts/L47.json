@@ -8,14 +8,71 @@
       "form": "ふつうForm + そうです",
       "note": "Don't mix it up with the 'looks like' そうです: ふりそうです means it looks like rain; ふるそうです means I hear it will rain.",
       "examples": [
-        {"jp": "てんきよほうに よると、あした ゆきが ふるそうです。", "en": "According to the weather forecast, it will snow tomorrow."},
-        {"jp": "ミラーさんは らいげつ けっこんするそうです。", "en": "I hear Mr. Miller is getting married next month."}
+        {
+          "jp": "てんきよほうに よると、あした ゆきが ふるそうです。",
+          "en": "According to the weather forecast, it will snow tomorrow."
+        },
+        {
+          "jp": "ミラーさんは らいげつ けっこんするそうです。",
+          "en": "I hear Mr. Miller is getting married next month."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "ニュースに よると、きのう じしんが ＿＿そうです。", "en": "According to the news, there was an earthquake yesterday.", "answer": "あった", "accepted": [], "hint": "Plain past of あります"},
-        {"kind": "choose", "prompt": "てんきよほうに よると、あしたは ＿＿そうです。", "en": "According to the weather forecast, it will rain tomorrow.", "answer": "あめだ", "accepted": [], "hint": "Noun in plain form", "options": ["あめだ", "あめ", "あめな"]},
-        {"kind": "choose", "prompt": "ともだちの はなしに よると、あの みせは ＿＿そうです。", "en": "According to my friend, that restaurant is expensive.", "answer": "たかい", "accepted": [], "options": ["たか", "たかい", "たかいだ"], "hint": "Hearsay そうです follows the full plain form, keeping the い.", "why_wrong": {"たか": "たかそう means 'looks expensive', not something you heard.", "たかいだ": "い-adjectives never take だ before hearsay そうです."}},
-        {"kind": "choose", "prompt": "たなかさんに よると、あの こうえんは ＿＿そうです。", "en": "According to Mr. Tanaka, that park is quiet.", "answer": "しずかだ", "accepted": [], "options": ["しずかだ", "しずかな", "しずか"], "hint": "For hearsay, a な-adjective takes だ before そうです.", "why_wrong": {"しずかな": "な cannot go before hearsay そうです; use だ.", "しずか": "しずかそう means 'looks quiet', not something you heard."}}
+        {
+          "kind": "fill",
+          "prompt": "ニュースに よると、きのう じしんが ＿＿そうです。",
+          "en": "According to the news, there was an earthquake yesterday.",
+          "answer": "あった",
+          "accepted": [],
+          "hint": "Plain past of あります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "てんきよほうに よると、あしたは ＿＿そうです。",
+          "en": "According to the weather forecast, it will rain tomorrow.",
+          "answer": "あめだ",
+          "accepted": [],
+          "hint": "Noun in plain form",
+          "options": [
+            "あめだ",
+            "あめ",
+            "あめな"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "ともだちの はなしに よると、あの みせは ＿＿そうです。",
+          "en": "According to my friend, that restaurant is expensive.",
+          "answer": "たかい",
+          "accepted": [],
+          "options": [
+            "たか",
+            "たかい",
+            "たかいだ"
+          ],
+          "hint": "Hearsay そうです follows the full plain form, keeping the い.",
+          "why_wrong": {
+            "たか": "たかそう means 'looks expensive', not something you heard.",
+            "たかいだ": "い-adjectives never take だ before hearsay そうです."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "たなかさんに よると、あの こうえんは ＿＿そうです。",
+          "en": "According to Mr. Tanaka, that park is quiet.",
+          "answer": "しずかだ",
+          "accepted": [],
+          "options": [
+            "しずかだ",
+            "しずかな",
+            "しずか"
+          ],
+          "hint": "For hearsay, a な-adjective takes だ before そうです.",
+          "why_wrong": {
+            "しずかな": "な cannot go before hearsay そうです; use だ.",
+            "しずか": "しずかそう means 'looks quiet', not something you heard."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "ふつうForm + ようです",
       "note": "With nouns use の (じこの ようです), with な-adjectives use な. Use hearsay そうです for what someone told you.",
       "examples": [
-        {"jp": "だれも いないようです。", "en": "It seems nobody is here."},
-        {"jp": "ひとが おおぜい あつまって いますね。じこの ようです。", "en": "A lot of people have gathered. It seems there was an accident."}
+        {
+          "jp": "だれも いないようです。",
+          "en": "It seems nobody is here."
+        },
+        {
+          "jp": "ひとが おおぜい あつまって いますね。じこの ようです。",
+          "en": "A lot of people have gathered. It seems there was an accident."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "せきも ねつも あります。かぜを ＿＿ようです。", "en": "I have a cough and a fever. It seems I've caught a cold.", "answer": "ひいた", "accepted": [], "hint": "Plain past of ひきます"},
-        {"kind": "choose", "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。", "en": "The room is dark. It seems Mr. Tanaka is out.", "answer": "るすの", "accepted": [], "hint": "Noun + the right connector", "options": ["るすの", "るすな", "るすだ"]},
-        {"kind": "choose", "prompt": "げんかんに くつが あります。だれか ＿＿ようです。", "en": "There are shoes at the entrance. It seems someone has come.", "answer": "きた", "accepted": [], "options": ["きて", "き", "きた"], "hint": "ようです follows a plain form; here the plain past of きます.", "why_wrong": {"きて": "The てForm cannot go before ようです; use a plain form.", "き": "The ます stem cannot go before ようです; use a plain form."}},
-        {"kind": "choose", "prompt": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。", "en": "He's always playing games. It seems he likes games.", "answer": "すきな", "accepted": [], "options": ["すきの", "すきな", "すきだ"], "hint": "A な-adjective keeps な before ようです.", "why_wrong": {"すきの": "の is for nouns; すき is a な-adjective, so it takes な.", "すきだ": "だ cannot go before ようです; a な-adjective takes な."}}
+        {
+          "kind": "fill",
+          "prompt": "せきも ねつも あります。かぜを ＿＿ようです。",
+          "en": "I have a cough and a fever. It seems I've caught a cold.",
+          "answer": "ひいた",
+          "accepted": [],
+          "hint": "Plain past of ひきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。",
+          "en": "The room is dark. It seems Mr. Tanaka is out.",
+          "answer": "るすの",
+          "accepted": [],
+          "hint": "Noun + the right connector",
+          "options": [
+            "るすの",
+            "るすな",
+            "るすだ"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "げんかんに くつが あります。だれか ＿＿ようです。",
+          "en": "There are shoes at the entrance. It seems someone has come.",
+          "answer": "きた",
+          "accepted": [],
+          "options": [
+            "きて",
+            "き",
+            "きた"
+          ],
+          "hint": "ようです follows a plain form; here the plain past of きます.",
+          "why_wrong": {
+            "きて": "The てForm cannot go before ようです; use a plain form.",
+            "き": "The ます stem cannot go before ようです; use a plain form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
+          "en": "He's always playing games. It seems he likes games.",
+          "answer": "すきな",
+          "accepted": [],
+          "options": [
+            "すきの",
+            "すきな",
+            "すきだ"
+          ],
+          "hint": "A な-adjective keeps な before ようです.",
+          "why_wrong": {
+            "すきの": "の is for nouns; すき is a な-adjective, so it takes な.",
+            "すきだ": "だ cannot go before ようです; a な-adjective takes な."
+          }
+        }
       ]
     }
   ]

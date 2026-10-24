@@ -8,14 +8,71 @@
       "form": "ますForm / いadj(い) / なadj + すぎます",
       "note": "Drop the い: たかすぎます, not たかいすぎます. いい becomes よすぎます.",
       "examples": [
-        {"jp": "ゆうべ たべすぎました。", "en": "I ate too much last night."},
-        {"jp": "この くつは おおきすぎます。", "en": "These shoes are too big."}
+        {
+          "jp": "ゆうべ たべすぎました。",
+          "en": "I ate too much last night."
+        },
+        {
+          "jp": "この くつは おおきすぎます。",
+          "en": "These shoes are too big."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "おさけを ＿＿すぎて、あたまが いたいです。", "en": "I drank too much and I have a headache.", "answer": "のみ", "accepted": [], "hint": "ます stem of のみます"},
-        {"kind": "choose", "prompt": "この もんだいは ＿＿すぎます。", "en": "This problem is too complicated.", "answer": "ふくざつ", "accepted": [], "hint": "な-adjective stem, nothing added", "options": ["ふくざつ", "ふくざつな", "ふくざつに"]},
-        {"kind": "choose", "prompt": "この コーヒーは ＿＿すぎます。", "en": "This coffee is too sweet.", "answer": "あま", "accepted": [], "options": ["あまい", "あまく", "あま"], "hint": "Drop the い of an い-adjective before すぎます.", "why_wrong": {"あまい": "Keep the い off: あますぎます, not あまいすぎます.", "あまく": "The く form is for verbs like なります, not for すぎます."}},
-        {"kind": "choose", "prompt": "ゲームを ＿＿すぎて、めが いたいです。", "en": "I played games too much and my eyes hurt.", "answer": "し", "accepted": [], "options": ["する", "し", "して"], "hint": "すぎます joins the ます stem of a verb; します becomes し.", "why_wrong": {"する": "The dictionary form cannot join すぎます; use the ます stem.", "して": "The てForm cannot join すぎます; use the ます stem."}}
+        {
+          "kind": "fill",
+          "prompt": "おさけを ＿＿すぎて、あたまが いたいです。",
+          "en": "I drank too much and I have a headache.",
+          "answer": "のみ",
+          "accepted": [],
+          "hint": "ます stem of のみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この もんだいは ＿＿すぎます。",
+          "en": "This problem is too complicated.",
+          "answer": "ふくざつ",
+          "accepted": [],
+          "hint": "な-adjective stem, nothing added",
+          "options": [
+            "ふくざつ",
+            "ふくざつな",
+            "ふくざつに"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "この コーヒーは ＿＿すぎます。",
+          "en": "This coffee is too sweet.",
+          "answer": "あま",
+          "accepted": [],
+          "options": [
+            "あまい",
+            "あまく",
+            "あま"
+          ],
+          "hint": "Drop the い of an い-adjective before すぎます.",
+          "why_wrong": {
+            "あまい": "Keep the い off: あますぎます, not あまいすぎます.",
+            "あまく": "The く form is for verbs like なります, not for すぎます."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ゲームを ＿＿すぎて、めが いたいです。",
+          "en": "I played games too much and my eyes hurt.",
+          "answer": "し",
+          "accepted": [],
+          "options": [
+            "する",
+            "し",
+            "して"
+          ],
+          "hint": "すぎます joins the ます stem of a verb; します becomes し.",
+          "why_wrong": {
+            "する": "The dictionary form cannot join すぎます; use the ます stem.",
+            "して": "The てForm cannot join すぎます; use the ます stem."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "ますForm + やすいです / にくいです",
       "note": "Both work like い-adjectives: わかりやすくて, よみにくかったです.",
       "examples": [
-        {"jp": "この じは よみやすいです。／この かんじは おぼえにくいです。", "en": "These letters are easy to read. This kanji is hard to remember."},
-        {"jp": "この まちは すみやすいです。", "en": "This town is easy to live in."}
+        {
+          "jp": "この じは よみやすいです。／この かんじは おぼえにくいです。",
+          "en": "These letters are easy to read. This kanji is hard to remember."
+        },
+        {
+          "jp": "この まちは すみやすいです。",
+          "en": "This town is easy to live in."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "この くすりは おおきくて、＿＿にくいです。", "en": "This pill is big and hard to take.", "answer": "のみ", "accepted": [], "hint": "ます stem of のみます"},
-        {"kind": "choose", "prompt": "この ペンは ＿＿やすいです。", "en": "This pen is easy to write with.", "answer": "かき", "accepted": [], "hint": "ます stem of かきます", "options": ["かき", "かく", "かいて"]},
-        {"kind": "choose", "prompt": "この くつは ＿＿にくいです。", "en": "These shoes are hard to walk in.", "answer": "あるき", "accepted": [], "options": ["あるく", "あるいて", "あるき"], "hint": "にくいです joins the ます stem of a verb.", "why_wrong": {"あるく": "The dictionary form cannot join にくい; use the ます stem.", "あるいて": "The てForm cannot join にくい; use the ます stem."}},
-        {"kind": "choose", "prompt": "せんせいの せつめいは ＿＿です。", "en": "The teacher's explanation is easy to understand.", "answer": "わかりやすい", "accepted": [], "options": ["わかりにくい", "わかりやすい", "わかるやすい"], "hint": "ます stem + やすい means easy to do; にくい means hard to do.", "why_wrong": {"わかりにくい": "にくい means hard to understand, the opposite meaning.", "わかるやすい": "やすい joins the ます stem わかり, not the dictionary form."}}
+        {
+          "kind": "fill",
+          "prompt": "この くすりは おおきくて、＿＿にくいです。",
+          "en": "This pill is big and hard to take.",
+          "answer": "のみ",
+          "accepted": [],
+          "hint": "ます stem of のみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この ペンは ＿＿やすいです。",
+          "en": "This pen is easy to write with.",
+          "answer": "かき",
+          "accepted": [],
+          "hint": "ます stem of かきます",
+          "options": [
+            "かき",
+            "かく",
+            "かいて"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "この くつは ＿＿にくいです。",
+          "en": "These shoes are hard to walk in.",
+          "answer": "あるき",
+          "accepted": [],
+          "options": [
+            "あるく",
+            "あるいて",
+            "あるき"
+          ],
+          "hint": "にくいです joins the ます stem of a verb.",
+          "why_wrong": {
+            "あるく": "The dictionary form cannot join にくい; use the ます stem.",
+            "あるいて": "The てForm cannot join にくい; use the ます stem."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいの せつめいは ＿＿です。",
+          "en": "The teacher's explanation is easy to understand.",
+          "answer": "わかりやすい",
+          "accepted": [],
+          "options": [
+            "わかりにくい",
+            "わかりやすい",
+            "わかるやすい"
+          ],
+          "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
+          "why_wrong": {
+            "わかりにくい": "にくい means hard to understand, the opposite meaning.",
+            "わかるやすい": "やすい joins the ます stem わかり, not the dictionary form."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,71 @@
       "form": "いadj(い→く) / なadj + に + します",
       "note": "なります is a change that happens; します is a change someone makes: へやが きれいに なりました vs へやを きれいに しました.",
       "examples": [
-        {"jp": "へやを きれいに しました。", "en": "I cleaned up the room."},
-        {"jp": "おとを ちいさく して ください。", "en": "Please turn the volume down."}
+        {
+          "jp": "へやを きれいに しました。",
+          "en": "I cleaned up the room."
+        },
+        {
+          "jp": "おとを ちいさく して ください。",
+          "en": "Please turn the volume down."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "テレビの おとを ＿＿ して ください。", "en": "Please turn up the TV volume.", "answer": "おおきく", "accepted": [], "hint": "い-adjective in its く form"},
-        {"kind": "choose", "prompt": "かみを ＿＿ しました。", "en": "I got my hair cut short.", "answer": "みじかく", "accepted": [], "hint": "い-adjective in its く form", "options": ["みじかく", "みじかい", "みじかに"]},
-        {"kind": "choose", "prompt": "ちょっと ＿＿ して ください。", "en": "Please be quiet for a moment.", "answer": "しずかに", "accepted": [], "options": ["しずかな", "しずかに", "しずかく"], "hint": "A な-adjective takes に before します.", "why_wrong": {"しずかな": "な goes before a noun; before します use に.", "しずかく": "く is only for い-adjectives; しずか is a な-adjective."}},
-        {"kind": "choose", "prompt": "エアコンで へやを すずしく ＿＿。", "en": "I cooled the room with the air conditioner.", "answer": "しました", "accepted": [], "options": ["なりました", "ありました", "しました"], "hint": "With を, someone makes the change, so use します, not なります.", "why_wrong": {"なりました": "なります is a change that just happens and cannot take へやを.", "ありました": "あります does not follow the く form to show a change."}}
+        {
+          "kind": "fill",
+          "prompt": "テレビの おとを ＿＿ して ください。",
+          "en": "Please turn up the TV volume.",
+          "answer": "おおきく",
+          "accepted": [],
+          "hint": "い-adjective in its く form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "かみを ＿＿ しました。",
+          "en": "I got my hair cut short.",
+          "answer": "みじかく",
+          "accepted": [],
+          "hint": "い-adjective in its く form",
+          "options": [
+            "みじかく",
+            "みじかい",
+            "みじかに"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "ちょっと ＿＿ して ください。",
+          "en": "Please be quiet for a moment.",
+          "answer": "しずかに",
+          "accepted": [],
+          "options": [
+            "しずかな",
+            "しずかに",
+            "しずかく"
+          ],
+          "hint": "A な-adjective takes に before します.",
+          "why_wrong": {
+            "しずかな": "な goes before a noun; before します use に.",
+            "しずかく": "く is only for い-adjectives; しずか is a な-adjective."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "エアコンで へやを すずしく ＿＿。",
+          "en": "I cooled the room with the air conditioner.",
+          "answer": "しました",
+          "accepted": [],
+          "options": [
+            "なりました",
+            "ありました",
+            "しました"
+          ],
+          "hint": "With を, someone makes the change, so use します, not なります.",
+          "why_wrong": {
+            "なりました": "なります is a change that just happens and cannot take へやを.",
+            "ありました": "あります does not follow the く form to show a change."
+          }
+        }
       ]
     },
     {
@@ -56,14 +227,73 @@
       "form": "いadj(い→く) / なadj + に + Verb",
       "note": "いい becomes よく: よく できました.",
       "examples": [
-        {"jp": "じを おおきく かきます。", "en": "I write the letters large."},
-        {"jp": "しずかに あるいて ください。", "en": "Please walk quietly."}
+        {
+          "jp": "じを おおきく かきます。",
+          "en": "I write the letters large."
+        },
+        {
+          "jp": "しずかに あるいて ください。",
+          "en": "Please walk quietly."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "じを ＿＿ かいて ください。", "en": "Please write the letters neatly.", "answer": "きれいに", "accepted": ["ていねいに"], "hint": "な-adjective + に"},
-        {"kind": "choose", "prompt": "あさ ＿＿ おきました。", "en": "I got up early in the morning.", "answer": "はやく", "accepted": [], "hint": "い-adjective in its く form", "options": ["はやく", "はやい", "はやに"]},
-        {"kind": "choose", "prompt": "もっと ＿＿ せつめいして ください。", "en": "Please explain it more simply.", "answer": "かんたんに", "accepted": [], "options": ["かんたんな", "かんたんく", "かんたんに"], "hint": "A な-adjective takes に to describe how an action is done.", "why_wrong": {"かんたんな": "な goes before a noun; before a verb use に.", "かんたんく": "く is only for い-adjectives; かんたん is a な-adjective."}},
-        {"kind": "choose", "prompt": "ゆうべは ＿＿ ねました。", "en": "I slept well last night.", "answer": "よく", "accepted": [], "options": ["いいく", "よく", "いいに"], "hint": "いい is irregular: its く form is よく.", "why_wrong": {"いいく": "いい changes to よく, never いいく.", "いいに": "に is for な-adjectives; いい becomes よく."}}
+        {
+          "kind": "fill",
+          "prompt": "じを ＿＿ かいて ください。",
+          "en": "Please write the letters neatly.",
+          "answer": "きれいに",
+          "accepted": [
+            "ていねいに"
+          ],
+          "hint": "な-adjective + に"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あさ ＿＿ おきました。",
+          "en": "I got up early in the morning.",
+          "answer": "はやく",
+          "accepted": [],
+          "hint": "い-adjective in its く form",
+          "options": [
+            "はやく",
+            "はやい",
+            "はやに"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "もっと ＿＿ せつめいして ください。",
+          "en": "Please explain it more simply.",
+          "answer": "かんたんに",
+          "accepted": [],
+          "options": [
+            "かんたんな",
+            "かんたんく",
+            "かんたんに"
+          ],
+          "hint": "A な-adjective takes に to describe how an action is done.",
+          "why_wrong": {
+            "かんたんな": "な goes before a noun; before a verb use に.",
+            "かんたんく": "く is only for い-adjectives; かんたん is a な-adjective."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ゆうべは ＿＿ ねました。",
+          "en": "I slept well last night.",
+          "answer": "よく",
+          "accepted": [],
+          "options": [
+            "いいく",
+            "よく",
+            "いいに"
+          ],
+          "hint": "いい is irregular: its く form is よく.",
+          "why_wrong": {
+            "いいく": "いい changes to よく, never いいく.",
+            "いいに": "に is for な-adjectives; いい becomes よく."
+          }
+        }
       ]
     }
   ]

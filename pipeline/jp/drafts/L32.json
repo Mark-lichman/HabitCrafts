@@ -8,14 +8,71 @@
       "form": "たForm／ないForm + ほうが いいです",
       "note": "For negative advice use the ない form, not the past negative: いかない ほうが いいです.",
       "examples": [
-        {"jp": "はやく びょういんへ いった ほうが いいです。", "en": "You should go to the hospital soon."},
-        {"jp": "あまり おさけを のまない ほうが いいです。", "en": "You shouldn't drink too much."}
+        {
+          "jp": "はやく びょういんへ いった ほうが いいです。",
+          "en": "You should go to the hospital soon."
+        },
+        {
+          "jp": "あまり おさけを のまない ほうが いいです。",
+          "en": "You shouldn't drink too much."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "かぜの ときは、はやく ＿＿ ほうが いいです。", "en": "When you have a cold, you should go to bed early.", "answer": "ねた", "accepted": [], "hint": "たForm of ねます"},
-        {"kind": "choose", "prompt": "よる おそく コーヒーを ＿＿ ほうが いいです。", "en": "You shouldn't drink coffee late at night.", "answer": "のまない", "options": ["のまない", "のまなかった", "のまないで"], "accepted": [], "hint": "ないForm for negative advice"},
-        {"kind": "choose", "prompt": "つかれたら、すこし ＿＿ ほうが いいですよ。", "en": "If you're tired, you should rest a little.", "answer": "やすんだ", "accepted": [], "options": ["やすみた", "やすんだ", "やすんで"], "hint": "Positive advice uses the たForm + ほうが いいです.", "why_wrong": {"やすみた": "The たForm of やすみます is やすんだ.", "やすんで": "The てForm cannot come before ほう."}},
-        {"kind": "choose", "prompt": "あぶないですから、よる ひとりで ＿＿ ほうが いいです。", "en": "It's dangerous, so you shouldn't go out alone at night.", "answer": "でかけない", "accepted": [], "options": ["でかけた", "でかけません", "でかけない"], "hint": "Negative advice uses the ないForm + ほうが いいです.", "why_wrong": {"でかけた": "This advises going out, the opposite of the meaning.", "でかけません": "The polite form cannot come before ほう."}}
+        {
+          "kind": "fill",
+          "prompt": "かぜの ときは、はやく ＿＿ ほうが いいです。",
+          "en": "When you have a cold, you should go to bed early.",
+          "answer": "ねた",
+          "accepted": [],
+          "hint": "たForm of ねます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "よる おそく コーヒーを ＿＿ ほうが いいです。",
+          "en": "You shouldn't drink coffee late at night.",
+          "answer": "のまない",
+          "options": [
+            "のまない",
+            "のまなかった",
+            "のまないで"
+          ],
+          "accepted": [],
+          "hint": "ないForm for negative advice"
+        },
+        {
+          "kind": "choose",
+          "prompt": "つかれたら、すこし ＿＿ ほうが いいですよ。",
+          "en": "If you're tired, you should rest a little.",
+          "answer": "やすんだ",
+          "accepted": [],
+          "options": [
+            "やすみた",
+            "やすんだ",
+            "やすんで"
+          ],
+          "hint": "Positive advice uses the たForm + ほうが いいです.",
+          "why_wrong": {
+            "やすみた": "The たForm of やすみます is やすんだ.",
+            "やすんで": "The てForm cannot come before ほう."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あぶないですから、よる ひとりで ＿＿ ほうが いいです。",
+          "en": "It's dangerous, so you shouldn't go out alone at night.",
+          "answer": "でかけない",
+          "accepted": [],
+          "options": [
+            "でかけた",
+            "でかけません",
+            "でかけない"
+          ],
+          "hint": "Negative advice uses the ないForm + ほうが いいです.",
+          "why_wrong": {
+            "でかけた": "This advises going out, the opposite of the meaning.",
+            "でかけません": "The polite form cannot come before ほう."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "ふつうForm + でしょう",
       "note": "With な-adjectives and nouns, drop だ: ひまでしょう, あめでしょう.",
       "examples": [
-        {"jp": "あしたは はれるでしょう。", "en": "It will probably be sunny tomorrow."},
-        {"jp": "やまださんは きょう こないでしょう。", "en": "Mr. Yamada probably won't come today."}
+        {
+          "jp": "あしたは はれるでしょう。",
+          "en": "It will probably be sunny tomorrow."
+        },
+        {
+          "jp": "やまださんは きょう こないでしょう。",
+          "en": "Mr. Yamada probably won't come today."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "しけんは むずかしい＿＿。", "en": "The exam will probably be difficult.", "answer": "でしょう", "accepted": [], "hint": "Word for a confident guess"},
-        {"kind": "choose", "prompt": "あしたの よるは ＿＿でしょう。", "en": "It will probably snow tomorrow night.", "answer": "ゆき", "options": ["ゆき", "ゆきだ", "ゆきな"], "accepted": [], "hint": "Nouns drop だ before でしょう"},
-        {"kind": "choose", "prompt": "にちようびの こうえんは ＿＿でしょう。", "en": "The park will probably be lively on Sunday.", "answer": "にぎやか", "accepted": [], "options": ["にぎやかだ", "にぎやかな", "にぎやか"], "hint": "な-adjectives drop だ before でしょう.", "why_wrong": {"にぎやかだ": "だ is dropped before でしょう.", "にぎやかな": "な is only used before a noun, not before でしょう."}},
-        {"kind": "choose", "prompt": "たなかさんは もう ＿＿でしょう。", "en": "Mr. Tanaka has probably already gone home.", "answer": "かえった", "accepted": [], "options": ["かえった", "かえりました", "かえって"], "hint": "でしょう follows the plain form, and the plain past is the たForm.", "why_wrong": {"かえりました": "The polite ました form cannot come before でしょう.", "かえって": "The てForm cannot come before でしょう."}}
+        {
+          "kind": "fill",
+          "prompt": "しけんは むずかしい＿＿。",
+          "en": "The exam will probably be difficult.",
+          "answer": "でしょう",
+          "accepted": [],
+          "hint": "Word for a confident guess"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あしたの よるは ＿＿でしょう。",
+          "en": "It will probably snow tomorrow night.",
+          "answer": "ゆき",
+          "options": [
+            "ゆき",
+            "ゆきだ",
+            "ゆきな"
+          ],
+          "accepted": [],
+          "hint": "Nouns drop だ before でしょう"
+        },
+        {
+          "kind": "choose",
+          "prompt": "にちようびの こうえんは ＿＿でしょう。",
+          "en": "The park will probably be lively on Sunday.",
+          "answer": "にぎやか",
+          "accepted": [],
+          "options": [
+            "にぎやかだ",
+            "にぎやかな",
+            "にぎやか"
+          ],
+          "hint": "な-adjectives drop だ before でしょう.",
+          "why_wrong": {
+            "にぎやかだ": "だ is dropped before でしょう.",
+            "にぎやかな": "な is only used before a noun, not before でしょう."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "たなかさんは もう ＿＿でしょう。",
+          "en": "Mr. Tanaka has probably already gone home.",
+          "answer": "かえった",
+          "accepted": [],
+          "options": [
+            "かえった",
+            "かえりました",
+            "かえって"
+          ],
+          "hint": "でしょう follows the plain form, and the plain past is the たForm.",
+          "why_wrong": {
+            "かえりました": "The polite ました form cannot come before でしょう.",
+            "かえって": "The てForm cannot come before でしょう."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,71 @@
       "form": "ふつうForm + かもしれません",
       "note": "With な-adjectives and nouns, drop だ: びょうきかもしれません.",
       "examples": [
-        {"jp": "あした あめが ふるかもしれません。", "en": "It might rain tomorrow."},
-        {"jp": "みちが こんで いるかもしれません。", "en": "The roads might be crowded."}
+        {
+          "jp": "あした あめが ふるかもしれません。",
+          "en": "It might rain tomorrow."
+        },
+        {
+          "jp": "みちが こんで いるかもしれません。",
+          "en": "The roads might be crowded."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "やくそくの じかんに ＿＿かもしれません。", "en": "I might not make it in time for the appointment.", "answer": "まにあわない", "accepted": [], "hint": "ないForm of まにあいます"},
-        {"kind": "choose", "prompt": "あの ひとは ＿＿かもしれません。", "en": "That person might be a teacher.", "answer": "せんせい", "options": ["せんせい", "せんせいだ", "せんせいな"], "accepted": [], "hint": "Nouns drop だ before かもしれません"},
-        {"kind": "choose", "prompt": "ミラーさんは パーティーに ＿＿かもしれません。", "en": "Mr. Miller might not come to the party.", "answer": "こない", "accepted": [], "options": ["きない", "こない", "くない"], "hint": "かもしれません follows the plain form, and the ないForm of くる is こない.", "why_wrong": {"きない": "The ないForm of くる starts with こ: こない.", "くない": "The ないForm of くる starts with こ: こない."}},
-        {"kind": "choose", "prompt": "あしたの テストは ＿＿かもしれません。", "en": "Tomorrow's test might be easy.", "answer": "かんたん", "accepted": [], "options": ["かんたんな", "かんたん", "かんたんだ"], "hint": "な-adjectives drop だ before かもしれません.", "why_wrong": {"かんたんな": "な is only used before a noun, not before かもしれません.", "かんたんだ": "だ is dropped before かもしれません."}}
+        {
+          "kind": "fill",
+          "prompt": "やくそくの じかんに ＿＿かもしれません。",
+          "en": "I might not make it in time for the appointment.",
+          "answer": "まにあわない",
+          "accepted": [],
+          "hint": "ないForm of まにあいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あの ひとは ＿＿かもしれません。",
+          "en": "That person might be a teacher.",
+          "answer": "せんせい",
+          "options": [
+            "せんせい",
+            "せんせいだ",
+            "せんせいな"
+          ],
+          "accepted": [],
+          "hint": "Nouns drop だ before かもしれません"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ミラーさんは パーティーに ＿＿かもしれません。",
+          "en": "Mr. Miller might not come to the party.",
+          "answer": "こない",
+          "accepted": [],
+          "options": [
+            "きない",
+            "こない",
+            "くない"
+          ],
+          "hint": "かもしれません follows the plain form, and the ないForm of くる is こない.",
+          "why_wrong": {
+            "きない": "The ないForm of くる starts with こ: こない.",
+            "くない": "The ないForm of くる starts with こ: こない."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あしたの テストは ＿＿かもしれません。",
+          "en": "Tomorrow's test might be easy.",
+          "answer": "かんたん",
+          "accepted": [],
+          "options": [
+            "かんたんな",
+            "かんたん",
+            "かんたんだ"
+          ],
+          "hint": "な-adjectives drop だ before かもしれません.",
+          "why_wrong": {
+            "かんたんな": "な is only used before a noun, not before かもしれません.",
+            "かんたんだ": "だ is dropped before かもしれません."
+          }
+        }
       ]
     }
   ]

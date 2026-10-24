@@ -8,14 +8,73 @@
       "form": "Nを いただきます／くださいます／やります",
       "note": "The ます form is くださいます, not くださります.",
       "examples": [
-        {"jp": "せんせいから ほんを いただきました。", "en": "I received a book from my teacher."},
-        {"jp": "しゃちょうが わたしに おみやげを くださいました。", "en": "The company president gave me a souvenir."}
+        {
+          "jp": "せんせいから ほんを いただきました。",
+          "en": "I received a book from my teacher."
+        },
+        {
+          "jp": "しゃちょうが わたしに おみやげを くださいました。",
+          "en": "The company president gave me a souvenir."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "まいにち いぬに えさを ＿＿。", "en": "I feed my dog every day.", "answer": "やります", "accepted": ["あげます"], "hint": "the 'give' verb used for animals"},
-        {"kind": "choose", "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。", "en": "The department manager's wife gave me a necktie.", "answer": "くださいました", "options": ["くださいました", "いただきました", "やりました"], "accepted": [], "hint": "a superior gives to me"},
-        {"kind": "choose", "prompt": "わたしは しゃちょうに とけいを ＿＿。", "en": "I received a watch from the company president.", "answer": "いただきました", "accepted": [], "options": ["やりました", "いただきました", "くださいました"], "hint": "When I receive from a superior, use the humble いただきます.", "why_wrong": {"やりました": "やります is giving to juniors or animals, not receiving.", "くださいました": "With くださいます the giver is the subject; here わたしは is."}},
-        {"kind": "choose", "prompt": "せんせいが わたしに じしょを ＿＿。", "en": "The teacher gave me a dictionary.", "answer": "くださいました", "accepted": [], "options": ["くださりました", "いただきました", "くださいました"], "hint": "When a superior gives to me, use くださいます.", "why_wrong": {"くださりました": "The ます form is irregular: くださいます, not くださります.", "いただきました": "いただきます is for the receiver; here the teacher is the giver."}}
+        {
+          "kind": "fill",
+          "prompt": "まいにち いぬに えさを ＿＿。",
+          "en": "I feed my dog every day.",
+          "answer": "やります",
+          "accepted": [
+            "あげます"
+          ],
+          "hint": "the 'give' verb used for animals"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
+          "en": "The department manager's wife gave me a necktie.",
+          "answer": "くださいました",
+          "options": [
+            "くださいました",
+            "いただきました",
+            "やりました"
+          ],
+          "accepted": [],
+          "hint": "a superior gives to me"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは しゃちょうに とけいを ＿＿。",
+          "en": "I received a watch from the company president.",
+          "answer": "いただきました",
+          "accepted": [],
+          "options": [
+            "やりました",
+            "いただきました",
+            "くださいました"
+          ],
+          "hint": "When I receive from a superior, use the humble いただきます.",
+          "why_wrong": {
+            "やりました": "やります is giving to juniors or animals, not receiving.",
+            "くださいました": "With くださいます the giver is the subject; here わたしは is."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいが わたしに じしょを ＿＿。",
+          "en": "The teacher gave me a dictionary.",
+          "answer": "くださいました",
+          "accepted": [],
+          "options": [
+            "くださりました",
+            "いただきました",
+            "くださいました"
+          ],
+          "hint": "When a superior gives to me, use くださいます.",
+          "why_wrong": {
+            "くださりました": "The ます form is irregular: くださいます, not くださります.",
+            "いただきました": "いただきます is for the receiver; here the teacher is the giver."
+          }
+        }
       ]
     },
     {
@@ -24,14 +83,71 @@
       "form": "てForm ＋ いただきます／くださいます／やります",
       "note": "With て いただきます, the person doing the favor takes に. With て くださいます, that person takes が.",
       "examples": [
-        {"jp": "せんせいに さくぶんを なおして いただきました。", "en": "My teacher kindly corrected my composition."},
-        {"jp": "ぶちょうが えきまで おくって くださいました。", "en": "The department manager kindly took me to the station."}
+        {
+          "jp": "せんせいに さくぶんを なおして いただきました。",
+          "en": "My teacher kindly corrected my composition."
+        },
+        {
+          "jp": "ぶちょうが えきまで おくって くださいました。",
+          "en": "The department manager kindly took me to the station."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "せんせいに みちを ＿＿ いただきました。", "en": "My teacher kindly showed me the way.", "answer": "おしえて", "accepted": [], "hint": "て form of おしえます"},
-        {"kind": "choose", "prompt": "むすこに じてんしゃを なおして ＿＿。", "en": "I fixed my son's bicycle for him.", "answer": "やりました", "options": ["やりました", "くださいました", "いただきました"], "accepted": [], "hint": "I do a favor for a junior"},
-        {"kind": "choose", "prompt": "＿＿ にもつを もって いただきました。", "en": "The department manager kindly carried my bags for me.", "answer": "ぶちょうに", "accepted": [], "options": ["ぶちょうが", "ぶちょうに", "ぶちょうを"], "hint": "With て いただきます, the person doing the favor takes に.", "why_wrong": {"ぶちょうが": "が goes with て くださいます; て いただきます takes に.", "ぶちょうを": "を marks an object; the favor doer takes に."}},
-        {"kind": "choose", "prompt": "しらない かたが かさを かして ＿＿。", "en": "A stranger kindly lent me an umbrella.", "answer": "くださいました", "accepted": [], "options": ["いただきました", "やりました", "くださいました"], "hint": "When the favor doer takes が, use て くださいます.", "why_wrong": {"いただきました": "With が on the favor doer, use くださいます, not いただきます.", "やりました": "て やります is a favor I do for a junior, not one done for me."}}
+        {
+          "kind": "fill",
+          "prompt": "せんせいに みちを ＿＿ いただきました。",
+          "en": "My teacher kindly showed me the way.",
+          "answer": "おしえて",
+          "accepted": [],
+          "hint": "て form of おしえます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "むすこに じてんしゃを なおして ＿＿。",
+          "en": "I fixed my son's bicycle for him.",
+          "answer": "やりました",
+          "options": [
+            "やりました",
+            "くださいました",
+            "いただきました"
+          ],
+          "accepted": [],
+          "hint": "I do a favor for a junior"
+        },
+        {
+          "kind": "choose",
+          "prompt": "＿＿ にもつを もって いただきました。",
+          "en": "The department manager kindly carried my bags for me.",
+          "answer": "ぶちょうに",
+          "accepted": [],
+          "options": [
+            "ぶちょうが",
+            "ぶちょうに",
+            "ぶちょうを"
+          ],
+          "hint": "With て いただきます, the person doing the favor takes に.",
+          "why_wrong": {
+            "ぶちょうが": "が goes with て くださいます; て いただきます takes に.",
+            "ぶちょうを": "を marks an object; the favor doer takes に."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しらない かたが かさを かして ＿＿。",
+          "en": "A stranger kindly lent me an umbrella.",
+          "answer": "くださいました",
+          "accepted": [],
+          "options": [
+            "いただきました",
+            "やりました",
+            "くださいました"
+          ],
+          "hint": "When the favor doer takes が, use て くださいます.",
+          "why_wrong": {
+            "いただきました": "With が on the favor doer, use くださいます, not いただきます.",
+            "やりました": "て やります is a favor I do for a junior, not one done for me."
+          }
+        }
       ]
     },
     {
@@ -40,14 +156,71 @@
       "form": "てForm ＋ くださいませんか",
       "note": "て いただけませんか is about equally polite. Both are softer than て ください.",
       "examples": [
-        {"jp": "もういちど せつめいして くださいませんか。", "en": "Could you please explain it once more?"},
-        {"jp": "この ことばの いみを おしえて くださいませんか。", "en": "Could you please tell me what this word means?"}
+        {
+          "jp": "もういちど せつめいして くださいませんか。",
+          "en": "Could you please explain it once more?"
+        },
+        {
+          "jp": "この ことばの いみを おしえて くださいませんか。",
+          "en": "Could you please tell me what this word means?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "すみませんが、しゃしんを ＿＿ くださいませんか。", "en": "Excuse me, could you please take a photo?", "answer": "とって", "accepted": [], "hint": "て form of とります"},
-        {"kind": "choose", "prompt": "ちょっと ＿＿ くださいませんか。", "en": "Could you please wait a moment?", "answer": "まって", "options": ["まって", "まち", "まつ"], "accepted": [], "hint": "て form of まちます"},
-        {"kind": "choose", "prompt": "この にもつを ＿＿ くださいませんか。", "en": "Could you please hold this luggage?", "answer": "もって", "accepted": [], "options": ["もちて", "もつ", "もって"], "hint": "くださいませんか follows the て form; ち becomes って.", "why_wrong": {"もちて": "もちます is Group I: ち becomes って, so もって.", "もつ": "くださいませんか follows the て form, not the dictionary form."}},
-        {"kind": "choose", "prompt": "まどを あけて ＿＿。", "en": "Could you please open the window?", "answer": "くださいませんか", "accepted": [], "options": ["くださりませんか", "くださいませんか", "いただきませんか"], "hint": "て form ＋ くださいませんか is a very polite request.", "why_wrong": {"くださりませんか": "The ます form is irregular: くださいませんか.", "いただきませんか": "The request form is いただけませんか; いただきませんか is not one."}}
+        {
+          "kind": "fill",
+          "prompt": "すみませんが、しゃしんを ＿＿ くださいませんか。",
+          "en": "Excuse me, could you please take a photo?",
+          "answer": "とって",
+          "accepted": [],
+          "hint": "て form of とります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ちょっと ＿＿ くださいませんか。",
+          "en": "Could you please wait a moment?",
+          "answer": "まって",
+          "options": [
+            "まって",
+            "まち",
+            "まつ"
+          ],
+          "accepted": [],
+          "hint": "て form of まちます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この にもつを ＿＿ くださいませんか。",
+          "en": "Could you please hold this luggage?",
+          "answer": "もって",
+          "accepted": [],
+          "options": [
+            "もちて",
+            "もつ",
+            "もって"
+          ],
+          "hint": "くださいませんか follows the て form; ち becomes って.",
+          "why_wrong": {
+            "もちて": "もちます is Group I: ち becomes って, so もって.",
+            "もつ": "くださいませんか follows the て form, not the dictionary form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "まどを あけて ＿＿。",
+          "en": "Could you please open the window?",
+          "answer": "くださいませんか",
+          "accepted": [],
+          "options": [
+            "くださりませんか",
+            "くださいませんか",
+            "いただきませんか"
+          ],
+          "hint": "て form ＋ くださいませんか is a very polite request.",
+          "why_wrong": {
+            "くださりませんか": "The ます form is irregular: くださいませんか.",
+            "いただきませんか": "The request form is いただけませんか; いただきませんか is not one."
+          }
+        }
       ]
     }
   ]

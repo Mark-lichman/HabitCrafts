@@ -8,14 +8,71 @@
       "form": "ふつうForm + ばあいは",
       "note": "With nouns use の (かじの ばあいは); with な-adjectives use な (ふべんな ばあいは).",
       "examples": [
-        {"jp": "ちこくする ばあいは、れんらくして ください。", "en": "If you are going to be late, please let us know."},
-        {"jp": "かじの ばあいは、エレベーターを つかわないで ください。", "en": "In case of fire, please don't use the elevator."}
+        {
+          "jp": "ちこくする ばあいは、れんらくして ください。",
+          "en": "If you are going to be late, please let us know."
+        },
+        {
+          "jp": "かじの ばあいは、エレベーターを つかわないで ください。",
+          "en": "In case of fire, please don't use the elevator."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "かぜを ひいた ＿＿は、やすんで ください。", "en": "If you catch a cold, please rest.", "answer": "ばあい", "accepted": [], "hint": "Word meaning 'case'"},
-        {"kind": "choose", "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。", "en": "If you can't make the bus, please come by taxi.", "answer": "まにあわない", "accepted": [], "hint": "Plain negative form", "options": ["まにあわない", "まにあわなくて", "まにあいません"]},
-        {"kind": "choose", "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。", "en": "In case of an earthquake, please don't go outside.", "answer": "の", "accepted": [], "options": ["な", "で", "の"], "hint": "A noun joins ばあい with の.", "why_wrong": {"な": "な is for な-adjectives; じしん is a noun, so it takes の.", "で": "で cannot link a noun to ばあい; use の."}},
-        {"kind": "choose", "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。", "en": "If you lose your key, please tell the front desk.", "answer": "なくした", "accepted": [], "options": ["なくして", "なくした", "なくします"], "hint": "ばあい follows a plain form, such as the plain past.", "why_wrong": {"なくして": "The てForm cannot go before ばあい; use a plain form.", "なくします": "The polite ます form cannot go before ばあい; use a plain form."}}
+        {
+          "kind": "fill",
+          "prompt": "かぜを ひいた ＿＿は、やすんで ください。",
+          "en": "If you catch a cold, please rest.",
+          "answer": "ばあい",
+          "accepted": [],
+          "hint": "Word meaning 'case'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。",
+          "en": "If you can't make the bus, please come by taxi.",
+          "answer": "まにあわない",
+          "accepted": [],
+          "hint": "Plain negative form",
+          "options": [
+            "まにあわない",
+            "まにあわなくて",
+            "まにあいません"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。",
+          "en": "In case of an earthquake, please don't go outside.",
+          "answer": "の",
+          "accepted": [],
+          "options": [
+            "な",
+            "で",
+            "の"
+          ],
+          "hint": "A noun joins ばあい with の.",
+          "why_wrong": {
+            "な": "な is for な-adjectives; じしん is a noun, so it takes の.",
+            "で": "で cannot link a noun to ばあい; use の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。",
+          "en": "If you lose your key, please tell the front desk.",
+          "answer": "なくした",
+          "accepted": [],
+          "options": [
+            "なくして",
+            "なくした",
+            "なくします"
+          ],
+          "hint": "ばあい follows a plain form, such as the plain past.",
+          "why_wrong": {
+            "なくして": "The てForm cannot go before ばあい; use a plain form.",
+            "なくします": "The polite ます form cannot go before ばあい; use a plain form."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "ふつうForm + のに",
       "note": "With な-adjectives and nouns, use な: ひまなのに, にちようびなのに. Don't end with a request or plan after のに.",
       "examples": [
-        {"jp": "いっしょうけんめい べんきょうしたのに、おちて しまいました。", "en": "Even though I studied very hard, I failed."},
-        {"jp": "やくそくを したのに、かれは きませんでした。", "en": "Even though he promised, he didn't come."}
+        {
+          "jp": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
+          "en": "Even though I studied very hard, I failed."
+        },
+        {
+          "jp": "やくそくを したのに、かれは きませんでした。",
+          "en": "Even though he promised, he didn't come."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "にちようび＿＿、かいしゃへ いかなければ なりません。", "en": "Even though it's Sunday, I have to go to work.", "answer": "なのに", "accepted": [], "hint": "Noun + な + paradox word"},
-        {"kind": "choose", "prompt": "くすりを ＿＿のに、まだ ねつが あります。", "en": "Even though I took medicine, I still have a fever.", "answer": "のんだ", "accepted": [], "hint": "Plain past form", "options": ["のんだ", "のみ", "のんで"]},
-        {"kind": "choose", "prompt": "さむい＿＿、かれは コートを きないで でかけました。", "en": "Even though it's cold, he went out without a coat.", "answer": "のに", "accepted": [], "options": ["ので", "のに", "ために"], "hint": "のに links two facts when the result goes against what you expect.", "why_wrong": {"ので": "ので means 'because', and cold is no reason to skip a coat.", "ために": "ために shows purpose and cannot follow an い-adjective like さむい."}},
-        {"kind": "choose", "prompt": "まどを ＿＿のに、へやが さむいです。", "en": "Even though I closed the window, the room is cold.", "answer": "しめた", "accepted": [], "options": ["しめて", "しめ", "しめた"], "hint": "のに follows a plain form; here the plain past.", "why_wrong": {"しめて": "The てForm cannot go before のに; use a plain form.", "しめ": "The ます stem cannot go before のに; use a plain form."}}
+        {
+          "kind": "fill",
+          "prompt": "にちようび＿＿、かいしゃへ いかなければ なりません。",
+          "en": "Even though it's Sunday, I have to go to work.",
+          "answer": "なのに",
+          "accepted": [],
+          "hint": "Noun + な + paradox word"
+        },
+        {
+          "kind": "choose",
+          "prompt": "くすりを ＿＿のに、まだ ねつが あります。",
+          "en": "Even though I took medicine, I still have a fever.",
+          "answer": "のんだ",
+          "accepted": [],
+          "hint": "Plain past form",
+          "options": [
+            "のんだ",
+            "のみ",
+            "のんで"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "さむい＿＿、かれは コートを きないで でかけました。",
+          "en": "Even though it's cold, he went out without a coat.",
+          "answer": "のに",
+          "accepted": [],
+          "options": [
+            "ので",
+            "のに",
+            "ために"
+          ],
+          "hint": "のに links two facts when the result goes against what you expect.",
+          "why_wrong": {
+            "ので": "ので means 'because', and cold is no reason to skip a coat.",
+            "ために": "ために gives a purpose or cause. It cannot show an unexpected result."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "まどを ＿＿のに、へやが さむいです。",
+          "en": "Even though I closed the window, the room is cold.",
+          "answer": "しめた",
+          "accepted": [],
+          "options": [
+            "しめて",
+            "しめ",
+            "しめた"
+          ],
+          "hint": "のに follows a plain form; here the plain past.",
+          "why_wrong": {
+            "しめて": "The てForm cannot go before のに; use a plain form.",
+            "しめ": "The ます stem cannot go before のに; use a plain form."
+          }
+        }
       ]
     }
   ]

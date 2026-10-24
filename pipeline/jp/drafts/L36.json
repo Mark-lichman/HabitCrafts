@@ -8,14 +8,66 @@
       "form": "じしょForm／ないForm ＋ ように、〜",
       "note": "ように usually follows potential verbs, わかります, みえます, きこえます, or ない forms, not verbs of deliberate action.",
       "examples": [
-        {"jp": "よく きこえるように、おおきい こえで はなして ください。", "en": "Please speak loudly so that everyone can hear well."},
-        {"jp": "かぜを ひかないように、セーターを きます。", "en": "I wear a sweater so that I won't catch a cold."}
+        {
+          "jp": "よく きこえるように、おおきい こえで はなして ください。",
+          "en": "Please speak loudly so that everyone can hear well."
+        },
+        {
+          "jp": "かぜを ひかないように、セーターを きます。",
+          "en": "I wear a sweater so that I won't catch a cold."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "わすれない＿＿、メモします。", "en": "I take notes so that I won't forget.", "answer": "ように", "accepted": [], "hint": "the word meaning 'so that'"},
-        {"kind": "fill", "prompt": "はやく ＿＿ ように、まいにち れんしゅうします。", "en": "I practice every day so that I can swim fast.", "answer": "およげる", "accepted": [], "hint": "potential form of およぎます"},
-        {"kind": "choose", "prompt": "じが よく ＿＿ ように、おおきく かきます。", "en": "I write big so that the letters can be seen clearly.", "answer": "みえる", "accepted": [], "options": ["みる", "みます", "みえる"], "hint": "ように follows a non-deliberate verb like みえる to show the state you aim for.", "why_wrong": {"みる": "みる is looking on purpose; letters cannot look. Use みえる, 'can be seen.'", "みます": "ように needs a plain form, not a ます form."}},
-        {"kind": "choose", "prompt": "でんしゃに ＿＿ ように、はやく でます。", "en": "I leave early so that I won't miss the train.", "answer": "おくれない", "accepted": [], "options": ["おくれる", "おくれない", "おくれなくて"], "hint": "ない form ＋ ように means 'so that something won't happen.'", "why_wrong": {"おくれる": "This means 'so that I'll miss the train,' the opposite.", "おくれなくて": "ように follows the plain ない form, not the なくて form."}}
+        {
+          "kind": "fill",
+          "prompt": "わすれない＿＿、メモします。",
+          "en": "I take notes so that I won't forget.",
+          "answer": "ように",
+          "accepted": [],
+          "hint": "the word meaning 'so that'"
+        },
+        {
+          "kind": "fill",
+          "prompt": "はやく ＿＿ ように、まいにち れんしゅうします。",
+          "en": "I practice every day so that I can swim fast.",
+          "answer": "およげる",
+          "accepted": [],
+          "hint": "potential form of およぎます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "じが よく ＿＿ ように、おおきく かきます。",
+          "en": "I write big so that the letters can be seen clearly.",
+          "answer": "みえる",
+          "accepted": [],
+          "options": [
+            "みる",
+            "みます",
+            "みえる"
+          ],
+          "hint": "ように follows a non-deliberate verb like みえる to show the state you aim for.",
+          "why_wrong": {
+            "みる": "みる is looking on purpose; letters cannot look. Use みえる, 'can be seen.'",
+            "みます": "ように needs a plain form, not a ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "でんしゃに ＿＿ ように、はやく でます。",
+          "en": "I leave early so that I won't miss the train.",
+          "answer": "おくれない",
+          "accepted": [],
+          "options": [
+            "おくれる",
+            "おくれない",
+            "おくれなくて"
+          ],
+          "hint": "ない form ＋ ように means 'so that something won't happen.'",
+          "why_wrong": {
+            "おくれる": "This means 'so that I'll miss the train,' the opposite.",
+            "おくれなくて": "ように follows the plain ない form, not the なくて form."
+          }
+        }
       ]
     },
     {
@@ -24,14 +76,71 @@
       "form": "じしょForm＋ように なります／ない→なく なります",
       "note": "To say you can no longer do something or stopped a habit, use なく なります: よめなく なりました.",
       "examples": [
-        {"jp": "ひらがなが よめるように なりました。", "en": "I became able to read hiragana."},
-        {"jp": "さいきん テレビを みなく なりました。", "en": "Lately I've stopped watching TV."}
+        {
+          "jp": "ひらがなが よめるように なりました。",
+          "en": "I became able to read hiragana."
+        },
+        {
+          "jp": "さいきん テレビを みなく なりました。",
+          "en": "Lately I've stopped watching TV."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "にほんごが ＿＿ ように なりました。", "en": "I became able to speak Japanese.", "answer": "はなせる", "accepted": [], "hint": "potential form of はなします"},
-        {"kind": "choose", "prompt": "おさけを ＿＿ なりました。", "en": "I stopped drinking alcohol.", "answer": "のまなく", "options": ["のまなく", "のまない", "のまないで"], "accepted": [], "hint": "ない changes to なく before なります"},
-        {"kind": "choose", "prompt": "やっと じてんしゃに ＿＿ ように なりました。", "en": "I finally became able to ride a bicycle.", "answer": "のれる", "accepted": [], "options": ["のられる", "のれる", "のれます"], "hint": "Potential form ＋ ように なります means 'became able to.'", "why_wrong": {"のられる": "This is the passive form, not the potential. のります becomes のれる.", "のれます": "ように needs a plain form, not a ます form."}},
-        {"kind": "choose", "prompt": "めが わるく なって、ちいさい じが ＿＿ なりました。", "en": "My eyes got worse, and I can no longer read small letters.", "answer": "よめなく", "accepted": [], "options": ["よめない", "よめなくて", "よめなく"], "hint": "To say you can no longer do something, change ない to なく before なります.", "why_wrong": {"よめない": "ない must change to なく before なります.", "よめなくて": "Use なく, not なくて, directly before なります."}}
+        {
+          "kind": "fill",
+          "prompt": "にほんごが ＿＿ ように なりました。",
+          "en": "I became able to speak Japanese.",
+          "answer": "はなせる",
+          "accepted": [],
+          "hint": "potential form of はなします"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おさけを ＿＿ なりました。",
+          "en": "I stopped drinking alcohol.",
+          "answer": "のまなく",
+          "options": [
+            "のまなく",
+            "のまない",
+            "のまないで"
+          ],
+          "accepted": [],
+          "hint": "ない changes to なく before なります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "やっと じてんしゃに ＿＿ ように なりました。",
+          "en": "I finally became able to ride a bicycle.",
+          "answer": "のれる",
+          "accepted": [],
+          "options": [
+            "のられる",
+            "のれる",
+            "のれます"
+          ],
+          "hint": "Potential form ＋ ように なります means 'became able to.'",
+          "why_wrong": {
+            "のられる": "This is the passive form, not the potential. のります becomes のれる.",
+            "のれます": "ように needs a plain form, not a ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "めが わるく なって、ちいさい じが ＿＿ なりました。",
+          "en": "My eyes got worse, and I can no longer read small letters.",
+          "answer": "よめなく",
+          "accepted": [],
+          "options": [
+            "よめない",
+            "よめなくて",
+            "よめなく"
+          ],
+          "hint": "To say you can no longer do something, change ない to なく before なります.",
+          "why_wrong": {
+            "よめない": "ない must change to なく before なります.",
+            "よめなくて": "Use なく, not なくて, directly before なります."
+          }
+        }
       ]
     },
     {
@@ -40,14 +149,66 @@
       "form": "じしょForm／ないForm ＋ ように します",
       "note": "ように して います shows a habit you keep up. ように して ください asks someone to make a habit of something.",
       "examples": [
-        {"jp": "まいにち うんどうする ように します。", "en": "I'll make a point of exercising every day."},
-        {"jp": "あまい ものを たべないように して います。", "en": "I try not to eat sweets."}
+        {
+          "jp": "まいにち うんどうする ように します。",
+          "en": "I'll make a point of exercising every day."
+        },
+        {
+          "jp": "あまい ものを たべないように して います。",
+          "en": "I try not to eat sweets."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "まいにち やさいを ＿＿ ように して います。", "en": "I make a point of eating vegetables every day.", "answer": "たべる", "accepted": [], "hint": "dictionary form of たべます"},
-        {"kind": "fill", "prompt": "じかんに ＿＿ ように して ください。", "en": "Please make sure you are not late.", "answer": "おくれない", "accepted": [], "hint": "ない form of おくれます"},
-        {"kind": "choose", "prompt": "ねる まえに コーヒーを ＿＿ ように して います。", "en": "I make a point of not drinking coffee before bed.", "answer": "のまない", "accepted": [], "options": ["のまないで", "のまない", "のみません"], "hint": "ように して います follows the plain ない form for something you avoid.", "why_wrong": {"のまないで": "ように follows the plain ない form, not ないで.", "のみません": "ように needs a plain form, not a ます form."}},
-        {"kind": "choose", "prompt": "かいだんを ＿＿ ように して います。", "en": "I make a point of using the stairs.", "answer": "つかう", "accepted": [], "options": ["つかって", "つかいます", "つかう"], "hint": "ように して います follows the dictionary form for a habit you keep.", "why_wrong": {"つかって": "ように follows the dictionary form, not the て form.", "つかいます": "ように needs a plain form, not a ます form."}}
+        {
+          "kind": "fill",
+          "prompt": "まいにち やさいを ＿＿ ように して います。",
+          "en": "I make a point of eating vegetables every day.",
+          "answer": "たべる",
+          "accepted": [],
+          "hint": "dictionary form of たべます"
+        },
+        {
+          "kind": "fill",
+          "prompt": "じかんに ＿＿ ように して ください。",
+          "en": "Please make sure you are not late.",
+          "answer": "おくれない",
+          "accepted": [],
+          "hint": "ない form of おくれます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ねる まえに コーヒーを ＿＿ ように して います。",
+          "en": "I make a point of not drinking coffee before bed.",
+          "answer": "のまない",
+          "accepted": [],
+          "options": [
+            "のまないで",
+            "のまない",
+            "のみません"
+          ],
+          "hint": "ように して います follows the plain ない form for something you avoid.",
+          "why_wrong": {
+            "のまないで": "ように follows the plain ない form, not ないで.",
+            "のみません": "ように needs a plain form, not a ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かいだんを ＿＿ ように して います。",
+          "en": "I make a point of using the stairs.",
+          "answer": "つかう",
+          "accepted": [],
+          "options": [
+            "つかって",
+            "つかいます",
+            "つかう"
+          ],
+          "hint": "ように して います follows the dictionary form for a habit you keep.",
+          "why_wrong": {
+            "つかって": "ように follows the dictionary form, not the て form.",
+            "つかいます": "ように needs a plain form, not a ます form."
+          }
+        }
       ]
     }
   ]

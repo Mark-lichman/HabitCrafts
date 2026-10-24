@@ -8,14 +8,71 @@
       "form": "じしょForm ＋ のは ＋ adj ＋ です",
       "note": "Only the end of the sentence is polite: はなすのは, not はなしますのは.",
       "examples": [
-        {"jp": "にほんごを はなすのは たのしいです。", "en": "Speaking Japanese is fun."},
-        {"jp": "ひとりで よる あるくのは あぶないです。", "en": "Walking alone at night is dangerous."}
+        {
+          "jp": "にほんごを はなすのは たのしいです。",
+          "en": "Speaking Japanese is fun."
+        },
+        {
+          "jp": "ひとりで よる あるくのは あぶないです。",
+          "en": "Walking alone at night is dangerous."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "えを ＿＿ のは たのしいです。", "en": "Drawing pictures is fun.", "answer": "かく", "accepted": [], "hint": "dictionary form of かきます"},
-        {"kind": "choose", "prompt": "あさ はやく ＿＿ きもちが いいです。", "en": "Getting up early in the morning feels good.", "answer": "おきるのは", "options": ["おきるのは", "おきますのは", "おきるは"], "accepted": [], "hint": "dictionary form ＋ のは"},
-        {"kind": "choose", "prompt": "やさいを ＿＿ からだに いいです。", "en": "Eating vegetables is good for your body.", "answer": "たべるのは", "accepted": [], "options": ["たべるのを", "たべるのは", "たべますのは"], "hint": "Dictionary form ＋ のは makes the action the topic you describe.", "why_wrong": {"たべるのを": "を marks an object, but いいです needs a topic marked with は.", "たべますのは": "Only the end of the sentence is polite; use the dictionary form before の."}},
-        {"kind": "choose", "prompt": "ひとりで ＿＿ さびしいです。", "en": "Living alone is lonely.", "answer": "すむのは", "accepted": [], "options": ["すんでのは", "すみますのは", "すむのは"], "hint": "Add のは to the dictionary form to turn the action into a topic.", "why_wrong": {"すんでのは": "の attaches to the dictionary form, not the て form.", "すみますのは": "Only the end of the sentence is polite; use すむ before の."}}
+        {
+          "kind": "fill",
+          "prompt": "えを ＿＿ のは たのしいです。",
+          "en": "Drawing pictures is fun.",
+          "answer": "かく",
+          "accepted": [],
+          "hint": "dictionary form of かきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あさ はやく ＿＿ きもちが いいです。",
+          "en": "Getting up early in the morning feels good.",
+          "answer": "おきるのは",
+          "options": [
+            "おきるのは",
+            "おきますのは",
+            "おきるは"
+          ],
+          "accepted": [],
+          "hint": "dictionary form ＋ のは"
+        },
+        {
+          "kind": "choose",
+          "prompt": "やさいを ＿＿ からだに いいです。",
+          "en": "Eating vegetables is good for your body.",
+          "answer": "たべるのは",
+          "accepted": [],
+          "options": [
+            "たべるのを",
+            "たべるのは",
+            "たべますのは"
+          ],
+          "hint": "Dictionary form ＋ のは makes the action the topic you describe.",
+          "why_wrong": {
+            "たべるのを": "を marks an object, but いいです needs a topic marked with は.",
+            "たべますのは": "Only the end of the sentence is polite; use the dictionary form before の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ひとりで ＿＿ さびしいです。",
+          "en": "Living alone is lonely.",
+          "answer": "すむのは",
+          "accepted": [],
+          "options": [
+            "すんでのは",
+            "すみますのは",
+            "すむのは"
+          ],
+          "hint": "Add のは to the dictionary form to turn the action into a topic.",
+          "why_wrong": {
+            "すんでのは": "の attaches to the dictionary form, not the て form.",
+            "すみますのは": "Only the end of the sentence is polite; use すむ before の."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "じしょForm ＋ のが ＋ adj ＋ です",
       "note": "Words like すき, きらい, じょうず, and へた normally take のが: えを かくのが すきです.",
       "examples": [
-        {"jp": "かんじを おぼえるのが たいへんです。", "en": "Memorizing kanji is hard work."},
-        {"jp": "わたしは りょうりを つくるのが すきです。", "en": "I like cooking."}
+        {
+          "jp": "かんじを おぼえるのが たいへんです。",
+          "en": "Memorizing kanji is hard work."
+        },
+        {
+          "jp": "わたしは りょうりを つくるのが すきです。",
+          "en": "I like cooking."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "わたしは うたを ＿＿ へたです。", "en": "I'm bad at singing.", "answer": "うたうのが", "accepted": [], "hint": "dictionary form ＋ のが"},
-        {"kind": "choose", "prompt": "ははは あるく＿＿ はやいです。", "en": "My mother walks fast.", "answer": "のが", "options": ["のが", "のを", "のに"], "accepted": [], "hint": "the particle used with はやい"},
-        {"kind": "choose", "prompt": "わたしは えいがを ＿＿ すきです。", "en": "I like watching movies.", "answer": "みるのが", "accepted": [], "options": ["みるのが", "みるが", "みますのが"], "hint": "すき takes dictionary form ＋ のが.", "why_wrong": {"みるが": "A verb needs の to become a noun before が.", "みますのが": "Use the dictionary form before の, not the ます form."}},
-        {"kind": "choose", "prompt": "サントスさんは ＿＿ じょうずです。", "en": "Mr. Santos is good at swimming.", "answer": "およぐのが", "accepted": [], "options": ["およいでのが", "およぎますのが", "およぐのが"], "hint": "じょうず takes dictionary form ＋ のが.", "why_wrong": {"およいでのが": "の attaches to the dictionary form, not the て form.", "およぎますのが": "Use the dictionary form before の, not the ます form."}}
+        {
+          "kind": "fill",
+          "prompt": "わたしは うたを ＿＿ へたです。",
+          "en": "I'm bad at singing.",
+          "answer": "うたうのが",
+          "accepted": [],
+          "hint": "dictionary form ＋ のが"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ははは あるく＿＿ はやいです。",
+          "en": "My mother walks fast.",
+          "answer": "のが",
+          "options": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "accepted": [],
+          "hint": "the particle used with はやい"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは えいがを ＿＿ すきです。",
+          "en": "I like watching movies.",
+          "answer": "みるのが",
+          "accepted": [],
+          "options": [
+            "みるのが",
+            "みるが",
+            "みますのが"
+          ],
+          "hint": "すき takes dictionary form ＋ のが.",
+          "why_wrong": {
+            "みるが": "A verb needs の to become a noun before が.",
+            "みますのが": "Use the dictionary form before の, not the ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "サントスさんは ＿＿ じょうずです。",
+          "en": "Mr. Santos is good at swimming.",
+          "answer": "およぐのが",
+          "accepted": [],
+          "options": [
+            "およいでのが",
+            "およぎますのが",
+            "およぐのが"
+          ],
+          "hint": "じょうず takes dictionary form ＋ のが.",
+          "why_wrong": {
+            "およいでのが": "の attaches to the dictionary form, not the て form.",
+            "およぎますのが": "Use the dictionary form before の, not the ます form."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,71 @@
       "form": "じしょForm ＋ のを わすれました",
       "note": "Use the dictionary form for 'forgot to do': かけるのを わすれました. A た form here changes the meaning.",
       "examples": [
-        {"jp": "かぎを かけるのを わすれました。", "en": "I forgot to lock the door."},
-        {"jp": "メールを おくるのを わすれました。", "en": "I forgot to send the email."}
+        {
+          "jp": "かぎを かけるのを わすれました。",
+          "en": "I forgot to lock the door."
+        },
+        {
+          "jp": "メールを おくるのを わすれました。",
+          "en": "I forgot to send the email."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "でんきを ＿＿ わすれました。", "en": "I forgot to turn off the light.", "answer": "けすのを", "accepted": [], "hint": "dictionary form of けします ＋ のを"},
-        {"kind": "choose", "prompt": "しゅくだいを ＿＿ わすれました。", "en": "I forgot to hand in my homework.", "answer": "だすのを", "options": ["だすのを", "だすのが", "だすのは"], "accepted": [], "hint": "わすれます takes を"},
-        {"kind": "choose", "prompt": "まどを ＿＿ わすれました。", "en": "I forgot to close the window.", "answer": "しめるのを", "accepted": [], "options": ["しめるのに", "しめるのを", "しめますのを"], "hint": "Dictionary form ＋ のを わすれました means 'forgot to do.'", "why_wrong": {"しめるのに": "わすれます takes its object with を, not に.", "しめますのを": "Use the dictionary form before の, not the ます form."}},
-        {"kind": "choose", "prompt": "くすりを ＿＿ わすれないで ください。", "en": "Please don't forget to take your medicine.", "answer": "のむのを", "accepted": [], "options": ["のむを", "のみますのを", "のむのを"], "hint": "A verb needs の before を to become the object of わすれます.", "why_wrong": {"のむを": "を cannot attach directly to a verb; add の first.", "のみますのを": "Use the dictionary form before の, not the ます form."}}
+        {
+          "kind": "fill",
+          "prompt": "でんきを ＿＿ わすれました。",
+          "en": "I forgot to turn off the light.",
+          "answer": "けすのを",
+          "accepted": [],
+          "hint": "dictionary form of けします ＋ のを"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゅくだいを ＿＿ わすれました。",
+          "en": "I forgot to hand in my homework.",
+          "answer": "だすのを",
+          "options": [
+            "だすのを",
+            "だすのが",
+            "だすのは"
+          ],
+          "accepted": [],
+          "hint": "わすれます takes を"
+        },
+        {
+          "kind": "choose",
+          "prompt": "まどを ＿＿ わすれました。",
+          "en": "I forgot to close the window.",
+          "answer": "しめるのを",
+          "accepted": [],
+          "options": [
+            "しめるのに",
+            "しめるのを",
+            "しめますのを"
+          ],
+          "hint": "Dictionary form ＋ のを わすれました means 'forgot to do.'",
+          "why_wrong": {
+            "しめるのに": "わすれます takes its object with を, not に.",
+            "しめますのを": "Use the dictionary form before の, not the ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "くすりを ＿＿ わすれないで ください。",
+          "en": "Please don't forget to take your medicine.",
+          "answer": "のむのを",
+          "accepted": [],
+          "options": [
+            "のむを",
+            "のみますのを",
+            "のむのを"
+          ],
+          "hint": "A verb needs の before を to become the object of わすれます.",
+          "why_wrong": {
+            "のむを": "を cannot attach directly to a verb; add の first.",
+            "のみますのを": "Use the dictionary form before の, not the ます form."
+          }
+        }
       ]
     },
     {
@@ -56,14 +227,71 @@
       "form": "ふつうForm ＋ のを しって いますか",
       "note": "The negative answer is しりません, not しって いません.",
       "examples": [
-        {"jp": "たなかさんが けっこんするのを しって います。", "en": "I know that Mr. Tanaka is getting married."},
-        {"jp": "らいしゅう テストが あるのを しって いますか。", "en": "Do you know there's a test next week?"}
+        {
+          "jp": "たなかさんが けっこんするのを しって います。",
+          "en": "I know that Mr. Tanaka is getting married."
+        },
+        {
+          "jp": "らいしゅう テストが あるのを しって いますか。",
+          "en": "Do you know there's a test next week?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。", "en": "Do you know that Ms. Kimura quit her company?", "answer": "のを", "accepted": [], "hint": "turns the clause into the object of しって います"},
-        {"kind": "choose", "prompt": "ミラーさんが かえるのを しって いますか。 いいえ、＿＿。", "en": "Do you know that Mr. Miller is going back home? No, I don't.", "answer": "しりません", "options": ["しりません", "しって いません", "しって います"], "accepted": [], "hint": "the negative of しって います is special"},
-        {"kind": "choose", "prompt": "やまださんが けがを した＿＿ しって いますか。", "en": "Do you know that Mr. Yamada got hurt?", "answer": "のを", "accepted": [], "options": ["のが", "のを", "のに"], "hint": "のを turns the news into the object of しって います.", "why_wrong": {"のが": "しって います takes its object with を, not が.", "のに": "のに means 'although'; here the clause is what you know."}},
-        {"kind": "choose", "prompt": "ミラーさんが ＿＿ のを しって いますか。", "en": "Do you know that Mr. Miller is sick?", "answer": "びょうきな", "accepted": [], "options": ["びょうきだ", "びょうきな", "びょうき"], "hint": "Before の, a noun or な adjective takes な: びょうきなのを.", "why_wrong": {"びょうきだ": "だ changes to な before の.", "びょうき": "A noun needs な before this の."}}
+        {
+          "kind": "fill",
+          "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。",
+          "en": "Do you know that Ms. Kimura quit her company?",
+          "answer": "のを",
+          "accepted": [],
+          "hint": "turns the clause into the object of しって います"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ミラーさんが かえるのを しって いますか。 いいえ、＿＿。",
+          "en": "Do you know that Mr. Miller is going back home? No, I don't.",
+          "answer": "しりません",
+          "options": [
+            "しりません",
+            "しって いません",
+            "しって います"
+          ],
+          "accepted": [],
+          "hint": "the negative of しって います is special"
+        },
+        {
+          "kind": "choose",
+          "prompt": "やまださんが けがを した＿＿ しって いますか。",
+          "en": "Do you know that Mr. Yamada got hurt?",
+          "answer": "のを",
+          "accepted": [],
+          "options": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "hint": "のを turns the news into the object of しって います.",
+          "why_wrong": {
+            "のが": "しって います takes its object with を, not が.",
+            "のに": "のに means 'although'; here the clause is what you know."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ミラーさんが ＿＿ のを しって いますか。",
+          "en": "Do you know that Mr. Miller is sick?",
+          "answer": "びょうきな",
+          "accepted": [],
+          "options": [
+            "びょうきだ",
+            "びょうきな",
+            "びょうき"
+          ],
+          "hint": "Before の, a noun or な adjective takes な: びょうきなのを.",
+          "why_wrong": {
+            "びょうきだ": "だ changes to な before の.",
+            "びょうき": "A noun needs な before this の."
+          }
+        }
       ]
     },
     {
@@ -72,14 +300,71 @@
       "form": "ふつうForm ＋ のは ＋ N ＋ です",
       "note": "A な adjective keeps な before の: すきなのは, not すきのは.",
       "examples": [
-        {"jp": "わたしが すきなのは なつです。", "en": "What I like is summer."},
-        {"jp": "わたしが うまれたのは おおさかです。", "en": "The place where I was born is Osaka."}
+        {
+          "jp": "わたしが すきなのは なつです。",
+          "en": "What I like is summer."
+        },
+        {
+          "jp": "わたしが うまれたのは おおさかです。",
+          "en": "The place where I was born is Osaka."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "きのう ＿＿ のは あにです。", "en": "The one who came yesterday was my older brother.", "answer": "きた", "accepted": [], "hint": "た form of きます"},
-        {"kind": "choose", "prompt": "わたしが いちばん ほしい＿＿ じかんです。", "en": "What I want most is time.", "answer": "のは", "options": ["のは", "のが", "のを"], "accepted": [], "hint": "it marks the topic before です"},
-        {"kind": "choose", "prompt": "わたしが いちばん ＿＿ のは きょうとです。", "en": "The place I want to go most is Kyoto.", "answer": "いきたい", "accepted": [], "options": ["いきたいな", "いきたい", "いきたいだ"], "hint": "たい ends like an い adjective, so it connects to のは directly.", "why_wrong": {"いきたいな": "たい acts like an い adjective; な is only for な adjectives.", "いきたいだ": "Do not put だ before の."}},
-        {"kind": "choose", "prompt": "わたしが ＿＿ のは さかなです。", "en": "What I dislike is fish.", "answer": "きらいな", "accepted": [], "options": ["きらい", "きらいだ", "きらいな"], "hint": "A な adjective keeps な before のは.", "why_wrong": {"きらい": "きらい is a な adjective, so it needs な before の.", "きらいだ": "だ changes to な before の."}}
+        {
+          "kind": "fill",
+          "prompt": "きのう ＿＿ のは あにです。",
+          "en": "The one who came yesterday was my older brother.",
+          "answer": "きた",
+          "accepted": [],
+          "hint": "た form of きます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが いちばん ほしい＿＿ じかんです。",
+          "en": "What I want most is time.",
+          "answer": "のは",
+          "options": [
+            "のは",
+            "のが",
+            "のを"
+          ],
+          "accepted": [],
+          "hint": "it marks the topic before です"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが いちばん ＿＿ のは きょうとです。",
+          "en": "The place I want to go most is Kyoto.",
+          "answer": "いきたい",
+          "accepted": [],
+          "options": [
+            "いきたいな",
+            "いきたい",
+            "いきたいだ"
+          ],
+          "hint": "たい ends like an い adjective, so it connects to のは directly.",
+          "why_wrong": {
+            "いきたいな": "たい acts like an い adjective; な is only for な adjectives.",
+            "いきたいだ": "Do not put だ before の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが ＿＿ のは さかなです。",
+          "en": "What I dislike is fish.",
+          "answer": "きらいな",
+          "accepted": [],
+          "options": [
+            "きらい",
+            "きらいだ",
+            "きらいな"
+          ],
+          "hint": "A な adjective keeps な before のは.",
+          "why_wrong": {
+            "きらい": "きらい is a な adjective, so it needs な before の.",
+            "きらいだ": "だ changes to な before の."
+          }
+        }
       ]
     }
   ]
