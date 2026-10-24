@@ -1,0 +1,1246 @@
+{
+ "source_id": "s05_mari_verb_forms",
+ "sha256": "31c22adfd04121155eeabaaf4687797df5dcbbdf2a5224d994423901153cbb59",
+ "state": "needs_review",
+ "item_count": 170,
+ "validation": {
+  "passed": true,
+  "failures": []
+ },
+ "review_notes": [
+  "engine agrees with Mari on 198 conjugations",
+  "romaji mismatch, row 216: かいました is printed 'kimashita', should be 'kaimashita' (romaji is not kept)"
+ ],
+ "items": [
+  {
+   "id": "s05_mari_verb_forms.r52",
+   "section": "masu",
+   "group": 1,
+   "dictionary": "やすむ",
+   "result": "やすみます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r53",
+   "section": "masu",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそぎます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r54",
+   "section": "masu",
+   "group": 1,
+   "dictionary": "あう",
+   "result": "あいます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r58",
+   "section": "masu",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r59",
+   "section": "masu",
+   "group": 2,
+   "dictionary": "おきる",
+   "result": "おきます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r63",
+   "section": "masu",
+   "group": 3,
+   "dictionary": "する",
+   "result": "します"
+  },
+  {
+   "id": "s05_mari_verb_forms.r64",
+   "section": "masu",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "きます"
+  },
+  {
+   "id": "s05_mari_verb_forms.r70",
+   "section": "te",
+   "group": 1,
+   "dictionary": "あう",
+   "result": "あって"
+  },
+  {
+   "id": "s05_mari_verb_forms.r71",
+   "section": "te",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "まって"
+  },
+  {
+   "id": "s05_mari_verb_forms.r72",
+   "section": "te",
+   "group": 1,
+   "dictionary": "とる",
+   "result": "とって"
+  },
+  {
+   "id": "s05_mari_verb_forms.r73",
+   "section": "te",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よんで"
+  },
+  {
+   "id": "s05_mari_verb_forms.r74",
+   "section": "te",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそんで"
+  },
+  {
+   "id": "s05_mari_verb_forms.r75",
+   "section": "te",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しんで"
+  },
+  {
+   "id": "s05_mari_verb_forms.r76",
+   "section": "te",
+   "group": 1,
+   "dictionary": "かく",
+   "result": "かいて"
+  },
+  {
+   "id": "s05_mari_verb_forms.r77",
+   "section": "te",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およいで"
+  },
+  {
+   "id": "s05_mari_verb_forms.r78",
+   "section": "te",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなして"
+  },
+  {
+   "id": "s05_mari_verb_forms.r79",
+   "section": "te",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いって"
+  },
+  {
+   "id": "s05_mari_verb_forms.r83",
+   "section": "te",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべて"
+  },
+  {
+   "id": "s05_mari_verb_forms.r84",
+   "section": "te",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みて"
+  },
+  {
+   "id": "s05_mari_verb_forms.r88",
+   "section": "te",
+   "group": 3,
+   "dictionary": "する",
+   "result": "して"
+  },
+  {
+   "id": "s05_mari_verb_forms.r89",
+   "section": "te",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "きて"
+  },
+  {
+   "id": "s05_mari_verb_forms.r95",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かわない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r96",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いかない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r97",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそがない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r98",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなさない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r99",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそばない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r100",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "またない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r101",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しなない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r102",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よまない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r103",
+   "section": "nai",
+   "group": 1,
+   "dictionary": "つくる",
+   "result": "つくらない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r107",
+   "section": "nai",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r108",
+   "section": "nai",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r112",
+   "section": "nai",
+   "group": 3,
+   "dictionary": "する",
+   "result": "しない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r113",
+   "section": "nai",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r119",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "あう",
+   "result": "あった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r120",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "まった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r121",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "とる",
+   "result": "とった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r122",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よんだ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r123",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそんだ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r124",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しんだ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r125",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "かく",
+   "result": "かいた"
+  },
+  {
+   "id": "s05_mari_verb_forms.r126",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およいだ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r127",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなした"
+  },
+  {
+   "id": "s05_mari_verb_forms.r128",
+   "section": "ta",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r132",
+   "section": "ta",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべた"
+  },
+  {
+   "id": "s05_mari_verb_forms.r133",
+   "section": "ta",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みた"
+  },
+  {
+   "id": "s05_mari_verb_forms.r137",
+   "section": "ta",
+   "group": 3,
+   "dictionary": "する",
+   "result": "した"
+  },
+  {
+   "id": "s05_mari_verb_forms.r138",
+   "section": "ta",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "きた"
+  },
+  {
+   "id": "s05_mari_verb_forms.r146",
+   "section": "long_short_present",
+   "group": 1,
+   "long_affirmative": "いきます",
+   "long_negative": "いきません",
+   "short_affirmative": "いく",
+   "short_negative": "いかない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r151",
+   "section": "long_short_present",
+   "group": 1,
+   "long_affirmative": "かいます",
+   "long_negative": "かいません",
+   "short_affirmative": "かう",
+   "short_negative": "かわない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r156",
+   "section": "long_short_present",
+   "group": 1,
+   "long_affirmative": "あります",
+   "long_negative": "ありません",
+   "short_affirmative": "ある",
+   "short_negative": "ない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r163",
+   "section": "long_short_present",
+   "group": 2,
+   "long_affirmative": "おきます",
+   "long_negative": "おきません",
+   "short_affirmative": "おきる",
+   "short_negative": "おきない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r170",
+   "section": "long_short_present",
+   "group": 3,
+   "long_affirmative": "します",
+   "long_negative": "しません",
+   "short_affirmative": "する",
+   "short_negative": "しない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r175",
+   "section": "long_short_present",
+   "group": 3,
+   "long_affirmative": "きます",
+   "long_negative": "きません",
+   "short_affirmative": "くる",
+   "short_negative": "こない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r181",
+   "section": "long_short_present",
+   "group": "I-adjective",
+   "long_affirmative": "あついです",
+   "long_negative": "あつくないです",
+   "short_affirmative": "あつい",
+   "short_negative": "あつくない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r186",
+   "section": "long_short_present",
+   "group": "I-adjective",
+   "long_affirmative": "いいです",
+   "long_negative": "よくないです",
+   "short_affirmative": "いい",
+   "short_negative": "よくない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r193",
+   "section": "long_short_present",
+   "group": "Na-adjective",
+   "long_affirmative": "べんりです",
+   "long_negative": "べんりじゃないです",
+   "short_affirmative": "べんりだ",
+   "short_negative": "べんりじゃない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r200",
+   "section": "long_short_present",
+   "group": "Noun",
+   "long_affirmative": "こどもです",
+   "long_negative": "こどもじゃないです",
+   "short_affirmative": "こどもだ",
+   "short_negative": "こどもじゃない"
+  },
+  {
+   "id": "s05_mari_verb_forms.r210",
+   "section": "long_short_past",
+   "group": 1,
+   "long_affirmative": "いきました",
+   "long_negative": "いきませんでした",
+   "short_affirmative": "いった",
+   "short_negative": "いかなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r215",
+   "section": "long_short_past",
+   "group": 1,
+   "long_affirmative": "かいました",
+   "long_negative": "かいませんでした",
+   "short_affirmative": "かった",
+   "short_negative": "かわなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r220",
+   "section": "long_short_past",
+   "group": 1,
+   "long_affirmative": "ありました",
+   "long_negative": "ありませんでした",
+   "short_affirmative": "あった",
+   "short_negative": "なかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r227",
+   "section": "long_short_past",
+   "group": 2,
+   "long_affirmative": "おきました",
+   "long_negative": "おきませんでした",
+   "short_affirmative": "おきた",
+   "short_negative": "おきなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r234",
+   "section": "long_short_past",
+   "group": 3,
+   "long_affirmative": "しました",
+   "long_negative": "しませんでした",
+   "short_affirmative": "した",
+   "short_negative": "しなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r239",
+   "section": "long_short_past",
+   "group": 3,
+   "long_affirmative": "きました",
+   "long_negative": "きませんでした",
+   "short_affirmative": "きた",
+   "short_negative": "こなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r245",
+   "section": "long_short_past",
+   "group": "I-adjective",
+   "long_affirmative": "あつかったです",
+   "long_negative": "あつくなかったです",
+   "short_affirmative": "あつかった",
+   "short_negative": "あつくなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r250",
+   "section": "long_short_past",
+   "group": "I-adjective",
+   "long_affirmative": "よかったです",
+   "long_negative": "よくなかったです",
+   "short_affirmative": "よかった",
+   "short_negative": "よくなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r257",
+   "section": "long_short_past",
+   "group": "Na-adjective",
+   "long_affirmative": "べんりでした",
+   "long_negative": "べんりじゃなかったです",
+   "short_affirmative": "べんりだった",
+   "short_negative": "べんりじゃなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r264",
+   "section": "long_short_past",
+   "group": "Noun",
+   "long_affirmative": "こどもでした",
+   "long_negative": "こどもじゃなかったです",
+   "short_affirmative": "こどもだった",
+   "short_negative": "こどもじゃなかった"
+  },
+  {
+   "id": "s05_mari_verb_forms.r272",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かえる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r273",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いける"
+  },
+  {
+   "id": "s05_mari_verb_forms.r274",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそげる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r275",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r276",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそべる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r277",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "まてる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r278",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しねる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r279",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よめる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r280",
+   "section": "potential",
+   "group": 1,
+   "dictionary": "つくる",
+   "result": "つくれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r284",
+   "section": "potential",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r285",
+   "section": "potential",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r289",
+   "section": "potential",
+   "group": 3,
+   "dictionary": "する",
+   "result": "できる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r290",
+   "section": "potential",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r296",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かおう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r297",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いこう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r298",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそごう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r299",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなそう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r300",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそぼう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r301",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "まとう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r302",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しのう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r303",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よもう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r304",
+   "section": "volitional",
+   "group": 1,
+   "dictionary": "つくる",
+   "result": "つくろう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r308",
+   "section": "volitional",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべよう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r309",
+   "section": "volitional",
+   "group": 2,
+   "dictionary": "ねる",
+   "result": "ねよう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r313",
+   "section": "volitional",
+   "group": 3,
+   "dictionary": "する",
+   "result": "しよう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r314",
+   "section": "volitional",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こよう"
+  },
+  {
+   "id": "s05_mari_verb_forms.r320",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かえば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r321",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いけば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r322",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそげば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r323",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなせば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r324",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそべば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r325",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "まてば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r326",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しねば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r327",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よめば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r328",
+   "section": "conditional",
+   "group": 1,
+   "dictionary": "つくる",
+   "result": "つくれば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r332",
+   "section": "conditional",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべれば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r333",
+   "section": "conditional",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みれば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r337",
+   "section": "conditional",
+   "group": 3,
+   "dictionary": "する",
+   "result": "すれば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r338",
+   "section": "conditional",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "くれば"
+  },
+  {
+   "id": "s05_mari_verb_forms.r344",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "いう",
+   "result": "いえ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r345",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "かく",
+   "result": "かけ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r346",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およげ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r347",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "だす",
+   "result": "だせ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r348",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "たつ",
+   "result": "たて"
+  },
+  {
+   "id": "s05_mari_verb_forms.r349",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそべ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r350",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "のむ",
+   "result": "のめ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r351",
+   "section": "imperative",
+   "group": 1,
+   "dictionary": "すわる",
+   "result": "すわれ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r355",
+   "section": "imperative",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべろ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r356",
+   "section": "imperative",
+   "group": 2,
+   "dictionary": "ねる",
+   "result": "ねろ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r360",
+   "section": "imperative",
+   "group": 3,
+   "dictionary": "する",
+   "result": "しろ"
+  },
+  {
+   "id": "s05_mari_verb_forms.r361",
+   "section": "imperative",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こい"
+  },
+  {
+   "id": "s05_mari_verb_forms.r367",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "いう",
+   "result": "いうな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r368",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "かく",
+   "result": "かくな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r369",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およぐな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r370",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "だす",
+   "result": "だすな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r371",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "たつ",
+   "result": "たつな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r372",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそぶな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r373",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "のむ",
+   "result": "のむな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r374",
+   "section": "prohibitive",
+   "group": 1,
+   "dictionary": "すわる",
+   "result": "すわるな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r378",
+   "section": "prohibitive",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべるな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r379",
+   "section": "prohibitive",
+   "group": 2,
+   "dictionary": "ねる",
+   "result": "ねるな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r383",
+   "section": "prohibitive",
+   "group": 3,
+   "dictionary": "する",
+   "result": "するな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r384",
+   "section": "prohibitive",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "くるな"
+  },
+  {
+   "id": "s05_mari_verb_forms.r390",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "わらう",
+   "result": "わらわれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r391",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "きく",
+   "result": "きかれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r392",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "いそぐ",
+   "result": "いそがれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r393",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "こわす",
+   "result": "こわされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r394",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそばれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r395",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "またれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r396",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しなれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r397",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "ぬすむ",
+   "result": "ぬすまれる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r398",
+   "section": "passive",
+   "group": 1,
+   "dictionary": "とる",
+   "result": "とられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r402",
+   "section": "passive",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r403",
+   "section": "passive",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r407",
+   "section": "passive",
+   "group": 3,
+   "dictionary": "する",
+   "result": "される"
+  },
+  {
+   "id": "s05_mari_verb_forms.r408",
+   "section": "passive",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r414",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かわせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r415",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いかせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r416",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およがせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r417",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなさせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r418",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそばせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r419",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "またせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r420",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しなせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r421",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よませる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r422",
+   "section": "causative",
+   "group": 1,
+   "dictionary": "とる",
+   "result": "とらせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r426",
+   "section": "causative",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべさせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r427",
+   "section": "causative",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みさせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r431",
+   "section": "causative",
+   "group": 3,
+   "dictionary": "する",
+   "result": "させる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r432",
+   "section": "causative",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こさせる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r438",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "かう",
+   "result": "かわされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r439",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "いく",
+   "result": "いかされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r440",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "およぐ",
+   "result": "およがされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r441",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "あそぶ",
+   "result": "あそばされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r442",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "まつ",
+   "result": "またされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r443",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "しぬ",
+   "result": "しなされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r444",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "よむ",
+   "result": "よまされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r445",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "つくる",
+   "result": "つくらされる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r446",
+   "section": "causative_passive",
+   "group": 1,
+   "dictionary": "はなす",
+   "result": "はなさせられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r450",
+   "section": "causative_passive",
+   "group": 2,
+   "dictionary": "たべる",
+   "result": "たべさせられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r451",
+   "section": "causative_passive",
+   "group": 2,
+   "dictionary": "みる",
+   "result": "みさせられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r455",
+   "section": "causative_passive",
+   "group": 3,
+   "dictionary": "する",
+   "result": "させられる"
+  },
+  {
+   "id": "s05_mari_verb_forms.r456",
+   "section": "causative_passive",
+   "group": 3,
+   "dictionary": "くる",
+   "result": "こさせられる"
+  }
+ ]
+}

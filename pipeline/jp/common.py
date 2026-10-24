@@ -13,12 +13,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
 SOURCE_DIR = Path("C:/Users/markl/Desktop/Japanese")
-OUT_DIR = Path(__file__).parent / "out"
+# JP_OUT_DIR lets tests and CI read the committed fixtures: the source PDFs and the
+# tutor's sheet live outside the repo, so CI cannot re-run the extractors.
+OUT_DIR = Path(os.environ.get("JP_OUT_DIR", Path(__file__).parent / "out"))
 
 HIRAGANA = range(0x3041, 0x3097)
 KATAKANA = range(0x30A1, 0x30FB)

@@ -1,0 +1,182 @@
+{
+ "source_id": "s02_pairs_mari",
+ "sha256": "038d73e02bd8716cd086ead97f5f6c056261f0a14f42339924c6aae3ae0f9c9d",
+ "state": "needs_review",
+ "item_count": 15,
+ "validation": {
+  "passed": true,
+  "failures": []
+ },
+ "review_notes": [
+  "pair つく / つける appears twice: 'turn on' and 'attach, put on' (two senses, both kept)"
+ ],
+ "author": "中川真梨",
+ "made_with": "Canva",
+ "items": [
+  {
+   "id": "s02_pairs_mari.1.1",
+   "intransitive": "あく",
+   "transitive": "あける",
+   "gloss": "open",
+   "example_intransitive": "ドアがあきます。",
+   "example_transitive": "ドアをあけます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.1.2",
+   "intransitive": "しまる",
+   "transitive": "しめる",
+   "gloss": "close",
+   "example_intransitive": "まどがしまります。",
+   "example_transitive": "まどをしめます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.1.3",
+   "intransitive": "つく",
+   "transitive": "つける",
+   "gloss": "turn on",
+   "example_intransitive": "でんきがつきます。",
+   "example_transitive": "でんきをつけます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.1.4",
+   "intransitive": "きえる",
+   "transitive": "けす",
+   "gloss": "turn off",
+   "example_intransitive": "でんきがきえます。",
+   "example_transitive": "でんきをけします。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.5",
+   "intransitive": "こわれる",
+   "transitive": "こわす",
+   "gloss": "break",
+   "example_intransitive": "いすがこわれます。",
+   "example_transitive": "いすをこわします。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.6",
+   "intransitive": "われる",
+   "transitive": "わる",
+   "gloss": "break (glass, plate)",
+   "example_intransitive": "コップがわれます。",
+   "example_transitive": "コップをわります。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.7",
+   "intransitive": "おれる",
+   "transitive": "おる",
+   "gloss": "break, snap",
+   "example_intransitive": "えだがおれます。",
+   "example_transitive": "えだをおります。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.8",
+   "intransitive": "やぶれる",
+   "transitive": "やぶる",
+   "gloss": "tear",
+   "example_intransitive": "かみがやぶれます。",
+   "example_transitive": "かみをやぶります。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.9",
+   "intransitive": "よごれる",
+   "transitive": "よごす",
+   "gloss": "get/make dirty",
+   "example_intransitive": "シャツがよごれます。",
+   "example_transitive": "シャツをよごします。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.1.10",
+   "intransitive": "つく",
+   "transitive": "つける",
+   "gloss": "attach, put on",
+   "example_intransitive": "ポケットがつきます。",
+   "example_transitive": "ポケットをつけます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.1.11",
+   "intransitive": "はずれる",
+   "transitive": "はずす",
+   "gloss": "come off, remove",
+   "example_intransitive": "ボタンがはずれます。",
+   "example_transitive": "ボタンをはずします。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  },
+  {
+   "id": "s02_pairs_mari.2.1",
+   "intransitive": "とまる",
+   "transitive": "とめる",
+   "gloss": "stop",
+   "example_intransitive": "くるまがとまります。",
+   "example_transitive": "わたしがくるまをとめます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.2.2",
+   "intransitive": "かかる",
+   "transitive": "かける",
+   "gloss": "be locked / lock",
+   "example_intransitive": "かぎがかかります。",
+   "example_transitive": "かぎをかけます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.2.3",
+   "intransitive": "はいる",
+   "transitive": "いれる",
+   "gloss": "enter / put in",
+   "example_intransitive": "コップにみずがはいります。",
+   "example_transitive": "コップにみずをいれます。",
+   "extra_lines": [],
+   "intransitive_group": 1,
+   "transitive_group": 2
+  },
+  {
+   "id": "s02_pairs_mari.2.4",
+   "intransitive": "でる",
+   "transitive": "だす",
+   "gloss": "go out / take out",
+   "example_intransitive": "みずがでます。",
+   "example_transitive": "みずをだします。",
+   "extra_lines": [],
+   "intransitive_group": 2,
+   "transitive_group": 1
+  }
+ ]
+}

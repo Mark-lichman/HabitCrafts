@@ -1,0 +1,9 @@
+{"judge": "independent-lm", "lessons": [34, 41], "items_checked": 124,
+ "findings": [
+  {"point_id": "mari.L34.1", "item_index": 0, "verdict": "missing_accepted", "detail": "せんせいが いった ように かいて ください is natural and means the same 'as the teacher said'; a learner writing ように would be marked wrong.", "fix": "Add ように to accepted, or tighten the hint to 'the word とおり + particle'.", "confidence": "medium"},
+  {"point_id": "mari.L37.2", "item_index": 0, "verdict": "missing_accepted", "detail": "With a communication verb like よぶ, ぶちょうから よばれました is also natural; から is a common way to mark the source in this passive.", "fix": "Add から to accepted.", "confidence": "medium"},
+  {"point_id": "mari.L40.2", "item_index": 0, "verdict": "missing_accepted", "detail": "かれが くるか、わかりません is natural and also means 'whether he will come'; a bare か fill is correct here.", "fix": "Add か to accepted, or use a choose item where か is not an option.", "confidence": "medium"}
+ ],
+ "use_tag_disagreements": [
+  {"point_id": "mari.L38.5", "current": ["certain", "emphasis"], "suggested": ["certain"], "why": "emphasis is labeled 'Stressing how much or how little'; the のは ... です cleft spotlights a piece of information, not a quantity."}
+ ]}
