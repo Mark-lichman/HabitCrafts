@@ -8,14 +8,71 @@
       "form": "ふつうForm + んです",
       "note": "With な-adjectives and nouns, だ becomes な: ひまなんです, がくせいなんです.",
       "examples": [
-        {"jp": "あたまが いたいんです。", "en": "I have a headache, you see."},
-        {"jp": "でんしゃが おくれたんです。", "en": "The train was late, you see."}
+        {
+          "jp": "あたまが いたいんです。",
+          "en": "I have a headache, you see."
+        },
+        {
+          "jp": "でんしゃが おくれたんです。",
+          "en": "The train was late, you see."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "きょうは しごとが やすみ＿＿。", "en": "Today is my day off, you see.", "answer": "なんです", "accepted": [], "hint": "A noun needs な before んです"},
-        {"kind": "choose", "prompt": "あした テストが ＿＿んです。", "en": "I have a test tomorrow, you see.", "answer": "ある", "options": ["ある", "あります", "あって"], "accepted": [], "hint": "Plain form before んです"},
-        {"kind": "choose", "prompt": "この へやは ＿＿んです。", "en": "This room is quiet, you see.", "answer": "しずかな", "accepted": [], "options": ["しずかだ", "しずか", "しずかな"], "hint": "A な-adjective changes だ to な before んです.", "why_wrong": {"しずかだ": "だ cannot come right before んです; it changes to な.", "しずか": "A な-adjective needs な before んです."}},
-        {"kind": "choose", "prompt": "かぜを ひいて、きのう がっこうを ＿＿んです。", "en": "I caught a cold and missed school yesterday, you see.", "answer": "やすんだ", "accepted": [], "options": ["やすみました", "やすんだ", "やすんで"], "hint": "んです follows the plain form, so the past is the plain たForm やすんだ.", "why_wrong": {"やすみました": "The polite ました form cannot come before んです.", "やすんで": "The てForm cannot come before んです."}}
+        {
+          "kind": "fill",
+          "prompt": "きょうは しごとが やすみ＿＿。",
+          "en": "Today is my day off, you see.",
+          "answer": "なんです",
+          "accepted": [],
+          "hint": "A noun needs な before んです"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あした テストが ＿＿んです。",
+          "en": "I have a test tomorrow, you see.",
+          "answer": "ある",
+          "options": [
+            "ある",
+            "あります",
+            "あって"
+          ],
+          "accepted": [],
+          "hint": "Plain form before んです"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この へやは ＿＿んです。",
+          "en": "This room is quiet, you see.",
+          "answer": "しずかな",
+          "accepted": [],
+          "options": [
+            "しずかだ",
+            "しずか",
+            "しずかな"
+          ],
+          "hint": "A な-adjective changes だ to な before んです.",
+          "why_wrong": {
+            "しずかだ": "だ cannot come right before んです; it changes to な.",
+            "しずか": "A な-adjective needs な before んです."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かぜを ひいて、きのう がっこうを ＿＿んです。",
+          "en": "I caught a cold and missed school yesterday, you see.",
+          "answer": "やすんだ",
+          "accepted": [],
+          "options": [
+            "やすみました",
+            "やすんだ",
+            "やすんで"
+          ],
+          "hint": "んです follows the plain form, so the past is the plain たForm やすんだ.",
+          "why_wrong": {
+            "やすみました": "The polite ました form cannot come before んです.",
+            "やすんで": "The てForm cannot come before んです."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "ふつうForm + んですが、てForm + いただけませんか",
       "note": "いただけませんか is more polite than てください. Use it with teachers, strangers, and coworkers.",
       "examples": [
-        {"jp": "にもつが おおいんですが、てつだって いただけませんか。", "en": "I have a lot of bags. Could you help me?"},
-        {"jp": "じが わからないんですが、よんで いただけませんか。", "en": "I don't know these characters. Could you read them for me?"}
+        {
+          "jp": "にもつが おおいんですが、てつだって いただけませんか。",
+          "en": "I have a lot of bags. Could you help me?"
+        },
+        {
+          "jp": "じが わからないんですが、よんで いただけませんか。",
+          "en": "I don't know these characters. Could you read them for me?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "ペンが ないんですが、＿＿ いただけませんか。", "en": "I don't have a pen. Could you lend me one?", "answer": "かして", "accepted": [], "hint": "てForm of かします"},
-        {"kind": "choose", "prompt": "みちが ＿＿んですが、おしえて いただけませんか。", "en": "I don't know the way. Could you tell me?", "answer": "わからない", "options": ["わからない", "わかります", "わかって"], "accepted": [], "hint": "Plain form before んですが"},
-        {"kind": "choose", "prompt": "にほんごで てがみを ＿＿んですが、みて いただけませんか。", "en": "I wrote a letter in Japanese. Could you look it over?", "answer": "かいた", "accepted": [], "options": ["かきました", "かいた", "かきます"], "hint": "んですが follows the plain form, and the letter is already written, so use the plain past.", "why_wrong": {"かきました": "The polite ました form cannot come before んですが.", "かきます": "The polite ます form cannot come before んですが."}},
-        {"kind": "choose", "prompt": "でんきが つかないんですが、みて ＿＿。", "en": "The light won't turn on. Could you take a look?", "answer": "いただけませんか", "accepted": [], "options": ["いただきませんか", "いただきましょうか", "いただけませんか"], "hint": "A polite request uses the potential いただけませんか, 'could I receive this favor?'", "why_wrong": {"いただきませんか": "This is not the potential form, so it does not make a request.", "いただきましょうか": "This offers 'shall I receive it?', not a request for help."}}
+        {
+          "kind": "fill",
+          "prompt": "ペンが ないんですが、＿＿ いただけませんか。",
+          "en": "I don't have a pen. Could you lend me one?",
+          "answer": "かして",
+          "accepted": [],
+          "hint": "てForm of かします"
+        },
+        {
+          "kind": "choose",
+          "prompt": "みちが ＿＿んですが、おしえて いただけませんか。",
+          "en": "I don't know the way. Could you tell me?",
+          "answer": "わからない",
+          "options": [
+            "わからない",
+            "わかります",
+            "わかって"
+          ],
+          "accepted": [],
+          "hint": "Plain form before んですが"
+        },
+        {
+          "kind": "choose",
+          "prompt": "にほんごで てがみを ＿＿んですが、みて いただけませんか。",
+          "en": "I wrote a letter in Japanese. Could you look it over?",
+          "answer": "かいた",
+          "accepted": [],
+          "options": [
+            "かきました",
+            "かいた",
+            "かきます"
+          ],
+          "hint": "んですが follows the plain form, and the letter is already written, so use the plain past.",
+          "why_wrong": {
+            "かきました": "The polite ました form cannot come before んですが.",
+            "かきます": "The polite ます form cannot come before んですが."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "でんきが つかないんですが、みて ＿＿。",
+          "en": "The light won't turn on. Could you take a look?",
+          "answer": "いただけませんか",
+          "accepted": [],
+          "options": [
+            "いただきませんか",
+            "いただきましょうか",
+            "いただけませんか"
+          ],
+          "hint": "A polite request uses the potential いただけませんか, 'could I receive this favor?'",
+          "why_wrong": {
+            "いただきませんか": "This is not the potential form, so it does not make a request.",
+            "いただきましょうか": "This offers 'shall I receive it?', not a request for help."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,73 @@
       "form": "ふつうForm + んですが、ぎもんし + Vたら いいですか",
       "note": "Make たら from the たForm: いった → いったら, した → したら.",
       "examples": [
-        {"jp": "かぜを ひいたんですが、どう したら いいですか。", "en": "I caught a cold. What should I do?"},
-        {"jp": "ふじさんに のぼりたいんですが、どう いったら いいですか。", "en": "I want to climb Mt. Fuji. How should I get there?"}
+        {
+          "jp": "かぜを ひいたんですが、どう したら いいですか。",
+          "en": "I caught a cold. What should I do?"
+        },
+        {
+          "jp": "ふじさんに のぼりたいんですが、どう いったら いいですか。",
+          "en": "I want to climb Mt. Fuji. How should I get there?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "えきへ いきたいんですが、どう ＿＿ いいですか。", "en": "I want to go to the station. How should I go?", "answer": "いったら", "accepted": ["いけば"], "hint": "たら form of いきます"},
-        {"kind": "choose", "prompt": "えいごの ほんを かいたいんですが、どこで ＿＿ いいですか。", "en": "I want to buy an English book. Where should I buy it?", "answer": "かったら", "options": ["かったら", "かって", "かいます"], "accepted": [], "hint": "たら form of かいます"},
-        {"kind": "choose", "prompt": "パスポートを なくしたんですが、だれに ＿＿ いいですか。", "en": "I lost my passport. Who should I ask?", "answer": "きいたら", "accepted": [], "options": ["ききたら", "きいたら", "きくたら"], "hint": "Make たら from the たForm: きいた → きいたら.", "why_wrong": {"ききたら": "たら comes from the たForm きいた, not the ますStem きき.", "きくたら": "たら does not attach to the dictionary form; use きいた + ら."}},
-        {"kind": "choose", "prompt": "かんじを おぼえたいんですが、どう ＿＿ いいですか。", "en": "I want to memorize kanji. How should I study?", "answer": "べんきょうしたら", "accepted": [], "options": ["べんきょうするたら", "べんきょうしたり", "べんきょうしたら"], "hint": "Ask for advice with a question word + たら いいですか; したら comes from した.", "why_wrong": {"べんきょうするたら": "たら attaches to the たForm した, not to する.", "べんきょうしたり": "たり lists actions; it cannot ask for advice with いいですか."}}
+        {
+          "kind": "fill",
+          "prompt": "えきへ いきたいんですが、どう ＿＿ いいですか。",
+          "en": "I want to go to the station. How should I go?",
+          "answer": "いったら",
+          "accepted": [
+            "いけば"
+          ],
+          "hint": "たら form of いきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "えいごの ほんを かいたいんですが、どこで ＿＿ いいですか。",
+          "en": "I want to buy an English book. Where should I buy it?",
+          "answer": "かったら",
+          "options": [
+            "かったら",
+            "かって",
+            "かいます"
+          ],
+          "accepted": [],
+          "hint": "たら form of かいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "パスポートを なくしたんですが、だれに ＿＿ いいですか。",
+          "en": "I lost my passport. Who should I ask?",
+          "answer": "きいたら",
+          "accepted": [],
+          "options": [
+            "ききたら",
+            "きいたら",
+            "きくたら"
+          ],
+          "hint": "Make たら from the たForm: きいた → きいたら.",
+          "why_wrong": {
+            "ききたら": "たら comes from the たForm きいた, not the ますStem きき.",
+            "きくたら": "たら does not attach to the dictionary form; use きいた + ら."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かんじを おぼえたいんですが、どう ＿＿ いいですか。",
+          "en": "I want to memorize kanji. How should I study?",
+          "answer": "べんきょうしたら",
+          "accepted": [],
+          "options": [
+            "べんきょうするたら",
+            "べんきょうしたり",
+            "べんきょうしたら"
+          ],
+          "hint": "Ask for advice with a question word + たら いいですか; したら comes from した.",
+          "why_wrong": {
+            "べんきょうするたら": "たら attaches to the たForm した, not to する.",
+            "べんきょうしたり": "たり lists actions; it cannot ask for advice with いいですか."
+          }
+        }
       ]
     }
   ]

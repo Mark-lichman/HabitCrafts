@@ -102,7 +102,9 @@
           "prompt": "かれが くる＿＿、わかりません。",
           "en": "I don't know whether he will come.",
           "answer": "かどうか",
-          "accepted": [],
+          "accepted": [
+            "か"
+          ],
           "hint": "the phrase meaning 'whether or not'"
         },
         {

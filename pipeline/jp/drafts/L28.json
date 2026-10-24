@@ -8,14 +8,71 @@
       "form": "ますForm + ながら、〜",
       "note": "Drop ます before ながら: ききます → ききながら. Both actions must be done by the same person.",
       "examples": [
-        {"jp": "おんがくを ききながら、べんきょうします。", "en": "I study while listening to music."},
-        {"jp": "テレビを みながら ごはんを たべます。", "en": "I eat while watching TV."}
+        {
+          "jp": "おんがくを ききながら、べんきょうします。",
+          "en": "I study while listening to music."
+        },
+        {
+          "jp": "テレビを みながら ごはんを たべます。",
+          "en": "I eat while watching TV."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "うたを ＿＿ シャワーを あびます。", "en": "I take a shower while singing.", "answer": "うたいながら", "accepted": [], "hint": "ながら form of うたいます"},
-        {"kind": "choose", "prompt": "コーヒーを ＿＿ しんぶんを よみます。", "en": "I read the newspaper while drinking coffee.", "answer": "のみながら", "options": ["のみながら", "のんで ながら", "のむながら"], "accepted": [], "hint": "ますForm + ながら"},
-        {"kind": "choose", "prompt": "ラジオを ＿＿ りょうりを します。", "en": "I cook while listening to the radio.", "answer": "ききながら", "accepted": [], "options": ["きくながら", "ききながら", "きいたながら"], "hint": "ながら attaches to the ますStem: ききます → ききながら.", "why_wrong": {"きくながら": "ながら does not attach to the dictionary form; drop ます from ききます.", "きいたながら": "ながら does not attach to the たForm; drop ます from ききます."}},
-        {"kind": "choose", "prompt": "メモを ＿＿ せんせいの はなしを ききます。", "en": "I listen to the teacher while taking notes.", "answer": "とりながら", "accepted": [], "options": ["とったり", "とって ながら", "とりながら"], "hint": "Two actions at the same time use ますStem + ながら: とります → とりながら.", "why_wrong": {"とったり": "たり lists actions and needs another たり plus します; it does not mean 'while'.", "とって ながら": "ながら does not follow the てForm; drop ます from とります."}}
+        {
+          "kind": "fill",
+          "prompt": "うたを ＿＿ シャワーを あびます。",
+          "en": "I take a shower while singing.",
+          "answer": "うたいながら",
+          "accepted": [],
+          "hint": "ながら form of うたいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "コーヒーを ＿＿ しんぶんを よみます。",
+          "en": "I read the newspaper while drinking coffee.",
+          "answer": "のみながら",
+          "options": [
+            "のみながら",
+            "のんで ながら",
+            "のむながら"
+          ],
+          "accepted": [],
+          "hint": "ますForm + ながら"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ラジオを ＿＿ りょうりを します。",
+          "en": "I cook while listening to the radio.",
+          "answer": "ききながら",
+          "accepted": [],
+          "options": [
+            "きくながら",
+            "ききながら",
+            "きいたながら"
+          ],
+          "hint": "ながら attaches to the ますStem: ききます → ききながら.",
+          "why_wrong": {
+            "きくながら": "ながら does not attach to the dictionary form; drop ます from ききます.",
+            "きいたながら": "ながら does not attach to the たForm; drop ます from ききます."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "メモを ＿＿ せんせいの はなしを ききます。",
+          "en": "I listen to the teacher while taking notes.",
+          "answer": "とりながら",
+          "accepted": [],
+          "options": [
+            "とったり",
+            "とって ながら",
+            "とりながら"
+          ],
+          "hint": "Two actions at the same time use ますStem + ながら: とります → とりながら.",
+          "why_wrong": {
+            "とったり": "たり lists actions and needs another たり plus します; it does not mean 'while'.",
+            "とって ながら": "ながら does not follow the てForm; drop ます from とります."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,71 @@
       "form": "てForm + います",
       "note": "Often used with time words like まいにち or まいあさ. It also describes your job: ぎんこうで はたらいて います.",
       "examples": [
-        {"jp": "まいあさ ジョギングを しています。", "en": "I go jogging every morning."},
-        {"jp": "まいばん にほんごを べんきょうして います。", "en": "I study Japanese every night."}
+        {
+          "jp": "まいあさ ジョギングを しています。",
+          "en": "I go jogging every morning."
+        },
+        {
+          "jp": "まいばん にほんごを べんきょうして います。",
+          "en": "I study Japanese every night."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "しゅうまつは いつも テニスを ＿＿ います。", "en": "I always play tennis on weekends.", "answer": "して", "accepted": [], "hint": "てForm of します"},
-        {"kind": "choose", "prompt": "あには ぎんこうで ＿＿。", "en": "My older brother works at a bank.", "answer": "はたらいて います", "options": ["はたらいて います", "はたらいて あります", "はたらきながら"], "accepted": [], "hint": "てForm + います for a regular activity"},
-        {"kind": "choose", "prompt": "まいにち じてんしゃで かいしゃへ ＿＿。", "en": "I go to work by bicycle every day.", "answer": "いって います", "accepted": [], "options": ["いって あります", "いって います", "いって おきます"], "hint": "てForm + います describes a regular habit.", "why_wrong": {"いって あります": "てあります needs a transitive verb, and いきます is not one.", "いって おきます": "ておきます means doing something in advance, not a daily habit."}},
-        {"kind": "choose", "prompt": "ちちは だいがくで えいごを ＿＿。", "en": "My father teaches English at a university.", "answer": "おしえて います", "accepted": [], "options": ["おしえる います", "おしえながら", "おしえて います"], "hint": "A job or regular activity uses てForm + います.", "why_wrong": {"おしえる います": "います follows the てForm, not the dictionary form.", "おしえながら": "ながら needs a main verb after it, so the sentence is unfinished."}}
+        {
+          "kind": "fill",
+          "prompt": "しゅうまつは いつも テニスを ＿＿ います。",
+          "en": "I always play tennis on weekends.",
+          "answer": "して",
+          "accepted": [],
+          "hint": "てForm of します"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あには ぎんこうで ＿＿。",
+          "en": "My older brother works at a bank.",
+          "answer": "はたらいて います",
+          "options": [
+            "はたらいて います",
+            "はたらいて あります",
+            "はたらきながら"
+          ],
+          "accepted": [],
+          "hint": "てForm + います for a regular activity"
+        },
+        {
+          "kind": "choose",
+          "prompt": "まいにち じてんしゃで かいしゃへ ＿＿。",
+          "en": "I go to work by bicycle every day.",
+          "answer": "いって います",
+          "accepted": [],
+          "options": [
+            "いって あります",
+            "いって います",
+            "いって おきます"
+          ],
+          "hint": "てForm + います describes a regular habit.",
+          "why_wrong": {
+            "いって あります": "てあります needs a transitive verb, and いきます is not one.",
+            "いって おきます": "ておきます means doing something in advance, not a daily habit."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ちちは だいがくで えいごを ＿＿。",
+          "en": "My father teaches English at a university.",
+          "answer": "おしえて います",
+          "accepted": [],
+          "options": [
+            "おしえる います",
+            "おしえながら",
+            "おしえて います"
+          ],
+          "hint": "A job or regular activity uses てForm + います.",
+          "why_wrong": {
+            "おしえる います": "います follows the てForm, not the dictionary form.",
+            "おしえながら": "ながら needs a main verb after it, so the sentence is unfinished."
+          }
+        }
       ]
     },
     {
@@ -40,14 +154,71 @@
       "form": "ふつうForm + し、〜",
       "note": "な-adjectives and nouns take だ before し: しずかだし. い-adjectives add し directly: やすいし.",
       "examples": [
-        {"jp": "この まちは べんりだし、にぎやかです。", "en": "This town is convenient, and it's lively too."},
-        {"jp": "この みせは やすいし、おいしいし、よく きます。", "en": "This restaurant is cheap and tasty, so I come here often."}
+        {
+          "jp": "この まちは べんりだし、にぎやかです。",
+          "en": "This town is convenient, and it's lively too."
+        },
+        {
+          "jp": "この みせは やすいし、おいしいし、よく きます。",
+          "en": "This restaurant is cheap and tasty, so I come here often."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "へやは ひろいし、＿＿し、いい アパートです。", "en": "The rooms are spacious and quiet. It's a good apartment.", "answer": "しずかだ", "accepted": [], "hint": "Plain form of a な-adjective"},
-        {"kind": "choose", "prompt": "きょうは ＿＿し、あめだし、でかけません。", "en": "It's cold and rainy today, so I'm not going out.", "answer": "さむい", "options": ["さむい", "さむいだ", "さむくて"], "accepted": [], "hint": "い-adjectives add し directly"},
-        {"kind": "choose", "prompt": "あしたは ＿＿し、てんきも いいし、でかけましょう。", "en": "Tomorrow is a day off and the weather is good, so let's go out.", "answer": "やすみだ", "accepted": [], "options": ["やすみ", "やすみな", "やすみだ"], "hint": "A noun takes だ before し.", "why_wrong": {"やすみ": "A noun needs だ before し.", "やすみな": "な links a な-adjective to a noun; a noun takes だ before し."}},
-        {"kind": "choose", "prompt": "きのうは ねつが ＿＿し、がっこうを やすみました。", "en": "I had a fever yesterday, so I stayed home from school.", "answer": "あった", "accepted": [], "options": ["あって", "あった", "あり"], "hint": "し follows the plain form, and for the past that is the たForm あった.", "why_wrong": {"あって": "The てForm cannot come before し.", "あり": "The ますStem cannot come before し."}}
+        {
+          "kind": "fill",
+          "prompt": "へやは ひろいし、＿＿し、いい アパートです。",
+          "en": "The rooms are spacious and quiet. It's a good apartment.",
+          "answer": "しずかだ",
+          "accepted": [],
+          "hint": "Plain form of a な-adjective"
+        },
+        {
+          "kind": "choose",
+          "prompt": "きょうは ＿＿し、あめだし、でかけません。",
+          "en": "It's cold and rainy today, so I'm not going out.",
+          "answer": "さむい",
+          "options": [
+            "さむい",
+            "さむいだ",
+            "さむくて"
+          ],
+          "accepted": [],
+          "hint": "い-adjectives add し directly"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あしたは ＿＿し、てんきも いいし、でかけましょう。",
+          "en": "Tomorrow is a day off and the weather is good, so let's go out.",
+          "answer": "やすみだ",
+          "accepted": [],
+          "options": [
+            "やすみ",
+            "やすみな",
+            "やすみだ"
+          ],
+          "hint": "A noun takes だ before し.",
+          "why_wrong": {
+            "やすみ": "A noun needs だ before し.",
+            "やすみな": "な links a な-adjective to a noun; a noun takes だ before し."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "きのうは ねつが ＿＿し、がっこうを やすみました。",
+          "en": "I had a fever yesterday, so I stayed home from school.",
+          "answer": "あった",
+          "accepted": [],
+          "options": [
+            "あって",
+            "あった",
+            "あり"
+          ],
+          "hint": "し follows the plain form, and for the past that is the たForm あった.",
+          "why_wrong": {
+            "あって": "The てForm cannot come before し.",
+            "あり": "The ますStem cannot come before し."
+          }
+        }
       ]
     }
   ]

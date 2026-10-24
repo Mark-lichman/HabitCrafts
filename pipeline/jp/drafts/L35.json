@@ -8,14 +8,71 @@
       "form": "I: かく→かけば II: みる→みれば III: すれば／くれば",
       "note": "For the negative, change ない to なければ: いかない becomes いかなければ.",
       "examples": [
-        {"jp": "はやく おきれば、まにあいます。", "en": "If you get up early, you'll make it in time."},
-        {"jp": "ボタンを おせば、きっぷが でます。", "en": "If you press the button, the ticket comes out."}
+        {
+          "jp": "はやく おきれば、まにあいます。",
+          "en": "If you get up early, you'll make it in time."
+        },
+        {
+          "jp": "ボタンを おせば、きっぷが でます。",
+          "en": "If you press the button, the ticket comes out."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "この くすりを ＿＿、すぐ なおります。", "en": "If you take this medicine, you'll get better soon.", "answer": "のめば", "accepted": [], "hint": "ば form of のみます"},
-        {"kind": "choose", "prompt": "じかんが ＿＿、いきます。", "en": "If I have time, I'll go.", "answer": "あれば", "options": ["あれば", "あるば", "あれは"], "accepted": [], "hint": "ば form of あります"},
-        {"kind": "choose", "prompt": "まっすぐ ＿＿、ゆうびんきょくが あります。", "en": "If you go straight, there's a post office.", "answer": "いけば", "accepted": [], "options": ["いくば", "いきば", "いけば"], "hint": "Group I verbs change the last sound to the え row and add ば.", "why_wrong": {"いくば": "ば does not attach to the dictionary form; く changes to け.", "いきば": "ば does not attach to the ます stem; use the え row: いけば."}},
-        {"kind": "choose", "prompt": "いま ＿＿、まにあいません。", "en": "If you don't leave now, you won't make it in time.", "answer": "でなければ", "accepted": [], "options": ["でれば", "でなければ", "でないば"], "hint": "For a negative condition, change ない to なければ.", "why_wrong": {"でれば": "This means 'if you leave,' the opposite of what is needed.", "でないば": "ない becomes なければ; ば never attaches directly to ない."}}
+        {
+          "kind": "fill",
+          "prompt": "この くすりを ＿＿、すぐ なおります。",
+          "en": "If you take this medicine, you'll get better soon.",
+          "answer": "のめば",
+          "accepted": [],
+          "hint": "ば form of のみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "じかんが ＿＿、いきます。",
+          "en": "If I have time, I'll go.",
+          "answer": "あれば",
+          "options": [
+            "あれば",
+            "あるば",
+            "あれは"
+          ],
+          "accepted": [],
+          "hint": "ば form of あります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "まっすぐ ＿＿、ゆうびんきょくが あります。",
+          "en": "If you go straight, there's a post office.",
+          "answer": "いけば",
+          "accepted": [],
+          "options": [
+            "いくば",
+            "いきば",
+            "いけば"
+          ],
+          "hint": "Group I verbs change the last sound to the え row and add ば.",
+          "why_wrong": {
+            "いくば": "ば does not attach to the dictionary form; く changes to け.",
+            "いきば": "ば does not attach to the ます stem; use the え row: いけば."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "いま ＿＿、まにあいません。",
+          "en": "If you don't leave now, you won't make it in time.",
+          "answer": "でなければ",
+          "accepted": [],
+          "options": [
+            "でれば",
+            "でなければ",
+            "でないば"
+          ],
+          "hint": "For a negative condition, change ない to なければ.",
+          "why_wrong": {
+            "でれば": "This means 'if you leave,' the opposite of what is needed.",
+            "でないば": "ない becomes なければ; ば never attaches directly to ない."
+          }
+        }
       ]
     },
     {
@@ -24,14 +81,66 @@
       "form": "いadj（〜い→〜ければ）、〜",
       "note": "いい becomes よければ, not いければ.",
       "examples": [
-        {"jp": "やすければ、かいます。", "en": "If it's cheap, I'll buy it."},
-        {"jp": "てんきが よければ、さんぽします。", "en": "If the weather is good, I'll take a walk."}
+        {
+          "jp": "やすければ、かいます。",
+          "en": "If it's cheap, I'll buy it."
+        },
+        {
+          "jp": "てんきが よければ、さんぽします。",
+          "en": "If the weather is good, I'll take a walk."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "＿＿、まどを しめて ください。", "en": "If you're cold, please close the window.", "answer": "さむければ", "accepted": [], "hint": "ければ form of さむい"},
-        {"kind": "fill", "prompt": "その かばんは ＿＿、かいません。", "en": "If that bag is expensive, I won't buy it.", "answer": "たかければ", "accepted": [], "hint": "ければ form of たかい"},
-        {"kind": "choose", "prompt": "つごうが ＿＿、きて ください。", "en": "If it's convenient for you, please come.", "answer": "よければ", "accepted": [], "options": ["いいければ", "よければ", "いければ"], "hint": "いい is irregular: its ければ form is よければ.", "why_wrong": {"いいければ": "Drop the final い before ければ; and いい uses よ: よければ.", "いければ": "いい changes to よ before ければ, so it is よければ."}},
-        {"kind": "choose", "prompt": "えきが ＿＿、タクシーで いきます。", "en": "If the station is far, I'll go by taxi.", "answer": "とおければ", "accepted": [], "options": ["とおければ", "とおいば", "とおいければ"], "hint": "For an い adjective, drop the final い and add ければ.", "why_wrong": {"とおいば": "い adjectives take ければ, not ば.", "とおいければ": "The final い must be dropped before ければ."}}
+        {
+          "kind": "fill",
+          "prompt": "＿＿、まどを しめて ください。",
+          "en": "If you're cold, please close the window.",
+          "answer": "さむければ",
+          "accepted": [],
+          "hint": "ければ form of さむい"
+        },
+        {
+          "kind": "fill",
+          "prompt": "その かばんは ＿＿、かいません。",
+          "en": "If that bag is expensive, I won't buy it.",
+          "answer": "たかければ",
+          "accepted": [],
+          "hint": "ければ form of たかい"
+        },
+        {
+          "kind": "choose",
+          "prompt": "つごうが ＿＿、きて ください。",
+          "en": "If it's convenient for you, please come.",
+          "answer": "よければ",
+          "accepted": [],
+          "options": [
+            "いいければ",
+            "よければ",
+            "いければ"
+          ],
+          "hint": "いい is irregular: its ければ form is よければ.",
+          "why_wrong": {
+            "いいければ": "Drop the final い before ければ; and いい uses よ: よければ.",
+            "いければ": "いい changes to よ before ければ, so it is よければ."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "えきが ＿＿、タクシーで いきます。",
+          "en": "If the station is far, I'll go by taxi.",
+          "answer": "とおければ",
+          "accepted": [],
+          "options": [
+            "とおければ",
+            "とおいば",
+            "とおいければ"
+          ],
+          "hint": "For an い adjective, drop the final い and add ければ.",
+          "why_wrong": {
+            "とおいば": "い adjectives take ければ, not ば.",
+            "とおいければ": "The final い must be dropped before ければ."
+          }
+        }
       ]
     },
     {
@@ -40,14 +149,73 @@
       "form": "なadj／Noun ＋ なら、〜",
       "note": "Do not add な before なら: ひまなら, not ひまななら.",
       "examples": [
-        {"jp": "ひまなら、てつだって ください。", "en": "If you're free, please help me."},
-        {"jp": "あした ひまなら、いっしょに えいがを みませんか。", "en": "If you're free tomorrow, would you like to see a movie together?"}
+        {
+          "jp": "ひまなら、てつだって ください。",
+          "en": "If you're free, please help me."
+        },
+        {
+          "jp": "あした ひまなら、いっしょに えいがを みませんか。",
+          "en": "If you're free tomorrow, would you like to see a movie together?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "しずか＿＿、ここで べんきょうします。", "en": "If it's quiet, I'll study here.", "answer": "なら", "accepted": ["だったら"], "hint": "the conditional word that follows な adjectives"},
-        {"kind": "choose", "prompt": "きらい＿＿、たべなくても いいです。", "en": "If you don't like it, you don't have to eat it.", "answer": "なら", "options": ["なら", "ければ", "ば"], "accepted": [], "hint": "きらい is a な adjective"},
-        {"kind": "choose", "prompt": "からだが ＿＿、なんでも できます。", "en": "If you're healthy, you can do anything.", "answer": "げんきなら", "accepted": [], "options": ["げんきければ", "げんきななら", "げんきなら"], "hint": "A な adjective takes なら directly, with no な in between.", "why_wrong": {"げんきければ": "ければ is only for い adjectives; げんき is a な adjective.", "げんきななら": "Do not add な before なら."}},
-        {"kind": "choose", "prompt": "あめ＿＿、しあいは ありません。", "en": "If it rains, there's no game.", "answer": "なら", "accepted": [], "options": ["ななら", "なら", "だなら"], "hint": "A noun takes なら directly to say 'if it is.'", "why_wrong": {"ななら": "Nouns never take な before なら.", "だなら": "Do not put だ before なら."}}
+        {
+          "kind": "fill",
+          "prompt": "しずか＿＿、ここで べんきょうします。",
+          "en": "If it's quiet, I'll study here.",
+          "answer": "なら",
+          "accepted": [
+            "だったら"
+          ],
+          "hint": "the conditional word that follows な adjectives"
+        },
+        {
+          "kind": "choose",
+          "prompt": "きらい＿＿、たべなくても いいです。",
+          "en": "If you don't like it, you don't have to eat it.",
+          "answer": "なら",
+          "options": [
+            "なら",
+            "ければ",
+            "ば"
+          ],
+          "accepted": [],
+          "hint": "きらい is a な adjective"
+        },
+        {
+          "kind": "choose",
+          "prompt": "からだが ＿＿、なんでも できます。",
+          "en": "If you're healthy, you can do anything.",
+          "answer": "げんきなら",
+          "accepted": [],
+          "options": [
+            "げんきければ",
+            "げんきななら",
+            "げんきなら"
+          ],
+          "hint": "A な adjective takes なら directly, with no な in between.",
+          "why_wrong": {
+            "げんきければ": "ければ is only for い adjectives; げんき is a な adjective.",
+            "げんきななら": "Do not add な before なら."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あめ＿＿、しあいは ありません。",
+          "en": "If it rains, there's no game.",
+          "answer": "なら",
+          "accepted": [],
+          "options": [
+            "ななら",
+            "なら",
+            "だなら"
+          ],
+          "hint": "A noun takes なら directly to say 'if it is.'",
+          "why_wrong": {
+            "ななら": "Nouns never take な before なら.",
+            "だなら": "Do not put だ before なら."
+          }
+        }
       ]
     },
     {
@@ -56,14 +224,73 @@
       "form": "ぎもんし ＋ Verbば ＋ いいですか",
       "note": "たら いいですか means the same thing: どう したら いいですか and どう すれば いいですか are both correct.",
       "examples": [
-        {"jp": "どこで きっぷを かえば いいですか。", "en": "Where should I buy a ticket?"},
-        {"jp": "なんじに くれば いいですか。", "en": "What time should I come?"}
+        {
+          "jp": "どこで きっぷを かえば いいですか。",
+          "en": "Where should I buy a ticket?"
+        },
+        {
+          "jp": "なんじに くれば いいですか。",
+          "en": "What time should I come?"
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "この かみは どこに ＿＿ いいですか。", "en": "Where should I hand in this paper?", "answer": "だせば", "accepted": ["だしたら"], "hint": "ば form of だします"},
-        {"kind": "choose", "prompt": "だれに ＿＿ いいですか。", "en": "Who should I ask?", "answer": "きけば", "options": ["きけば", "ききば", "きくば"], "accepted": [], "hint": "ば form of ききます"},
-        {"kind": "choose", "prompt": "どの ボタンを ＿＿ いいですか。", "en": "Which button should I press?", "answer": "おせば", "accepted": [], "options": ["おすば", "おせば", "おしば"], "hint": "Question word ＋ ば form ＋ いいですか asks what you should do; す becomes せ.", "why_wrong": {"おすば": "ば does not attach to the dictionary form; す changes to せ.", "おしば": "ば does not attach to the ます stem; use the え row: おせば."}},
-        {"kind": "choose", "prompt": "パーティーの じゅんびは なにを ＿＿ いいですか。", "en": "What should I do to get ready for the party?", "answer": "すれば", "accepted": [], "options": ["すれば", "するば", "しれば"], "hint": "します is irregular: its ば form is すれば.", "why_wrong": {"するば": "ば does not attach to the dictionary form; する becomes すれば.", "しれば": "The ば form of します is すれば, not しれば."}}
+        {
+          "kind": "fill",
+          "prompt": "この かみは どこに ＿＿ いいですか。",
+          "en": "Where should I hand in this paper?",
+          "answer": "だせば",
+          "accepted": [
+            "だしたら"
+          ],
+          "hint": "ば form of だします"
+        },
+        {
+          "kind": "choose",
+          "prompt": "だれに ＿＿ いいですか。",
+          "en": "Who should I ask?",
+          "answer": "きけば",
+          "options": [
+            "きけば",
+            "ききば",
+            "きくば"
+          ],
+          "accepted": [],
+          "hint": "ば form of ききます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "どの ボタンを ＿＿ いいですか。",
+          "en": "Which button should I press?",
+          "answer": "おせば",
+          "accepted": [],
+          "options": [
+            "おすば",
+            "おせば",
+            "おしば"
+          ],
+          "hint": "Question word ＋ ば form ＋ いいですか asks what you should do; す becomes せ.",
+          "why_wrong": {
+            "おすば": "ば does not attach to the dictionary form; す changes to せ.",
+            "おしば": "ば does not attach to the ます stem; use the え row: おせば."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "パーティーの じゅんびは なにを ＿＿ いいですか。",
+          "en": "What should I do to get ready for the party?",
+          "answer": "すれば",
+          "accepted": [],
+          "options": [
+            "すれば",
+            "するば",
+            "しれば"
+          ],
+          "hint": "します is irregular: its ば form is すれば.",
+          "why_wrong": {
+            "するば": "ば does not attach to the dictionary form; する becomes すれば.",
+            "しれば": "The ば form of します is すれば, not しれば."
+          }
+        }
       ]
     },
     {
@@ -72,14 +299,73 @@
       "form": "Noun ＋ なら、〜",
       "note": "This usually responds to what the other person said or wants. It is not a plain 'if' about events.",
       "examples": [
-        {"jp": "すしなら、あの みせが おいしいです。", "en": "If it's sushi you want, that restaurant is good."},
-        {"jp": "えいごなら、ミラーさんに きいて ください。", "en": "If it's about English, please ask Mr. Miller."}
+        {
+          "jp": "すしなら、あの みせが おいしいです。",
+          "en": "If it's sushi you want, that restaurant is good."
+        },
+        {
+          "jp": "えいごなら、ミラーさんに きいて ください。",
+          "en": "If it's about English, please ask Mr. Miller."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "カメラ＿＿、この みせが やすいですよ。", "en": "If it's a camera you want, this shop is cheap.", "answer": "なら", "accepted": ["だったら"], "hint": "the word that picks up a topic"},
-        {"kind": "choose", "prompt": "りょこう＿＿、きょうとが いいですよ。", "en": "If it's a trip you're planning, Kyoto is good.", "answer": "なら", "options": ["なら", "ので", "から"], "accepted": [], "hint": "the word that picks up a topic"},
-        {"kind": "choose", "prompt": "パソコン＿＿、あきはばらが いいですよ。", "en": "If it's a computer you want, Akihabara is good.", "answer": "なら", "accepted": [], "options": ["ので", "なら", "ば"], "hint": "Noun ＋ なら picks up a topic and gives advice about it.", "why_wrong": {"ので": "ので gives a reason, and after a noun it needs な: なので.", "ば": "ば attaches to verbs, never directly to a noun."}},
-        {"kind": "choose", "prompt": "テニス＿＿、わたしも できますよ。", "en": "If it's tennis, I can play too.", "answer": "なら", "accepted": [], "options": ["ので", "ければ", "なら"], "hint": "Noun ＋ なら means 'if it's that topic.'", "why_wrong": {"ので": "ので gives a reason, and after a noun it needs な: なので.", "ければ": "ければ is only for い adjectives, not nouns."}}
+        {
+          "kind": "fill",
+          "prompt": "カメラ＿＿、この みせが やすいですよ。",
+          "en": "If it's a camera you want, this shop is cheap.",
+          "answer": "なら",
+          "accepted": [
+            "だったら"
+          ],
+          "hint": "the word that picks up a topic"
+        },
+        {
+          "kind": "choose",
+          "prompt": "りょこう＿＿、きょうとが いいですよ。",
+          "en": "If it's a trip you're planning, Kyoto is good.",
+          "answer": "なら",
+          "options": [
+            "なら",
+            "ので",
+            "から"
+          ],
+          "accepted": [],
+          "hint": "the word that picks up a topic"
+        },
+        {
+          "kind": "choose",
+          "prompt": "パソコン＿＿、あきはばらが いいですよ。",
+          "en": "If it's a computer you want, Akihabara is good.",
+          "answer": "なら",
+          "accepted": [],
+          "options": [
+            "ので",
+            "なら",
+            "ば"
+          ],
+          "hint": "Noun ＋ なら picks up a topic and gives advice about it.",
+          "why_wrong": {
+            "ので": "ので gives a reason, and after a noun it needs な: なので.",
+            "ば": "ば attaches to verbs, never directly to a noun."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "テニス＿＿、わたしも できますよ。",
+          "en": "If it's tennis, I can play too.",
+          "answer": "なら",
+          "accepted": [],
+          "options": [
+            "ので",
+            "ければ",
+            "なら"
+          ],
+          "hint": "Noun ＋ なら means 'if it's that topic.'",
+          "why_wrong": {
+            "ので": "ので gives a reason, and after a noun it needs な: なので.",
+            "ければ": "ければ is only for い adjectives, not nouns."
+          }
+        }
       ]
     }
   ]

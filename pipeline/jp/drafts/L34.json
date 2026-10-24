@@ -8,14 +8,73 @@
       "form": "じしょForm／たForm／Nounの ＋ とおりに、〜",
       "note": "After a noun, add の: せつめいしょの とおりに. Verbs connect directly, with no の.",
       "examples": [
-        {"jp": "せんせいの いう とおりに かいて ください。", "en": "Please write it just as the teacher says."},
-        {"jp": "わたしが やった とおりに、やって ください。", "en": "Please do it just the way I did."}
+        {
+          "jp": "せんせいの いう とおりに かいて ください。",
+          "en": "Please write it just as the teacher says."
+        },
+        {
+          "jp": "わたしが やった とおりに、やって ください。",
+          "en": "Please do it just the way I did."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "せんせいが いった ＿＿ かいて ください。", "en": "Please write it just as the teacher said.", "answer": "とおりに", "accepted": [], "hint": "the phrase meaning 'just as'"},
-        {"kind": "choose", "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。", "en": "Please assemble it according to the instructions.", "answer": "の", "options": ["の", "が", "を"], "accepted": [], "hint": "a noun needs a linking particle before とおりに"},
-        {"kind": "choose", "prompt": "わたしが ＿＿ とおりに、つくって ください。", "en": "Please make it just the way I made it.", "answer": "つくった", "accepted": [], "options": ["つくって", "つくった", "つくったの"], "hint": "A verb connects to とおりに directly in its plain form, with no の.", "why_wrong": {"つくって": "The て form cannot come right before とおりに.", "つくったの": "Only nouns take の before とおりに; verbs connect directly."}},
-        {"kind": "choose", "prompt": "＿＿ とおりに、ならべて ください。", "en": "Please line them up as shown in the picture.", "answer": "えの", "accepted": [], "options": ["え", "えが", "えの"], "hint": "A noun needs の before とおりに.", "why_wrong": {"え": "A noun cannot attach to とおりに without の.", "えが": "が marks a subject; a noun links to とおりに with の."}}
+        {
+          "kind": "fill",
+          "prompt": "せんせいが いった ＿＿ かいて ください。",
+          "en": "Please write it just as the teacher said.",
+          "answer": "とおりに",
+          "accepted": [
+            "ように"
+          ],
+          "hint": "the phrase meaning 'just as'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。",
+          "en": "Please assemble it according to the instructions.",
+          "answer": "の",
+          "options": [
+            "の",
+            "が",
+            "を"
+          ],
+          "accepted": [],
+          "hint": "a noun needs a linking particle before とおりに"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが ＿＿ とおりに、つくって ください。",
+          "en": "Please make it just the way I made it.",
+          "answer": "つくった",
+          "accepted": [],
+          "options": [
+            "つくって",
+            "つくった",
+            "つくったの"
+          ],
+          "hint": "A verb connects to とおりに directly in its plain form, with no の.",
+          "why_wrong": {
+            "つくって": "The て form cannot come right before とおりに.",
+            "つくったの": "Only nouns take の before とおりに; verbs connect directly."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "＿＿ とおりに、ならべて ください。",
+          "en": "Please line them up as shown in the picture.",
+          "answer": "えの",
+          "accepted": [],
+          "options": [
+            "え",
+            "えが",
+            "えの"
+          ],
+          "hint": "A noun needs の before とおりに.",
+          "why_wrong": {
+            "え": "A noun cannot attach to とおりに without の.",
+            "えが": "が marks a subject; a noun links to とおりに with の."
+          }
+        }
       ]
     },
     {
@@ -24,14 +83,71 @@
       "form": "たForm／Nounの ＋ あとで、〜",
       "note": "Use the た form even for future plans: たべた あとで, not たべる あとで.",
       "examples": [
-        {"jp": "しごとが おわった あとで、のみに いきます。", "en": "After work is over, I'll go out for drinks."},
-        {"jp": "しょくじの あとで、さんぽします。", "en": "After the meal, I take a walk."}
+        {
+          "jp": "しごとが おわった あとで、のみに いきます。",
+          "en": "After work is over, I'll go out for drinks."
+        },
+        {
+          "jp": "しょくじの あとで、さんぽします。",
+          "en": "After the meal, I take a walk."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "しゅくだいを ＿＿ あとで、テレビを みます。", "en": "After I do my homework, I'll watch TV.", "answer": "した", "accepted": [], "hint": "た form of します"},
-        {"kind": "choose", "prompt": "かいぎ＿＿ あとで、でんわします。", "en": "I'll call after the meeting.", "answer": "の", "options": ["の", "が", "を"], "accepted": [], "hint": "a noun needs a linking particle before あとで"},
-        {"kind": "choose", "prompt": "おふろに ＿＿ あとで、ビールを のみます。", "en": "After I take a bath, I drink beer.", "answer": "はいった", "accepted": [], "options": ["はいる", "はいって", "はいった"], "hint": "あとで always follows the た form, even for habits or future plans.", "why_wrong": {"はいる": "The dictionary form goes with まえに, not あとで.", "はいって": "The て form cannot come right before あとで."}},
-        {"kind": "choose", "prompt": "はを みがいた ＿＿、なにも たべません。", "en": "After I brush my teeth, I don't eat anything.", "answer": "あとで", "accepted": [], "options": ["まえに", "あとで", "ながら"], "hint": "A た form followed by あとで means 'after doing.'", "why_wrong": {"まえに": "まえに means 'before' and needs the dictionary form, not the た form.", "ながら": "ながら means 'while' and attaches to the ます stem, not the た form."}}
+        {
+          "kind": "fill",
+          "prompt": "しゅくだいを ＿＿ あとで、テレビを みます。",
+          "en": "After I do my homework, I'll watch TV.",
+          "answer": "した",
+          "accepted": [],
+          "hint": "た form of します"
+        },
+        {
+          "kind": "choose",
+          "prompt": "かいぎ＿＿ あとで、でんわします。",
+          "en": "I'll call after the meeting.",
+          "answer": "の",
+          "options": [
+            "の",
+            "が",
+            "を"
+          ],
+          "accepted": [],
+          "hint": "a noun needs a linking particle before あとで"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おふろに ＿＿ あとで、ビールを のみます。",
+          "en": "After I take a bath, I drink beer.",
+          "answer": "はいった",
+          "accepted": [],
+          "options": [
+            "はいる",
+            "はいって",
+            "はいった"
+          ],
+          "hint": "あとで always follows the た form, even for habits or future plans.",
+          "why_wrong": {
+            "はいる": "The dictionary form goes with まえに, not あとで.",
+            "はいって": "The て form cannot come right before あとで."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "はを みがいた ＿＿、なにも たべません。",
+          "en": "After I brush my teeth, I don't eat anything.",
+          "answer": "あとで",
+          "accepted": [],
+          "options": [
+            "まえに",
+            "あとで",
+            "ながら"
+          ],
+          "hint": "A た form followed by あとで means 'after doing.'",
+          "why_wrong": {
+            "まえに": "まえに means 'before' and needs the dictionary form, not the た form.",
+            "ながら": "ながら means 'while' and attaches to the ます stem, not the た form."
+          }
+        }
       ]
     },
     {
@@ -40,14 +156,71 @@
       "form": "てForm／ないFormで ＋ main verb",
       "note": "The first verb describes the manner of the second, not a separate step: かさを もって でかけます means you go out carrying an umbrella.",
       "examples": [
-        {"jp": "たって テレビを みます。／なにも たべないで がっこうへ いきます。", "en": "I watch TV standing up. / I go to school without eating anything."},
-        {"jp": "かさを もって でかけます。", "en": "I go out with an umbrella."}
+        {
+          "jp": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
+          "en": "I watch TV standing up. / I go to school without eating anything."
+        },
+        {
+          "jp": "かさを もって でかけます。",
+          "en": "I go out with an umbrella."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "めがねを ＿＿ しんぶんを よみます。", "en": "I read the newspaper with my glasses on.", "answer": "かけて", "accepted": [], "hint": "て form of かけます"},
-        {"kind": "choose", "prompt": "あさごはんを ＿＿ かいしゃへ いきました。", "en": "I went to work without eating breakfast.", "answer": "たべないで", "options": ["たべないで", "たべないの", "たべません"], "accepted": [], "hint": "ないで form"},
-        {"kind": "choose", "prompt": "ぼうしを ＿＿ そとへ でました。", "en": "I went outside wearing a hat.", "answer": "かぶって", "accepted": [], "options": ["かぶります", "かぶって", "かぶるて"], "hint": "A て form before the main verb shows the state you do it in.", "why_wrong": {"かぶります": "A ます form ends a sentence; it cannot link to another verb.", "かぶるて": "て attaches to the て form, not the dictionary form: かぶって."}},
-        {"kind": "choose", "prompt": "かさを ＿＿ でかけたので、ぬれました。", "en": "I went out without an umbrella, so I got wet.", "answer": "もたないで", "accepted": [], "options": ["もって", "もたないで", "もたなくて"], "hint": "ないで before the main verb means 'without doing.'", "why_wrong": {"もって": "This means 'carrying an umbrella,' so getting wet makes no sense.", "もたなくて": "なくて gives a reason; it cannot describe how you went out."}}
+        {
+          "kind": "fill",
+          "prompt": "めがねを ＿＿ しんぶんを よみます。",
+          "en": "I read the newspaper with my glasses on.",
+          "answer": "かけて",
+          "accepted": [],
+          "hint": "て form of かけます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あさごはんを ＿＿ かいしゃへ いきました。",
+          "en": "I went to work without eating breakfast.",
+          "answer": "たべないで",
+          "options": [
+            "たべないで",
+            "たべないの",
+            "たべません"
+          ],
+          "accepted": [],
+          "hint": "ないで form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ぼうしを ＿＿ そとへ でました。",
+          "en": "I went outside wearing a hat.",
+          "answer": "かぶって",
+          "accepted": [],
+          "options": [
+            "かぶります",
+            "かぶって",
+            "かぶるて"
+          ],
+          "hint": "A て form before the main verb shows the state you do it in.",
+          "why_wrong": {
+            "かぶります": "A ます form ends a sentence; it cannot link to another verb.",
+            "かぶるて": "て attaches to the て form, not the dictionary form: かぶって."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かさを ＿＿ でかけたので、ぬれました。",
+          "en": "I went out without an umbrella, so I got wet.",
+          "answer": "もたないで",
+          "accepted": [],
+          "options": [
+            "もって",
+            "もたないで",
+            "もたなくて"
+          ],
+          "hint": "ないで before the main verb means 'without doing.'",
+          "why_wrong": {
+            "もって": "This means 'carrying an umbrella,' so getting wet makes no sense.",
+            "もたなくて": "なくて gives a reason; it cannot describe how you went out."
+          }
+        }
       ]
     },
     {
@@ -56,14 +229,66 @@
       "form": "ないForm＋で、〜",
       "note": "Do not use なくて here. なくて gives a reason; ないで shows how you act or what you do instead.",
       "examples": [
-        {"jp": "じしょを つかわないで、よんで ください。", "en": "Please read it without using a dictionary."},
-        {"jp": "にちようびは どこも いかないで、うちで やすみます。", "en": "On Sundays I don't go anywhere; I rest at home."}
+        {
+          "jp": "じしょを つかわないで、よんで ください。",
+          "en": "Please read it without using a dictionary."
+        },
+        {
+          "jp": "にちようびは どこも いかないで、うちで やすみます。",
+          "en": "On Sundays I don't go anywhere; I rest at home."
+        }
       ],
       "practice": [
-        {"kind": "fill", "prompt": "さとうを ＿＿ コーヒーを のみます。", "en": "I drink coffee without putting in sugar.", "answer": "いれないで", "accepted": [], "hint": "ないで form of いれます"},
-        {"kind": "fill", "prompt": "でんきを ＿＿ ねて しまいました。", "en": "I fell asleep without turning off the light.", "answer": "けさないで", "accepted": [], "hint": "ないで form of けします"},
-        {"kind": "choose", "prompt": "テキストを ＿＿ こたえて ください。", "en": "Please answer without looking at the textbook.", "answer": "みないで", "accepted": [], "options": ["みなくて", "みらないで", "みないで"], "hint": "Use ないで, not なくて, to say 'without doing.'", "why_wrong": {"みなくて": "なくて gives a reason and cannot lead into a request.", "みらないで": "みます is Group II: drop ます and add ない, so みない."}},
-        {"kind": "choose", "prompt": "でんしゃに ＿＿、あるいて かえりました。", "en": "I walked home instead of taking the train.", "answer": "のらないで", "accepted": [], "options": ["のらないで", "のりないで", "のらない"], "hint": "ないで means doing one thing instead of another.", "why_wrong": {"のりないで": "のります is Group I: the ない form is のらない.", "のらない": "Without で, the ない form cannot link to the next verb."}}
+        {
+          "kind": "fill",
+          "prompt": "さとうを ＿＿ コーヒーを のみます。",
+          "en": "I drink coffee without putting in sugar.",
+          "answer": "いれないで",
+          "accepted": [],
+          "hint": "ないで form of いれます"
+        },
+        {
+          "kind": "fill",
+          "prompt": "でんきを ＿＿ ねて しまいました。",
+          "en": "I fell asleep without turning off the light.",
+          "answer": "けさないで",
+          "accepted": [],
+          "hint": "ないで form of けします"
+        },
+        {
+          "kind": "choose",
+          "prompt": "テキストを ＿＿ こたえて ください。",
+          "en": "Please answer without looking at the textbook.",
+          "answer": "みないで",
+          "accepted": [],
+          "options": [
+            "みなくて",
+            "みらないで",
+            "みないで"
+          ],
+          "hint": "Use ないで, not なくて, to say 'without doing.'",
+          "why_wrong": {
+            "みなくて": "なくて gives a reason and cannot lead into a request.",
+            "みらないで": "みます is Group II: drop ます and add ない, so みない."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "でんしゃに ＿＿、あるいて かえりました。",
+          "en": "I walked home instead of taking the train.",
+          "answer": "のらないで",
+          "accepted": [],
+          "options": [
+            "のらないで",
+            "のりないで",
+            "のらない"
+          ],
+          "hint": "ないで means doing one thing instead of another.",
+          "why_wrong": {
+            "のりないで": "のります is Group I: the ない form is のらない.",
+            "のらない": "Without で, the ない form cannot link to the next verb."
+          }
+        }
       ]
     }
   ]
