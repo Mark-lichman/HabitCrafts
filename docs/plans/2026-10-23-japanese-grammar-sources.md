@@ -1,8 +1,17 @@
 # Plan: Japanese grammar from Mari's materials into the app
 
-Status: **for Mark's review**, 2026-10-23. Branch `feat/jp-grammar-extraction` (worktree
-`C:/Projects/habitcrafts-war`). Nothing is published to the app yet. Every bundle is in
-`needs_review`.
+Status: **superseded** by `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`, 2026-10-24.
+The core of steps 1 to 3 shipped (`assets/lessons/jp_grammar.json`, the grammar and drill
+screens). Three items did not ship as written: the links to Mari's notes (decision 5), clearing
+lesson 30's uncertain flags (`しまいます`, `ふくしゅうします` stay flagged `groupUncertain`), and adding
+the new pairs to lesson 30's pair fields (they ship in `jp_grammar.json` under `pairs`). The five
+decisions in section 2 are resolved; each one carries its resolution. Read this file as a record.
+For the shipped state, read `docs/japanese-lessons.md`. Section 5 is the historical recipe; the
+current one, with the copy of each bundle into the fixtures and the publish step, is in
+`docs/japanese-lessons.md`.
+
+Original status: for Mark's review, 2026-10-23. Branch `feat/jp-grammar-extraction` (worktree
+`C:/Projects/habitcrafts-war`).
 
 ## 1. What ran
 
@@ -26,20 +35,31 @@ What the review found and fixed in the extractor:
   e-row, so でる did not resolve.
 - Source 4: the passive example uses よむ, not いく. The particle しか〜ません failed to link to lesson 27.
 
-## 2. Decisions I need from you
+## 2. Decisions (all resolved)
 
 1. **かえる (名前を かえる)**. The dictionary form cannot decide its group. Here it means 変える
    (to change), which is group 2. Approve group 2, or leave it flagged as uncertain in the app.
+   **Resolved:** group 2. `pipeline/jp/corrections.json` sets `s03_pairs_textbook.19`
+   `transitive_group` to 2, from the EDICT entry for 変える.
 2. **Mari's L42.3 example**: `この しごとに 3にちも かかりました`. 3日 as a length of time reads
    **みっか**. Written as `3にち`, the app teaches さんにち. I suggest `みっかも` and a note to Mari.
+   **Resolved:** `みっかも`. `corrections.json` corrects `mari.L42.3` `example`.
 3. **number.pdf leaves 11か月 (じゅういっかげつ) unmarked**. It has a sound change, but the cell
    is grey. I suggest marking it orange in the app and keeping the source as it is.
+   **Resolved:** marked as a sound change in the app, source unchanged. `corrections.json` sets
+   `s01_number.months.〜か月.11` `mark` to `sound_change`.
 4. **Kanji in examples.** Source 3 is printed with kanji and furigana. Mari's L33.3 quotes
    「立入禁止」. The app is kana-only today. I suggest kana by default, with the kanji form behind a
    tap. Source 3 already stores both.
+   **Resolved:** hiragana by default, kanji behind a tap. The drills show source 3's kanji behind
+   a 漢字 tap. The sign 「立入禁止」 in `mari.L33.3` still shows inline in kanji until the toggle
+   lands. Kanji versions of every grammar sentence, behind a 漢字 toggle, are D4 of the
+   superseding plan.
 5. **Mari's tools that are links, not data.** Her 25 Canva decks need a Canva login. The
    conjugation drill (`wkdonc.github.io/conjugation/drill.html`) is a third-party page. I suggest
    linking both from the app ("Mari's notes, lesson 27") and asking Mari for exports later.
+   **Resolved:** not linked. The shipped build carries Mari's checklist data only, because the
+   decks need a Canva login. Asking Mari for exports stays outside the app.
 
 No action is needed on two findings. Mari's sheet prints `kimashita` for かいました, and the app
 drops romaji anyway. The sheet also has the typo `ふつうFrom`.
