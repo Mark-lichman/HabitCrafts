@@ -140,7 +140,7 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 - target repo: superproject
 
 ### Task 10: Catalog the data files and find them in the app
-- Files: `pipeline/jp/catalog.py`, `pipeline/jp/tests/test_catalog_sources.py`, `lib/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart`, `assets/lessons/jp_grammar.json`
+- Files: `pipeline/jp/catalog.py`, `pipeline/jp/tests/test_catalog_sources.py`, `lib/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart`, `assets/lessons/jp_grammar.json`, `docs/japanese-lessons.md`
 - Plan slice: Cataloging adds one `source_file` entry per data file (the five extraction bundles, the drafts, `uses.json`, `corrections.json`, `jp_lessons.json`): its role, its origin (for example "Mari's N4 sheet"), and counts computed live from the file. Its open target is a search for that source, which the home screen applies to its search box. The test checks that every data file has an entry with live counts, and that `docs/japanese-lessons.md` restates none of those counts (PIN-13). Run `publish.py` to regenerate the app file.
 - Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q`
 - requiresTest: true
