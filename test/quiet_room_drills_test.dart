@@ -58,19 +58,31 @@ void main() {
   testWidgets('Show all reveals every cell color at once', (tester) async {
     final doc = readLessonFile();
     final table = (doc['reference'] as List).first as Map<String, dynamic>;
-    final col = (table['columns'] as List).first as Map<String, dynamic>;
+    // The 個 column mixes sound_change and regular cells, so the fill per mark is
+    // visible. The first column, つ, is all special, which would let one fill pass.
+    final col = (table['columns'] as List)
+        .cast<Map<String, dynamic>>()
+        .firstWhere((c) => c['written'] == '個');
     final cells = (table['cells'] as List)
         .cast<Map<String, dynamic>>()
         .where((c) => c['col'] == col['written'])
         .toList();
+    final marks = {for (final c in cells) c['row'] as String: c['mark'] as String};
+    expect(marks['1'], 'sound_change');
+    expect(marks['2'], 'regular');
 
     await pumpStudyScreen(tester, const QuietRoomDrillsWidget());
+    await tester.tap(find.text(col['written'] as String));
+    await tester.pumpAndSettle();
     final t = QuietRoomTokens.of(
         tester.element(find.text('${cells.first['row']} ${col['written']}')));
 
     await tester.tap(find.text('Show all'));
     await tester.pumpAndSettle();
 
+    expect(_cellFill(tester, '1 ${col['written']}'),
+        ReadingMark.fill(t, 'sound_change'));
+    expect(_cellFill(tester, '2 ${col['written']}'), t.surface);
     for (final c in cells) {
       expect(_cellFill(tester, '${c['row']} ${col['written']}'),
           ReadingMark.fill(t, c['mark'] as String));
