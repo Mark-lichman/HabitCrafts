@@ -130,13 +130,14 @@ def _prose_numbers(text: str) -> list[tuple[int, str, str]]:
     """Integers in the doc's prose, each with the words after it and its line.
 
     Code fences and inline code are skipped: a path or a date is not a count. A number
-    glued to a word character (L26, s04, 8課, 3.3) is part of a name, not a count.
+    glued to a word character (L26, s04, 8課, 3.3) is part of a name, not a count. A
+    period that ends the sentence ("holds 620.") does not hide the number.
     """
     text = re.sub(r"```.*?```", "", text, flags=re.S)
     found = []
     for line in text.splitlines():
         prose = re.sub(r"`[^`]*`", "", line)
-        for m in re.finditer(r"(?<![\w.{/])\d+(?![\w.}/])", prose):
+        for m in re.finditer(r"(?<![\w.{/])\d+(?![\w}/]|\.\w)", prose):
             found.append((int(m.group()), prose[m.end():].lower(), line.strip()))
     return found
 
@@ -177,11 +178,13 @@ def test_lesson_doc_restates_no_count():
 
 def test_the_doc_scan_catches_a_restated_count():
     # The scan above must be able to fail: a copied count in prose is caught, whether
-    # it is large or small and followed by what it counts.
+    # it is large or small and followed by what it counts, or large and ending the
+    # sentence.
     counts = {n for c in expected_counts().values() for n in c.values()}
     words = expected_counts()["assets/lessons/jp_lessons.json"]["words"]
     small = min(n for n in counts if n > 1)
-    for text in (f"The vocabulary has {words} words.", f"It holds {small} items."):
+    for text in (f"The vocabulary has {words} words.", f"It holds {small} items.",
+                 f"The vocabulary holds {words}.", f"({small} items)"):
         assert any(_restates(n, a, counts) for n, a, _ in _prose_numbers(text)), text
     assert not any(_restates(n, a, counts) for n, a, _ in _prose_numbers(
-        "Run sources 1 and 2 before 3 and 4. See `docs/plans/2026-10-24-x.md`."))
+        "Run sources 1 and 2 before 3 and 4. See `docs/plans/2026-10-24-x.md`, section 3.3."))
