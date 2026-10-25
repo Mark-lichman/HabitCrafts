@@ -93,12 +93,25 @@ def test_s03_transcription_reads_the_same_as_its_bundle():
 
 @pytest.fixture(scope="module")
 def mari():
-    s04 = json.loads((FIX / "s04_mari_checklist" / "lesson_bundle.json").read_text(encoding="utf-8"))
-    return {p["id"]: p for p in s04["items"]}
+    # Mari's points as publish.run() sees them: with the reviewed corrections applied.
+    review = json.loads((JP / "corrections.json").read_text(encoding="utf-8"))
+    bundles = {s: publish.load(s) for s in review["approved_sources"]}
+    publish.apply_corrections(bundles, review)
+    return {p["id"]: p for p in bundles["s04_mari_checklist"]["items"]}
 
 
 def _draft(n: int = 26) -> dict:
     return json.loads((JP / "drafts" / f"L{n}.json").read_text(encoding="utf-8"))
+
+
+def drop_twins(d: dict) -> dict:
+    """A copy of the draft with every `_ruby` key removed, whatever the committed state."""
+    d = copy.deepcopy(d)
+    for p in d["points"]:
+        for o in [*p["examples"], *p["practice"]]:
+            for k in [k for k in o if k.endswith("_ruby")]:
+                del o[k]
+    return d
 
 
 def add_twins(d: dict) -> dict:
@@ -121,14 +134,17 @@ def test_drafts_without_twins_pass_while_twins_are_optional(mari, monkeypatch):
     assert publish.check_draft(_draft(), mari) == []
 
 
-def test_ships_with_twins_optional():
-    # Task 5 adds every twin and flips this in the same change.
-    assert publish.REQUIRE_RUBY is False
+def test_every_committed_draft_passes_under_the_shipped_flag(mari):
+    # Holds before Task 5 (twins optional, none present) and after it (twins required,
+    # all present). It fails if REQUIRE_RUBY flips before every draft carries valid twins.
+    for f in sorted((JP / "drafts").glob("L*.json")):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        assert publish.check_draft(d, mari) == [], f.name
 
 
 def test_missing_twins_fail_when_required(mari, monkeypatch):
     monkeypatch.setattr(publish, "REQUIRE_RUBY", True)
-    errs = publish.check_draft(_draft(), mari)
+    errs = publish.check_draft(drop_twins(_draft()), mari)
     for field in ("jp_ruby", "prompt_ruby", "answer_ruby", "accepted_ruby", "options_ruby"):
         assert any(f"missing {field}" in e for e in errs), field
     assert publish.check_draft(add_twins(_draft()), mari) == []
@@ -141,6 +157,23 @@ def test_kanji_twins_pass(mari, monkeypatch):
     assert ex["jp"] == "あたまが いたいんです。"
     ex["jp_ruby"] = "頭{あたま}が 痛{いた}いんです。"
     assert publish.check_draft(d, mari) == []
+
+
+def test_kanji_bearing_mari_example_takes_a_twin_on_its_printed_text(mari, monkeypatch):
+    # mari.L33.3's first example is Mari's verbatim 「立入禁止」, so no reading can equal
+    # the field. Its twin must read every kanji and print as the field.
+    monkeypatch.setattr(publish, "REQUIRE_RUBY", True)
+    d = add_twins(_draft(33))
+    ex = next(p for p in d["points"] if p["id"] == "mari.L33.3")["examples"][0]
+    assert ex["jp"] == "「立入禁止」は はいっては いけないという いみです。"
+    ex["jp_ruby"] = "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。"
+    assert publish.check_draft(d, mari) == []
+    ex["jp_ruby"] = "「禁止{きんし}」は はいっては いけないという いみです。"
+    errs = publish.check_draft(d, mari)
+    assert any("jp_ruby" in e and "printed text" in e for e in errs), errs
+    ex["jp_ruby"] = ex["jp"]  # the kanji left unread
+    errs = publish.check_draft(d, mari)
+    assert any("jp_ruby" in e and "no reading" in e for e in errs), errs
 
 
 @pytest.mark.parametrize("where, field, value", [

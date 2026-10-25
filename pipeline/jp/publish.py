@@ -24,7 +24,7 @@ from pathlib import Path
 from common import OUT_DIR, is_kana
 from catalog import build as build_catalog
 from conjugate import conjugate, group
-from ruby import plain_of, ruby_errors
+from ruby import kana_of, plain_of, ruby_errors
 
 HERE = Path(__file__).parent
 ASSET = HERE.parents[1] / "assets" / "lessons" / "jp_grammar.json"
@@ -65,11 +65,24 @@ def kana_ok(s: str) -> bool:
     return not s or is_kana(s)
 
 
+def twin_errors(ruby: str, kana: str) -> list[str]:
+    """ruby_errors(), except for a field that itself holds kanji (Mari's verbatim
+    「立入禁止」 in mari.L33.3): its reading cannot equal the field, so the twin must
+    read every kanji and print as the field (plain_of(ruby) == kana)."""
+    if kana_ok(kana):
+        return ruby_errors(ruby, kana)
+    errs = ruby_errors(ruby, kana_of(ruby))  # bracket form, and no kanji left unread
+    if not errs and plain_of(ruby) != kana:
+        errs.append(f"printed text {plain_of(ruby)!r} is not the field {kana!r}")
+    return errs
+
+
 def check_twin(owner: str, obj: dict, field: str) -> list[str]:
     """Check the `<field>_ruby` twin of one Japanese field (a string or a list of strings).
 
     A list field gets a parallel twin list. why_wrong is not twinned: it stays keyed by
-    the hiragana option (PIN-9).
+    the hiragana option (PIN-9). A kanji-bearing field is matched on its printed text
+    (see twin_errors).
     """
     twin = f"{field}_ruby"
     kana = obj.get(field, [] if field in ("accepted", "options") else "")
@@ -84,7 +97,7 @@ def check_twin(owner: str, obj: dict, field: str) -> list[str]:
         if not isinstance(ruby, str):
             return [f"{owner}: {twin} must be a string"]
         pairs_ = [(ruby, kana)]
-    return [f"{owner}: {twin} {e}" for r, k in pairs_ for e in ruby_errors(r, k)]
+    return [f"{owner}: {twin} {e}" for r, k in pairs_ for e in twin_errors(r, k)]
 
 
 def check_draft(d: dict, mari: dict) -> list[str]:
