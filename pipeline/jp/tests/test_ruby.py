@@ -90,6 +90,10 @@ def test_red_team_inputs_with_one_slip_are_rejected(ruby_text, kana, why):
     ("買います", "かいます", "no reading"),
     ("買{う}います", "かいます", "is not the hiragana"),
     ("買{か}いました", "かいます", "is not the hiragana"),
+    # A katakana or Latin base: loanwords are written without brackets (PIN-8), so the
+    # kanji-only base rule (PIN-11) rejects the bracket.
+    ("ピザ{ぴざ}を 食{た}べる。", "ピザを たべる。", "does not follow a kanji"),
+    ("CD{しーでぃー}を 聞{き}く。", "CDを きく。", "does not follow a kanji"),
 ])
 def test_bad_twins_are_rejected(bad, kana, why):
     errs = ruby_errors(bad, kana)
@@ -99,6 +103,10 @@ def test_bad_twins_are_rejected(bad, kana, why):
 def test_hiragana_word_repeats_its_hiragana_and_katakana_stays():
     assert ruby_errors("あした パンを 食{た}べる。", "あした パンを たべる。") == []
     assert ruby_errors("ありがとう", "ありがとう") == []
+    # The mirror of the rejected ピザ{ぴざ} and CD{しーでぃー} rows: the same loanwords
+    # pass when left unbracketed, as PIN-8 writes them.
+    assert ruby_errors("ピザを 食{た}べる。", "ピザを たべる。") == []
+    assert ruby_errors("CDを 聞{き}く。", "CDを きく。") == []
 
 
 def test_s03_imports_the_helpers_from_ruby():
