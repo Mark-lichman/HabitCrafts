@@ -14,15 +14,18 @@ import json
 import os
 import re
 import sys
+import typing
 from pathlib import Path
 
 JP = Path(__file__).resolve().parents[1]
 os.environ["JP_OUT_DIR"] = str(JP / "fixtures")
 sys.path.insert(0, str(JP))
+sys.path.insert(0, str(JP.parent))
 
 import pytest  # noqa: E402
 
-from catalog import SOURCE_BUNDLES, build as build_catalog  # noqa: E402
+import extraction_schemas as xs  # noqa: E402
+from catalog import SOURCE_BUNDLES, TYPES, build as build_catalog  # noqa: E402
 
 REPO = JP.parents[1]
 ASSETS = REPO / "assets" / "lessons"
@@ -115,6 +118,25 @@ def test_every_from_key_names_a_data_file_entry(sources):
     for e in build_catalog()["entries"]:
         for k in e.get("from", []):
             assert k in keys, f"{e['id']}: from names {k!r}, which is not a data file entry"
+
+
+def test_catalog_entries_validate_against_the_typed_contract(sources):
+    # catalog.py builds plain dicts. CatalogEntry in pipeline/extraction_schemas.py is
+    # the typed contract for them (STAGE_IO: Cataloging yields CatalogEntry). The two
+    # drifted once, when source_file reached TYPES but not the Literal, and nothing
+    # failed. So: every built entry validates, the Literal equals TYPES in order, and
+    # every key an entry carries comes back from the model, so a field catalog.py emits
+    # that the schema does not declare (pydantic drops extras silently) fails here.
+    entries = build_catalog()["entries"]
+    checked = xs.ResultList.model_validate({"entries": entries}).entries
+    assert len(checked) == len(entries)
+    assert typing.get_args(xs.CatalogEntry.model_fields["type"].annotation) == tuple(TYPES)
+    for raw, model in zip(entries, checked):
+        dumped = model.model_dump(by_alias=True)
+        for key, value in raw.items():
+            assert dumped[key] == value, f"{raw['id']}: {key} did not survive validation"
+    kept = {m.file: m.counts for m in checked if m.type == "source_file"}
+    assert kept == {e["file"]: e["counts"] for e in sources}
 
 
 def test_published_app_file_carries_the_source_entries(sources):

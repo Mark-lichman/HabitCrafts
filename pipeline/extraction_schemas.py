@@ -661,8 +661,10 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     "ValidatingSources": (DET, (ReferenceItem, VerbPair, ParadigmCell, CurriculumSpec,
                                 ExternalResource), (ValidationResult,)),
     # Type is deterministic (which extractor made the item). Uses come from a reviewed
-    # data file, so Cataloging itself makes no LM call.
-    "Cataloging": (DET, (LessonBundle,), (CatalogEntry,)),
+    # data file, so Cataloging itself makes no LM call. The drafts are read too: an
+    # entry's `from` list names the drafts it came from, and each draft gets its own
+    # source_file entry.
+    "Cataloging": (DET, (LessonBundle, LessonDraft), (CatalogEntry,)),
     # The judge's findings gate publishing: every one must be applied first.
     "PublishingApp": (DET, (LessonBundle, CatalogEntry, JudgeFinding), ()),
     # Runs in the app, on the published file.
