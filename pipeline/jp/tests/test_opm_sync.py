@@ -109,10 +109,16 @@ def test_plan_stages_are_in_stage_io():
         assert xs.STAGE_IO[stage][0] == kind, f"{stage}: kind should be {kind}"
 
 
+def _unnamed(procs: list[tuple[str, str, str, str]]) -> list[str]:
+    """'page / cell id' of every process box that names no opmStage."""
+    return [f"{page} / {cid}" for page, cid, stage, _ in procs if not stage]
+
+
 def test_every_generator_process_names_a_stage_io_entry(procs):
     assert procs, "no process boxes found in the diagram"
+    assert not _unnamed(procs), (
+        f"process boxes with no opmStage (use proc() in the generator): {_unnamed(procs)}")
     for page, cid, stage, _ in procs:
-        assert stage, f"{page} / {cid}: process box has no opmStage (use proc() in the generator)"
         assert stage in xs.STAGE_IO, f"{page} / {cid}: {stage} is not a STAGE_IO stage"
 
 
@@ -177,8 +183,11 @@ def test_stage_graph_still_composes():
     xs._check()
 
 
-def test_guard_catches_an_unregistered_process():
+def test_guard_catches_an_unregistered_process(procs):
     bad = ('<mxfile><diagram name="X"><mxGraphModel><root>'
            '<mxCell id="P" style="ellipse;fillColor=#f0f0f0;" vertex="1"/>'
            '</root></mxGraphModel></diagram></mxfile>')
-    assert _processes(bad) == [("X", "P", "", xs.DET)]
+    bad_procs = _processes(bad)
+    assert bad_procs == [("X", "P", "", xs.DET)]
+    assert _unnamed(bad_procs) == ["X / P"], "the guard must flag a box with no opmStage"
+    assert _unnamed(procs) == [], "the committed diagram must pass the same guard"
