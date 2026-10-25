@@ -396,12 +396,15 @@ edge('effect', 'RV3', 'A6', { exit: [0, 0.5], entry: [0, 0.8], pts: [[540, 1325]
 // (from the extractor that made it, deterministic) and its USES (what it is for, an LM
 // judgment kept as reviewable data in uses.json). The app searches and sorts this
 // catalog, so it never guesses what a piece of content is.
-proc('CATG', 'Cataloging', S.det, 960, 1150, 230, 70, 'Cataloging', 'type: from the extractor|uses: from Use Taxonomy');
+proc('CATG', 'Cataloging', S.det, 960, 1150, 230, 70, 'Cataloging', 'type: from the extractor|uses: from Use Taxonomy|reads bundles, drafts, corrections, jp_lessons.json');
 node('UTAX', S.ctrl, 1220, 1140, 210, 90, 'Use Taxonomy', '29 uses: asking advice' + bar + 'plan' + bar + 'regret...|LM-tagged, reviewed|pipeline/jp/uses.json');
-node('CAT', S.obj, 1220, 1260, 210, 110, 'Catalog Entry', 'type ' + dot + 'uses[] ' + dot + 'lesson?|title ' + dot + 'summary|search text ' + dot + 'open target');
+node('CAT', S.obj, 1220, 1260, 210, 110, 'Catalog Entry', 'type ' + dot + 'uses[] ' + dot + 'lesson?|title ' + dot + 'summary ' + dot + 'from[]|search text ' + dot + 'open target|data file: role ' + dot + 'origin ' + dot + 'counts');
 edge('consume', 'A6', 'CATG', { exit: [1, 0.3], entry: [0, 0.5] });
 edge('instr', 'UTAX', 'CATG', { exit: [0, 0.5], entry: [1, 0.4] });
 edge('result', 'CATG', 'CAT', { exit: [0.5, 1], entry: [0, 0.5], pts: [[1075, 1315]] });
+// Corrections feed the catalog's `from` lists (and get a data file entry), so the
+// same control node below also feeds Cataloging. Routed right of Coach (Mark).
+edge('consume', 'CORR', 'CATG', { exit: [1, 0.5], entry: [1, 0.7], pts: [[1200, 1455], [1200, 1199]] });
 
 proc('PUB3', 'PublishingApp', S.det, 600, 1400, 280, 70, 'Publishing (app)', 'approved only + corrections|stale correction = fail');
 node('CORR', S.ctrl, 960, 1420, 220, 70, 'Corrections', 'reviewed decisions|item + field + from + to + why');
