@@ -130,14 +130,15 @@ def _prose_numbers(text: str) -> list[tuple[int, str, str]]:
     """Integers in the doc's prose, each with the words after it and its line.
 
     Code fences and inline code are skipped: a path or a date is not a count. A number
-    glued to a word character (L26, s04, 8課, 3.3) is part of a name, not a count. A
-    period that ends the sentence ("holds 620.") does not hide the number.
+    glued to a word character or a hyphen (L26, s04, 8課, 3.3, PIN-13) is part of a
+    name, not a count. A period that ends the sentence ("holds 620.") does not hide the
+    number.
     """
     text = re.sub(r"```.*?```", "", text, flags=re.S)
     found = []
     for line in text.splitlines():
         prose = re.sub(r"`[^`]*`", "", line)
-        for m in re.finditer(r"(?<![\w.{/])\d+(?![\w}/]|\.\w)", prose):
+        for m in re.finditer(r"(?<![\w.{/-])\d+(?![\w}/]|\.\w)", prose):
             found.append((int(m.group()), prose[m.end():].lower(), line.strip()))
     return found
 
@@ -184,7 +185,13 @@ def test_the_doc_scan_catches_a_restated_count():
     words = expected_counts()["assets/lessons/jp_lessons.json"]["words"]
     small = min(n for n in counts if n > 1)
     for text in (f"The vocabulary has {words} words.", f"It holds {small} items.",
-                 f"The vocabulary holds {words}.", f"({small} items)"):
+                 f"The vocabulary holds {words}.", f"({small} items)",
+                 f"a {words}-word vocabulary"):
         assert any(_restates(n, a, counts) for n, a, _ in _prose_numbers(text)), text
-    assert not any(_restates(n, a, counts) for n, a, _ in _prose_numbers(
-        "Run sources 1 and 2 before 3 and 4. See `docs/plans/2026-10-24-x.md`, section 3.3."))
+    # Every number in the negative probe is treated as a live count, so each one must be
+    # skipped on its form alone (an ordinal, a path, a dotted section, a hyphenated id),
+    # whatever the data files count today.
+    probe = ("Run sources 1 and 2 before 3 and 4. See `docs/plans/2026-10-24-x.md`, "
+             "section 3.3. The rule is binding (PIN-13).")
+    probe_counts = counts | {int(n) for n in re.findall(r"\d+", probe)}
+    assert not any(_restates(n, a, probe_counts) for n, a, _ in _prose_numbers(probe))

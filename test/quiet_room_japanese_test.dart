@@ -115,6 +115,11 @@ void main() {
     await tester.pump();
     expect(find.text('1 found'), findsOneWidget);
 
+    // Drop focus first. A focused field repairs an invalid selection on its
+    // own, so only an unfocused field shows the selection _searchFor sets.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+
     // The result card, not the search box that holds the same text.
     await tester.tap(find.descendant(
         of: find.byType(QrCard),
@@ -123,6 +128,9 @@ void main() {
 
     final box = tester.widget<TextField>(find.byType(TextField));
     expect(box.controller!.text, query);
+    // The cursor sits at the end, so the next typed character extends the query.
+    expect(box.controller!.selection,
+        TextSelection.collapsed(offset: query.length));
     expect(find.text('${expected.length} found'), findsOneWidget);
     for (final e in expected) {
       expect(find.text(e['title'] as String), findsOneWidget);
