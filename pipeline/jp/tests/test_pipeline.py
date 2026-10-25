@@ -109,6 +109,8 @@ def test_catalog_types_and_uses():
     for e in cat["entries"]:
         assert e["type"] in TYPES
         assert set(e["uses"]) <= known_uses, e["id"]
+        if e["type"] == "source_file":
+            continue  # data files carry no uses; test_catalog_sources.py covers them
         if e["type"] != "vocabulary":
             assert e["uses"], f"{e['id']} has no uses, so sort by use never finds it"
         by_type[e["type"]] = by_type.get(e["type"], 0) + 1

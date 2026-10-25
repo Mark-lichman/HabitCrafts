@@ -23,8 +23,9 @@ class JpGrammarData {
       .then((raw) => json.decode(raw) as Map<String, dynamic>);
 }
 
-/// Mari's own tracking columns (after class, can use it, review needed), kept on the
-/// phone. There is no login in this build, so there is no account to sync them to.
+/// Mari's tracking columns that the screen offers (can use it, review needed), kept on
+/// the phone. Her after-class column is not offered. There is no login in this build,
+/// so there is no account to sync them to.
 class SelfCheck {
   static const _prefix = 'jp.selfcheck.';
 

@@ -35,11 +35,32 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   int? _last;
   String _query = '';
   String? _use;
+  final _searchBox = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _readLast();
+  }
+
+  @override
+  void dispose() {
+    _searchBox.dispose();
+    super.dispose();
+  }
+
+  /// Puts [query] in the search box, as if typed, and clears the use filter.
+  /// The cursor goes to the end: the `text` setter alone would leave the
+  /// selection at -1, so the next typed character could land at the start.
+  void _searchFor(String query) {
+    _searchBox.value = TextEditingValue(
+      text: query,
+      selection: TextSelection.collapsed(offset: query.length),
+    );
+    setState(() {
+      _query = query.trim();
+      _use = null;
+    });
   }
 
   Future<void> _readLast() async {
@@ -116,9 +137,12 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   // ───────────── finding: search and sort by use, over the extraction catalog ─────────────
   //
   // The catalog (pipeline/jp/catalog.py) gives every item a type and its uses at
-  // extraction time, so this screen never guesses what a piece of content is.
+  // extraction time, so this screen never guesses what a piece of content is. Each
+  // data file has an entry too (type source_file), and every entry lists the data
+  // files it came from (`from`), so searching a file's name finds the file and its items.
 
   Widget _search(QuietRoomTokens t) => TextField(
+        controller: _searchBox,
         onChanged: (v) => setState(() => _query = v.trim()),
         style: qrText(t, size: 15),
         cursorColor: t.brand600,
@@ -187,6 +211,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
         e['summary'],
         typeName[e['type']],
         ...(e['search'] as List? ?? const []),
+        ...(e['from'] as List? ?? const []),
         for (final u in (e['uses'] as List)) useName[u],
       ];
       return hay.any((h) => (h ?? '').toString().toLowerCase().contains(q));
@@ -276,6 +301,8 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
       case 'vocabulary':
         _open(QuietRoomLessonWidget.routeName,
             {'lesson': serializeParam(o['lesson'], ParamType.int)});
+      case 'search': // a data file: show everything that came from it
+        _searchFor(o['query'] as String);
     }
   }
 

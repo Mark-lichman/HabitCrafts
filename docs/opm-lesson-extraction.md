@@ -1,15 +1,19 @@
 # OPM: Content Extracting → Language Lesson Extracting
 
-Four OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
+Five OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
 
 - **SD — Content Extracting**: the general framework. Any document in, classified, routed to a kind-specific extractor.
 - **SD1 — Language Lesson Extracting**: the in-zoom, entered once SD has classified the document as a *language lesson*. Carries the types from `pipeline/extraction_schemas.py`.
 - **SD2 — Evaluating & Optimizing**: one metric set per optimizable module, and the DSPy compile loop.
 - **SD3 — Structured Sources**: Normalizing split by source shape (table, sheet, image), and the
   tutor path where grammar points are given, not mined. Added 2026-10-23 after five real sources.
+- **SD4 — Kanji Versions and Answer Checking**: a kanji twin for every Japanese field, the
+  independent judge pass, and the checks the app runs on typed and spoken answers. Added 2026-10-25.
 
 The OPL sentences below are the spec — edit these. The diagram is generated from
 `opm-lesson-extraction.gen.js`; regenerate rather than hand-editing coordinates if the model changes.
+`pipeline/jp/tests/test_opm_sync.py` keeps the three in step (PIN-12): every `STAGE_IO` stage has a
+process box and an OPL sentence below, and every process box names a `STAGE_IO` stage.
 
 ## The asynchrony rule
 
@@ -157,19 +161,50 @@ OPL sentences:
 9. **Validating (cross-source)** consumes the items of several bundles. Two sources that cover the
    same fact must agree (verb pairs, counter readings in example sentences).
 10. **Lesson Bundle** can also be **blocked**: written, so a reviewer sees why, but not approvable.
-11. **Cataloging** consumes every **Lesson Bundle**, requires **Use Taxonomy**, and yields
-    **Catalog Entry**. It runs at extraction time, before **Publishing**, so content is typed once.
+11. **Cataloging** consumes every **Lesson Bundle**, the drafts, **Corrections**, and the vocabulary
+    file (`jp_lessons.json`), requires **Use Taxonomy**, and yields **Catalog Entry**. It runs at
+    extraction time, before **Publishing**, so content is typed once.
 12. **Catalog Entry** exhibits *type*, which can be **grammar point**, **particle**, **reference table**,
-    **verb pair**, **conjugation**, or **vocabulary**. The type comes from the extractor that made the
-    item, so it is deterministic.
+    **verb pair**, **conjugation**, **vocabulary**, or **data file**. The type of an item comes from the
+    extractor that made it, so it is deterministic. A **data file** entry's type comes from the catalog
+    build, and it exhibits *role*, *origin*, and *counts*, computed from the file at build time.
 13. **Catalog Entry** also exhibits *uses* (what the item is for: asking advice, stating a plan,
-    showing regret...), *lesson*, *search text*, and *open target*. Uses are an LM judgment kept as
-    reviewable data (`pipeline/jp/uses.json`), not computed at run time.
-14. **Publishing** consumes the approved **Lesson Bundle**, **Catalog Entry**, and **Corrections**.
-    A correction whose *from* no longer matches fails the publish.
+    showing regret...), *lesson*, *from* (the data files it came from), *search text*, and
+    *open target*. Uses are an LM judgment kept as reviewable data (`pipeline/jp/uses.json`), not
+    computed at run time.
+14. **Publishing (app)** consumes the approved **Lesson Bundle**, **Catalog Entry**, and **Corrections**,
+    and yields the **App Lesson File**. A correction whose *from* no longer matches fails the publish.
 15. **Finding** requires **Learner** as its agent, consumes **App Lesson File** and **Query**, and
     yields **Result List**. Text search wins, then the selected use, then type order. It runs in
     the app and needs no LM.
+
+## SD4 — Kanji Versions and Answer Checking
+
+Every grammar sentence gets a kanji version, shown only behind the 漢字 toggle: hiragana stays the
+default display. The app checks typed and spoken answers itself, and never marks a correct answer
+wrong.
+
+OPL sentences:
+
+1. **Kanji Drafting** requires **LLM Engine**, consumes **Grammar Draft**, and yields **Kanji Version**:
+   a `_ruby` twin beside every Japanese field (example, prompt, answer, each accepted answer, each
+   option). **Kanji Drafting** invokes **Kanji Validating** and **Judging**.
+2. **Kanji Version** exhibits *ruby text*, written `漢字{かんじ}` with one bracket per kanji word and
+   okurigana outside (`買{か}い物{もの}`).
+3. **Kanji Validating** consumes **Kanji Version** and yields **Validation Result**. It requires no LLM:
+   replacing every bracket with its reading must give the hiragana text exactly, and a missing twin fails.
+4. **Judging** requires **LLM Engine**, consumes **Grammar Draft** and **Kanji Version**, and yields
+   **Judge Finding**. The judge is independent of the drafting pass.
+5. **Judge Finding** exhibits *verdict*, *fix*, and *applied*. **Publishing (app)** runs only when every
+   **Judge Finding** is **applied**.
+6. **Answer Checking** requires **Learner** as its agent, consumes **App Lesson File** and **Typed
+   Answer**, and yields **Answer Verdict**. The answer is accepted in hiragana, in any accepted form,
+   or as its kanji surface. It runs in the app and needs no LM.
+7. **Speech Checking** consumes **App Lesson File** and **Transcript**, and yields **Speech Verdict**.
+   It runs in the app and needs no LM.
+8. **Speech Verdict** can be **correct**, **close**, or **self-check**. **Close** shows in amber with the
+   matching part of the heard text highlighted, then asks for a self-check. A transcript that cannot
+   be compared goes to **self-check**, never to wrong.
 
 ## Open questions
 
@@ -188,14 +223,16 @@ OPL sentences:
 
 ## Regenerating the diagram
 
-`node opm-lesson-extraction.gen.js` (in this folder) writes `opm-lesson-extraction.drawio` (both pages). Open the file at
+`node opm-lesson-extraction.gen.js` (in this folder) writes `opm-lesson-extraction.drawio` (all five pages). Open the file at
 https://app.diagrams.net via File > Open From > Device, or drag it onto the canvas. The earlier
 single-OPD mermaid version is gone — one picture, one source.
 
 ## Schemas
 
 `../pipeline/extraction_schemas.py` is the first-pass typed schema derived from these objects —
-one pydantic model per OPM object, plus a `STAGE_IO` map of every stage's inputs and outputs.
+one pydantic model per OPM object, plus a `STAGE_IO` map of every stage's inputs and outputs and an
+`OPM_NAMES` map from each stage to its name here. `pipeline/jp/stages.py` registers which
+`pipeline/jp` module runs which stage; a module that runs no stage is listed as a helper.
 Grep it for three markers: `# GUESS:` (I invented a type the OPM does not state), `# DECISION:`
 (the OPM was ambiguous and I picked one — these belong back in the diagram), and `# MISSING:`
 (no answer exists yet). Running it executes a self-check that the stage graph still composes.
