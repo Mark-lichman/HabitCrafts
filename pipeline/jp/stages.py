@@ -30,7 +30,7 @@ STAGES: dict[str, tuple[str, ...]] = {
     "publish.py": ("Validating", "PublishingApp"),
     # Applies the reviewed findings of the judge pass to the drafts.
     "review/apply_judge_fixes.py": ("Judging",),
-    # Kanji twin helpers: reading-of, and the twin checks. Produced in Task 4.
+    # Kanji twin helpers: reading-of, and the twin checks that check_draft() runs.
     "ruby.py": ("KanjiValidating",),
 }
 
@@ -39,5 +39,6 @@ HELPERS: dict[str, str] = {
     "refresh_fixtures.py": "copies extractor output into the CI fixtures; runs no stage",
 }
 
-# Registered before the file exists on disk (defined, not yet emitted).
-PENDING: set[str] = {"ruby.py"}
+# Registered before the file exists on disk (defined, not yet emitted). Empty while
+# every registered module is on disk.
+PENDING: set[str] = set()
