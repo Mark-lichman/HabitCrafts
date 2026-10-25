@@ -1,9 +1,11 @@
 # Plan: Japanese grammar from Mari's materials into the app
 
 Status: **superseded** by `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`, 2026-10-24.
-Steps 1 to 3 below shipped (`assets/lessons/jp_grammar.json`, the grammar and drill screens). The
-five decisions in section 2 are resolved; each one carries its resolution. Read this file as a
-record. For the shipped state, read `docs/japanese-lessons.md`.
+The core of steps 1 to 3 shipped (`assets/lessons/jp_grammar.json`, the grammar and drill
+screens). Two items did not: the Mari's notes links (decision 5) and clearing lesson 30's uncertain
+flags (`しまいます`, `ふくしゅうします` stay flagged `groupUncertain`). The five decisions in section 2
+are resolved; each one carries its resolution. Read this file as a record. For the shipped state,
+read `docs/japanese-lessons.md`.
 
 Original status: for Mark's review, 2026-10-23. Branch `feat/jp-grammar-extraction` (worktree
 `C:/Projects/habitcrafts-war`).

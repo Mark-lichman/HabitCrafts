@@ -1,8 +1,10 @@
 # Japanese lessons
 
 What the Japanese study build ships, which data files feed it, and what not to trust about them.
-Source PDFs and Mari's sheet live outside the repo at `C:/Users/markl/Desktop/Japanese`
-(Minna no Nihongo course material, Langoal word lists, and Mari's N4 grammar sheet).
+Source files live outside the repo: the PDFs and the scanned image under
+`C:/Users/markl/Desktop/Japanese` (Minna no Nihongo course material, Langoal word lists,
+`number.pdf`, Mari's Canva table and the textbook page), and Mari's sheet as an exported .xlsx whose
+path you pass to `s04` and `s05`.
 
 Companion: `docs/standards.md` says how code here is written. `docs/opm-lesson-extraction.md`
 models the pipeline stage by stage. This file says how the lesson data got here.
@@ -18,7 +20,7 @@ built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per
 its role, its origin (for example "Mari's N4 sheet") and counts computed from the file when the
 catalog is built. The app's home search finds each cataloged data file by name, so type a file
 name such as `jp_lessons.json` into the search box to see its counts. The cataloged files are the
-five fixture bundles, the drafts, `uses.json`, `corrections.json` and `jp_lessons.json`.
+fixture bundles, the drafts, `uses.json`, `corrections.json` and `jp_lessons.json`.
 `jp_grammar.json` holds the catalog and has no entry of its own, and `assets/lessons/img/` has
 no entry.
 
@@ -66,7 +68,8 @@ Grammar drafts ship marked as drafts until a person reviews them, and the screen
 ## Script rule: hiragana first
 
 - Japanese words show in **hiragana** by default. **Katakana** is used for foreign loanwords.
-- No romaji anywhere (see below).
+- No romaji is kept as a reading (see below). Some vocabulary glosses in `jp_lessons.json` still
+  carry a romaji spelling the extractor failed to discard; that is a known data defect.
 - Kanji is behind a 漢字 tap in the drills (the textbook verb pairs). One Mari example,
   `mari.L33.3`, quotes the sign 「立入禁止」 in kanji and shows it inline until the kanji toggle of
   the superseding plan lands (`docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`).
@@ -88,8 +91,9 @@ Run sources 1 and 2 before 3 and 4, because the later sources cross-check agains
 checked. It publishes only the sources `corrections.json` approves. A correction whose `from` no
 longer matches fails the publish, so a correction never lands on the wrong cell.
 
-One check guards the result in CI (`pipeline/jp/tests`): CI fails when the committed
-`jp_grammar.json` differs from a fresh publish.
+CI runs `pipeline/jp/tests`: the conjugation engine against Mari's worked forms, the draft
+validator, the catalog, publishing with the reviewed corrections, and a drift check. CI fails when
+the committed `jp_grammar.json` differs from a fresh publish.
 
 Separately, an independent LM judge reviewed every drafted item once. Its findings are in
 `pipeline/jp/review/judge_*.json`, and `apply_judge_fixes.py` applied them. No CI test covers the
@@ -137,6 +141,8 @@ extractor, the same piece of work that would unlock grammar for the early lesson
 The sheets print the hiragana or katakana word, its romaji and a gloss **with no labels**, so
 position does not tell you which Latin string is which. The extractor romanises the word itself
 and uses that *only* to identify and discard the printed romaji. Whatever is left is the gloss.
+The discard is not complete: some glosses in `jp_lessons.json` still carry the printed romaji (the
+known data defect named under Script rule above).
 
 That also disposes of the sheets' own defects, since their spelling is never kept:
 
