@@ -58,7 +58,7 @@ void main() {
     await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
     expect(find.textContaining('$wrong: ${why[wrong]}'), findsNothing);
 
-    // This item is the lesson's first choice item, so its option comes first on screen.
+    // No earlier widget in this lesson shows this option text, so .first is this item's option.
     await tester.tap(find.text(wrong).first);
     await tester.pump();
 
@@ -85,6 +85,8 @@ void main() {
     await tester.tap(find.text(item['answer'] as String).first);
     await tester.pump();
 
+    // The prompt swaps ＿＿ for ［answer］ once a pick is made, so this proves the tap registered.
+    expect(find.textContaining('［${item['answer']}］'), findsOneWidget);
     for (final w in why.keys) {
       expect(find.textContaining('$w: ${why[w]}'), findsNothing);
     }
