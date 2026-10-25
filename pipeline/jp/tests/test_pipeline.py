@@ -7,8 +7,8 @@ extraction is tested here: the conjugation engine against the tutor's gold, the 
 validator, the catalog, publishing with corrections, and drift between the committed
 app file and a fresh publish.
 
-Refresh fixtures after re-running an extractor:
-    cp out/<source>/lesson_bundle.json fixtures/<source>/
+Refresh fixtures after re-running an extractor (refuses a missing or blocked bundle):
+    pipeline/.venv/Scripts/python pipeline/jp/refresh_fixtures.py
 """
 
 from __future__ import annotations
