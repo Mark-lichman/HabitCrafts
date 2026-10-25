@@ -2,12 +2,13 @@
 
 Status: **superseded** by `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`, 2026-10-24.
 The core of steps 1 to 3 shipped (`assets/lessons/jp_grammar.json`, the grammar and drill
-screens). Three items did not ship as written: the links to Mari's notes (decision 5), clearing
-lesson 30's uncertain flags (`しまいます`, `ふくしゅうします` stay flagged `groupUncertain`), and adding
-the new pairs to lesson 30's pair fields (they ship in `jp_grammar.json` under `pairs`). The five
+screens). These items did not ship as written: the links to Mari's notes (decision 5), clearing
+lesson 30's uncertain flags (`しまいます`, `ふくしゅうします` stay flagged `groupUncertain`), adding
+the new pairs to lesson 30's pair fields (they ship in `jp_grammar.json` under `pairs`), and the
+after-class self-check column (the screen offers Can use it and Review only). The five
 decisions in section 2 are resolved; each one carries its resolution. Read this file as a record.
 For the shipped state, read `docs/japanese-lessons.md`. Section 5 is the historical recipe; the
-current one, with the copy of each bundle into the fixtures and the publish step, is in
+current one, with the fixture refresh and the publish step, is in
 `docs/japanese-lessons.md`.
 
 Original status: for Mark's review, 2026-10-23. Branch `feat/jp-grammar-extraction` (worktree

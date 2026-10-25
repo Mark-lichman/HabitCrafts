@@ -168,13 +168,12 @@ def test_registry_entries_exist_and_name_real_stages():
         assert names, f"{module}: registers no stage"
         for s in names:
             assert s in xs.STAGE_IO, f"{module}: {s} is not a STAGE_IO stage"
-        assert module in on_disk or module in stages.PENDING, f"{module}: no such file"
+        assert module in on_disk, f"{module}: no such file"
     for module in stages.HELPERS:
         assert module in on_disk, f"helper {module}: no such file"
-    assert stages.PENDING <= set(stages.STAGES)
 
 
-def test_refresh_fixtures_is_a_helper_and_ruby_is_pre_registered():
+def test_refresh_fixtures_is_a_helper_and_ruby_is_registered():
     assert "refresh_fixtures.py" in stages.HELPERS
     assert stages.STAGES.get("ruby.py") == ("KanjiValidating",)
 
