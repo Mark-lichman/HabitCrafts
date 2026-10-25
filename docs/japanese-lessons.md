@@ -1,40 +1,109 @@
 # Japanese lessons
 
-How `assets/lessons/jp_lessons.json` is produced, what is deliberately missing from it, and what
-the next pass has to solve. Source PDFs live outside the repo at `C:/Users/markl/Desktop/Japanese`
-(51 files, Minna no Nihongo course material).
+What the Japanese study build ships, which data files feed it, and what not to trust about them.
+Source PDFs and Mari's sheet live outside the repo at `C:/Users/markl/Desktop/Japanese`
+(Minna no Nihongo course material, Langoal word lists, and Mari's N4 grammar sheet).
 
-Companion: `docs/standards.md` says how code here is written; this file says how the lesson data
-got here and what not to trust about it.
+Companion: `docs/standards.md` says how code here is written. `docs/opm-lesson-extraction.md`
+models the pipeline stage by stage. This file says how the lesson data got here.
 
-## Current state
+## Where the counts are
 
-| | |
-| --- | --- |
-| Words | **620** |
-| Lessons | **25** — 2 to 17, 22 to 30 |
-| Fields | `kana`, `gloss`, plus derived fields on lesson 30 |
-| Missing | **1, 18, 19, 20, 21** — stated on screen, not hidden |
+🚨 **This doc restates no count that a data file defines** (PIN-13). Word counts, lesson lists,
+missing lessons, grammar point counts and item counts all drift when a file is regenerated, and a
+copied number in prose goes stale without failing anything.
 
-Rendered by `lib/components/pages/quiet_room_lesson/`. Cards are recall-first: the English is
-hidden until tapped.
+The live counts are in the **catalog**: the `catalog` list in `assets/lessons/jp_grammar.json`,
+built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per data file, with
+its role, its origin (for example "Mari's N4 sheet") and counts computed from the file when the
+catalog is built. The app's home search finds each data file by name, so type a file name such as
+`jp_lessons.json` into the search box to see its counts.
 
-## The corpus is two families and they need different parsers
+> The `source_file` entries are defined but not yet emitted. Task 10 of
+> `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` adds them and the test that keeps
+> this doc free of restated counts.
+
+## The data files
+
+| File | Role | Origin | Written by |
+| --- | --- | --- | --- |
+| `assets/lessons/jp_lessons.json` | vocabulary, lesson by lesson; the file states its own missing lessons | Langoal word-list PDFs | an extractor run from a scratchpad (see Regenerating) |
+| `assets/lessons/jp_grammar.json` | grammar lessons, particles, number tables, verb pairs, conjugation drill, and the catalog | everything below, merged | **only** `pipeline/jp/publish.py`, never by hand |
+| `pipeline/jp/fixtures/s01_number/` | counters, months, dates, lengths of time | `number.pdf` (picture of a table, OCR layer) | `s01_counters.py` |
+| `pipeline/jp/fixtures/s02_pairs_mari/` | transitive / intransitive verb pairs with examples | Mari's Canva table | `s02_pairs_mari.py` |
+| `pipeline/jp/fixtures/s03_pairs_textbook/` | verb pairs and sentences, printed with kanji | textbook 8課, a scanned image | `s03_pairs_textbook.py` (LM Transcribing, then review) |
+| `pipeline/jp/fixtures/s04_mari_checklist/` | grammar points and particles, by lesson | Mari's N4 sheet, Checklist and particle tabs | `s04_mari_checklist.py` |
+| `pipeline/jp/fixtures/s05_mari_verb_forms/` | worked conjugations, the gold set for `conjugate.py` | Mari's N4 sheet, Verb Forms Summary tab | `s05_mari_verb_forms.py` |
+| `pipeline/jp/drafts/L<n>.json` | a short lesson per grammar point: explanation, second example, practice | LM Drafting, checked by `publish.check_draft()` and a judge pass | an LM, then review |
+| `pipeline/jp/uses.json` | the uses each grammar point serves ("Asking for advice") | LM Use Tagging, kept as reviewable data | an LM, then review |
+| `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
+| `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
+
+Each fixture directory holds a `lesson_bundle.json`. CI and tests read the fixtures through
+`JP_OUT_DIR`, because the source files are not in the repo.
+
+## What ships in the app
+
+No login: the app opens on Japanese study when signed out (`nav.dart`). Nothing reads Firestore.
+Self-check marks are kept on the phone.
+
+| Screen | File | What it does |
+| --- | --- | --- |
+| Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the grammar lesson to continue, search over the catalog, and a By use view |
+| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose and show-answer practice, and Mari's three self-check columns |
+| Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
+| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
+| Speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
+
+Grammar drafts ship marked as drafts until a person reviews them, and the screen says so.
+
+## Script rule: hiragana first
+
+- Japanese words show in **hiragana** by default. **Katakana** is used for foreign loanwords.
+- No romaji anywhere (see below).
+- Kanji appears only behind a tap. Today that is the textbook verb pairs in the drills, whose
+  source printed kanji. A kanji version of every grammar sentence, behind a 漢字 toggle, is the
+  work of `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`.
+
+## How the grammar file is built
+
+```sh
+cd pipeline/jp
+../.venv/Scripts/python s01_counters.py
+../.venv/Scripts/python s02_pairs_mari.py
+../.venv/Scripts/python s03_pairs_textbook.py
+../.venv/Scripts/python s04_mari_checklist.py <exported N4 Grammar .xlsx>
+../.venv/Scripts/python s05_mari_verb_forms.py <same .xlsx>
+../.venv/Scripts/python publish.py
+```
+
+Run sources 1 and 2 before 3 and 4, because the later sources cross-check against them.
+`publish.py` runs Cataloging first, so the app's search and sort read the catalog the pipeline
+checked. It publishes only the sources `corrections.json` approves. A correction whose `from` no
+longer matches fails the publish, so a correction never lands on the wrong cell.
+
+Two checks guard the result in CI (`pipeline/jp/tests`):
+
+- **Drift:** the committed `jp_grammar.json` must equal a fresh publish.
+- **Judge pass:** an independent LM judge reviewed every drafted item. Its findings are in
+  `pipeline/jp/review/judge_*.json`, and `apply_judge_fixes.py` applied them.
+
+## The vocabulary corpus is two families and they need different parsers
 
 Characters per page separates them, which is the cheapest reliable signal.
 
-| Family | Files | Shape | Reading order |
-| --- | --- | --- | --- |
-| `L<n>-roma.pdf` (Langoal) | 25 | dense grid, ~300 chars/page | **sound** |
-| `_みん日_第N課.pdf` (Minna) | 19 | slide deck, 1 card/page, 20 to 52 chars/page | **unreliable** |
-| outliers | 7 | phrasebook (0 kanji), `Verb_Group.pdf`, `TRIAL.pdf` (30pp / 493 chars) | per file |
+| Family | Shape | Reading order |
+| --- | --- | --- |
+| `L<n>-roma.pdf` (Langoal) | dense grid | **sound** |
+| `_みん日_第N課.pdf` (Minna) | slide deck, one card per page | **unreliable** |
+| outliers | a phrasebook with no kanji, `Verb_Group.pdf`, `TRIAL.pdf` | per file |
 
-Only the Langoal family is currently extracted. Page count lies about size in the Minna decks:
-`第20課` is 95 pages holding 4,934 characters.
+Only the Langoal family is extracted. Page count lies about size in the Minna decks: a long deck
+can hold several thousand characters.
 
-## 🚨 The failure mode is silent, fluent and wrong
+### 🚨 The failure mode is silent, fluent and wrong
 
-Lesson 20 page 4 holds two verbs sharing a `(を)する` suffix. The text stream reads:
+One Minna page holds two verbs sharing a `(を)する` suffix. The text stream reads:
 
 ```text
 (を) する · suru · でんわ · しゅうり · denwa · shūri · (o) · repair · call
@@ -46,17 +115,21 @@ Recovering it needs geometry, not a stream.
 
 Two rules follow:
 
-- **Use PyMuPDF (`fitz`), never `pdftotext`.** `pdftotext` drops every kana in this corpus and
-  strips macrons, turning `sōdanshimasu` into `sdanshimasu`. Vowel length is phonemic, so that is
-  data loss rather than cosmetics.
+- **Use PyMuPDF (`fitz`), never `pdftotext`.** `pdftotext` drops every hiragana and katakana
+  character in this corpus and strips macrons, turning `sōdanshimasu` into `sdanshimasu`. Vowel
+  length is phonemic, so that is data loss rather than cosmetics.
 - **Hand-rolled geometry is not automatically safer.** A first attempt with too loose an
   x-tolerance gave かけます the romaji `harimasu`, an off-by-one that also looked fine.
 
-## Why there is no romaji
+**Exclude a lesson rather than emit a scrambled one.** That is why `jp_lessons.json` lists missing
+lessons and the vocabulary screen states the gap. Recovering them needs the slide-deck table
+extractor, the same piece of work that would unlock grammar for the early lessons.
 
-The sheets print kana, romaji and gloss **with no labels**, so position does not tell you which
-Latin string is which. The extractor therefore romanises the kana itself and uses that *only* to
-identify and discard the printed romaji; whatever is left is the gloss.
+### Why there is no romaji
+
+The sheets print the hiragana or katakana word, its romaji and a gloss **with no labels**, so
+position does not tell you which Latin string is which. The extractor romanises the word itself
+and uses that *only* to identify and discard the printed romaji. Whatever is left is the gloss.
 
 That also disposes of the sheets' own defects, since their spelling is never kept:
 
@@ -65,83 +138,45 @@ That also disposes of the sheets' own defects, since their spelling is never kep
 | `mīthingu` (ミーティング) | `mītingu` | ティ is *ti*, not *thi* |
 | `yotē` (よてい) | `yotei` | the same file uses macrons for おう but not えい |
 
-A learner reading kana is the point. A crutch spelled three ways across one course is not.
+### Derived fields
 
-## Derived fields (lesson 30 only, so far)
+The sheet never states these, and they make the list usable:
 
-The sheet never states these, and they are what makes the list usable:
+- **Verb group I / II / III.** Everything downstream depends on it. A verb whose ます form alone
+  cannot decide its group (`しまいます`, `ふくしゅうします`) is flagged `groupUncertain`, and the UI
+  badges it `I?` / `III?` rather than guessing.
+- **Transitive / intransitive pairs.** Confusing the pair is the classic error at this level.
 
-- **Verb group I / II / III** — everything downstream depends on it. 16 verbs carry it.
-  Two are flagged `groupUncertain` because the ます form alone genuinely cannot decide them
-  (`しまいます`, `ふくしゅうします`); the UI badges those `I?` / `III?` rather than guessing.
-- **Transitive / intransitive pairs** — 5 of them. Lesson 30 is a transitive-verb lesson because
-  `〜てあります` requires one, and confusing the pair is the classic error at this level.
+These were worked out by hand and do not yet cover every lesson. Deriving the rest is open work.
 
-These were worked out by hand. Deriving them for the other 24 lessons is open work.
-
-## What the next pass has to do
-
-**Grammar lessons**, requested 2026-09-26: the **potential form**, **transitive / intransitive**,
-and the rest. Sources already identified in the same folder:
-
-- `Verb_Group.pdf` (16pp) — the I / II / III conjugation reference
-- `L1_L13_まとめ.pdf` (8pp, no images, text-dense) — a review sheet
-- The Minna decks carry grammar **tables** (`ていねいけい` / `ふつうけい` against affirmative,
-  negative, present/future, past)
-
-🚨 Those tables are exactly the pages that defeat linear extraction, so **grammar work requires
-solving the geometric/table case first**. It is the same problem as recovering lessons 1, 18, 20
-and 21, which means one piece of work unblocks both. Potential form is Minna lesson 27.
-
-## Pronunciation and speaking practice (scoped 2026-09-26, not built)
-
-The ask: show a picture or an English sentence, have the learner **speak** the answer, and offer a
-grammar or vocabulary hint on request.
-
-### Already in place, and further along than it looks
-
-- **`RECORD_AUDIO` is already declared** in `android/app/src/main/AndroidManifest.xml`, and
-  `NSMicrophoneUsageDescription` is already in `ios/Runner/Info.plist`. The manifest half is done;
-  what is missing is the runtime request. There is a pattern to copy in
-  `lib/custom_code/actions/request_notification_permission.dart`.
-- 🚨 **The pictures already exist.** The Langoal sheets carry **628 embedded illustrations** at
-  265×200 against **620 words** — roughly one per word. Picture prompts need *extracting*, by the
-  same PyMuPDF pass that produced the vocabulary. They do not need sourcing or generating.
-- `audio_session` and `just_audio` are already dependencies.
-
-### What has to be added
-
-| Piece | How | Cost |
-| --- | --- | --- |
-| Runtime mic permission | `permission_handler` | free |
-| Hear the word | `flutter_tts`, `ja-JP` | free, on-device |
-| Hear the learner | `speech_to_text` (Android `SpeechRecognizer` / Apple Speech) | free |
-| iOS speech | add `NSSpeechRecognitionUsageDescription` — **separate** from the mic string | free |
-| Picture prompts | extract the 628 images, pair by position | free |
+## Speaking practice
 
 ### 🚨 ASR tells you WHAT was said, not HOW WELL
 
 `speech_to_text` returns a transcript. A correct transcript means the learner produced something
-recognisable; the recogniser will happily normalise a bad pronunciation into the right word. Free
+recognisable. The recogniser will happily normalise a bad pronunciation into the right word. Free
 ASR therefore buys **spoken recall practice, not pronunciation assessment.** Do not label it as the
 latter in the UI.
 
-This bites harder in Japanese than most languages, for the reason this document already records:
-**vowel length is phonemic.** `おばさん` / `おばあさん` and `ここ` / `こうこう` are different words,
-and the recogniser's language model will pick the contextually likely one and *hide* the learner's
-error — which is exactly the feedback they most need.
+This bites harder in Japanese than most languages: **vowel length is phonemic.** `おばさん` /
+`おばあさん` and `ここ` / `こうこう` are different words, and the recogniser's language model will pick
+the likely one and *hide* the learner's error, which is the feedback they most need.
 
 Phoneme-level scoring means a paid cloud service. Azure Pronunciation Assessment supports `ja-JP`
-and returns per-phoneme scores; Speechace and ELSA are the alternatives. ⚠️ Verify current pricing
+and returns per-phoneme scores. Speechace and ELSA are the alternatives. ⚠️ Verify current pricing
 at the time rather than trusting a remembered figure.
 
-**Second wrinkle:** Android ASR returns kanji (`貼ります`) while this data is kana (`はります`).
-Comparing them needs a reading conversion (Kuromoji, Sudachi or MeCab) or fuzzy matching. Solvable,
-not free.
+### Kanji transcripts
+
+Android ASR often returns kanji (`貼ります`) while the vocabulary is hiragana (`はります`).
+`judge()` in `speech_service.dart` compares a kanji transcript with the word's kanji forms (from
+EDICT2). An exact match is `correct`, a partial match is `close`, and a transcript it cannot
+compare is `unverified`. The UI shows what was heard and lets the learner decide. **Being unable
+to check is not the same as being wrong**, so no correct answer is ever marked wrong.
 
 ### 🚨 flutter_tts: bind a VOICE, not a language
 
-Cost an hour on 2026-09-26 and will cost it again. `flutter_tts`'s web `_setLanguage` is:
+`flutter_tts`'s web `_setLanguage` is:
 
 ```dart
 void _setLanguage(String language) {
@@ -152,38 +187,37 @@ void _setLanguage(String language) {
 }
 ```
 
-Browsers populate `getVoices()` **asynchronously**, so calling `setLanguage` during init finds an
-empty list, binds no voice, and the utterance keeps the default English one. Chrome is then handed
-kana to read with Microsoft David and produces **silence with no error anywhere**.
+Browsers fill `getVoices()` **asynchronously**, so calling `setLanguage` during init finds an empty
+list, binds no voice, and the utterance keeps the default English one. Chrome is then handed
+Japanese text to read with Microsoft David and produces **silence with no error anywhere**.
 
 Fix: wait for the voice list (retry), find a `ja` locale, and call **`setVoice({name, locale})`**.
 
 Second, latent: do **not** `stop()` immediately before `speak()`. `_stop()` calls `synth.cancel()`
 whose state change arrives on a later event, and `_speak` refuses to run unless the state is
-*already* stopped, so the speak is silently eaten. Harmless on the first tap (initial state is
-stopped), breaks every tap after.
+*already* stopped, so the speak is silently eaten. The first tap works, because the initial state
+is stopped. Every tap after it breaks.
 
 **Method that found it, not the guesses that didn't.** Three code changes against hypotheses all
 failed. A ten-line static HTML page calling `window.speechSynthesis` directly settled it in one
 click: the browser spoke Japanese perfectly, which proved the platform was fine and the fault was
 ours. Isolate the layer before editing the code.
 
-Also worth knowing on Windows: there are two speech registries, `Speech` (SAPI5, what Chrome reads)
-and `Speech_OneCore`. A language-pack install often lands voices only in OneCore, where Chrome
-cannot see them, so a voice can look installed in Settings and be unusable. And Chrome caches the
-voice list at startup, so a newly installed voice needs a full browser restart, not a refresh.
+On Windows there are two speech registries, `Speech` (SAPI5, what Chrome reads) and
+`Speech_OneCore`. A language-pack install often lands voices only in OneCore, where Chrome cannot
+see them, so a voice can look installed in Settings and be unusable. Chrome caches the voice list
+at startup, so a newly installed voice needs a full browser restart, not a refresh.
 
 ### 🚨 speech_to_text reports amplitude on mobile only, so the web needs its own tap
 
-`onSoundLevelChange` is emitted by the Android and iOS implementations and **never by the web
-one** — the Web Speech API simply has no such callback. That is not a bug to hunt for; there is
-nothing to fix in `speech_to_text`. The consequence is what matters: Chrome is the platform this
-app is actually developed on, so a listening animation driven by that callback is **flat on the
-only screen it gets iterated against**, and cannot be judged without a full APK cycle.
+`onSoundLevelChange` comes from the Android and iOS implementations and **never from the web
+one**. The Web Speech API has no such callback, so there is nothing to fix in `speech_to_text`.
+Chrome is the platform this app is developed on, so a listening animation driven by that callback
+is **flat on the only screen it gets iterated against**.
 
 The fix is `lib/components/pages/quiet_room_practice/mic_level_web.dart`: open a second
-`getUserMedia` stream, run it through an `AnalyserNode`, and take RMS off the time-domain
-buffer. Chrome permits several consumers of one microphone, so it coexists with recognition.
+`getUserMedia` stream, run it through an `AnalyserNode`, and take RMS off the time-domain buffer.
+Chrome permits several consumers of one microphone, so it coexists with recognition.
 
 Two decisions worth keeping:
 
@@ -193,55 +227,44 @@ Two decisions worth keeping:
 - **No new dependency.** `package:web` is only a transitive dependency of the Firebase plugins,
   and depending on it directly would be a promise not made (S11), so the four interfaces needed
   are declared with `dart:js_interop` instead. That needs a **Dart 3.3 floor** for extension
-  types; `pubspec.yaml` said `>=3.0.0` while CI pins Flutter 3.44.8, so raising it retired a
-  stale constraint rather than imposing a new one.
+  types.
 
 Failure stays honest: if the permission is refused or there is no input device, `start()` returns
-false, the level stays 0, and the indicator holds its still state. And `cancel()` must tear the
-tap down as well as the recogniser, or the browser's recording indicator stays lit after Stop.
+false, the level stays 0, and the indicator holds its still state. `cancel()` must tear the tap
+down as well as the recogniser, or the browser's recording indicator stays lit after Stop.
 
 ### The listening indicator is a visualiser, and the genre lies by default
 
-`listening_bars.dart` is a symmetric bar row, the shape of the podcast/voice-recording
-visualisers Mark pointed at. Those references are **loops**: they animate on a timer over a
-finished recording, whether or not anyone is speaking. This one must not, so silence collapses
-every bar to a flat row of dots — deliberately the same small mark as the 14 dots of the Today
-day row, so a quiet row still looks like the app.
+`listening_bars.dart` is a symmetric bar row, the shape of podcast and voice-recording
+visualisers. Those references are **loops**: they animate on a timer over a finished recording,
+whether or not anyone is speaking. This one must not, so silence collapses every bar to a flat row
+of dots, the same small mark as the dots of the Today day row.
 
-What is real and what is licence, stated so nobody has to guess later: the **amount** of movement
-is measured amplitude; the **distribution across the bars is invented**, from a fixed per-bar
-envelope and phase offset, because one scalar is not a spectrum. That is why the bars may never
-move while the scalar is zero — the shape is decoration, the presence of motion is a claim.
+The **amount** of movement is measured amplitude. The **spread across the bars is invented**, from
+a fixed per-bar envelope and phase offset, because one scalar is not a spectrum. That is why the
+bars may never move while the scalar is zero: the shape is decoration, the presence of motion is a
+claim.
 
-🚨 `live` must be **discovered, not declared**. Passing it as a constructor flag reads it once at
-mount, before the first level arrives, so it is permanently false and the indicator never wakes
-even on Android. This has now been the bug twice.
+🚨 `live` must be **discovered, not declared**. A constructor flag is read once at mount, before
+the first level arrives, so it stays false and the indicator never wakes, even on Android. This has
+been the bug twice.
 
-### Ladder, cheap wins first
+## Open work
 
-1. **Tap to hear** — TTS on every existing card. No ASR, no permission prompt, works across all 620
-   words immediately.
-2. **Picture prompts** — extract the illustrations; show the image, speak the word, ASR checks
-   *which word*. Frame it honestly as a recall drill you speak rather than tap.
-3. **Hints on demand** — `gloss`, `verbGroup`, `dictionary`, `teForm` and `intransitive` are already
-   in the data, so this is a reveal ladder in UI, not new extraction. Grammar hints depend on the
-   grammar work above.
-4. **Real pronunciation scoring, and English-sentence prompts** — the expensive tier. Sentences do
-   not exist in the word lists at all, so they need sourcing or generating.
+- **Typed answers, a kanji version of every grammar sentence, and a per-lesson speaking drill:**
+  `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`.
+- **Grammar and vocabulary for the early lessons:** needs the slide-deck table extractor. The
+  Minna decks carry grammar tables (`ていねいけい` / `ふつうけい` against affirmative, negative,
+  present and past) that defeat linear extraction.
+- **Real pronunciation scoring:** the paid tier above.
 
-### Where the extraction-framework question returns
+## Regenerating the vocabulary file
 
-Step 4's judging is Jev-shaped: *"is this spoken answer acceptable?"* is a **Noul** question with a
-confidence, at $0.042/M input and free output. That beats exact string matching, which rejects
-correct answers phrased differently and cannot bridge the kanji/kana mismatch on its own.
+The vocabulary extractor is not committed. It was run from a session scratchpad. If it is worth
+keeping, `scripts/` is its home. Behaviour to preserve:
 
-## Regenerating
-
-The extractor is not committed; it was run from the session scratchpad. If it is worth keeping,
-`scripts/` is its home. Behaviour to preserve:
-
-1. Group each page into kana plus trailing Latin strings.
-2. Romanise the kana; drop any Latin string that matches it; the remainder is the gloss.
+1. Group each page into its Japanese word plus trailing Latin strings.
+2. Romanise the word, drop any Latin string that matches it, and keep the remainder as the gloss.
 3. Prefer the Langoal sheet when both families cover a lesson.
-4. **Exclude a lesson rather than emit a scrambled one.** A stated gap is honest; wrong vocabulary
-   teaches the wrong thing and nothing later can catch it.
+4. **Exclude a lesson rather than emit a scrambled one.** A stated gap is honest. Wrong
+   vocabulary teaches the wrong thing, and nothing later can catch it.
