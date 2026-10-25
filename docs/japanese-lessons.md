@@ -16,12 +16,17 @@ copied number in prose goes stale without failing anything.
 The live counts are in the **catalog**: the `catalog` list in `assets/lessons/jp_grammar.json`,
 built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per data file, with
 its role, its origin (for example "Mari's N4 sheet") and counts computed from the file when the
-catalog is built. The app's home search finds each data file by name, so type a file name such as
-`jp_lessons.json` into the search box to see its counts.
+catalog is built. The app's home search finds each cataloged data file by name, so type a file
+name such as `jp_lessons.json` into the search box to see its counts. The cataloged files are the
+five fixture bundles, the drafts, `uses.json`, `corrections.json` and `jp_lessons.json`.
+`jp_grammar.json` holds the catalog and has no entry of its own, and `assets/lessons/img/` has
+no entry.
 
 > The `source_file` entries are defined but not yet emitted. Task 10 of
 > `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` adds them and the test that keeps
-> this doc free of restated counts.
+> this doc free of restated counts. Task 10 worker: when the entries are emitted, delete this
+> callout and make the table below and the cataloged-files sentence above match the entries the
+> catalog holds.
 
 ## The data files
 
@@ -44,13 +49,14 @@ Each fixture directory holds a `lesson_bundle.json`. CI and tests read the fixtu
 
 ## What ships in the app
 
-No login: the app opens on Japanese study when signed out (`nav.dart`). Nothing reads Firestore.
-Self-check marks are kept on the phone.
+No login: the app opens on Japanese study when signed out (`nav.dart`). The Japanese study
+screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks are
+kept on the phone.
 
 | Screen | File | What it does |
 | --- | --- | --- |
 | Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the grammar lesson to continue, search over the catalog, and a By use view |
-| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose and show-answer practice, and Mari's three self-check columns |
+| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose and show-answer practice, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone |
 | Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
 | Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
 | Speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
@@ -61,9 +67,9 @@ Grammar drafts ship marked as drafts until a person reviews them, and the screen
 
 - Japanese words show in **hiragana** by default. **Katakana** is used for foreign loanwords.
 - No romaji anywhere (see below).
-- Kanji appears only behind a tap. Today that is the textbook verb pairs in the drills, whose
-  source printed kanji. A kanji version of every grammar sentence, behind a 漢字 toggle, is the
-  work of `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`.
+- Kanji is behind a 漢字 tap in the drills (the textbook verb pairs). One Mari example,
+  `mari.L33.3`, quotes the sign 「立入禁止」 in kanji and shows it inline until the kanji toggle of
+  the superseding plan lands (`docs/plans/2026-10-24-japanese-typing-kanji-speaking.md`).
 
 ## How the grammar file is built
 
@@ -82,11 +88,12 @@ Run sources 1 and 2 before 3 and 4, because the later sources cross-check agains
 checked. It publishes only the sources `corrections.json` approves. A correction whose `from` no
 longer matches fails the publish, so a correction never lands on the wrong cell.
 
-Two checks guard the result in CI (`pipeline/jp/tests`):
+One check guards the result in CI (`pipeline/jp/tests`): CI fails when the committed
+`jp_grammar.json` differs from a fresh publish.
 
-- **Drift:** the committed `jp_grammar.json` must equal a fresh publish.
-- **Judge pass:** an independent LM judge reviewed every drafted item. Its findings are in
-  `pipeline/jp/review/judge_*.json`, and `apply_judge_fixes.py` applied them.
+Separately, an independent LM judge reviewed every drafted item once. Its findings are in
+`pipeline/jp/review/judge_*.json`, and `apply_judge_fixes.py` applied them. No CI test covers the
+judge pass yet.
 
 ## The vocabulary corpus is two families and they need different parsers
 

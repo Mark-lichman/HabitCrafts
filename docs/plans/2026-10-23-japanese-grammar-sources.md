@@ -47,7 +47,8 @@ What the review found and fixed in the extractor:
    「立入禁止」. The app is kana-only today. I suggest kana by default, with the kanji form behind a
    tap. Source 3 already stores both.
    **Resolved:** hiragana by default, kanji behind a tap. The drills show source 3's kanji behind
-   a 漢字 tap. Kanji versions of every grammar sentence, behind a 漢字 toggle, are D4 of the
+   a 漢字 tap. The sign 「立入禁止」 in `mari.L33.3` still shows inline in kanji until the toggle
+   lands. Kanji versions of every grammar sentence, behind a 漢字 toggle, are D4 of the
    superseding plan.
 5. **Mari's tools that are links, not data.** Her 25 Canva decks need a Canva login. The
    conjugation drill (`wkdonc.github.io/conjugation/drill.html`) is a third-party page. I suggest
