@@ -50,8 +50,13 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   }
 
   /// Puts [query] in the search box, as if typed, and clears the use filter.
+  /// The cursor goes to the end: the `text` setter alone would leave the
+  /// selection at -1, so the next typed character could land at the start.
   void _searchFor(String query) {
-    _searchBox.text = query;
+    _searchBox.value = TextEditingValue(
+      text: query,
+      selection: TextSelection.collapsed(offset: query.length),
+    );
     setState(() {
       _query = query.trim();
       _use = null;

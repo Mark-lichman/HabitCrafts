@@ -107,6 +107,16 @@ def test_open_query_finds_the_file_and_what_came_from_it(sources):
     assert len(grammar) == checklist["counts"]["items"]
 
 
+def test_every_from_key_names_a_data_file_entry(sources):
+    # `from` lists the data files an entry came from, so each key must be the key of a
+    # source_file entry (its id minus the "file." prefix). A stale key, such as a gold
+    # set the published drill never reads, fails here.
+    keys = {e["id"].removeprefix("file.") for e in sources}
+    for e in build_catalog()["entries"]:
+        for k in e.get("from", []):
+            assert k in keys, f"{e['id']}: from names {k!r}, which is not a data file entry"
+
+
 def test_published_app_file_carries_the_source_entries(sources):
     committed = _read(ASSETS / "jp_grammar.json")
     shipped = [e for e in committed["catalog"] if e["type"] == "source_file"]

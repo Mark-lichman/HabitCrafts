@@ -79,7 +79,9 @@ def _from(e: dict, corrections: dict, drafted_points: set[str]) -> list[str]:
     elif t == "verb_pair":
         keys = [e["id"].split(".")[0]]
     elif t == "conjugation":
-        keys = ["s05_mari_verb_forms"]
+        # publish.drill() builds the verb list from the two pair bundles and the
+        # vocabulary file. s05 is the gold set for conjugate.py's tests, not an input.
+        keys = ["s02_pairs_mari", "s03_pairs_textbook", "jp_lessons.json"]
     else:  # vocabulary
         keys = ["jp_lessons.json"]
     # A reviewed correction names its item id; a reference table holds many items.
@@ -102,8 +104,11 @@ def _source_entry(key: str, file: str, title: str, role: str, origin: str,
     e = {"id": f"file.{key}", "type": "source_file", "source": origin}
     if lesson is not None:
         e["lesson"] = lesson
-    return {**e, "title": title, "summary": f"{role[0].upper()}{role[1:]}. {said}.",
-            "uses": [], "search": [file, file.rsplit("/", 1)[-1], key, origin],
+    # Counts first: the result card clips the summary at two lines on a phone, and
+    # the live counts are the point of the entry. The key often equals the base
+    # name, so the search terms are de-duplicated in order.
+    return {**e, "title": title, "summary": f"{said}. {role[0].upper()}{role[1:]}.",
+            "uses": [], "search": list(dict.fromkeys([file, file.rsplit("/", 1)[-1], key, origin])),
             "file": file, "role": role, "origin": origin, "counts": counts,
             "from": [key], "open": {"screen": "search", "query": key}}
 

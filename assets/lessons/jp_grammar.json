@@ -3579,7 +3579,9 @@
     "masu"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3599,7 +3601,9 @@
     "te"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3619,7 +3623,9 @@
     "ta"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3639,7 +3645,9 @@
     "nai"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3659,7 +3667,9 @@
     "potential"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3679,7 +3689,9 @@
     "volitional"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3699,7 +3711,9 @@
     "conditional"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3719,7 +3733,9 @@
     "imperative"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3739,7 +3755,9 @@
     "prohibitive"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3759,7 +3777,9 @@
     "passive"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3779,7 +3799,9 @@
     "causative"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -3799,7 +3821,9 @@
     "causative_passive"
    ],
    "from": [
-    "s05_mari_verb_forms"
+    "s02_pairs_mari",
+    "s03_pairs_textbook",
+    "jp_lessons.json"
    ],
    "open": {
     "screen": "conjugation",
@@ -5501,7 +5525,7 @@
    "type": "source_file",
    "source": "number.pdf, a picture of a table with an OCR layer",
    "title": "s01_number/lesson_bundle.json",
-   "summary": "Counters, months, dates and lengths of time. 267 items.",
+   "summary": "267 items. Counters, months, dates and lengths of time.",
    "uses": [],
    "search": [
     "pipeline/jp/fixtures/s01_number/lesson_bundle.json",
@@ -5528,7 +5552,7 @@
    "type": "source_file",
    "source": "Mari's Canva table",
    "title": "s02_pairs_mari/lesson_bundle.json",
-   "summary": "Transitive and intransitive verb pairs with examples. 15 items.",
+   "summary": "15 items. Transitive and intransitive verb pairs with examples.",
    "uses": [],
    "search": [
     "pipeline/jp/fixtures/s02_pairs_mari/lesson_bundle.json",
@@ -5555,7 +5579,7 @@
    "type": "source_file",
    "source": "textbook 8課, a scanned page",
    "title": "s03_pairs_textbook/lesson_bundle.json",
-   "summary": "Verb pairs and sentences, printed with kanji. 26 items.",
+   "summary": "26 items. Verb pairs and sentences, printed with kanji.",
    "uses": [],
    "search": [
     "pipeline/jp/fixtures/s03_pairs_textbook/lesson_bundle.json",
@@ -5582,7 +5606,7 @@
    "type": "source_file",
    "source": "Mari's N4 sheet, Checklist and particle tabs",
    "title": "s04_mari_checklist/lesson_bundle.json",
-   "summary": "Grammar points and particles, by lesson. 89 items, 15 particles, 25 lessons.",
+   "summary": "89 items, 15 particles, 25 lessons. Grammar points and particles, by lesson.",
    "uses": [],
    "search": [
     "pipeline/jp/fixtures/s04_mari_checklist/lesson_bundle.json",
@@ -5611,7 +5635,7 @@
    "type": "source_file",
    "source": "Mari's N4 sheet, Verb Forms Summary tab",
    "title": "s05_mari_verb_forms/lesson_bundle.json",
-   "summary": "Worked conjugations, the gold set for conjugate.py. 170 items.",
+   "summary": "170 items. Worked conjugations, the gold set for conjugate.py.",
    "uses": [],
    "search": [
     "pipeline/jp/fixtures/s05_mari_verb_forms/lesson_bundle.json",
@@ -5638,11 +5662,10 @@
    "type": "source_file",
    "source": "Mari's N4 sheet, Checklist tab",
    "title": "_points.json",
-   "summary": "The grammar points handed to LM Drafting. 89 points.",
+   "summary": "89 points. The grammar points handed to LM Drafting.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/_points.json",
-    "_points.json",
     "_points.json",
     "Mari's N4 sheet, Checklist tab"
    ],
@@ -5666,11 +5689,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 26,
    "title": "L26.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L26.json",
-    "L26.json",
     "L26.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5696,11 +5718,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 27,
    "title": "L27.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 6 points, 12 examples, 24 practice items.",
+   "summary": "6 points, 12 examples, 24 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L27.json",
-    "L27.json",
     "L27.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5726,11 +5747,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 28,
    "title": "L28.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L28.json",
-    "L28.json",
     "L28.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5756,11 +5776,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 29,
    "title": "L29.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L29.json",
-    "L29.json",
     "L29.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5786,11 +5805,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 30,
    "title": "L30.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L30.json",
-    "L30.json",
     "L30.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5816,11 +5834,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 31,
    "title": "L31.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 5 points, 10 examples, 20 practice items.",
+   "summary": "5 points, 10 examples, 20 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L31.json",
-    "L31.json",
     "L31.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5846,11 +5863,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 32,
    "title": "L32.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L32.json",
-    "L32.json",
     "L32.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5876,11 +5892,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 33,
    "title": "L33.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L33.json",
-    "L33.json",
     "L33.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5906,11 +5921,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 34,
    "title": "L34.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L34.json",
-    "L34.json",
     "L34.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5936,11 +5950,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 35,
    "title": "L35.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 5 points, 10 examples, 20 practice items.",
+   "summary": "5 points, 10 examples, 20 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L35.json",
-    "L35.json",
     "L35.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5966,11 +5979,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 36,
    "title": "L36.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L36.json",
-    "L36.json",
     "L36.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -5996,11 +6008,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 37,
    "title": "L37.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L37.json",
-    "L37.json",
     "L37.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6026,11 +6037,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 38,
    "title": "L38.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 5 points, 10 examples, 20 practice items.",
+   "summary": "5 points, 10 examples, 20 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L38.json",
-    "L38.json",
     "L38.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6056,11 +6066,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 39,
    "title": "L39.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L39.json",
-    "L39.json",
     "L39.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6086,11 +6095,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 40,
    "title": "L40.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L40.json",
-    "L40.json",
     "L40.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6116,11 +6124,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 41,
    "title": "L41.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L41.json",
-    "L41.json",
     "L41.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6146,11 +6153,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 42,
    "title": "L42.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L42.json",
-    "L42.json",
     "L42.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6176,11 +6182,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 43,
    "title": "L43.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 2 points, 4 examples, 8 practice items.",
+   "summary": "2 points, 4 examples, 8 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L43.json",
-    "L43.json",
     "L43.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6206,11 +6211,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 44,
    "title": "L44.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L44.json",
-    "L44.json",
     "L44.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6236,11 +6240,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 45,
    "title": "L45.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 2 points, 4 examples, 8 practice items.",
+   "summary": "2 points, 4 examples, 8 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L45.json",
-    "L45.json",
     "L45.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6266,11 +6269,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 46,
    "title": "L46.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L46.json",
-    "L46.json",
     "L46.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6296,11 +6298,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 47,
    "title": "L47.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 2 points, 4 examples, 8 practice items.",
+   "summary": "2 points, 4 examples, 8 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L47.json",
-    "L47.json",
     "L47.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6326,11 +6327,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 48,
    "title": "L48.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L48.json",
-    "L48.json",
     "L48.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6356,11 +6356,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 49,
    "title": "L49.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 4 points, 8 examples, 16 practice items.",
+   "summary": "4 points, 8 examples, 16 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L49.json",
-    "L49.json",
     "L49.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6386,11 +6385,10 @@
    "source": "LM Drafting, checked by publish.check_draft() and a judge pass",
    "lesson": 50,
    "title": "L50.json",
-   "summary": "A short lesson per grammar point: explanation, second example, practice. 3 points, 6 examples, 12 practice items.",
+   "summary": "3 points, 6 examples, 12 practice items. A short lesson per grammar point: explanation, second example, practice.",
    "uses": [],
    "search": [
     "pipeline/jp/drafts/L50.json",
-    "L50.json",
     "L50.json",
     "LM Drafting, checked by publish.check_draft() and a judge pass"
    ],
@@ -6415,11 +6413,10 @@
    "type": "source_file",
    "source": "LM Use Tagging, kept as reviewable data",
    "title": "uses.json",
-   "summary": "The uses each grammar point serves. 30 uses, 89 points tagged, 7 particles tagged.",
+   "summary": "30 uses, 89 points tagged, 7 particles tagged. The uses each grammar point serves.",
    "uses": [],
    "search": [
     "pipeline/jp/uses.json",
-    "uses.json",
     "uses.json",
     "LM Use Tagging, kept as reviewable data"
    ],
@@ -6444,11 +6441,10 @@
    "type": "source_file",
    "source": "Mark's review",
    "title": "corrections.json",
-   "summary": "Approved sources and reviewed corrections. 5 approved sources, 3 corrections.",
+   "summary": "5 approved sources, 3 corrections. Approved sources and reviewed corrections.",
    "uses": [],
    "search": [
     "pipeline/jp/corrections.json",
-    "corrections.json",
     "corrections.json",
     "Mark's review"
    ],
@@ -6472,11 +6468,10 @@
    "type": "source_file",
    "source": "Langoal word-list PDFs",
    "title": "jp_lessons.json",
-   "summary": "Vocabulary, lesson by lesson. 25 lessons, 620 words, 5 missing lessons.",
+   "summary": "25 lessons, 620 words, 5 missing lessons. Vocabulary, lesson by lesson.",
    "uses": [],
    "search": [
     "assets/lessons/jp_lessons.json",
-    "jp_lessons.json",
     "jp_lessons.json",
     "Langoal word-list PDFs"
    ],
