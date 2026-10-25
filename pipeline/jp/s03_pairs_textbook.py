@@ -16,18 +16,18 @@ Two independent readings of the page:
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 from difflib import SequenceMatcher
 from pathlib import Path
 
 from common import SOURCE_DIR, bundle, ingest, is_kana, write
 from conjugate import group
+from ruby import kana_of, plain_of  # plain_of: the text as printed, what the OCR read
 
 SOURCE_ID = "s03_pairs_textbook"
 FILE = "他動詞_自動詞.png"
 
-# Kanji are written 漢字{かんじ}: base text, then its furigana from the page.
+# Kanji are written 漢字{かんじ}: base text, then its furigana from the page (ruby.py).
 # (transitive phrase, intransitive phrase), in the page's reading order.
 TRANSCRIPTION = {
     "title": "8課 他動詞{たどうし}・自動詞{じどうし} Transitive and intransitive verbs",
@@ -78,18 +78,6 @@ TRANSCRIPTION = {
         ],
     },
 }
-
-RUBY = re.compile(r"([^\s{}]+?)\{([^}]+)\}")
-
-
-def kana_of(text: str) -> str:
-    """Replace each 漢字{かな} with its reading."""
-    return RUBY.sub(lambda m: re.sub(r"[一-鿿々]+", m.group(2), m.group(1), count=1), text)
-
-
-def plain_of(text: str) -> str:
-    """The text as printed, without furigana: what the OCR should have read."""
-    return re.sub(r"\{[^}]+\}", "", text)
 
 
 def _ocr(path: Path) -> list[str]:

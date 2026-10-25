@@ -19,16 +19,14 @@ The live counts are in the **catalog**: the `catalog` list in `assets/lessons/jp
 built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per data file, with
 its role, its origin (for example "Mari's N4 sheet") and counts computed from the file when the
 catalog is built. The app's home search finds each cataloged data file by name, so type a file
-name such as `jp_lessons.json` into the search box to see its counts. The cataloged files are the
-fixture bundles, the drafts, `uses.json`, `corrections.json` and `jp_lessons.json`.
-`jp_grammar.json` holds the catalog and has no entry of its own, and `assets/lessons/img/` has
-no entry.
-
-> The `source_file` entries are defined but not yet emitted. Task 10 of
-> `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` adds them and the test that keeps
-> this doc free of restated counts. Task 10 worker: when the entries are emitted, delete this
-> callout and make the table below and the cataloged-files sentence above match the entries the
-> catalog holds.
+name such as `jp_lessons.json` into the search box to see its counts. Tapping a data file's entry
+searches for everything that came from that file. The cataloged files are the extraction
+bundles under `pipeline/jp/fixtures/`, each draft in `pipeline/jp/drafts/` (the `L<n>.json`
+lessons and `_points.json`), `uses.json`, `corrections.json` and `jp_lessons.json`.
+`jp_grammar.json` holds the catalog and has no entry of its own. `assets/lessons/img/` and the
+judge files under `pipeline/jp/review/` have no entry.
+`pipeline/jp/tests/test_catalog_sources.py` checks every entry's counts against its file, and
+fails if this doc restates one.
 
 ## The data files
 
@@ -36,12 +34,13 @@ no entry.
 | --- | --- | --- | --- |
 | `assets/lessons/jp_lessons.json` | vocabulary, lesson by lesson; the file states its own missing lessons | Langoal word-list PDFs | an extractor run from a scratchpad (see Regenerating) |
 | `assets/lessons/jp_grammar.json` | grammar lessons, particles, number tables, verb pairs, conjugation drill, and the catalog | everything below, merged | **only** `pipeline/jp/publish.py`, never by hand |
-| `pipeline/jp/fixtures/s01_number/` | counters, months, dates, lengths of time | `number.pdf` (picture of a table, OCR layer) | `s01_counters.py` |
-| `pipeline/jp/fixtures/s02_pairs_mari/` | transitive / intransitive verb pairs with examples | Mari's Canva table | `s02_pairs_mari.py` |
-| `pipeline/jp/fixtures/s03_pairs_textbook/` | verb pairs and sentences, printed with kanji | textbook 8課, a scanned image | `s03_pairs_textbook.py` (LM Transcribing, then review) |
+| `pipeline/jp/fixtures/s01_number/` | counters, months, dates and lengths of time | `number.pdf`, a picture of a table with an OCR layer | `s01_counters.py` |
+| `pipeline/jp/fixtures/s02_pairs_mari/` | transitive and intransitive verb pairs with examples | Mari's Canva table | `s02_pairs_mari.py` |
+| `pipeline/jp/fixtures/s03_pairs_textbook/` | verb pairs and sentences, printed with kanji | textbook 8課, a scanned page | `s03_pairs_textbook.py` (LM Transcribing, then review) |
 | `pipeline/jp/fixtures/s04_mari_checklist/` | grammar points and particles, by lesson | Mari's N4 sheet, Checklist and particle tabs | `s04_mari_checklist.py` |
 | `pipeline/jp/fixtures/s05_mari_verb_forms/` | worked conjugations, the gold set for `conjugate.py` | Mari's N4 sheet, Verb Forms Summary tab | `s05_mari_verb_forms.py` |
 | `pipeline/jp/drafts/L<n>.json` | a short lesson per grammar point: explanation, second example, practice | LM Drafting, checked by `publish.check_draft()` and a judge pass | an LM, then review |
+| `pipeline/jp/drafts/_points.json` | the grammar points handed to LM Drafting | Mari's N4 sheet, Checklist tab | the drafting input, kept with the drafts |
 | `pipeline/jp/uses.json` | the uses each grammar point serves ("Asking for advice") | LM Use Tagging, kept as reviewable data | an LM, then review |
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
@@ -84,8 +83,9 @@ cd pipeline/jp
 ../.venv/Scripts/python s03_pairs_textbook.py
 ../.venv/Scripts/python s04_mari_checklist.py <exported N4 Grammar .xlsx>
 ../.venv/Scripts/python s05_mari_verb_forms.py <same .xlsx>
-# copy each out/<source>/lesson_bundle.json into fixtures/<source>/, so the committed copy
-# matches the bundle publish.py reads; CI publishes from fixtures/ and fails on drift
+# copy each fresh bundle into fixtures/; it refuses, copying nothing, if a bundle is missing
+# or blocked. CI publishes from fixtures/ and fails on drift
+../.venv/Scripts/python refresh_fixtures.py
 ../.venv/Scripts/python publish.py
 ```
 
