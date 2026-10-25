@@ -94,6 +94,9 @@ def test_red_team_inputs_with_one_slip_are_rejected(ruby_text, kana, why):
     # kanji-only base rule (PIN-11) rejects the bracket.
     ("ピザ{ぴざ}を 食{た}べる。", "ピザを たべる。", "does not follow a kanji"),
     ("CD{しーでぃー}を 聞{き}く。", "CDを きく。", "does not follow a kanji"),
+    # Katakana mixed into a kanji base: the brace follows 屋, so the base rule passes
+    # and the reading-mismatch arm rejects it (ピザ is read twice).
+    ("ピザ屋{ぴざや}を 食{た}べる。", "ピザやを たべる。", "is not the hiragana"),
 ])
 def test_bad_twins_are_rejected(bad, kana, why):
     errs = ruby_errors(bad, kana)
@@ -107,6 +110,8 @@ def test_hiragana_word_repeats_its_hiragana_and_katakana_stays():
     # pass when left unbracketed, as PIN-8 writes them.
     assert ruby_errors("ピザを 食{た}べる。", "ピザを たべる。") == []
     assert ruby_errors("CDを 聞{き}く。", "CDを きく。") == []
+    # The mirror of the rejected ピザ屋{ぴざや} row: the bracket on the kanji alone passes.
+    assert ruby_errors("ピザ屋{や}を 食{た}べる。", "ピザやを たべる。") == []
 
 
 def test_s03_imports_the_helpers_from_ruby():
