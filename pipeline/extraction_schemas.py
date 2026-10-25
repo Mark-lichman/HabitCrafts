@@ -353,7 +353,7 @@ class CatalogEntry(BaseModel):
 
     id: str
     type: Literal["grammar_point", "particle", "reference_table", "verb_pair",
-                  "conjugation", "vocabulary"]
+                  "conjugation", "vocabulary", "source_file"]
     source: str
     lesson: int | None = None
     title: str
@@ -361,6 +361,14 @@ class CatalogEntry(BaseModel):
     uses: list[str] = Field(default_factory=list, description="Ids from the Use Taxonomy.")
     search: list[str] = Field(default_factory=list, description="Extra text to match.")
     open: dict[str, str | int] = Field(description="Which screen, with which parameters.")
+    from_: list[str] = Field(default_factory=list, alias="from",
+                             description="The data files the entry came from.")
+    # A source_file entry describes one data file. Its counts are computed from the
+    # file at catalog build time, so no prose restates them (PIN-13).
+    file: str | None = Field(default=None, description="source_file: repo path of the file.")
+    role: str | None = Field(default=None, description="source_file: what the file is for.")
+    origin: str | None = Field(default=None, description="source_file: where it came from.")
+    counts: dict[str, int] | None = Field(default=None, description="source_file: live counts.")
 
 
 class Query(BaseModel):

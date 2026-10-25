@@ -83,8 +83,9 @@ cd pipeline/jp
 ../.venv/Scripts/python s03_pairs_textbook.py
 ../.venv/Scripts/python s04_mari_checklist.py <exported N4 Grammar .xlsx>
 ../.venv/Scripts/python s05_mari_verb_forms.py <same .xlsx>
-# copy each out/<source>/lesson_bundle.json into fixtures/<source>/, so the committed copy
-# matches the bundle publish.py reads; CI publishes from fixtures/ and fails on drift
+# copy each fresh bundle into fixtures/; it refuses, copying nothing, if a bundle is missing
+# or blocked. CI publishes from fixtures/ and fails on drift
+../.venv/Scripts/python refresh_fixtures.py
 ../.venv/Scripts/python publish.py
 ```
 

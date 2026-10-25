@@ -161,11 +161,12 @@ OPL sentences:
 9. **Validating (cross-source)** consumes the items of several bundles. Two sources that cover the
    same fact must agree (verb pairs, counter readings in example sentences).
 10. **Lesson Bundle** can also be **blocked**: written, so a reviewer sees why, but not approvable.
-11. **Cataloging** consumes every **Lesson Bundle**, requires **Use Taxonomy**, and yields
-    **Catalog Entry**. It runs at extraction time, before **Publishing**, so content is typed once.
+11. **Cataloging** consumes every **Lesson Bundle**, the drafts, **Corrections**, and the vocabulary
+    file (`jp_lessons.json`), requires **Use Taxonomy**, and yields **Catalog Entry**. It runs at extraction time, before **Publishing**, so content is typed once.
 12. **Catalog Entry** exhibits *type*, which can be **grammar point**, **particle**, **reference table**,
-    **verb pair**, **conjugation**, or **vocabulary**. The type comes from the extractor that made the
-    item, so it is deterministic.
+    **verb pair**, **conjugation**, **vocabulary**, or **data file**. The type of an item comes from the
+    extractor that made it, so it is deterministic. A **data file** entry's type comes from the catalog
+    build, and it exhibits *role*, *origin*, and *counts*, computed from the file at build time.
 13. **Catalog Entry** also exhibits *uses* (what the item is for: asking advice, stating a plan,
     showing regret...), *lesson*, *search text*, and *open target*. Uses are an LM judgment kept as
     reviewable data (`pipeline/jp/uses.json`), not computed at run time.

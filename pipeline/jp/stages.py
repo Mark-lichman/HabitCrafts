@@ -40,7 +40,3 @@ HELPERS: dict[str, str] = {
     "stages.py": "this registry",
     "refresh_fixtures.py": "copies extractor output into the CI fixtures; runs no stage",
 }
-
-# Registered before the file exists on disk (defined, not yet emitted). Empty while
-# every registered module is on disk.
-PENDING: set[str] = set()

@@ -412,7 +412,7 @@ edge('consume', 'CAT', 'PUB3', { exit: [0.5, 1], entry: [1, 0.15], pts: [[1325, 
 edge('result', 'PUB3', 'ASSET', { exit: [0.5, 1], entry: [0.5, 0] });
 
 proc('FIND', 'Finding', S.det, 600, 1650, 280, 75, 'Finding', 'search the catalog ' + bar + 'sort by use, then type|runs in the app, no LM');
-node('QRY', S.obj, 960, 1640, 240, 95, 'Query', 'text: str?|use: str?|type order: grammar, particle, numbers, pairs, conjugation, vocabulary');
+node('QRY', S.obj, 960, 1640, 240, 95, 'Query', 'text: str?|use: str?|type order: grammar, particle, numbers, pairs, conjugation, vocabulary, data file');
 node('LRN', S.ctrl, 1240, 1660, 180, 50, 'Learner', '');
 node('RES', S.obj, 590, 1770, 300, 80, 'Result List', 'Catalog Entry[] across types|labeled type + lesson|tap opens the right screen');
 edge('consume', 'ASSET', 'FIND', { exit: [0.5, 1], entry: [0.5, 0] });
