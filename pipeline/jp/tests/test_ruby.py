@@ -25,6 +25,7 @@ import pytest  # noqa: E402
 import publish  # noqa: E402
 import ruby  # noqa: E402
 import s03_pairs_textbook  # noqa: E402
+import stages  # noqa: E402
 from ruby import kana_of, plain_of, ruby_errors  # noqa: E402
 
 FIX = JP / "fixtures"
@@ -87,6 +88,17 @@ def test_s03_transcription_reads_the_same_as_its_bundle():
         it = by_id[f"s03_pairs_textbook.{n}"]
         assert kana_of(tr) == it["transitive_kana"]
         assert kana_of(intr) == it["intransitive_kana"]
+    for side in ("transitive", "intransitive"):
+        for n, ex in enumerate(s03_pairs_textbook.TRANSCRIPTION["examples"][side], start=1):
+            assert kana_of(ex) == by_id[f"s03_pairs_textbook.ex.{side}.{n}"]["kana"]
+
+
+def test_publish_claims_kanji_validating_for_its_twin_checks():
+    # The twin checks run in publish.check_draft (check_twin, twin_errors), so the
+    # registry names KanjiValidating on publish.py as well as on ruby.py (PIN-12).
+    assert publish.ruby_errors is ruby.ruby_errors
+    assert "KanjiValidating" in stages.STAGES["publish.py"]
+    assert "KanjiValidating" in stages.STAGES["ruby.py"]
 
 
 # ───────────── check_draft: a _ruby twin beside every Japanese field ─────────────
@@ -198,6 +210,30 @@ def test_bad_twins_fail_the_draft(mari, monkeypatch, where, field, value):
         p["practice"][2][field] = value
     errs = publish.check_draft(d, mari)
     assert any(field in e for e in errs), errs
+
+
+@pytest.mark.parametrize("where, field, value, why", [
+    # A null element: without the element guard ruby_errors raises TypeError.
+    ("choose", "options_ruby", [None, "静{しず}か", "静{しず}かな"], "list of strings"),
+    # A string as long as the options list: iterated, its characters are strings.
+    ("choose", "options_ruby", "しずか", "list of strings"),
+    # A string as long as the empty accepted list: iterated, it yields nothing.
+    ("fill", "accepted_ruby", "", "list of strings"),
+    ("fill", "accepted_ruby", [None], "list of strings"),
+    # A stray options_ruby on a fill item, which has no options.
+    ("fill", "options_ruby", ["何{なに}んです"], "list of strings"),
+    ("fill", "prompt_ruby", ["何{なに}んです"], "must be a string"),
+])
+def test_malformed_twin_shapes_name_the_shape(mari, monkeypatch, where, field, value, why):
+    # Each malformed shape is reported with its shape message, so publish.run() skips
+    # the draft with a printed reason instead of crashing (module docstring).
+    monkeypatch.setattr(publish, "REQUIRE_RUBY", False)
+    d = add_twins(_draft())
+    p = d["points"][0]
+    assert p["practice"][0]["accepted"] == [] and len(p["practice"][2]["options"]) == 3
+    (p["practice"][0] if where == "fill" else p["practice"][2])[field] = value
+    errs = publish.check_draft(d, mari)
+    assert any(field in e and why in e for e in errs), errs
 
 
 def test_why_wrong_stays_keyed_by_the_hiragana_option(mari, monkeypatch):
