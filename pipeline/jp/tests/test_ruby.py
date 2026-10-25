@@ -54,6 +54,34 @@ def test_repeat_mark_belongs_to_the_base():
     assert ruby_errors("人々{ひとびと}が 来{き}ました。", "ひとびとが きました。") == []
 
 
+@pytest.mark.parametrize("ruby_text, kana, plain", [
+    # The red-team's positive inputs: a kanji after a hiragana prefix, a multi-kanji
+    # word before a particle and another before する, the repeat mark inside a word,
+    # and a reading that is not the sum of its kanji.
+    ("お茶{ちゃ}を のみます。", "おちゃを のみます。", "お茶を のみます。"),
+    ("日本語{にほんご}を 勉強{べんきょう}します。", "にほんごを べんきょうします。",
+     "日本語を 勉強します。"),
+    ("時々{ときどき} 行{い}きます。", "ときどき いきます。", "時々 行きます。"),
+    ("三日{みっか}です。", "みっかです。", "三日です。"),
+])
+def test_red_team_positive_inputs_pass(ruby_text, kana, plain):
+    assert ruby_errors(ruby_text, kana) == []
+    assert kana_of(ruby_text) == kana
+    assert plain_of(ruby_text) == plain
+
+
+@pytest.mark.parametrize("ruby_text, kana, why", [
+    # The mirror of each positive input: one slip in the twin, named by its error.
+    ("お{お}茶{ちゃ}を のみます。", "おちゃを のみます。", "does not follow a kanji"),
+    ("日本語{にほんご}を 勉強します。", "にほんごを べんきょうします。", "no reading"),
+    ("時々{ときどき} 行{い}きます。", "ときどき ゆきます。", "is not the hiragana"),
+    ("三日{さんにち}です。", "みっかです。", "is not the hiragana"),
+])
+def test_red_team_inputs_with_one_slip_are_rejected(ruby_text, kana, why):
+    errs = ruby_errors(ruby_text, kana)
+    assert errs and why in errs[0], errs
+
+
 @pytest.mark.parametrize("bad, kana, why", [
     ("か{か}います", "かいます", "does not follow a kanji"),
     ("{か}います", "かいます", "does not follow a kanji"),
