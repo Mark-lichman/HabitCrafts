@@ -5,7 +5,8 @@ The core of steps 1 to 3 shipped (`assets/lessons/jp_grammar.json`, the grammar 
 screens). Two items did not: the Mari's notes links (decision 5) and clearing lesson 30's uncertain
 flags (`しまいます`, `ふくしゅうします` stay flagged `groupUncertain`). The five decisions in section 2
 are resolved; each one carries its resolution. Read this file as a record. For the shipped state,
-read `docs/japanese-lessons.md`.
+read `docs/japanese-lessons.md`. Section 5 is the historical recipe; the current one, with the
+copy of each bundle into the fixtures and the publish step, is in `docs/japanese-lessons.md`.
 
 Original status: for Mark's review, 2026-10-23. Branch `feat/jp-grammar-extraction` (worktree
 `C:/Projects/habitcrafts-war`).
