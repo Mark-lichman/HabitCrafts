@@ -99,7 +99,7 @@ validator, the catalog, publishing with the reviewed corrections, and a drift ch
 the committed `jp_grammar.json` differs from a fresh publish.
 
 Separately, an independent LM judge reviewed every drafted item once. Its findings are in
-`pipeline/jp/review/judge_*.json`, and `apply_judge_fixes.py` applied them. No CI test covers that
+`pipeline/jp/review/judge_L*.json`, and `apply_judge_fixes.py` applied them. No CI test covers that
 first judge pass. Task 5 of `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` adds
 `test_judge_applied.py` for the kanji-twin judge pass, whose findings go in
 `pipeline/jp/review/judge_ruby.json`.
