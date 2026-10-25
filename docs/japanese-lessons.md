@@ -32,7 +32,7 @@ no entry.
 
 ## The data files
 
-| File | Role | Origin | Written by |
+| File | Role | Origin | Produced by |
 | --- | --- | --- | --- |
 | `assets/lessons/jp_lessons.json` | vocabulary, lesson by lesson; the file states its own missing lessons | Langoal word-list PDFs | an extractor run from a scratchpad (see Regenerating) |
 | `assets/lessons/jp_grammar.json` | grammar lessons, particles, number tables, verb pairs, conjugation drill, and the catalog | everything below, merged | **only** `pipeline/jp/publish.py`, never by hand |
@@ -46,8 +46,9 @@ no entry.
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
 
-Each fixture directory holds a `lesson_bundle.json`. CI and tests read the fixtures through
-`JP_OUT_DIR`, because the source files are not in the repo.
+Each extractor writes `out/<source>/lesson_bundle.json`, which git ignores, and the fixture
+directory holds the committed copy. CI and tests read the fixtures through `JP_OUT_DIR`, because
+the source files are not in the repo.
 
 ## What ships in the app
 
@@ -83,6 +84,8 @@ cd pipeline/jp
 ../.venv/Scripts/python s03_pairs_textbook.py
 ../.venv/Scripts/python s04_mari_checklist.py <exported N4 Grammar .xlsx>
 ../.venv/Scripts/python s05_mari_verb_forms.py <same .xlsx>
+# copy each out/<source>/lesson_bundle.json into fixtures/<source>/, so the committed copy
+# matches the bundle publish.py reads; CI publishes from fixtures/ and fails on drift
 ../.venv/Scripts/python publish.py
 ```
 
