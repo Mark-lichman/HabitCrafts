@@ -79,6 +79,7 @@ TRANSCRIPTION = {
     },
 }
 
+
 def _ocr(path: Path) -> list[str]:
     out = subprocess.run(
         ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
