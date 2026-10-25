@@ -26,11 +26,13 @@ STAGES: dict[str, tuple[str, ...]] = {
     # draft checks in publish.py.
     "conjugate.py": ("ValidatingSources",),
     "catalog.py": ("Cataloging",),
-    # check_draft() is the deterministic Validating gate for the LM drafts.
-    "publish.py": ("Validating", "PublishingApp"),
+    # check_draft() is the deterministic Validating gate for the LM drafts. It also runs
+    # the kanji twin checks (check_twin, twin_errors) on every draft field.
+    "publish.py": ("Validating", "KanjiValidating", "PublishingApp"),
     # Applies the reviewed findings of the judge pass to the drafts.
     "review/apply_judge_fixes.py": ("Judging",),
-    # Kanji twin helpers: reading-of, and the twin checks that check_draft() runs.
+    # Kanji twin helpers: reading-of, printed-text, and the bracket-form check that
+    # publish.twin_errors() calls.
     "ruby.py": ("KanjiValidating",),
 }
 

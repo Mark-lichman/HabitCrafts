@@ -80,9 +80,10 @@ def twin_errors(ruby: str, kana: str) -> list[str]:
 def check_twin(owner: str, obj: dict, field: str) -> list[str]:
     """Check the `<field>_ruby` twin of one Japanese field (a string or a list of strings).
 
-    A list field gets a parallel twin list. why_wrong is not twinned: it stays keyed by
-    the hiragana option (PIN-9). A kanji-bearing field is matched on its printed text
-    (see twin_errors).
+    A list field gets a parallel twin list of strings. A twin whose field is absent is
+    checked against the empty value, so a stray twin is never passed through unchecked.
+    why_wrong is not twinned: it stays keyed by the hiragana option (PIN-9). A
+    kanji-bearing field is matched on its printed text (see twin_errors).
     """
     twin = f"{field}_ruby"
     kana = obj.get(field, [] if field in ("accepted", "options") else "")
@@ -90,8 +91,9 @@ def check_twin(owner: str, obj: dict, field: str) -> list[str]:
         return [f"{owner}: missing {twin}"] if REQUIRE_RUBY else []
     ruby = obj[twin]
     if isinstance(kana, list):
-        if not isinstance(ruby, list) or len(ruby) != len(kana):
-            return [f"{owner}: {twin} must be a list parallel to {field}"]
+        if (not isinstance(ruby, list) or len(ruby) != len(kana)
+                or not all(isinstance(r, str) for r in ruby)):
+            return [f"{owner}: {twin} must be a list of strings parallel to {field}"]
         pairs_ = list(zip(ruby, kana))
     else:
         if not isinstance(ruby, str):
@@ -121,7 +123,8 @@ def check_draft(d: dict, mari: dict) -> list[str]:
                 errs.append(f"{pid}: example not kana: {e.get('jp')!r}")
             errs += check_twin(pid, e, "jp")
         for q in pr:
-            for field in ("prompt", "answer", "accepted", *(("options",) if "options" in q else ())):
+            for field in ("prompt", "answer", "accepted",
+                          *(("options",) if "options" in q or "options_ruby" in q else ())):
                 errs += check_twin(pid, q, field)
             ans, prompt = q.get("answer", ""), q.get("prompt", "")
             if "＿＿" not in prompt:
