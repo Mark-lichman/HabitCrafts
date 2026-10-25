@@ -143,7 +143,8 @@ def add_twins(d: dict) -> dict:
 
 def test_drafts_without_twins_pass_while_twins_are_optional(mari, monkeypatch):
     monkeypatch.setattr(publish, "REQUIRE_RUBY", False)
-    assert publish.check_draft(_draft(), mari) == []
+    # drop_twins pins the 'twin absent, flag false' branch whatever the committed drafts hold.
+    assert publish.check_draft(drop_twins(_draft()), mari) == []
 
 
 def test_every_committed_draft_passes_under_the_shipped_flag(mari):
