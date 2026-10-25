@@ -1,7 +1,8 @@
 """First-pass schemas for the Content Extracting / Language Lesson Extracting pipeline.
 
 Companion to opm-lesson-extraction.md and .drawio. One model per OPM object.
-This is a PROPOSAL to argue with, not wired to anything.
+The models are a PROPOSAL to argue with. STAGE_IO and OPM_NAMES are not: the guard test
+pipeline/jp/tests/test_opm_sync.py holds them in step with the diagram and the OPL text.
 
 Three comment markers, all greppable:
 
@@ -11,8 +12,8 @@ Three comment markers, all greppable:
     # MISSING:  the OPM has no answer and neither do I. You decide.
 
 Requires pydantic v2.  Run `python extraction_schemas.py` for the self-check at the
-bottom — it verifies the stage graph actually composes. NOT YET RUN: no Python on the
-machine this was written on.
+bottom — it verifies the stage graph actually composes. CI runs it too
+(pipeline/jp/tests).
 """
 
 from __future__ import annotations
@@ -373,6 +374,66 @@ class ResultList(BaseModel):
     entries: list[CatalogEntry]
 
 
+# ───────────────────── kanji versions, judging, answer checking ─────────────────────
+# Added by docs/plans/2026-10-24-japanese-typing-kanji-speaking.md.
+
+
+class KanjiVersion(BaseModel):
+    """The `_ruby` twin of one Japanese field: kanji written `漢字{かんじ}`, one bracket
+    per kanji word, okurigana outside (`買{か}い物{もの}`). Replacing every bracket
+    with its reading must give the hiragana text exactly (PIN-5, PIN-11)."""
+
+    owner_id: str = Field(description="Grammar point id, plus the item index for practice.")
+    field: str = Field(description="jp_ruby, prompt_ruby, answer_ruby, accepted_ruby, ...")
+    hiragana: str
+    ruby: str
+
+
+class JudgeFinding(BaseModel):
+    """One finding of the independent judge pass (pipeline/jp/review/judge_*.json)."""
+
+    point_id: str
+    item_index: int = Field(description="-1 for the point itself, else the practice item.")
+    verdict: str
+    detail: str
+    fix: str
+    applied: bool = False
+
+
+class TypedAnswer(BaseModel):
+    """What the learner typed into a fill-in box (Japanese keyboard, PIN-3)."""
+
+    item_id: str
+    text: str
+
+
+class AnswerVerdict(BaseModel):
+    item_id: str
+    correct: bool
+    matched: str | None = Field(
+        default=None, description="The accepted form or kanji surface it matched.")
+
+
+class Transcript(BaseModel):
+    """What speech recognition heard. Often kanji, sometimes hiragana."""
+
+    item_id: str
+    heard: str
+
+
+class SpeechResult(str, Enum):
+    CORRECT = "correct"
+    CLOSE = "close"  # amber, matching part highlighted, then self-check (PIN-10)
+    SELF_CHECK = "self_check"  # uncomparable: never marked wrong (PIN-2)
+
+
+class SpeechVerdict(BaseModel):
+    item_id: str
+    heard: str
+    result: SpeechResult
+    matched_span: CharSpan | None = None
+
+
 # ───────────────────────────── gates and reports ─────────────────────────────
 
 
@@ -594,9 +655,61 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     # Type is deterministic (which extractor made the item). Uses come from a reviewed
     # data file, so Cataloging itself makes no LM call.
     "Cataloging": (DET, (LessonBundle,), (CatalogEntry,)),
-    "PublishingApp": (DET, (LessonBundle, CatalogEntry), ()),
+    # The judge's findings gate publishing: every one must be applied first.
+    "PublishingApp": (DET, (LessonBundle, CatalogEntry, JudgeFinding), ()),
     # Runs in the app, on the published file.
     "Finding": (DET, (CatalogEntry, Query), (ResultList,)),
+    # ── Kanji versions and answer checking (plan 2026-10-24).
+    "KanjiDrafting": (LM, (LessonDraft, GrammarPracticeItem), (KanjiVersion,)),
+    "KanjiValidating": (DET, (KanjiVersion,), (ValidationResult,)),
+    # Independent LM judge over the drafts and their kanji versions.
+    "Judging": (LM, (LessonDraft, GrammarPracticeItem, KanjiVersion), (JudgeFinding,)),
+    # Both run in the app, on the published file.
+    "AnswerChecking": (DET, (GrammarPracticeItem, KanjiVersion, TypedAnswer), (AnswerVerdict,)),
+    "SpeechChecking": (DET, (GrammarPracticeItem, KanjiVersion, Transcript), (SpeechVerdict,)),
+    # ── Composite processes on SD: each zooms into stages (Language Lesson Extracting
+    # into SD1). Listed so every process the diagram draws has an entry.
+    "HabitLessonExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+    "LanguageLessonExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+    "ArticleExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+}
+
+# The name each stage carries in the diagram and the OPL text (docs/opm-lesson-extraction.md).
+OPM_NAMES: dict[str, str] = {
+    "Ingesting": "Ingesting",
+    "Normalizing": "Normalizing",
+    "Classifying": "Classifying",
+    "Routing": "Routing",
+    "Triaging": "Triaging",
+    "Segmenting": "Segmenting",
+    "Mining": "Mining",
+    "Scoping": "Scoping",
+    "Drafting": "Drafting",
+    "SentenceItemGenerating": "Sentence Item Generating",
+    "GrammarItemGenerating": "Grammar Item Generating",
+    "Validating": "Validating",
+    "Evaluating": "Evaluating",
+    "Assembling": "Assembling",
+    "Reviewing": "Reviewing",
+    "Publishing": "Publishing",
+    "Optimizing": "Optimizing",
+    "NormalizingPictureTable": "Normalizing (picture table)",
+    "NormalizingSheet": "Normalizing (sheet)",
+    "Transcribing": "Transcribing",
+    "TableExtracting": "Table Extracting",
+    "CurriculumImporting": "Curriculum Importing",
+    "ValidatingSources": "Validating (cross-source)",
+    "Cataloging": "Cataloging",
+    "PublishingApp": "Publishing (app)",
+    "Finding": "Finding",
+    "KanjiDrafting": "Kanji Drafting",
+    "KanjiValidating": "Kanji Validating",
+    "Judging": "Judging",
+    "AnswerChecking": "Answer Checking",
+    "SpeechChecking": "Speech Checking",
+    "HabitLessonExtracting": "Habit Lesson Extracting",
+    "LanguageLessonExtracting": "Language Lesson Extracting",
+    "ArticleExtracting": "Article Extracting",
 }
 
 # MISSING: Optimizing's real output is a new compiled DSPy program, not a model.
@@ -606,10 +719,13 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
 # a category error and should be redrawn.
 
 # Stages with no upstream producer — pipeline roots and control objects.
-_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query}
+# TypedAnswer and Transcript come from the learner, in the app.
+_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query,
+          TypedAnswer, Transcript}
 
 # Produced but deliberately consumed by nothing — the pipeline's end products.
-_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList}
+_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList,
+             AnswerVerdict, SpeechVerdict}
 
 
 def _check() -> None:
@@ -623,6 +739,7 @@ def _check() -> None:
         assert kind in (LM, DET, HUMAN), f"{stage}: bad kind {kind}"
         for i in ins:
             assert i in produced, f"{stage} consumes {i.__name__}, which nothing produces"
+    assert set(OPM_NAMES) == set(STAGE_IO), "every stage needs exactly one OPM name"
 
     orphans = produced - consumed - _TERMINAL - _ROOTS
     assert not orphans, f"produced but never consumed: {sorted(o.__name__ for o in orphans)}"
