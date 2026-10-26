@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "わたしは かんじが よめます。",
+          "jp_ruby": "わたしは 漢字{かんじ}が 読{よ}めます。",
           "en": "I can read kanji."
         },
         {
           "jp": "ミラーさんは さしみが たべられます。",
+          "jp_ruby": "ミラーさんは さしみが 食{た}べられます。",
           "en": "Mr. Miller can eat sashimi."
         }
       ],
@@ -21,34 +23,53 @@
         {
           "kind": "fill",
           "prompt": "わたしは ピアノが ＿＿。",
+          "prompt_ruby": "わたしは ピアノが ＿＿。",
           "en": "I can play the piano.",
           "answer": "ひけます",
+          "answer_ruby": "ひけます",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Potential form of ひきます"
         },
         {
           "kind": "choose",
           "prompt": "にほんごが すこし ＿＿。",
+          "prompt_ruby": "日本語{にほんご}が 少{すこ}し ＿＿。",
           "en": "I can speak a little Japanese.",
           "answer": "はなせます",
+          "answer_ruby": "話{はな}せます",
           "options": [
             "はなせます",
             "はなします",
             "はなせられます"
           ],
+          "options_ruby": [
+            "話{はな}せます",
+            "話{はな}します",
+            "話{はな}せられます"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Group 1 potential form"
         },
         {
           "kind": "choose",
           "prompt": "わたしは じてんしゃに ＿＿。",
+          "prompt_ruby": "わたしは 自転車{じてんしゃ}に ＿＿。",
           "en": "I can ride a bicycle.",
           "answer": "のれます",
+          "answer_ruby": "乗{の}れます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "のります",
             "のられます",
             "のれます"
+          ],
+          "options_ruby": [
+            "乗{の}ります",
+            "乗{の}られます",
+            "乗{の}れます"
           ],
           "hint": "Group 1 potential changes -u to -e: のる → のれる → のれます.",
           "why_wrong": {
@@ -59,13 +80,21 @@
         {
           "kind": "choose",
           "prompt": "あしたの パーティーに ＿＿か。",
+          "prompt_ruby": "明日{あした}の パーティーに ＿＿か。",
           "en": "Can you come to tomorrow's party?",
           "answer": "こられます",
+          "answer_ruby": "来{こ}られます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きられます",
             "こられます",
             "くられます"
+          ],
+          "options_ruby": [
+            "来{き}られます",
+            "来{こ}られます",
+            "来{く}られます"
           ],
           "hint": "The potential of くる is irregular: こられる → こられます.",
           "why_wrong": {
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "ここから ふじさんが みえます。",
+          "jp_ruby": "ここから ふじさんが 見{み}えます。",
           "en": "You can see Mt. Fuji from here."
         },
         {
           "jp": "とりの こえが きこえます。",
+          "jp_ruby": "鳥{とり}の 声{こえ}が 聞{き}こえます。",
           "en": "I can hear birds singing."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "まどから うみが ＿＿。",
+          "prompt_ruby": "まどから 海{うみ}が ＿＿。",
           "en": "You can see the sea from the window.",
           "answer": "みえます",
+          "answer_ruby": "見{み}えます",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Verb for naturally seeing"
         },
         {
           "kind": "choose",
           "prompt": "インターネットで えいがが ＿＿。",
+          "prompt_ruby": "インターネットで 映画{えいが}が ＿＿。",
           "en": "You can watch movies on the internet.",
           "answer": "みられます",
+          "answer_ruby": "見{み}られます",
           "options": [
             "みられます",
             "みえます",
             "きこえます"
           ],
+          "options_ruby": [
+            "見{み}られます",
+            "見{み}えます",
+            "聞{き}こえます"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "A chosen action needs the potential form"
         },
         {
           "kind": "choose",
           "prompt": "となりの へやから ピアノの おとが ＿＿。",
+          "prompt_ruby": "となりの へやから ピアノの 音{おと}が ＿＿。",
           "en": "I can hear a piano from the next room.",
           "answer": "きこえます",
+          "answer_ruby": "聞{き}こえます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "ききます",
             "みえます",
             "きこえます"
+          ],
+          "options_ruby": [
+            "聞{き}きます",
+            "見{み}えます",
+            "聞{き}こえます"
           ],
           "hint": "A sound that reaches you naturally uses きこえます with が.",
           "why_wrong": {
@@ -132,13 +182,21 @@
         {
           "kind": "choose",
           "prompt": "その えいがは どこで ＿＿か。",
+          "prompt_ruby": "その 映画{えいが}は どこで ＿＿か。",
           "en": "Where can I see that movie?",
           "answer": "みられます",
+          "answer_ruby": "見{み}られます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "みえます",
             "みられます",
             "みえられます"
+          ],
+          "options_ruby": [
+            "見{み}えます",
+            "見{み}られます",
+            "見{み}えられます"
           ],
           "hint": "Watching a movie is a chosen action, so use the potential みられます.",
           "why_wrong": {
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "にほんごが できます。",
+          "jp_ruby": "日本語{にほんご}が できます。",
           "en": "I can speak Japanese."
         },
         {
           "jp": "サッカーが できますか。",
+          "jp_ruby": "サッカーが できますか。",
           "en": "Can you play soccer?"
         }
       ],
@@ -167,31 +227,50 @@
         {
           "kind": "fill",
           "prompt": "わたしは スキーが ＿＿。",
+          "prompt_ruby": "わたしは スキーが ＿＿。",
           "en": "I can ski.",
           "answer": "できます",
+          "answer_ruby": "できます",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Verb meaning 'can do'"
         },
         {
           "kind": "choose",
           "prompt": "マリアさんは りょうり＿＿ できます。",
+          "prompt_ruby": "マリアさんは 料理{りょうり}＿＿ できます。",
           "en": "Maria can cook.",
           "answer": "が",
+          "answer_ruby": "が",
           "options": [
             "が",
             "を",
             "で"
           ],
+          "options_ruby": [
+            "が",
+            "を",
+            "で"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Particle used with できます"
         },
         {
           "kind": "choose",
           "prompt": "わたしは ゴルフが ＿＿。",
+          "prompt_ruby": "わたしは ゴルフが ＿＿。",
           "en": "I can play golf.",
           "answer": "できます",
+          "answer_ruby": "できます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "します",
+            "できられます",
+            "できます"
+          ],
+          "options_ruby": [
             "します",
             "できられます",
             "できます"
@@ -205,13 +284,21 @@
         {
           "kind": "choose",
           "prompt": "わたしは ＿＿が できます。",
+          "prompt_ruby": "わたしは ＿＿が できます。",
           "en": "I can drive.",
           "answer": "うんてん",
+          "answer_ruby": "運転{うんてん}",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "うんてんする",
             "うんてん",
             "うんてんして"
+          ],
+          "options_ruby": [
+            "運転{うんてん}する",
+            "運転{うんてん}",
+            "運転{うんてん}して"
           ],
           "hint": "Nが できます takes a noun; a verb would need ことが.",
           "why_wrong": {
@@ -229,10 +316,12 @@
       "examples": [
         {
           "jp": "100えんしか ありません。",
+          "jp_ruby": "100円{えん}しか ありません。",
           "en": "I only have 100 yen."
         },
         {
           "jp": "きのうは さんじかんしか ねませんでした。",
+          "jp_ruby": "きのうは 三時間{さんじかん}しか ねませんでした。",
           "en": "I only slept three hours yesterday."
         }
       ],
@@ -240,34 +329,53 @@
         {
           "kind": "fill",
           "prompt": "さいふに せんえん＿＿ ありません。",
+          "prompt_ruby": "さいふに 千円{せんえん}＿＿ ありません。",
           "en": "I only have 1,000 yen in my wallet.",
           "answer": "しか",
+          "answer_ruby": "しか",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Word for 'only' with a negative verb"
         },
         {
           "kind": "choose",
           "prompt": "ひらがなしか ＿＿。",
+          "prompt_ruby": "ひらがなしか ＿＿。",
           "en": "I can only read hiragana.",
           "answer": "よめません",
+          "answer_ruby": "読{よ}めません",
           "options": [
             "よめません",
             "よめます",
             "よみます"
           ],
+          "options_ruby": [
+            "読{よ}めません",
+            "読{よ}めます",
+            "読{よ}みます"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "しか needs a negative verb"
         },
         {
           "kind": "choose",
           "prompt": "あさは コーヒーしか ＿＿。",
+          "prompt_ruby": "朝{あさ}は コーヒーしか ＿＿。",
           "en": "I only drink coffee in the morning.",
           "answer": "のみません",
+          "answer_ruby": "飲{の}みません",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "のみます",
             "のんで います",
             "のみません"
+          ],
+          "options_ruby": [
+            "飲{の}みます",
+            "飲{の}んで います",
+            "飲{の}みません"
           ],
           "hint": "しか always pairs with a negative verb.",
           "why_wrong": {
@@ -278,10 +386,18 @@
         {
           "kind": "choose",
           "prompt": "なつやすみは みっか＿＿ ありません。",
+          "prompt_ruby": "夏休{なつやす}みは 三日{みっか}＿＿ ありません。",
           "en": "Summer vacation is only three days long.",
           "answer": "しか",
+          "answer_ruby": "しか",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "だけ",
+            "しか",
+            "まで"
+          ],
+          "options_ruby": [
             "だけ",
             "しか",
             "まで"
@@ -302,10 +418,12 @@
       "examples": [
         {
           "jp": "にくは たべますが、さかなは たべません。",
+          "jp_ruby": "肉{にく}は 食{た}べますが、魚{さかな}は 食{た}べません。",
           "en": "I eat meat, but I don't eat fish."
         },
         {
           "jp": "ひらがなは かけますが、かんじは かけません。",
+          "jp_ruby": "ひらがなは 書{か}けますが、漢字{かんじ}は 書{か}けません。",
           "en": "I can write hiragana, but I can't write kanji."
         }
       ],
@@ -313,8 +431,10 @@
         {
           "kind": "fill",
           "prompt": "やさいは すきですが、くだものは ＿＿。",
+          "prompt_ruby": "野菜{やさい}は 好{す}きですが、くだものは ＿＿。",
           "en": "I like vegetables, but I don't like fruit.",
           "answer": "すきじゃ ありません",
+          "answer_ruby": "好{す}きじゃ ありません",
           "accepted": [
             "すきでは ありません",
             "すきじゃないです",
@@ -322,31 +442,54 @@
             "すきじゃありません",
             "すきではありません"
           ],
+          "accepted_ruby": [
+            "好{す}きでは ありません",
+            "好{す}きじゃないです",
+            "好{す}きではないです",
+            "好{す}きじゃありません",
+            "好{す}きではありません"
+          ],
           "hint": "Negative of すきです"
         },
         {
           "kind": "choose",
           "prompt": "テニスは しますが、ゴルフは ＿＿。",
+          "prompt_ruby": "テニスは しますが、ゴルフは ＿＿。",
           "en": "I play tennis, but I don't play golf.",
           "answer": "しません",
+          "answer_ruby": "しません",
           "options": [
             "しません",
             "します",
             "して"
           ],
+          "options_ruby": [
+            "しません",
+            "します",
+            "して"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "The second half contrasts the first"
         },
         {
           "kind": "choose",
           "prompt": "ビールは のみますが、ワインは ＿＿。",
+          "prompt_ruby": "ビールは 飲{の}みますが、ワインは ＿＿。",
           "en": "I drink beer, but I don't drink wine.",
           "answer": "のみません",
+          "answer_ruby": "飲{の}みません",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "のみます",
             "のみませんか",
             "のみません"
+          ],
+          "options_ruby": [
+            "飲{の}みます",
+            "飲{の}みませんか",
+            "飲{の}みません"
           ],
           "hint": "The は contrast pairs a positive half with a negative half.",
           "why_wrong": {
@@ -357,13 +500,21 @@
         {
           "kind": "choose",
           "prompt": "やまへは いきましたが、うみへは ＿＿。",
+          "prompt_ruby": "山{やま}へは 行{い}きましたが、海{うみ}へは ＿＿。",
           "en": "I went to the mountains, but I didn't go to the sea.",
           "answer": "いきませんでした",
+          "answer_ruby": "行{い}きませんでした",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "いきませんでした",
             "いきました",
             "いきません"
+          ],
+          "options_ruby": [
+            "行{い}きませんでした",
+            "行{い}きました",
+            "行{い}きません"
           ],
           "hint": "The contrast needs a negative, and the trip is over, so use the past negative.",
           "why_wrong": {
@@ -381,10 +532,12 @@
       "examples": [
         {
           "jp": "とうきょうには ともだちが います。",
+          "jp_ruby": "東京{とうきょう}には ともだちが います。",
           "en": "I have friends in Tokyo."
         },
         {
           "jp": "この みせでは カードが つかえません。",
+          "jp_ruby": "この 店{みせ}では カードが 使{つか}えません。",
           "en": "You can't use cards at this store."
         }
       ],
@@ -392,31 +545,50 @@
         {
           "kind": "fill",
           "prompt": "この としょかんで＿＿ パソコンが つかえます。",
+          "prompt_ruby": "この 図書館{としょかん}で＿＿ パソコンが 使{つか}えます。",
           "en": "You can use computers at this library.",
           "answer": "は",
+          "answer_ruby": "は",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Topic particle added after で"
         },
         {
           "kind": "choose",
           "prompt": "わたしの まち＿＿ えいがかんが ありません。",
+          "prompt_ruby": "わたしの 町{まち}＿＿ 映画館{えいがかん}が ありません。",
           "en": "My town doesn't have a movie theater.",
           "answer": "には",
+          "answer_ruby": "には",
           "options": [
             "には",
             "をは",
             "がは"
           ],
+          "options_ruby": [
+            "には",
+            "をは",
+            "がは"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Place particle + topic particle"
         },
         {
           "kind": "choose",
           "prompt": "この こうえん＿＿ やきゅうが できません。",
+          "prompt_ruby": "この こうえん＿＿ やきゅうが できません。",
           "en": "You can't play baseball in this park.",
           "answer": "では",
+          "answer_ruby": "では",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "をは",
+            "では",
+            "がは"
+          ],
+          "options_ruby": [
             "をは",
             "では",
             "がは"
@@ -430,10 +602,18 @@
         {
           "kind": "choose",
           "prompt": "あの ひと＿＿ はなした ことが ありません。",
+          "prompt_ruby": "あの 人{ひと}＿＿ 話{はな}した ことが ありません。",
           "en": "I have never talked with that person.",
           "answer": "とは",
+          "answer_ruby": "とは",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "をは",
+            "へは",
+            "とは"
+          ],
+          "options_ruby": [
             "をは",
             "へは",
             "とは"

@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "とまれ！／はいるな！",
+          "jp_ruby": "止{と}まれ！／入{はい}るな！",
           "en": "Stop! / Don't enter!"
         },
         {
           "jp": "がんばれ！",
+          "jp_ruby": "がんばれ！",
           "en": "Go for it!"
         }
       ],
@@ -21,31 +23,50 @@
         {
           "kind": "fill",
           "prompt": "ここで たばこを ＿＿。",
+          "prompt_ruby": "ここで たばこを ＿＿。",
           "en": "Don't smoke here.",
           "answer": "すうな",
+          "answer_ruby": "すうな",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Prohibitive form of すいます"
         },
         {
           "kind": "choose",
           "prompt": "はやく ＿＿！",
+          "prompt_ruby": "早{はや}く ＿＿！",
           "en": "Come quickly!",
           "answer": "こい",
+          "answer_ruby": "来{こ}い",
           "options": [
             "こい",
             "くろ",
             "きろ"
           ],
+          "options_ruby": [
+            "来{こ}い",
+            "来{く}ろ",
+            "来{き}ろ"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Imperative form of くる"
         },
         {
           "kind": "choose",
           "prompt": "あぶない！ はやく ＿＿！",
+          "prompt_ruby": "あぶない！ 早{はや}く ＿＿！",
           "en": "Danger! Run away, quick!",
           "answer": "にげろ",
+          "answer_ruby": "にげろ",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "にげるな",
+            "にげれろ",
+            "にげろ"
+          ],
+          "options_ruby": [
             "にげるな",
             "にげれろ",
             "にげろ"
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "この ボタンに ＿＿。",
+          "prompt_ruby": "この ボタンに ＿＿。",
           "en": "Don't touch this button.",
           "answer": "さわるな",
+          "answer_ruby": "さわるな",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "さわれ",
+            "さわるな",
+            "さわないな"
+          ],
+          "options_ruby": [
             "さわれ",
             "さわるな",
             "さわないな"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "かんばんに「きんえん」と かいて あります。",
+          "jp_ruby": "かんばんに「きんえん」と 書{か}いて あります。",
           "en": "The sign says 'No Smoking.'"
         },
         {
           "jp": "この かんじは「やま」と よみます。",
+          "jp_ruby": "この 漢字{かんじ}は「やま」と 読{よ}みます。",
           "en": "This kanji is read as yama."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "ドアに「おす」と ＿＿ あります。",
+          "prompt_ruby": "ドアに「おす」と ＿＿ あります。",
           "en": "The door says 'Push.'",
           "answer": "かいて",
+          "answer_ruby": "書{か}いて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of かきます"
         },
         {
           "kind": "choose",
           "prompt": "この なまえは なんと ＿＿か。",
+          "prompt_ruby": "この 名前{なまえ}は 何{なん}と ＿＿か。",
           "en": "How do you read this name?",
           "answer": "よみます",
+          "answer_ruby": "読{よ}みます",
           "options": [
             "よみます",
             "よみ",
             "よんで"
           ],
+          "options_ruby": [
+            "読{よ}みます",
+            "読{よ}み",
+            "読{よ}んで"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Polite form of the verb 'to read'"
         },
         {
           "kind": "choose",
           "prompt": "あの かんばんには なんと ＿＿か。",
+          "prompt_ruby": "あの かんばんには 何{なん}と ＿＿か。",
           "en": "What does that sign say?",
           "answer": "かいて あります",
+          "answer_ruby": "書{か}いて あります",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "かいて しまいます",
             "かいて あります",
             "かいて おきます"
+          ],
+          "options_ruby": [
+            "書{か}いて しまいます",
+            "書{か}いて あります",
+            "書{か}いて おきます"
           ],
           "hint": "What is written on something uses と かいて あります.",
           "why_wrong": {
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "この かんじは「みず」＿＿ よみます。",
+          "prompt_ruby": "この 漢字{かんじ}は「みず」＿＿ 読{よ}みます。",
           "en": "This kanji is read as mizu.",
           "answer": "と",
+          "answer_ruby": "と",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "を",
+            "が",
+            "と"
+          ],
+          "options_ruby": [
             "を",
             "が",
             "と"
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "「立入禁止」は はいっては いけないという いみです。",
+          "jp_ruby": "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。",
           "en": "'立入禁止' means you must not go in."
         },
         {
           "jp": "「きんえん」は たばこを すっては いけないという いみです。",
+          "jp_ruby": "「きんえん」は たばこを すっては いけないという 意味{いみ}です。",
           "en": "'きんえん' means you must not smoke."
         }
       ],
@@ -167,31 +227,50 @@
         {
           "kind": "fill",
           "prompt": "「でぐち」は そとへ でる ところ＿＿ いみです。",
+          "prompt_ruby": "「出口{でぐち}」は 外{そと}へ 出{で}る 所{ところ}＿＿ 意味{いみ}です。",
           "en": "'でぐち' means the place where you go out.",
           "answer": "という",
+          "answer_ruby": "という",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Quoting phrase before いみ"
         },
         {
           "kind": "choose",
           "prompt": "「ちゅうしゃきんし」は くるまを とめては ＿＿という いみです。",
+          "prompt_ruby": "「ちゅうしゃきんし」は 車{くるま}を 止{と}めては ＿＿という 意味{いみ}です。",
           "en": "'ちゅうしゃきんし' means you must not park your car.",
           "answer": "いけない",
+          "answer_ruby": "いけない",
           "options": [
             "いけない",
             "いけなく",
             "いけないで"
           ],
+          "options_ruby": [
+            "いけない",
+            "いけなく",
+            "いけないで"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Plain form before という"
         },
         {
           "kind": "choose",
           "prompt": "「ちゅうい」は きを つけろ＿＿ いみです。",
+          "prompt_ruby": "「注意{ちゅうい}」は 気{き}を つけろ＿＿ 意味{いみ}です。",
           "en": "'ちゅうい' means 'be careful.'",
           "answer": "という",
+          "answer_ruby": "という",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "の",
+            "という",
+            "が"
+          ],
+          "options_ruby": [
             "の",
             "という",
             "が"
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "「やすみ」は みせが ＿＿という いみです。",
+          "prompt_ruby": "「休{やす}み」は 店{みせ}が ＿＿という 意味{いみ}です。",
           "en": "'やすみ' means the store is closed.",
           "answer": "しまって いる",
+          "answer_ruby": "しまって いる",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "しめて いる",
+            "しまって ある",
+            "しまって いる"
+          ],
+          "options_ruby": [
             "しめて いる",
             "しまって ある",
             "しまって いる"
@@ -229,10 +316,12 @@
       "examples": [
         {
           "jp": "たなかさんは あした やすむと いって いました。",
+          "jp_ruby": "田中{たなか}さんは 明日{あした} 休{やす}むと 言{い}って いました。",
           "en": "Mr. Tanaka said he'll be off tomorrow."
         },
         {
           "jp": "かいぎに おくれると つたえて いただけませんか。",
+          "jp_ruby": "かいぎに おくれると つたえて いただけませんか。",
           "en": "Could you tell them I'll be late for the meeting?"
         }
       ],
@@ -240,37 +329,59 @@
         {
           "kind": "fill",
           "prompt": "やまださんは あとで でんわすると ＿＿。",
+          "prompt_ruby": "山田{やまだ}さんは 後{あと}で 電話{でんわ}すると ＿＿。",
           "en": "Ms. Yamada said she would call later.",
           "answer": "いって いました",
+          "answer_ruby": "言{い}って いました",
           "accepted": [
             "いっていました",
             "いいました"
+          ],
+          "accepted_ruby": [
+            "言{い}っていました",
+            "言{い}いました"
           ],
           "hint": "てForm of いいます + いました"
         },
         {
           "kind": "choose",
           "prompt": "あした いけないと ＿＿ いただけませんか。",
+          "prompt_ruby": "明日{あした} 行{い}けないと ＿＿ いただけませんか。",
           "en": "Could you tell them I can't come tomorrow?",
           "answer": "つたえて",
+          "answer_ruby": "つたえて",
           "options": [
             "つたえて",
             "つたえ",
             "つたえる"
           ],
+          "options_ruby": [
+            "つたえて",
+            "つたえ",
+            "つたえる"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of つたえます"
         },
         {
           "kind": "choose",
           "prompt": "やまださんは かいぎに おくれると ＿＿。",
+          "prompt_ruby": "山田{やまだ}さんは かいぎに おくれると ＿＿。",
           "en": "Mr. Yamada said he'd be late for the meeting.",
           "answer": "いって いました",
+          "answer_ruby": "言{い}って いました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "いいて いました",
             "いって あります",
             "いって いました"
+          ],
+          "options_ruby": [
+            "言{い}いて いました",
+            "言{い}って あります",
+            "言{い}って いました"
           ],
           "hint": "Pass on what someone said with と いって いました.",
           "why_wrong": {
@@ -281,13 +392,21 @@
         {
           "kind": "choose",
           "prompt": "ミラーさんに あした ＿＿と つたえて いただけませんか。",
+          "prompt_ruby": "ミラーさんに 明日{あした} ＿＿と つたえて いただけませんか。",
           "en": "Could you tell Mr. Miller that I'll be off tomorrow?",
           "answer": "やすむ",
+          "answer_ruby": "休{やす}む",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "やすむの",
             "やすんで",
             "やすむ"
+          ],
+          "options_ruby": [
+            "休{やす}むの",
+            "休{やす}んで",
+            "休{やす}む"
           ],
           "hint": "A message before と uses the plain form.",
           "why_wrong": {

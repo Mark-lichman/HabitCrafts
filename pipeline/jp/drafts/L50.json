@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "にもつを おもちします。",
+          "jp_ruby": "にもつを お持{も}ちします。",
           "en": "I'll carry your bags for you."
         },
         {
           "jp": "しりょうを おおくりします。",
+          "jp_ruby": "しりょうを お送{おく}りします。",
           "en": "I will send you the materials."
         }
       ],
@@ -21,19 +23,30 @@
         {
           "kind": "fill",
           "prompt": "かさを ＿＿しましょうか。",
+          "prompt_ruby": "かさを ＿＿しましょうか。",
           "en": "Shall I lend you an umbrella?",
           "answer": "おかし",
+          "answer_ruby": "お貸{か}し",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "お + ます stem of かします"
         },
         {
           "kind": "choose",
           "prompt": "わたしが こうじょうを ＿＿します。",
+          "prompt_ruby": "わたしが 工場{こうじょう}を ＿＿します。",
           "en": "I will show you around the factory.",
           "answer": "ごあんない",
+          "answer_ruby": "ごあんない",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ご + a する-verb noun",
           "options": [
+            "ごあんない",
+            "おあんない",
+            "あんないに"
+          ],
+          "options_ruby": [
             "ごあんない",
             "おあんない",
             "あんないに"
@@ -42,10 +55,18 @@
         {
           "kind": "choose",
           "prompt": "わたしが ＿＿しましょうか。",
+          "prompt_ruby": "わたしが ＿＿しましょうか。",
           "en": "Shall I help you?",
           "answer": "おてつだい",
+          "answer_ruby": "おてつだい",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "ごてつだい",
+            "おてつだい",
+            "おてつだって"
+          ],
+          "options_ruby": [
             "ごてつだい",
             "おてつだい",
             "おてつだって"
@@ -59,13 +80,21 @@
         {
           "kind": "choose",
           "prompt": "この きかいの つかいかたは わたしが ＿＿。",
+          "prompt_ruby": "この きかいの 使{つか}い方{かた}は わたしが ＿＿。",
           "en": "I will explain how to use this machine.",
           "answer": "ごせつめいします",
+          "answer_ruby": "ご説明{せつめい}します",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "ごせつめいに なります",
             "ごせつめいください",
             "ごせつめいします"
+          ],
+          "options_ruby": [
+            "ご説明{せつめい}に なります",
+            "ご説明{せつめい}ください",
+            "ご説明{せつめい}します"
           ],
           "hint": "For your own action, use the humble ご + noun + します.",
           "why_wrong": {
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "わたしは たなかと もうします。",
+          "jp_ruby": "わたしは 田中{たなか}と もうします。",
           "en": "My name is Tanaka."
         },
         {
           "jp": "あした そちらへ まいります。",
+          "jp_ruby": "明日{あした} そちらへ まいります。",
           "en": "I will come to your office tomorrow."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "ごぜんちゅうは じむしょに ＿＿。",
+          "prompt_ruby": "午前中{ごぜんちゅう}は じむしょに ＿＿。",
           "en": "I will be at the office in the morning.",
           "answer": "おります",
+          "answer_ruby": "おります",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Special humble verb for います"
         },
         {
           "kind": "choose",
           "prompt": "きのう せんせいの おたくで ばんごはんを ＿＿。",
+          "prompt_ruby": "きのう 先生{せんせい}の おたくで ばんごはんを ＿＿。",
           "en": "Yesterday I had dinner at my teacher's home.",
           "answer": "いただきました",
+          "answer_ruby": "いただきました",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Special humble verb for your own eating",
           "options": [
             "いただきました",
             "めしあがりました",
             "おたべしました"
+          ],
+          "options_ruby": [
+            "いただきました",
+            "めしあがりました",
+            "お食{た}べしました"
           ]
         },
         {
           "kind": "choose",
           "prompt": "わたしは らいしゅう アメリカへ ＿＿。",
+          "prompt_ruby": "わたしは 来週{らいしゅう} アメリカへ ＿＿。",
           "en": "I will go to America next week.",
           "answer": "まいります",
+          "answer_ruby": "まいります",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "いらっしゃいます",
             "まいります",
             "おいきします"
+          ],
+          "options_ruby": [
+            "いらっしゃいます",
+            "まいります",
+            "お行{い}きします"
           ],
           "hint": "まいります is the humble verb for your own going or coming.",
           "why_wrong": {
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "ちちは いま うちに ＿＿。",
+          "prompt_ruby": "父{ちち}は 今{いま} うちに ＿＿。",
           "en": "My father is at home now.",
           "answer": "おります",
+          "answer_ruby": "おります",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "ございます",
+            "いらっしゃいます",
+            "おります"
+          ],
+          "options_ruby": [
             "ございます",
             "いらっしゃいます",
             "おります"
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "こちらに ございます。",
+          "jp_ruby": "こちらに ございます。",
           "en": "It's right here."
         },
         {
           "jp": "トイレは あちらでございます。",
+          "jp_ruby": "トイレは あちらでございます。",
           "en": "The restroom is over there."
         }
       ],
@@ -167,19 +227,30 @@
         {
           "kind": "fill",
           "prompt": "はい、あかい かさも ＿＿。",
+          "prompt_ruby": "はい、赤{あか}い かさも ＿＿。",
           "en": "Yes, we have red umbrellas too.",
           "answer": "ございます",
+          "answer_ruby": "ございます",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Very polite form of あります"
         },
         {
           "kind": "choose",
           "prompt": "こちらは ちいさい サイズ＿＿。",
+          "prompt_ruby": "こちらは 小{ちい}さい サイズ＿＿。",
           "en": "This is the small size.",
           "answer": "でございます",
+          "answer_ruby": "でございます",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Very polite form of です",
           "options": [
+            "でございます",
+            "でいらっしゃいます",
+            "でおります"
+          ],
+          "options_ruby": [
             "でございます",
             "でいらっしゃいます",
             "でおります"
@@ -188,10 +259,18 @@
         {
           "kind": "choose",
           "prompt": "エレベーターは あちらに ＿＿。",
+          "prompt_ruby": "エレベーターは あちらに ＿＿。",
           "en": "The elevator is over there.",
           "answer": "ございます",
+          "answer_ruby": "ございます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "いらっしゃいます",
+            "ございます",
+            "おります"
+          ],
+          "options_ruby": [
             "いらっしゃいます",
             "ございます",
             "おります"
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "こちらは ごせんえん＿＿。",
+          "prompt_ruby": "こちらは 五千円{ごせんえん}＿＿。",
           "en": "This one is five thousand yen.",
           "answer": "でございます",
+          "answer_ruby": "でございます",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "にございます",
+            "でいらっしゃいます",
+            "でございます"
+          ],
+          "options_ruby": [
             "にございます",
             "でいらっしゃいます",
             "でございます"
