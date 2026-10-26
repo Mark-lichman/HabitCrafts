@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "はやく びょういんへ いった ほうが いいです。",
+          "jp_ruby": "早{はや}く 病院{びょういん}へ 行{い}った ほうが いいです。",
           "en": "You should go to the hospital soon."
         },
         {
           "jp": "あまり おさけを のまない ほうが いいです。",
+          "jp_ruby": "あまり おさけを 飲{の}まない ほうが いいです。",
           "en": "You shouldn't drink too much."
         }
       ],
@@ -21,34 +23,53 @@
         {
           "kind": "fill",
           "prompt": "かぜの ときは、はやく ＿＿ ほうが いいです。",
+          "prompt_ruby": "かぜの 時{とき}は、早{はや}く ＿＿ ほうが いいです。",
           "en": "When you have a cold, you should go to bed early.",
           "answer": "ねた",
+          "answer_ruby": "ねた",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "たForm of ねます"
         },
         {
           "kind": "choose",
           "prompt": "よる おそく コーヒーを ＿＿ ほうが いいです。",
+          "prompt_ruby": "夜{よる} おそく コーヒーを ＿＿ ほうが いいです。",
           "en": "You shouldn't drink coffee late at night.",
           "answer": "のまない",
+          "answer_ruby": "飲{の}まない",
           "options": [
             "のまない",
             "のまなかった",
             "のまないで"
           ],
+          "options_ruby": [
+            "飲{の}まない",
+            "飲{の}まなかった",
+            "飲{の}まないで"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ないForm for negative advice"
         },
         {
           "kind": "choose",
           "prompt": "つかれたら、すこし ＿＿ ほうが いいですよ。",
+          "prompt_ruby": "つかれたら、少{すこ}し ＿＿ ほうが いいですよ。",
           "en": "If you're tired, you should rest a little.",
           "answer": "やすんだ",
+          "answer_ruby": "休{やす}んだ",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "やすみた",
             "やすんだ",
             "やすんで"
+          ],
+          "options_ruby": [
+            "休{やす}みた",
+            "休{やす}んだ",
+            "休{やす}んで"
           ],
           "hint": "Positive advice uses the たForm + ほうが いいです.",
           "why_wrong": {
@@ -59,13 +80,21 @@
         {
           "kind": "choose",
           "prompt": "あぶないですから、よる ひとりで ＿＿ ほうが いいです。",
+          "prompt_ruby": "あぶないですから、夜{よる} 一人{ひとり}で ＿＿ ほうが いいです。",
           "en": "It's dangerous, so you shouldn't go out alone at night.",
           "answer": "でかけない",
+          "answer_ruby": "出{で}かけない",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "でかけた",
             "でかけません",
             "でかけない"
+          ],
+          "options_ruby": [
+            "出{で}かけた",
+            "出{で}かけません",
+            "出{で}かけない"
           ],
           "hint": "Negative advice uses the ないForm + ほうが いいです.",
           "why_wrong": {
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "あしたは はれるでしょう。",
+          "jp_ruby": "明日{あした}は はれるでしょう。",
           "en": "It will probably be sunny tomorrow."
         },
         {
           "jp": "やまださんは きょう こないでしょう。",
+          "jp_ruby": "山田{やまだ}さんは 今日{きょう} 来{こ}ないでしょう。",
           "en": "Mr. Yamada probably won't come today."
         }
       ],
@@ -94,31 +125,50 @@
         {
           "kind": "fill",
           "prompt": "しけんは むずかしい＿＿。",
+          "prompt_ruby": "試験{しけん}は むずかしい＿＿。",
           "en": "The exam will probably be difficult.",
           "answer": "でしょう",
+          "answer_ruby": "でしょう",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Word for a confident guess"
         },
         {
           "kind": "choose",
           "prompt": "あしたの よるは ＿＿でしょう。",
+          "prompt_ruby": "明日{あした}の 夜{よる}は ＿＿でしょう。",
           "en": "It will probably snow tomorrow night.",
           "answer": "ゆき",
+          "answer_ruby": "ゆき",
           "options": [
             "ゆき",
             "ゆきだ",
             "ゆきな"
           ],
+          "options_ruby": [
+            "ゆき",
+            "ゆきだ",
+            "ゆきな"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Nouns drop だ before でしょう"
         },
         {
           "kind": "choose",
           "prompt": "にちようびの こうえんは ＿＿でしょう。",
+          "prompt_ruby": "日曜日{にちようび}の こうえんは ＿＿でしょう。",
           "en": "The park will probably be lively on Sunday.",
           "answer": "にぎやか",
+          "answer_ruby": "にぎやか",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "にぎやかだ",
+            "にぎやかな",
+            "にぎやか"
+          ],
+          "options_ruby": [
             "にぎやかだ",
             "にぎやかな",
             "にぎやか"
@@ -132,13 +182,21 @@
         {
           "kind": "choose",
           "prompt": "たなかさんは もう ＿＿でしょう。",
+          "prompt_ruby": "田中{たなか}さんは もう ＿＿でしょう。",
           "en": "Mr. Tanaka has probably already gone home.",
           "answer": "かえった",
+          "answer_ruby": "帰{かえ}った",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "かえった",
             "かえりました",
             "かえって"
+          ],
+          "options_ruby": [
+            "帰{かえ}った",
+            "帰{かえ}りました",
+            "帰{かえ}って"
           ],
           "hint": "でしょう follows the plain form, and the plain past is the たForm.",
           "why_wrong": {
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "あした あめが ふるかもしれません。",
+          "jp_ruby": "明日{あした} 雨{あめ}が ふるかもしれません。",
           "en": "It might rain tomorrow."
         },
         {
           "jp": "みちが こんで いるかもしれません。",
+          "jp_ruby": "道{みち}が こんで いるかもしれません。",
           "en": "The roads might be crowded."
         }
       ],
@@ -167,34 +227,53 @@
         {
           "kind": "fill",
           "prompt": "やくそくの じかんに ＿＿かもしれません。",
+          "prompt_ruby": "やくそくの 時間{じかん}に ＿＿かもしれません。",
           "en": "I might not make it in time for the appointment.",
           "answer": "まにあわない",
+          "answer_ruby": "間{ま}に合{あ}わない",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ないForm of まにあいます"
         },
         {
           "kind": "choose",
           "prompt": "あの ひとは ＿＿かもしれません。",
+          "prompt_ruby": "あの 人{ひと}は ＿＿かもしれません。",
           "en": "That person might be a teacher.",
           "answer": "せんせい",
+          "answer_ruby": "先生{せんせい}",
           "options": [
             "せんせい",
             "せんせいだ",
             "せんせいな"
           ],
+          "options_ruby": [
+            "先生{せんせい}",
+            "先生{せんせい}だ",
+            "先生{せんせい}な"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Nouns drop だ before かもしれません"
         },
         {
           "kind": "choose",
           "prompt": "ミラーさんは パーティーに ＿＿かもしれません。",
+          "prompt_ruby": "ミラーさんは パーティーに ＿＿かもしれません。",
           "en": "Mr. Miller might not come to the party.",
           "answer": "こない",
+          "answer_ruby": "来{こ}ない",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きない",
             "こない",
             "くない"
+          ],
+          "options_ruby": [
+            "来{き}ない",
+            "来{こ}ない",
+            "来{く}ない"
           ],
           "hint": "かもしれません follows the plain form, and the ないForm of くる is こない.",
           "why_wrong": {
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "あしたの テストは ＿＿かもしれません。",
+          "prompt_ruby": "明日{あした}の テストは ＿＿かもしれません。",
           "en": "Tomorrow's test might be easy.",
           "answer": "かんたん",
+          "answer_ruby": "かんたん",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "かんたんな",
+            "かんたん",
+            "かんたんだ"
+          ],
+          "options_ruby": [
             "かんたんな",
             "かんたん",
             "かんたんだ"

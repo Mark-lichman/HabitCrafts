@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "せんせいから ほんを いただきました。",
+          "jp_ruby": "先生{せんせい}から 本{ほん}を いただきました。",
           "en": "I received a book from my teacher."
         },
         {
           "jp": "しゃちょうが わたしに おみやげを くださいました。",
+          "jp_ruby": "社長{しゃちょう}が わたしに おみやげを くださいました。",
           "en": "The company president gave me a souvenir."
         }
       ],
@@ -21,9 +23,14 @@
         {
           "kind": "fill",
           "prompt": "まいにち いぬに えさを ＿＿。",
+          "prompt_ruby": "毎日{まいにち} 犬{いぬ}に えさを ＿＿。",
           "en": "I feed my dog every day.",
           "answer": "やります",
+          "answer_ruby": "やります",
           "accepted": [
+            "あげます"
+          ],
+          "accepted_ruby": [
             "あげます"
           ],
           "hint": "the 'give' verb used for animals"
@@ -31,23 +38,39 @@
         {
           "kind": "choose",
           "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
+          "prompt_ruby": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
           "en": "The department manager's wife gave me a necktie.",
           "answer": "くださいました",
+          "answer_ruby": "くださいました",
           "options": [
             "くださいました",
             "いただきました",
             "やりました"
           ],
+          "options_ruby": [
+            "くださいました",
+            "いただきました",
+            "やりました"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "a superior gives to me"
         },
         {
           "kind": "choose",
           "prompt": "わたしは しゃちょうに とけいを ＿＿。",
+          "prompt_ruby": "わたしは 社長{しゃちょう}に 時計{とけい}を ＿＿。",
           "en": "I received a watch from the company president.",
           "answer": "いただきました",
+          "answer_ruby": "いただきました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "やりました",
+            "いただきました",
+            "くださいました"
+          ],
+          "options_ruby": [
             "やりました",
             "いただきました",
             "くださいました"
@@ -61,10 +84,18 @@
         {
           "kind": "choose",
           "prompt": "せんせいが わたしに じしょを ＿＿。",
+          "prompt_ruby": "先生{せんせい}が わたしに じしょを ＿＿。",
           "en": "The teacher gave me a dictionary.",
           "answer": "くださいました",
+          "answer_ruby": "くださいました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "くださりました",
+            "いただきました",
+            "くださいました"
+          ],
+          "options_ruby": [
             "くださりました",
             "いただきました",
             "くださいました"
@@ -85,10 +116,12 @@
       "examples": [
         {
           "jp": "せんせいに さくぶんを なおして いただきました。",
+          "jp_ruby": "先生{せんせい}に 作文{さくぶん}を なおして いただきました。",
           "en": "My teacher kindly corrected my composition."
         },
         {
           "jp": "ぶちょうが えきまで おくって くださいました。",
+          "jp_ruby": "ぶちょうが 駅{えき}まで 送{おく}って くださいました。",
           "en": "The department manager kindly took me to the station."
         }
       ],
@@ -96,31 +129,50 @@
         {
           "kind": "fill",
           "prompt": "せんせいに みちを ＿＿ いただきました。",
+          "prompt_ruby": "先生{せんせい}に 道{みち}を ＿＿ いただきました。",
           "en": "My teacher kindly showed me the way.",
           "answer": "おしえて",
+          "answer_ruby": "教{おし}えて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "て form of おしえます"
         },
         {
           "kind": "choose",
           "prompt": "むすこに じてんしゃを なおして ＿＿。",
+          "prompt_ruby": "むすこに 自転車{じてんしゃ}を なおして ＿＿。",
           "en": "I fixed my son's bicycle for him.",
           "answer": "やりました",
+          "answer_ruby": "やりました",
           "options": [
             "やりました",
             "くださいました",
             "いただきました"
           ],
+          "options_ruby": [
+            "やりました",
+            "くださいました",
+            "いただきました"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "I do a favor for a junior"
         },
         {
           "kind": "choose",
           "prompt": "＿＿ にもつを もって いただきました。",
+          "prompt_ruby": "＿＿ にもつを 持{も}って いただきました。",
           "en": "The department manager kindly carried my bags for me.",
           "answer": "ぶちょうに",
+          "answer_ruby": "ぶちょうに",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "ぶちょうが",
+            "ぶちょうに",
+            "ぶちょうを"
+          ],
+          "options_ruby": [
             "ぶちょうが",
             "ぶちょうに",
             "ぶちょうを"
@@ -134,10 +186,18 @@
         {
           "kind": "choose",
           "prompt": "しらない かたが かさを かして ＿＿。",
+          "prompt_ruby": "知{し}らない 方{かた}が かさを 貸{か}して ＿＿。",
           "en": "A stranger kindly lent me an umbrella.",
           "answer": "くださいました",
+          "answer_ruby": "くださいました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "いただきました",
+            "やりました",
+            "くださいました"
+          ],
+          "options_ruby": [
             "いただきました",
             "やりました",
             "くださいました"
@@ -158,10 +218,12 @@
       "examples": [
         {
           "jp": "もういちど せつめいして くださいませんか。",
+          "jp_ruby": "もう一度{いちど} 説明{せつめい}して くださいませんか。",
           "en": "Could you please explain it once more?"
         },
         {
           "jp": "この ことばの いみを おしえて くださいませんか。",
+          "jp_ruby": "この ことばの 意味{いみ}を 教{おし}えて くださいませんか。",
           "en": "Could you please tell me what this word means?"
         }
       ],
@@ -169,34 +231,53 @@
         {
           "kind": "fill",
           "prompt": "すみませんが、しゃしんを ＿＿ くださいませんか。",
+          "prompt_ruby": "すみませんが、写真{しゃしん}を ＿＿ くださいませんか。",
           "en": "Excuse me, could you please take a photo?",
           "answer": "とって",
+          "answer_ruby": "とって",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "て form of とります"
         },
         {
           "kind": "choose",
           "prompt": "ちょっと ＿＿ くださいませんか。",
+          "prompt_ruby": "ちょっと ＿＿ くださいませんか。",
           "en": "Could you please wait a moment?",
           "answer": "まって",
+          "answer_ruby": "待{ま}って",
           "options": [
             "まって",
             "まち",
             "まつ"
           ],
+          "options_ruby": [
+            "待{ま}って",
+            "待{ま}ち",
+            "待{ま}つ"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "て form of まちます"
         },
         {
           "kind": "choose",
           "prompt": "この にもつを ＿＿ くださいませんか。",
+          "prompt_ruby": "この にもつを ＿＿ くださいませんか。",
           "en": "Could you please hold this luggage?",
           "answer": "もって",
+          "answer_ruby": "持{も}って",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "もちて",
             "もつ",
             "もって"
+          ],
+          "options_ruby": [
+            "持{も}ちて",
+            "持{も}つ",
+            "持{も}って"
           ],
           "hint": "くださいませんか follows the て form; ち becomes って.",
           "why_wrong": {
@@ -207,10 +288,18 @@
         {
           "kind": "choose",
           "prompt": "まどを あけて ＿＿。",
+          "prompt_ruby": "まどを 開{あ}けて ＿＿。",
           "en": "Could you please open the window?",
           "answer": "くださいませんか",
+          "answer_ruby": "くださいませんか",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "くださりませんか",
+            "くださいませんか",
+            "いただきませんか"
+          ],
+          "options_ruby": [
             "くださりませんか",
             "くださいませんか",
             "いただきませんか"

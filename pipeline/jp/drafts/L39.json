@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "かぜを ひいて、がっこうを やすみました。",
+          "jp_ruby": "かぜを ひいて、学校{がっこう}を 休{やす}みました。",
           "en": "I caught a cold, so I missed school."
         },
         {
           "jp": "ニュースを きいて、びっくりしました。",
+          "jp_ruby": "ニュースを 聞{き}いて、びっくりしました。",
           "en": "I was surprised to hear the news."
         }
       ],
@@ -21,31 +23,50 @@
         {
           "kind": "fill",
           "prompt": "てがみを ＿＿、あんしんしました。",
+          "prompt_ruby": "手紙{てがみ}を ＿＿、安心{あんしん}しました。",
           "en": "I was relieved to read the letter.",
           "answer": "よんで",
+          "answer_ruby": "読{よ}んで",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "て form of よみます"
         },
         {
           "kind": "choose",
           "prompt": "じこが ＿＿、でんしゃが おくれました。",
+          "prompt_ruby": "じこが ＿＿、電車{でんしゃ}が おくれました。",
           "en": "There was an accident, so the train was late.",
           "answer": "あって",
+          "answer_ruby": "あって",
           "options": [
             "あって",
             "あるて",
             "あくて"
           ],
+          "options_ruby": [
+            "あって",
+            "あるて",
+            "あくて"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "て form of あります"
         },
         {
           "kind": "choose",
           "prompt": "さいふを ＿＿、こまりました。",
+          "prompt_ruby": "さいふを ＿＿、こまりました。",
           "en": "I lost my wallet, so I was in trouble.",
           "answer": "おとして",
+          "answer_ruby": "おとして",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "おちて",
+            "おとした",
+            "おとして"
+          ],
+          "options_ruby": [
             "おちて",
             "おとした",
             "おとして"
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "しあいに ＿＿、うれしかったです。",
+          "prompt_ruby": "試合{しあい}に ＿＿、うれしかったです。",
           "en": "I was happy that we won the game.",
           "answer": "かって",
+          "answer_ruby": "かって",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "かちて",
+            "かって",
+            "かった"
+          ],
+          "options_ruby": [
             "かちて",
             "かって",
             "かった"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "からくて たべられませんでした。",
+          "jp_ruby": "からくて 食{た}べられませんでした。",
           "en": "It was so spicy that I couldn't eat it."
         },
         {
           "jp": "ふくざつで、よく わかりません。",
+          "jp_ruby": "ふくざつで、よく 分{わ}かりません。",
           "en": "It's complicated, so I don't really understand it."
         }
       ],
@@ -94,31 +125,50 @@
         {
           "kind": "fill",
           "prompt": "この もんだいは ＿＿、わかりません。",
+          "prompt_ruby": "この 問題{もんだい}は ＿＿、分{わ}かりません。",
           "en": "This problem is difficult, so I can't figure it out.",
           "answer": "むずかしくて",
+          "answer_ruby": "むずかしくて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "くて form of むずかしい"
         },
         {
           "kind": "choose",
           "prompt": "かぞくの ことが ＿＿、ねられません。",
+          "prompt_ruby": "家族{かぞく}の ことが ＿＿、ねられません。",
           "en": "I'm worried about my family, so I can't sleep.",
           "answer": "しんぱいで",
+          "answer_ruby": "しんぱいで",
           "options": [
             "しんぱいで",
             "しんぱいくて",
             "しんぱいなくて"
           ],
+          "options_ruby": [
+            "しんぱいで",
+            "しんぱいくて",
+            "しんぱいなくて"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "しんぱい is a な adjective"
         },
         {
           "kind": "choose",
           "prompt": "へやが ＿＿、ベッドが はいりません。",
+          "prompt_ruby": "へやが ＿＿、ベッドが 入{はい}りません。",
           "en": "The room is so small that the bed won't fit.",
           "answer": "せまくて",
+          "answer_ruby": "せまくて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "せまいくて",
+            "せまくて",
+            "せまいで"
+          ],
+          "options_ruby": [
             "せまいくて",
             "せまくて",
             "せまいで"
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "しごとが ＿＿、ねる じかんが ありません。",
+          "prompt_ruby": "仕事{しごと}が ＿＿、ねる 時間{じかん}が ありません。",
           "en": "Work is so hard that I have no time to sleep.",
           "answer": "たいへんで",
+          "answer_ruby": "たいへんで",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "たいへんで",
+            "たいへんなで",
+            "たいへんくて"
+          ],
+          "options_ruby": [
             "たいへんで",
             "たいへんなで",
             "たいへんくて"
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "びょうきで、かいしゃを やすみました。",
+          "jp_ruby": "病気{びょうき}で、会社{かいしゃ}を 休{やす}みました。",
           "en": "I was sick, so I took the day off work."
         },
         {
           "jp": "じしんで ビルが たおれました。",
+          "jp_ruby": "じしんで ビルが たおれました。",
           "en": "The building collapsed in the earthquake."
         }
       ],
@@ -167,31 +227,50 @@
         {
           "kind": "fill",
           "prompt": "じこ＿＿ ちかてつが とまりました。",
+          "prompt_ruby": "じこ＿＿ ちかてつが 止{と}まりました。",
           "en": "The subway stopped because of an accident.",
           "answer": "で",
+          "answer_ruby": "で",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "the particle that marks a cause"
         },
         {
           "kind": "choose",
           "prompt": "たいふう＿＿ がっこうが やすみに なりました。",
+          "prompt_ruby": "台風{たいふう}＿＿ 学校{がっこう}が 休{やす}みに なりました。",
           "en": "School was canceled because of the typhoon.",
           "answer": "で",
+          "answer_ruby": "で",
           "options": [
             "で",
             "を",
             "に"
           ],
+          "options_ruby": [
+            "で",
+            "を",
+            "に"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "the particle that marks a cause"
         },
         {
           "kind": "choose",
           "prompt": "つよい かぜ＿＿ きが たおれました。",
+          "prompt_ruby": "強{つよ}い 風{かぜ}＿＿ 木{き}が たおれました。",
           "en": "The tree fell over because of the strong wind.",
           "answer": "で",
+          "answer_ruby": "で",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "を",
+            "が",
+            "で"
+          ],
+          "options_ruby": [
             "を",
             "が",
             "で"
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "あしの ＿＿、はしれません。",
+          "prompt_ruby": "足{あし}の ＿＿、走{はし}れません。",
           "en": "I can't run because of my leg injury.",
           "answer": "けがで",
+          "answer_ruby": "けがで",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "けがを",
+            "けがで",
+            "けがくて"
+          ],
+          "options_ruby": [
             "けがを",
             "けがで",
             "けがくて"
@@ -229,10 +316,12 @@
       "examples": [
         {
           "jp": "あめが ふって いるので、でかけません。",
+          "jp_ruby": "雨{あめ}が ふって いるので、出{で}かけません。",
           "en": "It's raining, so I won't go out."
         },
         {
           "jp": "ようじが あるので、さきに かえっても いいですか。",
+          "jp_ruby": "用事{ようじ}が あるので、先{さき}に 帰{かえ}っても いいですか。",
           "en": "I have something to take care of, so may I leave first?"
         }
       ],
@@ -240,31 +329,50 @@
         {
           "kind": "fill",
           "prompt": "あたまが ＿＿ ので、はやく かえります。",
+          "prompt_ruby": "頭{あたま}が ＿＿ ので、早{はや}く 帰{かえ}ります。",
           "en": "I have a headache, so I'll go home early.",
           "answer": "いたい",
+          "answer_ruby": "いたい",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "plain form of いたいです"
         },
         {
           "kind": "choose",
           "prompt": "あしたは やすみ＿＿、どこかへ いきたいです。",
+          "prompt_ruby": "明日{あした}は 休{やす}み＿＿、どこかへ 行{い}きたいです。",
           "en": "Tomorrow is a day off, so I want to go somewhere.",
           "answer": "なので",
+          "answer_ruby": "なので",
           "options": [
             "なので",
             "ので",
             "だので"
           ],
+          "options_ruby": [
+            "なので",
+            "ので",
+            "だので"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "やすみ is a noun"
         },
         {
           "kind": "choose",
           "prompt": "ねつが ある＿＿、きょうは やすんでも いいですか。",
+          "prompt_ruby": "ねつが ある＿＿、今日{きょう}は 休{やす}んでも いいですか。",
           "en": "I have a fever, so may I take today off?",
           "answer": "ので",
+          "answer_ruby": "ので",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "のに",
+            "ので",
+            "なので"
+          ],
+          "options_ruby": [
             "のに",
             "ので",
             "なので"
@@ -278,10 +386,18 @@
         {
           "kind": "choose",
           "prompt": "この へんは ＿＿、よく ねられます。",
+          "prompt_ruby": "この へんは ＿＿、よく ねられます。",
           "en": "This area is quiet, so I can sleep well.",
           "answer": "しずかなので",
+          "answer_ruby": "しずかなので",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "しずかだので",
+            "しずかので",
+            "しずかなので"
+          ],
+          "options_ruby": [
             "しずかだので",
             "しずかので",
             "しずかなので"
