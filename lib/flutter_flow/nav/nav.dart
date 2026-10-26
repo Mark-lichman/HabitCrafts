@@ -28,6 +28,7 @@ import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
+import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -184,6 +185,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             mode: params.getParam('mode', ParamType.String) ?? 'reference',
             table: params.getParam('table', ParamType.String),
             form: params.getParam('form', ParamType.String),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomSpeakWidget.routeName,
+          path: QuietRoomSpeakWidget.routePath,
+          builder: (context, params) => QuietRoomSpeakWidget(
+            lesson: params.getParam('lesson', ParamType.int),
           ),
         ),
         FFRoute(
