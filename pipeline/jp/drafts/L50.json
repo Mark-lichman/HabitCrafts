@@ -34,7 +34,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが こうじょうを ＿＿します。",
-          "prompt_ruby": "わたしが 工場{こうじょう}を ＿＿します。",
+          "prompt_ruby": "私{わたし}が 工場{こうじょう}を ＿＿します。",
           "en": "I will show you around the factory.",
           "answer": "ごあんない",
           "answer_ruby": "ごあんない",
@@ -55,7 +55,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが ＿＿しましょうか。",
-          "prompt_ruby": "わたしが ＿＿しましょうか。",
+          "prompt_ruby": "私{わたし}が ＿＿しましょうか。",
           "en": "Shall I help you?",
           "answer": "おてつだい",
           "answer_ruby": "おてつだい",
@@ -80,10 +80,10 @@
         {
           "kind": "choose",
           "prompt": "この きかいの つかいかたは わたしが ＿＿。",
-          "prompt_ruby": "この きかいの 使{つか}い方{かた}は わたしが ＿＿。",
+          "prompt_ruby": "この きかいの 使{つか}い方{かた}は 私{わたし}が ＿＿。",
           "en": "I will explain how to use this machine.",
           "answer": "ごせつめいします",
-          "answer_ruby": "ご説明{せつめい}します",
+          "answer_ruby": "ごせつめいします",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -92,9 +92,9 @@
             "ごせつめいします"
           ],
           "options_ruby": [
-            "ご説明{せつめい}に なります",
-            "ご説明{せつめい}ください",
-            "ご説明{せつめい}します"
+            "ごせつめいに なります",
+            "ごせつめいください",
+            "ごせつめいします"
           ],
           "hint": "For your own action, use the humble ご + noun + します.",
           "why_wrong": {
@@ -112,7 +112,7 @@
       "examples": [
         {
           "jp": "わたしは たなかと もうします。",
-          "jp_ruby": "わたしは 田中{たなか}と もうします。",
+          "jp_ruby": "私{わたし}は 田中{たなか}と もうします。",
           "en": "My name is Tanaka."
         },
         {
@@ -157,7 +157,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは らいしゅう アメリカへ ＿＿。",
-          "prompt_ruby": "わたしは 来週{らいしゅう} アメリカへ ＿＿。",
+          "prompt_ruby": "私{わたし}は 来週{らいしゅう} アメリカへ ＿＿。",
           "en": "I will go to America next week.",
           "answer": "まいります",
           "answer_ruby": "まいります",

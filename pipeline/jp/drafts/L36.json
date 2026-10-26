@@ -10,7 +10,7 @@
       "examples": [
         {
           "jp": "よく きこえるように、おおきい こえで はなして ください。",
-          "jp_ruby": "よく 聞{き}こえるように、大{おお}きい 声{こえ}で 話{はな}して ください。",
+          "jp_ruby": "よく 聞{き}こえるように、大{おお}きい こえで 話{はな}して ください。",
           "en": "Please speak loudly so that everyone can hear well."
         },
         {
@@ -150,7 +150,7 @@
           "prompt_ruby": "やっと 自転車{じてんしゃ}に ＿＿ ように なりました。",
           "en": "I finally became able to ride a bicycle.",
           "answer": "のれる",
-          "answer_ruby": "乗{の}れる",
+          "answer_ruby": "のれる",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -159,9 +159,9 @@
             "のれます"
           ],
           "options_ruby": [
-            "乗{の}られる",
-            "乗{の}れる",
-            "乗{の}れます"
+            "のられる",
+            "のれる",
+            "のれます"
           ],
           "hint": "Potential form ＋ ように なります means 'became able to.'",
           "why_wrong": {
@@ -217,7 +217,7 @@
         {
           "kind": "fill",
           "prompt": "まいにち やさいを ＿＿ ように して います。",
-          "prompt_ruby": "毎日{まいにち} 野菜{やさい}を ＿＿ ように して います。",
+          "prompt_ruby": "毎日{まいにち} やさいを ＿＿ ように して います。",
           "en": "I make a point of eating vegetables every day.",
           "answer": "たべる",
           "answer_ruby": "食{た}べる",

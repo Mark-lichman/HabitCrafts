@@ -15,7 +15,7 @@
         },
         {
           "jp": "わたしが やった とおりに、やって ください。",
-          "jp_ruby": "わたしが やった とおりに、やって ください。",
+          "jp_ruby": "私{わたし}が やった とおりに、やって ください。",
           "en": "Please do it just the way I did."
         }
       ],
@@ -38,7 +38,7 @@
         {
           "kind": "choose",
           "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。",
-          "prompt_ruby": "説明書{せつめいしょ}＿＿ とおりに くみたてて ください。",
+          "prompt_ruby": "せつめいしょ＿＿ とおりに くみたてて ください。",
           "en": "Please assemble it according to the instructions.",
           "answer": "の",
           "answer_ruby": "の",
@@ -59,7 +59,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが ＿＿ とおりに、つくって ください。",
-          "prompt_ruby": "わたしが ＿＿ とおりに、作{つく}って ください。",
+          "prompt_ruby": "私{わたし}が ＿＿ とおりに、作{つく}って ください。",
           "en": "Please make it just the way I made it.",
           "answer": "つくった",
           "answer_ruby": "作{つく}った",
@@ -383,7 +383,7 @@
           "prompt_ruby": "電車{でんしゃ}に ＿＿、歩{ある}いて 帰{かえ}りました。",
           "en": "I walked home instead of taking the train.",
           "answer": "のらないで",
-          "answer_ruby": "乗{の}らないで",
+          "answer_ruby": "のらないで",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -392,9 +392,9 @@
             "のらない"
           ],
           "options_ruby": [
-            "乗{の}らないで",
-            "乗{の}りないで",
-            "乗{の}らない"
+            "のらないで",
+            "のりないで",
+            "のらない"
           ],
           "hint": "ないで means doing one thing instead of another.",
           "why_wrong": {

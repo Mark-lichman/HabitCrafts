@@ -15,7 +15,7 @@
         },
         {
           "jp": "しゃちょうが わたしに おみやげを くださいました。",
-          "jp_ruby": "社長{しゃちょう}が わたしに おみやげを くださいました。",
+          "jp_ruby": "社長{しゃちょう}が 私{わたし}に おみやげを くださいました。",
           "en": "The company president gave me a souvenir."
         }
       ],
@@ -38,7 +38,7 @@
         {
           "kind": "choose",
           "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
-          "prompt_ruby": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
+          "prompt_ruby": "ぶちょうの おくさんが 私{わたし}に ネクタイを ＿＿。",
           "en": "The department manager's wife gave me a necktie.",
           "answer": "くださいました",
           "answer_ruby": "くださいました",
@@ -59,7 +59,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは しゃちょうに とけいを ＿＿。",
-          "prompt_ruby": "わたしは 社長{しゃちょう}に 時計{とけい}を ＿＿。",
+          "prompt_ruby": "私{わたし}は 社長{しゃちょう}に 時計{とけい}を ＿＿。",
           "en": "I received a watch from the company president.",
           "answer": "いただきました",
           "answer_ruby": "いただきました",
@@ -84,7 +84,7 @@
         {
           "kind": "choose",
           "prompt": "せんせいが わたしに じしょを ＿＿。",
-          "prompt_ruby": "先生{せんせい}が わたしに じしょを ＿＿。",
+          "prompt_ruby": "先生{せんせい}が 私{わたし}に じしょを ＿＿。",
           "en": "The teacher gave me a dictionary.",
           "answer": "くださいました",
           "answer_ruby": "くださいました",
@@ -218,7 +218,7 @@
       "examples": [
         {
           "jp": "もういちど せつめいして くださいませんか。",
-          "jp_ruby": "もう一度{いちど} 説明{せつめい}して くださいませんか。",
+          "jp_ruby": "もう一度{いちど} せつめいして くださいませんか。",
           "en": "Could you please explain it once more?"
         },
         {

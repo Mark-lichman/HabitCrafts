@@ -59,7 +59,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは ともだちに えいがに ＿＿。",
-          "prompt_ruby": "わたしは ともだちに 映画{えいが}に ＿＿。",
+          "prompt_ruby": "私{わたし}は ともだちに 映画{えいが}に ＿＿。",
           "en": "I was invited to a movie by a friend.",
           "answer": "さそわれました",
           "answer_ruby": "さそわれました",
@@ -116,12 +116,12 @@
       "examples": [
         {
           "jp": "わたしは あにに おかしを たべられました。",
-          "jp_ruby": "わたしは 兄{あに}に おかしを 食{た}べられました。",
+          "jp_ruby": "私{わたし}は 兄{あに}に おかしを 食{た}べられました。",
           "en": "My older brother ate my sweets (and I was upset)."
         },
         {
           "jp": "わたしは せんせいに ほめられました。",
-          "jp_ruby": "わたしは 先生{せんせい}に ほめられました。",
+          "jp_ruby": "私{わたし}は 先生{せんせい}に ほめられました。",
           "en": "I was praised by my teacher."
         }
       ],
@@ -129,7 +129,7 @@
         {
           "kind": "fill",
           "prompt": "わたしは ぶちょう＿＿ よばれました。",
-          "prompt_ruby": "わたしは ぶちょう＿＿ よばれました。",
+          "prompt_ruby": "私{わたし}は ぶちょう＿＿ よばれました。",
           "en": "I was called by the department manager.",
           "answer": "に",
           "answer_ruby": "に",
@@ -144,7 +144,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは あさ はやく おとうとに ＿＿。",
-          "prompt_ruby": "わたしは 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
+          "prompt_ruby": "私{わたし}は 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
           "en": "I was woken up early in the morning by my little brother.",
           "answer": "おこされました",
           "answer_ruby": "起{お}こされました",
@@ -165,10 +165,10 @@
         {
           "kind": "choose",
           "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。",
-          "prompt_ruby": "わたしは ＿＿ けっこんしきに しょうたいされました。",
+          "prompt_ruby": "私{わたし}は ＿＿ けっこんしきに しょうたいされました。",
           "en": "I was invited to the wedding by Mr. Kimura.",
           "answer": "きむらさんに",
-          "answer_ruby": "木村{きむら}さんに",
+          "answer_ruby": "きむらさんに",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -177,9 +177,9 @@
             "きむらさんに"
           ],
           "options_ruby": [
-            "木村{きむら}さんが",
-            "木村{きむら}さんを",
-            "木村{きむら}さんに"
+            "きむらさんが",
+            "きむらさんを",
+            "きむらさんに"
           ],
           "hint": "In a passive sentence, the person who does the action takes に.",
           "why_wrong": {
@@ -190,7 +190,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは ぶちょうに ＿＿。",
-          "prompt_ruby": "わたしは ぶちょうに ＿＿。",
+          "prompt_ruby": "私{わたし}は ぶちょうに ＿＿。",
           "en": "I was warned by the department manager.",
           "answer": "ちゅういされました",
           "answer_ruby": "注意{ちゅうい}されました",
@@ -222,12 +222,12 @@
       "examples": [
         {
           "jp": "わたしは でんしゃで あしを ふまれました。",
-          "jp_ruby": "わたしは 電車{でんしゃ}で 足{あし}を ふまれました。",
+          "jp_ruby": "私{わたし}は 電車{でんしゃ}で 足{あし}を ふまれました。",
           "en": "Someone stepped on my foot on the train."
         },
         {
           "jp": "わたしは おとうとに パソコンを こわされました。",
-          "jp_ruby": "わたしは 弟{おとうと}に パソコンを こわされました。",
+          "jp_ruby": "私{わたし}は 弟{おとうと}に パソコンを こわされました。",
           "en": "My little brother broke my computer."
         }
       ],
@@ -235,7 +235,7 @@
         {
           "kind": "fill",
           "prompt": "わたしは だれかに さいふを ＿＿。",
-          "prompt_ruby": "わたしは だれかに さいふを ＿＿。",
+          "prompt_ruby": "私{わたし}は だれかに さいふを ＿＿。",
           "en": "Someone stole my wallet.",
           "answer": "とられました",
           "answer_ruby": "とられました",
@@ -250,7 +250,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは いもうとに にっきを ＿＿。",
-          "prompt_ruby": "わたしは 妹{いもうと}に にっきを ＿＿。",
+          "prompt_ruby": "私{わたし}は 妹{いもうと}に にっきを ＿＿。",
           "en": "My little sister read my diary.",
           "answer": "よまれました",
           "answer_ruby": "読{よ}まれました",
@@ -271,7 +271,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは ねこに カップ＿＿ こわされました。",
-          "prompt_ruby": "わたしは ねこに カップ＿＿ こわされました。",
+          "prompt_ruby": "私{わたし}は ねこに カップ＿＿ こわされました。",
           "en": "My cat broke my cup.",
           "answer": "を",
           "answer_ruby": "を",
@@ -296,7 +296,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは こどもに ふくを ＿＿。",
-          "prompt_ruby": "わたしは こどもに 服{ふく}を ＿＿。",
+          "prompt_ruby": "私{わたし}は こどもに 服{ふく}を ＿＿。",
           "en": "A child got my clothes dirty.",
           "answer": "よごされました",
           "answer_ruby": "よごされました",

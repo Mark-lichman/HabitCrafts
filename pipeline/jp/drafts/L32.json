@@ -230,7 +230,7 @@
           "prompt_ruby": "やくそくの 時間{じかん}に ＿＿かもしれません。",
           "en": "I might not make it in time for the appointment.",
           "answer": "まにあわない",
-          "answer_ruby": "間{ま}に合{あ}わない",
+          "answer_ruby": "まにあわない",
           "accepted": [],
           "accepted_ruby": [],
           "hint": "ないForm of まにあいます"

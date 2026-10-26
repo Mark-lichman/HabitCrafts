@@ -10,7 +10,7 @@
       "examples": [
         {
           "jp": "わたしは かんじが よめます。",
-          "jp_ruby": "わたしは 漢字{かんじ}が 読{よ}めます。",
+          "jp_ruby": "私{わたし}は 漢字{かんじ}が 読{よ}めます。",
           "en": "I can read kanji."
         },
         {
@@ -23,7 +23,7 @@
         {
           "kind": "fill",
           "prompt": "わたしは ピアノが ＿＿。",
-          "prompt_ruby": "わたしは ピアノが ＿＿。",
+          "prompt_ruby": "私{わたし}は ピアノが ＿＿。",
           "en": "I can play the piano.",
           "answer": "ひけます",
           "answer_ruby": "ひけます",
@@ -55,10 +55,10 @@
         {
           "kind": "choose",
           "prompt": "わたしは じてんしゃに ＿＿。",
-          "prompt_ruby": "わたしは 自転車{じてんしゃ}に ＿＿。",
+          "prompt_ruby": "私{わたし}は 自転車{じてんしゃ}に ＿＿。",
           "en": "I can ride a bicycle.",
           "answer": "のれます",
-          "answer_ruby": "乗{の}れます",
+          "answer_ruby": "のれます",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -67,9 +67,9 @@
             "のれます"
           ],
           "options_ruby": [
-            "乗{の}ります",
-            "乗{の}られます",
-            "乗{の}れます"
+            "のります",
+            "のられます",
+            "のれます"
           ],
           "hint": "Group 1 potential changes -u to -e: のる → のれる → のれます.",
           "why_wrong": {
@@ -117,7 +117,7 @@
         },
         {
           "jp": "とりの こえが きこえます。",
-          "jp_ruby": "鳥{とり}の 声{こえ}が 聞{き}こえます。",
+          "jp_ruby": "鳥{とり}の こえが 聞{き}こえます。",
           "en": "I can hear birds singing."
         }
       ],
@@ -227,7 +227,7 @@
         {
           "kind": "fill",
           "prompt": "わたしは スキーが ＿＿。",
-          "prompt_ruby": "わたしは スキーが ＿＿。",
+          "prompt_ruby": "私{わたし}は スキーが ＿＿。",
           "en": "I can ski.",
           "answer": "できます",
           "answer_ruby": "できます",
@@ -259,7 +259,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは ゴルフが ＿＿。",
-          "prompt_ruby": "わたしは ゴルフが ＿＿。",
+          "prompt_ruby": "私{わたし}は ゴルフが ＿＿。",
           "en": "I can play golf.",
           "answer": "できます",
           "answer_ruby": "できます",
@@ -284,7 +284,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは ＿＿が できます。",
-          "prompt_ruby": "わたしは ＿＿が できます。",
+          "prompt_ruby": "私{わたし}は ＿＿が できます。",
           "en": "I can drive.",
           "answer": "うんてん",
           "answer_ruby": "運転{うんてん}",
@@ -431,10 +431,10 @@
         {
           "kind": "fill",
           "prompt": "やさいは すきですが、くだものは ＿＿。",
-          "prompt_ruby": "野菜{やさい}は 好{す}きですが、くだものは ＿＿。",
+          "prompt_ruby": "やさいは すきですが、くだものは ＿＿。",
           "en": "I like vegetables, but I don't like fruit.",
           "answer": "すきじゃ ありません",
-          "answer_ruby": "好{す}きじゃ ありません",
+          "answer_ruby": "すきじゃ ありません",
           "accepted": [
             "すきでは ありません",
             "すきじゃないです",
@@ -443,11 +443,11 @@
             "すきではありません"
           ],
           "accepted_ruby": [
-            "好{す}きでは ありません",
-            "好{す}きじゃないです",
-            "好{す}きではないです",
-            "好{す}きじゃありません",
-            "好{す}きではありません"
+            "すきでは ありません",
+            "すきじゃないです",
+            "すきではないです",
+            "すきじゃありません",
+            "すきではありません"
           ],
           "hint": "Negative of すきです"
         },
@@ -556,7 +556,7 @@
         {
           "kind": "choose",
           "prompt": "わたしの まち＿＿ えいがかんが ありません。",
-          "prompt_ruby": "わたしの 町{まち}＿＿ 映画館{えいがかん}が ありません。",
+          "prompt_ruby": "私{わたし}の 町{まち}＿＿ 映画館{えいがかん}が ありません。",
           "en": "My town doesn't have a movie theater.",
           "answer": "には",
           "answer_ruby": "には",

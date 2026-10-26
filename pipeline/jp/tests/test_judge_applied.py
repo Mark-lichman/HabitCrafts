@@ -6,6 +6,11 @@ and list index, and gives the fix. A finding is closed only when it is marked `a
 and the draft holds its fix at that place, so a later draft edit that undoes a fix fails
 here (PIN-5, PIN-11). A finding the judge got wrong moves to `dismissed` with a `why`,
 and the draft must still hold its `current` text, so a finding cannot hide there unfixed.
+
+A later finding may change a twin an earlier finding already fixed (the strict kanji
+list of 2026-10-26 rewrote 都合{つごう}, for one). Findings at one place form a chain in
+file order: each later finding's `current` is the earlier one's `fix`, and only the last
+fix must be in the draft.
 """
 
 from __future__ import annotations
@@ -41,6 +46,10 @@ def _drafts() -> dict[str, dict]:
     return points
 
 
+def _place(f: dict) -> tuple:
+    return f["point_id"], f["where"], f["field"], f["index"]
+
+
 def _twin_at(points: dict, f: dict):
     p = points[f["point_id"]]
     where = f["where"]
@@ -67,7 +76,13 @@ def test_every_finding_is_applied():
 def test_each_applied_fix_is_in_the_draft(finding):
     assert finding["field"] in FIELDS
     assert finding["fix"] != finding["current"]
-    assert _twin_at(_drafts(), finding) == finding["fix"]
+    later = [f for f in _findings()[_findings().index(finding) + 1:] if _place(f) == _place(finding)]
+    if later:
+        # Superseded: the next finding at this place starts from this fix.
+        assert later[0]["current"] == finding["fix"], (
+            f"{_place(finding)}: a later finding does not start from this fix")
+    else:
+        assert _twin_at(_drafts(), finding) == finding["fix"]
 
 
 @pytest.mark.parametrize("entry", _dismissed(),
