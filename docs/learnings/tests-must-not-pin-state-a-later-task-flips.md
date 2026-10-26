@@ -4,6 +4,7 @@ description: A test that asserts committed draft state or a ship-false flag brea
 metadata:
   type: project
   provenance: code-verified
+  promoted: dev/2026-10-24-japanese-typing-kanji-speaking@phase-2
   keywords: [REQUIRE_RUBY, test_ruby.py, drop_twins, invariant, later task, gate red]
 ---
 
@@ -13,3 +14,7 @@ strip the state under test with a helper (`drop_twins(d)`), and replace the flag
 invariant that holds before and after the flip (every committed draft passes `check_draft` under the
 shipped flag). After fixing one such test, grep every caller of the same fixture: the audit found a
 sibling only in round 3.
+
+Recurred in phase 4: speak-drill tests pinned lesson 26's first twin as kanji, which the strict
+kanji ruling could turn to hiragana. Fix: choose the test sentence by a predicate (first with surface
+different from kana), not by position.
