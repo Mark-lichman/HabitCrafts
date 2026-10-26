@@ -602,7 +602,7 @@ class _PracticeState extends State<_Practice> {
             )
           else ...[
             if (!done) _answerBox(t),
-            if (feedbackApplies) _feedback(t, shownAnswer, q),
+            if (feedbackApplies) _feedback(t, shownAnswer),
             if (!done)
               Row(children: [
                 if (q['hint'] != null)
@@ -693,17 +693,13 @@ class _PracticeState extends State<_Practice> {
         ),
       ]);
 
-  Widget _feedback(
-      QuietRoomTokens t, String shownAnswer, Map<String, dynamic> q) {
+  Widget _feedback(QuietRoomTokens t, String shownAnswer) {
     final Widget body = switch (_verdict!) {
       TypedVerdict.right => Text('Correct.',
           style:
               qrText(t, size: 13, weight: FontWeight.w600, color: t.sage700)),
-      TypedVerdict.wrong => Text(
-          [
-            'Not quite. Try again, or show the answer.',
-            if (q['hint'] != null) '${q['hint']}',
-          ].join('\n'),
+      // The 'Hint:' row under the box already shows the hint, so this line stays bare.
+      TypedVerdict.wrong => Text('Not quite. Try again, or show the answer.',
           style: qrText(t, size: 12.5, color: t.clay600)),
       // Cannot be compared letter for letter, so the learner judges it (PIN-2).
       TypedVerdict.selfCheck => Column(
