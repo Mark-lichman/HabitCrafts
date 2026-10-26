@@ -185,6 +185,22 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets('a wrong typed answer shows the hint once', (tester) async {
+      final q = firstFills().first;
+      final hint = q['hint'] as String?;
+      expect(hint, isNotNull, reason: 'the opening fill item carries a hint');
+      await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
+
+      await tester.enterText(answerBoxes.first, 'ぬぬぬ');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      // The 'Hint:' row under the box is the only place the hint appears.
+      expect(find.textContaining('Not quite.'), findsOneWidget);
+      expect(find.textContaining(hint!), findsOneWidget);
+      expect(find.text('Hint: $hint'), findsOneWidget);
+    });
+
     testWidgets('Show answer after a wrong answer drops the retry message',
         (tester) async {
       final q = firstFills().first;
