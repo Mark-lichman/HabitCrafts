@@ -224,8 +224,9 @@ class SpeechService {
         onResult: (r) {
           if (r.finalResult && !done.isCompleted) {
             // Keep EVERY hypothesis, not just the top one. The recogniser often ranks a
-            // kanji spelling first and a kana spelling second; the kana one is the only
-            // hypothesis we can actually compare against this corpus.
+            // kanji spelling first and a kana spelling second; the kana one is the surest
+            // hypothesis to compare, but a kanji one that equals a kanji form also judges
+            // correct.
             done.complete(r.alternates.map((a) => a.recognizedWords).toList());
           }
         },
