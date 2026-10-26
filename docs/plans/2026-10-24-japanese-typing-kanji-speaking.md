@@ -171,7 +171,7 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 - target repo: superproject
 
 ### Task 7: Typed answers and the kanji toggle on the grammar screen
-- Files: `lib/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart`, `lib/components/pages/quiet_room_grammar/jp_study_kit.dart`, `test/grammar_answer_test.dart`, `test/quiet_room_grammar_test.dart`
+- Files: `lib/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart`, `lib/components/pages/quiet_room_grammar/jp_study_kit.dart`, `lib/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart`, `test/grammar_answer_test.dart`, `test/quiet_room_grammar_test.dart`
 - Plan slice: a text box on each fill-in item with `hintLocales` ja-JP (PIN-3); an answer matcher in `jp_study_kit.dart` that accepts the answer, any accepted form, or a kanji twin's surface; a 漢字 toggle that swaps every sentence to its kanji twin, with hiragana the default; a "Speak this lesson" button that opens Task 8's route (PIN-6). Add the hintLocales and toggle widget tests to `test/quiet_room_grammar_test.dart` (created in Task 1).
 - Done when: `/c/src/flutter/bin/flutter test test/grammar_answer_test.dart test/quiet_room_grammar_test.dart`
 - requiresTest: true
@@ -201,6 +201,7 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 - Task numbers follow the order tasks were added, not run order. Phase 2 runs Task 6 first, then Task 4 (it registers in Task 6's `stages.py`); Task 10 runs alongside. Phase 4 runs Task 8, then Task 7.
 - Red-team 2026-10-24 decisions are pins PIN-9 to PIN-13 (rows D9 to D13).
 - `publish.REQUIRE_RUBY` ships false in Task 4 so the validator lands before the data; Task 5 flips it in the same task that adds every twin.
+- Task 7's Files list lagged a cascade: the answer matcher in `jp_study_kit.dart` needs `rubySurface` and `rubyKana`, and the kit cannot import the speaking drill (the drill imports the kit), so the two helpers moved from `quiet_room_speak_widget.dart` into the kit and the drill re-exports them. The list above now names the drill file.
 
 ## Open decisions
 
