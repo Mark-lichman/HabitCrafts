@@ -23,7 +23,7 @@
         {
           "kind": "fill",
           "prompt": "おさけを ＿＿すぎて、あたまが いたいです。",
-          "prompt_ruby": "おさけを ＿＿すぎて、頭{あたま}が いたいです。",
+          "prompt_ruby": "おさけを ＿＿すぎて、あたまが いたいです。",
           "en": "I drank too much and I have a headache.",
           "answer": "のみ",
           "answer_ruby": "飲{の}み",
@@ -125,7 +125,7 @@
         {
           "kind": "fill",
           "prompt": "この くすりは おおきくて、＿＿にくいです。",
-          "prompt_ruby": "この 薬{くすり}は 大{おお}きくて、＿＿にくいです。",
+          "prompt_ruby": "この くすりは 大{おお}きくて、＿＿にくいです。",
           "en": "This pill is big and hard to take.",
           "answer": "のみ",
           "answer_ruby": "飲{の}み",
@@ -182,10 +182,10 @@
         {
           "kind": "choose",
           "prompt": "せんせいの せつめいは ＿＿です。",
-          "prompt_ruby": "先生{せんせい}の 説明{せつめい}は ＿＿です。",
+          "prompt_ruby": "先生{せんせい}の せつめいは ＿＿です。",
           "en": "The teacher's explanation is easy to understand.",
           "answer": "わかりやすい",
-          "answer_ruby": "分{わ}かりやすい",
+          "answer_ruby": "わかりやすい",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -194,9 +194,9 @@
             "わかるやすい"
           ],
           "options_ruby": [
-            "分{わ}かりにくい",
-            "分{わ}かりやすい",
-            "分{わ}かるやすい"
+            "わかりにくい",
+            "わかりやすい",
+            "わかるやすい"
           ],
           "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
           "why_wrong": {
@@ -241,7 +241,7 @@
           "prompt_ruby": "かみを ＿＿ しました。",
           "en": "I got my hair cut short.",
           "answer": "みじかく",
-          "answer_ruby": "短{みじか}く",
+          "answer_ruby": "みじかく",
           "accepted": [],
           "accepted_ruby": [],
           "hint": "い-adjective in its く form",
@@ -251,9 +251,9 @@
             "みじかに"
           ],
           "options_ruby": [
-            "短{みじか}く",
-            "短{みじか}い",
-            "短{みじか}に"
+            "みじかく",
+            "みじかい",
+            "みじかに"
           ]
         },
         {
@@ -365,7 +365,7 @@
         {
           "kind": "choose",
           "prompt": "もっと ＿＿ せつめいして ください。",
-          "prompt_ruby": "もっと ＿＿ 説明{せつめい}して ください。",
+          "prompt_ruby": "もっと ＿＿ せつめいして ください。",
           "en": "Please explain it more simply.",
           "answer": "かんたんに",
           "answer_ruby": "かんたんに",

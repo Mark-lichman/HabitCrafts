@@ -22,7 +22,8 @@ catalog is built. The app's home search finds each cataloged data file by name, 
 name such as `jp_lessons.json` into the search box to see its counts. Tapping a data file's entry
 searches for everything that came from that file. The cataloged files are the extraction
 bundles under `pipeline/jp/fixtures/`, each draft in `pipeline/jp/drafts/` (the `L<n>.json`
-lessons and `_points.json`), `uses.json`, `corrections.json` and `jp_lessons.json`.
+lessons and `_points.json`), `uses.json`, `kanji_n5_n4.json`, `corrections.json` and
+`jp_lessons.json`.
 `jp_grammar.json` holds the catalog and has no entry of its own. `assets/lessons/img/` and the
 judge files under `pipeline/jp/review/` have no entry.
 `pipeline/jp/tests/test_catalog_sources.py` checks every entry's counts against its file, and
@@ -42,6 +43,7 @@ fails if this doc restates one.
 | `pipeline/jp/drafts/L<n>.json` | a short lesson per grammar point: explanation, second example, practice | LM Drafting, checked by `publish.check_draft()` and a judge pass | an LM, then review |
 | `pipeline/jp/drafts/_points.json` | the grammar points handed to LM Drafting | Mari's N4 sheet, Checklist tab | the drafting input, kept with the drafts |
 | `pipeline/jp/uses.json` | the uses each grammar point serves ("Asking for advice") | LM Use Tagging, kept as reviewable data | an LM, then review |
+| `pipeline/jp/kanji_n5_n4.json` | the only kanji a kanji version may use; the file records its source URLs and each level's count | the Tanos JLPT N5 and N4 kanji lists | fetched once, then by hand: `test_kanji_list.py` checks every twin against it |
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
 
@@ -103,7 +105,10 @@ Separately, an independent LM judge reviewed every drafted item once. Its findin
 first judge pass. A second judge pass checked the kanji twins. Its findings are in
 `pipeline/jp/review/judge_ruby.json`, and `test_judge_applied.py` fails if any finding is not
 marked `applied` or its fix is not in the draft, and if a `dismissed` entry has no `why` or the
-draft no longer holds the text the judge saw.
+draft no longer holds the text the judge saw. Mark's rulings of 2026-10-26 made the kanji list
+strict and wrote the pronoun わたし as 私{わたし}: `review/apply_kanji_rulings.py` applied them and
+logged each change in `judge_ruby.json`, and `test_kanji_list.py` fails if a twin uses a kanji
+outside `pipeline/jp/kanji_n5_n4.json`.
 
 ## The vocabulary corpus is two families and they need different parsers
 

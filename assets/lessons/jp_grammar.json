@@ -6437,6 +6437,34 @@
    }
   },
   {
+   "id": "file.kanji_n5_n4.json",
+   "type": "source_file",
+   "source": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
+   "title": "kanji_n5_n4.json",
+   "summary": "79 N5 kanji, 166 N4 kanji, 0 operator additions. The only kanji a kanji version may use.",
+   "uses": [],
+   "search": [
+    "pipeline/jp/kanji_n5_n4.json",
+    "kanji_n5_n4.json",
+    "Jonathan Waller's JLPT Resources (tanos.co.uk)"
+   ],
+   "file": "pipeline/jp/kanji_n5_n4.json",
+   "role": "the only kanji a kanji version may use",
+   "origin": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
+   "counts": {
+    "N5 kanji": 79,
+    "N4 kanji": 166,
+    "operator additions": 0
+   },
+   "from": [
+    "kanji_n5_n4.json"
+   ],
+   "open": {
+    "screen": "search",
+    "query": "kanji_n5_n4.json"
+   }
+  },
+  {
    "id": "file.corrections.json",
    "type": "source_file",
    "source": "Mark's review",
@@ -6512,7 +6540,7 @@
      "examples": [
       {
        "jp": "あたまが いたいんです。",
-       "jp_ruby": "頭{あたま}が いたいんです。",
+       "jp_ruby": "あたまが いたいんです。",
        "en": "I have a headache, you see."
       },
       {
@@ -6625,7 +6653,7 @@
       },
       {
        "jp": "じが わからないんですが、よんで いただけませんか。",
-       "jp_ruby": "字{じ}が 分{わ}からないんですが、読{よ}んで いただけませんか。",
+       "jp_ruby": "字{じ}が わからないんですが、読{よ}んで いただけませんか。",
        "en": "I don't know these characters. Could you read them for me?"
       }
      ],
@@ -6647,16 +6675,16 @@
        "prompt_ruby": "道{みち}が ＿＿んですが、教{おし}えて いただけませんか。",
        "en": "I don't know the way. Could you tell me?",
        "answer": "わからない",
-       "answer_ruby": "分{わ}からない",
+       "answer_ruby": "わからない",
        "options": [
         "わからない",
         "わかります",
         "わかって"
        ],
        "options_ruby": [
-        "分{わ}からない",
-        "分{わ}かります",
-        "分{わ}かって"
+        "わからない",
+        "わかります",
+        "わかって"
        ],
        "accepted": [],
        "accepted_ruby": [],
@@ -6848,7 +6876,7 @@
      "examples": [
       {
        "jp": "わたしは かんじが よめます。",
-       "jp_ruby": "わたしは 漢字{かんじ}が 読{よ}めます。",
+       "jp_ruby": "私{わたし}は 漢字{かんじ}が 読{よ}めます。",
        "en": "I can read kanji."
       },
       {
@@ -6861,7 +6889,7 @@
       {
        "kind": "fill",
        "prompt": "わたしは ピアノが ＿＿。",
-       "prompt_ruby": "わたしは ピアノが ＿＿。",
+       "prompt_ruby": "私{わたし}は ピアノが ＿＿。",
        "en": "I can play the piano.",
        "answer": "ひけます",
        "answer_ruby": "ひけます",
@@ -6893,10 +6921,10 @@
       {
        "kind": "choose",
        "prompt": "わたしは じてんしゃに ＿＿。",
-       "prompt_ruby": "わたしは 自転車{じてんしゃ}に ＿＿。",
+       "prompt_ruby": "私{わたし}は 自転車{じてんしゃ}に ＿＿。",
        "en": "I can ride a bicycle.",
        "answer": "のれます",
-       "answer_ruby": "乗{の}れます",
+       "answer_ruby": "のれます",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -6905,9 +6933,9 @@
         "のれます"
        ],
        "options_ruby": [
-        "乗{の}ります",
-        "乗{の}られます",
-        "乗{の}れます"
+        "のります",
+        "のられます",
+        "のれます"
        ],
        "hint": "Group 1 potential changes -u to -e: のる → のれる → のれます.",
        "why_wrong": {
@@ -6961,7 +6989,7 @@
       },
       {
        "jp": "とりの こえが きこえます。",
-       "jp_ruby": "鳥{とり}の 声{こえ}が 聞{き}こえます。",
+       "jp_ruby": "鳥{とり}の こえが 聞{き}こえます。",
        "en": "I can hear birds singing."
       }
      ],
@@ -7077,7 +7105,7 @@
       {
        "kind": "fill",
        "prompt": "わたしは スキーが ＿＿。",
-       "prompt_ruby": "わたしは スキーが ＿＿。",
+       "prompt_ruby": "私{わたし}は スキーが ＿＿。",
        "en": "I can ski.",
        "answer": "できます",
        "answer_ruby": "できます",
@@ -7109,7 +7137,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは ゴルフが ＿＿。",
-       "prompt_ruby": "わたしは ゴルフが ＿＿。",
+       "prompt_ruby": "私{わたし}は ゴルフが ＿＿。",
        "en": "I can play golf.",
        "answer": "できます",
        "answer_ruby": "できます",
@@ -7134,7 +7162,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは ＿＿が できます。",
-       "prompt_ruby": "わたしは ＿＿が できます。",
+       "prompt_ruby": "私{わたし}は ＿＿が できます。",
        "en": "I can drive.",
        "answer": "うんてん",
        "answer_ruby": "運転{うんてん}",
@@ -7293,10 +7321,10 @@
       {
        "kind": "fill",
        "prompt": "やさいは すきですが、くだものは ＿＿。",
-       "prompt_ruby": "野菜{やさい}は 好{す}きですが、くだものは ＿＿。",
+       "prompt_ruby": "やさいは すきですが、くだものは ＿＿。",
        "en": "I like vegetables, but I don't like fruit.",
        "answer": "すきじゃ ありません",
-       "answer_ruby": "好{す}きじゃ ありません",
+       "answer_ruby": "すきじゃ ありません",
        "accepted": [
         "すきでは ありません",
         "すきじゃないです",
@@ -7305,11 +7333,11 @@
         "すきではありません"
        ],
        "accepted_ruby": [
-        "好{す}きでは ありません",
-        "好{す}きじゃないです",
-        "好{す}きではないです",
-        "好{す}きじゃありません",
-        "好{す}きではありません"
+        "すきでは ありません",
+        "すきじゃないです",
+        "すきではないです",
+        "すきじゃありません",
+        "すきではありません"
        ],
        "hint": "Negative of すきです"
       },
@@ -7424,7 +7452,7 @@
       {
        "kind": "choose",
        "prompt": "わたしの まち＿＿ えいがかんが ありません。",
-       "prompt_ruby": "わたしの 町{まち}＿＿ 映画館{えいがかん}が ありません。",
+       "prompt_ruby": "私{わたし}の 町{まち}＿＿ 映画館{えいがかん}が ありません。",
        "en": "My town doesn't have a movie theater.",
        "answer": "には",
        "answer_ruby": "には",
@@ -7651,16 +7679,16 @@
        "prompt_ruby": "兄{あに}は 銀行{ぎんこう}で ＿＿。",
        "en": "My older brother works at a bank.",
        "answer": "はたらいて います",
-       "answer_ruby": "働{はたら}いて います",
+       "answer_ruby": "はたらいて います",
        "options": [
         "はたらいて います",
         "はたらいて あります",
         "はたらきながら"
        ],
        "options_ruby": [
-        "働{はたら}いて います",
-        "働{はたら}いて あります",
-        "働{はたら}きながら"
+        "はたらいて います",
+        "はたらいて あります",
+        "はたらきながら"
        ],
        "accepted": [],
        "accepted_ruby": [],
@@ -7759,16 +7787,16 @@
        "prompt_ruby": "今日{きょう}は ＿＿し、雨{あめ}だし、出{で}かけません。",
        "en": "It's cold and rainy today, so I'm not going out.",
        "answer": "さむい",
-       "answer_ruby": "寒{さむ}い",
+       "answer_ruby": "さむい",
        "options": [
         "さむい",
         "さむいだ",
         "さむくて"
        ],
        "options_ruby": [
-        "寒{さむ}い",
-        "寒{さむ}いだ",
-        "寒{さむ}くて"
+        "さむい",
+        "さむいだ",
+        "さむくて"
        ],
        "accepted": [],
        "accepted_ruby": [],
@@ -8548,7 +8576,7 @@
       {
        "kind": "choose",
        "prompt": "あついですから、ドアを ＿＿ おいて ください。",
-       "prompt_ruby": "暑{あつ}いですから、ドアを ＿＿ おいて ください。",
+       "prompt_ruby": "あついですから、ドアを ＿＿ おいて ください。",
        "en": "It's hot, so please leave the door open.",
        "answer": "あけて",
        "answer_ruby": "開{あ}けて",
@@ -9398,7 +9426,7 @@
        "prompt_ruby": "やくそくの 時間{じかん}に ＿＿かもしれません。",
        "en": "I might not make it in time for the appointment.",
        "answer": "まにあわない",
-       "answer_ruby": "間{ま}に合{あ}わない",
+       "answer_ruby": "まにあわない",
        "accepted": [],
        "accepted_ruby": [],
        "hint": "ないForm of まにあいます"
@@ -9727,7 +9755,7 @@
       {
        "kind": "fill",
        "prompt": "「でぐち」は そとへ でる ところ＿＿ いみです。",
-       "prompt_ruby": "「出口{でぐち}」は 外{そと}へ 出{で}る 所{ところ}＿＿ 意味{いみ}です。",
+       "prompt_ruby": "「出口{でぐち}」は 外{そと}へ 出{で}る ところ＿＿ 意味{いみ}です。",
        "en": "'でぐち' means the place where you go out.",
        "answer": "という",
        "answer_ruby": "という",
@@ -9949,7 +9977,7 @@
       },
       {
        "jp": "わたしが やった とおりに、やって ください。",
-       "jp_ruby": "わたしが やった とおりに、やって ください。",
+       "jp_ruby": "私{わたし}が やった とおりに、やって ください。",
        "en": "Please do it just the way I did."
       }
      ],
@@ -9972,7 +10000,7 @@
       {
        "kind": "choose",
        "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。",
-       "prompt_ruby": "説明書{せつめいしょ}＿＿ とおりに くみたてて ください。",
+       "prompt_ruby": "せつめいしょ＿＿ とおりに くみたてて ください。",
        "en": "Please assemble it according to the instructions.",
        "answer": "の",
        "answer_ruby": "の",
@@ -9993,7 +10021,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが ＿＿ とおりに、つくって ください。",
-       "prompt_ruby": "わたしが ＿＿ とおりに、作{つく}って ください。",
+       "prompt_ruby": "私{わたし}が ＿＿ とおりに、作{つく}って ください。",
        "en": "Please make it just the way I made it.",
        "answer": "つくった",
        "answer_ruby": "作{つく}った",
@@ -10335,7 +10363,7 @@
        "prompt_ruby": "電車{でんしゃ}に ＿＿、歩{ある}いて 帰{かえ}りました。",
        "en": "I walked home instead of taking the train.",
        "answer": "のらないで",
-       "answer_ruby": "乗{の}らないで",
+       "answer_ruby": "のらないで",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -10344,9 +10372,9 @@
         "のらない"
        ],
        "options_ruby": [
-        "乗{の}らないで",
-        "乗{の}りないで",
-        "乗{の}らない"
+        "のらないで",
+        "のりないで",
+        "のらない"
        ],
        "hint": "ないで means doing one thing instead of another.",
        "why_wrong": {
@@ -10378,7 +10406,7 @@
      "examples": [
       {
        "jp": "はやく おきれば、まにあいます。",
-       "jp_ruby": "早{はや}く 起{お}きれば、間{ま}に合{あ}います。",
+       "jp_ruby": "早{はや}く 起{お}きれば、まにあいます。",
        "en": "If you get up early, you'll make it in time."
       },
       {
@@ -10391,7 +10419,7 @@
       {
        "kind": "fill",
        "prompt": "この くすりを ＿＿、すぐ なおります。",
-       "prompt_ruby": "この 薬{くすり}を ＿＿、すぐ なおります。",
+       "prompt_ruby": "この くすりを ＿＿、すぐ なおります。",
        "en": "If you take this medicine, you'll get better soon.",
        "answer": "のめば",
        "answer_ruby": "飲{の}めば",
@@ -10448,7 +10476,7 @@
       {
        "kind": "choose",
        "prompt": "いま ＿＿、まにあいません。",
-       "prompt_ruby": "今{いま} ＿＿、間{ま}に合{あ}いません。",
+       "prompt_ruby": "今{いま} ＿＿、まにあいません。",
        "en": "If you don't leave now, you won't make it in time.",
        "answer": "でなければ",
        "answer_ruby": "出{で}なければ",
@@ -10502,7 +10530,7 @@
        "prompt_ruby": "＿＿、まどを しめて ください。",
        "en": "If you're cold, please close the window.",
        "answer": "さむければ",
-       "answer_ruby": "寒{さむ}ければ",
+       "answer_ruby": "さむければ",
        "accepted": [],
        "accepted_ruby": [],
        "hint": "ければ form of さむい"
@@ -10521,7 +10549,7 @@
       {
        "kind": "choose",
        "prompt": "つごうが ＿＿、きて ください。",
-       "prompt_ruby": "都合{つごう}が ＿＿、来{き}て ください。",
+       "prompt_ruby": "つごうが ＿＿、来{き}て ください。",
        "en": "If it's convenient for you, please come.",
        "answer": "よければ",
        "answer_ruby": "よければ",
@@ -10549,7 +10577,7 @@
        "prompt_ruby": "駅{えき}が ＿＿、タクシーで 行{い}きます。",
        "en": "If the station is far, I'll go by taxi.",
        "answer": "とおければ",
-       "answer_ruby": "遠{とお}ければ",
+       "answer_ruby": "とおければ",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -10558,9 +10586,9 @@
         "とおいければ"
        ],
        "options_ruby": [
-        "遠{とお}ければ",
-        "遠{とお}いば",
-        "遠{とお}いければ"
+        "とおければ",
+        "とおいば",
+        "とおいければ"
        ],
        "hint": "For an い adjective, drop the final い and add ければ.",
        "why_wrong": {
@@ -10658,7 +10686,7 @@
       {
        "kind": "choose",
        "prompt": "あめ＿＿、しあいは ありません。",
-       "prompt_ruby": "雨{あめ}＿＿、試合{しあい}は ありません。",
+       "prompt_ruby": "雨{あめ}＿＿、しあいは ありません。",
        "en": "If it rains, there's no game.",
        "answer": "なら",
        "answer_ruby": "なら",
@@ -10837,7 +10865,7 @@
       {
        "kind": "choose",
        "prompt": "りょこう＿＿、きょうとが いいですよ。",
-       "prompt_ruby": "旅行{りょこう}＿＿、京都{きょうと}が いいですよ。",
+       "prompt_ruby": "旅行{りょこう}＿＿、きょうとが いいですよ。",
        "en": "If it's a trip you're planning, Kyoto is good.",
        "answer": "なら",
        "answer_ruby": "なら",
@@ -10883,7 +10911,7 @@
       {
        "kind": "choose",
        "prompt": "テニス＿＿、わたしも できますよ。",
-       "prompt_ruby": "テニス＿＿、わたしも できますよ。",
+       "prompt_ruby": "テニス＿＿、私{わたし}も できますよ。",
        "en": "If it's tennis, I can play too.",
        "answer": "なら",
        "answer_ruby": "なら",
@@ -10928,7 +10956,7 @@
      "examples": [
       {
        "jp": "よく きこえるように、おおきい こえで はなして ください。",
-       "jp_ruby": "よく 聞{き}こえるように、大{おお}きい 声{こえ}で 話{はな}して ください。",
+       "jp_ruby": "よく 聞{き}こえるように、大{おお}きい こえで 話{はな}して ください。",
        "en": "Please speak loudly so that everyone can hear well."
       },
       {
@@ -11074,7 +11102,7 @@
        "prompt_ruby": "やっと 自転車{じてんしゃ}に ＿＿ ように なりました。",
        "en": "I finally became able to ride a bicycle.",
        "answer": "のれる",
-       "answer_ruby": "乗{の}れる",
+       "answer_ruby": "のれる",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -11083,9 +11111,9 @@
         "のれます"
        ],
        "options_ruby": [
-        "乗{の}られる",
-        "乗{の}れる",
-        "乗{の}れます"
+        "のられる",
+        "のれる",
+        "のれます"
        ],
        "hint": "Potential form ＋ ように なります means 'became able to.'",
        "why_wrong": {
@@ -11148,7 +11176,7 @@
       {
        "kind": "fill",
        "prompt": "まいにち やさいを ＿＿ ように して います。",
-       "prompt_ruby": "毎日{まいにち} 野菜{やさい}を ＿＿ ように して います。",
+       "prompt_ruby": "毎日{まいにち} やさいを ＿＿ ように して います。",
        "en": "I make a point of eating vegetables every day.",
        "answer": "たべる",
        "answer_ruby": "食{た}べる",
@@ -11289,7 +11317,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは ともだちに えいがに ＿＿。",
-       "prompt_ruby": "わたしは ともだちに 映画{えいが}に ＿＿。",
+       "prompt_ruby": "私{わたし}は ともだちに 映画{えいが}に ＿＿。",
        "en": "I was invited to a movie by a friend.",
        "answer": "さそわれました",
        "answer_ruby": "さそわれました",
@@ -11352,12 +11380,12 @@
      "examples": [
       {
        "jp": "わたしは あにに おかしを たべられました。",
-       "jp_ruby": "わたしは 兄{あに}に おかしを 食{た}べられました。",
+       "jp_ruby": "私{わたし}は 兄{あに}に おかしを 食{た}べられました。",
        "en": "My older brother ate my sweets (and I was upset)."
       },
       {
        "jp": "わたしは せんせいに ほめられました。",
-       "jp_ruby": "わたしは 先生{せんせい}に ほめられました。",
+       "jp_ruby": "私{わたし}は 先生{せんせい}に ほめられました。",
        "en": "I was praised by my teacher."
       }
      ],
@@ -11365,7 +11393,7 @@
       {
        "kind": "fill",
        "prompt": "わたしは ぶちょう＿＿ よばれました。",
-       "prompt_ruby": "わたしは ぶちょう＿＿ よばれました。",
+       "prompt_ruby": "私{わたし}は ぶちょう＿＿ よばれました。",
        "en": "I was called by the department manager.",
        "answer": "に",
        "answer_ruby": "に",
@@ -11380,7 +11408,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは あさ はやく おとうとに ＿＿。",
-       "prompt_ruby": "わたしは 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
+       "prompt_ruby": "私{わたし}は 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
        "en": "I was woken up early in the morning by my little brother.",
        "answer": "おこされました",
        "answer_ruby": "起{お}こされました",
@@ -11401,10 +11429,10 @@
       {
        "kind": "choose",
        "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。",
-       "prompt_ruby": "わたしは ＿＿ けっこんしきに しょうたいされました。",
+       "prompt_ruby": "私{わたし}は ＿＿ けっこんしきに しょうたいされました。",
        "en": "I was invited to the wedding by Mr. Kimura.",
        "answer": "きむらさんに",
-       "answer_ruby": "木村{きむら}さんに",
+       "answer_ruby": "きむらさんに",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -11413,9 +11441,9 @@
         "きむらさんに"
        ],
        "options_ruby": [
-        "木村{きむら}さんが",
-        "木村{きむら}さんを",
-        "木村{きむら}さんに"
+        "きむらさんが",
+        "きむらさんを",
+        "きむらさんに"
        ],
        "hint": "In a passive sentence, the person who does the action takes に.",
        "why_wrong": {
@@ -11426,7 +11454,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは ぶちょうに ＿＿。",
-       "prompt_ruby": "わたしは ぶちょうに ＿＿。",
+       "prompt_ruby": "私{わたし}は ぶちょうに ＿＿。",
        "en": "I was warned by the department manager.",
        "answer": "ちゅういされました",
        "answer_ruby": "注意{ちゅうい}されました",
@@ -11464,12 +11492,12 @@
      "examples": [
       {
        "jp": "わたしは でんしゃで あしを ふまれました。",
-       "jp_ruby": "わたしは 電車{でんしゃ}で 足{あし}を ふまれました。",
+       "jp_ruby": "私{わたし}は 電車{でんしゃ}で 足{あし}を ふまれました。",
        "en": "Someone stepped on my foot on the train."
       },
       {
        "jp": "わたしは おとうとに パソコンを こわされました。",
-       "jp_ruby": "わたしは 弟{おとうと}に パソコンを こわされました。",
+       "jp_ruby": "私{わたし}は 弟{おとうと}に パソコンを こわされました。",
        "en": "My little brother broke my computer."
       }
      ],
@@ -11477,7 +11505,7 @@
       {
        "kind": "fill",
        "prompt": "わたしは だれかに さいふを ＿＿。",
-       "prompt_ruby": "わたしは だれかに さいふを ＿＿。",
+       "prompt_ruby": "私{わたし}は だれかに さいふを ＿＿。",
        "en": "Someone stole my wallet.",
        "answer": "とられました",
        "answer_ruby": "とられました",
@@ -11492,7 +11520,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは いもうとに にっきを ＿＿。",
-       "prompt_ruby": "わたしは 妹{いもうと}に にっきを ＿＿。",
+       "prompt_ruby": "私{わたし}は 妹{いもうと}に にっきを ＿＿。",
        "en": "My little sister read my diary.",
        "answer": "よまれました",
        "answer_ruby": "読{よ}まれました",
@@ -11513,7 +11541,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは ねこに カップ＿＿ こわされました。",
-       "prompt_ruby": "わたしは ねこに カップ＿＿ こわされました。",
+       "prompt_ruby": "私{わたし}は ねこに カップ＿＿ こわされました。",
        "en": "My cat broke my cup.",
        "answer": "を",
        "answer_ruby": "を",
@@ -11538,7 +11566,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは こどもに ふくを ＿＿。",
-       "prompt_ruby": "わたしは こどもに 服{ふく}を ＿＿。",
+       "prompt_ruby": "私{わたし}は こどもに 服{ふく}を ＿＿。",
        "en": "A child got my clothes dirty.",
        "answer": "よごされました",
        "answer_ruby": "よごされました",
@@ -11736,7 +11764,7 @@
       {
        "kind": "choose",
        "prompt": "やさいを ＿＿ からだに いいです。",
-       "prompt_ruby": "野菜{やさい}を ＿＿ 体{からだ}に いいです。",
+       "prompt_ruby": "やさいを ＿＿ 体{からだ}に いいです。",
        "en": "Eating vegetables is good for your body.",
        "answer": "たべるのは",
        "answer_ruby": "食{た}べるのは",
@@ -11804,7 +11832,7 @@
       },
       {
        "jp": "わたしは りょうりを つくるのが すきです。",
-       "jp_ruby": "わたしは 料理{りょうり}を 作{つく}るのが 好{す}きです。",
+       "jp_ruby": "私{わたし}は 料理{りょうり}を 作{つく}るのが すきです。",
        "en": "I like cooking."
       }
      ],
@@ -11812,7 +11840,7 @@
       {
        "kind": "fill",
        "prompt": "わたしは うたを ＿＿ へたです。",
-       "prompt_ruby": "わたしは 歌{うた}を ＿＿ 下手{へた}です。",
+       "prompt_ruby": "私{わたし}は 歌{うた}を ＿＿ 下手{へた}です。",
        "en": "I'm bad at singing.",
        "answer": "うたうのが",
        "answer_ruby": "歌{うた}うのが",
@@ -11844,7 +11872,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは えいがを ＿＿ すきです。",
-       "prompt_ruby": "わたしは 映画{えいが}を ＿＿ 好{す}きです。",
+       "prompt_ruby": "私{わたし}は 映画{えいが}を ＿＿ すきです。",
        "en": "I like watching movies.",
        "answer": "みるのが",
        "answer_ruby": "見{み}るのが",
@@ -11977,7 +12005,7 @@
       {
        "kind": "choose",
        "prompt": "くすりを ＿＿ わすれないで ください。",
-       "prompt_ruby": "薬{くすり}を ＿＿ わすれないで ください。",
+       "prompt_ruby": "くすりを ＿＿ わすれないで ください。",
        "en": "Please don't forget to take your medicine.",
        "answer": "のむのを",
        "answer_ruby": "飲{の}むのを",
@@ -12028,7 +12056,7 @@
       {
        "kind": "fill",
        "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。",
-       "prompt_ruby": "木村{きむら}さんが 会社{かいしゃ}を やめた＿＿ 知{し}って いますか。",
+       "prompt_ruby": "きむらさんが 会社{かいしゃ}を やめた＿＿ 知{し}って いますか。",
        "en": "Do you know that Ms. Kimura quit her company?",
        "answer": "のを",
        "answer_ruby": "のを",
@@ -12123,12 +12151,12 @@
      "examples": [
       {
        "jp": "わたしが すきなのは なつです。",
-       "jp_ruby": "わたしが 好{す}きなのは 夏{なつ}です。",
+       "jp_ruby": "私{わたし}が すきなのは 夏{なつ}です。",
        "en": "What I like is summer."
       },
       {
        "jp": "わたしが うまれたのは おおさかです。",
-       "jp_ruby": "わたしが 生{う}まれたのは おおさかです。",
+       "jp_ruby": "私{わたし}が 生{う}まれたのは おおさかです。",
        "en": "The place where I was born is Osaka."
       }
      ],
@@ -12147,7 +12175,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが いちばん ほしい＿＿ じかんです。",
-       "prompt_ruby": "わたしが いちばん ほしい＿＿ 時間{じかん}です。",
+       "prompt_ruby": "私{わたし}が いちばん ほしい＿＿ 時間{じかん}です。",
        "en": "What I want most is time.",
        "answer": "のは",
        "answer_ruby": "のは",
@@ -12168,7 +12196,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが いちばん ＿＿ のは きょうとです。",
-       "prompt_ruby": "わたしが いちばん ＿＿ のは 京都{きょうと}です。",
+       "prompt_ruby": "私{わたし}が いちばん ＿＿ のは きょうとです。",
        "en": "The place I want to go most is Kyoto.",
        "answer": "いきたい",
        "answer_ruby": "行{い}きたい",
@@ -12193,7 +12221,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが ＿＿ のは さかなです。",
-       "prompt_ruby": "わたしが ＿＿ のは 魚{さかな}です。",
+       "prompt_ruby": "私{わたし}が ＿＿ のは 魚{さかな}です。",
        "en": "What I dislike is fish.",
        "answer": "きらいな",
        "answer_ruby": "きらいな",
@@ -12308,7 +12336,7 @@
       {
        "kind": "choose",
        "prompt": "しあいに ＿＿、うれしかったです。",
-       "prompt_ruby": "試合{しあい}に ＿＿、うれしかったです。",
+       "prompt_ruby": "しあいに ＿＿、うれしかったです。",
        "en": "I was happy that we won the game.",
        "answer": "かって",
        "answer_ruby": "かって",
@@ -12351,7 +12379,7 @@
       },
       {
        "jp": "ふくざつで、よく わかりません。",
-       "jp_ruby": "ふくざつで、よく 分{わ}かりません。",
+       "jp_ruby": "ふくざつで、よく わかりません。",
        "en": "It's complicated, so I don't really understand it."
       }
      ],
@@ -12359,7 +12387,7 @@
       {
        "kind": "fill",
        "prompt": "この もんだいは ＿＿、わかりません。",
-       "prompt_ruby": "この 問題{もんだい}は ＿＿、分{わ}かりません。",
+       "prompt_ruby": "この 問題{もんだい}は ＿＿、わかりません。",
        "en": "This problem is difficult, so I can't figure it out.",
        "answer": "むずかしくて",
        "answer_ruby": "むずかしくて",
@@ -12575,7 +12603,7 @@
       {
        "kind": "fill",
        "prompt": "あたまが ＿＿ ので、はやく かえります。",
-       "prompt_ruby": "頭{あたま}が ＿＿ ので、早{はや}く 帰{かえ}ります。",
+       "prompt_ruby": "あたまが ＿＿ ので、早{はや}く 帰{かえ}ります。",
        "en": "I have a headache, so I'll go home early.",
        "answer": "いたい",
        "answer_ruby": "いたい",
@@ -12682,7 +12710,7 @@
       },
       {
        "jp": "パーティーに だれが くるか、わかりません。",
-       "jp_ruby": "パーティーに だれが 来{く}るか、分{わ}かりません。",
+       "jp_ruby": "パーティーに だれが 来{く}るか、わかりません。",
        "en": "I don't know who is coming to the party."
       }
      ],
@@ -12806,7 +12834,7 @@
       {
        "kind": "fill",
        "prompt": "かれが くる＿＿、わかりません。",
-       "prompt_ruby": "かれが 来{く}る＿＿、分{わ}かりません。",
+       "prompt_ruby": "かれが 来{く}る＿＿、わかりません。",
        "en": "I don't know whether he will come.",
        "answer": "かどうか",
        "answer_ruby": "かどうか",
@@ -12842,7 +12870,7 @@
       {
        "kind": "choose",
        "prompt": "この みずは ＿＿、わかりません。",
-       "prompt_ruby": "この 水{みず}は ＿＿、分{わ}かりません。",
+       "prompt_ruby": "この 水{みず}は ＿＿、わかりません。",
        "en": "I don't know whether this water is safe to drink.",
        "answer": "のめるかどうか",
        "answer_ruby": "飲{の}めるかどうか",
@@ -12929,7 +12957,7 @@
       {
        "kind": "choose",
        "prompt": "わからない ことばは じしょで ＿＿ みます。",
-       "prompt_ruby": "分{わ}からない ことばは じしょで ＿＿ みます。",
+       "prompt_ruby": "わからない ことばは じしょで ＿＿ みます。",
        "en": "I'll try looking up words I don't know in the dictionary.",
        "answer": "しらべて",
        "answer_ruby": "しらべて",
@@ -13026,7 +13054,7 @@
       },
       {
        "jp": "しゃちょうが わたしに おみやげを くださいました。",
-       "jp_ruby": "社長{しゃちょう}が わたしに おみやげを くださいました。",
+       "jp_ruby": "社長{しゃちょう}が 私{わたし}に おみやげを くださいました。",
        "en": "The company president gave me a souvenir."
       }
      ],
@@ -13049,7 +13077,7 @@
       {
        "kind": "choose",
        "prompt": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
-       "prompt_ruby": "ぶちょうの おくさんが わたしに ネクタイを ＿＿。",
+       "prompt_ruby": "ぶちょうの おくさんが 私{わたし}に ネクタイを ＿＿。",
        "en": "The department manager's wife gave me a necktie.",
        "answer": "くださいました",
        "answer_ruby": "くださいました",
@@ -13070,7 +13098,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは しゃちょうに とけいを ＿＿。",
-       "prompt_ruby": "わたしは 社長{しゃちょう}に 時計{とけい}を ＿＿。",
+       "prompt_ruby": "私{わたし}は 社長{しゃちょう}に 時計{とけい}を ＿＿。",
        "en": "I received a watch from the company president.",
        "answer": "いただきました",
        "answer_ruby": "いただきました",
@@ -13095,7 +13123,7 @@
       {
        "kind": "choose",
        "prompt": "せんせいが わたしに じしょを ＿＿。",
-       "prompt_ruby": "先生{せんせい}が わたしに じしょを ＿＿。",
+       "prompt_ruby": "先生{せんせい}が 私{わたし}に じしょを ＿＿。",
        "en": "The teacher gave me a dictionary.",
        "answer": "くださいました",
        "answer_ruby": "くださいました",
@@ -13243,7 +13271,7 @@
      "examples": [
       {
        "jp": "もういちど せつめいして くださいませんか。",
-       "jp_ruby": "もう一度{いちど} 説明{せつめい}して くださいませんか。",
+       "jp_ruby": "もう一度{いちど} せつめいして くださいませんか。",
        "en": "Could you please explain it once more?"
       },
       {
@@ -13386,7 +13414,7 @@
       {
        "kind": "choose",
        "prompt": "かぞくの ＿＿、まいにち はたらいて います。",
-       "prompt_ruby": "家族{かぞく}の ＿＿、毎日{まいにち} 働{はたら}いて います。",
+       "prompt_ruby": "家族{かぞく}の ＿＿、毎日{まいにち} はたらいて います。",
        "en": "I work every day for my family.",
        "answer": "ために",
        "answer_ruby": "ために",
@@ -13816,7 +13844,7 @@
       {
        "kind": "choose",
        "prompt": "さむく ＿＿ きましたね。",
-       "prompt_ruby": "寒{さむ}く ＿＿ きましたね。",
+       "prompt_ruby": "さむく ＿＿ きましたね。",
        "en": "It has gotten cold, hasn't it?",
        "answer": "なって",
        "answer_ruby": "なって",
@@ -13922,7 +13950,7 @@
       {
        "kind": "fill",
        "prompt": "おさけを ＿＿すぎて、あたまが いたいです。",
-       "prompt_ruby": "おさけを ＿＿すぎて、頭{あたま}が いたいです。",
+       "prompt_ruby": "おさけを ＿＿すぎて、あたまが いたいです。",
        "en": "I drank too much and I have a headache.",
        "answer": "のみ",
        "answer_ruby": "飲{の}み",
@@ -14030,7 +14058,7 @@
       {
        "kind": "fill",
        "prompt": "この くすりは おおきくて、＿＿にくいです。",
-       "prompt_ruby": "この 薬{くすり}は 大{おお}きくて、＿＿にくいです。",
+       "prompt_ruby": "この くすりは 大{おお}きくて、＿＿にくいです。",
        "en": "This pill is big and hard to take.",
        "answer": "のみ",
        "answer_ruby": "飲{の}み",
@@ -14087,10 +14115,10 @@
       {
        "kind": "choose",
        "prompt": "せんせいの せつめいは ＿＿です。",
-       "prompt_ruby": "先生{せんせい}の 説明{せつめい}は ＿＿です。",
+       "prompt_ruby": "先生{せんせい}の せつめいは ＿＿です。",
        "en": "The teacher's explanation is easy to understand.",
        "answer": "わかりやすい",
-       "answer_ruby": "分{わ}かりやすい",
+       "answer_ruby": "わかりやすい",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -14099,9 +14127,9 @@
         "わかるやすい"
        ],
        "options_ruby": [
-        "分{わ}かりにくい",
-        "分{わ}かりやすい",
-        "分{わ}かるやすい"
+        "わかりにくい",
+        "わかりやすい",
+        "わかるやすい"
        ],
        "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
        "why_wrong": {
@@ -14152,7 +14180,7 @@
        "prompt_ruby": "かみを ＿＿ しました。",
        "en": "I got my hair cut short.",
        "answer": "みじかく",
-       "answer_ruby": "短{みじか}く",
+       "answer_ruby": "みじかく",
        "accepted": [],
        "accepted_ruby": [],
        "hint": "い-adjective in its く form",
@@ -14162,9 +14190,9 @@
         "みじかに"
        ],
        "options_ruby": [
-        "短{みじか}く",
-        "短{みじか}い",
-        "短{みじか}に"
+        "みじかく",
+        "みじかい",
+        "みじかに"
        ]
       },
       {
@@ -14282,7 +14310,7 @@
       {
        "kind": "choose",
        "prompt": "もっと ＿＿ せつめいして ください。",
-       "prompt_ruby": "もっと ＿＿ 説明{せつめい}して ください。",
+       "prompt_ruby": "もっと ＿＿ せつめいして ください。",
        "en": "Please explain it more simply.",
        "answer": "かんたんに",
        "answer_ruby": "かんたんに",
@@ -14352,12 +14380,12 @@
      "examples": [
       {
        "jp": "ちこくする ばあいは、れんらくして ください。",
-       "jp_ruby": "ちこくする 場合{ばあい}は、れんらくして ください。",
+       "jp_ruby": "ちこくする ばあいは、れんらくして ください。",
        "en": "If you are going to be late, please let us know."
       },
       {
        "jp": "かじの ばあいは、エレベーターを つかわないで ください。",
-       "jp_ruby": "火事{かじ}の 場合{ばあい}は、エレベーターを 使{つか}わないで ください。",
+       "jp_ruby": "火事{かじ}の ばあいは、エレベーターを 使{つか}わないで ください。",
        "en": "In case of fire, please don't use the elevator."
       }
      ],
@@ -14368,7 +14396,7 @@
        "prompt_ruby": "かぜを ひいた ＿＿は、休{やす}んで ください。",
        "en": "If you catch a cold, please rest.",
        "answer": "ばあい",
-       "answer_ruby": "場合{ばあい}",
+       "answer_ruby": "ばあい",
        "accepted": [],
        "accepted_ruby": [],
        "hint": "Word meaning 'case'"
@@ -14376,10 +14404,10 @@
       {
        "kind": "choose",
        "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。",
-       "prompt_ruby": "バスに ＿＿ 場合{ばあい}は、タクシーで 来{き}て ください。",
+       "prompt_ruby": "バスに ＿＿ ばあいは、タクシーで 来{き}て ください。",
        "en": "If you can't make the bus, please come by taxi.",
        "answer": "まにあわない",
-       "answer_ruby": "間{ま}に合{あ}わない",
+       "answer_ruby": "まにあわない",
        "accepted": [],
        "accepted_ruby": [],
        "hint": "Plain negative form",
@@ -14389,15 +14417,15 @@
         "まにあいません"
        ],
        "options_ruby": [
-        "間{ま}に合{あ}わない",
-        "間{ま}に合{あ}わなくて",
-        "間{ま}に合{あ}いません"
+        "まにあわない",
+        "まにあわなくて",
+        "まにあいません"
        ]
       },
       {
        "kind": "choose",
        "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。",
-       "prompt_ruby": "じしん＿＿ 場合{ばあい}は、外{そと}へ 出{で}ないで ください。",
+       "prompt_ruby": "じしん＿＿ ばあいは、外{そと}へ 出{で}ないで ください。",
        "en": "In case of an earthquake, please don't go outside.",
        "answer": "の",
        "answer_ruby": "の",
@@ -14422,7 +14450,7 @@
       {
        "kind": "choose",
        "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。",
-       "prompt_ruby": "かぎを ＿＿ 場合{ばあい}は、うけつけに 行{い}って ください。",
+       "prompt_ruby": "かぎを ＿＿ ばあいは、うけつけに 行{い}って ください。",
        "en": "If you lose your key, please tell the front desk.",
        "answer": "なくした",
        "answer_ruby": "なくした",
@@ -14485,7 +14513,7 @@
       {
        "kind": "choose",
        "prompt": "くすりを ＿＿のに、まだ ねつが あります。",
-       "prompt_ruby": "薬{くすり}を ＿＿のに、まだ ねつが あります。",
+       "prompt_ruby": "くすりを ＿＿のに、まだ ねつが あります。",
        "en": "Even though I took medicine, I still have a fever.",
        "answer": "のんだ",
        "answer_ruby": "飲{の}んだ",
@@ -14506,7 +14534,7 @@
       {
        "kind": "choose",
        "prompt": "さむい＿＿、かれは コートを きないで でかけました。",
-       "prompt_ruby": "寒{さむ}い＿＿、かれは コートを 着{き}ないで 出{で}かけました。",
+       "prompt_ruby": "さむい＿＿、かれは コートを 着{き}ないで 出{で}かけました。",
        "en": "Even though it's cold, he went out without a coat.",
        "answer": "のに",
        "answer_ruby": "のに",
@@ -14531,7 +14559,7 @@
       {
        "kind": "choose",
        "prompt": "まどを ＿＿のに、へやが さむいです。",
-       "prompt_ruby": "まどを ＿＿のに、へやが 寒{さむ}いです。",
+       "prompt_ruby": "まどを ＿＿のに、へやが さむいです。",
        "en": "Even though I closed the window, the room is cold.",
        "answer": "しめた",
        "answer_ruby": "しめた",
@@ -14730,7 +14758,7 @@
       {
        "kind": "choose",
        "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。",
-       "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく 分{わ}かりません。",
+       "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく わかりません。",
        "en": "I just joined the company, so I don't understand the work well.",
        "answer": "はいった",
        "answer_ruby": "入{はい}った",
@@ -15046,7 +15074,7 @@
       {
        "kind": "choose",
        "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。",
-       "prompt_ruby": "へやが 暗{くら}いですね。田中{たなか}さんは ＿＿ようです。",
+       "prompt_ruby": "へやが くらいですね。田中{たなか}さんは ＿＿ようです。",
        "en": "The room is dark. It seems Mr. Tanaka is out.",
        "answer": "るすの",
        "answer_ruby": "るすの",
@@ -15095,7 +15123,7 @@
        "prompt_ruby": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
        "en": "He's always playing games. It seems he likes games.",
        "answer": "すきな",
-       "answer_ruby": "好{す}きな",
+       "answer_ruby": "すきな",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -15104,9 +15132,9 @@
         "すきだ"
        ],
        "options_ruby": [
-        "好{す}きの",
-        "好{す}きな",
-        "好{す}きだ"
+        "すきの",
+        "すきな",
+        "すきだ"
        ],
        "hint": "A な-adjective keeps な before ようです.",
        "why_wrong": {
@@ -15182,7 +15210,7 @@
       {
        "kind": "choose",
        "prompt": "ははは こどもに やさいを ＿＿。",
-       "prompt_ruby": "母{はは}は こどもに 野菜{やさい}を ＿＿。",
+       "prompt_ruby": "母{はは}は こどもに やさいを ＿＿。",
        "en": "My mother made the children eat vegetables.",
        "answer": "たべさせました",
        "answer_ruby": "食{た}べさせました",
@@ -15207,7 +15235,7 @@
       {
        "kind": "choose",
        "prompt": "ぶちょうは あさ はやく わたしを かいしゃに ＿＿。",
-       "prompt_ruby": "ぶちょうは 朝{あさ} 早{はや}く わたしを 会社{かいしゃ}に ＿＿。",
+       "prompt_ruby": "ぶちょうは 朝{あさ} 早{はや}く 私{わたし}を 会社{かいしゃ}に ＿＿。",
        "en": "The manager made me come to the office early in the morning.",
        "answer": "こさせました",
        "answer_ruby": "来{こ}させました",
@@ -15353,12 +15381,12 @@
      "examples": [
       {
        "jp": "ははは わたしに へやを そうじさせました。",
-       "jp_ruby": "母{はは}は わたしに へやを そうじさせました。",
+       "jp_ruby": "母{はは}は 私{わたし}に へやを そうじさせました。",
        "en": "My mother made me clean my room."
       },
       {
        "jp": "こどもに すきな ほんを よませます。",
-       "jp_ruby": "こどもに 好{す}きな 本{ほん}を 読{よ}ませます。",
+       "jp_ruby": "こどもに すきな 本{ほん}を 読{よ}ませます。",
        "en": "I let my children read books they like."
       }
      ],
@@ -15366,7 +15394,7 @@
       {
        "kind": "fill",
        "prompt": "ぶちょうは わたし＿＿ しりょうを コピーさせました。",
-       "prompt_ruby": "ぶちょうは わたし＿＿ しりょうを コピーさせました。",
+       "prompt_ruby": "ぶちょうは 私{わたし}＿＿ しりょうを コピーさせました。",
        "en": "The manager made me copy the documents.",
        "answer": "に",
        "answer_ruby": "に",
@@ -15423,7 +15451,7 @@
       {
        "kind": "choose",
        "prompt": "ははは わたしに ピアノを ＿＿。",
-       "prompt_ruby": "母{はは}は わたしに ピアノを ＿＿。",
+       "prompt_ruby": "母{はは}は 私{わたし}に ピアノを ＿＿。",
        "en": "My mother made me learn the piano.",
        "answer": "ならわせました",
        "answer_ruby": "習{なら}わせました",
@@ -15486,7 +15514,7 @@
       {
        "kind": "choose",
        "prompt": "その しごとを わたしに ＿＿ いただけませんか。",
-       "prompt_ruby": "その 仕事{しごと}を わたしに ＿＿ いただけませんか。",
+       "prompt_ruby": "その 仕事{しごと}を 私{わたし}に ＿＿ いただけませんか。",
        "en": "Could you let me do that job?",
        "answer": "させて",
        "answer_ruby": "させて",
@@ -16051,7 +16079,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが こうじょうを ＿＿します。",
-       "prompt_ruby": "わたしが 工場{こうじょう}を ＿＿します。",
+       "prompt_ruby": "私{わたし}が 工場{こうじょう}を ＿＿します。",
        "en": "I will show you around the factory.",
        "answer": "ごあんない",
        "answer_ruby": "ごあんない",
@@ -16072,7 +16100,7 @@
       {
        "kind": "choose",
        "prompt": "わたしが ＿＿しましょうか。",
-       "prompt_ruby": "わたしが ＿＿しましょうか。",
+       "prompt_ruby": "私{わたし}が ＿＿しましょうか。",
        "en": "Shall I help you?",
        "answer": "おてつだい",
        "answer_ruby": "おてつだい",
@@ -16097,10 +16125,10 @@
       {
        "kind": "choose",
        "prompt": "この きかいの つかいかたは わたしが ＿＿。",
-       "prompt_ruby": "この きかいの 使{つか}い方{かた}は わたしが ＿＿。",
+       "prompt_ruby": "この きかいの 使{つか}い方{かた}は 私{わたし}が ＿＿。",
        "en": "I will explain how to use this machine.",
        "answer": "ごせつめいします",
-       "answer_ruby": "ご説明{せつめい}します",
+       "answer_ruby": "ごせつめいします",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -16109,9 +16137,9 @@
         "ごせつめいします"
        ],
        "options_ruby": [
-        "ご説明{せつめい}に なります",
-        "ご説明{せつめい}ください",
-        "ご説明{せつめい}します"
+        "ごせつめいに なります",
+        "ごせつめいください",
+        "ごせつめいします"
        ],
        "hint": "For your own action, use the humble ご + noun + します.",
        "why_wrong": {
@@ -16135,7 +16163,7 @@
      "examples": [
       {
        "jp": "わたしは たなかと もうします。",
-       "jp_ruby": "わたしは 田中{たなか}と もうします。",
+       "jp_ruby": "私{わたし}は 田中{たなか}と もうします。",
        "en": "My name is Tanaka."
       },
       {
@@ -16180,7 +16208,7 @@
       {
        "kind": "choose",
        "prompt": "わたしは らいしゅう アメリカへ ＿＿。",
-       "prompt_ruby": "わたしは 来週{らいしゅう} アメリカへ ＿＿。",
+       "prompt_ruby": "私{わたし}は 来週{らいしゅう} アメリカへ ＿＿。",
        "en": "I will go to America next week.",
        "answer": "まいります",
        "answer_ruby": "まいります",

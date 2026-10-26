@@ -10,7 +10,7 @@
       "examples": [
         {
           "jp": "はやく おきれば、まにあいます。",
-          "jp_ruby": "早{はや}く 起{お}きれば、間{ま}に合{あ}います。",
+          "jp_ruby": "早{はや}く 起{お}きれば、まにあいます。",
           "en": "If you get up early, you'll make it in time."
         },
         {
@@ -23,7 +23,7 @@
         {
           "kind": "fill",
           "prompt": "この くすりを ＿＿、すぐ なおります。",
-          "prompt_ruby": "この 薬{くすり}を ＿＿、すぐ なおります。",
+          "prompt_ruby": "この くすりを ＿＿、すぐ なおります。",
           "en": "If you take this medicine, you'll get better soon.",
           "answer": "のめば",
           "answer_ruby": "飲{の}めば",
@@ -80,7 +80,7 @@
         {
           "kind": "choose",
           "prompt": "いま ＿＿、まにあいません。",
-          "prompt_ruby": "今{いま} ＿＿、間{ま}に合{あ}いません。",
+          "prompt_ruby": "今{いま} ＿＿、まにあいません。",
           "en": "If you don't leave now, you won't make it in time.",
           "answer": "でなければ",
           "answer_ruby": "出{で}なければ",
@@ -128,7 +128,7 @@
           "prompt_ruby": "＿＿、まどを しめて ください。",
           "en": "If you're cold, please close the window.",
           "answer": "さむければ",
-          "answer_ruby": "寒{さむ}ければ",
+          "answer_ruby": "さむければ",
           "accepted": [],
           "accepted_ruby": [],
           "hint": "ければ form of さむい"
@@ -147,7 +147,7 @@
         {
           "kind": "choose",
           "prompt": "つごうが ＿＿、きて ください。",
-          "prompt_ruby": "都合{つごう}が ＿＿、来{き}て ください。",
+          "prompt_ruby": "つごうが ＿＿、来{き}て ください。",
           "en": "If it's convenient for you, please come.",
           "answer": "よければ",
           "answer_ruby": "よければ",
@@ -175,7 +175,7 @@
           "prompt_ruby": "駅{えき}が ＿＿、タクシーで 行{い}きます。",
           "en": "If the station is far, I'll go by taxi.",
           "answer": "とおければ",
-          "answer_ruby": "遠{とお}ければ",
+          "answer_ruby": "とおければ",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -184,9 +184,9 @@
             "とおいければ"
           ],
           "options_ruby": [
-            "遠{とお}ければ",
-            "遠{とお}いば",
-            "遠{とお}いければ"
+            "とおければ",
+            "とおいば",
+            "とおいければ"
           ],
           "hint": "For an い adjective, drop the final い and add ければ.",
           "why_wrong": {
@@ -278,7 +278,7 @@
         {
           "kind": "choose",
           "prompt": "あめ＿＿、しあいは ありません。",
-          "prompt_ruby": "雨{あめ}＿＿、試合{しあい}は ありません。",
+          "prompt_ruby": "雨{あめ}＿＿、しあいは ありません。",
           "en": "If it rains, there's no game.",
           "answer": "なら",
           "answer_ruby": "なら",
@@ -444,7 +444,7 @@
         {
           "kind": "choose",
           "prompt": "りょこう＿＿、きょうとが いいですよ。",
-          "prompt_ruby": "旅行{りょこう}＿＿、京都{きょうと}が いいですよ。",
+          "prompt_ruby": "旅行{りょこう}＿＿、きょうとが いいですよ。",
           "en": "If it's a trip you're planning, Kyoto is good.",
           "answer": "なら",
           "answer_ruby": "なら",
@@ -490,7 +490,7 @@
         {
           "kind": "choose",
           "prompt": "テニス＿＿、わたしも できますよ。",
-          "prompt_ruby": "テニス＿＿、わたしも できますよ。",
+          "prompt_ruby": "テニス＿＿、私{わたし}も できますよ。",
           "en": "If it's tennis, I can play too.",
           "answer": "なら",
           "answer_ruby": "なら",

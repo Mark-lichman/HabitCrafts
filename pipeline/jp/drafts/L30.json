@@ -259,7 +259,7 @@
         {
           "kind": "choose",
           "prompt": "あついですから、ドアを ＿＿ おいて ください。",
-          "prompt_ruby": "暑{あつ}いですから、ドアを ＿＿ おいて ください。",
+          "prompt_ruby": "あついですから、ドアを ＿＿ おいて ください。",
           "en": "It's hot, so please leave the door open.",
           "answer": "あけて",
           "answer_ruby": "開{あ}けて",
