@@ -4,9 +4,11 @@
 // example, then every practice item with its answer in the blank. For each one the
 // learner plays the sentence, speaks it once, and the drill judges what was heard.
 //
-// Judging reuses `SpeechService.judge()`. The hiragana sentence is the expected kana, and
-// the sentence's kanji surface goes in `kanjiForms`, because Android recognisers often
-// return a sentence in kanji.
+// Judging reuses `SpeechService.judge()`. The expected kana is the kanji twin's reading
+// (every `漢字{かな}` bracket replaced by its reading), so an example the lesson prints in
+// kanji still has a hiragana target. The sentence's kanji surface goes in `kanjiForms`,
+// because Android recognisers often return a sentence in kanji. An example that joins
+// several forms with ／ becomes one sentence per form.
 //
 // 🚨 NO CORRECT ANSWER IS EVER MARKED WRONG (PIN-2, PIN-7, PIN-10).
 //   * `correct` is marked right.
@@ -47,22 +49,47 @@ class SpeakSentence {
 
 final RegExp _reading = RegExp(r'\{[^}]*\}');
 
+/// One bracket of a kanji twin: the kanji run right before `{`, then its reading. The
+/// same shape as `RUBY` in pipeline/jp/ruby.py.
+final RegExp _bracket = RegExp(r'[一-鿿々]+\{([^{}]+)\}');
+
 /// A kanji twin with its readings dropped: `買{か}い物{もの}` becomes `買い物`.
 String rubySurface(String ruby) => ruby.replaceAll(_reading, '');
 
+/// A kanji twin read out: `買{か}い物{もの}` becomes `かいもの`. This is the drill's expected
+/// kana, so an example printed in kanji (「立入禁止{たちいりきんし}」) is judged against
+/// hiragana.
+String rubyKana(String ruby) =>
+    ruby.replaceAllMapped(_bracket, (m) => m.group(1)!);
+
+/// Several forms joined in one example: いこう／たべよう／しよう／こよう.
+const String _joiner = '／';
+
+/// Splits a hiragana text and its twin on ／ into one [SpeakSentence] per form. When the
+/// two sides do not split alike, the whole pair is one sentence.
+Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en) {
+  final kanaParts = jp.split(_joiner);
+  final rubyParts = ruby.split(_joiner);
+  final pairs =
+      kanaParts.length == rubyParts.length ? rubyParts : <String>[ruby];
+  return pairs.map((r) => SpeakSentence(
+        kana: rubyKana(r),
+        surface: rubySurface(r),
+        en: en,
+      ));
+}
+
 /// Every example in [lesson], then every practice item with its answer in the blank.
-/// Point by point, in the order the lesson teaches them.
+/// Point by point, in the order the lesson teaches them. An example that joins forms
+/// with ／ gives one sentence per form, and no sentence contains ／.
 List<SpeakSentence> lessonSentences(Map<String, dynamic> lesson) {
   final out = <SpeakSentence>[];
   for (final p in (lesson['points'] as List).cast<Map<String, dynamic>>()) {
     for (final e
         in (p['examples'] as List? ?? const []).cast<Map<String, dynamic>>()) {
       final jp = e['jp'] as String;
-      out.add(SpeakSentence(
-        kana: jp,
-        surface: rubySurface(e['jp_ruby'] as String? ?? jp),
-        en: e['en'] as String? ?? '',
-      ));
+      out.addAll(_sentencesOf(
+          jp, e['jp_ruby'] as String? ?? jp, e['en'] as String? ?? ''));
     }
     for (final q
         in (p['practice'] as List? ?? const []).cast<Map<String, dynamic>>()) {
@@ -71,11 +98,7 @@ List<SpeakSentence> lessonSentences(Map<String, dynamic> lesson) {
       final kana = prompt.replaceAll('＿＿', answer);
       final ruby = (q['prompt_ruby'] as String? ?? prompt)
           .replaceAll('＿＿', q['answer_ruby'] as String? ?? answer);
-      out.add(SpeakSentence(
-        kana: kana,
-        surface: rubySurface(ruby),
-        en: q['en'] as String? ?? '',
-      ));
+      out.addAll(_sentencesOf(kana, ruby, q['en'] as String? ?? ''));
     }
   }
   return out;
@@ -171,6 +194,10 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   int _seen = 0;
   int _right = 0;
 
+  /// Bumped by every Speak and Stop. A listen whose attempt is no longer current (the
+  /// learner pressed Stop, or Speak again) drops its result instead of showing it.
+  int _attempt = 0;
+
   final ValueNotifier<double> _still = ValueNotifier<double>(0);
 
   ValueListenable<double> get _level =>
@@ -195,7 +222,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
       widget.play?.call(text) ?? SpeechService.instance.speak(text);
 
   Future<void> _play(SpeakSentence s) async {
-    final err = await _say(s.kana);
+    // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
+    final err = await _say(s.kana.replaceAll(_joiner, '、'));
     if (err != null && mounted) {
       final t = QuietRoomTokens.of(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -207,6 +235,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
 
   Future<void> _speak(SpeakSentence s) async {
     if (_listening) return;
+    final attempt = ++_attempt;
     setState(() {
       _listening = true;
       _heardVoice = false;
@@ -218,7 +247,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     try {
       final r = await _listenOnce(
           s.kana, s.surface == s.kana ? const [] : [s.surface]);
-      if (!mounted) return;
+      // Stop (or a later Speak) retired this attempt while it waited: its result is stale.
+      if (!mounted || attempt != _attempt) return;
       final v = speakVerdict(r.judgement, r.heard);
       setState(() {
         _result = r;
@@ -231,8 +261,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
         }
       });
     } finally {
-      // Leaving the panel open on a throw would strand the drill mid-listen.
-      if (mounted) {
+      // Leaving the panel open on a throw would strand the drill mid-listen. A retired
+      // attempt leaves the panel alone: Stop already closed it, or a newer Speak owns it.
+      if (mounted && attempt == _attempt) {
         setState(() {
           _listening = false;
           _micError = _live ? SpeechService.instance.lastError : null;
@@ -250,7 +281,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     });
   }
 
+  /// Ignored during a listen, so a pending result is never credited to the next sentence.
   void _next(int count) {
+    if (_listening) return;
     setState(() {
       _index = (_index + 1) % count;
       _result = null;
@@ -325,7 +358,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
             const SizedBox(height: 22),
             Center(
               child: TextButton(
-                onPressed: () => _next(sentences.length),
+                onPressed: _listening ? null : () => _next(sentences.length),
                 style: TextButton.styleFrom(
                     minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
                 child: Text('Next sentence',
@@ -411,6 +444,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
               const SizedBox(width: 10),
               TextButton(
                 onPressed: () async {
+                  // Retire the pending listen first, so its late result is dropped.
+                  _attempt++;
                   if (_live) await SpeechService.instance.cancel();
                   if (mounted) setState(() => _listening = false);
                 },

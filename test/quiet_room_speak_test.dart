@@ -4,6 +4,8 @@
 // verdict still comes from the real `SpeechService.judge()`, so these tests check the
 // judging the drill ships with, over the shipped lesson file.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,37 +15,76 @@ import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
 
-/// The drill's first sentence: lesson 26, first point, first example.
-({String kana, String surface}) firstSentence() {
+/// Lesson 26's sentences, as the drill walks them.
+List<SpeakSentence> lesson26() {
   final doc = readLessonFile();
   final lesson = (doc['grammar'] as List)
       .cast<Map<String, dynamic>>()
       .firstWhere((l) => l['lesson'] == 26);
-  final ex = ((lesson['points'] as List).first['examples'] as List).first
-      as Map<String, dynamic>;
-  return (
-    kana: ex['jp'] as String,
-    surface: rubySurface(ex['jp_ruby'] as String),
-  );
+  return lessonSentences(lesson);
+}
+
+/// The drill's first sentence, the one shown when the screen opens.
+SpeakSentence firstSentence() => lesson26().first;
+
+/// The first lesson 26 sentence whose kanji surface differs from its kana, with its index.
+/// Chosen from the data, not pinned, so it holds whichever words a later twin rewrite
+/// keeps in kanji.
+({int index, SpeakSentence s}) kanjiSentence() {
+  final all = lesson26();
+  final i = all.indexWhere((x) => x.surface != x.kana);
+  expect(i, isNonNegative, reason: 'lesson 26 has no sentence in kanji');
+  return (index: i, s: all[i]);
 }
 
 /// No spaces or punctuation, the way a recogniser returns a sentence.
-String bare(String s) => s.replaceAll(RegExp(r'[\s、。！？]'), '');
+String bare(String s) => s.replaceAll(RegExp(r'[\s、。！？「」]'), '');
+
+/// What the drill passes judge() as kanji forms for [s].
+List<String> formsOf(SpeakSentence s) =>
+    s.surface == s.kana ? const [] : [s.surface];
 
 class FakeEar {
   FakeEar(this.heard);
   final String heard;
   final calls = <({String kana, List<String> kanjiForms})>[];
 
+  /// When set, a listen waits here before it answers, so a test can act mid-listen.
+  Completer<void>? gate;
+
   Future<SpeechResult> listen(String kana, List<String> kanjiForms) async {
     calls.add((kana: kana, kanjiForms: kanjiForms));
+    if (gate != null) await gate!.future;
     return SpeechResult(
         heard, SpeechService.judge(heard, kana, kanjiForms: kanjiForms));
   }
 }
 
-Future<FakeEar> speakOnce(WidgetTester tester, String heard) async {
+/// Opens lesson 26, moves [index] sentences on, and speaks [heard] once.
+Future<FakeEar> speakOnce(WidgetTester tester, String heard,
+    {int index = 0}) async {
   final ear = FakeEar(heard);
+  await pumpStudyScreen(
+    tester,
+    QuietRoomSpeakWidget(
+      lesson: 26,
+      listen: ear.listen,
+      play: (_) async => null,
+    ),
+  );
+  for (var i = 0; i < index; i++) {
+    await tester.tap(find.text('Next sentence'));
+    await tester.pump();
+  }
+  await tester.tap(find.text('Speak'));
+  await tester.pump();
+  await tester.pump();
+  return ear;
+}
+
+/// Opens lesson 26 and starts a listen that waits on the returned ear's gate.
+Future<FakeEar> speakPending(WidgetTester tester, String heard) async {
+  final ear = FakeEar(heard)..gate = Completer<void>();
   await pumpStudyScreen(
     tester,
     QuietRoomSpeakWidget(
@@ -54,7 +95,7 @@ Future<FakeEar> speakOnce(WidgetTester tester, String heard) async {
   );
   await tester.tap(find.text('Speak'));
   await tester.pump();
-  await tester.pump();
+  expect(find.text('Listening'), findsOneWidget);
   return ear;
 }
 
@@ -63,6 +104,14 @@ void main() {
     test('drops every reading and keeps okurigana', () {
       expect(rubySurface('買{か}い物{もの}に 行{い}きます。'), '買い物に 行きます。');
       expect(rubySurface('あした テストが あるんです。'), 'あした テストが あるんです。');
+    });
+  });
+
+  group('rubyKana', () {
+    test('reads every bracket and keeps okurigana', () {
+      expect(rubyKana('買{か}い物{もの}に 行{い}きます。'), 'かいものに いきます。');
+      expect(rubyKana('「立入禁止{たちいりきんし}」は だめです。'), '「たちいりきんし」は だめです。');
+      expect(rubyKana('あした テストが あるんです。'), 'あした テストが あるんです。');
     });
   });
 
@@ -93,21 +142,81 @@ void main() {
           (q['prompt'] as String).replaceAll('＿＿', q['answer'] as String);
       expect(s.map((x) => x.kana), contains(done));
     });
+
+    test('splits an example that joins forms with ／ into one sentence each',
+        () {
+      final lesson = {
+        'points': [
+          {
+            'examples': [
+              {
+                'jp': 'いこう／たべよう／しよう',
+                'jp_ruby': '行{い}こう／食{た}べよう／しよう',
+                'en': 'volitional',
+              }
+            ],
+          }
+        ],
+      };
+      final s = lessonSentences(lesson);
+      expect(s.map((x) => x.kana), ['いこう', 'たべよう', 'しよう']);
+      expect(s.map((x) => x.surface), ['行こう', '食べよう', 'しよう']);
+      expect(s.map((x) => x.en), everyElement('volitional'));
+    });
+
+    test('every shipped sentence is judged correct in kana and in kanji', () {
+      final doc = readLessonFile();
+      final kanji = RegExp(r'[一-鿿]');
+      var count = 0;
+      for (final lesson
+          in (doc['grammar'] as List).cast<Map<String, dynamic>>()) {
+        for (final s in lessonSentences(lesson)) {
+          count++;
+          final where = 'lesson ${lesson['lesson']}: ${s.kana}';
+          expect(s.kana.contains('／'), isFalse, reason: where);
+          expect(s.surface.contains('／'), isFalse, reason: where);
+          expect(s.kana.contains('{'), isFalse, reason: where);
+          expect(kanji.hasMatch(s.kana), isFalse, reason: where);
+          final forms = formsOf(s);
+          expect(SpeechService.judge(bare(s.kana), s.kana, kanjiForms: forms),
+              Judgement.correct,
+              reason: where);
+          expect(
+              SpeechService.judge(bare(s.surface), s.kana, kanjiForms: forms),
+              Judgement.correct,
+              reason: '$where (kanji ${s.surface})');
+        }
+      }
+      expect(count, greaterThan(0));
+    });
   });
 
   group('judge on a whole sentence', () {
     test('an exact hiragana sentence is correct', () {
       final s = firstSentence();
-      expect(SpeechService.judge(bare(s.kana), s.kana, kanjiForms: [s.surface]),
+      expect(SpeechService.judge(bare(s.kana), s.kana, kanjiForms: formsOf(s)),
           Judgement.correct);
     });
 
     test('an exact kanji sentence is correct without its spaces or 。', () {
-      final s = firstSentence();
+      final s = kanjiSentence().s;
       expect(s.surface, isNot(s.kana));
       expect(
           SpeechService.judge(bare(s.surface), s.kana, kanjiForms: [s.surface]),
           Judgement.correct);
+    });
+
+    test('a vocabulary word with an EDICT kanji form judges as before', () {
+      // The vocabulary drill calls judge() with EDICT forms; this pins that path.
+      expect(
+          SpeechService.judge('山', 'やま', kanjiForms: ['山']), Judgement.correct);
+      expect(SpeechService.judge('山。', 'やま', kanjiForms: ['山']),
+          Judgement.correct);
+      expect(
+          SpeechService.judge('山です', 'やま', kanjiForms: ['山']), Judgement.close);
+      // An empty form is skipped, not matched by contains('').
+      expect(SpeechService.judge('猫', 'ねこ', kanjiForms: ['']),
+          Judgement.unverified);
     });
   });
 
@@ -127,7 +236,7 @@ void main() {
   group('the drill screen', () {
     testWidgets('plays the sentence and passes its kanji surface to judge()',
         (tester) async {
-      final s = firstSentence();
+      final (index: index, s: s) = kanjiSentence();
       final played = <String>[];
       final ear = FakeEar(bare(s.kana));
       await pumpStudyScreen(
@@ -141,6 +250,11 @@ void main() {
           },
         ),
       );
+      expect(find.text(firstSentence().kana), findsOneWidget);
+      for (var i = 0; i < index; i++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
       expect(find.text(s.kana), findsOneWidget);
 
       await tester.tap(find.text('Play'));
@@ -162,9 +276,48 @@ void main() {
     });
 
     testWidgets('an exact kanji match is marked right', (tester) async {
-      await speakOnce(tester, bare(firstSentence().surface));
+      final (index: index, s: s) = kanjiSentence();
+      await speakOnce(tester, bare(s.surface), index: index);
       expect(find.text('That’s it'), findsOneWidget);
       expect(find.text('1 of 1'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Next is ignored mid-listen, so the result lands on its sentence',
+        (tester) async {
+      final first = firstSentence();
+      final second = lesson26()[1];
+      final ear = await speakPending(tester, bare(first.kana));
+
+      await tester.tap(find.text('Next sentence'), warnIfMissed: false);
+      await tester.pump();
+      expect(find.text(first.kana), findsOneWidget);
+      expect(find.text(second.kana), findsNothing);
+
+      ear.gate!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('That’s it'), findsOneWidget);
+      expect(find.text('1 of 1'), findsOneWidget);
+      expect(find.text(first.kana), findsOneWidget);
+    });
+
+    testWidgets('Stop drops the result of the listen it cut short',
+        (tester) async {
+      final ear = await speakPending(tester, bare(firstSentence().kana));
+
+      await tester.tap(find.text('Stop'));
+      await tester.pump();
+      expect(find.text('Listening'), findsNothing);
+      expect(find.text('Speak'), findsOneWidget);
+
+      ear.gate!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('That’s it'), findsNothing);
+      expect(find.text('Didn’t catch that'), findsNothing);
+      expect(find.text('Say it'), findsOneWidget);
+      expect(find.text('Speak'), findsOneWidget);
     });
 
     testWidgets(
@@ -234,11 +387,7 @@ void main() {
     });
 
     testWidgets('Next moves to the second sentence', (tester) async {
-      final doc = readLessonFile();
-      final lesson = (doc['grammar'] as List)
-          .cast<Map<String, dynamic>>()
-          .firstWhere((l) => l['lesson'] == 26);
-      final second = lessonSentences(lesson)[1];
+      final second = lesson26()[1];
       await pumpStudyScreen(
         tester,
         QuietRoomSpeakWidget(
