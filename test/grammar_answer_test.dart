@@ -110,7 +110,7 @@ void main() {
       for (var i = 0; i < items.length; i++) {
         final q = items[i];
         final other = items[(i + 1) % items.length]['answer'] as String;
-        if (answerForms(q).contains(other)) continue;
+        if (answerForms(q).contains(normaliseTyped(other))) continue;
         if (!isPlainKana(other)) continue;
         expect(checkTypedAnswer(other, q), TypedVerdict.wrong,
             reason: '"$other" for ${q['prompt']}');

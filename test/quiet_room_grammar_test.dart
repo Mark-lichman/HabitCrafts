@@ -185,6 +185,27 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets('Show answer after a wrong answer drops the retry message',
+        (tester) async {
+      final q = firstFills().first;
+      await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
+
+      await tester.enterText(answerBoxes.first, 'ぬぬぬ');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+      expect(find.textContaining('Not quite.'), findsOneWidget);
+
+      await tester.tap(find.text('Show answer').first);
+      await tester.pump();
+
+      // The box and the retry message go together. The prompt shows the answer.
+      expect(find.textContaining('Not quite.'), findsNothing);
+      expect(
+          find.text(
+              (q['prompt'] as String).replaceAll('＿＿', '［${q['answer']}］')),
+          findsOneWidget);
+    });
+
     testWidgets('an answer it cannot compare goes to self-check, not wrong',
         (tester) async {
       await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
@@ -276,6 +297,41 @@ void main() {
       for (final w in (item['why_wrong'] as Map? ?? const {}).keys) {
         expect(find.textContaining('$w: '), findsNothing);
       }
+    });
+
+    testWidgets('a wrong pick in kanji quotes the kanji option in its reason',
+        (tester) async {
+      // The first choice item in the opening lesson with a reason for a wrong option
+      // whose kanji version differs from its hiragana.
+      final item = [
+        for (final p
+            in (firstLesson()['points'] as List).cast<Map<String, dynamic>>())
+          for (final q in (p['practice'] as List? ?? const [])
+              .cast<Map<String, dynamic>>())
+            if ((q['options'] as List? ?? const []).isNotEmpty &&
+                (q['why_wrong'] as Map? ?? const {}).keys.any((w) {
+                  final i = (q['options'] as List).indexOf(w);
+                  final ruby = (q['options_ruby'] as List?)?[i] as String?;
+                  return ruby != null && rubySurface(ruby) != w;
+                }))
+              q,
+      ].first;
+      final options = (item['options'] as List).cast<String>();
+      final optionsRuby = (item['options_ruby'] as List).cast<String>();
+      final why = (item['why_wrong'] as Map).cast<String, String>();
+      final wrong = why.keys
+          .firstWhere((w) => rubySurface(optionsRuby[options.indexOf(w)]) != w);
+      final shown = rubySurface(optionsRuby[options.indexOf(wrong)]);
+      await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
+
+      await tester.tap(find.text('漢字'));
+      await tester.pump();
+      await tester.tap(find.text(shown).first);
+      await tester.pump();
+
+      // The reason quotes the option as shown, not its hiragana key.
+      expect(find.textContaining('$shown: ${why[wrong]}'), findsOneWidget);
+      expect(find.textContaining('$wrong: ${why[wrong]}'), findsNothing);
     });
   });
 
