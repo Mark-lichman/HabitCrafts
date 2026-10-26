@@ -134,7 +134,9 @@ def test_catalog_entries_validate_against_the_typed_contract(sources):
     for raw, model in zip(entries, checked):
         dumped = model.model_dump(by_alias=True)
         for key, value in raw.items():
-            assert dumped[key] == value, f"{raw['id']}: {key} did not survive validation"
+            assert key in dumped and dumped[key] == value, (
+                f"{raw['id']}: {key} did not survive validation"
+            )
     kept = {m.file: m.counts for m in checked if m.type == "source_file"}
     assert kept == {e["file"]: e["counts"] for e in sources}
 

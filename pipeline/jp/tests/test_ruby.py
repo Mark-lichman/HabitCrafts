@@ -196,6 +196,14 @@ def test_every_committed_draft_passes_under_the_shipped_flag(mari):
         assert publish.check_draft(d, mari) == [], f.name
 
 
+def test_shipped_flag_requires_twins(mari):
+    # No monkeypatch: this pins the shipped value. Task 5 flipped REQUIRE_RUBY to True
+    # and every draft carries its twins, so a revert to False must fail here (PIN-9).
+    assert publish.REQUIRE_RUBY is True
+    errs = publish.check_draft(drop_twins(_draft()), mari)
+    assert any("missing jp_ruby" in e for e in errs)
+
+
 def test_missing_twins_fail_when_required(mari, monkeypatch):
     monkeypatch.setattr(publish, "REQUIRE_RUBY", True)
     errs = publish.check_draft(drop_twins(_draft()), mari)
