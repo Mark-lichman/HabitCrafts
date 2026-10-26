@@ -112,6 +112,18 @@
    "detail": "台風 is an N4 word built from the allowed kanji 台 and 風, and is normally written in kanji.",
    "by": "independent-lm",
    "status": "applied"
+  },
+  {
+   "point_id": "mari.L36.1",
+   "where": "p1",
+   "field": "prompt",
+   "index": null,
+   "rule": "R5",
+   "current": "早{はや}く ＿＿ ように、毎日{まいにち} れんしゅうします。",
+   "fix": "はやく ＿＿ ように、毎日{まいにち} れんしゅうします。",
+   "detail": "The item is 'so that I can swim fast', the speed sense. 早 means early or soon, and the speed kanji 速 is above N4, so はやく stays in hiragana like the speed sense in mari.L38.2 p1.",
+   "by": "re-audit",
+   "status": "applied"
   }
  ],
  "dismissed": [
