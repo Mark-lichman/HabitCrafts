@@ -1,5 +1,5 @@
 {
- "about": "The kanji a `_ruby` twin may use (rule R1 in review/judge_ruby.json): the Tanos JLPT N5 and N4 kanji lists. A word with any other kanji is written in hiragana. test_kanji_list.py checks every twin against this file, and this file against the archived Tanos pages in pipeline/jp/tanos/.",
+ "about": "The kanji a `_ruby` twin may use (rule R1 in review/judge_ruby.json): the Tanos JLPT N5 and N4 kanji lists. A word with any other kanji is written in hiragana. One field prints kanji itself (Mari's sign 「立入禁止」 in mari.L33.3), so its twin keeps the printed kanji. test_kanji_list.py checks every twin against this file, and this file against the archived Tanos pages in pipeline/jp/tanos/.",
  "source": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
  "source_urls": {
   "N5": "http://www.tanos.co.uk/jlpt/jlpt5/kanji/",
