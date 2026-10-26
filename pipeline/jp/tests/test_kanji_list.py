@@ -2,14 +2,16 @@
 
 Mark ruled on 2026-10-26 that the twins use only the Tanos JLPT N5 and N4 kanji, and that
 the pronoun わたし is written 私{わたし}. The list lives in pipeline/jp/kanji_n5_n4.json
-with its source and each level's count, so these tests check the file against its own
-recorded counts and every twin against the file. A word with any other kanji is written
-in hiragana. The one field that prints kanji itself (Mari's verbatim sign in mari.L33.3)
+with its source and each level's count, and the Tanos pages it was read from are committed
+under pipeline/jp/tanos/, so these tests check the file against its own recorded counts,
+each level against the archived page's kanji table, and every twin against the file. A
+word with any other kanji is written in hiragana. The one field that prints kanji itself (Mari's verbatim sign in mari.L33.3)
 keeps the kanji it prints, since its twin is checked against the printed text.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -19,6 +21,8 @@ import pytest
 JP = Path(__file__).resolve().parents[1]
 KANJI_FILE = JP / "kanji_n5_n4.json"
 KANJI = re.compile(r"[一-鿿々]")
+# One row of the archived Tanos kanji table: the first cell links the kanji to its sentences.
+SNAPSHOT_ROW = re.compile(r'<tr><td><a [^>]*kanjiid=\d+">([一-鿿]) </a></td>')
 
 
 def _list() -> dict:
@@ -57,6 +61,22 @@ def test_the_list_names_its_source_and_counts():
         assert len(set(kanji)) == len(kanji), f"{level} lists a kanji twice"
         assert len(kanji) == k["counts"][level], f"{level} count is not the recorded count"
     assert not set(k["N5"]) & set(k["N4"]), "a kanji is listed at both levels"
+
+
+@pytest.mark.parametrize("level", ["N5", "N4"])
+def test_each_level_is_the_archived_tanos_page_table(level):
+    # The oracle is the Tanos page itself, archived byte for byte under pipeline/jp/tanos/:
+    # its kanji table, one row per kanji, is the list. A kanji added to or dropped from
+    # the file, or a changed snapshot, fails here.
+    k = _list()
+    snap = k["primary_snapshots"][level]
+    assert snap["url"].startswith("https://web.archive.org/web/")
+    assert k["source_urls"][level] in snap["url"], f"{level}: snapshot is not of the source URL"
+    raw = (JP.parents[1] / snap["file"]).read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == snap["sha256"], f"{snap['file']} changed"
+    rows = SNAPSHOT_ROW.findall(raw.decode("utf-8"))
+    assert rows, f"{snap['file']}: no kanji table rows"
+    assert "".join(rows) == k[level], f"{level} is not the archived page's table"
 
 
 def test_operator_additions_are_reasoned_and_not_already_listed():
