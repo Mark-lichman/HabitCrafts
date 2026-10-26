@@ -136,7 +136,7 @@
         {
           "kind": "choose",
           "prompt": "さむく ＿＿ きましたね。",
-          "prompt_ruby": "寒{さむ}く ＿＿ きましたね。",
+          "prompt_ruby": "さむく ＿＿ きましたね。",
           "en": "It has gotten cold, hasn't it?",
           "answer": "なって",
           "answer_ruby": "なって",

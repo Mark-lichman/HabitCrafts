@@ -38,7 +38,7 @@
         {
           "kind": "choose",
           "prompt": "かぞくの ＿＿、まいにち はたらいて います。",
-          "prompt_ruby": "家族{かぞく}の ＿＿、毎日{まいにち} 働{はたら}いて います。",
+          "prompt_ruby": "家族{かぞく}の ＿＿、毎日{まいにち} はたらいて います。",
           "en": "I work every day for my family.",
           "answer": "ために",
           "answer_ruby": "ために",

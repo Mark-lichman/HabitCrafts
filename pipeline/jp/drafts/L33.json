@@ -227,7 +227,7 @@
         {
           "kind": "fill",
           "prompt": "「でぐち」は そとへ でる ところ＿＿ いみです。",
-          "prompt_ruby": "「出口{でぐち}」は 外{そと}へ 出{で}る 所{ところ}＿＿ 意味{いみ}です。",
+          "prompt_ruby": "「出口{でぐち}」は 外{そと}へ 出{で}る ところ＿＿ 意味{いみ}です。",
           "en": "'でぐち' means the place where you go out.",
           "answer": "という",
           "answer_ruby": "という",

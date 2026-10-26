@@ -10,7 +10,7 @@
       "examples": [
         {
           "jp": "あたまが いたいんです。",
-          "jp_ruby": "頭{あたま}が いたいんです。",
+          "jp_ruby": "あたまが いたいんです。",
           "en": "I have a headache, you see."
         },
         {
@@ -117,7 +117,7 @@
         },
         {
           "jp": "じが わからないんですが、よんで いただけませんか。",
-          "jp_ruby": "字{じ}が 分{わ}からないんですが、読{よ}んで いただけませんか。",
+          "jp_ruby": "字{じ}が わからないんですが、読{よ}んで いただけませんか。",
           "en": "I don't know these characters. Could you read them for me?"
         }
       ],
@@ -139,16 +139,16 @@
           "prompt_ruby": "道{みち}が ＿＿んですが、教{おし}えて いただけませんか。",
           "en": "I don't know the way. Could you tell me?",
           "answer": "わからない",
-          "answer_ruby": "分{わ}からない",
+          "answer_ruby": "わからない",
           "options": [
             "わからない",
             "わかります",
             "わかって"
           ],
           "options_ruby": [
-            "分{わ}からない",
-            "分{わ}かります",
-            "分{わ}かって"
+            "わからない",
+            "わかります",
+            "わかって"
           ],
           "accepted": [],
           "accepted_ruby": [],

@@ -8,13 +8,27 @@
 // practice are drafts (pipeline/jp/drafts, the OPM's Drafting stage) and the screen
 // says so until they are reviewed. Recall first, as on the vocabulary screen: English
 // and answers stay hidden until tapped.
+//
+// Hiragana is the default (PIN-4, PIN-7). The 漢字 toggle swaps every sentence, option
+// and answer for its kanji twin's surface. A fill-in item takes a typed answer from the
+// Japanese keyboard (PIN-3), judged by `checkTypedAnswer()` in jp_study_kit.dart. Each
+// lesson opens its speaking drill from "Speak this lesson" (PIN-6).
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_practice/speech_service.dart';
 import 'jp_study_kit.dart';
+import 'quiet_room_speak_widget.dart';
+
+/// The hint every typed-answer box asks the keyboard for: Gboard opens in Japanese.
+const List<Locale> jpKeyboard = [Locale('ja', 'JP')];
+
+/// [ruby]'s kanji surface when [kanji] is on, else [kana]. A missing twin shows [kana].
+String jpShown(bool kanji, String kana, Object? ruby) =>
+    kanji && ruby is String ? rubySurface(ruby) : kana;
 
 class QuietRoomGrammarWidget extends StatefulWidget {
   const QuietRoomGrammarWidget(
@@ -36,6 +50,9 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   int? _lesson;
   bool _byUse = false;
   String? _use;
+
+  /// Off by default: hiragana is the default display (PIN-4).
+  bool _kanji = false;
   late String _query = widget.initialQuery ?? '';
   late final _searchCtl = TextEditingController(text: widget.initialQuery);
 
@@ -64,6 +81,7 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
       for (final e in (p['examples'] as List? ?? const [])
           .cast<Map<String, dynamic>>()) ...[
         e['jp'] as String? ?? '',
+        rubySurface(e['jp_ruby'] as String? ?? ''),
         e['en'] as String? ?? '',
       ],
       for (final u in (p['uses'] as List? ?? const []).cast<String>())
@@ -128,7 +146,23 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
           children: [
-            Text(heading, style: qrTitle(t)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: Text(heading, style: qrTitle(t))),
+                const SizedBox(width: 8),
+                Semantics(
+                  toggled: _kanji,
+                  label: 'Show kanji',
+                  child: QrPill(
+                      key: const ValueKey('kanji-toggle'),
+                      label: '漢字',
+                      on: _kanji,
+                      solid: false,
+                      onTap: () => setState(() => _kanji = !_kanji)),
+                ),
+              ],
+            ),
             const SizedBox(height: 5),
             Text(sub, style: qrText(t, color: t.inkMuted)),
             const SizedBox(height: 14),
@@ -168,6 +202,32 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
                     _remember(n);
                   },
                 ),
+              if (!_byUse) ...[
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: () =>
+                        context.pushNamed(QuietRoomSpeakWidget.routeName,
+                            queryParameters: {
+                              'lesson': serializeParam(
+                                  lesson['lesson'] as int, ParamType.int),
+                            }.withoutNulls),
+                    icon: Icon(Icons.mic_none, size: 18, color: t.brand600),
+                    label: Text('Speak this lesson',
+                        style: qrText(t,
+                            size: 13.5,
+                            weight: FontWeight.w600,
+                            color: t.brand600)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, QuietRoomMetrics.targetMin),
+                      side: BorderSide(color: t.border),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999)),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 14),
             ],
             ...points.map((p) => Padding(
@@ -179,6 +239,7 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
                     point: p,
                     lesson: crossLesson ? p['lesson'] as int? : null,
                     useNames: useNames,
+                    kanji: _kanji,
                   ),
                 )),
             const SizedBox(height: 4),
@@ -222,7 +283,10 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
 
 class _PointCard extends StatefulWidget {
   const _PointCard(
-      {required this.point, this.lesson, this.useNames = const {}});
+      {required this.point,
+      this.lesson,
+      this.useNames = const {},
+      this.kanji = false});
 
   final Map<String, dynamic> point;
 
@@ -230,6 +294,9 @@ class _PointCard extends StatefulWidget {
   /// comes from.
   final int? lesson;
   final Map<String, String> useNames;
+
+  /// Show each sentence's kanji twin instead of its hiragana.
+  final bool kanji;
 
   @override
   State<_PointCard> createState() => _PointCardState();
@@ -316,7 +383,7 @@ class _PointCardState extends State<_PointCard> {
             _label(t, 'Practice'),
             ...practice.map((q) => Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: _Practice(item: q),
+                  child: _Practice(item: q, kanji: widget.kanji),
                 )),
           ],
           const SizedBox(height: 14),
@@ -350,6 +417,7 @@ class _PointCardState extends State<_PointCard> {
 
   Widget _example(QuietRoomTokens t, int i, Map<String, dynamic> e) {
     final jp = e['jp'] as String? ?? '';
+    final shownJp = jpShown(widget.kanji, jp, e['jp_ruby']);
     final en = e['en'] as String? ?? '';
     final shown = _shownEn.contains(i);
     return InkWell(
@@ -366,7 +434,7 @@ class _PointCardState extends State<_PointCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(jp,
+                  Text(shownJp,
                       style: qrText(t,
                           size: 16.5, color: t.inkStrong, height: 1.5)),
                   if (en.isNotEmpty)
@@ -402,11 +470,16 @@ class _PointCardState extends State<_PointCard> {
   }
 }
 
-/// One practice item. "choose" checks the tap; "fill" asks for recall, then reveals.
+/// One practice item. "choose" checks the tap. "fill" takes a typed answer from the
+/// Japanese keyboard (PIN-3), or reveals the answer on request.
+///
+/// 🚨 A typed answer is marked wrong only when it is plain kana that matches no answer
+/// form. An answer the matcher cannot compare goes to self-check (PIN-2, PIN-7).
 class _Practice extends StatefulWidget {
-  const _Practice({required this.item});
+  const _Practice({required this.item, this.kanji = false});
 
   final Map<String, dynamic> item;
+  final bool kanji;
 
   @override
   State<_Practice> createState() => _PracticeState();
@@ -416,16 +489,56 @@ class _PracticeState extends State<_Practice> {
   bool _revealed = false;
   String? _picked;
 
+  final _typed = TextEditingController();
+  TypedVerdict? _verdict;
+
+  /// The learner's own mark after a self-check: true for "Got it".
+  bool? _selfMark;
+
+  @override
+  void dispose() {
+    _typed.dispose();
+    super.dispose();
+  }
+
+  void _check() {
+    final v = checkTypedAnswer(_typed.text, widget.item);
+    setState(() {
+      _verdict = v == TypedVerdict.empty ? null : v;
+      _selfMark = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = QuietRoomTokens.of(context);
     final q = widget.item;
+    final kanji = widget.kanji;
     final answer = q['answer'] as String;
+    final shownAnswer = jpShown(kanji, answer, q['answer_ruby']);
     final accepted = ((q['accepted'] as List?) ?? const []).cast<String>();
+    final acceptedRuby =
+        ((q['accepted_ruby'] as List?) ?? const []).cast<String>();
+    final shownAccepted = kanji && acceptedRuby.length == accepted.length
+        ? acceptedRuby.map(rubySurface).toList()
+        : accepted;
     final options = ((q['options'] as List?) ?? const []).cast<String>();
-    final done = _revealed || _picked != null;
-    final prompt =
-        (q['prompt'] as String).replaceAll('＿＿', done ? '［$answer］' : '＿＿＿');
+    final optionsRuby =
+        ((q['options_ruby'] as List?) ?? const []).cast<String>();
+    // An option as the toggle shows it. The check and the why_wrong key stay on the
+    // hiragana option.
+    String shownOption(String o) =>
+        kanji && optionsRuby.length == options.length
+            ? rubySurface(optionsRuby[options.indexOf(o)])
+            : o;
+    final typedRight = _verdict == TypedVerdict.right;
+    final done = _revealed || _picked != null || typedRight;
+    // A wrong verdict has nothing to say once the answer is shown. Self-check stays:
+    // it carries the Got it and Missed it pills.
+    final feedbackApplies =
+        _verdict != null && !(done && _verdict == TypedVerdict.wrong);
+    final prompt = jpShown(kanji, q['prompt'] as String, q['prompt_ruby'])
+        .replaceAll('＿＿', done ? '［$shownAnswer］' : '＿＿＿');
 
     return Container(
       decoration: BoxDecoration(
@@ -447,6 +560,7 @@ class _PracticeState extends State<_Practice> {
               spacing: 8,
               runSpacing: 8,
               children: options.map((o) {
+                final label = shownOption(o);
                 final picked = _picked == o;
                 final right = o == answer;
                 final Color fill = _picked == null
@@ -479,42 +593,51 @@ class _PracticeState extends State<_Practice> {
                         border: Border.all(color: edge, width: 1),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: Text(o,
+                      child: Text(label,
                           style: qrText(t, size: 15, color: t.inkStrong)),
                     ),
                   ),
                 );
               }).toList(),
             )
-          else if (!_revealed)
-            Row(children: [
-              if (q['hint'] != null)
-                Expanded(
-                    child: Text('Hint: ${q['hint']}',
-                        style: qrText(t, size: 12.5, color: t.inkMuted))),
-              TextButton(
-                onPressed: () => setState(() => _revealed = true),
-                style: TextButton.styleFrom(
-                    minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
-                child: Text('Show answer',
-                    style: qrText(t,
-                        size: 13, weight: FontWeight.w600, color: t.brand600)),
-              ),
-            ]),
+          else ...[
+            if (!done) _answerBox(t),
+            if (feedbackApplies) _feedback(t, shownAnswer),
+            if (!done)
+              Row(children: [
+                if (q['hint'] != null)
+                  Expanded(
+                      child: Text('Hint: ${q['hint']}',
+                          style: qrText(t, size: 12.5, color: t.inkMuted)))
+                else
+                  const Spacer(),
+                TextButton(
+                  onPressed: () => setState(() => _revealed = true),
+                  style: TextButton.styleFrom(
+                      minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
+                  child: Text('Show answer',
+                      style: qrText(t,
+                          size: 13,
+                          weight: FontWeight.w600,
+                          color: t.brand600)),
+                ),
+              ]),
+          ],
           if (done && accepted.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('Also correct: ${accepted.join('、')}',
+              child: Text('Also correct: ${shownAccepted.join('、')}',
                   style: qrText(t, size: 12.5, color: t.inkMuted)),
             ),
-          // A wrong tap says why that option is wrong, then names the rule.
+          // A wrong tap says why that option is wrong, then names the rule. The line
+          // quotes the option as the toggle showed it.
           if (_picked != null && _picked != answer)
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 [
                   if ((q['why_wrong'] as Map?)?[_picked] != null)
-                    '$_picked: ${(q['why_wrong'] as Map)[_picked]}',
+                    '${shownOption(_picked!)}: ${(q['why_wrong'] as Map)[_picked]}',
                   if (q['hint'] != null) '${q['hint']}',
                 ].join('\n'),
                 style: qrText(t, size: 12.5, color: t.clay600),
@@ -523,5 +646,87 @@ class _PracticeState extends State<_Practice> {
         ],
       ),
     );
+  }
+
+  /// The typed-answer box. `hintLocales` asks the keyboard for Japanese (PIN-3).
+  Widget _answerBox(QuietRoomTokens t) => Row(children: [
+        Expanded(
+          child: TextField(
+            controller: _typed,
+            hintLocales: jpKeyboard,
+            textInputAction: TextInputAction.done,
+            autocorrect: false,
+            onSubmitted: (_) => _check(),
+            onChanged: (_) {
+              if (_verdict != null) setState(() => _verdict = null);
+            },
+            style: qrText(t, size: 16, color: t.inkStrong),
+            cursorColor: t.brand600,
+            decoration: InputDecoration(
+              hintText: 'Type the answer',
+              hintStyle: qrText(t, size: 14, color: t.inkSubtle),
+              filled: true,
+              fillColor: t.surface,
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: t.borderControl, width: 1),
+                borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: t.borderFocus, width: QuietRoomMetrics.strokeFocus),
+                borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        TextButton(
+          onPressed: _check,
+          style: TextButton.styleFrom(
+              minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
+          child: Text('Check',
+              style: qrText(t,
+                  size: 13, weight: FontWeight.w600, color: t.brand600)),
+        ),
+      ]);
+
+  Widget _feedback(QuietRoomTokens t, String shownAnswer) {
+    final Widget body = switch (_verdict!) {
+      TypedVerdict.right => Text('Correct.',
+          style:
+              qrText(t, size: 13, weight: FontWeight.w600, color: t.sage700)),
+      // The 'Hint:' row under the box already shows the hint, so this line stays bare.
+      TypedVerdict.wrong => Text('Not quite. Try again, or show the answer.',
+          style: qrText(t, size: 12.5, color: t.clay600)),
+      // Cannot be compared letter for letter, so the learner judges it (PIN-2).
+      TypedVerdict.selfCheck => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                "Can't check that spelling here. Compare with the answer: "
+                '$shownAnswer',
+                style: qrText(t, size: 12.5, color: t.amber700)),
+            const SizedBox(height: 6),
+            Row(children: [
+              QrPill(
+                  label: 'Got it',
+                  on: _selfMark == true,
+                  solid: false,
+                  onTap: () => setState(() => _selfMark = true)),
+              const SizedBox(width: 8),
+              QrPill(
+                  label: 'Missed it',
+                  on: _selfMark == false,
+                  solid: false,
+                  onTap: () => setState(() => _selfMark = false)),
+            ]),
+          ],
+        ),
+      TypedVerdict.empty => const SizedBox.shrink(),
+    };
+    return Padding(padding: const EdgeInsets.only(top: 6), child: body);
   }
 }

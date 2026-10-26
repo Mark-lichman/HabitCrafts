@@ -1,8 +1,9 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
 // Shared pieces for the Japanese study screens: one loader for
-// assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand)
-// and the few Quiet Room building blocks every study screen repeats.
+// assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand),
+// the few Quiet Room building blocks every study screen repeats, the kanji twin
+// helpers, and the typed-answer matcher for fill-in practice.
 
 import 'dart:convert';
 
@@ -272,4 +273,74 @@ class ReadingMark {
         'special' => 'special reading',
         _ => '',
       };
+}
+
+// ---------------------------------------------------------------------------------------
+// Kanji twins. Every Japanese field in the lesson file has a `_ruby` twin written
+// `漢字{かんじ}`: one bracket per kanji word, okurigana outside (PIN-5, PIN-11).
+
+final RegExp _reading = RegExp(r'\{[^}]*\}');
+
+/// One bracket of a kanji twin: the kanji run right before `{`, then its reading. The
+/// same shape as `RUBY` in pipeline/jp/ruby.py.
+final RegExp _bracket = RegExp(r'[一-鿿々]+\{([^{}]+)\}');
+
+/// A kanji twin with its readings dropped: `買{か}い物{もの}` becomes `買い物`.
+String rubySurface(String ruby) => ruby.replaceAll(_reading, '');
+
+/// A kanji twin read out: `買{か}い物{もの}` becomes `かいもの`. The speaking drill's
+/// expected kana, so an example printed in kanji (「立入禁止{たちいりきんし}」) is judged
+/// against hiragana.
+String rubyKana(String ruby) =>
+    ruby.replaceAllMapped(_bracket, (m) => m.group(1)!);
+
+// ---------------------------------------------------------------------------------------
+// Typed answers on a fill-in item (PIN-3).
+//
+// 🚨 NO CORRECT ANSWER IS EVER MARKED WRONG (PIN-2, PIN-7). A typed answer is right when it
+// equals the answer, any accepted form, or the kanji version of either. It is wrong only
+// when it is plain kana, which can be compared letter for letter. Anything else (another
+// kanji spelling, romaji from a keyboard left in English) goes to self-check, because
+// there is no reading dictionary on the phone to say whether it is right.
+
+/// What a typed answer earns.
+enum TypedVerdict { right, wrong, selfCheck, empty }
+
+final RegExp _ignored = RegExp(r'[\s　。、．，.,!?！？「」『』（）()・〜~]');
+final RegExp _notKana = RegExp(r'[^ぁ-ゟー]');
+
+/// [s] with spacing and punctuation gone, and katakana folded to hiragana.
+String normaliseTyped(String s) => String.fromCharCodes(s
+    .replaceAll(_ignored, '')
+    .runes
+    .map((r) => r >= 0x30A1 && r <= 0x30F6 ? r - 0x60 : r));
+
+/// True when [s] is plain hiragana or katakana once spacing and punctuation are gone.
+bool isPlainKana(String s) {
+  final n = normaliseTyped(s);
+  return n.isNotEmpty && !_notKana.hasMatch(n);
+}
+
+/// Every written form that counts as right for a practice [item]: the answer, each
+/// accepted form, and each one's kanji surface and reading, all normalised.
+Set<String> answerForms(Map<String, dynamic> item) {
+  final answer = item['answer'] as String;
+  final accepted = (item['accepted'] as List? ?? const []).cast<String>();
+  final twins = [
+    item['answer_ruby'] as String? ?? answer,
+    ...(item['accepted_ruby'] as List? ?? const []).cast<String>(),
+  ];
+  return {
+    answer,
+    ...accepted,
+    for (final r in twins) ...[rubySurface(r), rubyKana(r)],
+  }.map(normaliseTyped).where((f) => f.isNotEmpty).toSet();
+}
+
+/// Judges [typed] against a fill-in [item]. See the rule above.
+TypedVerdict checkTypedAnswer(String typed, Map<String, dynamic> item) {
+  final n = normaliseTyped(typed);
+  if (n.isEmpty) return TypedVerdict.empty;
+  if (answerForms(item).contains(n)) return TypedVerdict.right;
+  return isPlainKana(n) ? TypedVerdict.wrong : TypedVerdict.selfCheck;
 }

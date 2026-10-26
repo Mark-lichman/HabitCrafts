@@ -55,7 +55,7 @@
         {
           "kind": "choose",
           "prompt": "やさいを ＿＿ からだに いいです。",
-          "prompt_ruby": "野菜{やさい}を ＿＿ 体{からだ}に いいです。",
+          "prompt_ruby": "やさいを ＿＿ 体{からだ}に いいです。",
           "en": "Eating vegetables is good for your body.",
           "answer": "たべるのは",
           "answer_ruby": "食{た}べるのは",
@@ -117,7 +117,7 @@
         },
         {
           "jp": "わたしは りょうりを つくるのが すきです。",
-          "jp_ruby": "わたしは 料理{りょうり}を 作{つく}るのが 好{す}きです。",
+          "jp_ruby": "私{わたし}は 料理{りょうり}を 作{つく}るのが すきです。",
           "en": "I like cooking."
         }
       ],
@@ -125,7 +125,7 @@
         {
           "kind": "fill",
           "prompt": "わたしは うたを ＿＿ へたです。",
-          "prompt_ruby": "わたしは 歌{うた}を ＿＿ 下手{へた}です。",
+          "prompt_ruby": "私{わたし}は 歌{うた}を ＿＿ 下手{へた}です。",
           "en": "I'm bad at singing.",
           "answer": "うたうのが",
           "answer_ruby": "歌{うた}うのが",
@@ -157,7 +157,7 @@
         {
           "kind": "choose",
           "prompt": "わたしは えいがを ＿＿ すきです。",
-          "prompt_ruby": "わたしは 映画{えいが}を ＿＿ 好{す}きです。",
+          "prompt_ruby": "私{わたし}は 映画{えいが}を ＿＿ すきです。",
           "en": "I like watching movies.",
           "answer": "みるのが",
           "answer_ruby": "見{み}るのが",
@@ -284,7 +284,7 @@
         {
           "kind": "choose",
           "prompt": "くすりを ＿＿ わすれないで ください。",
-          "prompt_ruby": "薬{くすり}を ＿＿ わすれないで ください。",
+          "prompt_ruby": "くすりを ＿＿ わすれないで ください。",
           "en": "Please don't forget to take your medicine.",
           "answer": "のむのを",
           "answer_ruby": "飲{の}むのを",
@@ -329,7 +329,7 @@
         {
           "kind": "fill",
           "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。",
-          "prompt_ruby": "木村{きむら}さんが 会社{かいしゃ}を やめた＿＿ 知{し}って いますか。",
+          "prompt_ruby": "きむらさんが 会社{かいしゃ}を やめた＿＿ 知{し}って いますか。",
           "en": "Do you know that Ms. Kimura quit her company?",
           "answer": "のを",
           "answer_ruby": "のを",
@@ -418,12 +418,12 @@
       "examples": [
         {
           "jp": "わたしが すきなのは なつです。",
-          "jp_ruby": "わたしが 好{す}きなのは 夏{なつ}です。",
+          "jp_ruby": "私{わたし}が すきなのは 夏{なつ}です。",
           "en": "What I like is summer."
         },
         {
           "jp": "わたしが うまれたのは おおさかです。",
-          "jp_ruby": "わたしが 生{う}まれたのは おおさかです。",
+          "jp_ruby": "私{わたし}が 生{う}まれたのは おおさかです。",
           "en": "The place where I was born is Osaka."
         }
       ],
@@ -442,7 +442,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが いちばん ほしい＿＿ じかんです。",
-          "prompt_ruby": "わたしが いちばん ほしい＿＿ 時間{じかん}です。",
+          "prompt_ruby": "私{わたし}が いちばん ほしい＿＿ 時間{じかん}です。",
           "en": "What I want most is time.",
           "answer": "のは",
           "answer_ruby": "のは",
@@ -463,7 +463,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが いちばん ＿＿ のは きょうとです。",
-          "prompt_ruby": "わたしが いちばん ＿＿ のは 京都{きょうと}です。",
+          "prompt_ruby": "私{わたし}が いちばん ＿＿ のは きょうとです。",
           "en": "The place I want to go most is Kyoto.",
           "answer": "いきたい",
           "answer_ruby": "行{い}きたい",
@@ -488,7 +488,7 @@
         {
           "kind": "choose",
           "prompt": "わたしが ＿＿ のは さかなです。",
-          "prompt_ruby": "わたしが ＿＿ のは 魚{さかな}です。",
+          "prompt_ruby": "私{わたし}が ＿＿ のは 魚{さかな}です。",
           "en": "What I dislike is fish.",
           "answer": "きらいな",
           "answer_ruby": "きらいな",
