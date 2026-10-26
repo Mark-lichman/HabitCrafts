@@ -10,9 +10,9 @@ Grammar mini-lessons come from drafts/L<n>.json. Those are LM drafts (OPM Drafti
 Grammar Item Generating), so they ship with status "draft" until a person reviews them,
 and the app says so. A draft that fails validation is left out, with the reason printed.
 
-Each Japanese draft field may carry a `_ruby` twin, its kanji version written
+Each Japanese draft field carries a `_ruby` twin, its kanji version written
 `漢字{かんじ}` (see ruby.py). A present twin is always checked, and passes through to the
-app file. A missing twin fails validation only while REQUIRE_RUBY is true.
+app file. A missing twin fails validation while REQUIRE_RUBY is true, as it ships.
 """
 
 from __future__ import annotations
@@ -29,9 +29,9 @@ from ruby import kana_of, plain_of, ruby_errors
 HERE = Path(__file__).parent
 ASSET = HERE.parents[1] / "assets" / "lessons" / "jp_grammar.json"
 DRAFTS = HERE / "drafts"
-# Twins are required once every draft carries them (PIN-9). Task 5 of
-# docs/plans/2026-10-24-japanese-typing-kanji-speaking.md adds the twins and flips this.
-REQUIRE_RUBY = False
+# Every draft carries its twins, so a missing one fails the draft (PIN-9). The twins
+# passed a judge pass whose findings are in review/judge_ruby.json.
+REQUIRE_RUBY = True
 FORMS = ["masu", "te", "ta", "nai", "potential", "volitional", "conditional",
          "imperative", "prohibitive", "passive", "causative", "causative_passive"]
 JP_PUNCT = re.compile(r"[。、！？「」／・＿\s0-9０-９ー〜～（）()]")

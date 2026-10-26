@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "よく きこえるように、おおきい こえで はなして ください。",
+          "jp_ruby": "よく 聞{き}こえるように、大{おお}きい 声{こえ}で 話{はな}して ください。",
           "en": "Please speak loudly so that everyone can hear well."
         },
         {
           "jp": "かぜを ひかないように、セーターを きます。",
+          "jp_ruby": "かぜを ひかないように、セーターを 着{き}ます。",
           "en": "I wear a sweater so that I won't catch a cold."
         }
       ],
@@ -21,29 +23,43 @@
         {
           "kind": "fill",
           "prompt": "わすれない＿＿、メモします。",
+          "prompt_ruby": "わすれない＿＿、メモします。",
           "en": "I take notes so that I won't forget.",
           "answer": "ように",
+          "answer_ruby": "ように",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "the word meaning 'so that'"
         },
         {
           "kind": "fill",
           "prompt": "はやく ＿＿ ように、まいにち れんしゅうします。",
+          "prompt_ruby": "はやく ＿＿ ように、毎日{まいにち} れんしゅうします。",
           "en": "I practice every day so that I can swim fast.",
           "answer": "およげる",
+          "answer_ruby": "およげる",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "potential form of およぎます"
         },
         {
           "kind": "choose",
           "prompt": "じが よく ＿＿ ように、おおきく かきます。",
+          "prompt_ruby": "字{じ}が よく ＿＿ ように、大{おお}きく 書{か}きます。",
           "en": "I write big so that the letters can be seen clearly.",
           "answer": "みえる",
+          "answer_ruby": "見{み}える",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "みる",
             "みます",
             "みえる"
+          ],
+          "options_ruby": [
+            "見{み}る",
+            "見{み}ます",
+            "見{み}える"
           ],
           "hint": "ように follows a non-deliberate verb like みえる to show the state you aim for.",
           "why_wrong": {
@@ -54,10 +70,18 @@
         {
           "kind": "choose",
           "prompt": "でんしゃに ＿＿ ように、はやく でます。",
+          "prompt_ruby": "電車{でんしゃ}に ＿＿ ように、早{はや}く 出{で}ます。",
           "en": "I leave early so that I won't miss the train.",
           "answer": "おくれない",
+          "answer_ruby": "おくれない",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "おくれる",
+            "おくれない",
+            "おくれなくて"
+          ],
+          "options_ruby": [
             "おくれる",
             "おくれない",
             "おくれなくて"
@@ -78,10 +102,12 @@
       "examples": [
         {
           "jp": "ひらがなが よめるように なりました。",
+          "jp_ruby": "ひらがなが 読{よ}めるように なりました。",
           "en": "I became able to read hiragana."
         },
         {
           "jp": "さいきん テレビを みなく なりました。",
+          "jp_ruby": "さいきん テレビを 見{み}なく なりました。",
           "en": "Lately I've stopped watching TV."
         }
       ],
@@ -89,34 +115,53 @@
         {
           "kind": "fill",
           "prompt": "にほんごが ＿＿ ように なりました。",
+          "prompt_ruby": "日本語{にほんご}が ＿＿ ように なりました。",
           "en": "I became able to speak Japanese.",
           "answer": "はなせる",
+          "answer_ruby": "話{はな}せる",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "potential form of はなします"
         },
         {
           "kind": "choose",
           "prompt": "おさけを ＿＿ なりました。",
+          "prompt_ruby": "おさけを ＿＿ なりました。",
           "en": "I stopped drinking alcohol.",
           "answer": "のまなく",
+          "answer_ruby": "飲{の}まなく",
           "options": [
             "のまなく",
             "のまない",
             "のまないで"
           ],
+          "options_ruby": [
+            "飲{の}まなく",
+            "飲{の}まない",
+            "飲{の}まないで"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ない changes to なく before なります"
         },
         {
           "kind": "choose",
           "prompt": "やっと じてんしゃに ＿＿ ように なりました。",
+          "prompt_ruby": "やっと 自転車{じてんしゃ}に ＿＿ ように なりました。",
           "en": "I finally became able to ride a bicycle.",
           "answer": "のれる",
+          "answer_ruby": "乗{の}れる",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "のられる",
             "のれる",
             "のれます"
+          ],
+          "options_ruby": [
+            "乗{の}られる",
+            "乗{の}れる",
+            "乗{の}れます"
           ],
           "hint": "Potential form ＋ ように なります means 'became able to.'",
           "why_wrong": {
@@ -127,13 +172,21 @@
         {
           "kind": "choose",
           "prompt": "めが わるく なって、ちいさい じが ＿＿ なりました。",
+          "prompt_ruby": "目{め}が 悪{わる}く なって、小{ちい}さい 字{じ}が ＿＿ なりました。",
           "en": "My eyes got worse, and I can no longer read small letters.",
           "answer": "よめなく",
+          "answer_ruby": "読{よ}めなく",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "よめない",
             "よめなくて",
             "よめなく"
+          ],
+          "options_ruby": [
+            "読{よ}めない",
+            "読{よ}めなくて",
+            "読{よ}めなく"
           ],
           "hint": "To say you can no longer do something, change ない to なく before なります.",
           "why_wrong": {
@@ -151,10 +204,12 @@
       "examples": [
         {
           "jp": "まいにち うんどうする ように します。",
+          "jp_ruby": "毎日{まいにち} 運動{うんどう}する ように します。",
           "en": "I'll make a point of exercising every day."
         },
         {
           "jp": "あまい ものを たべないように して います。",
+          "jp_ruby": "あまい ものを 食{た}べないように して います。",
           "en": "I try not to eat sweets."
         }
       ],
@@ -162,29 +217,43 @@
         {
           "kind": "fill",
           "prompt": "まいにち やさいを ＿＿ ように して います。",
+          "prompt_ruby": "毎日{まいにち} 野菜{やさい}を ＿＿ ように して います。",
           "en": "I make a point of eating vegetables every day.",
           "answer": "たべる",
+          "answer_ruby": "食{た}べる",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "dictionary form of たべます"
         },
         {
           "kind": "fill",
           "prompt": "じかんに ＿＿ ように して ください。",
+          "prompt_ruby": "時間{じかん}に ＿＿ ように して ください。",
           "en": "Please make sure you are not late.",
           "answer": "おくれない",
+          "answer_ruby": "おくれない",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ない form of おくれます"
         },
         {
           "kind": "choose",
           "prompt": "ねる まえに コーヒーを ＿＿ ように して います。",
+          "prompt_ruby": "ねる 前{まえ}に コーヒーを ＿＿ ように して います。",
           "en": "I make a point of not drinking coffee before bed.",
           "answer": "のまない",
+          "answer_ruby": "飲{の}まない",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "のまないで",
             "のまない",
             "のみません"
+          ],
+          "options_ruby": [
+            "飲{の}まないで",
+            "飲{の}まない",
+            "飲{の}みません"
           ],
           "hint": "ように して います follows the plain ない form for something you avoid.",
           "why_wrong": {
@@ -195,13 +264,21 @@
         {
           "kind": "choose",
           "prompt": "かいだんを ＿＿ ように して います。",
+          "prompt_ruby": "かいだんを ＿＿ ように して います。",
           "en": "I make a point of using the stairs.",
           "answer": "つかう",
+          "answer_ruby": "使{つか}う",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "つかって",
             "つかいます",
             "つかう"
+          ],
+          "options_ruby": [
+            "使{つか}って",
+            "使{つか}います",
+            "使{つか}う"
           ],
           "hint": "ように して います follows the dictionary form for a habit you keep.",
           "why_wrong": {

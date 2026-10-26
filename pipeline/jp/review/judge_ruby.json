@@ -1,0 +1,144 @@
+{
+ "judge": "independent-lm",
+ "scope": "kanji twins",
+ "lessons": [
+  26,
+  50
+ ],
+ "items_checked": 1701,
+ "rules": [
+  "R1: N5/N4 kanji only, else the whole word in hiragana",
+  "R2: words normally written in hiragana stay in hiragana",
+  "R3: katakana only for loanwords",
+  "R4: one bracket per kanji word, okurigana outside",
+  "R5: the kanji matches the meaning in context",
+  "R6: a common word with N4 kanji is not left in hiragana",
+  "R7: a choose item writes its options alike"
+ ],
+ "method": "A scripted pass checked every twin's kanji against the N5/N4 list (no findings), and publish.check_draft checked every reading. The drafter's own review pass and a separate LM judge session that did not write the twins then read every twin in context. Each finding names the twin by point, item (ex<N> example or p<N> practice), field and list index. After the judge pass, a re-audit read every twin that carries a homophone-class kanji (書 or 描, 買 or 勝, 行 or 言, 早 or 速, 開 or 空, 止 or 泊, 着 or 付, 借 or 貸, 送 or 贈, 切 or 着) against its English gloss, in place of a second judge session. Its findings carry by: re-audit.",
+ "findings": [
+  {
+   "point_id": "mari.L33.4",
+   "where": "p2",
+   "field": "options",
+   "index": 1,
+   "rule": "R5",
+   "current": "行{い}って あります",
+   "fix": "言{い}って あります",
+   "detail": "The option is about what Yamada said, so いって is 言って, not 行って.",
+   "by": "drafter-review",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L38.1",
+   "where": "p0",
+   "field": "answer",
+   "index": null,
+   "rule": "R5",
+   "current": "書{か}く",
+   "fix": "かく",
+   "detail": "えを かく is drawing (描く, above N4), not writing, so it stays in hiragana.",
+   "by": "drafter-review",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L39.1",
+   "where": "p3",
+   "field": "answer",
+   "index": null,
+   "rule": "R5",
+   "current": "買{か}って",
+   "fix": "かって",
+   "detail": "しあいに かって is winning (勝って, above N4), not buying.",
+   "by": "drafter-review",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L39.1",
+   "where": "p3",
+   "field": "options",
+   "index": 1,
+   "rule": "R5",
+   "current": "買{か}って",
+   "fix": "かって",
+   "detail": "Same item: the option is 勝って, so it stays in hiragana like かちて.",
+   "by": "drafter-review",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L39.1",
+   "where": "p3",
+   "field": "options",
+   "index": 2,
+   "rule": "R5",
+   "current": "買{か}った",
+   "fix": "かった",
+   "detail": "Same item: the option is 勝った, so it stays in hiragana like かちて.",
+   "by": "drafter-review",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L35.2",
+   "where": "p2",
+   "field": "prompt",
+   "index": null,
+   "rule": "R6",
+   "current": "つごうが ＿＿、来{き}て ください。",
+   "fix": "都合{つごう}が ＿＿、来{き}て ください。",
+   "detail": "都合 is an N4 word built from the allowed kanji 都 and 合, and is normally written in kanji.",
+   "by": "independent-lm",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L39.1",
+   "where": "p0",
+   "field": "prompt",
+   "index": null,
+   "rule": "R6",
+   "current": "手紙{てがみ}を ＿＿、あんしんしました。",
+   "fix": "手紙{てがみ}を ＿＿、安心{あんしん}しました。",
+   "detail": "安心 is an N4 word built from the allowed kanji 安 and 心, and is normally written in kanji.",
+   "by": "independent-lm",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L39.3",
+   "where": "p1",
+   "field": "prompt",
+   "index": null,
+   "rule": "R6",
+   "current": "たいふう＿＿ 学校{がっこう}が 休{やす}みに なりました。",
+   "fix": "台風{たいふう}＿＿ 学校{がっこう}が 休{やす}みに なりました。",
+   "detail": "台風 is an N4 word built from the allowed kanji 台 and 風, and is normally written in kanji.",
+   "by": "independent-lm",
+   "status": "applied"
+  },
+  {
+   "point_id": "mari.L36.1",
+   "where": "p1",
+   "field": "prompt",
+   "index": null,
+   "rule": "R5",
+   "current": "早{はや}く ＿＿ ように、毎日{まいにち} れんしゅうします。",
+   "fix": "はやく ＿＿ ように、毎日{まいにち} れんしゅうします。",
+   "detail": "The item is 'so that I can swim fast', the speed sense. 早 means early or soon, and the speed kanji 速 is above N4, so はやく stays in hiragana like the speed sense in mari.L38.2 p1.",
+   "by": "re-audit",
+   "status": "applied"
+  }
+ ],
+ "dismissed": [
+  {
+   "point_id": "mari.L33.3",
+   "where": "ex0",
+   "field": "jp",
+   "index": null,
+   "rule": "R6",
+   "current": "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。",
+   "fix": "「立入禁止{たちいりきんし}」は 入{はい}っては いけないという 意味{いみ}です。",
+   "detail": "Only the quoted sign is exempt; 入る and 意味 are common N4 words written in kanji everywhere else in the course.",
+   "by": "independent-lm",
+   "status": "dismissed",
+   "why": "mari.L33.3's first example is Mari's verbatim text with the kanji sign 「立入禁止」. publish.twin_errors checks this twin against the printed text, so only the sign may carry a bracket; the fix would print 入っては and 意味, which are not in Mari's text."
+  }
+ ]
+}
