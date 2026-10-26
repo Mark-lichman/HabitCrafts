@@ -30,6 +30,9 @@ import '/components/pages/quiet_room_practice/speech_service.dart';
 import '/flutter_flow/quiet_room.dart';
 import 'jp_study_kit.dart';
 
+// The drill's tests and callers read the twin helpers from here too.
+export 'jp_study_kit.dart' show rubySurface, rubyKana;
+
 /// Listens once and judges against the expected hiragana and its kanji forms.
 typedef SpeakListen = Future<SpeechResult> Function(
     String expectedKana, List<String> kanjiForms);
@@ -46,21 +49,6 @@ class SpeakSentence {
   final String surface;
   final String en;
 }
-
-final RegExp _reading = RegExp(r'\{[^}]*\}');
-
-/// One bracket of a kanji twin: the kanji run right before `{`, then its reading. The
-/// same shape as `RUBY` in pipeline/jp/ruby.py.
-final RegExp _bracket = RegExp(r'[一-鿿々]+\{([^{}]+)\}');
-
-/// A kanji twin with its readings dropped: `買{か}い物{もの}` becomes `買い物`.
-String rubySurface(String ruby) => ruby.replaceAll(_reading, '');
-
-/// A kanji twin read out: `買{か}い物{もの}` becomes `かいもの`. This is the drill's expected
-/// kana, so an example printed in kanji (「立入禁止{たちいりきんし}」) is judged against
-/// hiragana.
-String rubyKana(String ruby) =>
-    ruby.replaceAllMapped(_bracket, (m) => m.group(1)!);
 
 /// Several forms joined in one example: いこう／たべよう／しよう／こよう.
 const String _joiner = '／';
