@@ -7,13 +7,13 @@
  ],
  "items_checked": 1701,
  "rules": [
-  "N5/N4 kanji only, else the whole word in hiragana",
-  "words normally written in hiragana stay in hiragana",
-  "katakana only for loanwords",
-  "one bracket per kanji word, okurigana outside",
-  "the kanji matches the meaning in context",
-  "a common word with N4 kanji is not left in hiragana",
-  "a choose item writes its options alike"
+  "R1: N5/N4 kanji only, else the whole word in hiragana",
+  "R2: words normally written in hiragana stay in hiragana",
+  "R3: katakana only for loanwords",
+  "R4: one bracket per kanji word, okurigana outside",
+  "R5: the kanji matches the meaning in context",
+  "R6: a common word with N4 kanji is not left in hiragana",
+  "R7: a choose item writes its options alike"
  ],
  "method": "A scripted pass checked every twin's kanji against the N5/N4 list (no findings), and publish.check_draft checked every reading. The drafter's own review pass and a separate LM judge session that did not write the twins then read every twin in context. Each finding names the twin by point, item (ex<N> example or p<N> practice), field and list index.",
  "findings": [
