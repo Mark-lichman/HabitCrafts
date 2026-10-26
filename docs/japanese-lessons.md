@@ -65,6 +65,7 @@ kept on the phone.
 | Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
 | Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
 | Speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
+| Speak lesson | `quiet_room_grammar/quiet_room_speak_widget.dart` | play a lesson sentence, say it once, and see Correct, Close (amber, matching part highlighted) or a self-check |
 
 Grammar drafts ship marked as drafts until a person reviews them, and the screen says so.
 
@@ -198,6 +199,11 @@ Android ASR often returns kanji (`貼ります`) while the vocabulary is hiragan
 EDICT2). An exact match is `correct`, a partial match is `close`, and a transcript it cannot
 compare is `unverified`. The UI shows what was heard and lets the learner decide. **Being unable
 to check is not the same as being wrong**, so no correct answer is ever marked wrong.
+
+The per-lesson speaking drill (`quiet_room_speak_widget.dart`) is the second caller. It passes
+the sentence's kanji version (its `_ruby` twin with the readings dropped) as `kanjiForms`.
+`judge()` normalises both sides first, so spaces and 。 do not count. A Close or uncomparable
+result goes to self-check (Got it / Missed it), never to a wrong mark.
 
 ### 🚨 flutter_tts: bind a VOICE, not a language
 
