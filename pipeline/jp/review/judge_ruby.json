@@ -15,7 +15,7 @@
   "R6: a common word with N4 kanji is not left in hiragana",
   "R7: a choose item writes its options alike"
  ],
- "method": "A scripted pass checked every twin's kanji against the N5/N4 list (no findings), and publish.check_draft checked every reading. The drafter's own review pass and a separate LM judge session that did not write the twins then read every twin in context. Each finding names the twin by point, item (ex<N> example or p<N> practice), field and list index.",
+ "method": "A scripted pass checked every twin's kanji against the N5/N4 list (no findings), and publish.check_draft checked every reading. The drafter's own review pass and a separate LM judge session that did not write the twins then read every twin in context. Each finding names the twin by point, item (ex<N> example or p<N> practice), field and list index. After the judge pass, a re-audit read every twin that carries a homophone-class kanji (書 or 描, 買 or 勝, 行 or 言, 早 or 速, 開 or 空, 止 or 泊, 着 or 付, 借 or 貸, 送 or 贈, 切 or 着) against its English gloss, in place of a second judge session. Its findings carry by: re-audit.",
  "findings": [
   {
    "point_id": "mari.L33.4",

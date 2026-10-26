@@ -102,7 +102,8 @@ Separately, an independent LM judge reviewed every drafted item once. Its findin
 `pipeline/jp/review/judge_L*.json`, and `apply_judge_fixes.py` applied them. No CI test covers that
 first judge pass. A second judge pass checked the kanji twins. Its findings are in
 `pipeline/jp/review/judge_ruby.json`, and `test_judge_applied.py` fails if any finding is not
-marked `applied` or its fix is not in the draft.
+marked `applied` or its fix is not in the draft, and if a `dismissed` entry has no `why` or the
+draft no longer holds the text the judge saw.
 
 ## The vocabulary corpus is two families and they need different parsers
 
