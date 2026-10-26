@@ -15,7 +15,7 @@
         },
         {
           "jp": "パーティーに だれが くるか、わかりません。",
-          "jp_ruby": "パーティーに だれが 来{く}るか、分{わ}かりません。",
+          "jp_ruby": "パーティーに だれが 来{く}るか、わかりません。",
           "en": "I don't know who is coming to the party."
         }
       ],
@@ -133,7 +133,7 @@
         {
           "kind": "fill",
           "prompt": "かれが くる＿＿、わかりません。",
-          "prompt_ruby": "かれが 来{く}る＿＿、分{わ}かりません。",
+          "prompt_ruby": "かれが 来{く}る＿＿、わかりません。",
           "en": "I don't know whether he will come.",
           "answer": "かどうか",
           "answer_ruby": "かどうか",
@@ -169,7 +169,7 @@
         {
           "kind": "choose",
           "prompt": "この みずは ＿＿、わかりません。",
-          "prompt_ruby": "この 水{みず}は ＿＿、分{わ}かりません。",
+          "prompt_ruby": "この 水{みず}は ＿＿、わかりません。",
           "en": "I don't know whether this water is safe to drink.",
           "answer": "のめるかどうか",
           "answer_ruby": "飲{の}めるかどうか",
@@ -250,7 +250,7 @@
         {
           "kind": "choose",
           "prompt": "わからない ことばは じしょで ＿＿ みます。",
-          "prompt_ruby": "分{わ}からない ことばは じしょで ＿＿ みます。",
+          "prompt_ruby": "わからない ことばは じしょで ＿＿ みます。",
           "en": "I'll try looking up words I don't know in the dictionary.",
           "answer": "しらべて",
           "answer_ruby": "しらべて",

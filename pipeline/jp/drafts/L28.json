@@ -139,16 +139,16 @@
           "prompt_ruby": "兄{あに}は 銀行{ぎんこう}で ＿＿。",
           "en": "My older brother works at a bank.",
           "answer": "はたらいて います",
-          "answer_ruby": "働{はたら}いて います",
+          "answer_ruby": "はたらいて います",
           "options": [
             "はたらいて います",
             "はたらいて あります",
             "はたらきながら"
           ],
           "options_ruby": [
-            "働{はたら}いて います",
-            "働{はたら}いて あります",
-            "働{はたら}きながら"
+            "はたらいて います",
+            "はたらいて あります",
+            "はたらきながら"
           ],
           "accepted": [],
           "accepted_ruby": [],
@@ -241,16 +241,16 @@
           "prompt_ruby": "今日{きょう}は ＿＿し、雨{あめ}だし、出{で}かけません。",
           "en": "It's cold and rainy today, so I'm not going out.",
           "answer": "さむい",
-          "answer_ruby": "寒{さむ}い",
+          "answer_ruby": "さむい",
           "options": [
             "さむい",
             "さむいだ",
             "さむくて"
           ],
           "options_ruby": [
-            "寒{さむ}い",
-            "寒{さむ}いだ",
-            "寒{さむ}くて"
+            "さむい",
+            "さむいだ",
+            "さむくて"
           ],
           "accepted": [],
           "accepted_ruby": [],

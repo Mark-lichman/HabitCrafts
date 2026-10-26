@@ -142,6 +142,12 @@ def source_files(uses: dict, corrections: dict, points_file: list, vocab: dict) 
         "the uses each grammar point serves", "LM Use Tagging, kept as reviewable data",
         {"uses": len(uses["uses"]), "points tagged": len(uses["points"]),
          "particles tagged": len(uses.get("particles", {}))}))
+    kanji = json.loads((HERE / "kanji_n5_n4.json").read_text(encoding="utf-8"))
+    out.append(_source_entry(
+        "kanji_n5_n4.json", "pipeline/jp/kanji_n5_n4.json", "kanji_n5_n4.json",
+        "the only kanji a kanji version may use", kanji["source"],
+        {"N5 kanji": len(kanji["N5"]), "N4 kanji": len(kanji["N4"]),
+         "operator additions": len(kanji.get("operator_additions", {}))}))
     out.append(_source_entry(
         "corrections.json", "pipeline/jp/corrections.json", "corrections.json",
         "approved sources and reviewed corrections", "Mark's review",

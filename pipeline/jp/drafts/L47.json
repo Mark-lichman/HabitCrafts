@@ -136,7 +136,7 @@
         {
           "kind": "choose",
           "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。",
-          "prompt_ruby": "へやが 暗{くら}いですね。田中{たなか}さんは ＿＿ようです。",
+          "prompt_ruby": "へやが くらいですね。田中{たなか}さんは ＿＿ようです。",
           "en": "The room is dark. It seems Mr. Tanaka is out.",
           "answer": "るすの",
           "answer_ruby": "るすの",
@@ -185,7 +185,7 @@
           "prompt_ruby": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
           "en": "He's always playing games. It seems he likes games.",
           "answer": "すきな",
-          "answer_ruby": "好{す}きな",
+          "answer_ruby": "すきな",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -194,9 +194,9 @@
             "すきだ"
           ],
           "options_ruby": [
-            "好{す}きの",
-            "好{す}きな",
-            "好{す}きだ"
+            "すきの",
+            "すきな",
+            "すきだ"
           ],
           "hint": "A な-adjective keeps な before ようです.",
           "why_wrong": {

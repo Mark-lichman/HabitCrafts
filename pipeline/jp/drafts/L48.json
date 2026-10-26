@@ -55,7 +55,7 @@
         {
           "kind": "choose",
           "prompt": "ははは こどもに やさいを ＿＿。",
-          "prompt_ruby": "母{はは}は こどもに 野菜{やさい}を ＿＿。",
+          "prompt_ruby": "母{はは}は こどもに やさいを ＿＿。",
           "en": "My mother made the children eat vegetables.",
           "answer": "たべさせました",
           "answer_ruby": "食{た}べさせました",
@@ -80,7 +80,7 @@
         {
           "kind": "choose",
           "prompt": "ぶちょうは あさ はやく わたしを かいしゃに ＿＿。",
-          "prompt_ruby": "ぶちょうは 朝{あさ} 早{はや}く わたしを 会社{かいしゃ}に ＿＿。",
+          "prompt_ruby": "ぶちょうは 朝{あさ} 早{はや}く 私{わたし}を 会社{かいしゃ}に ＿＿。",
           "en": "The manager made me come to the office early in the morning.",
           "answer": "こさせました",
           "answer_ruby": "来{こ}させました",
@@ -214,12 +214,12 @@
       "examples": [
         {
           "jp": "ははは わたしに へやを そうじさせました。",
-          "jp_ruby": "母{はは}は わたしに へやを そうじさせました。",
+          "jp_ruby": "母{はは}は 私{わたし}に へやを そうじさせました。",
           "en": "My mother made me clean my room."
         },
         {
           "jp": "こどもに すきな ほんを よませます。",
-          "jp_ruby": "こどもに 好{す}きな 本{ほん}を 読{よ}ませます。",
+          "jp_ruby": "こどもに すきな 本{ほん}を 読{よ}ませます。",
           "en": "I let my children read books they like."
         }
       ],
@@ -227,7 +227,7 @@
         {
           "kind": "fill",
           "prompt": "ぶちょうは わたし＿＿ しりょうを コピーさせました。",
-          "prompt_ruby": "ぶちょうは わたし＿＿ しりょうを コピーさせました。",
+          "prompt_ruby": "ぶちょうは 私{わたし}＿＿ しりょうを コピーさせました。",
           "en": "The manager made me copy the documents.",
           "answer": "に",
           "answer_ruby": "に",
@@ -284,7 +284,7 @@
         {
           "kind": "choose",
           "prompt": "ははは わたしに ピアノを ＿＿。",
-          "prompt_ruby": "母{はは}は わたしに ピアノを ＿＿。",
+          "prompt_ruby": "母{はは}は 私{わたし}に ピアノを ＿＿。",
           "en": "My mother made me learn the piano.",
           "answer": "ならわせました",
           "answer_ruby": "習{なら}わせました",
@@ -340,7 +340,7 @@
         {
           "kind": "choose",
           "prompt": "その しごとを わたしに ＿＿ いただけませんか。",
-          "prompt_ruby": "その 仕事{しごと}を わたしに ＿＿ いただけませんか。",
+          "prompt_ruby": "その 仕事{しごと}を 私{わたし}に ＿＿ いただけませんか。",
           "en": "Could you let me do that job?",
           "answer": "させて",
           "answer_ruby": "させて",

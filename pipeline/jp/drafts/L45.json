@@ -10,12 +10,12 @@
       "examples": [
         {
           "jp": "ちこくする ばあいは、れんらくして ください。",
-          "jp_ruby": "ちこくする 場合{ばあい}は、れんらくして ください。",
+          "jp_ruby": "ちこくする ばあいは、れんらくして ください。",
           "en": "If you are going to be late, please let us know."
         },
         {
           "jp": "かじの ばあいは、エレベーターを つかわないで ください。",
-          "jp_ruby": "火事{かじ}の 場合{ばあい}は、エレベーターを 使{つか}わないで ください。",
+          "jp_ruby": "火事{かじ}の ばあいは、エレベーターを 使{つか}わないで ください。",
           "en": "In case of fire, please don't use the elevator."
         }
       ],
@@ -26,7 +26,7 @@
           "prompt_ruby": "かぜを ひいた ＿＿は、休{やす}んで ください。",
           "en": "If you catch a cold, please rest.",
           "answer": "ばあい",
-          "answer_ruby": "場合{ばあい}",
+          "answer_ruby": "ばあい",
           "accepted": [],
           "accepted_ruby": [],
           "hint": "Word meaning 'case'"
@@ -34,10 +34,10 @@
         {
           "kind": "choose",
           "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。",
-          "prompt_ruby": "バスに ＿＿ 場合{ばあい}は、タクシーで 来{き}て ください。",
+          "prompt_ruby": "バスに ＿＿ ばあいは、タクシーで 来{き}て ください。",
           "en": "If you can't make the bus, please come by taxi.",
           "answer": "まにあわない",
-          "answer_ruby": "間{ま}に合{あ}わない",
+          "answer_ruby": "まにあわない",
           "accepted": [],
           "accepted_ruby": [],
           "hint": "Plain negative form",
@@ -47,15 +47,15 @@
             "まにあいません"
           ],
           "options_ruby": [
-            "間{ま}に合{あ}わない",
-            "間{ま}に合{あ}わなくて",
-            "間{ま}に合{あ}いません"
+            "まにあわない",
+            "まにあわなくて",
+            "まにあいません"
           ]
         },
         {
           "kind": "choose",
           "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。",
-          "prompt_ruby": "じしん＿＿ 場合{ばあい}は、外{そと}へ 出{で}ないで ください。",
+          "prompt_ruby": "じしん＿＿ ばあいは、外{そと}へ 出{で}ないで ください。",
           "en": "In case of an earthquake, please don't go outside.",
           "answer": "の",
           "answer_ruby": "の",
@@ -80,7 +80,7 @@
         {
           "kind": "choose",
           "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。",
-          "prompt_ruby": "かぎを ＿＿ 場合{ばあい}は、うけつけに 行{い}って ください。",
+          "prompt_ruby": "かぎを ＿＿ ばあいは、うけつけに 行{い}って ください。",
           "en": "If you lose your key, please tell the front desk.",
           "answer": "なくした",
           "answer_ruby": "なくした",
@@ -136,7 +136,7 @@
         {
           "kind": "choose",
           "prompt": "くすりを ＿＿のに、まだ ねつが あります。",
-          "prompt_ruby": "薬{くすり}を ＿＿のに、まだ ねつが あります。",
+          "prompt_ruby": "くすりを ＿＿のに、まだ ねつが あります。",
           "en": "Even though I took medicine, I still have a fever.",
           "answer": "のんだ",
           "answer_ruby": "飲{の}んだ",
@@ -157,7 +157,7 @@
         {
           "kind": "choose",
           "prompt": "さむい＿＿、かれは コートを きないで でかけました。",
-          "prompt_ruby": "寒{さむ}い＿＿、かれは コートを 着{き}ないで 出{で}かけました。",
+          "prompt_ruby": "さむい＿＿、かれは コートを 着{き}ないで 出{で}かけました。",
           "en": "Even though it's cold, he went out without a coat.",
           "answer": "のに",
           "answer_ruby": "のに",
@@ -182,7 +182,7 @@
         {
           "kind": "choose",
           "prompt": "まどを ＿＿のに、へやが さむいです。",
-          "prompt_ruby": "まどを ＿＿のに、へやが 寒{さむ}いです。",
+          "prompt_ruby": "まどを ＿＿のに、へやが さむいです。",
           "en": "Even though I closed the window, the room is cold.",
           "answer": "しめた",
           "answer_ruby": "しめた",
