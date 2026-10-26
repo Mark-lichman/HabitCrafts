@@ -4,7 +4,8 @@ The judge read every `_ruby` twin in the drafts and wrote its findings to
 `pipeline/jp/review/judge_ruby.json`. Each finding names a twin by point, item, field
 and list index, and gives the fix. A finding is closed only when it is marked `applied`
 and the draft holds its fix at that place, so a later draft edit that undoes a fix fails
-here (PIN-5, PIN-11).
+here (PIN-5, PIN-11). A finding the judge got wrong moves to `dismissed` with a `why`,
+and the draft must still hold its `current` text, so a finding cannot hide there unfixed.
 """
 
 from __future__ import annotations
@@ -26,6 +27,10 @@ def _judge() -> dict:
 
 def _findings() -> list[dict]:
     return _judge()["findings"] if JUDGE.exists() else []
+
+
+def _dismissed() -> list[dict]:
+    return _judge().get("dismissed", []) if JUDGE.exists() else []
 
 
 def _drafts() -> dict[str, dict]:
@@ -63,3 +68,13 @@ def test_each_applied_fix_is_in_the_draft(finding):
     assert finding["field"] in FIELDS
     assert finding["fix"] != finding["current"]
     assert _twin_at(_drafts(), finding) == finding["fix"]
+
+
+@pytest.mark.parametrize("entry", _dismissed(),
+                         ids=lambda f: f"{f['point_id']}-{f['where']}-{f['field']}-{f['index']}")
+def test_each_dismissed_entry_is_reasoned_and_unchanged(entry):
+    # A dismissal needs a reason, and the draft keeps the text the judge saw: moving an
+    # unfixed finding here would pass only with a written `why` and no silent edit.
+    assert entry["status"] == "dismissed"
+    assert entry.get("why"), f"dismissed entry {entry['point_id']} has no why"
+    assert _twin_at(_drafts(), entry) == entry["current"]
