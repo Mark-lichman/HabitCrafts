@@ -184,6 +184,10 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   bool _heardVoice = false;
   String? _micError;
 
+  /// True while Play's voice is speaking. Play and Speak are disabled meanwhile, so the
+  /// microphone never hears the app's own voice and credits it to the learner (PIN-2).
+  bool _playing = false;
+
   /// The last attempt on this sentence, or null before one.
   SpeechResult? _result;
   SpeakVerdict? _verdict;
@@ -222,19 +226,28 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
       widget.play?.call(text) ?? SpeechService.instance.speak(text);
 
   Future<void> _play(SpeakSentence s) async {
-    // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
-    final err = await _say(s.kana.replaceAll(_joiner, '、'));
-    if (err != null && mounted) {
-      final t = QuietRoomTokens.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(err, style: qrText(t, size: 13, color: t.onBrand)),
-        duration: const Duration(seconds: 5),
-      ));
+    if (_playing) return;
+    setState(() => _playing = true);
+    try {
+      // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
+      // Off the web, speak() returns only when the voice has finished (see _initTts), so
+      // the buttons stay disabled for the whole playback. On the web it returns at once.
+      final err = await _say(s.kana.replaceAll(_joiner, '、'));
+      if (err != null && mounted) {
+        final t = QuietRoomTokens.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(err, style: qrText(t, size: 13, color: t.onBrand)),
+          duration: const Duration(seconds: 5),
+        ));
+      }
+    } finally {
+      // In a finally so a throw from the voice never leaves Speak disabled for good.
+      if (mounted) setState(() => _playing = false);
     }
   }
 
   Future<void> _speak(SpeakSentence s) async {
-    if (_listening) return;
+    if (_listening || _playing) return;
     final attempt = ++_attempt;
     setState(() {
       _listening = true;
@@ -379,7 +392,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           child: SizedBox(
             height: QuietRoomMetrics.targetMin,
             child: OutlinedButton.icon(
-              onPressed: () => _play(s),
+              onPressed: _playing ? null : () => _play(s),
               icon: Icon(Icons.volume_up_outlined, size: 20, color: t.ink),
               label: Text('Play',
                   style: qrText(t, size: 15, weight: FontWeight.w600)),
@@ -399,7 +412,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           child: SizedBox(
             height: QuietRoomMetrics.targetMin,
             child: ElevatedButton.icon(
-              onPressed: () => _speak(s),
+              onPressed: _playing ? null : () => _speak(s),
               icon: Icon(Icons.mic_none, size: 20, color: t.onBrand),
               label: Text('Speak',
                   style: qrText(t,
@@ -495,7 +508,11 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
       case SpeakVerdict.right:
         c = t.sage600;
         head = 'That’s it';
-        body.add(Text(s.surface, style: qrText(t, size: 13.5)));
+        // The kana is already on the sentence card above. Only a kanji surface adds anything,
+        // so a sentence with no kanji is never shown twice.
+        if (s.surface != s.kana) {
+          body.add(Text(s.surface, style: qrText(t, size: 13.5)));
+        }
       case SpeakVerdict.wrong:
         c = t.clay600;
         head = 'Not quite';

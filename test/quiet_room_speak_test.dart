@@ -37,6 +37,23 @@ SpeakSentence firstSentence() => lesson26().first;
   return (index: i, s: all[i]);
 }
 
+/// The first lesson 26 sentence with no kanji at all, with its index. Chosen from the
+/// data, like [kanjiSentence], so it holds whichever words a later twin rewrite keeps in
+/// hiragana.
+({int index, SpeakSentence s}) kanaOnlySentence() {
+  final all = lesson26();
+  final i = all.indexWhere((x) => x.surface == x.kana);
+  expect(i, isNonNegative, reason: 'lesson 26 has no sentence without kanji');
+  return (index: i, s: all[i]);
+}
+
+/// The enabled state of the drill button labelled [label], read from the button itself.
+VoidCallback? buttonAction(WidgetTester tester, String label) => tester
+    .widget<ButtonStyleButton>(find.ancestor(
+        of: find.text(label),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)))
+    .onPressed;
+
 /// No spaces or punctuation, the way a recogniser returns a sentence.
 String bare(String s) => s.replaceAll(RegExp(r'[\s、。！？「」]'), '');
 
@@ -206,8 +223,11 @@ void main() {
           Judgement.correct);
     });
 
-    test('a vocabulary word with an EDICT kanji form judges as before', () {
-      // The vocabulary drill calls judge() with EDICT forms; this pins that path.
+    test(
+        'a vocabulary word with an EDICT kanji form is judged on the same path',
+        () {
+      // The vocabulary drill calls judge() with EDICT forms. Both sides now go through
+      // normalise(), so spacing and 。 no longer turn an exact match into close.
       expect(
           SpeechService.judge('山', 'やま', kanjiForms: ['山']), Judgement.correct);
       expect(SpeechService.judge('山。', 'やま', kanjiForms: ['山']),
@@ -280,6 +300,75 @@ void main() {
       await speakOnce(tester, bare(s.surface), index: index);
       expect(find.text('That’s it'), findsOneWidget);
       expect(find.text('1 of 1'), findsOneWidget);
+      // The right card adds the kanji surface under the kana sentence card.
+      expect(find.text(s.surface), findsOneWidget);
+      expect(find.text(s.kana), findsOneWidget);
+    });
+
+    testWidgets('a right card never repeats a sentence that has no kanji',
+        (tester) async {
+      final (index: index, s: s) = kanaOnlySentence();
+      await speakOnce(tester, bare(s.kana), index: index);
+      expect(find.text('That’s it'), findsOneWidget);
+      // Once on the sentence card, and not again on the right card.
+      expect(find.text(s.kana), findsOneWidget);
+    });
+
+    testWidgets('Speak and Play are disabled while the sentence plays',
+        (tester) async {
+      final s = firstSentence();
+      final ear = FakeEar(bare(s.kana));
+      final voice = Completer<String?>();
+      await pumpStudyScreen(
+        tester,
+        QuietRoomSpeakWidget(
+          lesson: 26,
+          listen: ear.listen,
+          play: (_) => voice.future,
+        ),
+      );
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(buttonAction(tester, 'Play'), isNotNull);
+
+      await tester.tap(find.text('Play'));
+      await tester.pump();
+      // The buttons themselves are the oracle, not the fake ear.
+      expect(buttonAction(tester, 'Speak'), isNull);
+      expect(buttonAction(tester, 'Play'), isNull);
+      await tester.tap(find.text('Speak'), warnIfMissed: false);
+      await tester.pump();
+      expect(ear.calls, isEmpty);
+      expect(find.text('Listening'), findsNothing);
+
+      voice.complete(null);
+      await tester.pump();
+      await tester.pump();
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(buttonAction(tester, 'Play'), isNotNull);
+      await tester.tap(find.text('Speak'));
+      await tester.pump();
+      await tester.pump();
+      expect(ear.calls, hasLength(1));
+      expect(find.text('That’s it'), findsOneWidget);
+    });
+
+    testWidgets('a voice error is shown and still re-enables Speak',
+        (tester) async {
+      final ear = FakeEar(bare(firstSentence().kana));
+      await pumpStudyScreen(
+        tester,
+        QuietRoomSpeakWidget(
+          lesson: 26,
+          listen: ear.listen,
+          play: (_) async => 'No Japanese voice found.',
+        ),
+      );
+      await tester.tap(find.text('Play'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('No Japanese voice found.'), findsOneWidget);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(buttonAction(tester, 'Play'), isNotNull);
     });
 
     testWidgets(
