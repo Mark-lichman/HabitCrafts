@@ -100,9 +100,9 @@ the committed `jp_grammar.json` differs from a fresh publish.
 
 Separately, an independent LM judge reviewed every drafted item once. Its findings are in
 `pipeline/jp/review/judge_L*.json`, and `apply_judge_fixes.py` applied them. No CI test covers that
-first judge pass. Task 5 of `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` adds
-`test_judge_applied.py` for the kanji-twin judge pass, whose findings go in
-`pipeline/jp/review/judge_ruby.json`.
+first judge pass. A second judge pass checked the kanji twins. Its findings are in
+`pipeline/jp/review/judge_ruby.json`, and `test_judge_applied.py` fails if any finding is not
+marked `applied` or its fix is not in the draft.
 
 ## The vocabulary corpus is two families and they need different parsers
 

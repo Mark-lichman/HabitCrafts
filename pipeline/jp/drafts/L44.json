@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "ゆうべ たべすぎました。",
+          "jp_ruby": "ゆうべ 食{た}べすぎました。",
           "en": "I ate too much last night."
         },
         {
           "jp": "この くつは おおきすぎます。",
+          "jp_ruby": "この くつは 大{おお}きすぎます。",
           "en": "These shoes are too big."
         }
       ],
@@ -21,19 +23,30 @@
         {
           "kind": "fill",
           "prompt": "おさけを ＿＿すぎて、あたまが いたいです。",
+          "prompt_ruby": "おさけを ＿＿すぎて、頭{あたま}が いたいです。",
           "en": "I drank too much and I have a headache.",
           "answer": "のみ",
+          "answer_ruby": "飲{の}み",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ます stem of のみます"
         },
         {
           "kind": "choose",
           "prompt": "この もんだいは ＿＿すぎます。",
+          "prompt_ruby": "この 問題{もんだい}は ＿＿すぎます。",
           "en": "This problem is too complicated.",
           "answer": "ふくざつ",
+          "answer_ruby": "ふくざつ",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "な-adjective stem, nothing added",
           "options": [
+            "ふくざつ",
+            "ふくざつな",
+            "ふくざつに"
+          ],
+          "options_ruby": [
             "ふくざつ",
             "ふくざつな",
             "ふくざつに"
@@ -42,10 +55,18 @@
         {
           "kind": "choose",
           "prompt": "この コーヒーは ＿＿すぎます。",
+          "prompt_ruby": "この コーヒーは ＿＿すぎます。",
           "en": "This coffee is too sweet.",
           "answer": "あま",
+          "answer_ruby": "あま",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "あまい",
+            "あまく",
+            "あま"
+          ],
+          "options_ruby": [
             "あまい",
             "あまく",
             "あま"
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "ゲームを ＿＿すぎて、めが いたいです。",
+          "prompt_ruby": "ゲームを ＿＿すぎて、目{め}が いたいです。",
           "en": "I played games too much and my eyes hurt.",
           "answer": "し",
+          "answer_ruby": "し",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "する",
+            "し",
+            "して"
+          ],
+          "options_ruby": [
             "する",
             "し",
             "して"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "この じは よみやすいです。／この かんじは おぼえにくいです。",
+          "jp_ruby": "この 字{じ}は 読{よ}みやすいです。／この 漢字{かんじ}は おぼえにくいです。",
           "en": "These letters are easy to read. This kanji is hard to remember."
         },
         {
           "jp": "この まちは すみやすいです。",
+          "jp_ruby": "この 町{まち}は 住{す}みやすいです。",
           "en": "This town is easy to live in."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "この くすりは おおきくて、＿＿にくいです。",
+          "prompt_ruby": "この 薬{くすり}は 大{おお}きくて、＿＿にくいです。",
           "en": "This pill is big and hard to take.",
           "answer": "のみ",
+          "answer_ruby": "飲{の}み",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ます stem of のみます"
         },
         {
           "kind": "choose",
           "prompt": "この ペンは ＿＿やすいです。",
+          "prompt_ruby": "この ペンは ＿＿やすいです。",
           "en": "This pen is easy to write with.",
           "answer": "かき",
+          "answer_ruby": "書{か}き",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ます stem of かきます",
           "options": [
             "かき",
             "かく",
             "かいて"
+          ],
+          "options_ruby": [
+            "書{か}き",
+            "書{か}く",
+            "書{か}いて"
           ]
         },
         {
           "kind": "choose",
           "prompt": "この くつは ＿＿にくいです。",
+          "prompt_ruby": "この くつは ＿＿にくいです。",
           "en": "These shoes are hard to walk in.",
           "answer": "あるき",
+          "answer_ruby": "歩{ある}き",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "あるく",
             "あるいて",
             "あるき"
+          ],
+          "options_ruby": [
+            "歩{ある}く",
+            "歩{ある}いて",
+            "歩{ある}き"
           ],
           "hint": "にくいです joins the ます stem of a verb.",
           "why_wrong": {
@@ -132,13 +182,21 @@
         {
           "kind": "choose",
           "prompt": "せんせいの せつめいは ＿＿です。",
+          "prompt_ruby": "先生{せんせい}の 説明{せつめい}は ＿＿です。",
           "en": "The teacher's explanation is easy to understand.",
           "answer": "わかりやすい",
+          "answer_ruby": "分{わ}かりやすい",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "わかりにくい",
             "わかりやすい",
             "わかるやすい"
+          ],
+          "options_ruby": [
+            "分{わ}かりにくい",
+            "分{わ}かりやすい",
+            "分{わ}かるやすい"
           ],
           "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
           "why_wrong": {
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "へやを きれいに しました。",
+          "jp_ruby": "へやを きれいに しました。",
           "en": "I cleaned up the room."
         },
         {
           "jp": "おとを ちいさく して ください。",
+          "jp_ruby": "音{おと}を 小{ちい}さく して ください。",
           "en": "Please turn the volume down."
         }
       ],
@@ -167,31 +227,50 @@
         {
           "kind": "fill",
           "prompt": "テレビの おとを ＿＿ して ください。",
+          "prompt_ruby": "テレビの 音{おと}を ＿＿ して ください。",
           "en": "Please turn up the TV volume.",
           "answer": "おおきく",
+          "answer_ruby": "大{おお}きく",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "い-adjective in its く form"
         },
         {
           "kind": "choose",
           "prompt": "かみを ＿＿ しました。",
+          "prompt_ruby": "かみを ＿＿ しました。",
           "en": "I got my hair cut short.",
           "answer": "みじかく",
+          "answer_ruby": "短{みじか}く",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "い-adjective in its く form",
           "options": [
             "みじかく",
             "みじかい",
             "みじかに"
+          ],
+          "options_ruby": [
+            "短{みじか}く",
+            "短{みじか}い",
+            "短{みじか}に"
           ]
         },
         {
           "kind": "choose",
           "prompt": "ちょっと ＿＿ して ください。",
+          "prompt_ruby": "ちょっと ＿＿ して ください。",
           "en": "Please be quiet for a moment.",
           "answer": "しずかに",
+          "answer_ruby": "しずかに",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "しずかな",
+            "しずかに",
+            "しずかく"
+          ],
+          "options_ruby": [
             "しずかな",
             "しずかに",
             "しずかく"
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "エアコンで へやを すずしく ＿＿。",
+          "prompt_ruby": "エアコンで へやを すずしく ＿＿。",
           "en": "I cooled the room with the air conditioner.",
           "answer": "しました",
+          "answer_ruby": "しました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "なりました",
+            "ありました",
+            "しました"
+          ],
+          "options_ruby": [
             "なりました",
             "ありました",
             "しました"
@@ -229,10 +316,12 @@
       "examples": [
         {
           "jp": "じを おおきく かきます。",
+          "jp_ruby": "字{じ}を 大{おお}きく 書{か}きます。",
           "en": "I write the letters large."
         },
         {
           "jp": "しずかに あるいて ください。",
+          "jp_ruby": "しずかに 歩{ある}いて ください。",
           "en": "Please walk quietly."
         }
       ],
@@ -240,9 +329,14 @@
         {
           "kind": "fill",
           "prompt": "じを ＿＿ かいて ください。",
+          "prompt_ruby": "字{じ}を ＿＿ 書{か}いて ください。",
           "en": "Please write the letters neatly.",
           "answer": "きれいに",
+          "answer_ruby": "きれいに",
           "accepted": [
+            "ていねいに"
+          ],
+          "accepted_ruby": [
             "ていねいに"
           ],
           "hint": "な-adjective + に"
@@ -250,23 +344,39 @@
         {
           "kind": "choose",
           "prompt": "あさ ＿＿ おきました。",
+          "prompt_ruby": "朝{あさ} ＿＿ 起{お}きました。",
           "en": "I got up early in the morning.",
           "answer": "はやく",
+          "answer_ruby": "早{はや}く",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "い-adjective in its く form",
           "options": [
             "はやく",
             "はやい",
             "はやに"
+          ],
+          "options_ruby": [
+            "早{はや}く",
+            "早{はや}い",
+            "早{はや}に"
           ]
         },
         {
           "kind": "choose",
           "prompt": "もっと ＿＿ せつめいして ください。",
+          "prompt_ruby": "もっと ＿＿ 説明{せつめい}して ください。",
           "en": "Please explain it more simply.",
           "answer": "かんたんに",
+          "answer_ruby": "かんたんに",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "かんたんな",
+            "かんたんく",
+            "かんたんに"
+          ],
+          "options_ruby": [
             "かんたんな",
             "かんたんく",
             "かんたんに"
@@ -280,10 +390,18 @@
         {
           "kind": "choose",
           "prompt": "ゆうべは ＿＿ ねました。",
+          "prompt_ruby": "ゆうべは ＿＿ ねました。",
           "en": "I slept well last night.",
           "answer": "よく",
+          "answer_ruby": "よく",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "いいく",
+            "よく",
+            "いいに"
+          ],
+          "options_ruby": [
             "いいく",
             "よく",
             "いいに"

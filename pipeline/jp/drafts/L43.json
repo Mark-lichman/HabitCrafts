@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "この ケーキは おいしそうです。／あめが ふりそうです。",
+          "jp_ruby": "この ケーキは おいしそうです。／雨{あめ}が ふりそうです。",
           "en": "This cake looks delicious. It looks like it's going to rain."
         },
         {
           "jp": "ミラーさんは うれしそうです。",
+          "jp_ruby": "ミラーさんは うれしそうです。",
           "en": "Mr. Miller looks happy."
         }
       ],
@@ -21,19 +23,30 @@
         {
           "kind": "fill",
           "prompt": "にもつが ＿＿そうです。",
+          "prompt_ruby": "にもつが ＿＿そうです。",
           "en": "The luggage looks like it's about to fall.",
           "answer": "おち",
+          "answer_ruby": "おち",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ます stem of おちます"
         },
         {
           "kind": "choose",
           "prompt": "この りょうりは ＿＿です。",
+          "prompt_ruby": "この 料理{りょうり}は ＿＿です。",
           "en": "This dish looks spicy.",
           "answer": "からそう",
+          "answer_ruby": "からそう",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "い-adjective without い + そう",
           "options": [
+            "からそう",
+            "からいそう",
+            "からいだそう"
+          ],
+          "options_ruby": [
             "からそう",
             "からいそう",
             "からいだそう"
@@ -42,13 +55,21 @@
         {
           "kind": "choose",
           "prompt": "あの ひとは ＿＿です。",
+          "prompt_ruby": "あの 人{ひと}は ＿＿です。",
           "en": "That person looks kind.",
           "answer": "しんせつそう",
+          "answer_ruby": "親切{しんせつ}そう",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "しんせつなそう",
             "しんせつそう",
             "しんせつだそう"
+          ],
+          "options_ruby": [
+            "親切{しんせつ}なそう",
+            "親切{しんせつ}そう",
+            "親切{しんせつ}だそう"
           ],
           "hint": "For 'looks', a な-adjective stem joins そう directly with nothing added.",
           "why_wrong": {
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "シャツの ボタンが ＿＿です。",
+          "prompt_ruby": "シャツの ボタンが ＿＿です。",
           "en": "The shirt button looks like it's about to come off.",
           "answer": "とれそう",
+          "answer_ruby": "とれそう",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "とれるそう",
+            "とれそうな",
+            "とれそう"
+          ],
+          "options_ruby": [
             "とれるそう",
             "とれそうな",
             "とれそう"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
+          "jp_ruby": "雨{あめ}が ふって きました。／ちょっと コンビニへ 行{い}って きます。",
           "en": "It has started to rain. I'm just going to the convenience store; I'll be right back."
         },
         {
           "jp": "ちょっと きってを かって きます。",
+          "jp_ruby": "ちょっと 切手{きって}を 買{か}って きます。",
           "en": "I'll just go buy some stamps and come back."
         }
       ],
@@ -94,19 +125,30 @@
         {
           "kind": "fill",
           "prompt": "ちょっと コーヒーを ＿＿ きます。",
+          "prompt_ruby": "ちょっと コーヒーを ＿＿ きます。",
           "en": "I'll go buy some coffee and be right back.",
           "answer": "かって",
+          "answer_ruby": "買{か}って",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of かいます"
         },
         {
           "kind": "choose",
           "prompt": "さむく ＿＿ きましたね。",
+          "prompt_ruby": "寒{さむ}く ＿＿ きましたね。",
           "en": "It has gotten cold, hasn't it?",
           "answer": "なって",
+          "answer_ruby": "なって",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of なります",
           "options": [
+            "なって",
+            "なり",
+            "なる"
+          ],
+          "options_ruby": [
             "なって",
             "なり",
             "なる"
@@ -115,13 +157,21 @@
         {
           "kind": "choose",
           "prompt": "としょかんで ほんを ＿＿ きます。",
+          "prompt_ruby": "図書館{としょかん}で 本{ほん}を ＿＿ きます。",
           "en": "I'll go borrow a book at the library and come back.",
           "answer": "かりて",
+          "answer_ruby": "借{か}りて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "かりる",
             "かりて",
             "かり"
+          ],
+          "options_ruby": [
+            "借{か}りる",
+            "借{か}りて",
+            "借{か}り"
           ],
           "hint": "きます joins the てForm of the verb to mean 'go do it and come back'.",
           "why_wrong": {
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "にほんの せいかつに ＿＿ きました。",
+          "prompt_ruby": "日本{にほん}の せいかつに ＿＿ きました。",
           "en": "I've gotten used to life in Japan.",
           "answer": "なれて",
+          "answer_ruby": "なれて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "なれて",
+            "なれる",
+            "なれ"
+          ],
+          "options_ruby": [
             "なれて",
             "なれる",
             "なれ"

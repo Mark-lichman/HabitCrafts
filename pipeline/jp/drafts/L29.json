@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "まどが あいて います。",
+          "jp_ruby": "まどが 開{あ}いて います。",
           "en": "The window is open."
         },
         {
           "jp": "コップが われて います。",
+          "jp_ruby": "コップが われて います。",
           "en": "The glass is broken."
         }
       ],
@@ -21,31 +23,50 @@
         {
           "kind": "fill",
           "prompt": "ドアに かぎが ＿＿ います。",
+          "prompt_ruby": "ドアに かぎが ＿＿ います。",
           "en": "The door is locked.",
           "answer": "かかって",
+          "answer_ruby": "かかって",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of an intransitive verb"
         },
         {
           "kind": "choose",
           "prompt": "でんきが ＿＿ います。",
+          "prompt_ruby": "電気{でんき}が ＿＿ います。",
           "en": "The light is off.",
           "answer": "きえて",
+          "answer_ruby": "きえて",
           "options": [
             "きえて",
             "けして",
             "きえる"
           ],
+          "options_ruby": [
+            "きえて",
+            "けして",
+            "きえる"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Intransitive verb in てForm"
         },
         {
           "kind": "choose",
           "prompt": "ほら、みちに さいふが ＿＿ いますよ。",
+          "prompt_ruby": "ほら、道{みち}に さいふが ＿＿ いますよ。",
           "en": "Look, there's a wallet lying on the road.",
           "answer": "おちて",
+          "answer_ruby": "おちて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "おとして",
+            "おちる",
+            "おちて"
+          ],
+          "options_ruby": [
             "おとして",
             "おちる",
             "おちて"
@@ -59,13 +80,21 @@
         {
           "kind": "choose",
           "prompt": "えきの まえに くるまが ＿＿ います。",
+          "prompt_ruby": "駅{えき}の 前{まえ}に 車{くるま}が ＿＿ います。",
           "en": "A car is stopped in front of the station.",
           "answer": "とまって",
+          "answer_ruby": "止{と}まって",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "とまって",
             "とめて",
             "とまり"
+          ],
+          "options_ruby": [
+            "止{と}まって",
+            "止{と}めて",
+            "止{と}まり"
           ],
           "hint": "Nが + intransitive てForm + います shows the current state.",
           "why_wrong": {
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "でんきは ついて います。",
+          "jp_ruby": "電気{でんき}は ついて います。",
           "en": "The light is on."
         },
         {
           "jp": "まどは しまって いますが、ドアは あいて います。",
+          "jp_ruby": "まどは しまって いますが、ドアは 開{あ}いて います。",
           "en": "The window is closed, but the door is open."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "この いすは ＿＿ います。",
+          "prompt_ruby": "この いすは ＿＿ います。",
           "en": "This chair is broken.",
           "answer": "こわれて",
+          "answer_ruby": "こわれて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of こわれます"
         },
         {
           "kind": "choose",
           "prompt": "この みせは もう ＿＿ います。",
+          "prompt_ruby": "この 店{みせ}は もう ＿＿ います。",
           "en": "This store is already closed.",
           "answer": "しまって",
+          "answer_ruby": "しまって",
           "options": [
             "しまって",
             "しめて",
             "しまります"
           ],
+          "options_ruby": [
+            "しまって",
+            "しめて",
+            "しまります"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Intransitive verb in てForm"
         },
         {
           "kind": "choose",
           "prompt": "まどは しまって いますか。いいえ、＿＿。",
+          "prompt_ruby": "まどは しまって いますか。いいえ、＿＿。",
           "en": "Is the window closed? No, it's open.",
           "answer": "あいて います",
+          "answer_ruby": "開{あ}いて います",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "あいて あります",
             "あいて います",
             "あいた います"
+          ],
+          "options_ruby": [
+            "開{あ}いて あります",
+            "開{あ}いて います",
+            "開{あ}いた います"
           ],
           "hint": "An intransitive verb in てForm + います shows a resulting state.",
           "why_wrong": {
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "この シャツは ＿＿ います。",
+          "prompt_ruby": "この シャツは ＿＿ います。",
           "en": "This shirt is dirty.",
           "answer": "よごれて",
+          "answer_ruby": "よごれて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "よごれる",
+            "よごれって",
+            "よごれて"
+          ],
+          "options_ruby": [
             "よごれる",
             "よごれって",
             "よごれて"
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "レポートを かいて しまいました。",
+          "jp_ruby": "レポートを 書{か}いて しまいました。",
           "en": "I finished writing the report."
         },
         {
           "jp": "その ほんは もう よんで しまいました。",
+          "jp_ruby": "その 本{ほん}は もう 読{よ}んで しまいました。",
           "en": "I've already finished reading that book."
         }
       ],
@@ -167,34 +227,53 @@
         {
           "kind": "fill",
           "prompt": "ケーキを ぜんぶ たべて ＿＿。",
+          "prompt_ruby": "ケーキを ぜんぶ 食{た}べて ＿＿。",
           "en": "I ate the whole cake.",
           "answer": "しまいました",
+          "answer_ruby": "しまいました",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Completion helper verb, past tense"
         },
         {
           "kind": "choose",
           "prompt": "あしたまでに しごとを ＿＿ しまいます。",
+          "prompt_ruby": "明日{あした}までに 仕事{しごと}を ＿＿ しまいます。",
           "en": "I'll get the work done by tomorrow.",
           "answer": "して",
+          "answer_ruby": "して",
           "options": [
             "して",
             "し",
             "する"
           ],
+          "options_ruby": [
+            "して",
+            "し",
+            "する"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm before しまいます"
         },
         {
           "kind": "choose",
           "prompt": "この ほんは きょう ぜんぶ ＿＿ しまいます。",
+          "prompt_ruby": "この 本{ほん}は 今日{きょう} ぜんぶ ＿＿ しまいます。",
           "en": "I'll finish reading this whole book today.",
           "answer": "よんで",
+          "answer_ruby": "読{よ}んで",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "よむ",
             "よんで",
             "よみ"
+          ],
+          "options_ruby": [
+            "読{よ}む",
+            "読{よ}んで",
+            "読{よ}み"
           ],
           "hint": "しまいます follows the てForm: よみます → よんで.",
           "why_wrong": {
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "しゅくだいは もう して ＿＿。",
+          "prompt_ruby": "しゅくだいは もう して ＿＿。",
           "en": "I've already finished my homework.",
           "answer": "しまいました",
+          "answer_ruby": "しまいました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "しまりました",
+            "しめました",
+            "しまいました"
+          ],
+          "options_ruby": [
             "しまりました",
             "しめました",
             "しまいました"
@@ -229,10 +316,12 @@
       "examples": [
         {
           "jp": "だいじな しゃしんを なくして しまいました。",
+          "jp_ruby": "大事{だいじ}な 写真{しゃしん}を なくして しまいました。",
           "en": "I lost an important photo."
         },
         {
           "jp": "でんしゃに かさを わすれて しまいました。",
+          "jp_ruby": "電車{でんしゃ}に かさを わすれて しまいました。",
           "en": "I left my umbrella on the train."
         }
       ],
@@ -240,31 +329,50 @@
         {
           "kind": "fill",
           "prompt": "パソコンが こわれて ＿＿。",
+          "prompt_ruby": "パソコンが こわれて ＿＿。",
           "en": "Oh no, my computer broke.",
           "answer": "しまいました",
+          "answer_ruby": "しまいました",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Helper verb showing regret, past tense"
         },
         {
           "kind": "choose",
           "prompt": "さいふを ＿＿ しまいました。",
+          "prompt_ruby": "さいふを ＿＿ しまいました。",
           "en": "I dropped my wallet.",
           "answer": "おとして",
+          "answer_ruby": "おとして",
           "options": [
             "おとして",
             "おちて",
             "おとした"
           ],
+          "options_ruby": [
+            "おとして",
+            "おちて",
+            "おとした"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Transitive verb in てForm"
         },
         {
           "kind": "choose",
           "prompt": "でんしゃの なかで ＿＿ しまいました。",
+          "prompt_ruby": "電車{でんしゃ}の 中{なか}で ＿＿ しまいました。",
           "en": "I fell asleep on the train.",
           "answer": "ねて",
+          "answer_ruby": "ねて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "ねた",
+            "ねって",
+            "ねて"
+          ],
+          "options_ruby": [
             "ねた",
             "ねって",
             "ねて"
@@ -278,10 +386,18 @@
         {
           "kind": "choose",
           "prompt": "みちを ＿＿ しまいました。",
+          "prompt_ruby": "道{みち}を ＿＿ しまいました。",
           "en": "I took the wrong road.",
           "answer": "まちがえて",
+          "answer_ruby": "まちがえて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "まちがえった",
+            "まちがえて",
+            "まちがえた"
+          ],
+          "options_ruby": [
             "まちがえった",
             "まちがえて",
             "まちがえた"

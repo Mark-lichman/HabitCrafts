@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "よまれる／たべられる／される／こられる",
+          "jp_ruby": "読{よ}まれる／食{た}べられる／される／来{こ}られる",
           "en": "passive of よむ, たべる, する, くる"
         },
         {
           "jp": "いわれる／しかられる／ほめられる",
+          "jp_ruby": "言{い}われる／しかられる／ほめられる",
           "en": "passive of いう, しかる, ほめる"
         }
       ],
@@ -21,9 +23,14 @@
         {
           "kind": "fill",
           "prompt": "せんせいに ＿＿。",
+          "prompt_ruby": "先生{せんせい}に ＿＿。",
           "en": "I was scolded by my teacher.",
           "answer": "しかられました",
+          "answer_ruby": "しかられました",
           "accepted": [
+            "おこられました"
+          ],
+          "accepted_ruby": [
             "おこられました"
           ],
           "hint": "passive of しかります, polite past"
@@ -31,23 +38,39 @@
         {
           "kind": "choose",
           "prompt": "ともだちに パーティーに ＿＿。",
+          "prompt_ruby": "ともだちに パーティーに ＿＿。",
           "en": "I was invited to a party by a friend.",
           "answer": "よばれました",
+          "answer_ruby": "よばれました",
           "options": [
             "よばれました",
             "よばられました",
             "よびれました"
           ],
+          "options_ruby": [
+            "よばれました",
+            "よばられました",
+            "よびれました"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Group I: change the last sound to the あ row"
         },
         {
           "kind": "choose",
           "prompt": "わたしは ともだちに えいがに ＿＿。",
+          "prompt_ruby": "わたしは ともだちに 映画{えいが}に ＿＿。",
           "en": "I was invited to a movie by a friend.",
           "answer": "さそわれました",
+          "answer_ruby": "さそわれました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "さそいれました",
+            "さそわれました",
+            "さそられました"
+          ],
+          "options_ruby": [
             "さそいれました",
             "さそわれました",
             "さそられました"
@@ -61,10 +84,18 @@
         {
           "kind": "choose",
           "prompt": "この スポーツは せかいじゅうで ＿＿ います。",
+          "prompt_ruby": "この スポーツは 世界中{せかいじゅう}で ＿＿ います。",
           "en": "This sport is played all over the world.",
           "answer": "されて",
+          "answer_ruby": "されて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "すられて",
+            "されて",
+            "されれて"
+          ],
+          "options_ruby": [
             "すられて",
             "されて",
             "されれて"
@@ -85,10 +116,12 @@
       "examples": [
         {
           "jp": "わたしは あにに おかしを たべられました。",
+          "jp_ruby": "わたしは 兄{あに}に おかしを 食{た}べられました。",
           "en": "My older brother ate my sweets (and I was upset)."
         },
         {
           "jp": "わたしは せんせいに ほめられました。",
+          "jp_ruby": "わたしは 先生{せんせい}に ほめられました。",
           "en": "I was praised by my teacher."
         }
       ],
@@ -96,9 +129,14 @@
         {
           "kind": "fill",
           "prompt": "わたしは ぶちょう＿＿ よばれました。",
+          "prompt_ruby": "わたしは ぶちょう＿＿ よばれました。",
           "en": "I was called by the department manager.",
           "answer": "に",
+          "answer_ruby": "に",
           "accepted": [
+            "から"
+          ],
+          "accepted_ruby": [
             "から"
           ],
           "hint": "the particle that marks the doer"
@@ -106,26 +144,42 @@
         {
           "kind": "choose",
           "prompt": "わたしは あさ はやく おとうとに ＿＿。",
+          "prompt_ruby": "わたしは 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
           "en": "I was woken up early in the morning by my little brother.",
           "answer": "おこされました",
+          "answer_ruby": "起{お}こされました",
           "options": [
             "おこされました",
             "おこしました",
             "おこして"
           ],
+          "options_ruby": [
+            "起{お}こされました",
+            "起{お}こしました",
+            "起{お}こして"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "passive of おこします, polite past"
         },
         {
           "kind": "choose",
           "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。",
+          "prompt_ruby": "わたしは ＿＿ けっこんしきに しょうたいされました。",
           "en": "I was invited to the wedding by Mr. Kimura.",
           "answer": "きむらさんに",
+          "answer_ruby": "木村{きむら}さんに",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きむらさんが",
             "きむらさんを",
             "きむらさんに"
+          ],
+          "options_ruby": [
+            "木村{きむら}さんが",
+            "木村{きむら}さんを",
+            "木村{きむら}さんに"
           ],
           "hint": "In a passive sentence, the person who does the action takes に.",
           "why_wrong": {
@@ -136,13 +190,21 @@
         {
           "kind": "choose",
           "prompt": "わたしは ぶちょうに ＿＿。",
+          "prompt_ruby": "わたしは ぶちょうに ＿＿。",
           "en": "I was warned by the department manager.",
           "answer": "ちゅういされました",
+          "answer_ruby": "注意{ちゅうい}されました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "ちゅういしられました",
             "ちゅういされました",
             "ちゅういされれました"
+          ],
+          "options_ruby": [
+            "注意{ちゅうい}しられました",
+            "注意{ちゅうい}されました",
+            "注意{ちゅうい}されれました"
           ],
           "hint": "For します verbs, the passive is される: ちゅういされます.",
           "why_wrong": {
@@ -160,10 +222,12 @@
       "examples": [
         {
           "jp": "わたしは でんしゃで あしを ふまれました。",
+          "jp_ruby": "わたしは 電車{でんしゃ}で 足{あし}を ふまれました。",
           "en": "Someone stepped on my foot on the train."
         },
         {
           "jp": "わたしは おとうとに パソコンを こわされました。",
+          "jp_ruby": "わたしは 弟{おとうと}に パソコンを こわされました。",
           "en": "My little brother broke my computer."
         }
       ],
@@ -171,9 +235,14 @@
         {
           "kind": "fill",
           "prompt": "わたしは だれかに さいふを ＿＿。",
+          "prompt_ruby": "わたしは だれかに さいふを ＿＿。",
           "en": "Someone stole my wallet.",
           "answer": "とられました",
+          "answer_ruby": "とられました",
           "accepted": [
+            "ぬすまれました"
+          ],
+          "accepted_ruby": [
             "ぬすまれました"
           ],
           "hint": "passive of とります, polite past"
@@ -181,23 +250,39 @@
         {
           "kind": "choose",
           "prompt": "わたしは いもうとに にっきを ＿＿。",
+          "prompt_ruby": "わたしは 妹{いもうと}に にっきを ＿＿。",
           "en": "My little sister read my diary.",
           "answer": "よまれました",
+          "answer_ruby": "読{よ}まれました",
           "options": [
             "よまれました",
             "よみられました",
             "よまらました"
           ],
+          "options_ruby": [
+            "読{よ}まれました",
+            "読{よ}みられました",
+            "読{よ}まらました"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "passive of よみます, polite past"
         },
         {
           "kind": "choose",
           "prompt": "わたしは ねこに カップ＿＿ こわされました。",
+          "prompt_ruby": "わたしは ねこに カップ＿＿ こわされました。",
           "en": "My cat broke my cup.",
           "answer": "を",
+          "answer_ruby": "を",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "が",
+            "に",
+            "を"
+          ],
+          "options_ruby": [
             "が",
             "に",
             "を"
@@ -211,10 +296,18 @@
         {
           "kind": "choose",
           "prompt": "わたしは こどもに ふくを ＿＿。",
+          "prompt_ruby": "わたしは こどもに 服{ふく}を ＿＿。",
           "en": "A child got my clothes dirty.",
           "answer": "よごされました",
+          "answer_ruby": "よごされました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "よごしました",
+            "よごしられました",
+            "よごされました"
+          ],
+          "options_ruby": [
             "よごしました",
             "よごしられました",
             "よごされました"
@@ -235,10 +328,12 @@
       "examples": [
         {
           "jp": "この おてらは 1400ねんに たてられました。",
+          "jp_ruby": "この おてらは 1400年{ねん}に 建{た}てられました。",
           "en": "This temple was built in 1400."
         },
         {
           "jp": "ワインは ぶどうから つくられます。",
+          "jp_ruby": "ワインは ぶどうから 作{つく}られます。",
           "en": "Wine is made from grapes."
         }
       ],
@@ -246,34 +341,53 @@
         {
           "kind": "fill",
           "prompt": "この ほんは せかいじゅうで ＿＿ います。",
+          "prompt_ruby": "この 本{ほん}は 世界中{せかいじゅう}で ＿＿ います。",
           "en": "This book is read all over the world.",
           "answer": "よまれて",
+          "answer_ruby": "読{よ}まれて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "passive て form of よみます"
         },
         {
           "kind": "choose",
           "prompt": "らいげつ ここで かいぎが ＿＿。",
+          "prompt_ruby": "来月{らいげつ} ここで かいぎが ＿＿。",
           "en": "A meeting will be held here next month.",
           "answer": "ひらかれます",
+          "answer_ruby": "開{ひら}かれます",
           "options": [
             "ひらかれます",
             "ひらかられます",
             "ひらけられます"
           ],
+          "options_ruby": [
+            "開{ひら}かれます",
+            "開{ひら}かられます",
+            "開{ひら}けられます"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "passive of ひらきます"
         },
         {
           "kind": "choose",
           "prompt": "この カメラは にほんで ＿＿。",
+          "prompt_ruby": "この カメラは 日本{にほん}で ＿＿。",
           "en": "This camera was made in Japan.",
           "answer": "つくられました",
+          "answer_ruby": "作{つく}られました",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "つくらられました",
             "つくられました",
             "つくりられました"
+          ],
+          "options_ruby": [
+            "作{つく}らられました",
+            "作{つく}られました",
+            "作{つく}りられました"
           ],
           "hint": "Group I passive: change the last sound to the あ row and add れる.",
           "why_wrong": {
@@ -284,10 +398,18 @@
         {
           "kind": "choose",
           "prompt": "この えは ゴッホ＿＿ かかれました。",
+          "prompt_ruby": "この えは ゴッホ＿＿ かかれました。",
           "en": "This painting was painted by Van Gogh.",
           "answer": "によって",
+          "answer_ruby": "によって",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "から",
+            "によって",
+            "を"
+          ],
+          "options_ruby": [
             "から",
             "によって",
             "を"
