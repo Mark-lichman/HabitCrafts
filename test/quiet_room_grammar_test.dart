@@ -32,8 +32,11 @@ String unanswered(String prompt) => prompt.replaceAll('＿＿', '＿＿＿');
 
 /// A right pick names no wrong-option reason. The check reads each reason's own
 /// text, which is the same whichever surface the 漢字 toggle shows, so it cannot
-/// pass on a label mismatch.
+/// pass on a label mismatch. An item with no reason would make the loop empty
+/// and the check vacuous, so the item must carry one.
 void expectNoReason(Map<String, dynamic> item) {
+  expect(item['why_wrong'], isNotEmpty,
+      reason: 'the right-pick check needs a reason to look for');
   for (final reason in (item['why_wrong'] as Map? ?? const {}).values) {
     expect(find.textContaining(reason as String), findsNothing);
   }
