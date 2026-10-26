@@ -1,14 +1,14 @@
 ---
 name: n4-kanji-limit-has-no-committed-list
-description: The "standard N4 kanji only" rule for kanji twins has no committed kanji list or test; auditors found 17 kanji outside the core set
+description: The strict N5+N4 kanji list for twins is committed (pipeline/jp/kanji_n5_n4.json) and enforced by test_kanji_list.py
 metadata:
   type: project
   provenance: code-verified
-  keywords: [N4, N5, kanji list, kanji twin, judge rule R1, わたし, 私, standard N4]
+  keywords: [N4, N5, kanji list, kanji_n5_n4.json, test_kanji_list, 私, strict]
 ---
 
-Judge rule R1 in `judge_ruby.json` says N5/N4 kanji only, and its method line cites a scripted check,
-but no script, kanji list or test is committed. Auditors found 17 kanji outside the core N5+N4 set
-(説 菜 好 頭 働 村 声 乗 薬 寒 暗 短 遠 暑 所 合 都), and R1 was applied unevenly (勝 and 描 rejected,
-頭 and 村 kept). The pronoun わたし also stays in hiragana in about 45 twins although rule R6 implies 私.
-Both are operator rulings (2026-10-26): ask Mark before changing twin kanji policy.
+Phase 4 committed `pipeline/jp/kanji_n5_n4.json` (Tanos N5 79 + N4 166, pages archived under
+`pipeline/jp/tanos/` and sha256-pinned) and `pipeline/jp/tests/test_kanji_list.py`, which checks every
+twin against it. Operator rulings (2026-10-26): 私{わたし} for the pronoun (私 is on the N4 page), and
+words with kanji outside the list are hiragana in their twin. Superseded: the earlier state with no
+committed list or test.
