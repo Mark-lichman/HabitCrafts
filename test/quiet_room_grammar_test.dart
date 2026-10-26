@@ -30,6 +30,15 @@ final Finder answerBoxes = find.byWidgetPredicate(
 /// A fill-in prompt as the screen shows it before an answer.
 String unanswered(String prompt) => prompt.replaceAll('＿＿', '＿＿＿');
 
+/// A right pick names no wrong-option reason. The check reads each reason's own
+/// text, which is the same whichever surface the 漢字 toggle shows, so it cannot
+/// pass on a label mismatch.
+void expectNoReason(Map<String, dynamic> item) {
+  for (final reason in (item['why_wrong'] as Map? ?? const {}).values) {
+    expect(find.textContaining(reason as String), findsNothing);
+  }
+}
+
 void main() {
   testWidgets('By use lists every pattern tagged with the chosen use',
       (tester) async {
@@ -103,7 +112,6 @@ void main() {
               (q['why_wrong'] as Map? ?? const {}).isNotEmpty)
             q,
     ].first;
-    final why = (item['why_wrong'] as Map).cast<String, String>();
 
     await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
     await tester.tap(find.text(item['answer'] as String).first);
@@ -111,9 +119,7 @@ void main() {
 
     // The prompt swaps ＿＿ for ［answer］ once a pick is made, so this proves the tap registered.
     expect(find.textContaining('［${item['answer']}］'), findsOneWidget);
-    for (final w in why.keys) {
-      expect(find.textContaining('$w: ${why[w]}'), findsNothing);
-    }
+    expectNoReason(item);
   });
 
   testWidgets('every typed-answer box asks for the Japanese keyboard',
@@ -309,10 +315,7 @@ void main() {
           find.text(rubySurface(item['prompt_ruby'] as String)
               .replaceAll('＿＿', '［$shown］')),
           findsOneWidget);
-      // A right pick names no wrong-option reason.
-      for (final w in (item['why_wrong'] as Map? ?? const {}).keys) {
-        expect(find.textContaining('$w: '), findsNothing);
-      }
+      expectNoReason(item);
     });
 
     testWidgets('a wrong pick in kanji quotes the kanji option in its reason',
