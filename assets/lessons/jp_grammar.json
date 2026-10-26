@@ -10952,7 +10952,7 @@
       {
        "kind": "fill",
        "prompt": "はやく ＿＿ ように、まいにち れんしゅうします。",
-       "prompt_ruby": "早{はや}く ＿＿ ように、毎日{まいにち} れんしゅうします。",
+       "prompt_ruby": "はやく ＿＿ ように、毎日{まいにち} れんしゅうします。",
        "en": "I practice every day so that I can swim fast.",
        "answer": "およげる",
        "answer_ruby": "およげる",
