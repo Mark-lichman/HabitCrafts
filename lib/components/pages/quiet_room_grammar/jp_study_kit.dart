@@ -1,7 +1,7 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
 // Shared pieces for the Japanese study screens: one loader for
-// assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand)
+// assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand),
 // the few Quiet Room building blocks every study screen repeats, the kanji twin
 // helpers, and the typed-answer matcher for fill-in practice.
 

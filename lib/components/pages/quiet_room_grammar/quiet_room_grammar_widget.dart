@@ -525,8 +525,18 @@ class _PracticeState extends State<_Practice> {
     final options = ((q['options'] as List?) ?? const []).cast<String>();
     final optionsRuby =
         ((q['options_ruby'] as List?) ?? const []).cast<String>();
+    // An option as the toggle shows it. The check and the why_wrong key stay on the
+    // hiragana option.
+    String shownOption(String o) =>
+        kanji && optionsRuby.length == options.length
+            ? rubySurface(optionsRuby[options.indexOf(o)])
+            : o;
     final typedRight = _verdict == TypedVerdict.right;
     final done = _revealed || _picked != null || typedRight;
+    // A wrong verdict has nothing to say once the answer is shown. Self-check stays:
+    // it carries the Got it and Missed it pills.
+    final feedbackApplies =
+        _verdict != null && !(done && _verdict == TypedVerdict.wrong);
     final prompt = jpShown(kanji, q['prompt'] as String, q['prompt_ruby'])
         .replaceAll('＿＿', done ? '［$shownAnswer］' : '＿＿＿');
 
@@ -549,12 +559,8 @@ class _PracticeState extends State<_Practice> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: options.asMap().entries.map((entry) {
-                final o = entry.value;
-                // The label follows the toggle. The check stays on the hiragana option.
-                final label = kanji && optionsRuby.length == options.length
-                    ? rubySurface(optionsRuby[entry.key])
-                    : o;
+              children: options.map((o) {
+                final label = shownOption(o);
                 final picked = _picked == o;
                 final right = o == answer;
                 final Color fill = _picked == null
@@ -596,7 +602,7 @@ class _PracticeState extends State<_Practice> {
             )
           else ...[
             if (!done) _answerBox(t),
-            if (_verdict != null) _feedback(t, shownAnswer, q),
+            if (feedbackApplies) _feedback(t, shownAnswer, q),
             if (!done)
               Row(children: [
                 if (q['hint'] != null)
@@ -623,14 +629,15 @@ class _PracticeState extends State<_Practice> {
               child: Text('Also correct: ${shownAccepted.join('、')}',
                   style: qrText(t, size: 12.5, color: t.inkMuted)),
             ),
-          // A wrong tap says why that option is wrong, then names the rule.
+          // A wrong tap says why that option is wrong, then names the rule. The line
+          // quotes the option as the toggle showed it.
           if (_picked != null && _picked != answer)
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 [
                   if ((q['why_wrong'] as Map?)?[_picked] != null)
-                    '$_picked: ${(q['why_wrong'] as Map)[_picked]}',
+                    '${shownOption(_picked!)}: ${(q['why_wrong'] as Map)[_picked]}',
                   if (q['hint'] != null) '${q['hint']}',
                 ].join('\n'),
                 style: qrText(t, size: 12.5, color: t.clay600),
