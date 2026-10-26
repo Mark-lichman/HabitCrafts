@@ -14,11 +14,15 @@
 // おばさん / おばあさん and ここ / こうこう are different words, and the recogniser's language model
 // will quietly pick the likelier one, hiding the error the learner most needs to see.
 //
-// 🚨 SECOND PROBLEM, handled in `judge()`: Android ASR returns kanji (貼ります) while this corpus is
-// kana-only (はります). There is no reading dictionary bundled, so a kanji transcript CANNOT be
-// compared to the expected kana. Rather than call that wrong -- which would punish a correct
-// answer -- `judge()` returns `unverified` and the UI shows what was heard so the learner decides.
-// Being unable to check is not the same as being wrong, and conflating them teaches nothing.
+// 🚨 SECOND PROBLEM, handled in `judge()`: Android ASR returns kanji (貼ります) while the expected
+// answer is hiragana (はります). There is no reading dictionary bundled, so the caller passes the
+// answer's own kanji spellings as `kanjiForms`: EDICT2 spellings for a vocabulary word, and the
+// sentence's kanji version (its `_ruby` twin with the readings dropped) in the grammar speaking
+// drill. A transcript that equals one of them is correct, and one that overlaps it is close.
+// A kanji transcript that matches no kanji form still CANNOT be compared to the hiragana. Rather
+// than call that wrong -- which would punish a correct answer -- `judge()` returns `unverified`
+// and the UI shows what was heard so the learner decides. Being unable to check is not the same
+// as being wrong, and conflating them teaches nothing.
 
 import 'dart:async';
 
@@ -291,9 +295,12 @@ class SpeechService {
     return b.toString().replaceAll(_noise, '').replaceAll('ー', '');
   }
 
-  /// 🚨 Returns `unverified`, never `wrong`, when the transcript contains kanji. See the header:
-  /// without a reading dictionary a kanji transcript cannot be compared to kana, and marking an
-  /// unknowable answer wrong is worse than admitting we cannot tell.
+  /// 🚨 Returns `unverified`, never `wrong`, when the transcript contains kanji and matches none
+  /// of [kanjiForms]. See the header: without a reading dictionary such a transcript cannot be
+  /// compared to kana, and marking an unknowable answer wrong is worse than admitting we cannot
+  /// tell. `wrong` comes back only for a transcript with no kanji, so a caller that must never
+  /// mark a correct answer wrong also checks that the transcript is plain kana (digits and Latin
+  /// letters reach `wrong` too).
   static Judgement judge(
     String heard,
     String expectedKana, {
@@ -302,16 +309,25 @@ class SpeechService {
     if (heard.trim().isEmpty) return Judgement.unverified;
 
     // 🚨 THE KANJI ANSWER. Most Japanese nouns are written in pure kanji with no
-    // okurigana (鞄, 山, 花瓶, 美術館), so the recogniser returns a form this kana-only
-    // corpus cannot compare -- and the subsequence bridge below, which relies on
+    // okurigana (鞄, 山, 花瓶, 美術館), so the recogniser returns a form the hiragana
+    // answer cannot be compared with -- and the subsequence bridge below, which relies on
     // okurigana, cannot help. Readings from EDICT2 close that gap: the word's own kanji
     // spellings ship alongside its kana, so a kanji transcript is now an exact lookup
-    // rather than a guess. Words with no kanji form (katakana loanwords) simply carry an
+    // rather than a guess. A grammar sentence passes its kanji version the same way.
+    // Words with no kanji form (katakana loanwords) simply carry an
     // empty list and fall through to the kana paths.
-    final trimmed = heard.trim();
-    for (final k in kanjiForms) {
-      if (trimmed == k) return Judgement.correct;
-      if (trimmed.contains(k) || k.contains(trimmed)) return Judgement.close;
+    //
+    // Both sides go through normalise() first, so a sentence's spaces and 。 (the grammar
+    // kanji versions carry both, the recogniser returns neither) do not turn an exact
+    // match into a partial one.
+    final heardForm = normalise(heard);
+    for (final raw in kanjiForms) {
+      final k = normalise(raw);
+      if (k.isEmpty || heardForm.isEmpty) continue;
+      if (heardForm == k) return Judgement.correct;
+      if (heardForm.contains(k) || k.contains(heardForm)) {
+        return Judgement.close;
+      }
     }
 
     final h = normalise(heard);
