@@ -40,6 +40,9 @@ export 'speech_service.dart' show Judgement;
 abstract class PronRecorder {
   Future<Stream<Uint8List>?> start(int sampleRate);
   Future<void> stop();
+
+  /// Releases the native recorder. The recorder cannot start again afterwards.
+  Future<void> dispose();
 }
 
 /// Time, so the silence and cap rules can be tested without waiting.
@@ -88,6 +91,14 @@ class RecordPackageRecorder implements PronRecorder {
     try {
       await _rec?.stop();
     } catch (_) {}
+  }
+
+  @override
+  Future<void> dispose() async {
+    try {
+      await _rec?.dispose();
+    } catch (_) {}
+    _rec = null;
   }
 }
 
@@ -324,14 +335,17 @@ class PronunciationService {
   /// A chunk at or above this level (dB full scale) counts as speech.
   static const double speechDbfs = -40;
 
-  /// A chunk below this level counts as silence. Between the two, it is neither, so a soft
-  /// syllable neither starts the silence clock nor ends the sentence.
+  /// A chunk below this level counts as silence. A chunk between the two levels does not
+  /// refresh the last-speech time and does not end the listen by itself. The silence span is
+  /// measured from the last chunk at or above [speechDbfs]. A chunk below this level ends the
+  /// listen once that span reaches [silenceAfterSpeech].
   static const double silenceDbfs = -50;
 
   /// The level shown as 0 by [level]; 0 dBFS shows as 1.
   static const double levelFloorDbfs = -60;
 
-  /// How long the function call may take before the check gives up as unverified.
+  /// How long the sign-in and the function call together may take before the check gives up
+  /// as unverified.
   static const Duration callTimeout = Duration(seconds: 20);
 
   static const String functionName = 'scorePronunciation';
@@ -358,26 +372,38 @@ class PronunciationService {
 
   _Listen? _active;
 
+  /// Counts recorder starts. [cancel] records the latest start it covers in
+  /// [_cancelledStart], so a cancel that lands while the start is still pending is not lost.
+  int _starts = 0;
+  int _cancelledStart = 0;
+
   /// Records the learner saying [hiragana] and scores it against [hiragana] (PIN-1).
   /// Never throws: anything that cannot be scored is [PronunciationResult.unverified].
   Future<PronunciationResult> check(String hiragana) async {
     final audio = await _record();
     if (audio == null) return const PronunciationResult.unverified();
     try {
-      await _signIn();
-      final reply = await _score({
-        'audio': base64Encode(audio),
-        'referenceText': hiragana,
-      }).timeout(callTimeout);
+      // One bound covers the sign-in and the call, so a black-holed network cannot hold the
+      // check past callTimeout.
+      final reply = await () async {
+        await _signIn();
+        return _score({
+          'audio': base64Encode(audio),
+          'referenceText': hiragana,
+        });
+      }()
+          .timeout(callTimeout);
       return PronunciationResult.fromReply(reply);
     } catch (_) {
-      // Network, function, sign-in and format errors all land here (PIN-3).
+      // Network, function, sign-in, timeout and format errors all land here (PIN-3).
       return const PronunciationResult.unverified();
     }
   }
 
-  /// Stops a listen in progress. Its [check] returns unverified and makes no call.
+  /// Stops a listen in progress, or one whose recorder start is still pending. Its [check]
+  /// returns unverified and makes no call.
   Future<void> cancel() async {
+    _cancelledStart = _starts;
     final a = _active;
     if (a != null) await a.finish(cancelled: true);
   }
@@ -386,8 +412,15 @@ class PronunciationService {
   /// empty audio, or a cancel).
   Future<Uint8List?> _record() async {
     await cancel();
+    final start = ++_starts;
     final stream = await _recorder.start(sampleRate);
     if (stream == null) return null;
+    if (_cancelledStart >= start) {
+      // cancel() or dispose() ran while the start was pending (for example during the
+      // first-run microphone prompt). Close the microphone it just opened.
+      await _recorder.stop();
+      return null;
+    }
     final listen = _active = _Listen(this);
     _listening.value = true;
     listen.begin(stream);
@@ -402,9 +435,10 @@ class PronunciationService {
     if (!_levels.isClosed) _levels.add(v);
   }
 
-  /// Releases the level stream. The service cannot listen again afterwards.
+  /// Releases the level stream and the recorder. The service cannot listen again afterwards.
   Future<void> dispose() async {
     await cancel();
+    await _recorder.dispose();
     await _levels.close();
   }
 

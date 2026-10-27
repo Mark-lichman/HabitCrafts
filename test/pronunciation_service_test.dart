@@ -14,6 +14,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart';
 
@@ -76,24 +77,41 @@ class _FakeClock implements PronClock {
 }
 
 class _FakeRecorder implements PronRecorder {
-  _FakeRecorder({this.available = true});
+  _FakeRecorder({this.available = true, this.startGate});
   final bool available;
+
+  /// When set, [start] waits on it, like a pending microphone permission prompt.
+  final Completer<void>? startGate;
   StreamController<Uint8List>? ctl;
   int? startedAt;
   int stops = 0;
+  int disposes = 0;
 
   @override
   Future<Stream<Uint8List>?> start(int sampleRate) async {
     if (!available) return null;
+    if (startGate != null) await startGate!.future;
     startedAt = sampleRate;
-    ctl = StreamController<Uint8List>();
+    // An async onCancel keeps the subscription's cancel future in the caller's zone. With
+    // no onCancel, cancel() returns a root-zone future that fakeAsync cannot flush.
+    ctl = StreamController<Uint8List>(onCancel: () async {});
     return ctl!.stream;
   }
 
   @override
   Future<void> stop() async {
     stops++;
-    await ctl?.close();
+    final c = ctl;
+    if (c == null) return;
+    // close() completes only once a listener has seen the done event, so a stream nobody
+    // listened to (a cancel during a pending start) is closed without waiting.
+    final closed = c.close();
+    if (c.hasListener) await closed;
+  }
+
+  @override
+  Future<void> dispose() async {
+    disposes++;
   }
 }
 
@@ -102,16 +120,19 @@ Future<void> _flush() => pumpEventQueue();
 class _Rig {
   _Rig({
     bool micAvailable = true,
+    Completer<void>? startGate,
     this.reply,
     this.error,
     this.signInError,
-  }) : recorder = _FakeRecorder(available: micAvailable) {
+    this.signInHangs = false,
+  }) : recorder = _FakeRecorder(available: micAvailable, startGate: startGate) {
     service = PronunciationService(
       recorder: recorder,
       clock: clock,
       signIn: () async {
         events.add('signIn');
         if (signInError != null) throw signInError!;
+        if (signInHangs) await Completer<void>().future;
       },
       score: (payload) async {
         events.add('score');
@@ -127,6 +148,9 @@ class _Rig {
   final Object? reply;
   final Object? error;
   final Object? signInError;
+
+  /// A sign-in that never completes, like a black-holed network.
+  final bool signInHangs;
   final List<String> events = [];
   Map<String, Object?>? sent;
   late final PronunciationService service;
@@ -379,6 +403,34 @@ void main() {
       expect((await f).verdict, Judgement.unverified);
     });
 
+    test('a sign-in that never returns is unverified at callTimeout (PIN-3)', () {
+      fakeAsync((async) {
+        final rig = _Rig(reply: _fixture(_goodFixture), signInHangs: true);
+        PronunciationResult? result;
+        rig.service.check(_sentence).then((r) => result = r);
+        async.flushMicrotasks();
+        // 800 ms of speech, then enough silence to end the listen.
+        for (var t = 0; t < 800; t += 100) {
+          rig.clock.advance(const Duration(milliseconds: 100));
+          rig.recorder.ctl!.add(_pcm(_loud, 100));
+          async.flushMicrotasks();
+        }
+        for (var t = 0; t < 1500 && !rig.recorder.ctl!.isClosed; t += 100) {
+          rig.clock.advance(const Duration(milliseconds: 100));
+          rig.recorder.ctl!.add(_pcm(_quiet, 100));
+          async.flushMicrotasks();
+        }
+        expect(rig.events, ['signIn']);
+        expect(result, isNull, reason: 'the sign-in is still pending');
+
+        async.elapse(PronunciationService.callTimeout);
+        async.flushMicrotasks();
+        expect(result, isNotNull, reason: 'callTimeout bounds the sign-in too');
+        expect(result!.verdict, Judgement.unverified);
+        expect(rig.events, ['signIn'], reason: 'no call after the timeout');
+      });
+    });
+
     test('a reply that cannot be read is unverified (PIN-3)', () async {
       final rig = _Rig(reply: {'error': 'nope'});
       final f = rig.service.check(_sentence);
@@ -507,6 +559,27 @@ void main() {
       expect((await f).verdict, Judgement.unverified);
       expect(rig.recorder.stops, 1);
       expect(rig.events, isEmpty);
+    });
+
+    test('cancel() while the recorder start is pending still stops it', () async {
+      final gate = Completer<void>();
+      final rig = _Rig(reply: _fixture(_goodFixture), startGate: gate);
+      final f = rig.service.check(_sentence);
+      await _flush();
+      expect(rig.recorder.startedAt, isNull, reason: 'the start is still pending');
+      await rig.service.cancel();
+      gate.complete();
+      final r = await f;
+      expect(r.verdict, Judgement.unverified);
+      expect(rig.recorder.stops, 1, reason: 'the microphone it opened is closed');
+      expect(rig.service.listening.value, isFalse);
+      expect(rig.events, isEmpty);
+    });
+
+    test('dispose() releases the recorder', () async {
+      final rig = _Rig(reply: _fixture(_goodFixture));
+      await rig.service.dispose();
+      expect(rig.recorder.disposes, 1);
     });
 
     test('the timing constants are named and sane', () {
