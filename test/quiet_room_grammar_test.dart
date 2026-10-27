@@ -1,12 +1,16 @@
 // Widget tests for the grammar screen: the By use view, a choice question's feedback,
-// the typed-answer box (PIN-3), the 漢字 toggle (PIN-4) and the speaking drill link (PIN-6).
+// the typed-answer box (PIN-3), the 漢字 toggle (PIN-4), the tap-a-word reading hint
+// (PIN-16) and the speaking drill link (PIN-6).
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show RubyTapText, rubyWords;
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
 
@@ -354,6 +358,161 @@ void main() {
       // The reason quotes the option as shown, not its hiragana key.
       expect(find.textContaining('$shown: ${why[wrong]}'), findsOneWidget);
       expect(find.textContaining('$wrong: ${why[wrong]}'), findsNothing);
+    });
+  });
+
+  group('the reading hint', () {
+    /// The opening lesson's first example with a kanji word, with one kanji word and
+    /// one plain word that each occur once in the shown sentence, so a tap on either
+    /// can only land on that word.
+    ({
+      String ruby,
+      String surface,
+      String en,
+      ({String text, String? reading}) kanji,
+      ({String text, String? reading}) plain,
+    }) hintExample() {
+      for (final p
+          in (firstLesson()['points'] as List).cast<Map<String, dynamic>>()) {
+        for (final e in (p['examples'] as List? ?? const [])
+            .cast<Map<String, dynamic>>()) {
+          final ruby = e['jp_ruby'] as String?;
+          if (ruby == null) continue;
+          final surface = rubySurface(ruby);
+          bool once(String w) =>
+              w.trim().isNotEmpty &&
+              surface.indexOf(w) == surface.lastIndexOf(w);
+          final words = rubyWords(ruby);
+          final kanji = words.where((w) => w.reading != null && once(w.text));
+          final plain = words.where((w) => w.reading == null && once(w.text));
+          if (kanji.isNotEmpty && plain.isNotEmpty) {
+            return (
+              ruby: ruby,
+              surface: surface,
+              en: e['en'] as String? ?? '',
+              kanji: kanji.first,
+              plain: plain.first,
+            );
+          }
+        }
+      }
+      fail('no opening-lesson example has a kanji word and a plain word');
+    }
+
+    Finder sentence(String ruby) =>
+        find.byWidgetPredicate((w) => w is RubyTapText && w.ruby == ruby);
+
+    /// The sentence's spans: each word's own color, or the sentence color it inherits.
+    Map<String, Color?> wordColors(WidgetTester tester, String ruby) {
+      final text = tester.widget<Text>(find
+          .descendant(of: sentence(ruby), matching: find.byType(Text))
+          .first);
+      return {
+        for (final s in (text.textSpan! as TextSpan).children!.cast<TextSpan>())
+          s.text!: s.style?.color ?? text.style?.color,
+      };
+    }
+
+    Future<void> kanjiOn(WidgetTester tester, {bool dark = false}) async {
+      await pumpStudyScreen(
+          tester,
+          dark
+              ? Theme(
+                  data: ThemeData(brightness: Brightness.dark),
+                  child: const QuietRoomGrammarWidget())
+              : const QuietRoomGrammarWidget());
+      await tester.tap(find.text('漢字'));
+      await tester.pump();
+    }
+
+    testWidgets('hiragana view has no tappable words', (tester) async {
+      final ex = hintExample();
+      await pumpStudyScreen(tester, const QuietRoomGrammarWidget());
+
+      expect(find.byType(RubyTapText), findsNothing);
+      expect(sentence(ex.ruby), findsNothing);
+    });
+
+    testWidgets('a kanji word shows in the hint color, a plain word does not',
+        (tester) async {
+      final ex = hintExample();
+      const day = DaylightTokens();
+      await kanjiOn(tester);
+
+      expect(sentence(ex.ruby), findsOneWidget);
+      final colors = wordColors(tester, ex.ruby);
+      expect(colors[ex.kanji.text], day.brand600);
+      expect(colors[ex.plain.text], day.inkStrong);
+      expect(colors[ex.plain.text], isNot(day.brand600));
+    });
+
+    testWidgets('the hint color is the Nightfall token in dark',
+        (tester) async {
+      final ex = hintExample();
+      const night = NightfallTokens();
+      await kanjiOn(tester, dark: true);
+
+      final colors = wordColors(tester, ex.ruby);
+      expect(colors[ex.kanji.text], night.brand600);
+      expect(colors[ex.plain.text], night.inkStrong);
+    });
+
+    testWidgets('a tap shows the reading, a second tap hides it',
+        (tester) async {
+      final ex = hintExample();
+      final reading = find.descendant(
+          of: sentence(ex.ruby), matching: find.text(ex.kanji.reading!));
+      await kanjiOn(tester);
+      expect(reading, findsNothing);
+
+      await tester.tapOnText(find.textRange
+          .ofSubstring(ex.kanji.text, descendentOf: sentence(ex.ruby)));
+      await tester.pump();
+
+      // The reading sits above the word, which is still shown. The tap is the word's,
+      // so the row's English stays hidden.
+      expect(reading, findsOneWidget);
+      if (ex.en.isNotEmpty) expect(find.text(ex.en), findsNothing);
+      final word = find.descendant(
+          of: sentence(ex.ruby), matching: find.text(ex.kanji.text));
+      expect(word, findsOneWidget);
+      expect(tester.getRect(reading).bottom,
+          lessThanOrEqualTo(tester.getRect(word).top + 0.5));
+
+      await tester.tap(word);
+      await tester.pump();
+
+      expect(reading, findsNothing);
+      // Hidden again, the sentence reads as one line of text, as before the tap.
+      expect(find.text(ex.surface), findsOneWidget);
+    });
+
+    testWidgets('a tap on a plain word shows no reading', (tester) async {
+      final ex = hintExample();
+      await kanjiOn(tester);
+
+      final root = tester
+          .widget<Text>(find
+              .descendant(of: sentence(ex.ruby), matching: find.byType(Text))
+              .first)
+          .textSpan! as TextSpan;
+      final span = root.children!
+          .cast<TextSpan>()
+          .firstWhere((s) => s.text == ex.plain.text);
+      expect(span.recognizer, isNull);
+
+      await tester.tapOnText(find.textRange
+          .ofSubstring(ex.plain.text, descendentOf: sentence(ex.ruby)));
+      await tester.pump();
+
+      expect(find.text(ex.surface), findsOneWidget);
+      for (final w in rubyWords(ex.ruby)) {
+        if (w.reading == null) continue;
+        expect(
+            find.descendant(
+                of: sentence(ex.ruby), matching: find.text(w.reading!)),
+            findsNothing);
+      }
     });
   });
 

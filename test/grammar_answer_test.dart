@@ -119,4 +119,46 @@ void main() {
       expect(checked, greaterThan(0));
     });
   });
+
+  // The reading hint (PIN-16) splits a twin into words: each bracket is one kanji word
+  // with its reading, and the text between brackets is a plain word.
+  group('rubyWords', () {
+    test('splits a twin into kanji words and plain words', () {
+      expect(rubyWords('駅{えき}へ 行{い}きたい'), [
+        (text: '駅', reading: 'えき'),
+        (text: 'へ ', reading: null),
+        (text: '行', reading: 'い'),
+        (text: 'きたい', reading: null),
+      ]);
+    });
+
+    test('a twin with no kanji is one plain word', () {
+      expect(
+          rubyWords('どう ＿＿ いいですか。'), [(text: 'どう ＿＿ いいですか。', reading: null)]);
+    });
+
+    test('every shipped sentence twin rejoins to its surface and its reading',
+        () {
+      final doc = readLessonFile();
+      final twins = [
+        for (final l in (doc['grammar'] as List).cast<Map<String, dynamic>>())
+          for (final p
+              in (l['points'] as List).cast<Map<String, dynamic>>()) ...[
+            for (final e in (p['examples'] as List? ?? const [])
+                .cast<Map<String, dynamic>>())
+              if (e['jp_ruby'] is String) e['jp_ruby'] as String,
+            for (final q in (p['practice'] as List? ?? const [])
+                .cast<Map<String, dynamic>>())
+              if (q['prompt_ruby'] is String) q['prompt_ruby'] as String,
+          ],
+      ];
+      expect(twins, isNotEmpty);
+      for (final r in twins) {
+        final words = rubyWords(r);
+        expect(words.map((w) => w.text).join(), rubySurface(r), reason: r);
+        expect(words.map((w) => w.reading ?? w.text).join(), rubyKana(r),
+            reason: r);
+      }
+    });
+  });
 }
