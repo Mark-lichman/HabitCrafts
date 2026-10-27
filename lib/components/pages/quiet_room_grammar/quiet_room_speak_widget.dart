@@ -1,47 +1,60 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
-// The per-lesson speaking drill (PIN-6). It walks one grammar lesson's sentences point
-// by point: each point's examples, then its practice items with the answer in the blank.
-// For each one the learner plays the sentence, speaks it once, and the drill judges what
-// was heard.
+// The per-lesson speaking drill (2026-10-24 plan, PIN-6). It walks one grammar lesson's
+// sentences point by point: each point's examples, then its practice items with the
+// answer in the blank.
+// For each one the learner plays the sentence, speaks it once, and the drill scores it.
 //
-// Judging reuses `SpeechService.judge()`. The expected kana is the kanji twin's reading
-// (every `漢字{かな}` bracket replaced by its reading), so an example the lesson prints in
-// kanji still has a hiragana target. The sentence's kanji surface goes in `kanjiForms`,
-// because Android recognisers often return a sentence in kanji. An example that joins
-// several forms with ／ becomes one sentence per form.
+// Scoring is BY SOUND, not by spelling (plan 2026-10-27, Task 3). The drill hands the
+// sentence's hiragana to `PronunciationService.check` (PIN-1). The service records, stops
+// by itself when the learner goes quiet, and asks Azure through the `scorePronunciation`
+// function. The kana is the kanji twin's reading (every `漢字{かな}` bracket replaced by its
+// reading), so an example the lesson prints in kanji still has a hiragana reference. An
+// example that joins several forms with ／ becomes one sentence per form.
 //
-// 🚨 NO CORRECT ANSWER IS EVER MARKED WRONG (PIN-2, PIN-7, PIN-10).
-//   * `correct` is marked right.
-//   * `close` shows a Close result in amber, the heard text with its matching part
-//     highlighted, then asks the learner: "Got it" or "Missed it".
-//   * `unverified` shows what was heard and asks the same question.
-//   * `wrong` is only a wrong mark when the transcript is plain kana, which judge() can
-//     compare letter for letter. A transcript with kanji, digits or Latin letters cannot
-//     be compared, so it goes to the same self-check instead.
+//   * The caller: the service's sign-in seam is `ensureCaller()`, so a hidden anonymous
+//     sign-in happens only when a recording is ready to score (PIN-9).
+//   * Listening: the live level animation is fed from the service's sound level, and the
+//     service ends the listen after a silence that follows speech. No Stop tap is needed
+//     (PIN-7). Stop stays as a way out of a false start.
+//   * One check at a time: Speak and Next wait until the check returns, so two checks never
+//     share the microphone.
 //
-// Like the vocabulary drill, this checks WHICH sentence was produced, never how well it was
-// pronounced. See speech_service.dart.
+// 🚨 NOTHING THAT CANNOT BE SCORED IS EVER MARKED WRONG (PIN-3).
+//   * `correct` is marked right and shows the score.
+//   * `close` shows the score in amber, then asks the learner: "Got it" or "Missed it".
+//   * `wrong` is marked wrong and shows the score. Only a real Azure score can say wrong.
+//   * `unverified` (no microphone, no speech, no network, a failed sign-in or call) asks
+//     the same self-check question.
+// Every scored result shows the sentence with each hiragana letter colored by its syllable
+// score (PIN-8). Every attempt's sentence, scores and verdict stay on the device and the
+// newest are listed under "Recent scores", so the operator can tune the cutoffs (PIN-4).
 
-import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier;
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '/components/pages/quiet_room_practice/anon_caller.dart';
 import '/components/pages/quiet_room_practice/listening_bars.dart';
-import '/components/pages/quiet_room_practice/speech_service.dart';
+import '/components/pages/quiet_room_practice/pronunciation_service.dart';
+import '/components/pages/quiet_room_practice/speech_service.dart'
+    show SpeechService;
 import '/flutter_flow/quiet_room.dart';
 import 'jp_study_kit.dart';
 
 // The drill's tests and callers read the twin helpers from here too.
 export 'jp_study_kit.dart' show rubySurface, rubyKana;
 
-/// Listens once and judges against the expected hiragana and its kanji forms.
-typedef SpeakListen = Future<SpeechResult> Function(
-    String expectedKana, List<String> kanjiForms);
-
 /// Speaks Japanese text. Returns null on success, or a message saying why not.
 typedef SpeakPlay = Future<String?> Function(String text);
 
-/// One sentence of the drill: the hiragana shown and judged, its kanji surface, and English.
+/// Builds the drill's pronunciation service around the sign-in it must use. Tests pass a
+/// service on fake seams; the default records with the real microphone.
+typedef SpeakServiceFactory = PronunciationService Function(
+    CallerSignIn signIn);
+
+/// One sentence of the drill: the hiragana shown and scored, its kanji surface, and English.
 class SpeakSentence {
   const SpeakSentence(
       {required this.kana, required this.surface, required this.en});
@@ -93,69 +106,169 @@ List<SpeakSentence> lessonSentences(Map<String, dynamic> lesson) {
   return out;
 }
 
-/// What the drill does with a verdict.
-enum SpeakVerdict { right, close, selfCheck, wrong, nothing }
-
-final RegExp _notKana = RegExp(r'[^ぁ-ゟ]');
-
-/// True when [heard] is plain hiragana or katakana once spacing and punctuation are gone,
-/// the only kind of transcript judge() can compare letter for letter.
-bool isComparableKana(String heard) {
-  final n = SpeechService.normalise(heard);
-  return n.isNotEmpty && !_notKana.hasMatch(n);
+/// The color of a letter or word scored [score]: green at the correct cutoff and up, amber
+/// at the close cutoff and up, red below (PIN-8, on the PIN-4 cutoffs).
+Color scoreColor(QuietRoomTokens t, double score) {
+  if (score >= PronunciationService.correctCutoff) return t.sage600;
+  if (score >= PronunciationService.closeCutoff) return t.amber700;
+  return t.clay600;
 }
 
-/// Maps judge()'s verdict to the drill's. 🚨 `wrong` survives only for a comparable
-/// transcript; anything else goes to self-check (PIN-2).
-SpeakVerdict speakVerdict(Judgement j, String heard) {
-  if (heard.trim().isEmpty) return SpeakVerdict.nothing;
-  return switch (j) {
-    Judgement.correct => SpeakVerdict.right,
-    Judgement.close => SpeakVerdict.close,
-    Judgement.unverified => SpeakVerdict.selfCheck,
-    Judgement.wrong =>
-      isComparableKana(heard) ? SpeakVerdict.wrong : SpeakVerdict.selfCheck,
-  };
+/// A score as the drill prints it: 98.6, or 70 when it is whole.
+String formatScore(double v) =>
+    v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
+
+// --- the score log (PIN-4) ---------------------------------------------------
+
+/// One spoken attempt, as the device keeps it.
+class SpeakAttempt {
+  const SpeakAttempt({
+    required this.sentence,
+    required this.verdict,
+    required this.at,
+    this.overall,
+    this.accuracy,
+    this.fluency,
+    this.completeness,
+    this.words = const [],
+  });
+
+  factory SpeakAttempt.of(
+          String sentence, PronunciationResult r, DateTime at) =>
+      SpeakAttempt(
+        sentence: sentence,
+        verdict: r.verdict,
+        at: at,
+        overall: r.overall,
+        accuracy: r.accuracy,
+        fluency: r.fluency,
+        completeness: r.completeness,
+        words: r.words,
+      );
+
+  final String sentence;
+  final Judgement verdict;
+  final DateTime at;
+
+  /// PronScore, the score that decided [verdict]. Null when unverified.
+  final double? overall;
+  final double? accuracy;
+  final double? fluency;
+  final double? completeness;
+  final List<WordScore> words;
+
+  Map<String, Object?> toJson() => {
+        'sentence': sentence,
+        'verdict': verdict.name,
+        'at': at.toIso8601String(),
+        'overall': overall,
+        'accuracy': accuracy,
+        'fluency': fluency,
+        'completeness': completeness,
+        'words': [
+          for (final w in words)
+            {
+              'word': w.word,
+              'score': w.score,
+              'errorType': w.errorType,
+              'syllables': w.syllableScores,
+            }
+        ],
+      };
+
+  /// Null for an entry this build cannot read, so one bad entry never hides the rest.
+  static SpeakAttempt? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    final sentence = raw['sentence'];
+    final verdict =
+        Judgement.values.where((j) => j.name == raw['verdict']).firstOrNull;
+    if (sentence is! String || verdict == null) return null;
+    double? num_(Object? v) => v is num ? v.toDouble() : null;
+    final words = <WordScore>[];
+    for (final w in (raw['words'] is List ? raw['words'] as List : const [])) {
+      if (w is! Map || w['word'] is! String) continue;
+      words.add(WordScore(
+        word: w['word'] as String,
+        score: num_(w['score']) ?? 0,
+        errorType: w['errorType'] is String ? w['errorType'] as String : 'None',
+        syllableScores: [
+          for (final s
+              in (w['syllables'] is List ? w['syllables'] as List : []))
+            if (s is num) s.toDouble()
+        ],
+      ));
+    }
+    return SpeakAttempt(
+      sentence: sentence,
+      verdict: verdict,
+      at: DateTime.tryParse('${raw['at']}') ?? DateTime(0),
+      overall: num_(raw['overall']),
+      accuracy: num_(raw['accuracy']),
+      fluency: num_(raw['fluency']),
+      completeness: num_(raw['completeness']),
+      words: words,
+    );
+  }
 }
 
-/// The longest run of [heard] that also appears in one of [targets], as [start, end) in
-/// [heard]. Katakana and hiragana count as the same letter. Null when nothing matches.
-(int, int)? matchingPart(String heard, List<String> targets) {
-  // Katakana to hiragana only, so indexes in the folded text stay indexes in [heard].
-  String fold(String s) => String.fromCharCodes(
-      s.runes.map((r) => r >= 0x30A1 && r <= 0x30F6 ? r - 0x60 : r));
-  final h = fold(heard);
-  var best = (0, 0);
-  for (final target in targets) {
-    // The sentence's spaces and punctuation go, because a transcript carries none.
-    final g = fold(target).replaceAll(RegExp(r'[\s、。・「」！？,.!?]'), '');
-    // Longest common substring, one row at a time.
-    var prev = List<int>.filled(g.length + 1, 0);
-    for (var i = 1; i <= h.length; i++) {
-      final cur = List<int>.filled(g.length + 1, 0);
-      for (var j = 1; j <= g.length; j++) {
-        if (h.codeUnitAt(i - 1) == g.codeUnitAt(j - 1) &&
-            h[i - 1].trim().isNotEmpty) {
-          cur[j] = prev[j - 1] + 1;
-          if (cur[j] > best.$2 - best.$1) best = (i - cur[j], i);
-        }
-      }
-      prev = cur;
+/// Every attempt's sentence, scores and verdict, kept on the device, oldest first, so the
+/// operator can tune the cutoffs from real scores (PIN-4). There is no account to sync to.
+class SpeakScoreLog {
+  static const String prefsKey = 'jp.speak.scores';
+
+  /// The newest attempts kept. Older ones drop off.
+  static const int keep = 200;
+
+  /// Never throws: an unreadable log reads as empty.
+  static Future<List<SpeakAttempt>> load() async {
+    try {
+      final raw = (await SharedPreferences.getInstance()).getString(prefsKey);
+      if (raw == null) return [];
+      final list = jsonDecode(raw);
+      if (list is! List) return [];
+      return list.map(SpeakAttempt.fromJson).whereType<SpeakAttempt>().toList();
+    } catch (_) {
+      return [];
     }
   }
-  return best.$2 > best.$1 ? best : null;
+
+  /// Appends [a] and returns the log as saved. Never throws: a failed save keeps the drill
+  /// running and returns what could be read. The drill runs one check at a time, so two
+  /// saves never overlap.
+  static Future<List<SpeakAttempt>> add(SpeakAttempt a) async {
+    final list = await load();
+    list.add(a);
+    if (list.length > keep) list.removeRange(0, list.length - keep);
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(
+          prefsKey, jsonEncode([for (final e in list) e.toJson()]));
+    } catch (_) {
+      // The score log is a tuning aid; losing one entry never blocks the drill.
+    }
+    return list;
+  }
 }
 
+// --- the drill ---------------------------------------------------------------
+
 class QuietRoomSpeakWidget extends StatefulWidget {
-  const QuietRoomSpeakWidget(
-      {super.key, required this.lesson, this.listen, this.play});
+  const QuietRoomSpeakWidget({
+    super.key,
+    required this.lesson,
+    this.play,
+    this.newService,
+    this.callerAuth,
+  });
 
   /// The grammar lesson number, as in `grammar[].lesson`.
   final int? lesson;
 
-  /// Test seams. Null uses [SpeechService.instance].
-  final SpeakListen? listen;
+  /// Test seams. Null plays with [SpeechService.instance], records with the real
+  /// microphone, and signs in through Firebase.
   final SpeakPlay? play;
+  final SpeakServiceFactory? newService;
+  final CallerAuth? callerAuth;
 
   static String routeName = 'quietRoomSpeak';
   static String routePath = '/quietRoomSpeak';
@@ -165,21 +278,29 @@ class QuietRoomSpeakWidget extends StatefulWidget {
 }
 
 class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
-  /// True when the real recogniser is in use, so cancel and errors go to it.
-  bool get _live => widget.listen == null;
+  late final PronunciationService _svc;
 
   int _index = 0;
-  bool _listening = false;
+
+  /// True from Speak until the check returns. Speak and Next wait meanwhile, so one check
+  /// owns the microphone at a time.
+  bool _busy = false;
+
+  /// True once this check's microphone has opened, and [_scoring] once it has closed again:
+  /// the recording is on its way to Azure.
+  bool _micOpened = false;
+  bool _scoring = false;
+
+  /// True after Stop. The check winds down and its result is dropped.
+  bool _stopped = false;
   bool _heardVoice = false;
-  String? _micError;
 
   /// True while Play's voice is speaking. Play and Speak are disabled meanwhile, so the
-  /// microphone never hears the app's own voice and credits it to the learner (PIN-2).
+  /// microphone never hears the app's own voice.
   bool _playing = false;
 
   /// The last attempt on this sentence, or null before one.
-  SpeechResult? _result;
-  SpeakVerdict? _verdict;
+  PronunciationResult? _result;
 
   /// The learner's own mark after a self-check: true for "Got it".
   bool? _selfMark;
@@ -187,39 +308,55 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   int _seen = 0;
   int _right = 0;
 
-  /// Bumped by every Speak and Stop. A listen whose attempt is no longer current (the
-  /// learner pressed Stop, or Speak again) drops its result instead of showing it.
+  /// Bumped by every Speak and Stop. A check whose attempt is no longer current drops its
+  /// result instead of showing it.
   int _attempt = 0;
 
-  final ValueNotifier<double> _still = ValueNotifier<double>(0);
+  /// The device's score log, oldest first.
+  List<SpeakAttempt> _log = const [];
 
-  ValueListenable<double> get _level =>
-      _live ? SpeechService.instance.level : _still;
+  @override
+  void initState() {
+    super.initState();
+    final make =
+        widget.newService ?? (signIn) => PronunciationService(signIn: signIn);
+    _svc = make(_signIn);
+    _svc.listening.addListener(_onMic);
+    SpeakScoreLog.load().then((log) {
+      if (mounted && log.isNotEmpty) setState(() => _log = log);
+    });
+  }
+
+  /// The caller the function needs, made only when a recording is ready to score (PIN-9).
+  Future<void> _signIn() =>
+      ensureCaller(auth: widget.callerAuth ?? const FirebaseCallerAuth());
+
+  void _onMic() {
+    if (!mounted || !_busy) return;
+    if (_svc.listening.value) {
+      _micOpened = true;
+    } else if (_micOpened && !_stopped && !_scoring) {
+      setState(() => _scoring = true);
+    }
+  }
 
   @override
   void dispose() {
-    if (_live) {
-      SpeechService.instance.cancel();
-      SpeechService.instance.stopSpeaking();
-    }
-    _still.dispose();
+    _svc.listening.removeListener(_onMic);
+    _svc.dispose();
+    if (widget.play == null) SpeechService.instance.stopSpeaking();
     super.dispose();
   }
-
-  Future<SpeechResult> _listenOnce(String kana, List<String> kanjiForms) =>
-      widget.listen?.call(kana, kanjiForms) ??
-      SpeechService.instance
-          .listenOnce(expectedKana: kana, kanjiForms: kanjiForms);
 
   Future<String?> _say(String text) =>
       widget.play?.call(text) ?? SpeechService.instance.speak(text);
 
   Future<void> _play(SpeakSentence s) async {
-    if (_playing) return;
+    if (_playing || _busy) return;
     setState(() => _playing = true);
     try {
       // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
-      // Off the web, speak() returns when the voice has finished (see _initTts) or at
+      // Off the web, speak() returns when the voice has finished or at
       // SpeechService.speakWait, whichever comes first, so the buttons stay disabled until
       // then. On the web it returns at once.
       final err = await _say(s.kana.replaceAll(_joiner, '、'));
@@ -237,42 +374,49 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   }
 
   Future<void> _speak(SpeakSentence s) async {
-    if (_listening || _playing) return;
+    if (_busy || _playing) return;
     final attempt = ++_attempt;
     setState(() {
-      _listening = true;
+      _busy = true;
+      _micOpened = false;
+      _scoring = false;
+      _stopped = false;
       _heardVoice = false;
       _result = null;
-      _verdict = null;
       _selfMark = null;
-      _micError = null;
     });
     try {
-      final r = await _listenOnce(
-          s.kana, s.surface == s.kana ? const [] : [s.surface]);
-      // Stop (or a later Speak) retired this attempt while it waited: its result is stale.
+      // check() never throws: anything it cannot score comes back unverified (PIN-3).
+      final r = await _svc.check(s.kana);
+      // Stop retired this attempt while it ran: its result is dropped, not kept.
       if (!mounted || attempt != _attempt) return;
-      final v = speakVerdict(r.judgement, r.heard);
       setState(() {
         _result = r;
-        _verdict = v;
-        if (v == SpeakVerdict.right) {
+        if (r.verdict == Judgement.correct) {
           _seen++;
           _right++;
-        } else if (v == SpeakVerdict.wrong) {
+        } else if (r.verdict == Judgement.wrong) {
           _seen++;
         }
       });
+      SpeakScoreLog.add(SpeakAttempt.of(s.kana, r, DateTime.now())).then((log) {
+        if (mounted) setState(() => _log = log);
+      });
     } finally {
-      // Leaving the panel open on a throw would strand the drill mid-listen. A retired
-      // attempt leaves the panel alone: Stop already closed it, or a newer Speak owns it.
-      if (mounted && attempt == _attempt) {
+      if (mounted) {
         setState(() {
-          _listening = false;
-          _micError = _live ? SpeechService.instance.lastError : null;
+          _busy = false;
+          _scoring = false;
         });
       }
     }
+  }
+
+  Future<void> _stop() async {
+    // Retire the attempt first, so its result is dropped.
+    _attempt++;
+    setState(() => _stopped = true);
+    await _svc.cancel();
   }
 
   void _mark(bool gotIt) {
@@ -284,15 +428,13 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     });
   }
 
-  /// Ignored during a listen, so a pending result is never credited to the next sentence.
+  /// Ignored during a check, so a pending result is never credited to the next sentence.
   void _next(int count) {
-    if (_listening) return;
+    if (_busy) return;
     setState(() {
       _index = (_index + 1) % count;
       _result = null;
-      _verdict = null;
       _selfMark = null;
-      _micError = null;
     });
   }
 
@@ -317,6 +459,12 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
                   style: qrText(t, color: t.clay600)));
         }
         final s = sentences[_index % sentences.length];
+        final Widget action;
+        if (_busy && !_stopped) {
+          action = _scoring ? _checkingPanel(t) : _listeningPanel(t);
+        } else {
+          action = _controls(t, s);
+        }
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
           children: [
@@ -349,19 +497,15 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
               ),
             ),
             const SizedBox(height: 16),
-            if (_listening) _listeningPanel(t) else _controls(t, s),
-            if (_micError != null) ...[
-              const SizedBox(height: 10),
-              Text(_micError!, style: qrText(t, size: 12.5, color: t.clay600)),
-            ],
-            if (_verdict != null) ...[
+            action,
+            if (_result != null) ...[
               const SizedBox(height: 14),
               _verdictCard(t, s),
             ],
             const SizedBox(height: 22),
             Center(
               child: TextButton(
-                onPressed: _listening ? null : () => _next(sentences.length),
+                onPressed: _busy ? null : () => _next(sentences.length),
                 style: TextButton.styleFrom(
                     minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
                 child: Text('Next sentence',
@@ -369,6 +513,10 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
                         size: 14, weight: FontWeight.w600, color: t.brand600)),
               ),
             ),
+            if (_log.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              _recentScores(t),
+            ],
           ],
         );
       }),
@@ -376,13 +524,14 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   }
 
   Widget _controls(QuietRoomTokens t, SpeakSentence s) {
+    final idle = !_playing && !_busy;
     return Row(
       children: [
         Expanded(
           child: SizedBox(
             height: QuietRoomMetrics.targetMin,
             child: OutlinedButton.icon(
-              onPressed: _playing ? null : () => _play(s),
+              onPressed: idle ? () => _play(s) : null,
               icon: Icon(Icons.volume_up_outlined, size: 20, color: t.ink),
               label: Text('Play',
                   style: qrText(t, size: 15, weight: FontWeight.w600)),
@@ -402,7 +551,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           child: SizedBox(
             height: QuietRoomMetrics.targetMin,
             child: ElevatedButton.icon(
-              onPressed: _playing ? null : () => _speak(s),
+              onPressed: idle ? () => _speak(s) : null,
               icon: Icon(Icons.mic_none, size: 20, color: t.onBrand),
               label: Text('Speak',
                   style: qrText(t,
@@ -421,18 +570,22 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     );
   }
 
-  Widget _listeningPanel(QuietRoomTokens t) {
-    return Container(
-      decoration: BoxDecoration(
+  BoxDecoration _panel(QuietRoomTokens t) => BoxDecoration(
         color: t.surface,
         border: Border.all(color: t.borderControl, width: 1),
         borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
-      ),
+      );
+
+  /// The live level while the microphone is open (PIN-7). The service ends the listen by
+  /// itself; Stop only throws away a false start.
+  Widget _listeningPanel(QuietRoomTokens t) {
+    return Container(
+      decoration: _panel(t),
       padding: const EdgeInsets.fromLTRB(15, 12, 15, 12),
       child: Column(
         children: [
           ListeningBars(
-            level: _level,
+            level: _svc.level,
             onRealDetected: () {
               if (mounted && !_heardVoice) setState(() => _heardVoice = true);
             },
@@ -446,12 +599,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
                       size: 13, weight: FontWeight.w600, color: t.inkMuted)),
               const SizedBox(width: 10),
               TextButton(
-                onPressed: () async {
-                  // Retire the pending listen first, so its late result is dropped.
-                  _attempt++;
-                  if (_live) await SpeechService.instance.cancel();
-                  if (mounted) setState(() => _listening = false);
-                },
+                onPressed: _stop,
                 child: Text('Stop',
                     style: qrText(t,
                         size: 13, weight: FontWeight.w600, color: t.brand600)),
@@ -463,25 +611,64 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     );
   }
 
-  /// The heard text, with the part that matches the sentence highlighted.
-  Widget _heard(QuietRoomTokens t, String heard, SpeakSentence s) {
-    final span = matchingPart(heard, [s.surface, s.kana]);
-    final base = qrText(t, size: 15, height: 1.45);
-    final lit = base.copyWith(
-        backgroundColor: t.amberSurface,
-        color: t.amber750,
-        fontWeight: FontWeight.w600);
+  /// The recording is on its way to Azure.
+  Widget _checkingPanel(QuietRoomTokens t) {
+    return Container(
+      decoration: _panel(t),
+      padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+      child: Center(
+        child: Text('Checking…',
+            style: qrText(t,
+                size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+      ),
+    );
+  }
+
+  /// The sentence with each hiragana letter colored by its syllable score (PIN-8). When the
+  /// scored words do not line up with the sentence, the scored words are shown instead, one
+  /// space apart, so no letter Azure scored is left uncolored.
+  Widget _letters(QuietRoomTokens t, String sentence, PronunciationResult r) {
+    final base = qrText(t, size: 18, height: 1.5);
+    TextStyle lit(double score) =>
+        base.copyWith(color: scoreColor(t, score), fontWeight: FontWeight.w600);
+    final kana = RegExp(r'[ぁ-ゖァ-ヺー]');
+    final spans = <TextSpan>[];
+    final letters = r.sentenceLetters(sentence);
+    final lined =
+        letters.every((l) => l.score != null || !kana.hasMatch(l.text));
+    final words = r.words.where((w) => !w.isInserted).toList();
+    if (lined || words.isEmpty) {
+      for (final l in letters) {
+        spans.add(TextSpan(
+            text: l.text, style: l.score == null ? base : lit(l.score!)));
+      }
+    } else {
+      for (var i = 0; i < words.length; i++) {
+        if (i > 0) spans.add(TextSpan(text: ' ', style: base));
+        for (final l in words[i].letters) {
+          spans.add(TextSpan(text: l.text, style: lit(l.score)));
+        }
+      }
+    }
     return Text.rich(
-      key: const ValueKey('speak-heard'),
+        key: const ValueKey('speak-letters'), TextSpan(children: spans));
+  }
+
+  /// Words the learner said that are not in the sentence, struck through.
+  Widget? _inserted(QuietRoomTokens t, PronunciationResult r) {
+    final extra = r.words.where((w) => w.isInserted).toList();
+    if (extra.isEmpty) return null;
+    final base = qrText(t, size: 13.5, color: t.inkMuted);
+    return Text.rich(
+      key: const ValueKey('speak-inserted'),
       TextSpan(children: [
-        if (span == null)
-          TextSpan(text: heard, style: base)
-        else ...[
-          if (span.$1 > 0)
-            TextSpan(text: heard.substring(0, span.$1), style: base),
-          TextSpan(text: heard.substring(span.$1, span.$2), style: lit),
-          if (span.$2 < heard.length)
-            TextSpan(text: heard.substring(span.$2), style: base),
+        TextSpan(text: 'Extra: ', style: base),
+        for (var i = 0; i < extra.length; i++) ...[
+          if (i > 0) TextSpan(text: ' ', style: base),
+          TextSpan(
+              text: extra[i].word,
+              style: base.copyWith(
+                  color: t.clay600, decoration: TextDecoration.lineThrough)),
         ],
       ]),
     );
@@ -489,50 +676,52 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
 
   Widget _verdictCard(QuietRoomTokens t, SpeakSentence s) {
     final r = _result!;
-    final v = _verdict!;
     final mark = _selfMark;
-    late final Color c;
+    final c = _verdictColor(t, r);
     late final String head;
     final body = <Widget>[];
-    switch (v) {
-      case SpeakVerdict.right:
-        c = t.sage600;
+    final scored = r.verdict != Judgement.unverified && r.overall != null;
+    if (scored) {
+      body
+        ..add(Text('Score ${formatScore(r.overall!)}',
+            key: const ValueKey('speak-score'),
+            style: qrText(t, size: 13.5, weight: FontWeight.w600, color: c)))
+        ..add(const SizedBox(height: 6))
+        ..add(_letters(t, s.kana, r));
+      final extra = _inserted(t, r);
+      if (extra != null) {
+        body
+          ..add(const SizedBox(height: 4))
+          ..add(extra);
+      }
+      body.add(const SizedBox(height: 4));
+    }
+    switch (r.verdict) {
+      case Judgement.correct:
         head = 'That’s it';
-        // The kana is already on the sentence card above. Only a kanji surface adds anything,
-        // so a sentence with no kanji is never shown twice.
+        // The kana is on the sentence card above. A kanji surface adds the written form.
         if (s.surface != s.kana) {
           body.add(Text(s.surface, style: qrText(t, size: 13.5)));
         }
-      case SpeakVerdict.wrong:
-        c = t.clay600;
+      case Judgement.wrong:
         head = 'Not quite';
-        body.add(Text('Heard “${r.heard}” · the sentence is ${s.kana}',
-            style: qrText(t, size: 13.5)));
-      case SpeakVerdict.close:
-        c = t.amber700;
-        head = 'Close';
-        body
-          ..add(_heard(t, r.heard, s))
-          ..add(const SizedBox(height: 4))
-          ..add(Text('Part of it matched. Did you say the whole sentence?',
-              style: qrText(t, size: 13.5)));
-      case SpeakVerdict.selfCheck:
-        // Being unable to check is not the same as being wrong.
-        c = t.amber700;
-        head = 'Can’t check this one';
-        body
-          ..add(_heard(t, r.heard, s))
-          ..add(const SizedBox(height: 4))
-          ..add(Text('This can’t be checked here. Did you say it?',
-              style: qrText(t, size: 13.5)));
-      case SpeakVerdict.nothing:
-        c = t.amber700;
-        head = 'Didn’t catch that';
         body.add(Text(
-            'Nothing was heard. Try again, or check the microphone permission.',
+            'The red letters were furthest off. Play it and try again.',
+            style: qrText(t, size: 13.5)));
+      case Judgement.close:
+        head = 'Close';
+        body.add(Text('Nearly there. Did you say the whole sentence?',
+            style: qrText(t, size: 13.5)));
+      case Judgement.unverified:
+        // Being unable to score is not the same as being wrong (PIN-3).
+        head = 'Can’t check this one';
+        body.add(Text(
+            'This attempt couldn’t be scored. It needs the internet and a '
+            'microphone. Did you say it?',
             style: qrText(t, size: 13.5)));
     }
-    final asks = v == SpeakVerdict.close || v == SpeakVerdict.selfCheck;
+    final asks =
+        r.verdict == Judgement.close || r.verdict == Judgement.unverified;
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
@@ -579,6 +768,40 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           ],
         ],
       ),
+    );
+  }
+
+  /// The verdict's color: the card's border, its heading and its score line.
+  Color _verdictColor(QuietRoomTokens t, PronunciationResult r) =>
+      switch (r.verdict) {
+        Judgement.correct => t.sage600,
+        Judgement.wrong => t.clay600,
+        _ => t.amber700,
+      };
+
+  /// How many attempts the drill lists under Recent scores.
+  static const int _recentShown = 8;
+
+  /// The newest attempts from the device's score log, newest first (PIN-4).
+  Widget _recentScores(QuietRoomTokens t) {
+    final newest = _log.reversed.take(_recentShown);
+    return Column(
+      key: const ValueKey('speak-recent'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Recent scores',
+            style: qrText(t,
+                size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+        const SizedBox(height: 4),
+        for (final a in newest)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+                '${a.overall == null ? 'no score' : formatScore(a.overall!)}'
+                ' · ${a.verdict.name} · ${a.sentence}',
+                style: qrText(t, size: 12.5, color: t.inkMuted)),
+          ),
+      ],
     );
   }
 }
