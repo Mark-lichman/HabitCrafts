@@ -85,3 +85,18 @@ jobs:
 
       - name: Evals
         run: .venv/bin/python -m pytest pipeline/jp/tests -q
+
+  # Unit tests for the scorePronunciation function (firebase/speech_functions).
+  # They import only score.js, which has no dependencies, and run against the
+  # committed Azure replies with a stubbed HTTP client, so there is no npm
+  # install and no network. ubuntu-latest ships Node; no setup-node action.
+  speech-function-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Function tests
+        run: |
+          node --version
+          node --test firebase/speech_functions/*.test.js
