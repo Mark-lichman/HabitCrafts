@@ -2,7 +2,9 @@
 Run once: python review/apply_kanji_rulings.py [--dry-run]
 
 1. The pronoun わたし is written 私{わたし}. The hiragana fields do not change.
-2. Strict list: a twin uses only the kanji in kanji_n5_n4.json (plus its recorded
+2. わかる is written 分{わ}かる, okurigana outside: 分{わ}からない, 分{わ}かりやすい.
+   分 is a recorded operator addition in kanji_n5_n4.json. The hiragana fields do not change.
+3. Strict list: a twin uses only the kanji in kanji_n5_n4.json (plus its recorded
    operator additions). A word with any other kanji is written in hiragana, all of it,
    so 間{ま}に合{あ}います becomes まにあいます. WORDS names the multi-bracket words
    by hand; every other out-of-list bracket is one word and gives up its reading.
@@ -10,7 +12,7 @@ Run once: python review/apply_kanji_rulings.py [--dry-run]
 Each changed twin gets one finding in judge_ruby.json, marked applied. A twin that an
 earlier finding already fixed gets a later finding whose `current` is that fix, so the
 chain of findings at one place ends at the text the draft holds. Re-running is safe:
-a twin that already obeys both rulings is left alone.
+a twin that already obeys every ruling is left alone.
 """
 
 from __future__ import annotations
@@ -37,6 +39,11 @@ WORDS = ("間{ま}に合{あ}",)
 WATASHI = re.compile(r"(?<![{ぁ-ゖ])わたし(?![ぁ-ゖ]*})(?!ま|て|た(?!ち))")
 
 
+# A form of the verb わかる (わから, わかり, わかる, わかっ, わかれば), not inside a bracket
+# reading and not the tail of a longer kana word. 若{わか}い and わかれる do not match.
+WAKARU = re.compile(r"(?<![{ぁ-ゖ])わか(?=[らりるっ]|れば)(?![ぁ-ゖ]*})")
+
+
 def allowed() -> set[str]:
     k = json.loads(KANJI_FILE.read_text(encoding="utf-8"))
     return set(k["N5"]) | set(k["N4"]) | set(k.get("operator_additions", {}))
@@ -51,6 +58,10 @@ def strict(text: str, ok: set[str]) -> str:
 
 def watashi(text: str) -> str:
     return WATASHI.sub("私{わたし}", text)
+
+
+def wakaru(text: str) -> str:
+    return WAKARU.sub("分{わ}か", text)
 
 
 def twins(points: list[dict]):
@@ -96,7 +107,8 @@ def main(dry: bool) -> None:
             if re.search(r"[一-鿿々]", kana):
                 continue
             step1 = watashi(cur)
-            new = strict(step1, ok)
+            step2 = wakaru(step1)
+            new = strict(step2, ok)
             if new == cur:
                 continue
             assert kana_of(new) == kana_of(cur), (p["id"], cur, new)
@@ -105,7 +117,10 @@ def main(dry: bool) -> None:
             if step1 != cur:
                 rules.append("R8")
                 parts.append("The pronoun わたし is written 私{わたし} (ruling of 2026-10-26).")
-            if new != step1:
+            if step2 != step1:
+                rules.append("R9")
+                parts.append("わかる is written 分{わ}かる (ruling of 2026-10-26).")
+            if new != step2:
                 rules.append("R1")
                 parts.append(f"{''.join(dropped)} is outside kanji_n5_n4.json, so the word "
                              "is written in hiragana.")

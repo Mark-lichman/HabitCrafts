@@ -6441,7 +6441,7 @@
    "type": "source_file",
    "source": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
    "title": "kanji_n5_n4.json",
-   "summary": "79 N5 kanji, 166 N4 kanji, 0 operator additions. The only kanji a kanji version may use.",
+   "summary": "79 N5 kanji, 166 N4 kanji, 1 operator addition. The only kanji a kanji version may use.",
    "uses": [],
    "search": [
     "pipeline/jp/kanji_n5_n4.json",
@@ -6454,7 +6454,7 @@
    "counts": {
     "N5 kanji": 79,
     "N4 kanji": 166,
-    "operator additions": 0
+    "operator additions": 1
    },
    "from": [
     "kanji_n5_n4.json"
@@ -6653,7 +6653,7 @@
       },
       {
        "jp": "じが わからないんですが、よんで いただけませんか。",
-       "jp_ruby": "字{じ}が わからないんですが、読{よ}んで いただけませんか。",
+       "jp_ruby": "字{じ}が 分{わ}からないんですが、読{よ}んで いただけませんか。",
        "en": "I don't know these characters. Could you read them for me?"
       }
      ],
@@ -6675,16 +6675,16 @@
        "prompt_ruby": "道{みち}が ＿＿んですが、教{おし}えて いただけませんか。",
        "en": "I don't know the way. Could you tell me?",
        "answer": "わからない",
-       "answer_ruby": "わからない",
+       "answer_ruby": "分{わ}からない",
        "options": [
         "わからない",
         "わかります",
         "わかって"
        ],
        "options_ruby": [
-        "わからない",
-        "わかります",
-        "わかって"
+        "分{わ}からない",
+        "分{わ}かります",
+        "分{わ}かって"
        ],
        "accepted": [],
        "accepted_ruby": [],
@@ -12379,7 +12379,7 @@
       },
       {
        "jp": "ふくざつで、よく わかりません。",
-       "jp_ruby": "ふくざつで、よく わかりません。",
+       "jp_ruby": "ふくざつで、よく 分{わ}かりません。",
        "en": "It's complicated, so I don't really understand it."
       }
      ],
@@ -12387,7 +12387,7 @@
       {
        "kind": "fill",
        "prompt": "この もんだいは ＿＿、わかりません。",
-       "prompt_ruby": "この 問題{もんだい}は ＿＿、わかりません。",
+       "prompt_ruby": "この 問題{もんだい}は ＿＿、分{わ}かりません。",
        "en": "This problem is difficult, so I can't figure it out.",
        "answer": "むずかしくて",
        "answer_ruby": "むずかしくて",
@@ -12710,7 +12710,7 @@
       },
       {
        "jp": "パーティーに だれが くるか、わかりません。",
-       "jp_ruby": "パーティーに だれが 来{く}るか、わかりません。",
+       "jp_ruby": "パーティーに だれが 来{く}るか、分{わ}かりません。",
        "en": "I don't know who is coming to the party."
       }
      ],
@@ -12834,7 +12834,7 @@
       {
        "kind": "fill",
        "prompt": "かれが くる＿＿、わかりません。",
-       "prompt_ruby": "かれが 来{く}る＿＿、わかりません。",
+       "prompt_ruby": "かれが 来{く}る＿＿、分{わ}かりません。",
        "en": "I don't know whether he will come.",
        "answer": "かどうか",
        "answer_ruby": "かどうか",
@@ -12870,7 +12870,7 @@
       {
        "kind": "choose",
        "prompt": "この みずは ＿＿、わかりません。",
-       "prompt_ruby": "この 水{みず}は ＿＿、わかりません。",
+       "prompt_ruby": "この 水{みず}は ＿＿、分{わ}かりません。",
        "en": "I don't know whether this water is safe to drink.",
        "answer": "のめるかどうか",
        "answer_ruby": "飲{の}めるかどうか",
@@ -12957,7 +12957,7 @@
       {
        "kind": "choose",
        "prompt": "わからない ことばは じしょで ＿＿ みます。",
-       "prompt_ruby": "わからない ことばは じしょで ＿＿ みます。",
+       "prompt_ruby": "分{わ}からない ことばは じしょで ＿＿ みます。",
        "en": "I'll try looking up words I don't know in the dictionary.",
        "answer": "しらべて",
        "answer_ruby": "しらべて",
@@ -14118,7 +14118,7 @@
        "prompt_ruby": "先生{せんせい}の せつめいは ＿＿です。",
        "en": "The teacher's explanation is easy to understand.",
        "answer": "わかりやすい",
-       "answer_ruby": "わかりやすい",
+       "answer_ruby": "分{わ}かりやすい",
        "accepted": [],
        "accepted_ruby": [],
        "options": [
@@ -14127,9 +14127,9 @@
         "わかるやすい"
        ],
        "options_ruby": [
-        "わかりにくい",
-        "わかりやすい",
-        "わかるやすい"
+        "分{わ}かりにくい",
+        "分{わ}かりやすい",
+        "分{わ}かるやすい"
        ],
        "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
        "why_wrong": {
@@ -14758,7 +14758,7 @@
       {
        "kind": "choose",
        "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。",
-       "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく わかりません。",
+       "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく 分{わ}かりません。",
        "en": "I just joined the company, so I don't understand the work well.",
        "answer": "はいった",
        "answer_ruby": "入{はい}った",

@@ -26,7 +26,7 @@ sys.path.insert(0, str(JP.parent))
 import pytest  # noqa: E402
 
 import extraction_schemas as xs  # noqa: E402
-from catalog import SOURCE_BUNDLES, TYPES, build as build_catalog  # noqa: E402
+from catalog import SOURCE_BUNDLES, TYPES, build as build_catalog, count_label  # noqa: E402
 
 REPO = JP.parents[1]
 ASSETS = REPO / "assets" / "lessons"
@@ -88,7 +88,18 @@ def test_every_entry_carries_live_counts(sources):
     for e in sources:
         assert e["counts"] == want[e["file"]], e["file"]
         for k, n in e["counts"].items():
-            assert f"{n} {k}" in e["summary"], f"{e['file']}: summary omits {n} {k}"
+            said = f"{n} {count_label(k, n)}"
+            assert said in e["summary"], f"{e['file']}: summary omits {said}"
+
+
+def test_a_count_of_one_reads_singular():
+    # The summary is prose on the search card: "1 operator addition", not "1 operator
+    # additions". A key with no plural `s` is the same in both numbers.
+    assert count_label("operator additions", 1) == "operator addition"
+    assert count_label("operator additions", 2) == "operator additions"
+    assert count_label("points tagged", 1) == "point tagged"
+    assert count_label("N5 kanji", 1) == "N5 kanji"
+    assert count_label("items", 0) == "items"
 
 
 def test_every_entry_has_role_origin_and_a_search_target(sources):
