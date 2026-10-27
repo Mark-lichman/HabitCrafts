@@ -11,9 +11,9 @@ service firebase.storage {
     }
 
     // Written to match live ruleset d3a07e98 (Firebase console, 2026-10-27).
-    // The repo holds no copy of d3a07e98, so the rules deploy in the plan's
-    // Operator setup starts with a diff of this file against the console
-    // text of d3a07e98. The line that diff must confirm is the read below:
+    // The repo holds no copy of d3a07e98. Before the rules deploy in the
+    // plan's Operator setup, diff this file against the console text of
+    // d3a07e98. The line that diff must confirm is the read below:
     // a signed-in user reads every file, including cms_uploads/, gifs/,
     // icons/ and videos/, where branch fix/account-deletion-and-read-rules
     // let a signed-in user read only under users/. The live ruleset before
