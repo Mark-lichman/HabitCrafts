@@ -6,6 +6,7 @@
 'use strict';
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const logger = require('firebase-functions/logger');
 const { defineSecret, defineString } = require('firebase-functions/params');
 const { scorePronunciation, ScoreError } = require('./score.js');
 
@@ -19,12 +20,19 @@ exports.scorePronunciation = onCall(
       return await scorePronunciation(request, {
         key: azureSpeechKey.value(),
         region: azureSpeechRegion.value(),
-        httpPost: (url, init) => fetch(url, init),
+        // A stalled Azure connection aborts after 20 s; score.js maps the
+        // rejected post to unavailable, so no new handling is needed.
+        httpPost: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(20000) }),
       });
     } catch (err) {
+      // The SDK logs only errors that are not HttpsError, so log the cause
+      // here. ScoreError messages are sanitized and carry the Azure HTTP
+      // status; the key is never part of them.
       if (err instanceof ScoreError) {
+        logger.warn('scorePronunciation rejected', { code: err.code, message: err.message });
         throw new HttpsError(err.code, err.message);
       }
+      logger.error('scorePronunciation failed', err);
       throw new HttpsError('internal', 'scorePronunciation failed');
     }
   },
