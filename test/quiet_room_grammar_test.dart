@@ -514,6 +514,35 @@ void main() {
             findsNothing);
       }
     });
+
+    testWidgets('a fill-in prompt takes the hint too', (tester) async {
+      // The opening lesson's first fill-in prompt with a kanji word, as the kanji
+      // view shows it before an answer: its blank is ＿＿＿. The tapped word occurs
+      // once in that prompt, so the tap can only land on it.
+      final q = firstFills().firstWhere((q) =>
+          rubyWords(q['prompt_ruby'] as String? ?? '')
+              .any((w) => w.reading != null));
+      final ruby = unanswered(q['prompt_ruby'] as String);
+      final surface = rubySurface(ruby);
+      final kanji = rubyWords(ruby).firstWhere((w) =>
+          w.reading != null &&
+          surface.indexOf(w.text) == surface.lastIndexOf(w.text));
+      final reading = find.descendant(
+          of: sentence(ruby), matching: find.text(kanji.reading!));
+      await kanjiOn(tester);
+
+      expect(sentence(ruby), findsOneWidget);
+      expect(find.text(surface), findsOneWidget);
+      expect(wordColors(tester, ruby)[kanji.text],
+          const DaylightTokens().brand600);
+      expect(reading, findsNothing);
+
+      await tester.tapOnText(
+          find.textRange.ofSubstring(kanji.text, descendentOf: sentence(ruby)));
+      await tester.pump();
+
+      expect(reading, findsOneWidget);
+    });
   });
 
   testWidgets('Speak this lesson opens the drill for the lesson shown',
