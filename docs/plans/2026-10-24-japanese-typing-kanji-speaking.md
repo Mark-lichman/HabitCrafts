@@ -47,6 +47,9 @@ The new study screens have no widget tests; the 12 Flutter tests cover streak lo
 | D11 | Reading format | one bracket per kanji word, okurigana outside: `買{か}い物{もの}` | (user) red-team Q3 · (verified: red-team probe, `kana_of('買い物{かいもの}')` returns `かいものい物`) | PIN-11→guardrail |
 | D12 | OPM enforcement | a guard test keeps `STAGE_IO`, the diagram and the OPL text in step; every pipeline module registers its stage | (user) | PIN-12→guardrail ‡ |
 | D13 | Lesson doc counts | the doc points to the catalog; the catalog lists each data file with live counts, findable by the app search | (user) red-team Q5 | PIN-13→guardrail |
+| D14 | わかる twins | add 分 as an operator addition; twins read 分{わ}かる | (user) 2026-10-26 | PIN-14→slice (T12) |
+| D15 | Speak wait | cap at 3 seconds | (user) 2026-10-26 | PIN-15→slice (T13) |
+| D16 | Reading hint | tap a kanji word to show its hiragana reading, tap again to hide; tappable words color-coded | (user) 2026-10-26 | PIN-16→slice (T14) |
 
 ## Assumptions ledger
 
@@ -85,10 +88,14 @@ The new study screens have no widget tests; the 12 Flutter tests cover streak lo
   8. `pipeline/jp/review/judge_ruby.json` exists, and every finding in it is marked `applied` · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests/test_judge_applied.py -q` (prints `passed`).
   9. Every `STAGE_IO` stage has a process box in the OPM diagram generator and an OPL sentence, every diagram process has a `STAGE_IO` entry, and every registered pipeline module names a stage that `STAGE_IO` holds (PIN-12) · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests/test_opm_sync.py -q` (prints `passed`).
   10. The catalog holds one source-file entry per data file (its role, origin and live counts), the app search finds it by name, and `docs/japanese-lessons.md` points to the catalog with no restated count (PIN-13) · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests/test_catalog_sources.py -q` (prints `passed`).
+  11. 分 is an operator addition in `pipeline/jp/kanji_n5_n4.json` with a stated reason, and every わかる form in every `_ruby` twin is written with 分 (PIN-14) · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests/test_kanji_list.py -q` (prints `passed`).
+  12. The speak wait is capped at 3 seconds by one named constant, and no comment names the old wait (PIN-15) · check: `/c/src/flutter/bin/flutter test test/speech_service_test.dart` (prints `All tests passed!`).
+  13. In kanji view each kanji word shows in a hint color, a tap shows its hiragana reading above it, and a second tap hides it; a word with no kanji keeps the normal color and ignores taps (PIN-16) · check: `/c/src/flutter/bin/flutter test test/quiet_room_grammar_test.dart` (prints `All tests passed!`).
+  14. `docs/japanese-lessons.md` describes the shipped typed answers, 漢字 toggle, reading hint and speaking drill, and its open work names none of them (PIN-13) · HARD at audit_sha (observable: the doc's screen rows against the shipped widgets; judge seat: plan-faithfulness).
 
 ## Build order (for /war)
 
-Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source catalog) → Phase 3 (kanji data) → Phase 4 (typing and speaking) → Phase 5 (release).
+Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source catalog) → Phase 3 (kanji data) → Phase 4 (typing and speaking) → Phase 5 (operator rulings: 分, speak cap, reading hint, lesson doc) → Phase 6 (release).
 
 ## Phase 1 — Harden what shipped
 
@@ -179,7 +186,47 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 - deps: [Task 8]
 - target repo: superproject
 
-## Phase 5 — Release
+## Phase 5 — Operator rulings: 分, 3 s speak cap, tap-a-word reading hint, lesson doc
+
+Rulings of 2026-10-26 (operator Mark), after the phase 4 land. Tasks 12, 13 and 14 touch disjoint files and run together. Task 15 runs last so the doc describes what landed.
+
+### Task 12: Add 分 as the operator's kanji-list addition
+- Files: `pipeline/jp/kanji_n5_n4.json`, `pipeline/jp/drafts/L26.json`, `pipeline/jp/drafts/L36.json`, `pipeline/jp/drafts/L39.json`, `pipeline/jp/drafts/L40.json`, `pipeline/jp/drafts/L44.json`, `pipeline/jp/drafts/L46.json`, `pipeline/jp/tests/test_kanji_list.py`, `pipeline/jp/review/judge_ruby.json`, `assets/lessons/jp_grammar.json`
+- Plan slice: add 分 to `operator_additions` with the reason "operator ruling 2026-10-26: わかる is written 分かる" (PIN-14). Rewrite every わかる form in the `_ruby` twins as 分{わ}かる (one bracket per kanji word, okurigana outside, PIN-11), so each twin's reading still equals its hiragana text. Add a test that no `_ruby` twin holds a bare わか form of the verb. Record any judge finding this resolves as `applied`. Republish with `pipeline/jp/publish.py`.
+- Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q`
+- requiresTest: true
+- requiresPackaging: false
+- deps: []
+- target repo: superproject
+
+### Task 13: Cap the speak wait at 3 seconds
+- Files: `lib/components/pages/quiet_room_practice/speech_service.dart`, `lib/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart`, `test/speech_service_test.dart`
+- Plan slice: replace the 4-second literal on `SpeechService.speak`'s wait with one named constant of 3 seconds (PIN-15). Fix any comment in the service or the drill that names the old wait. Add a test that pins the constant.
+- Done when: `/c/src/flutter/bin/flutter test test/speech_service_test.dart test/quiet_room_speak_test.dart`
+- requiresTest: true
+- requiresPackaging: false
+- deps: []
+- target repo: superproject
+
+### Task 14: Tap a kanji word to see its reading, with tappable words color-coded
+- Files: `lib/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart`, `lib/components/pages/quiet_room_grammar/jp_study_kit.dart`, `test/quiet_room_grammar_test.dart`
+- Plan slice: when the 漢字 toggle is on, split each sentence's `_ruby` twin into words. Show each kanji word in a hint color taken from a Quiet Room token, readable in light and dark. A tap shows that word's hiragana reading above it; a second tap hides it (PIN-16). A word with no kanji keeps the normal text color and ignores taps. Hiragana view is unchanged. Add widget tests for the color, the show tap, the hide tap, and a plain word.
+- Done when: `/c/src/flutter/bin/flutter test test/quiet_room_grammar_test.dart test/grammar_answer_test.dart`
+- requiresTest: true
+- requiresPackaging: false
+- deps: []
+- target repo: superproject
+
+### Task 15: Bring the lesson doc up to the shipped state
+- Files: `docs/japanese-lessons.md`
+- Plan slice: drain the phase 4 carried doc rows. The grammar screen row names typed answers, the 漢字 toggle and the tap-a-word reading hint. The speaking drill row names all of its outcomes and the 3-second speak wait. The kanji transcript section covers sentence kanji, not only vocabulary forms. The script rule no longer says the toggle is unbuilt. Open work drops what shipped. No bare counts and no ordinal snapshots (PIN-13).
+- Done when: None — doc only; End state 14 is judged at audit.
+- requiresTest: false
+- requiresPackaging: false
+- deps: [Task 12, Task 13, Task 14]
+- target repo: superproject
+
+## Phase 6 — Release
 
 ### Task 9: Version bump
 - Files: `pubspec.yaml`
@@ -192,7 +239,7 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 
 ## Deferred validations (backstops)
 
-- Gboard opens in Japanese for the answer box (A1) · why deferred: needs the physical phone · runner: Mark, on the first install of the Phase 5 build.
+- Gboard opens in Japanese for the answer box (A1) · why deferred: needs the physical phone · runner: Mark, on the first install of the Phase 6 build.
 - Spoken sentences check automatically more often than they fall back (A3) · why deferred: needs real speech recognition · runner: Mark, ten sentences in one lesson after install.
 - Kanji twins read naturally, and katakana is used only for loanwords (PIN-8) · why deferred: End state 8 proves every judge finding was applied, but no command judges script choice itself · runner: Mark's spot check of two lessons after install.
 
@@ -200,6 +247,7 @@ Phase 1 (harden) → Phase 2 (foundations: kanji validator, OPM sync, source cat
 
 - Task numbers follow the order tasks were added, not run order. Phase 2 runs Task 6 first, then Task 4 (it registers in Task 6's `stages.py`); Task 10 runs alongside. Phase 4 runs Task 8, then Task 7.
 - Red-team 2026-10-24 decisions are pins PIN-9 to PIN-13 (rows D9 to D13).
+- Phase 5 was inserted on 2026-10-26 from the operator's rulings after phase 4 (pins PIN-14 to PIN-16, rows D14 to D16). Release moved to phase 6.
 - `publish.REQUIRE_RUBY` ships false in Task 4 so the validator lands before the data; Task 5 flips it in the same task that adds every twin.
 - Task 7's Files list lagged a cascade: the answer matcher in `jp_study_kit.dart` needs `rubySurface` and `rubyKana`, and the kit cannot import the speaking drill (the drill imports the kit), so the two helpers moved from `quiet_room_speak_widget.dart` into the kit and the drill re-exports them. The list above now names the drill file.
 
