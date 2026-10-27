@@ -13,8 +13,8 @@
 //   * PronScore decides (PIN-10): [correctCutoff] and up is correct, [closeCutoff] and up is
 //     close, below is wrong (PIN-4).
 //   * 🚨 Anything that cannot be scored is `unverified`, never `wrong` (PIN-3): no microphone,
-//     no speech, a failed sign-in, a network or function error, or a reply we cannot read.
-//     The drill sends unverified to self-check.
+//     a recorder that throws, no speech, a failed sign-in, a network or function error, or a
+//     reply we cannot read. The drill sends unverified to self-check.
 //
 // The recorder, the clock, the caller sign-in and the function call are injectable seams, so
 // tests need no microphone, no network and no Firebase.
@@ -63,7 +63,8 @@ class SystemPronClock implements PronClock {
   @override
   DateTime now() => DateTime.now();
   @override
-  Timer timer(Duration after, void Function() callback) => Timer(after, callback);
+  Timer timer(Duration after, void Function() callback) =>
+      Timer(after, callback);
 }
 
 /// The real microphone, through the `record` package's PCM stream (Android and web).
@@ -199,7 +200,8 @@ class PronunciationResult {
     if (nbest is List) {
       if (nbest.isEmpty) throw const FormatException('no NBest entry');
       m = _asMap(nbest.first);
-      if (m == null) throw const FormatException('NBest entry is not an object');
+      if (m == null)
+        throw const FormatException('NBest entry is not an object');
     }
     final overall = _score(m, const ['PronScore', 'pronScore', 'overall']);
     if (overall == null) throw const FormatException('reply has no PronScore');
@@ -214,8 +216,15 @@ class PronunciationResult {
         if (text is! String) continue;
         words.add(WordScore(
           word: text,
-          score: _score(w, const ['AccuracyScore', 'accuracyScore', 'accuracy', 'score']) ?? 0,
-          errorType: (_field(w, const ['ErrorType', 'errorType']) as String?) ?? 'None',
+          score: _score(w, const [
+                'AccuracyScore',
+                'accuracyScore',
+                'accuracy',
+                'score'
+              ]) ??
+              0,
+          errorType: (_field(w, const ['ErrorType', 'errorType']) as String?) ??
+              'None',
           syllableScores: _syllables(w),
         ));
       }
@@ -225,8 +234,8 @@ class PronunciationResult {
       overall: overall,
       accuracy: _score(m, const ['AccuracyScore', 'accuracyScore', 'accuracy']),
       fluency: _score(m, const ['FluencyScore', 'fluencyScore', 'fluency']),
-      completeness:
-          _score(m, const ['CompletenessScore', 'completenessScore', 'completeness']),
+      completeness: _score(
+          m, const ['CompletenessScore', 'completenessScore', 'completeness']),
       words: words,
     );
   }
@@ -267,7 +276,8 @@ class PronunciationResult {
 
   /// A field read flat or from Azure's nested `PronunciationAssessment` object.
   static Object? _field(Map<String, Object?> m, List<String> keys) {
-    final nested = _asMap(m['PronunciationAssessment'] ?? m['pronunciationAssessment']);
+    final nested =
+        _asMap(m['PronunciationAssessment'] ?? m['pronunciationAssessment']);
     for (final k in keys) {
       if (m[k] != null) return m[k];
       if (nested != null && nested[k] != null) return nested[k];
@@ -292,7 +302,8 @@ class PronunciationResult {
       final sm = _asMap(s);
       final v = sm == null
           ? null
-          : _score(sm, const ['AccuracyScore', 'accuracyScore', 'accuracy', 'score']);
+          : _score(sm,
+              const ['AccuracyScore', 'accuracyScore', 'accuracy', 'score']);
       if (v != null) out.add(v);
     }
     return out;
@@ -378,15 +389,21 @@ class PronunciationService {
   int _cancelledStart = 0;
 
   /// Records the learner saying [hiragana] and scores it against [hiragana] (PIN-1).
-  /// Never throws: anything that cannot be scored is [PronunciationResult.unverified].
+  /// Never throws: anything that cannot be scored is [PronunciationResult.unverified],
+  /// a recorder that throws from start or stop included.
   Future<PronunciationResult> check(String hiragana) async {
-    final audio = await _record();
-    if (audio == null) return const PronunciationResult.unverified();
+    // Set once this check has returned unverified. The sign-in and call closure reads it, so
+    // a sign-in that resolves after callTimeout does not spend a function call on a result
+    // nobody will read.
+    var abandoned = false;
     try {
+      final audio = await _record();
+      if (audio == null) return const PronunciationResult.unverified();
       // One bound covers the sign-in and the call, so a black-holed network cannot hold the
       // check past callTimeout.
       final reply = await () async {
         await _signIn();
+        if (abandoned) return null;
         return _score({
           'audio': base64Encode(audio),
           'referenceText': hiragana,
@@ -395,7 +412,9 @@ class PronunciationService {
           .timeout(callTimeout);
       return PronunciationResult.fromReply(reply);
     } catch (_) {
-      // Network, function, sign-in, timeout and format errors all land here (PIN-3).
+      // Recorder, network, function, sign-in, timeout and format errors all land here
+      // (PIN-3).
+      abandoned = true;
       return const PronunciationResult.unverified();
     }
   }
@@ -436,9 +455,14 @@ class PronunciationService {
   }
 
   /// Releases the level stream and the recorder. The service cannot listen again afterwards.
+  /// Never throws: a recorder that fails to release still lets the level stream close.
   Future<void> dispose() async {
     await cancel();
-    await _recorder.dispose();
+    try {
+      await _recorder.dispose();
+    } catch (_) {
+      // The recorder seam owns its native handle; the service has nothing more to free.
+    }
     await _levels.close();
   }
 
@@ -512,7 +536,9 @@ class PronunciationService {
 
   /// Hiragana, katakana and the long mark ー.
   static bool _isKana(int r) =>
-      (r >= 0x3041 && r <= 0x3096) || (r >= 0x30A1 && r <= 0x30FA) || r == 0x30FC;
+      (r >= 0x3041 && r <= 0x3096) ||
+      (r >= 0x30A1 && r <= 0x30FA) ||
+      r == 0x30FC;
 
   // --- defaults ----------------------------------------------------------------
 
@@ -524,9 +550,9 @@ class PronunciationService {
   }
 
   static Future<Object?> _callFunction(Map<String, Object?> payload) async {
-    final callable = FirebaseFunctions.instanceFor(region: functionRegion).httpsCallable(
-        functionName,
-        options: HttpsCallableOptions(timeout: callTimeout));
+    final callable = FirebaseFunctions.instanceFor(region: functionRegion)
+        .httpsCallable(functionName,
+            options: HttpsCallableOptions(timeout: callTimeout));
     final r = await callable.call<Object?>(payload);
     return r.data;
   }
@@ -562,14 +588,16 @@ class _Listen {
   void begin(Stream<Uint8List> stream) {
     _started = svc._clock.now();
     _cap = svc._clock.timer(PronunciationService.listenCap, () => finish());
-    _sub = stream.listen(_onChunk, onDone: () => finish(), onError: (_) => finish());
+    _sub = stream.listen(_onChunk,
+        onDone: () => finish(), onError: (_) => finish());
   }
 
   void _onChunk(Uint8List chunk) {
     if (_finishing) return;
     final room = _maxBytes - _pcm.length;
     if (room > 0) {
-      _pcm.add(chunk.length > room ? Uint8List.sublistView(chunk, 0, room) : chunk);
+      _pcm.add(
+          chunk.length > room ? Uint8List.sublistView(chunk, 0, room) : chunk);
     }
     final db = PronunciationService.dbfs(chunk);
     const floor = PronunciationService.levelFloorDbfs;
@@ -581,15 +609,20 @@ class _Listen {
       _lastSpeech = now;
     } else if (_heardSpeech &&
         db < PronunciationService.silenceDbfs &&
-        now.difference(_lastSpeech!) >= PronunciationService.silenceAfterSpeech) {
+        now.difference(_lastSpeech!) >=
+            PronunciationService.silenceAfterSpeech) {
       finish();
       return;
     }
-    if (now.difference(_started) >= PronunciationService.listenCap || room <= chunk.length) {
+    if (now.difference(_started) >= PronunciationService.listenCap ||
+        room <= chunk.length) {
       finish();
     }
   }
 
+  /// Ends the listen. Never throws and always completes [done], whatever the stream's cancel
+  /// or the recorder's stop does, so [PronunciationService.check] cannot hang on a recorder
+  /// seam that throws (the real one swallows its own errors; a seam need not).
   Future<void> finish({bool cancelled = false}) async {
     if (_finishing) {
       await done.future;
@@ -597,11 +630,21 @@ class _Listen {
     }
     _finishing = true;
     _cap?.cancel();
-    await _sub?.cancel();
-    await svc._recorder.stop();
-    svc._setLevel(0);
-    svc._listening.value = false;
-    // No speech is nothing to score: sending silence would spend a call to learn nothing.
-    done.complete(cancelled || !_heardSpeech ? null : _pcm.takeBytes());
+    var stopped = false;
+    try {
+      await _sub?.cancel();
+      await svc._recorder.stop();
+      stopped = true;
+    } catch (_) {
+      // The microphone is in an unknown state, so its audio is not scored (PIN-3). The
+      // callers of finish are unawaited timer and stream callbacks, so a rethrow would be an
+      // unhandled error, not a result.
+    } finally {
+      svc._setLevel(0);
+      svc._listening.value = false;
+      // No speech is nothing to score: sending silence would spend a call to learn nothing.
+      done.complete(
+          cancelled || !_heardSpeech || !stopped ? null : _pcm.takeBytes());
+    }
   }
 }
