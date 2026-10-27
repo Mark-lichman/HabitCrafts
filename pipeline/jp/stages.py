@@ -31,8 +31,8 @@ STAGES: dict[str, tuple[str, ...]] = {
     "publish.py": ("Validating", "KanjiValidating", "PublishingApp"),
     # Applies the reviewed findings of the judge pass to the drafts.
     "review/apply_judge_fixes.py": ("Judging",),
-    # Applies Mark's kanji rulings of 2026-10-26 (the strict kanji_n5_n4.json list, and
-    # 私{わたし}) to the twins, and logs each change as a judge finding.
+    # Applies Mark's kanji rulings of 2026-10-26 (the strict kanji_n5_n4.json list,
+    # 私{わたし}, and 分{わ}かる) to the twins, and logs each change as a judge finding.
     "review/apply_kanji_rulings.py": ("Judging",),
     # Kanji twin helpers: reading-of, printed-text, and the bracket-form check that
     # publish.twin_errors() calls.

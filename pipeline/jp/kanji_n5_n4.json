@@ -1,5 +1,5 @@
 {
- "about": "The kanji a `_ruby` twin may use (rule R1 in review/judge_ruby.json): the Tanos JLPT N5 and N4 kanji lists. A word with any other kanji is written in hiragana. One field prints kanji itself (Mari's sign 「立入禁止」 in mari.L33.3), so its twin keeps the printed kanji. test_kanji_list.py checks every twin against this file, and this file against the archived Tanos pages in pipeline/jp/tanos/.",
+ "about": "The kanji a `_ruby` twin may use (rule R1 in review/judge_ruby.json): the Tanos JLPT N5 and N4 kanji lists, plus the operator additions this file records with a reason. A word with any other kanji is written in hiragana. One field prints kanji itself (Mari's sign 「立入禁止」 in mari.L33.3), so its twin keeps the printed kanji. test_kanji_list.py checks every twin against this file, and this file against the archived Tanos pages in pipeline/jp/tanos/.",
  "source": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
  "source_urls": {
   "N5": "http://www.tanos.co.uk/jlpt/jlpt5/kanji/",
@@ -26,6 +26,8 @@
  },
  "N5": "日一国人年大十二本中長出三時行見月後前生五間上東四今金九入学高円子外八六下来気小七山話女北午百書先名川千水半男西電校語土木聞食車何南万毎白天母火右読友左休父雨",
  "N4": "会同事自社発者地業方新場員立開手力問代明動京目通言理体田主題意不作用度強公持野以思家世多正安院心界教文元重近考画海売知道集別物使品計死特私始朝運終台広住真有口少町料工建空急止送切転研足究楽起着店病質待試族銀早映親験英医仕去味写字答夜音注帰古歌買悪図週室歩風紙黒花春赤青館屋色走秋夏習駅洋旅服夕借曜飲肉貸堂鳥飯勉冬昼茶弟牛魚兄犬妹姉漢",
- "operator_additions": {},
- "operator_note": "Ruling of 2026-10-26: the pronoun わたし is written 私{わたし}. 私 is in the N4 list, so it needs no addition. 分 (わかる) is on neither Tanos page, so under the strict ruling わかる is written in hiragana; it joins the twins only as a recorded operator addition."
+ "operator_additions": {
+  "分": "operator ruling 2026-10-26: わかる is written 分かる"
+ },
+ "operator_note": "Rulings of 2026-10-26: the pronoun わたし is written 私{わたし}. 私 is in the N4 list, so it needs no addition. 分 is on neither Tanos page; Mark ruled that わかる is written 分かる, so 分 is a recorded operator addition and every form of わかる in a twin is 分{わ}かる. 分 joins the list for わかる only: no other word was rewritten to use it."
 }

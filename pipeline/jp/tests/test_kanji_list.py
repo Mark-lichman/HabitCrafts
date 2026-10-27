@@ -1,7 +1,8 @@
 """The strict kanji list: every kanji in every `_ruby` twin is in kanji_n5_n4.json (R1).
 
 Mark ruled on 2026-10-26 that the twins use only the Tanos JLPT N5 and N4 kanji, and that
-the pronoun わたし is written 私{わたし}. The list lives in pipeline/jp/kanji_n5_n4.json
+the pronoun わたし is written 私{わたし}. A later ruling that day added 分 as a recorded operator
+addition, so わかる is written 分{わ}かる. The list lives in pipeline/jp/kanji_n5_n4.json
 with its source and each level's count, and the Tanos pages it was read from are committed
 under pipeline/jp/tanos/, so these tests check the file against its own recorded counts,
 each level against the archived page's kanji table, and every twin against the file. A
@@ -109,3 +110,25 @@ def test_watashi_is_written_in_kanji(pronoun):
     # Ruling (1): the pronoun わたし is 私{わたし} in every twin; hiragana fields keep わたし.
     left = [w for w, twin, _ in _twins() if pronoun in twin]
     assert left == [], f"twins still write the pronoun in hiragana: {left}"
+
+
+# A form of the verb わかる: わから, わかり, わかる, わかっ, or the conditional わかれば.
+# 若{わか}い and わかれる (to part) do not match.
+BARE_WAKARU = re.compile(r"わか(?:[らりるっ]|れば)")
+
+
+def test_wakaru_kanji_is_an_operator_addition():
+    # Ruling of 2026-10-26 (PIN-14): 分 is on neither Tanos page, so it is a recorded
+    # operator addition with its reason.
+    k = _list()
+    assert "分" not in k["N5"] + k["N4"]
+    assert k["operator_additions"].get("分") == (
+        "operator ruling 2026-10-26: わかる is written 分かる")
+
+
+def test_wakaru_is_written_with_its_kanji():
+    # Ruling of 2026-10-26 (PIN-14): every form of わかる in a twin is 分{わ}かる, one
+    # bracket with the okurigana outside; the hiragana fields keep わかる.
+    left = [f"{w}: {twin!r}" for w, twin, _ in _twins() if BARE_WAKARU.search(twin)]
+    assert left == [], f"{len(left)} twins write わかる in hiragana:\n" + "\n".join(left)
+    assert any("分{わ}か" in twin for _, twin, _ in _twins()), "no twin writes 分{わ}かる"
