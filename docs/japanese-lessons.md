@@ -71,9 +71,10 @@ Grammar drafts ship marked as drafts until a person reviews them, and the screen
 
 ### Typed answers
 
-Each fill-in item has a text box whose `hintLocales` asks for the Japanese keyboard (ja-JP), so
-Gboard opens in Japanese. `checkTypedAnswer()` in `quiet_room_grammar/jp_study_kit.dart` judges
-the answer after it drops spacing and punctuation and folds katakana to hiragana:
+Each fill-in item has a text box whose `hintLocales` asks for the Japanese keyboard (ja-JP).
+Whether Gboard opens in Japanese is checked on the phone at the first install.
+`checkTypedAnswer()` in `quiet_room_grammar/jp_study_kit.dart` judges the answer after it drops
+spacing and punctuation and folds katakana to hiragana:
 
 - **Correct** when it equals the answer, any accepted form, or the kanji version of either.
 - **Not quite** only when it is plain hiragana or katakana, which can be compared letter for
@@ -109,7 +110,8 @@ sentence per form. No correct answer is ever marked wrong. The outcomes:
 
 Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, or at most
 `SpeechService.speakWait` (3 seconds), before it returns. Play and Speak stay disabled until then,
-so the microphone never hears the app's own voice. A longer sentence keeps playing after the cap.
+so the microphone does not hear the app's own voice during a sentence that ends inside the cap.
+A longer sentence keeps playing after the cap.
 On the web `speak` returns at once. A listen that finishes after the learner pressed Stop, or
 Speak again, is dropped instead of shown.
 
