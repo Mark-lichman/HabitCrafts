@@ -590,6 +590,8 @@ void main() {
       await rig.feed(_loud, 800);
       await rig.feed(_quiet, 1500);
       await expectUnverifiedAndIdle(rig, f);
+      expect(rig.recorder.stops, 1,
+          reason: 'a cancel that throws still releases the microphone');
     });
 
     test('stop() throws on a cancel during a pending start: unverified',
