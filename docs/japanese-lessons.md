@@ -344,8 +344,7 @@ been the bug twice.
   Minna decks carry grammar tables (`ていねいけい` / `ふつうけい` against affirmative, negative,
   present and past) that defeat linear extraction.
 - **Real pronunciation scoring:** the paid tier above.
-- **Checks on the phone, after the release install:** the Japanese keyboard on the answer box,
-  spoken sentences checking automatically, and a spot check of the kanji twins and katakana.
+- **Checks that need the phone:** run them after the release install.
   `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
 
 ## Regenerating the vocabulary file
