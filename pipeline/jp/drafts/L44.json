@@ -185,7 +185,7 @@
           "prompt_ruby": "先生{せんせい}の せつめいは ＿＿です。",
           "en": "The teacher's explanation is easy to understand.",
           "answer": "わかりやすい",
-          "answer_ruby": "わかりやすい",
+          "answer_ruby": "分{わ}かりやすい",
           "accepted": [],
           "accepted_ruby": [],
           "options": [
@@ -194,9 +194,9 @@
             "わかるやすい"
           ],
           "options_ruby": [
-            "わかりにくい",
-            "わかりやすい",
-            "わかるやすい"
+            "分{わ}かりにくい",
+            "分{わ}かりやすい",
+            "分{わ}かるやすい"
           ],
           "hint": "ます stem + やすい means easy to do; にくい means hard to do.",
           "why_wrong": {

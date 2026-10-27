@@ -107,7 +107,8 @@ first judge pass. A second judge pass checked the kanji twins. Its findings are 
 `pipeline/jp/review/judge_ruby.json`, and `test_judge_applied.py` fails if any finding is not
 marked `applied` or its fix is not in the draft, and if a `dismissed` entry has no `why` or the
 draft no longer holds the text the judge saw. Mark's rulings of 2026-10-26 made the kanji list
-strict and wrote the pronoun わたし as 私{わたし}: `review/apply_kanji_rulings.py` applied them and
+strict, wrote the pronoun わたし as 私{わたし}, and wrote わかる as 分{わ}かる with 分 recorded as an
+operator addition: `review/apply_kanji_rulings.py` applied them and
 logged each change in `judge_ruby.json`, and `test_kanji_list.py` fails if a twin uses a kanji
 outside `pipeline/jp/kanji_n5_n4.json`.
 

@@ -117,7 +117,7 @@
         },
         {
           "jp": "ふくざつで、よく わかりません。",
-          "jp_ruby": "ふくざつで、よく わかりません。",
+          "jp_ruby": "ふくざつで、よく 分{わ}かりません。",
           "en": "It's complicated, so I don't really understand it."
         }
       ],
@@ -125,7 +125,7 @@
         {
           "kind": "fill",
           "prompt": "この もんだいは ＿＿、わかりません。",
-          "prompt_ruby": "この 問題{もんだい}は ＿＿、わかりません。",
+          "prompt_ruby": "この 問題{もんだい}は ＿＿、分{わ}かりません。",
           "en": "This problem is difficult, so I can't figure it out.",
           "answer": "むずかしくて",
           "answer_ruby": "むずかしくて",

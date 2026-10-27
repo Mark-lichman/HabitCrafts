@@ -157,7 +157,7 @@
         {
           "kind": "choose",
           "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。",
-          "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく わかりません。",
+          "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく 分{わ}かりません。",
           "en": "I just joined the company, so I don't understand the work well.",
           "answer": "はいった",
           "answer_ruby": "入{はい}った",
