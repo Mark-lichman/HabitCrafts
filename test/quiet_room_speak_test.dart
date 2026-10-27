@@ -160,7 +160,8 @@ void main() {
       expect(s.map((x) => x.kana), contains(done));
     });
 
-    test('walks point by point, one point\'s practice before the next point\'s examples',
+    test(
+        'walks point by point, one point\'s practice before the next point\'s examples',
         () {
       final lesson = {
         'points': [

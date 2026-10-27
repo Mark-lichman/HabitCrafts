@@ -67,7 +67,9 @@ void main() {
         .cast<Map<String, dynamic>>()
         .where((c) => c['col'] == col['written'])
         .toList();
-    final marks = {for (final c in cells) c['row'] as String: c['mark'] as String};
+    final marks = {
+      for (final c in cells) c['row'] as String: c['mark'] as String
+    };
     expect(marks['1'], 'sound_change');
     expect(marks['2'], 'regular');
 
