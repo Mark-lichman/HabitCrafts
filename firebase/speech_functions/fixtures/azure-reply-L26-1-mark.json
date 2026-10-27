@@ -1,0 +1,256 @@
+{
+ "RecognitionStatus": "Success",
+ "Offset": 9900000,
+ "Duration": 18100000,
+ "DisplayText": "あ、たまがいたいんです。",
+ "SNR": 33.297035,
+ "NBest": [
+  {
+   "Confidence": 0.9224328,
+   "Lexical": "あたま が いたい ん です",
+   "ITN": "あたま が いたい ん です",
+   "MaskedITN": "あ、たまがいたいんです",
+   "Display": "あ、たまがいたいんです。",
+   "AccuracyScore": 98.0,
+   "FluencyScore": 99.0,
+   "CompletenessScore": 100.0,
+   "PronScore": 98.6,
+   "Words": [
+    {
+     "Word": "あたま",
+     "Offset": 9900000,
+     "Duration": 5300000,
+     "Confidence": 0.0,
+     "AccuracyScore": 97.0,
+     "ErrorType": "None",
+     "Syllables": [
+      {
+       "Syllable": "",
+       "Offset": 9900000,
+       "Duration": 2300000,
+       "AccuracyScore": 85.0
+      },
+      {
+       "Syllable": "",
+       "Offset": 12300000,
+       "Duration": 1500000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Syllable": "",
+       "Offset": 13900000,
+       "Duration": 1300000,
+       "AccuracyScore": 100.0
+      }
+     ],
+     "Phonemes": [
+      {
+       "Phoneme": "",
+       "Offset": 9900000,
+       "Duration": 1300000,
+       "AccuracyScore": 75.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 11300000,
+       "Duration": 900000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 12300000,
+       "Duration": 500000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 12900000,
+       "Duration": 900000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 13900000,
+       "Duration": 500000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 14500000,
+       "Duration": 700000,
+       "AccuracyScore": 100.0
+      }
+     ]
+    },
+    {
+     "Word": "が",
+     "Offset": 15300000,
+     "Duration": 2900000,
+     "Confidence": 0.0,
+     "AccuracyScore": 100.0,
+     "ErrorType": "None",
+     "Syllables": [
+      {
+       "Syllable": "",
+       "Offset": 15300000,
+       "Duration": 2900000,
+       "AccuracyScore": 100.0
+      }
+     ],
+     "Phonemes": [
+      {
+       "Phoneme": "",
+       "Offset": 15300000,
+       "Duration": 900000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 16300000,
+       "Duration": 1900000,
+       "AccuracyScore": 100.0
+      }
+     ]
+    },
+    {
+     "Word": "いたい",
+     "Offset": 18500000,
+     "Duration": 3900000,
+     "Confidence": 0.0,
+     "AccuracyScore": 97.0,
+     "ErrorType": "None",
+     "Syllables": [
+      {
+       "Syllable": "",
+       "Offset": 18500000,
+       "Duration": 1500000,
+       "AccuracyScore": 95.0
+      },
+      {
+       "Syllable": "",
+       "Offset": 20100000,
+       "Duration": 1200000,
+       "AccuracyScore": 98.0
+      },
+      {
+       "Syllable": "",
+       "Offset": 21400000,
+       "Duration": 1000000,
+       "AccuracyScore": 93.0
+      }
+     ],
+     "Phonemes": [
+      {
+       "Phoneme": "",
+       "Offset": 18500000,
+       "Duration": 700000,
+       "AccuracyScore": 90.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 19300000,
+       "Duration": 700000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 20100000,
+       "Duration": 500000,
+       "AccuracyScore": 97.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 20700000,
+       "Duration": 600000,
+       "AccuracyScore": 99.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 21400000,
+       "Duration": 200000,
+       "AccuracyScore": 73.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 21700000,
+       "Duration": 700000,
+       "AccuracyScore": 100.0
+      }
+     ]
+    },
+    {
+     "Word": "ん",
+     "Offset": 22500000,
+     "Duration": 700000,
+     "Confidence": 0.0,
+     "AccuracyScore": 100.0,
+     "ErrorType": "None",
+     "Syllables": [
+      {
+       "Syllable": "",
+       "Offset": 22500000,
+       "Duration": 700000,
+       "AccuracyScore": 100.0
+      }
+     ],
+     "Phonemes": [
+      {
+       "Phoneme": "",
+       "Offset": 22500000,
+       "Duration": 700000,
+       "AccuracyScore": 100.0
+      }
+     ]
+    },
+    {
+     "Word": "です",
+     "Offset": 23300000,
+     "Duration": 4700000,
+     "Confidence": 0.0,
+     "AccuracyScore": 97.0,
+     "ErrorType": "None",
+     "Syllables": [
+      {
+       "Syllable": "",
+       "Offset": 23300000,
+       "Duration": 1500000,
+       "AccuracyScore": 93.0
+      },
+      {
+       "Syllable": "",
+       "Offset": 24900000,
+       "Duration": 3100000,
+       "AccuracyScore": 79.0
+      }
+     ],
+     "Phonemes": [
+      {
+       "Phoneme": "",
+       "Offset": 23300000,
+       "Duration": 500000,
+       "AccuracyScore": 100.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 23900000,
+       "Duration": 900000,
+       "AccuracyScore": 89.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 24900000,
+       "Duration": 1700000,
+       "AccuracyScore": 84.0
+      },
+      {
+       "Phoneme": "",
+       "Offset": 26700000,
+       "Duration": 1300000,
+       "AccuracyScore": 72.0
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
