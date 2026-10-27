@@ -97,10 +97,20 @@ def _with_from(e: dict, corrections: dict, drafted_points: set[str]) -> dict:
     return {**out, "from": _from(e, corrections, drafted_points), "open": e["open"]}
 
 
+def count_label(key: str, n: int) -> str:
+    """The count key as the summary says it: plural as written, singular for a count of
+    one. Every key is a plural noun phrase whose plural words end in a plain `s` (`operator
+    additions`, `points tagged`), so the singular drops that `s` from each word that has
+    it. A word with no `s` (`N5 kanji`) is the same in both numbers."""
+    if n == 1:
+        return " ".join(w[:-1] if w.endswith("s") else w for w in key.split(" "))
+    return key
+
+
 def _source_entry(key: str, file: str, title: str, role: str, origin: str,
                   counts: dict[str, int], lesson: int | None = None) -> dict:
     """One data file. Counts are computed by the caller from the file, never typed."""
-    said = ", ".join(f"{n} {k}" for k, n in counts.items())
+    said = ", ".join(f"{n} {count_label(k, n)}" for k, n in counts.items())
     e = {"id": f"file.{key}", "type": "source_file", "source": origin}
     if lesson is not None:
         e["lesson"] = lesson

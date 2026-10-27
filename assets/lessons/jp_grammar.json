@@ -6441,7 +6441,7 @@
    "type": "source_file",
    "source": "Jonathan Waller's JLPT Resources (tanos.co.uk)",
    "title": "kanji_n5_n4.json",
-   "summary": "79 N5 kanji, 166 N4 kanji, 1 operator additions. The only kanji a kanji version may use.",
+   "summary": "79 N5 kanji, 166 N4 kanji, 1 operator addition. The only kanji a kanji version may use.",
    "uses": [],
    "search": [
     "pipeline/jp/kanji_n5_n4.json",
