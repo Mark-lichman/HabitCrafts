@@ -160,6 +160,36 @@ void main() {
       expect(s.map((x) => x.kana), contains(done));
     });
 
+    test('walks point by point, one point\'s practice before the next point\'s examples',
+        () {
+      final lesson = {
+        'points': [
+          {
+            'examples': [
+              {'jp': 'あめが ふります。', 'en': 'rain'}
+            ],
+            'practice': [
+              {'prompt': 'ゆきが ＿＿。', 'answer': 'ふります', 'en': 'snow'}
+            ],
+          },
+          {
+            'examples': [
+              {'jp': 'かぜが ふきます。', 'en': 'wind'}
+            ],
+            'practice': [
+              {'prompt': 'かぜが ＿＿か。', 'answer': 'ふきます', 'en': 'wind?'}
+            ],
+          },
+        ],
+      };
+      expect(lessonSentences(lesson).map((x) => x.kana).toList(), [
+        'あめが ふります。',
+        'ゆきが ふります。',
+        'かぜが ふきます。',
+        'かぜが ふきますか。',
+      ]);
+    });
+
     test('splits an example that joins forms with ／ into one sentence each',
         () {
       final lesson = {

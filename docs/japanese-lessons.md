@@ -62,7 +62,7 @@ kept on the phone.
 | --- | --- | --- |
 | Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the grammar lesson to continue, search over the catalog, and a By use view |
 | Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
-| Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, every example then every practice item with its answer filled in: play the sentence, speak it once, and see the outcome (below) |
+| Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and see the outcome (below) |
 | Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
 | Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
 | Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
@@ -72,7 +72,7 @@ Grammar drafts ship marked as drafts until a person reviews them, and the screen
 ### Typed answers
 
 Each fill-in item has a text box whose `hintLocales` asks for the Japanese keyboard (ja-JP).
-Whether Gboard opens in Japanese is checked on the phone at the first install.
+No test can tell whether Gboard opens in Japanese. Only a phone shows that.
 `checkTypedAnswer()` in `quiet_room_grammar/jp_study_kit.dart` judges the answer after it drops
 spacing and punctuation and folds katakana to hiragana:
 
