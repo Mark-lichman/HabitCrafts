@@ -139,6 +139,8 @@ dependencies:
   percent_indicator: 4.2.2
   plugin_platform_interface: 2.1.8
   provider: 6.1.5
+  # Pronunciation check: 16 kHz mono PCM capture for Azure (PIN-6), web and Android.
+  record: 7.1.2
   rxdart: 0.27.7
   shared_preferences: 2.5.3
   shared_preferences_android: 2.4.10
