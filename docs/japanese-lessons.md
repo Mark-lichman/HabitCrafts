@@ -381,6 +381,12 @@ been the bug twice.
   drill's Recent scores after real attempts and adjust them. The first live Azure call, on the
   phone and on the web, also waits on the operator setup in
   `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations).
+- **Privacy statements for the Azure check:** before the release build, update the privacy policy,
+  the store data declarations and the `NSMicrophoneUsageDescription` and
+  `NSSpeechRecognitionUsageDescription` strings in `ios/Runner/Info.plist` to say a recording goes
+  to Microsoft Azure Speech through the scoring function. The speech-recognition string still says
+  the app does not score how well you said it. `docs/plans/2026-10-27-azure-pronunciation-check.md`
+  carries the item under Notes / conscious deviations.
 - **Checks that need the phone:** run them after the release install.
   `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
 
