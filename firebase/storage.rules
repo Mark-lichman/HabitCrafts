@@ -10,12 +10,15 @@ service firebase.storage {
           && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
-    // Written to match live ruleset d3a07e98 (Firebase console, 2026-10-27):
+    // Written to match live ruleset d3a07e98 (Firebase console, 2026-10-27).
+    // The repo holds no copy of d3a07e98, so the rules deploy in the plan's
+    // Operator setup starts with a diff of this file against the console
+    // text of d3a07e98. The line that diff must confirm is the read below:
     // a signed-in user reads every file, including cms_uploads/, gifs/,
-    // icons/ and videos/. The repo holds no copy of d3a07e98, so before
-    // deploying, diff this file against the console text of d3a07e98.
-    // The live ruleset before d3a07e98 (not this repo's earlier file) let
-    // any signed-in user read and write everything.
+    // icons/ and videos/, where branch fix/account-deletion-and-read-rules
+    // let a signed-in user read only under users/. The live ruleset before
+    // d3a07e98 (not this repo's earlier file) let any signed-in user read
+    // and write everything.
     match /{allPaths=**} {
       allow read: if signedIn();
       allow write: if false;
