@@ -22,8 +22,6 @@ exports.addSearchTermsForGroups =
 const cleanInvalidUserGroupEntries = require("./clean_invalid_user_group_entries.js");
 exports.cleanInvalidUserGroupEntries =
   cleanInvalidUserGroupEntries.cleanInvalidUserGroupEntries;
-const deleteGroupsByCreator = require("./delete_groups_by_creator.js");
-exports.deleteGroupsByCreator = deleteGroupsByCreator.deleteGroupsByCreator;
 const cleanInvalidChatEntries = require("./clean_invalid_chat_entries.js");
 exports.cleanInvalidChatEntries =
   cleanInvalidChatEntries.cleanInvalidChatEntries;

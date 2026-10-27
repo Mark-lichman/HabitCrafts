@@ -14,7 +14,15 @@ const azureSpeechKey = defineSecret('AZURE_SPEECH_KEY');
 const azureSpeechRegion = defineString('AZURE_SPEECH_REGION');
 
 exports.scorePronunciation = onCall(
-  { region: 'us-central1', secrets: [azureSpeechKey], timeoutSeconds: 60, memory: '256MiB' },
+  {
+    region: 'us-central1',
+    secrets: [azureSpeechKey],
+    timeoutSeconds: 60,
+    memory: '256MiB',
+    // Any anonymous token can call this function (PIN-9), so cap the
+    // instances to bound abuse cost (operator ruling 2026-10-27).
+    maxInstances: 2,
+  },
   async (request) => {
     try {
       return await scorePronunciation(request, {
