@@ -218,8 +218,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     setState(() => _playing = true);
     try {
       // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
-      // Off the web, speak() returns only when the voice has finished (see _initTts), so
-      // the buttons stay disabled for the whole playback. On the web it returns at once.
+      // Off the web, speak() returns when the voice has finished (see _initTts) or at
+      // SpeechService.speakWait, whichever comes first, so the buttons stay disabled until
+      // then. On the web it returns at once.
       final err = await _say(s.kana.replaceAll(_joiner, '、'));
       if (err != null && mounted) {
         final t = QuietRoomTokens.of(context);

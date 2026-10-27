@@ -48,6 +48,10 @@ class SpeechService {
   final FlutterTts _tts = FlutterTts();
   final stt.SpeechToText _stt = stt.SpeechToText();
 
+  /// The longest [speak] waits for the voice to finish before it returns (PIN-15). A longer
+  /// sentence keeps playing after this; the drill's Play guard releases at the cap.
+  static const Duration speakWait = Duration(seconds: 3);
+
   bool _ttsReady = false;
   bool _sttReady = false;
 
@@ -146,9 +150,7 @@ class SpeechService {
       // 🚨 Do NOT stop() first. `_stop()` calls synth.cancel(), whose state change
       // arrives on a later event, and `_speak` refuses to run unless the state is
       // already stopped -- so a stop immediately before a speak silently eats it.
-      await _tts
-          .speak(text)
-          .timeout(const Duration(seconds: 4), onTimeout: () => 1);
+      await _tts.speak(text).timeout(speakWait, onTimeout: () => 1);
       return null;
     } catch (e) {
       final msg = e.toString();
