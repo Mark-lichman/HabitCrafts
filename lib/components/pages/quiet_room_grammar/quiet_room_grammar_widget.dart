@@ -10,7 +10,9 @@
 // and answers stay hidden until tapped.
 //
 // Hiragana is the default (PIN-4, PIN-7). The 漢字 toggle swaps every sentence, option
-// and answer for its kanji twin's surface. A fill-in item takes a typed answer from the
+// and answer for its kanji twin's surface. In kanji, each example and prompt shows its
+// kanji words in a hint color, and a tap on one shows its hiragana reading (PIN-16,
+// `RubyTapText` in jp_study_kit.dart). A fill-in item takes a typed answer from the
 // Japanese keyboard (PIN-3), judged by `checkTypedAnswer()` in jp_study_kit.dart. Each
 // lesson opens its speaking drill from "Speak this lesson" (PIN-6).
 
@@ -434,9 +436,15 @@ class _PointCardState extends State<_PointCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(shownJp,
-                      style: qrText(t,
-                          size: 16.5, color: t.inkStrong, height: 1.5)),
+                  if (widget.kanji && e['jp_ruby'] is String)
+                    RubyTapText(
+                        ruby: e['jp_ruby'] as String,
+                        style: qrText(t,
+                            size: 16.5, color: t.inkStrong, height: 1.5))
+                  else
+                    Text(shownJp,
+                        style: qrText(t,
+                            size: 16.5, color: t.inkStrong, height: 1.5)),
                   if (en.isNotEmpty)
                     AnimatedSwitcher(
                       duration: QuietRoomMotion.quick,
@@ -539,6 +547,13 @@ class _PracticeState extends State<_Practice> {
         _verdict != null && !(done && _verdict == TypedVerdict.wrong);
     final prompt = jpShown(kanji, q['prompt'] as String, q['prompt_ruby'])
         .replaceAll('＿＿', done ? '［$shownAnswer］' : '＿＿＿');
+    // The same prompt as a kanji twin, so its kanji words take the reading hint. Its
+    // surface is [prompt].
+    final promptRuby = kanji && q['prompt_ruby'] is String
+        ? (q['prompt_ruby'] as String).replaceAll(
+            '＿＿', done ? '［${q['answer_ruby'] as String? ?? answer}］' : '＿＿＿')
+        : null;
+    final promptStyle = qrText(t, size: 16, color: t.inkStrong, height: 1.5);
 
     return Container(
       decoration: BoxDecoration(
@@ -549,8 +564,10 @@ class _PracticeState extends State<_Practice> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(prompt,
-              style: qrText(t, size: 16, color: t.inkStrong, height: 1.5)),
+          if (promptRuby != null)
+            RubyTapText(ruby: promptRuby, style: promptStyle)
+          else
+            Text(prompt, style: promptStyle),
           if (q['en'] != null)
             Text(q['en'] as String,
                 style: qrText(t, size: 12.5, color: t.inkMuted)),
