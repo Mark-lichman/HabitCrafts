@@ -58,11 +58,17 @@ No login: the app opens on Japanese study when signed out (`nav.dart`). The Japa
 screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks are
 kept on the phone.
 
+The grammar speaking drill signs in anonymously in the background, and only when a recording is
+ready to score (`ensureCaller()` in `quiet_room_practice/anon_caller.dart`). The scoring function
+accepts that caller. Everywhere else an anonymous user counts as signed out: `loggedIn` is false
+for it, so the app still opens on Japanese study, and the Firestore and Storage rules refuse it
+through their `signedIn()` helper.
+
 | Screen | File | What it does |
 | --- | --- | --- |
 | Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the grammar lesson to continue, search over the catalog, and a By use view |
 | Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
-| Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and see the outcome (below) |
+| Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and get a score by sound from Azure Pronunciation Assessment. Needs the internet. Signs in anonymously in the background to score. Anything it cannot score falls back to self-check (below) |
 | Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
 | Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
 | Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
@@ -95,25 +101,52 @@ widget is `RubyTapText` in `jp_study_kit.dart`. Hiragana view has no hint color 
 
 ### The grammar speaking drill
 
-The drill judges each sentence with `SpeechService.judge()`. The expected hiragana is the kanji
-version read out, and the kanji version's surface goes in as a kanji form, because Android
-recognisers often return a sentence in kanji. An example that joins forms with ／ becomes one
-sentence per form. No correct answer is ever marked wrong. The outcomes:
+The drill checks each sentence **by sound, not by spelling**. Whatever kanji a recogniser would
+have written does not matter. `PronunciationService.check()` in
+`quiet_room_practice/pronunciation_service.dart` records the learner and sends the recording, with
+the sentence's hiragana as the reference text, to Azure Pronunciation Assessment through the
+`scorePronunciation` Cloud Function in `firebase/speech_functions/`. The hiragana is the kanji
+version's reading, so an example the lesson prints in kanji still has a hiragana reference. An
+example that joins forms with ／ becomes one sentence per form.
+
+- **Needs the internet.** With no connection, or a failed sign-in or call, the attempt cannot be
+  scored and goes to self-check.
+- **Signs in anonymously in the background** when a recording is ready to score, because the
+  function rejects a caller with no Firebase sign-in (see above). The Azure key lives only in the
+  function's secret, never in the app.
+- **Stops listening by itself.** The live level animation follows the microphone, and the listen
+  ends after a silence that follows speech, or at a cap. The timings are
+  `PronunciationService.silenceAfterSpeech` and `PronunciationService.listenCap`. Stop stays as a
+  way out of a false start, and its attempt is dropped instead of shown.
+- **One check at a time.** Speak and Next wait until a check returns, so two checks never share
+  the microphone.
+
+Azure's `PronScore` decides the outcome. The cutoffs are `PronunciationService.correctCutoff` and
+`PronunciationService.closeCutoff`. They are first guesses, to be tuned from real scores:
 
 | Outcome | When | What the drill shows |
 | --- | --- | --- |
-| That's it | the transcript equals the hiragana sentence or its kanji version | a right mark, plus the kanji version when it differs |
-| Close | part of the transcript matches | in amber: the heard text with its matching part highlighted, then a self-check ("Got it" or "Missed it") |
-| Can't check this one | the transcript cannot be compared (kanji that match no form, digits or Latin letters) | in amber: what was heard, then the same self-check |
-| Not quite | the transcript is plain hiragana or katakana and does not match | what was heard and the sentence. `listenOnce` does not return this verdict on a live device, so in practice it shows only under the test fake |
-| Didn't catch that | nothing was heard | a prompt to try again or check the microphone permission |
+| That's it | `PronScore` at or above `correctCutoff` | a right mark and the score, plus the kanji version when it differs |
+| Close | `PronScore` at or above `closeCutoff` and below `correctCutoff` | the score in amber, then a self-check ("Got it" or "Missed it") |
+| Not quite | `PronScore` below `closeCutoff` | the score, and a prompt to play the sentence and try again |
+| Can't check this one | nothing could be scored: no microphone, no speech, no network, a failed sign-in or call | in amber: a note that scoring needs the internet and a microphone, then the same self-check |
+
+Only a real Azure score can say Not quite. **Being unable to score is not the same as being
+wrong.**
+
+Every scored attempt shows the sentence with each hiragana letter colored by its syllable score.
+When Azure's words do not line up with the sentence letter for letter, the drill colors the scored
+words instead, so no scored letter is left uncolored. Words Azure heard that the sentence lacks
+show struck through.
+
+Each attempt's sentence, scores and verdict are kept on the device (`SpeakScoreLog`, under the
+`shared_preferences` key `jp.speak.scores`). The newest show under **Recent scores** at the foot of
+the drill, so the cutoffs can be tuned against real attempts.
 
 Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, or at most
-`SpeechService.speakWait` (3 seconds), before it returns. Play and Speak stay disabled until then,
-so the microphone does not hear the app's own voice during a sentence that ends inside the cap.
-A longer sentence keeps playing after the cap.
-On the web `speak` returns at once. A listen that finishes after the learner pressed Stop, or
-Speak again, is dropped instead of shown.
+`SpeechService.speakWait`, before it returns. Play and Speak stay disabled until then, so the
+microphone does not hear the app's own voice during a sentence that ends inside the cap. A longer
+sentence keeps playing after the cap. On the web `speak` returns at once.
 
 ## Script rule: hiragana first
 
@@ -231,6 +264,9 @@ These were worked out by hand and do not yet cover every lesson. Deriving the re
 
 ### 🚨 ASR tells you WHAT was said, not HOW WELL
 
+This section is about the vocabulary speaking screen, which still listens with `speech_to_text`.
+The grammar speaking drill scores by sound through Azure instead (see above).
+
 `speech_to_text` returns a transcript. A correct transcript means the learner produced something
 recognisable. The recogniser will happily normalise a bad pronunciation into the right word. Free
 ASR therefore buys **spoken recall practice, not pronunciation assessment.** Do not label it as the
@@ -240,19 +276,18 @@ This bites harder in Japanese than most languages: **vowel length is phonemic.**
 `おばあさん` and `ここ` / `こうこう` are different words, and the recogniser's language model will pick
 the likely one and *hide* the learner's error, which is the feedback they most need.
 
-Phoneme-level scoring means a paid cloud service. Azure Pronunciation Assessment supports `ja-JP`
-and returns per-phoneme scores. Speechace and ELSA are the alternatives. ⚠️ Verify current pricing
-at the time rather than trusting a remembered figure.
+Scoring how well something was said needs a pronunciation service. The grammar speaking drill uses
+Azure Pronunciation Assessment, which supports `ja-JP` and returns overall, per-word and
+per-syllable scores. Speechace and ELSA are the alternatives. ⚠️ Verify current pricing at the time
+rather than trusting a remembered figure.
 
 ### Kanji transcripts
 
 Android ASR often returns kanji (`貼ります`, or a whole sentence in kanji) while the expected text
-is hiragana (`はります`). The phone has no reading dictionary, so the caller hands `judge()` in
-`speech_service.dart` the kanji forms to compare with:
-
-- **A vocabulary word:** its kanji spellings from EDICT2.
-- **A grammar sentence:** its kanji version, the `_ruby` twin with the readings dropped. That
-  covers the kanji of the whole sentence, not only a vocabulary word's forms.
+is hiragana (`はります`). The phone has no reading dictionary, so the vocabulary speaking screen
+hands `judge()` in `speech_service.dart` a word's kanji spellings from EDICT2 to compare with. The
+grammar speaking drill no longer goes through `judge()`: Azure scores the sound against the
+hiragana, so a kanji transcript never arises there.
 
 `judge()` runs both sides through `normalise()` first, so spacing and 。 in a kanji version do not
 turn an exact match into a partial one.
@@ -260,8 +295,7 @@ turn an exact match into a partial one.
 An exact match with the hiragana or a kanji form is `correct`, a partial match is `close`, and a
 transcript it cannot compare is `unverified`. The UI shows what was heard and lets the learner
 decide. **Being unable to check is not the same as being wrong**, so no correct answer is ever
-marked wrong. The grammar drill also sends a `wrong` verdict to self-check unless the transcript
-is plain hiragana or katakana.
+marked wrong.
 
 ### 🚨 flutter_tts: bind a VOICE, not a language
 
@@ -343,7 +377,10 @@ been the bug twice.
 - **Grammar and vocabulary for the early lessons:** needs the slide-deck table extractor. The
   Minna decks carry grammar tables (`ていねいけい` / `ふつうけい` against affirmative, negative,
   present and past) that defeat linear extraction.
-- **Real pronunciation scoring:** the paid tier above.
+- **Tune the pronunciation cutoffs:** `correctCutoff` and `closeCutoff` are first guesses. Read the
+  drill's Recent scores after real attempts and adjust them. The first live Azure call, on the
+  phone and on the web, also waits on the operator setup in
+  `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations).
 - **Checks that need the phone:** run them after the release install.
   `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
 
