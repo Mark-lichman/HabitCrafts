@@ -3,10 +3,12 @@
 // Shared pieces for the Japanese study screens: one loader for
 // assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand),
 // the few Quiet Room building blocks every study screen repeats, the kanji twin
-// helpers, and the typed-answer matcher for fill-in practice.
+// helpers, the tap-a-word reading hint, and the typed-answer matcher for fill-in
+// practice.
 
 import 'dart:convert';
 
+import 'package:flutter/gestures.dart' show TapGestureRecognizer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
@@ -293,6 +295,145 @@ String rubySurface(String ruby) => ruby.replaceAll(_reading, '');
 /// against hiragana.
 String rubyKana(String ruby) =>
     ruby.replaceAllMapped(_bracket, (m) => m.group(1)!);
+
+/// One word of a kanji twin. A kanji word carries its [reading]. A plain word (the
+/// kana, punctuation and spacing between brackets) has none.
+typedef RubyWord = ({String text, String? reading});
+
+final RegExp _bracketWord = RegExp(r'([一-鿿々]+)\{([^{}]+)\}');
+
+/// [ruby] split into words: each bracket is one kanji word with its reading, and the
+/// text between two brackets is one plain word. `駅{えき}へ 行{い}く` becomes 駅 (えき),
+/// "へ ", 行 (い), く. Joined, the texts give [rubySurface], and the readings (a plain
+/// word standing for itself) give [rubyKana].
+List<RubyWord> rubyWords(String ruby) {
+  final out = <RubyWord>[];
+  var at = 0;
+  for (final m in _bracketWord.allMatches(ruby)) {
+    if (m.start > at) {
+      out.add((text: rubySurface(ruby.substring(at, m.start)), reading: null));
+    }
+    out.add((text: m.group(1)!, reading: m.group(2)!));
+    at = m.end;
+  }
+  if (at < ruby.length) {
+    out.add((text: rubySurface(ruby.substring(at)), reading: null));
+  }
+  return out;
+}
+
+/// The color that marks a word a tap can explain: the Quiet Room interactive text
+/// token, readable on the card in Daylight and in Nightfall.
+Color rubyHintInk(QuietRoomTokens t) => t.brand600;
+
+/// A sentence in kanji with the reading hint (PIN-16). Each kanji word shows in
+/// [rubyHintInk] with a dotted underline, so color is not the only sign. A tap shows
+/// that word's hiragana reading above it, and a second tap hides it. A plain word keeps
+/// [style]'s color and takes no tap.
+///
+/// With every reading hidden it is one run of text whose plain text is the twin's
+/// surface. A shown word becomes a small column: its reading over the word.
+class RubyTapText extends StatefulWidget {
+  const RubyTapText({super.key, required this.ruby, required this.style});
+
+  /// The `_ruby` twin, `漢字{かんじ}` per kanji word.
+  final String ruby;
+  final TextStyle style;
+
+  @override
+  State<RubyTapText> createState() => _RubyTapTextState();
+}
+
+class _RubyTapTextState extends State<RubyTapText> {
+  late List<RubyWord> _words;
+  final Map<int, TapGestureRecognizer> _taps = {};
+  final Set<int> _shown = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _split();
+  }
+
+  @override
+  void didUpdateWidget(RubyTapText old) {
+    super.didUpdateWidget(old);
+    if (old.ruby != widget.ruby) {
+      _dropTaps();
+      _shown.clear();
+      _split();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dropTaps();
+    super.dispose();
+  }
+
+  void _split() {
+    _words = rubyWords(widget.ruby);
+    for (var i = 0; i < _words.length; i++) {
+      if (_words[i].reading == null) continue;
+      _taps[i] = TapGestureRecognizer()..onTap = () => _toggle(i);
+    }
+  }
+
+  void _dropTaps() {
+    for (final r in _taps.values) {
+      r.dispose();
+    }
+    _taps.clear();
+  }
+
+  void _toggle(int i) =>
+      setState(() => _shown.contains(i) ? _shown.remove(i) : _shown.add(i));
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    final hint = rubyHintInk(t);
+    final wordStyle = TextStyle(
+      color: hint,
+      decoration: TextDecoration.underline,
+      decorationStyle: TextDecorationStyle.dotted,
+      decorationColor: hint,
+    );
+    return Text.rich(
+      TextSpan(children: [
+        for (var i = 0; i < _words.length; i++)
+          if (_words[i].reading == null)
+            TextSpan(text: _words[i].text)
+          else if (!_shown.contains(i))
+            TextSpan(
+                text: _words[i].text, style: wordStyle, recognizer: _taps[i])
+          else
+            WidgetSpan(
+              // The word's line box ends where the sentence's does, so the word stays
+              // on the line and its reading rises above it.
+              alignment: PlaceholderAlignment.bottom,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _toggle(i),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_words[i].reading!,
+                        style: widget.style.copyWith(
+                            fontSize: (widget.style.fontSize ?? 14) * 0.6,
+                            height: 1.1,
+                            color: hint,
+                            fontWeight: FontWeight.w600)),
+                    Text(_words[i].text, style: widget.style.merge(wordStyle)),
+                  ],
+                ),
+              ),
+            ),
+      ]),
+      style: widget.style,
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------------------
 // Typed answers on a fill-in item (PIN-3).
