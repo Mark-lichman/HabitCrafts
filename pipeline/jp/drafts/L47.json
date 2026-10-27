@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "てんきよほうに よると、あした ゆきが ふるそうです。",
+          "jp_ruby": "てんきよほうに よると、明日{あした} ゆきが ふるそうです。",
           "en": "According to the weather forecast, it will snow tomorrow."
         },
         {
           "jp": "ミラーさんは らいげつ けっこんするそうです。",
+          "jp_ruby": "ミラーさんは 来月{らいげつ} けっこんするそうです。",
           "en": "I hear Mr. Miller is getting married next month."
         }
       ],
@@ -21,34 +23,53 @@
         {
           "kind": "fill",
           "prompt": "ニュースに よると、きのう じしんが ＿＿そうです。",
+          "prompt_ruby": "ニュースに よると、きのう じしんが ＿＿そうです。",
           "en": "According to the news, there was an earthquake yesterday.",
           "answer": "あった",
+          "answer_ruby": "あった",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Plain past of あります"
         },
         {
           "kind": "choose",
           "prompt": "てんきよほうに よると、あしたは ＿＿そうです。",
+          "prompt_ruby": "てんきよほうに よると、明日{あした}は ＿＿そうです。",
           "en": "According to the weather forecast, it will rain tomorrow.",
           "answer": "あめだ",
+          "answer_ruby": "雨{あめ}だ",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Noun in plain form",
           "options": [
             "あめだ",
             "あめ",
             "あめな"
+          ],
+          "options_ruby": [
+            "雨{あめ}だ",
+            "雨{あめ}",
+            "雨{あめ}な"
           ]
         },
         {
           "kind": "choose",
           "prompt": "ともだちの はなしに よると、あの みせは ＿＿そうです。",
+          "prompt_ruby": "ともだちの 話{はなし}に よると、あの 店{みせ}は ＿＿そうです。",
           "en": "According to my friend, that restaurant is expensive.",
           "answer": "たかい",
+          "answer_ruby": "高{たか}い",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "たか",
             "たかい",
             "たかいだ"
+          ],
+          "options_ruby": [
+            "高{たか}",
+            "高{たか}い",
+            "高{たか}いだ"
           ],
           "hint": "Hearsay そうです follows the full plain form, keeping the い.",
           "why_wrong": {
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "たなかさんに よると、あの こうえんは ＿＿そうです。",
+          "prompt_ruby": "田中{たなか}さんに よると、あの こうえんは ＿＿そうです。",
           "en": "According to Mr. Tanaka, that park is quiet.",
           "answer": "しずかだ",
+          "answer_ruby": "しずかだ",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "しずかだ",
+            "しずかな",
+            "しずか"
+          ],
+          "options_ruby": [
             "しずかだ",
             "しずかな",
             "しずか"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "だれも いないようです。",
+          "jp_ruby": "だれも いないようです。",
           "en": "It seems nobody is here."
         },
         {
           "jp": "ひとが おおぜい あつまって いますね。じこの ようです。",
+          "jp_ruby": "人{ひと}が おおぜい 集{あつ}まって いますね。じこの ようです。",
           "en": "A lot of people have gathered. It seems there was an accident."
         }
       ],
@@ -94,19 +125,30 @@
         {
           "kind": "fill",
           "prompt": "せきも ねつも あります。かぜを ＿＿ようです。",
+          "prompt_ruby": "せきも ねつも あります。かぜを ＿＿ようです。",
           "en": "I have a cough and a fever. It seems I've caught a cold.",
           "answer": "ひいた",
+          "answer_ruby": "ひいた",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Plain past of ひきます"
         },
         {
           "kind": "choose",
           "prompt": "へやが くらいですね。たなかさんは ＿＿ようです。",
+          "prompt_ruby": "へやが くらいですね。田中{たなか}さんは ＿＿ようです。",
           "en": "The room is dark. It seems Mr. Tanaka is out.",
           "answer": "るすの",
+          "answer_ruby": "るすの",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Noun + the right connector",
           "options": [
+            "るすの",
+            "るすな",
+            "るすだ"
+          ],
+          "options_ruby": [
             "るすの",
             "るすな",
             "るすだ"
@@ -115,13 +157,21 @@
         {
           "kind": "choose",
           "prompt": "げんかんに くつが あります。だれか ＿＿ようです。",
+          "prompt_ruby": "げんかんに くつが あります。だれか ＿＿ようです。",
           "en": "There are shoes at the entrance. It seems someone has come.",
           "answer": "きた",
+          "answer_ruby": "来{き}た",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きて",
             "き",
             "きた"
+          ],
+          "options_ruby": [
+            "来{き}て",
+            "来{き}",
+            "来{き}た"
           ],
           "hint": "ようです follows a plain form; here the plain past of きます.",
           "why_wrong": {
@@ -132,10 +182,18 @@
         {
           "kind": "choose",
           "prompt": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
+          "prompt_ruby": "かれは いつも ゲームを して いますね。ゲームが ＿＿ようです。",
           "en": "He's always playing games. It seems he likes games.",
           "answer": "すきな",
+          "answer_ruby": "すきな",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "すきの",
+            "すきな",
+            "すきだ"
+          ],
+          "options_ruby": [
             "すきの",
             "すきな",
             "すきだ"

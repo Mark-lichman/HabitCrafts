@@ -7,8 +7,8 @@ extraction is tested here: the conjugation engine against the tutor's gold, the 
 validator, the catalog, publishing with corrections, and drift between the committed
 app file and a fresh publish.
 
-Refresh fixtures after re-running an extractor:
-    cp out/<source>/lesson_bundle.json fixtures/<source>/
+Refresh fixtures after re-running an extractor (refuses a missing or blocked bundle):
+    pipeline/.venv/Scripts/python pipeline/jp/refresh_fixtures.py
 """
 
 from __future__ import annotations
@@ -109,6 +109,8 @@ def test_catalog_types_and_uses():
     for e in cat["entries"]:
         assert e["type"] in TYPES
         assert set(e["uses"]) <= known_uses, e["id"]
+        if e["type"] == "source_file":
+            continue  # data files carry no uses; test_catalog_sources.py covers them
         if e["type"] != "vocabulary":
             assert e["uses"], f"{e['id']} has no uses, so sort by use never finds it"
         by_type[e["type"]] = by_type.get(e["type"], 0) + 1

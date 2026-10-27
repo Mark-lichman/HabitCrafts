@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "けんこうの ために、まいあさ はしって います。",
+          "jp_ruby": "けんこうの ために、毎朝{まいあさ} 走{はし}って います。",
           "en": "I run every morning for my health."
         },
         {
           "jp": "くるまを かう ために、ちょきんして います。",
+          "jp_ruby": "車{くるま}を 買{か}う ために、ちょきんして います。",
           "en": "I'm saving money to buy a car."
         }
       ],
@@ -21,9 +23,14 @@
         {
           "kind": "fill",
           "prompt": "にほんごを べんきょうする ＿＿、にほんへ いきます。",
+          "prompt_ruby": "日本語{にほんご}を 勉強{べんきょう}する ＿＿、日本{にほん}へ 行{い}きます。",
           "en": "I'm going to Japan to study Japanese.",
           "answer": "ために",
+          "answer_ruby": "ために",
           "accepted": [
+            "ため"
+          ],
+          "accepted_ruby": [
             "ため"
           ],
           "hint": "Purpose word after a dictionary-form verb"
@@ -31,11 +38,19 @@
         {
           "kind": "choose",
           "prompt": "かぞくの ＿＿、まいにち はたらいて います。",
+          "prompt_ruby": "家族{かぞく}の ＿＿、毎日{まいにち} はたらいて います。",
           "en": "I work every day for my family.",
           "answer": "ために",
+          "answer_ruby": "ために",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Noun + の + purpose word",
           "options": [
+            "ために",
+            "のに",
+            "ので"
+          ],
+          "options_ruby": [
             "ために",
             "のに",
             "ので"
@@ -44,10 +59,18 @@
         {
           "kind": "choose",
           "prompt": "しけん＿＿ ために、まいばん べんきょうして います。",
+          "prompt_ruby": "試験{しけん}＿＿ ために、まいばん 勉強{べんきょう}して います。",
           "en": "I study every night for the exam.",
           "answer": "の",
+          "answer_ruby": "の",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "に",
+            "の",
+            "な"
+          ],
+          "options_ruby": [
             "に",
             "の",
             "な"
@@ -61,13 +84,21 @@
         {
           "kind": "choose",
           "prompt": "だいがくに ＿＿ ために、べんきょうして います。",
+          "prompt_ruby": "大学{だいがく}に ＿＿ ために、勉強{べんきょう}して います。",
           "en": "I'm studying to get into college.",
           "answer": "はいる",
+          "answer_ruby": "入{はい}る",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "はいれる",
             "はいって",
             "はいる"
+          ],
+          "options_ruby": [
+            "入{はい}れる",
+            "入{はい}って",
+            "入{はい}る"
           ],
           "hint": "ために takes the dictionary form of a verb you do on purpose.",
           "why_wrong": {
@@ -85,10 +116,12 @@
       "examples": [
         {
           "jp": "この はさみは かみを きるのに つかいます。",
+          "jp_ruby": "この はさみは 紙{かみ}を 切{き}るのに 使{つか}います。",
           "en": "I use these scissors to cut paper."
         },
         {
           "jp": "この かばんは りょこうに べんりです。",
+          "jp_ruby": "この かばんは 旅行{りょこう}に べんりです。",
           "en": "This bag is handy for traveling."
         }
       ],
@@ -96,19 +129,30 @@
         {
           "kind": "fill",
           "prompt": "この ナイフは パンを きる＿＿ つかいます。",
+          "prompt_ruby": "この ナイフは パンを 切{き}る＿＿ 使{つか}います。",
           "en": "I use this knife to cut bread.",
           "answer": "のに",
+          "answer_ruby": "のに",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "What follows a dictionary-form verb to show use"
         },
         {
           "kind": "choose",
           "prompt": "この ノートは しごと＿＿ つかって います。",
+          "prompt_ruby": "この ノートは 仕事{しごと}＿＿ 使{つか}って います。",
           "en": "I use this notebook for work.",
           "answer": "に",
+          "answer_ruby": "に",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Particle after a noun to show use",
           "options": [
+            "に",
+            "を",
+            "が"
+          ],
+          "options_ruby": [
             "に",
             "を",
             "が"
@@ -117,10 +161,18 @@
         {
           "kind": "choose",
           "prompt": "この はこは しゃしんを いれる＿＿ つかって います。",
+          "prompt_ruby": "この はこは 写真{しゃしん}を 入{い}れる＿＿ 使{つか}って います。",
           "en": "I use this box to keep photos in.",
           "answer": "のに",
+          "answer_ruby": "のに",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "のを",
+            "のに",
+            "のが"
+          ],
+          "options_ruby": [
             "のを",
             "のに",
             "のが"
@@ -134,10 +186,18 @@
         {
           "kind": "choose",
           "prompt": "この じてんしゃは かいもの＿＿ べんりです。",
+          "prompt_ruby": "この 自転車{じてんしゃ}は 買{か}い物{もの}＿＿ べんりです。",
           "en": "This bicycle is handy for shopping.",
           "answer": "に",
+          "answer_ruby": "に",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "の",
+            "を",
+            "に"
+          ],
+          "options_ruby": [
             "の",
             "を",
             "に"
@@ -158,10 +218,12 @@
       "examples": [
         {
           "jp": "この しごとに みっかも かかりました。",
+          "jp_ruby": "この 仕事{しごと}に 三日{みっか}も かかりました。",
           "en": "This job took as long as three days."
         },
         {
           "jp": "えきまで にじかんも かかりました。",
+          "jp_ruby": "駅{えき}まで 二時間{にじかん}も かかりました。",
           "en": "It took as long as two hours to get to the station."
         }
       ],
@@ -169,26 +231,40 @@
         {
           "kind": "fill",
           "prompt": "きのう ビールを ごほん＿＿ のみました。",
+          "prompt_ruby": "きのう ビールを 五本{ごほん}＿＿ 飲{の}みました。",
           "en": "Yesterday I drank as many as five bottles of beer.",
           "answer": "も",
+          "answer_ruby": "も",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Particle that stresses a large amount"
         },
         {
           "kind": "fill",
           "prompt": "この ほんを よむのに みっか＿＿ かかります。",
+          "prompt_ruby": "この 本{ほん}を 読{よ}むのに 三日{みっか}＿＿ かかります。",
           "en": "It will take at least three days to read this book.",
           "answer": "は",
+          "answer_ruby": "は",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Particle for a minimum estimate"
         },
         {
           "kind": "choose",
           "prompt": "この かばんは ごまんえん＿＿ しました。",
+          "prompt_ruby": "この かばんは 五万円{ごまんえん}＿＿ しました。",
           "en": "This bag cost as much as fifty thousand yen.",
           "answer": "も",
+          "answer_ruby": "も",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "は",
+            "も",
+            "を"
+          ],
+          "options_ruby": [
             "は",
             "も",
             "を"
@@ -202,10 +278,18 @@
         {
           "kind": "choose",
           "prompt": "くうこうまで いちじかん＿＿ かかります。",
+          "prompt_ruby": "くうこうまで 一時間{いちじかん}＿＿ かかります。",
           "en": "It takes at least an hour to get to the airport.",
           "answer": "は",
+          "answer_ruby": "は",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "で",
+            "も",
+            "は"
+          ],
+          "options_ruby": [
             "で",
             "も",
             "は"

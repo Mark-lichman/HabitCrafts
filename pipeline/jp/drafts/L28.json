@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "おんがくを ききながら、べんきょうします。",
+          "jp_ruby": "音楽{おんがく}を 聞{き}きながら、勉強{べんきょう}します。",
           "en": "I study while listening to music."
         },
         {
           "jp": "テレビを みながら ごはんを たべます。",
+          "jp_ruby": "テレビを 見{み}ながら ご飯{はん}を 食{た}べます。",
           "en": "I eat while watching TV."
         }
       ],
@@ -21,34 +23,53 @@
         {
           "kind": "fill",
           "prompt": "うたを ＿＿ シャワーを あびます。",
+          "prompt_ruby": "歌{うた}を ＿＿ シャワーを あびます。",
           "en": "I take a shower while singing.",
           "answer": "うたいながら",
+          "answer_ruby": "歌{うた}いながら",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ながら form of うたいます"
         },
         {
           "kind": "choose",
           "prompt": "コーヒーを ＿＿ しんぶんを よみます。",
+          "prompt_ruby": "コーヒーを ＿＿ 新聞{しんぶん}を 読{よ}みます。",
           "en": "I read the newspaper while drinking coffee.",
           "answer": "のみながら",
+          "answer_ruby": "飲{の}みながら",
           "options": [
             "のみながら",
             "のんで ながら",
             "のむながら"
           ],
+          "options_ruby": [
+            "飲{の}みながら",
+            "飲{の}んで ながら",
+            "飲{の}むながら"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "ますForm + ながら"
         },
         {
           "kind": "choose",
           "prompt": "ラジオを ＿＿ りょうりを します。",
+          "prompt_ruby": "ラジオを ＿＿ 料理{りょうり}を します。",
           "en": "I cook while listening to the radio.",
           "answer": "ききながら",
+          "answer_ruby": "聞{き}きながら",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きくながら",
             "ききながら",
             "きいたながら"
+          ],
+          "options_ruby": [
+            "聞{き}くながら",
+            "聞{き}きながら",
+            "聞{き}いたながら"
           ],
           "hint": "ながら attaches to the ますStem: ききます → ききながら.",
           "why_wrong": {
@@ -59,10 +80,18 @@
         {
           "kind": "choose",
           "prompt": "メモを ＿＿ せんせいの はなしを ききます。",
+          "prompt_ruby": "メモを ＿＿ 先生{せんせい}の 話{はなし}を 聞{き}きます。",
           "en": "I listen to the teacher while taking notes.",
           "answer": "とりながら",
+          "answer_ruby": "とりながら",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "とったり",
+            "とって ながら",
+            "とりながら"
+          ],
+          "options_ruby": [
             "とったり",
             "とって ながら",
             "とりながら"
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "まいあさ ジョギングを しています。",
+          "jp_ruby": "毎朝{まいあさ} ジョギングを しています。",
           "en": "I go jogging every morning."
         },
         {
           "jp": "まいばん にほんごを べんきょうして います。",
+          "jp_ruby": "まいばん 日本語{にほんご}を 勉強{べんきょう}して います。",
           "en": "I study Japanese every night."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "しゅうまつは いつも テニスを ＿＿ います。",
+          "prompt_ruby": "しゅうまつは いつも テニスを ＿＿ います。",
           "en": "I always play tennis on weekends.",
           "answer": "して",
+          "answer_ruby": "して",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of します"
         },
         {
           "kind": "choose",
           "prompt": "あには ぎんこうで ＿＿。",
+          "prompt_ruby": "兄{あに}は 銀行{ぎんこう}で ＿＿。",
           "en": "My older brother works at a bank.",
           "answer": "はたらいて います",
+          "answer_ruby": "はたらいて います",
           "options": [
             "はたらいて います",
             "はたらいて あります",
             "はたらきながら"
           ],
+          "options_ruby": [
+            "はたらいて います",
+            "はたらいて あります",
+            "はたらきながら"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm + います for a regular activity"
         },
         {
           "kind": "choose",
           "prompt": "まいにち じてんしゃで かいしゃへ ＿＿。",
+          "prompt_ruby": "毎日{まいにち} 自転車{じてんしゃ}で 会社{かいしゃ}へ ＿＿。",
           "en": "I go to work by bicycle every day.",
           "answer": "いって います",
+          "answer_ruby": "行{い}って います",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "いって あります",
             "いって います",
             "いって おきます"
+          ],
+          "options_ruby": [
+            "行{い}って あります",
+            "行{い}って います",
+            "行{い}って おきます"
           ],
           "hint": "てForm + います describes a regular habit.",
           "why_wrong": {
@@ -132,13 +182,21 @@
         {
           "kind": "choose",
           "prompt": "ちちは だいがくで えいごを ＿＿。",
+          "prompt_ruby": "父{ちち}は 大学{だいがく}で 英語{えいご}を ＿＿。",
           "en": "My father teaches English at a university.",
           "answer": "おしえて います",
+          "answer_ruby": "教{おし}えて います",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "おしえる います",
             "おしえながら",
             "おしえて います"
+          ],
+          "options_ruby": [
+            "教{おし}える います",
+            "教{おし}えながら",
+            "教{おし}えて います"
           ],
           "hint": "A job or regular activity uses てForm + います.",
           "why_wrong": {
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "この まちは べんりだし、にぎやかです。",
+          "jp_ruby": "この 町{まち}は べんりだし、にぎやかです。",
           "en": "This town is convenient, and it's lively too."
         },
         {
           "jp": "この みせは やすいし、おいしいし、よく きます。",
+          "jp_ruby": "この 店{みせ}は 安{やす}いし、おいしいし、よく 来{き}ます。",
           "en": "This restaurant is cheap and tasty, so I come here often."
         }
       ],
@@ -167,34 +227,53 @@
         {
           "kind": "fill",
           "prompt": "へやは ひろいし、＿＿し、いい アパートです。",
+          "prompt_ruby": "へやは 広{ひろ}いし、＿＿し、いい アパートです。",
           "en": "The rooms are spacious and quiet. It's a good apartment.",
           "answer": "しずかだ",
+          "answer_ruby": "しずかだ",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Plain form of a な-adjective"
         },
         {
           "kind": "choose",
           "prompt": "きょうは ＿＿し、あめだし、でかけません。",
+          "prompt_ruby": "今日{きょう}は ＿＿し、雨{あめ}だし、出{で}かけません。",
           "en": "It's cold and rainy today, so I'm not going out.",
           "answer": "さむい",
+          "answer_ruby": "さむい",
           "options": [
             "さむい",
             "さむいだ",
             "さむくて"
           ],
+          "options_ruby": [
+            "さむい",
+            "さむいだ",
+            "さむくて"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "い-adjectives add し directly"
         },
         {
           "kind": "choose",
           "prompt": "あしたは ＿＿し、てんきも いいし、でかけましょう。",
+          "prompt_ruby": "明日{あした}は ＿＿し、天気{てんき}も いいし、出{で}かけましょう。",
           "en": "Tomorrow is a day off and the weather is good, so let's go out.",
           "answer": "やすみだ",
+          "answer_ruby": "休{やす}みだ",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "やすみ",
             "やすみな",
             "やすみだ"
+          ],
+          "options_ruby": [
+            "休{やす}み",
+            "休{やす}みな",
+            "休{やす}みだ"
           ],
           "hint": "A noun takes だ before し.",
           "why_wrong": {
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "きのうは ねつが ＿＿し、がっこうを やすみました。",
+          "prompt_ruby": "きのうは ねつが ＿＿し、学校{がっこう}を 休{やす}みました。",
           "en": "I had a fever yesterday, so I stayed home from school.",
           "answer": "あった",
+          "answer_ruby": "あった",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "あって",
+            "あった",
+            "あり"
+          ],
+          "options_ruby": [
             "あって",
             "あった",
             "あり"

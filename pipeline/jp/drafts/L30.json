@@ -10,10 +10,12 @@
       "examples": [
         {
           "jp": "かべに ポスターが はって あります。",
+          "jp_ruby": "かべに ポスターが はって あります。",
           "en": "A poster has been put up on the wall."
         },
         {
           "jp": "つくえの うえに メモが おいて あります。",
+          "jp_ruby": "つくえの 上{うえ}に メモが おいて あります。",
           "en": "A memo has been left on the desk."
         }
       ],
@@ -21,31 +23,50 @@
         {
           "kind": "fill",
           "prompt": "カレンダーに よていが ＿＿ あります。",
+          "prompt_ruby": "カレンダーに よていが ＿＿ あります。",
           "en": "The plans are written on the calendar.",
           "answer": "かいて",
+          "answer_ruby": "書{か}いて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of a transitive verb"
         },
         {
           "kind": "choose",
           "prompt": "れいぞうこに ビールが ＿＿ あります。",
+          "prompt_ruby": "れいぞうこに ビールが ＿＿ あります。",
           "en": "Beer has been put in the fridge.",
           "answer": "いれて",
+          "answer_ruby": "入{い}れて",
           "options": [
             "いれて",
             "はいって",
             "いれる"
           ],
+          "options_ruby": [
+            "入{い}れて",
+            "入{はい}って",
+            "入{い}れる"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "Transitive verb in てForm"
         },
         {
           "kind": "choose",
           "prompt": "かべに ちずが ＿＿ あります。",
+          "prompt_ruby": "かべに 地図{ちず}が ＿＿ あります。",
           "en": "A map has been hung on the wall.",
           "answer": "かけて",
+          "answer_ruby": "かけて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "かかって",
+            "かける",
+            "かけて"
+          ],
+          "options_ruby": [
             "かかって",
             "かける",
             "かけて"
@@ -59,13 +80,21 @@
         {
           "kind": "choose",
           "prompt": "いえの まえに じてんしゃが ＿＿。",
+          "prompt_ruby": "家{いえ}の 前{まえ}に 自転車{じてんしゃ}が ＿＿。",
           "en": "A bicycle has been parked in front of the house.",
           "answer": "とめて あります",
+          "answer_ruby": "止{と}めて あります",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "とめて います",
             "とめて あります",
             "とまって あります"
+          ],
+          "options_ruby": [
+            "止{と}めて います",
+            "止{と}めて あります",
+            "止{と}まって あります"
           ],
           "hint": "Nが + transitive てForm + あります shows a state someone set up.",
           "why_wrong": {
@@ -83,10 +112,12 @@
       "examples": [
         {
           "jp": "パーティーの まえに りょうりを つくって おきます。",
+          "jp_ruby": "パーティーの 前{まえ}に 料理{りょうり}を 作{つく}って おきます。",
           "en": "I'll make the food before the party."
         },
         {
           "jp": "りょこうの まえに ホテルを よやくして おきます。",
+          "jp_ruby": "旅行{りょこう}の 前{まえ}に ホテルを よやくして おきます。",
           "en": "I'll book a hotel before the trip."
         }
       ],
@@ -94,34 +125,53 @@
         {
           "kind": "fill",
           "prompt": "テストの まえに かんじを ＿＿ おきます。",
+          "prompt_ruby": "テストの 前{まえ}に 漢字{かんじ}を ＿＿ おきます。",
           "en": "I'll memorize the kanji before the test.",
           "answer": "おぼえて",
+          "answer_ruby": "おぼえて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of おぼえます"
         },
         {
           "kind": "choose",
           "prompt": "おきゃくさんが きますから、ビールを ＿＿ おきます。",
+          "prompt_ruby": "おきゃくさんが 来{き}ますから、ビールを ＿＿ おきます。",
           "en": "Guests are coming, so I'll buy beer ahead of time.",
           "answer": "かって",
+          "answer_ruby": "買{か}って",
           "options": [
             "かって",
             "かい",
             "かった"
           ],
+          "options_ruby": [
+            "買{か}って",
+            "買{か}い",
+            "買{か}った"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm before おきます"
         },
         {
           "kind": "choose",
           "prompt": "じゅぎょうの まえに きょうかしょを ＿＿ おきます。",
+          "prompt_ruby": "じゅぎょうの 前{まえ}に きょうかしょを ＿＿ おきます。",
           "en": "I'll read the textbook before class.",
           "answer": "よんで",
+          "answer_ruby": "読{よ}んで",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "よまない",
             "よんだ",
             "よんで"
+          ],
+          "options_ruby": [
+            "読{よ}まない",
+            "読{よ}んだ",
+            "読{よ}んで"
           ],
           "hint": "おきます follows the てForm: よみます → よんで.",
           "why_wrong": {
@@ -132,13 +182,21 @@
         {
           "kind": "choose",
           "prompt": "おきゃくさんが ＿＿ まえに、へやを そうじして おきます。",
+          "prompt_ruby": "おきゃくさんが ＿＿ 前{まえ}に、へやを そうじして おきます。",
           "en": "I'll clean the room before the guests come.",
           "answer": "くる",
+          "answer_ruby": "来{く}る",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "きた",
             "くる",
             "きて"
+          ],
+          "options_ruby": [
+            "来{き}た",
+            "来{く}る",
+            "来{き}て"
           ],
           "hint": "まえに always follows the dictionary form.",
           "why_wrong": {
@@ -156,10 +214,12 @@
       "examples": [
         {
           "jp": "つかれたので、そうじは あした して おきます。",
+          "jp_ruby": "つかれたので、そうじは 明日{あした} して おきます。",
           "en": "I'm tired, so I'll leave the cleaning for tomorrow."
         },
         {
           "jp": "まどを あけて おいて ください。",
+          "jp_ruby": "まどを 開{あ}けて おいて ください。",
           "en": "Please leave the window open."
         }
       ],
@@ -167,34 +227,53 @@
         {
           "kind": "fill",
           "prompt": "あとで みますから、テレビは ＿＿ おいて ください。",
+          "prompt_ruby": "後{あと}で 見{み}ますから、テレビは ＿＿ おいて ください。",
           "en": "I'll watch it later, so please leave the TV on.",
           "answer": "つけて",
+          "answer_ruby": "つけて",
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of つけます"
         },
         {
           "kind": "choose",
           "prompt": "いすは そのままに して ＿＿ ください。",
+          "prompt_ruby": "いすは そのままに して ＿＿ ください。",
           "en": "Please leave the chairs as they are.",
           "answer": "おいて",
+          "answer_ruby": "おいて",
           "options": [
             "おいて",
             "おきて",
             "あって"
           ],
+          "options_ruby": [
+            "おいて",
+            "おきて",
+            "あって"
+          ],
           "accepted": [],
+          "accepted_ruby": [],
           "hint": "てForm of おきます (to leave)"
         },
         {
           "kind": "choose",
           "prompt": "あついですから、ドアを ＿＿ おいて ください。",
+          "prompt_ruby": "あついですから、ドアを ＿＿ おいて ください。",
           "en": "It's hot, so please leave the door open.",
           "answer": "あけて",
+          "answer_ruby": "開{あ}けて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
             "あいて",
             "あけて",
             "あける"
+          ],
+          "options_ruby": [
+            "開{あ}いて",
+            "開{あ}けて",
+            "開{あ}ける"
           ],
           "hint": "ておいて ください needs a transitive verb in てForm, since the door takes を.",
           "why_wrong": {
@@ -205,10 +284,18 @@
         {
           "kind": "choose",
           "prompt": "あとで かたづけますから、そのままに ＿＿ ください。",
+          "prompt_ruby": "後{あと}で かたづけますから、そのままに ＿＿ ください。",
           "en": "I'll tidy up later, so please leave it as it is.",
           "answer": "して おいて",
+          "answer_ruby": "して おいて",
           "accepted": [],
+          "accepted_ruby": [],
           "options": [
+            "して あって",
+            "して おいて",
+            "して おきて"
+          ],
+          "options_ruby": [
             "して あって",
             "して おいて",
             "して おきて"
