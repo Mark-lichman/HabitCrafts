@@ -17,10 +17,10 @@ flowchart TB
     WEB --> APP
 
     subgraph fb["Firebase — project tiny-habits-jf61nl"]
-        AUTH["Authentication<br/>email + Google Sign-In"]
+        AUTH["Authentication<br/>email + Google Sign-In<br/>+ hidden anonymous sign-in for scoring"]
         FS["Cloud Firestore<br/>22 collections"]
         ST["Cloud Storage"]
-        FN["Cloud Functions<br/>11 functions"]
+        FN["Cloud Functions<br/>custom_cloud_functions · functions<br/>speech_functions"]
         FCM["Cloud Messaging"]
         OBS["Analytics · Crashlytics<br/>Performance"]
     end
@@ -34,6 +34,8 @@ flowchart TB
 
     ALG["Algolia<br/>user and group search"]
     APP --> ALG
+    AZ["Azure Speech<br/>pronunciation scoring"]
+    FN -->|"scorePronunciation"| AZ
     FN -->|"denormalises searchTerms"| FS
     FN -->|"scheduled reminders"| FCM
 
@@ -61,10 +63,10 @@ argument for not assuming an exit is cheap.
 
 Firestore is reached **directly from the client**. There is no API tier in between. That means
 Firestore security rules are not one layer of defence among several — they are the *only* thing
-standing between an anonymous caller and the database.
+standing between an unauthenticated caller and the database.
 
-At the time of writing those rules permit unauthenticated reads of every user document. See
-issue #1.
+Those rules require a real sign-in to read a user document, and an anonymous Firebase user counts
+as signed out (`signedIn()` in `firebase/firestore.rules`). See issue #1.
 
 ## Residual FlutterFlow dependency
 
