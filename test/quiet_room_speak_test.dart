@@ -541,6 +541,44 @@ void main() {
     });
 
     testWidgets(
+        'a right card adds the kanji surface, and never repeats a sentence '
+        'that has no kanji', (tester) async {
+      // Case 1: a sentence the lesson prints in kanji shows that form once.
+      final (index: index, s: s) = kanjiSentence();
+      final rig = Rig(reply: goodWithScore(95));
+      await rig.open(tester);
+      for (var i = 0; i < index; i++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
+      expect(find.text(s.surface), findsNothing);
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+      expect(find.text(s.surface), findsOneWidget);
+
+      // Case 2: a sentence with no kanji keeps its kana on the sentence card only.
+      final all = lesson26();
+      final plain = all.indexWhere((x) => x.surface == x.kana);
+      expect(plain, isNonNegative,
+          reason: 'lesson 26 has no kana-only sentence');
+      // Clear the tree first, or the drill keeps its State and the first rig's seams.
+      await tester.pumpWidget(const SizedBox());
+      final again = Rig(reply: goodWithScore(95));
+      await again.open(tester);
+      for (var i = 0; i < plain; i++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
+      await again.tapSpeak(tester);
+      await again.sayAndGoQuiet(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+      expect(
+          find.byWidgetPredicate((w) => w is Text && w.data == all[plain].kana),
+          findsOneWidget);
+    });
+
+    testWidgets(
         'a wrong score shows the score, colors each letter by its syllable and '
         'strikes the inserted word', (tester) async {
       final rig = Rig(reply: fixture(_badFixture));
@@ -774,6 +812,74 @@ void main() {
       await again.settle(tester);
       expect(find.text('Recent scores'), findsOneWidget);
       expect(find.textContaining('72.4 · close'), findsOneWidget);
+    });
+
+    testWidgets('the score log keeps the newest ${SpeakScoreLog.keep} attempts',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      // A device that already holds a full log.
+      await tester.runAsync(() async {
+        final p = await SharedPreferences.getInstance();
+        await p.setString(
+            SpeakScoreLog.prefsKey,
+            jsonEncode([
+              for (var i = 0; i < SpeakScoreLog.keep; i++)
+                {
+                  'sentence': 'seed $i',
+                  'verdict': 'correct',
+                  'overall': 90,
+                  'at': '2026-10-27T09:00:00.000',
+                  'words': [],
+                }
+            ]));
+      });
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      await rig.settle(tester);
+
+      final saved = await tester.runAsync(savedAttempts);
+      expect(saved, hasLength(SpeakScoreLog.keep));
+      // The oldest entry dropped off, and the new attempt is last.
+      expect(saved!.first['sentence'], 'seed 1');
+      expect(saved.map((a) => a['sentence']), isNot(contains('seed 0')));
+      expect(saved.last['sentence'], firstSentence().kana);
+    });
+
+    testWidgets('one bad log entry never hides the rest', (tester) async {
+      await Rig().open(tester);
+      await tester.runAsync(() async {
+        final p = await SharedPreferences.getInstance();
+        await p.setString(
+            SpeakScoreLog.prefsKey,
+            jsonEncode([
+              'not an attempt',
+              {'verdict': 'close', 'overall': 50, 'words': []},
+              {
+                'sentence': 'あたまが いたいんです。',
+                'verdict': 'close',
+                'overall': 72.4,
+                'at': '2026-10-27T09:00:00.000',
+                'words': [],
+              },
+            ]));
+      });
+      // Open the drill again on the same device.
+      final again = Rig();
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(MaterialApp(home: again.widget()));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await again.settle(tester);
+      expect(find.text('Recent scores'), findsOneWidget);
+      final rows = tester
+          .widgetList<Text>(find.descendant(
+              of: find.byKey(const ValueKey('speak-recent')),
+              matching: find.byType(Text)))
+          .map((w) => w.data ?? '')
+          .where((d) => d.contains('·'))
+          .toList();
+      expect(rows, hasLength(1));
+      expect(rows.single, contains('72.4 · close'));
     });
 
     testWidgets(

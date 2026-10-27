@@ -1,7 +1,8 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
-// The per-lesson speaking drill (PIN-6). It walks one grammar lesson's sentences point
-// by point: each point's examples, then its practice items with the answer in the blank.
+// The per-lesson speaking drill (2026-10-24 plan, PIN-6). It walks one grammar lesson's
+// sentences point by point: each point's examples, then its practice items with the
+// answer in the blank.
 // For each one the learner plays the sentence, speaks it once, and the drill scores it.
 //
 // Scoring is BY SOUND, not by spelling (plan 2026-10-27, Task 3). The drill hands the
@@ -29,7 +30,6 @@
 // score (PIN-8). Every attempt's sentence, scores and verdict stay on the device and the
 // newest are listed under "Recent scores", so the operator can tune the cutoffs (PIN-4).
 
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
