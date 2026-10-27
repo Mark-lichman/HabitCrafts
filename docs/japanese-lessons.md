@@ -254,6 +254,9 @@ is hiragana (`はります`). The phone has no reading dictionary, so the caller
 - **A grammar sentence:** its kanji version, the `_ruby` twin with the readings dropped. That
   covers the kanji of the whole sentence, not only a vocabulary word's forms.
 
+`judge()` runs both sides through `normalise()` first, so spacing and 。 in a kanji version do not
+turn an exact match into a partial one.
+
 An exact match with the hiragana or a kanji form is `correct`, a partial match is `close`, and a
 transcript it cannot compare is `unverified`. The UI shows what was heard and lets the learner
 decide. **Being unable to check is not the same as being wrong**, so no correct answer is ever
@@ -341,6 +344,9 @@ been the bug twice.
   Minna decks carry grammar tables (`ていねいけい` / `ふつうけい` against affirmative, negative,
   present and past) that defeat linear extraction.
 - **Real pronunciation scoring:** the paid tier above.
+- **Checks on the phone, after the release install:** the Japanese keyboard on the answer box,
+  spoken sentences checking automatically, and a spot check of the kanji twins and katakana.
+  `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
 
 ## Regenerating the vocabulary file
 
