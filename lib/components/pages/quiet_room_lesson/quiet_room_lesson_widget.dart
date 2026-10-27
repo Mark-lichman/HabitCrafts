@@ -195,8 +195,8 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
                 )),
             const SizedBox(height: 10),
             Text(
-              'Kana and English only. The sheets’ romaji is dropped: it is spelled '
-              'inconsistently across the course, and reading the kana is the point.'
+              'Hiragana, katakana and English only. The sheets’ romaji is dropped: it is '
+              'spelled inconsistently across the course, and reading the Japanese is the point.'
               '${missing.isEmpty ? '' : ' Lessons ${missing.join(', ')} have no usable source sheet.'}',
               style: GoogleFonts.schibstedGrotesk(
                   fontSize: 11.5, height: 1.45, color: t.inkSubtle),

@@ -1,0 +1,210 @@
+{
+  "lesson": 45,
+  "title": "In Case and Even Though",
+  "points": [
+    {
+      "id": "mari.L45.1",
+      "explain": "ばあいは means 'in case' or 'if that happens'. It is used to say what to do in a possible situation, often in instructions.",
+      "form": "ふつうForm + ばあいは",
+      "note": "With nouns use の (かじの ばあいは); with な-adjectives use な (ふべんな ばあいは).",
+      "examples": [
+        {
+          "jp": "ちこくする ばあいは、れんらくして ください。",
+          "jp_ruby": "ちこくする ばあいは、れんらくして ください。",
+          "en": "If you are going to be late, please let us know."
+        },
+        {
+          "jp": "かじの ばあいは、エレベーターを つかわないで ください。",
+          "jp_ruby": "火事{かじ}の ばあいは、エレベーターを 使{つか}わないで ください。",
+          "en": "In case of fire, please don't use the elevator."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "かぜを ひいた ＿＿は、やすんで ください。",
+          "prompt_ruby": "かぜを ひいた ＿＿は、休{やす}んで ください。",
+          "en": "If you catch a cold, please rest.",
+          "answer": "ばあい",
+          "answer_ruby": "ばあい",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Word meaning 'case'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "バスに ＿＿ ばあいは、タクシーで きて ください。",
+          "prompt_ruby": "バスに ＿＿ ばあいは、タクシーで 来{き}て ください。",
+          "en": "If you can't make the bus, please come by taxi.",
+          "answer": "まにあわない",
+          "answer_ruby": "まにあわない",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Plain negative form",
+          "options": [
+            "まにあわない",
+            "まにあわなくて",
+            "まにあいません"
+          ],
+          "options_ruby": [
+            "まにあわない",
+            "まにあわなくて",
+            "まにあいません"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "じしん＿＿ ばあいは、そとへ でないで ください。",
+          "prompt_ruby": "じしん＿＿ ばあいは、外{そと}へ 出{で}ないで ください。",
+          "en": "In case of an earthquake, please don't go outside.",
+          "answer": "の",
+          "answer_ruby": "の",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "な",
+            "で",
+            "の"
+          ],
+          "options_ruby": [
+            "な",
+            "で",
+            "の"
+          ],
+          "hint": "A noun joins ばあい with の.",
+          "why_wrong": {
+            "な": "な is for な-adjectives; じしん is a noun, so it takes の.",
+            "で": "で cannot link a noun to ばあい; use の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かぎを ＿＿ ばあいは、うけつけに いって ください。",
+          "prompt_ruby": "かぎを ＿＿ ばあいは、うけつけに 行{い}って ください。",
+          "en": "If you lose your key, please tell the front desk.",
+          "answer": "なくした",
+          "answer_ruby": "なくした",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "なくして",
+            "なくした",
+            "なくします"
+          ],
+          "options_ruby": [
+            "なくして",
+            "なくした",
+            "なくします"
+          ],
+          "hint": "ばあい follows a plain form, such as the plain past.",
+          "why_wrong": {
+            "なくして": "The てForm cannot go before ばあい; use a plain form.",
+            "なくします": "The polite ます form cannot go before ばあい; use a plain form."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L45.2",
+      "explain": "Plain form + のに means 'even though'. It shows the result was not what you expected, often with surprise, regret, or complaint.",
+      "form": "ふつうForm + のに",
+      "note": "With な-adjectives and nouns, use な: ひまなのに, にちようびなのに. Don't end with a request or plan after のに.",
+      "examples": [
+        {
+          "jp": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
+          "jp_ruby": "いっしょうけんめい 勉強{べんきょう}したのに、おちて しまいました。",
+          "en": "Even though I studied very hard, I failed."
+        },
+        {
+          "jp": "やくそくを したのに、かれは きませんでした。",
+          "jp_ruby": "やくそくを したのに、かれは 来{き}ませんでした。",
+          "en": "Even though he promised, he didn't come."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "にちようび＿＿、かいしゃへ いかなければ なりません。",
+          "prompt_ruby": "日曜日{にちようび}＿＿、会社{かいしゃ}へ 行{い}かなければ なりません。",
+          "en": "Even though it's Sunday, I have to go to work.",
+          "answer": "なのに",
+          "answer_ruby": "なのに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Noun + な + paradox word"
+        },
+        {
+          "kind": "choose",
+          "prompt": "くすりを ＿＿のに、まだ ねつが あります。",
+          "prompt_ruby": "くすりを ＿＿のに、まだ ねつが あります。",
+          "en": "Even though I took medicine, I still have a fever.",
+          "answer": "のんだ",
+          "answer_ruby": "飲{の}んだ",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Plain past form",
+          "options": [
+            "のんだ",
+            "のみ",
+            "のんで"
+          ],
+          "options_ruby": [
+            "飲{の}んだ",
+            "飲{の}み",
+            "飲{の}んで"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "さむい＿＿、かれは コートを きないで でかけました。",
+          "prompt_ruby": "さむい＿＿、かれは コートを 着{き}ないで 出{で}かけました。",
+          "en": "Even though it's cold, he went out without a coat.",
+          "answer": "のに",
+          "answer_ruby": "のに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "ので",
+            "のに",
+            "ために"
+          ],
+          "options_ruby": [
+            "ので",
+            "のに",
+            "ために"
+          ],
+          "hint": "のに links two facts when the result goes against what you expect.",
+          "why_wrong": {
+            "ので": "ので means 'because', and cold is no reason to skip a coat.",
+            "ために": "ために gives a purpose or cause. It cannot show an unexpected result."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "まどを ＿＿のに、へやが さむいです。",
+          "prompt_ruby": "まどを ＿＿のに、へやが さむいです。",
+          "en": "Even though I closed the window, the room is cold.",
+          "answer": "しめた",
+          "answer_ruby": "しめた",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "しめて",
+            "しめ",
+            "しめた"
+          ],
+          "options_ruby": [
+            "しめて",
+            "しめ",
+            "しめた"
+          ],
+          "hint": "のに follows a plain form; here the plain past.",
+          "why_wrong": {
+            "しめて": "The てForm cannot go before のに; use a plain form.",
+            "しめ": "The ます stem cannot go before のに; use a plain form."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,12 +1,32 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    // Signed in with a real account. The speaking drill signs in
+    // anonymously only to call the scoring function (PIN-9), so an
+    // anonymous user counts as signed out for every rule. With no sign-in,
+    // reading request.auth.uid is an error, and an error denies.
+    function signedIn() {
+      return request.auth.uid != null
+          && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
+
+    // Written to match live ruleset d3a07e98 (Firebase console, 2026-10-27).
+    // The repo holds no copy of d3a07e98. Before the rules deploy in the
+    // plan's Operator setup, diff this file against the console text of
+    // d3a07e98. The line that diff must confirm is the read below:
+    // a signed-in user reads every file, including cms_uploads/, gifs/,
+    // icons/ and videos/, where branch fix/account-deletion-and-read-rules
+    // let a signed-in user read only under users/. The live ruleset before
+    // d3a07e98 (not this repo's earlier file) let any signed-in user read
+    // and write everything.
+    match /{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    // Only the owner writes under their own folder: profile photos and
+    // anything attached to a message.
     match /users/{userId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth.uid == userId;
+      allow write: if signedIn() && request.auth.uid == userId;
     }
   }
 }

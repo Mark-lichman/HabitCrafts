@@ -1,0 +1,3536 @@
+{
+ "source_id": "s01_number",
+ "sha256": "ee178f2a26d8c89badc2c29a5023ad7005dd910a0358573def13fafc078f05ec",
+ "state": "needs_review",
+ "item_count": 267,
+ "validation": {
+  "passed": true,
+  "failures": []
+ },
+ "review_notes": [
+  "unmarked change: 〜か月 11 = じゅういっかげつ, plain would be じゅういちかげつ"
+ ],
+ "footnotes": {
+  "1": [
+   "* 20 years old = はたち",
+   "* For 10, じゅっ〜 can also be read じっ〜 (e.g. じっぽん).",
+   "* Readings in ( ) are also used."
+  ],
+  "2": [
+   "* 1日 is ついたちfor a date (the 1st), but いちにちfor a length of time (one day).",
+   "* Days 2–10 use the same readings for lengths of time (e.g. ふつかかん = for two days).",
+   "* For April, July and September, do not use よん, なな or きゅう."
+  ],
+  "3": [
+   "* 間 (かん) can be added to 分, 日 and 年: いっぷんかん, ふつかかん, いちねんかん.",
+   "* 1日 as a length of time is いちにち(as a date it is ついたち).",
+   "* か月 is also written ヶ月 or カ月. All are read かげつ.",
+   "* Half: 半年 = はんとし, 1時間半 = いちじかんはん."
+  ]
+ },
+ "legend": {
+  "sound_change": "the sound of the number or counter changes",
+  "special": "special reading, learn it as a word"
+ },
+ "items": [
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "ひとつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "ふたつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "みっつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "よっつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "いつつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "むっつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "ななつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "やっつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "ここのつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "とお",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "つ",
+    "kana": "ひとつ…",
+    "gloss": "general things"
+   },
+   "reading": "いくつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.つ.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "いっこ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.個.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "にこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "さんこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "よんこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "ごこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "ろっこ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.個.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "ななこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "はっこ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.個.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "きゅうこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "じゅっこ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.個.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "個",
+    "kana": "こ",
+    "gloss": "apples, eggs"
+   },
+   "reading": "なんこ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.個.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "ひとり",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.人.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "ふたり",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.人.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "さんにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "よにん",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.counters.人.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "ごにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "ろくにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "しちにん",
+   "alt": [
+    "ななにん"
+   ],
+   "mark": "regular",
+   "id": "s01_number.counters.人.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "はちにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "きゅうにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "じゅうにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "人",
+    "kana": "にん",
+    "gloss": "people"
+   },
+   "reading": "なんにん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.人.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "いっぽん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "にほん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.本.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "さんぼん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "よんほん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.本.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "ごほん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.本.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "ろっぽん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "ななほん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.本.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "はっぽん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "きゅうほん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.本.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "じゅっぽん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "本",
+    "kana": "ほん",
+    "gloss": "pens, bottles"
+   },
+   "reading": "なんぼん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.本.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "いちまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "にまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "さんまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "よんまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "ごまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "ろくまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "ななまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "はちまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "きゅうまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "じゅうまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "枚",
+    "kana": "まい",
+    "gloss": "paper, shirts"
+   },
+   "reading": "なんまい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.枚.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "いっぴき",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "にひき",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.匹.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "さんびき",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "よんひき",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.匹.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "ごひき",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.匹.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "ろっぴき",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "ななひき",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.匹.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "はっぴき",
+   "alt": [
+    "はちひき"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "きゅうひき",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.匹.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "じゅっぴき",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "匹",
+    "kana": "ひき",
+    "gloss": "dogs, cats, fish"
+   },
+   "reading": "なんびき",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.匹.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "いっさつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.冊.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "にさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "さんさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "よんさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "ごさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "ろくさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "ななさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "はっさつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.冊.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "きゅうさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "じゅっさつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.冊.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "冊",
+    "kana": "さつ",
+    "gloss": "books, notebooks"
+   },
+   "reading": "なんさつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.冊.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "いちだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "にだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "さんだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "よんだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "ごだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "ろくだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "ななだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "はちだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "きゅうだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "じゅうだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "台",
+    "kana": "だい",
+    "gloss": "cars, computers"
+   },
+   "reading": "なんだい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.台.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "いっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.回.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "にかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "さんかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "よんかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "ごかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "ろっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.回.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "ななかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "はっかい",
+   "alt": [
+    "はちかい"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.回.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "きゅうかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "じゅっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.回.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "回",
+    "kana": "かい",
+    "gloss": "times (how often)"
+   },
+   "reading": "なんかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.回.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "いっぱい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "にはい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.杯.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "さんばい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "よんはい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.杯.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "ごはい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.杯.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "ろっぱい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "ななはい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.杯.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "はっぱい",
+   "alt": [
+    "はちはい"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "きゅうはい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.杯.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "じゅっぱい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "杯",
+    "kana": "はい",
+    "gloss": "cups, bowls"
+   },
+   "reading": "なんばい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.杯.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "いっさい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.歳.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "にさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "さんさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "よんさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "ごさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "ろくさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "ななさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "はっさい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.歳.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "きゅうさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "じゅっさい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.歳.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "歳",
+    "kana": "さい",
+    "gloss": "age"
+   },
+   "reading": "なんさい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.歳.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "いっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "にふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.分.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "さんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "よんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "ごふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.分.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "ろっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "ななふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.分.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "はっぷん",
+   "alt": [
+    "はちふん"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "きゅうふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.分.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "じゅっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "分",
+    "kana": "ふん",
+    "gloss": "minutes"
+   },
+   "reading": "なんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.分.何"
+  },
+  {
+   "table": "counters",
+   "number": "1",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "いっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.1"
+  },
+  {
+   "table": "counters",
+   "number": "2",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "にかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.階.2"
+  },
+  {
+   "table": "counters",
+   "number": "3",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "さんがい",
+   "alt": [
+    "さんかい"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.3"
+  },
+  {
+   "table": "counters",
+   "number": "4",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "よんかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.階.4"
+  },
+  {
+   "table": "counters",
+   "number": "5",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "ごかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.階.5"
+  },
+  {
+   "table": "counters",
+   "number": "6",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "ろっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.6"
+  },
+  {
+   "table": "counters",
+   "number": "7",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "ななかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.階.7"
+  },
+  {
+   "table": "counters",
+   "number": "8",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "はっかい",
+   "alt": [
+    "はちかい"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.8"
+  },
+  {
+   "table": "counters",
+   "number": "9",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "きゅうかい",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.counters.階.9"
+  },
+  {
+   "table": "counters",
+   "number": "10",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "じゅっかい",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.10"
+  },
+  {
+   "table": "counters",
+   "number": "何",
+   "counter": {
+    "written": "階",
+    "kana": "かい",
+    "gloss": "floors"
+   },
+   "reading": "なんがい",
+   "alt": [
+    "なんかい"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.counters.階.何"
+  },
+  {
+   "table": "months",
+   "number": "1",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "いちがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.1"
+  },
+  {
+   "table": "months",
+   "number": "2",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "にがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.2"
+  },
+  {
+   "table": "months",
+   "number": "3",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "さんがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.3"
+  },
+  {
+   "table": "months",
+   "number": "4",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "しがつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.months.〜月.4"
+  },
+  {
+   "table": "months",
+   "number": "5",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "ごがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.5"
+  },
+  {
+   "table": "months",
+   "number": "6",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "ろくがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.6"
+  },
+  {
+   "table": "months",
+   "number": "7",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "しちがつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.months.〜月.7"
+  },
+  {
+   "table": "months",
+   "number": "8",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "はちがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.8"
+  },
+  {
+   "table": "months",
+   "number": "9",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "くがつ",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.months.〜月.9"
+  },
+  {
+   "table": "months",
+   "number": "10",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "じゅうがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.10"
+  },
+  {
+   "table": "months",
+   "number": "11",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "じゅういちがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.11"
+  },
+  {
+   "table": "months",
+   "number": "12",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "じゅうにがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.12"
+  },
+  {
+   "table": "months",
+   "number": "何",
+   "counter": {
+    "written": "〜月",
+    "kana": "",
+    "gloss": "month name"
+   },
+   "reading": "なんがつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜月.何"
+  },
+  {
+   "table": "months",
+   "number": "1",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "いっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.months.〜か月.1"
+  },
+  {
+   "table": "months",
+   "number": "2",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "にかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.2"
+  },
+  {
+   "table": "months",
+   "number": "3",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "さんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.3"
+  },
+  {
+   "table": "months",
+   "number": "4",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "よんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.4"
+  },
+  {
+   "table": "months",
+   "number": "5",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "ごかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.5"
+  },
+  {
+   "table": "months",
+   "number": "6",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "ろっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.months.〜か月.6"
+  },
+  {
+   "table": "months",
+   "number": "7",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "ななかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.7"
+  },
+  {
+   "table": "months",
+   "number": "8",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "はっかげつ",
+   "alt": [
+    "はちかげつ"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.months.〜か月.8"
+  },
+  {
+   "table": "months",
+   "number": "9",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "きゅうかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.9"
+  },
+  {
+   "table": "months",
+   "number": "10",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "じゅっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.months.〜か月.10"
+  },
+  {
+   "table": "months",
+   "number": "11",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "じゅういっかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.11"
+  },
+  {
+   "table": "months",
+   "number": "12",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "じゅうにかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.12"
+  },
+  {
+   "table": "months",
+   "number": "何",
+   "counter": {
+    "written": "〜か月",
+    "kana": "",
+    "gloss": "number of months"
+   },
+   "reading": "なんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.months.〜か月.何"
+  },
+  {
+   "table": "dates",
+   "number": "1",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "ついたち",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.1"
+  },
+  {
+   "table": "dates",
+   "number": "2",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "ふつか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.2"
+  },
+  {
+   "table": "dates",
+   "number": "3",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "みっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.3"
+  },
+  {
+   "table": "dates",
+   "number": "4",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "よっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.4"
+  },
+  {
+   "table": "dates",
+   "number": "5",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "いつか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.5"
+  },
+  {
+   "table": "dates",
+   "number": "6",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "むいか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.6"
+  },
+  {
+   "table": "dates",
+   "number": "7",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "なのか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.7"
+  },
+  {
+   "table": "dates",
+   "number": "8",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "ようか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.8"
+  },
+  {
+   "table": "dates",
+   "number": "9",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "ここのか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.9"
+  },
+  {
+   "table": "dates",
+   "number": "10",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "とおか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.10"
+  },
+  {
+   "table": "dates",
+   "number": "11",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅういちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.11"
+  },
+  {
+   "table": "dates",
+   "number": "12",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうににち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.12"
+  },
+  {
+   "table": "dates",
+   "number": "13",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうさんにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.13"
+  },
+  {
+   "table": "dates",
+   "number": "14",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうよっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.14"
+  },
+  {
+   "table": "dates",
+   "number": "15",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうごにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.15"
+  },
+  {
+   "table": "dates",
+   "number": "16",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうろくにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.16"
+  },
+  {
+   "table": "dates",
+   "number": "17",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうしちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.17"
+  },
+  {
+   "table": "dates",
+   "number": "18",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうはちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.18"
+  },
+  {
+   "table": "dates",
+   "number": "19",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "じゅうくにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.19"
+  },
+  {
+   "table": "dates",
+   "number": "20",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "はつか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.20"
+  },
+  {
+   "table": "dates",
+   "number": "21",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅういちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.21"
+  },
+  {
+   "table": "dates",
+   "number": "22",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうににち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.22"
+  },
+  {
+   "table": "dates",
+   "number": "23",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうさんにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.23"
+  },
+  {
+   "table": "dates",
+   "number": "24",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうよっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.dates.日.24"
+  },
+  {
+   "table": "dates",
+   "number": "25",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうごにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.25"
+  },
+  {
+   "table": "dates",
+   "number": "26",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうろくにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.26"
+  },
+  {
+   "table": "dates",
+   "number": "27",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうしちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.27"
+  },
+  {
+   "table": "dates",
+   "number": "28",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうはちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.28"
+  },
+  {
+   "table": "dates",
+   "number": "29",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "にじゅうくにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.29"
+  },
+  {
+   "table": "dates",
+   "number": "30",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "さんじゅうにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.30"
+  },
+  {
+   "table": "dates",
+   "number": "31",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "さんじゅういちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.31"
+  },
+  {
+   "table": "dates",
+   "number": "何",
+   "counter": {
+    "written": "日",
+    "kana": "",
+    "gloss": "day of the month"
+   },
+   "reading": "なんにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.dates.日.何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "いっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "にふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.分(間).2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "さんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "よんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "ごふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.分(間).5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "ろっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "ななふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.分(間).7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "はっぷん",
+   "alt": [
+    "はちふん"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "きゅうふん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.分(間).9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "じゅっぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "分(間)",
+    "kana": "ふん(かん)",
+    "gloss": "minutes"
+   },
+   "reading": "なんぷん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.分(間).何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "いちじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "にじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "さんじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "よじかん",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.時間.4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "ごじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "ろくじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "しちじかん",
+   "alt": [
+    "ななじかん"
+   ],
+   "mark": "special",
+   "id": "s01_number.durations.時間.7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "はちじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "くじかん",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.時間.9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "じゅうじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "時間",
+    "kana": "じかん",
+    "gloss": "hours"
+   },
+   "reading": "なんじかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.時間.何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "いちにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.日(間).1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "ふつか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "みっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "よっか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "いつか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "むいか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "なのか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "ようか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "ここのか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "とおか",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.日(間).10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "日(間)",
+    "kana": "にち(かん)",
+    "gloss": "days"
+   },
+   "reading": "なんにち",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.日(間).何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "いっしゅうかん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.週間.1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "にしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "さんしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "よんしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "ごしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "ろくしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "ななしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "はっしゅうかん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.週間.8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "きゅうしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "じゅっしゅうかん",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.週間.10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "週間",
+    "kana": "しゅうかん",
+    "gloss": "weeks"
+   },
+   "reading": "なんしゅうかん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.週間.何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "いっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.か月.1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "にかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "さんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "よんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "ごかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "ろっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.か月.6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "ななかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "はっかげつ",
+   "alt": [
+    "はちかげつ"
+   ],
+   "mark": "sound_change",
+   "id": "s01_number.durations.か月.8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "きゅうかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "じゅっかげつ",
+   "alt": [],
+   "mark": "sound_change",
+   "id": "s01_number.durations.か月.10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "か月",
+    "kana": "かげつ",
+    "gloss": "months"
+   },
+   "reading": "なんかげつ",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.か月.何"
+  },
+  {
+   "table": "durations",
+   "number": "1",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "いちねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).1"
+  },
+  {
+   "table": "durations",
+   "number": "2",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "にねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).2"
+  },
+  {
+   "table": "durations",
+   "number": "3",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "さんねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).3"
+  },
+  {
+   "table": "durations",
+   "number": "4",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "よねん",
+   "alt": [],
+   "mark": "special",
+   "id": "s01_number.durations.年(間).4"
+  },
+  {
+   "table": "durations",
+   "number": "5",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "ごねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).5"
+  },
+  {
+   "table": "durations",
+   "number": "6",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "ろくねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).6"
+  },
+  {
+   "table": "durations",
+   "number": "7",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "ななねん",
+   "alt": [
+    "しちねん"
+   ],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).7"
+  },
+  {
+   "table": "durations",
+   "number": "8",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "はちねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).8"
+  },
+  {
+   "table": "durations",
+   "number": "9",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "きゅうねん",
+   "alt": [
+    "くねん"
+   ],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).9"
+  },
+  {
+   "table": "durations",
+   "number": "10",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "じゅうねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).10"
+  },
+  {
+   "table": "durations",
+   "number": "何",
+   "counter": {
+    "written": "年(間)",
+    "kana": "ねん(かん)",
+    "gloss": "years"
+   },
+   "reading": "なんねん",
+   "alt": [],
+   "mark": "regular",
+   "id": "s01_number.durations.年(間).何"
+  }
+ ]
+}

@@ -1,0 +1,408 @@
+{
+  "lesson": 34,
+  "title": "Following Instructions and Order",
+  "points": [
+    {
+      "id": "mari.L34.1",
+      "explain": "とおりに means 'just as' or 'the way.' Use it to say you do something exactly as someone said, showed, or did.",
+      "form": "じしょForm／たForm／Nounの ＋ とおりに、〜",
+      "note": "After a noun, add の: せつめいしょの とおりに. Verbs connect directly, with no の.",
+      "examples": [
+        {
+          "jp": "せんせいの いう とおりに かいて ください。",
+          "jp_ruby": "先生{せんせい}の 言{い}う とおりに 書{か}いて ください。",
+          "en": "Please write it just as the teacher says."
+        },
+        {
+          "jp": "わたしが やった とおりに、やって ください。",
+          "jp_ruby": "私{わたし}が やった とおりに、やって ください。",
+          "en": "Please do it just the way I did."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "せんせいが いった ＿＿ かいて ください。",
+          "prompt_ruby": "先生{せんせい}が 言{い}った ＿＿ 書{か}いて ください。",
+          "en": "Please write it just as the teacher said.",
+          "answer": "とおりに",
+          "answer_ruby": "とおりに",
+          "accepted": [
+            "ように"
+          ],
+          "accepted_ruby": [
+            "ように"
+          ],
+          "hint": "the phrase meaning 'just as'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "せつめいしょ＿＿ とおりに くみたてて ください。",
+          "prompt_ruby": "せつめいしょ＿＿ とおりに くみたてて ください。",
+          "en": "Please assemble it according to the instructions.",
+          "answer": "の",
+          "answer_ruby": "の",
+          "options": [
+            "の",
+            "が",
+            "を"
+          ],
+          "options_ruby": [
+            "の",
+            "が",
+            "を"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "a noun needs a linking particle before とおりに"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが ＿＿ とおりに、つくって ください。",
+          "prompt_ruby": "私{わたし}が ＿＿ とおりに、作{つく}って ください。",
+          "en": "Please make it just the way I made it.",
+          "answer": "つくった",
+          "answer_ruby": "作{つく}った",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "つくって",
+            "つくった",
+            "つくったの"
+          ],
+          "options_ruby": [
+            "作{つく}って",
+            "作{つく}った",
+            "作{つく}ったの"
+          ],
+          "hint": "A verb connects to とおりに directly in its plain form, with no の.",
+          "why_wrong": {
+            "つくって": "The て form cannot come right before とおりに.",
+            "つくったの": "Only nouns take の before とおりに; verbs connect directly."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "＿＿ とおりに、ならべて ください。",
+          "prompt_ruby": "＿＿ とおりに、ならべて ください。",
+          "en": "Please line them up as shown in the picture.",
+          "answer": "えの",
+          "answer_ruby": "えの",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "え",
+            "えが",
+            "えの"
+          ],
+          "options_ruby": [
+            "え",
+            "えが",
+            "えの"
+          ],
+          "hint": "A noun needs の before とおりに.",
+          "why_wrong": {
+            "え": "A noun cannot attach to とおりに without の.",
+            "えが": "が marks a subject; a noun links to とおりに with の."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L34.2",
+      "explain": "あとで means 'after.' Use it to say one action happens after another one is finished.",
+      "form": "たForm／Nounの ＋ あとで、〜",
+      "note": "Use the た form even for future plans: たべた あとで, not たべる あとで.",
+      "examples": [
+        {
+          "jp": "しごとが おわった あとで、のみに いきます。",
+          "jp_ruby": "仕事{しごと}が 終{お}わった 後{あと}で、飲{の}みに 行{い}きます。",
+          "en": "After work is over, I'll go out for drinks."
+        },
+        {
+          "jp": "しょくじの あとで、さんぽします。",
+          "jp_ruby": "食事{しょくじ}の 後{あと}で、さんぽします。",
+          "en": "After the meal, I take a walk."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "しゅくだいを ＿＿ あとで、テレビを みます。",
+          "prompt_ruby": "しゅくだいを ＿＿ 後{あと}で、テレビを 見{み}ます。",
+          "en": "After I do my homework, I'll watch TV.",
+          "answer": "した",
+          "answer_ruby": "した",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "た form of します"
+        },
+        {
+          "kind": "choose",
+          "prompt": "かいぎ＿＿ あとで、でんわします。",
+          "prompt_ruby": "かいぎ＿＿ 後{あと}で、電話{でんわ}します。",
+          "en": "I'll call after the meeting.",
+          "answer": "の",
+          "answer_ruby": "の",
+          "options": [
+            "の",
+            "が",
+            "を"
+          ],
+          "options_ruby": [
+            "の",
+            "が",
+            "を"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "a noun needs a linking particle before あとで"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おふろに ＿＿ あとで、ビールを のみます。",
+          "prompt_ruby": "おふろに ＿＿ 後{あと}で、ビールを 飲{の}みます。",
+          "en": "After I take a bath, I drink beer.",
+          "answer": "はいった",
+          "answer_ruby": "入{はい}った",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "はいる",
+            "はいって",
+            "はいった"
+          ],
+          "options_ruby": [
+            "入{はい}る",
+            "入{はい}って",
+            "入{はい}った"
+          ],
+          "hint": "あとで always follows the た form, even for habits or future plans.",
+          "why_wrong": {
+            "はいる": "The dictionary form goes with まえに, not あとで.",
+            "はいって": "The て form cannot come right before あとで."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "はを みがいた ＿＿、なにも たべません。",
+          "prompt_ruby": "はを みがいた ＿＿、何{なに}も 食{た}べません。",
+          "en": "After I brush my teeth, I don't eat anything.",
+          "answer": "あとで",
+          "answer_ruby": "後{あと}で",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "まえに",
+            "あとで",
+            "ながら"
+          ],
+          "options_ruby": [
+            "前{まえ}に",
+            "後{あと}で",
+            "ながら"
+          ],
+          "hint": "A た form followed by あとで means 'after doing.'",
+          "why_wrong": {
+            "まえに": "まえに means 'before' and needs the dictionary form, not the た form.",
+            "ながら": "ながら means 'while' and attaches to the ます stem, not the た form."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L34.3",
+      "explain": "Use a て form or ないで before the main verb to say how you do it: in what state, or without doing something.",
+      "form": "てForm／ないFormで ＋ main verb",
+      "note": "The first verb describes the manner of the second, not a separate step: かさを もって でかけます means you go out carrying an umbrella.",
+      "examples": [
+        {
+          "jp": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
+          "jp_ruby": "立{た}って テレビを 見{み}ます。／何{なに}も 食{た}べないで 学校{がっこう}へ 行{い}きます。",
+          "en": "I watch TV standing up. / I go to school without eating anything."
+        },
+        {
+          "jp": "かさを もって でかけます。",
+          "jp_ruby": "かさを 持{も}って 出{で}かけます。",
+          "en": "I go out with an umbrella."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "めがねを ＿＿ しんぶんを よみます。",
+          "prompt_ruby": "めがねを ＿＿ 新聞{しんぶん}を 読{よ}みます。",
+          "en": "I read the newspaper with my glasses on.",
+          "answer": "かけて",
+          "answer_ruby": "かけて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "て form of かけます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あさごはんを ＿＿ かいしゃへ いきました。",
+          "prompt_ruby": "朝{あさ}ご飯{はん}を ＿＿ 会社{かいしゃ}へ 行{い}きました。",
+          "en": "I went to work without eating breakfast.",
+          "answer": "たべないで",
+          "answer_ruby": "食{た}べないで",
+          "options": [
+            "たべないで",
+            "たべないの",
+            "たべません"
+          ],
+          "options_ruby": [
+            "食{た}べないで",
+            "食{た}べないの",
+            "食{た}べません"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "ないで form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ぼうしを ＿＿ そとへ でました。",
+          "prompt_ruby": "ぼうしを ＿＿ 外{そと}へ 出{で}ました。",
+          "en": "I went outside wearing a hat.",
+          "answer": "かぶって",
+          "answer_ruby": "かぶって",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "かぶります",
+            "かぶって",
+            "かぶるて"
+          ],
+          "options_ruby": [
+            "かぶります",
+            "かぶって",
+            "かぶるて"
+          ],
+          "hint": "A て form before the main verb shows the state you do it in.",
+          "why_wrong": {
+            "かぶります": "A ます form ends a sentence; it cannot link to another verb.",
+            "かぶるて": "て attaches to the て form, not the dictionary form: かぶって."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かさを ＿＿ でかけたので、ぬれました。",
+          "prompt_ruby": "かさを ＿＿ 出{で}かけたので、ぬれました。",
+          "en": "I went out without an umbrella, so I got wet.",
+          "answer": "もたないで",
+          "answer_ruby": "持{も}たないで",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "もって",
+            "もたないで",
+            "もたなくて"
+          ],
+          "options_ruby": [
+            "持{も}って",
+            "持{も}たないで",
+            "持{も}たなくて"
+          ],
+          "hint": "ないで before the main verb means 'without doing.'",
+          "why_wrong": {
+            "もって": "This means 'carrying an umbrella,' so getting wet makes no sense.",
+            "もたなくて": "なくて gives a reason; it cannot describe how you went out."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L34.4",
+      "explain": "ないで means 'without doing.' Use it to say you do the main action without doing something, or do one thing instead of another.",
+      "form": "ないForm＋で、〜",
+      "note": "Do not use なくて here. なくて gives a reason; ないで shows how you act or what you do instead.",
+      "examples": [
+        {
+          "jp": "じしょを つかわないで、よんで ください。",
+          "jp_ruby": "じしょを 使{つか}わないで、読{よ}んで ください。",
+          "en": "Please read it without using a dictionary."
+        },
+        {
+          "jp": "にちようびは どこも いかないで、うちで やすみます。",
+          "jp_ruby": "日曜日{にちようび}は どこも 行{い}かないで、うちで 休{やす}みます。",
+          "en": "On Sundays I don't go anywhere; I rest at home."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "さとうを ＿＿ コーヒーを のみます。",
+          "prompt_ruby": "さとうを ＿＿ コーヒーを 飲{の}みます。",
+          "en": "I drink coffee without putting in sugar.",
+          "answer": "いれないで",
+          "answer_ruby": "入{い}れないで",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "ないで form of いれます"
+        },
+        {
+          "kind": "fill",
+          "prompt": "でんきを ＿＿ ねて しまいました。",
+          "prompt_ruby": "電気{でんき}を ＿＿ ねて しまいました。",
+          "en": "I fell asleep without turning off the light.",
+          "answer": "けさないで",
+          "answer_ruby": "けさないで",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "ないで form of けします"
+        },
+        {
+          "kind": "choose",
+          "prompt": "テキストを ＿＿ こたえて ください。",
+          "prompt_ruby": "テキストを ＿＿ 答{こた}えて ください。",
+          "en": "Please answer without looking at the textbook.",
+          "answer": "みないで",
+          "answer_ruby": "見{み}ないで",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "みなくて",
+            "みらないで",
+            "みないで"
+          ],
+          "options_ruby": [
+            "見{み}なくて",
+            "見{み}らないで",
+            "見{み}ないで"
+          ],
+          "hint": "Use ないで, not なくて, to say 'without doing.'",
+          "why_wrong": {
+            "みなくて": "なくて gives a reason and cannot lead into a request.",
+            "みらないで": "みます is Group II: drop ます and add ない, so みない."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "でんしゃに ＿＿、あるいて かえりました。",
+          "prompt_ruby": "電車{でんしゃ}に ＿＿、歩{ある}いて 帰{かえ}りました。",
+          "en": "I walked home instead of taking the train.",
+          "answer": "のらないで",
+          "answer_ruby": "のらないで",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "のらないで",
+            "のりないで",
+            "のらない"
+          ],
+          "options_ruby": [
+            "のらないで",
+            "のりないで",
+            "のらない"
+          ],
+          "hint": "ないで means doing one thing instead of another.",
+          "why_wrong": {
+            "のりないで": "のります is Group I: the ない form is のらない.",
+            "のらない": "Without で, the ない form cannot link to the next verb."
+          }
+        }
+      ]
+    }
+  ]
+}

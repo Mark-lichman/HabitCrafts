@@ -1,0 +1,414 @@
+{
+  "lesson": 48,
+  "title": "Making and Letting Someone Act",
+  "points": [
+    {
+      "id": "mari.L48.1",
+      "explain": "Causative verbs mean 'make or let someone do'. Group 1 verbs change the last sound to the あ row + せる; Group 2 verbs add させる to the stem.",
+      "form": "Group1: あ row + せる / Group2: stem + させる",
+      "note": "Irregular: する becomes させる and くる becomes こさせる. Verbs ending in う use わ: かう becomes かわせる.",
+      "examples": [
+        {
+          "jp": "いかせる／たべさせる／させる／こさせる",
+          "jp_ruby": "行{い}かせる／食{た}べさせる／させる／来{こ}させる",
+          "en": "to make go, to make eat, to make do, to make come"
+        },
+        {
+          "jp": "むすめに パンを かわせました。",
+          "jp_ruby": "むすめに パンを 買{か}わせました。",
+          "en": "I had my daughter buy bread."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "ともだちを ながく ＿＿ しまいました。",
+          "prompt_ruby": "ともだちを 長{なが}く ＿＿ しまいました。",
+          "en": "I ended up making my friend wait a long time.",
+          "answer": "またせて",
+          "answer_ruby": "待{ま}たせて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Causative of まちます, in てForm"
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいは がくせいに さくぶんを ＿＿。",
+          "prompt_ruby": "先生{せんせい}は 学生{がくせい}に 作文{さくぶん}を ＿＿。",
+          "en": "The teacher made the students write an essay.",
+          "answer": "かかせました",
+          "answer_ruby": "書{か}かせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Group 1 causative: あ row + せる",
+          "options": [
+            "かかせました",
+            "かきさせました",
+            "かくさせました"
+          ],
+          "options_ruby": [
+            "書{か}かせました",
+            "書{か}きさせました",
+            "書{か}くさせました"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "ははは こどもに やさいを ＿＿。",
+          "prompt_ruby": "母{はは}は こどもに やさいを ＿＿。",
+          "en": "My mother made the children eat vegetables.",
+          "answer": "たべさせました",
+          "answer_ruby": "食{た}べさせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "たべられました",
+            "たべさせました",
+            "たべせました"
+          ],
+          "options_ruby": [
+            "食{た}べられました",
+            "食{た}べさせました",
+            "食{た}べせました"
+          ],
+          "hint": "Group 2 verbs add させる to the stem: たべる becomes たべさせる.",
+          "why_wrong": {
+            "たべられました": "られる is the passive, 'was eaten', not 'made someone eat'.",
+            "たべせました": "Group 2 verbs need させる, not just せる."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ぶちょうは あさ はやく わたしを かいしゃに ＿＿。",
+          "prompt_ruby": "ぶちょうは 朝{あさ} 早{はや}く 私{わたし}を 会社{かいしゃ}に ＿＿。",
+          "en": "The manager made me come to the office early in the morning.",
+          "answer": "こさせました",
+          "answer_ruby": "来{こ}させました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "きさせました",
+            "こせました",
+            "こさせました"
+          ],
+          "options_ruby": [
+            "来{き}させました",
+            "来{こ}せました",
+            "来{こ}させました"
+          ],
+          "hint": "くる is irregular: its causative is こさせる.",
+          "why_wrong": {
+            "きさせました": "くる changes to こ, not き, in the causative.",
+            "こせました": "The causative of くる needs させる: こさせる."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L48.2",
+      "explain": "With verbs that take no object, like いく or たつ, mark the person you make or let act with を. It can mean forcing or allowing.",
+      "form": "Personを + しえきけい",
+      "note": "If the verb already has a を object, the person takes に instead (see the next point).",
+      "examples": [
+        {
+          "jp": "せんせいは がくせいを たたせました。",
+          "jp_ruby": "先生{せんせい}は 学生{がくせい}を 立{た}たせました。",
+          "en": "The teacher made the student stand up."
+        },
+        {
+          "jp": "こどもを こうえんで あそばせます。",
+          "jp_ruby": "こどもを こうえんで あそばせます。",
+          "en": "I let my children play in the park."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "ぶちょうは ミラーさんを おおさかへ ＿＿。",
+          "prompt_ruby": "ぶちょうは ミラーさんを おおさかへ ＿＿。",
+          "en": "The manager sent Mr. Miller on a business trip to Osaka.",
+          "answer": "しゅっちょうさせました",
+          "answer_ruby": "しゅっちょうさせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Causative of しゅっちょうします, polite past"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おもしろい はなしで みんなを ＿＿。",
+          "prompt_ruby": "おもしろい 話{はなし}で みんなを ＿＿。",
+          "en": "I made everyone laugh with a funny story.",
+          "answer": "わらわせました",
+          "answer_ruby": "わらわせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Causative of わらいます",
+          "options": [
+            "わらわせました",
+            "わらいさせました",
+            "わらわれました"
+          ],
+          "options_ruby": [
+            "わらわせました",
+            "わらいさせました",
+            "わらわれました"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "むすこ＿＿ イギリスへ りゅうがくさせました。",
+          "prompt_ruby": "むすこ＿＿ イギリスへ りゅうがくさせました。",
+          "en": "I had my son study abroad in England.",
+          "answer": "を",
+          "answer_ruby": "を",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "が",
+            "を",
+            "で"
+          ],
+          "options_ruby": [
+            "が",
+            "を",
+            "で"
+          ],
+          "hint": "With a verb that has no object, the person you make act takes を.",
+          "why_wrong": {
+            "が": "が would make your son the one causing it, not the one who goes.",
+            "で": "で marks a place or means, not the person you make act."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "いもうとを ＿＿ しまいました。",
+          "prompt_ruby": "妹{いもうと}を ＿＿ しまいました。",
+          "en": "I ended up making my little sister cry.",
+          "answer": "なかせて",
+          "answer_ruby": "なかせて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "なかせて",
+            "なかれて",
+            "なきさせて"
+          ],
+          "options_ruby": [
+            "なかせて",
+            "なかれて",
+            "なきさせて"
+          ],
+          "hint": "Group 1: なく becomes なかせる, then the てForm なかせて.",
+          "why_wrong": {
+            "なかれて": "なかれる is the passive, which does not fit いもうとを here.",
+            "なきさせて": "Group 1 verbs use the あ row + せる, not ます stem + させる."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L48.3",
+      "explain": "When the verb already has an object with を, mark the person you make or let do it with に, so the sentence has only one を.",
+      "form": "Personに + Nounを + しえきけい",
+      "note": "Never use two を in one causative sentence: こどもを やさいを たべさせます is wrong.",
+      "examples": [
+        {
+          "jp": "ははは わたしに へやを そうじさせました。",
+          "jp_ruby": "母{はは}は 私{わたし}に へやを そうじさせました。",
+          "en": "My mother made me clean my room."
+        },
+        {
+          "jp": "こどもに すきな ほんを よませます。",
+          "jp_ruby": "こどもに すきな 本{ほん}を 読{よ}ませます。",
+          "en": "I let my children read books they like."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "ぶちょうは わたし＿＿ しりょうを コピーさせました。",
+          "prompt_ruby": "ぶちょうは 私{わたし}＿＿ しりょうを コピーさせました。",
+          "en": "The manager made me copy the documents.",
+          "answer": "に",
+          "answer_ruby": "に",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Particle for the person when there is already a を object"
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいは がくせいに かんじを ＿＿。",
+          "prompt_ruby": "先生{せんせい}は 学生{がくせい}に 漢字{かんじ}を ＿＿。",
+          "en": "The teacher made the students memorize kanji.",
+          "answer": "おぼえさせました",
+          "answer_ruby": "おぼえさせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Group 2 causative: stem + させる",
+          "options": [
+            "おぼえさせました",
+            "おぼえせました",
+            "おぼえさせりました"
+          ],
+          "options_ruby": [
+            "おぼえさせました",
+            "おぼえせました",
+            "おぼえさせりました"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "こども＿＿ かばんを もたせました。",
+          "prompt_ruby": "こども＿＿ かばんを 持{も}たせました。",
+          "en": "I had the child carry the bag.",
+          "answer": "に",
+          "answer_ruby": "に",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "を",
+            "で",
+            "に"
+          ],
+          "options_ruby": [
+            "を",
+            "で",
+            "に"
+          ],
+          "hint": "The verb already has かばんを, so the person takes に.",
+          "why_wrong": {
+            "を": "かばん already has を; two を in one causative sentence is wrong.",
+            "で": "で marks a place or means, not the person you make act."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ははは わたしに ピアノを ＿＿。",
+          "prompt_ruby": "母{はは}は 私{わたし}に ピアノを ＿＿。",
+          "en": "My mother made me learn the piano.",
+          "answer": "ならわせました",
+          "answer_ruby": "習{なら}わせました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "ならいさせました",
+            "ならわせました",
+            "ならさせました"
+          ],
+          "options_ruby": [
+            "習{なら}いさせました",
+            "習{なら}わせました",
+            "習{なら}させました"
+          ],
+          "hint": "Verbs ending in う use わ: ならう becomes ならわせる.",
+          "why_wrong": {
+            "ならいさせました": "Group 1 verbs use the あ row + せる, not ます stem + させる.",
+            "ならさせました": "う changes to わ before せる: ならわせる."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L48.4",
+      "explain": "Causative てForm + いただけませんか politely asks for permission to do something yourself: 'Could you let me...?'",
+      "form": "しえきけい(て) + いただけませんか",
+      "note": "The person who will act is you, not the listener. Use it with bosses, teachers, and other people you should be polite to.",
+      "examples": [
+        {
+          "jp": "すこし やすませて いただけませんか。",
+          "jp_ruby": "少{すこ}し 休{やす}ませて いただけませんか。",
+          "en": "Could you let me rest a little?"
+        },
+        {
+          "jp": "この でんわを つかわせて いただけませんか。",
+          "jp_ruby": "この 電話{でんわ}を 使{つか}わせて いただけませんか。",
+          "en": "Could you let me use this phone?"
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "きょうは はやく ＿＿ いただけませんか。",
+          "prompt_ruby": "今日{きょう}は 早{はや}く ＿＿ いただけませんか。",
+          "en": "Could you let me go home early today?",
+          "answer": "かえらせて",
+          "answer_ruby": "帰{かえ}らせて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Causative てForm of かえります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "その しごとを わたしに ＿＿ いただけませんか。",
+          "prompt_ruby": "その 仕事{しごと}を 私{わたし}に ＿＿ いただけませんか。",
+          "en": "Could you let me do that job?",
+          "answer": "させて",
+          "answer_ruby": "させて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Causative てForm of します",
+          "options": [
+            "させて",
+            "させって",
+            "されせて"
+          ],
+          "options_ruby": [
+            "させて",
+            "させって",
+            "されせて"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "ここで しゃしんを ＿＿ いただけませんか。",
+          "prompt_ruby": "ここで 写真{しゃしん}を ＿＿ いただけませんか。",
+          "en": "Could you let me take photos here?",
+          "answer": "とらせて",
+          "answer_ruby": "とらせて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "とって",
+            "とらせて",
+            "とられて"
+          ],
+          "options_ruby": [
+            "とって",
+            "とらせて",
+            "とられて"
+          ],
+          "hint": "To ask to do it yourself, use the causative てForm.",
+          "why_wrong": {
+            "とって": "とって いただけませんか asks the listener to take the photo.",
+            "とられて": "とられる is the passive, not 'let me take'."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "すこし ＿＿ いただけませんか。",
+          "prompt_ruby": "少{すこ}し ＿＿ いただけませんか。",
+          "en": "Could you let me think about it a little?",
+          "answer": "かんがえさせて",
+          "answer_ruby": "考{かんが}えさせて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "かんがえて",
+            "かんがえせて",
+            "かんがえさせて"
+          ],
+          "options_ruby": [
+            "考{かんが}えて",
+            "考{かんが}えせて",
+            "考{かんが}えさせて"
+          ],
+          "hint": "Group 2 causative is stem + させる, then the てForm.",
+          "why_wrong": {
+            "かんがえて": "かんがえて いただけませんか asks the listener to think.",
+            "かんがえせて": "Group 2 verbs need させる, not just せる."
+          }
+        }
+      ]
+    }
+  ]
+}
