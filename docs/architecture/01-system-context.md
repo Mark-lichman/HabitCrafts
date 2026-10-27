@@ -10,7 +10,7 @@ flowchart TB
         WEB["Flutter web"]
     end
 
-    APP["HabitCrafts app<br/>304 Dart files"]
+    APP["HabitCrafts app<br/>304 Dart files as of 2026-07-26"]
 
     IOS --> APP
     AND --> APP
