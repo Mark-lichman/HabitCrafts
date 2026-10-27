@@ -119,11 +119,13 @@ Phase 1 (function, client service and anonymous caller, in parallel) → Phase 2
 
 - A real Azure call scores a spoken L26 sentence on the phone and on web through an anonymous caller, and the app still opens on the Japanese home (A1, A2, A4) · why deferred: needs the Azure account, the Firebase pay-as-you-go plan, the secret and a deploy, all operator steps, plus deploying Task 5's rules · runner: Mark and the Lead after the operator setup, before the release build.
 - Cutoffs fit real scores (A3) · why deferred: needs about 20 real attempts · runner: Mark reads the Recent scores list after a week and rules the cutoffs.
+- The deployed rules refuse an anonymous token (PIN-9, End state 7's `signedIn()` helper in `firebase/firestore.rules` and `firebase/storage.rules`): after deploying Task 5's rules and before enabling the Anonymous sign-in provider, run the Firebase console Rules Playground with provider Anonymous. A read of `users/<any uid>` and of any storage object must be denied. The same reads as a password user must be allowed · why deferred: no emulator rules test exists for `sign_in_provider`, and the check needs the console · runner: Mark, during the Operator setup. This also confirms the ordering in the Operator setup note below.
 
 ## Notes / conscious deviations
 
 - Operator setup outside WAR: create the Azure account and a Speech resource on the free F0 tier, switch Firebase to the pay-as-you-go plan, deploy Task 5's Firestore and Storage rules, then enable the Anonymous sign-in provider (the live rules let any signed-in token read and write user data, so an anonymous token must not exist before they deploy), set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, and deploy `speech_functions`. Mark does the sign-ins and billing.
 - The function test runs on the CI's Node, not inside the Flutter gate.
+- Privacy statements, Phase 2 or release work: before the release build, update the privacy policy, the store data declarations and the `ios/Runner/Info.plist` microphone and speech-recognition strings to say a recording goes to Microsoft Azure Speech through the scoring function. The current `NSSpeechRecognitionUsageDescription` says the app "does not score how well you said it", which turns false once the drill uses the score.
 - `lib/backend/algolia/algolia_manager.dart` holds a committed 32-hex Algolia key (red-team 2026-10-27). End state 6 is scoped to the new code so it does not trip on it. The Algolia key is out of scope here and is tracked separately.
 - Red-team 2026-10-27 rulings are pins PIN-9 (anonymous caller) and PIN-10 (`PronScore` decides).
 

@@ -62,9 +62,9 @@ flowchart TD
 
 ## No route requires authentication
 
-The mechanism exists and is correct. `FFRoute` takes a `requireAuth` flag, and
-[nav.dart:450](../../lib/flutter_flow/nav/nav.dart#L450) implements the guard properly — it
-redirects to `/initialPage` and remembers where the user was headed so they land there after
+The mechanism exists and is correct. `FFRoute` takes a `requireAuth` flag, and the `redirect` in
+`FFRoute.toRoute` ([nav.dart](../../lib/flutter_flow/nav/nav.dart)) implements the guard properly
+— it redirects to `/initialPage` and remembers where the user was headed so they land there after
 signing in.
 
 **It is never switched on.** `requireAuth: true` appears zero times in the file. Every route uses

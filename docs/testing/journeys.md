@@ -122,9 +122,9 @@ shows the first emoji while the stored value is whatever was last selected (#20)
 3. An attached reminder is deleted, and no further notifications fire for it.
 4. The habit stays finished across a restart.
 
-**Currently fails for any habit with a reminder.** the reminders rule in `firestore.rules` denies reminder deletes,
-and the unguarded delete at `goal_habit_list_item_model.dart:68` aborts the action block before
-`is_finished` is ever written — so the habit reappears every session (#14).
+**Currently fails for any habit with a reminder.** The reminders rule in `firestore.rules` denies
+reminder deletes, and the unguarded delete at `goal_habit_list_item_model.dart:68` aborts the
+action block before `is_finished` is ever written — so the habit reappears every session (#14).
 
 **Data:** `habits`, `reminders`
 

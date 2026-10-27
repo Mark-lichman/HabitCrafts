@@ -24,14 +24,18 @@ the only bookkeeping in the standards, and S3 explains why it is worth the cost.
 
 ## Register
 
-The first three rows come from one commit, `2a42c0f`, the first successful build after leaving
+The rows dated 2026-07-28 come from one commit, `2a42c0f`, the first successful build after leaving
 FlutterFlow. Each is a single line forced by a breaking change in `font_awesome_flutter` 11, which
 introduced `FaIconData` and made `FaIcon` require it. There was no version of "make the app build"
 that did not touch vendored framework code, which is exactly the case S3 says is worth paying for.
 
-The last three come from the Quiet Room build, and they are a different kind of adoption: not forced
-by a dependency, but taken deliberately because the design direction could not be expressed through
-the generated files as they stood.
+The rows dated 2026-09-26 and 2026-09-27 come from the Quiet Room build, and they are a different
+kind of adoption: not forced by a dependency, but taken deliberately because the design direction
+could not be expressed through the generated files as they stood.
+
+The row dated 2026-10-27 comes from the anonymous-caller work for the speaking drill, not from the
+Quiet Room build, and is a third kind of adoption: a security edit, taken so the drill's hidden
+anonymous sign-in (PIN-9) never counts as a signed-in user.
 
 | File | Adopted | Edit | Why it was worth owning |
 | --- | --- | --- | --- |
@@ -61,5 +65,6 @@ the closed Quiet Room token layer and the single home for every colour value in 
 > ```sh
 > git log --diff-filter=M --name-only --format= 2dd8e10..HEAD -- \
 >   'lib/components/**' 'lib/chat_groupwbubbles/**' 'lib/backend/schema/**' 'lib/flutter_flow/**' \
+>   'lib/auth/**' \
 >   | sort -u
 > ```
