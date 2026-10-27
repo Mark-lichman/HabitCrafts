@@ -1,12 +1,26 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    // Signed in with a real account. The speaking drill signs in
+    // anonymously only to call the scoring function (PIN-9), so an
+    // anonymous user counts as signed out for every rule. With no sign-in,
+    // reading request.auth.uid is an error, and an error denies.
+    function signedIn() {
+      return request.auth.uid != null
+          && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
+
+    // Live ruleset d3a07e98 (2026-10-27): a signed-in user reads every file,
+    // including cms_uploads/, gifs/, icons/ and videos/. Was any signed-in
+    // user reads and writes everything.
+    match /{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+    // Only the owner writes under their own folder: profile photos and
+    // anything attached to a message.
     match /users/{userId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth.uid == userId;
+      allow write: if signedIn() && request.auth.uid == userId;
     }
   }
 }
