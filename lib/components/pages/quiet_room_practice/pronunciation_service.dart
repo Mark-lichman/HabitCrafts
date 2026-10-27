@@ -200,8 +200,9 @@ class PronunciationResult {
     if (nbest is List) {
       if (nbest.isEmpty) throw const FormatException('no NBest entry');
       m = _asMap(nbest.first);
-      if (m == null)
+      if (m == null) {
         throw const FormatException('NBest entry is not an object');
+      }
     }
     final overall = _score(m, const ['PronScore', 'pronScore', 'overall']);
     if (overall == null) throw const FormatException('reply has no PronScore');
@@ -630,15 +631,22 @@ class _Listen {
     }
     _finishing = true;
     _cap?.cancel();
-    var stopped = false;
+    // Each call gets its own guard, so a cancel that throws still reaches stop() and the
+    // microphone is released. A throw at either call leaves the microphone in an unknown
+    // state, so its audio is not scored (PIN-3). The callers of finish are unawaited timer
+    // and stream callbacks, so a rethrow would be an unhandled error, not a result.
+    var failed = false;
     try {
       await _sub?.cancel();
-      await svc._recorder.stop();
-      stopped = true;
     } catch (_) {
-      // The microphone is in an unknown state, so its audio is not scored (PIN-3). The
-      // callers of finish are unawaited timer and stream callbacks, so a rethrow would be an
-      // unhandled error, not a result.
+      failed = true;
+    }
+    var stopped = false;
+    try {
+      await svc._recorder.stop();
+      stopped = !failed;
+    } catch (_) {
+      // stopped stays false.
     } finally {
       svc._setLevel(0);
       svc._listening.value = false;
