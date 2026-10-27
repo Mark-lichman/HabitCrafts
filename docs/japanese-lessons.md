@@ -44,7 +44,7 @@ fails if this doc restates one.
 | `pipeline/jp/drafts/L<n>.json` | a short lesson per grammar point: explanation, second example, practice | LM Drafting, checked by `publish.check_draft()` and a judge pass | an LM, then review |
 | `pipeline/jp/drafts/_points.json` | the grammar points handed to LM Drafting | Mari's N4 sheet, Checklist tab | the drafting input, kept with the drafts |
 | `pipeline/jp/uses.json` | the uses each grammar point serves ("Asking for advice") | LM Use Tagging, kept as reviewable data | an LM, then review |
-| `pipeline/jp/kanji_n5_n4.json` | the only kanji a kanji version may use; the file records its source URLs, its archived snapshots and each level's count | the Tanos JLPT N5 and N4 kanji pages, archived byte for byte under `pipeline/jp/tanos/` | fetched once, then by hand: `test_kanji_list.py` checks the file against the archived pages and every twin against the file |
+| `pipeline/jp/kanji_n5_n4.json` | the only kanji a kanji version may use; the file records its source URLs, its archived snapshots and each level's count and its operator additions, each with its reason | the Tanos JLPT N5 and N4 kanji pages, archived byte for byte under `pipeline/jp/tanos/`, plus the operator additions it records | fetched once, then by hand: `test_kanji_list.py` checks the file against the archived pages and every twin against the file |
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
 
