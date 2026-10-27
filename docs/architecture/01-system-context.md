@@ -63,8 +63,8 @@ Firestore is reached **directly from the client**. There is no API tier in betwe
 Firestore security rules are not one layer of defence among several — they are the *only* thing
 standing between an anonymous caller and the database.
 
-At the time of writing those rules permit unauthenticated reads of every user document. See
-issue #1.
+Those rules require a real sign-in to read a user document, and an anonymous Firebase user counts
+as signed out (`signedIn()` in `firebase/firestore.rules`). See issue #1.
 
 ## Residual FlutterFlow dependency
 

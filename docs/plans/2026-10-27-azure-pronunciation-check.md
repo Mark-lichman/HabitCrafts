@@ -122,7 +122,7 @@ Phase 1 (function, client service and anonymous caller, in parallel) → Phase 2
 
 ## Notes / conscious deviations
 
-- Operator setup outside WAR: create the Azure account and a Speech resource on the free F0 tier, switch Firebase to the pay-as-you-go plan, enable the Anonymous sign-in provider, set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, deploy `speech_functions`, and deploy Task 5's Firestore and Storage rules. Mark does the sign-ins and billing.
+- Operator setup outside WAR: create the Azure account and a Speech resource on the free F0 tier, switch Firebase to the pay-as-you-go plan, deploy Task 5's Firestore and Storage rules, then enable the Anonymous sign-in provider (the live rules let any signed-in token read and write user data, so an anonymous token must not exist before they deploy), set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, and deploy `speech_functions`. Mark does the sign-ins and billing.
 - The function test runs on the CI's Node, not inside the Flutter gate.
 - `lib/backend/algolia/algolia_manager.dart` holds a committed 32-hex Algolia key (red-team 2026-10-27). End state 6 is scoped to the new code so it does not trip on it. The Algolia key is out of scope here and is tracked separately.
 - Red-team 2026-10-27 rulings are pins PIN-9 (anonymous caller) and PIN-10 (`PronScore` decides).

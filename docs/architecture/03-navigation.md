@@ -7,7 +7,7 @@ GoRouter, configured in [`lib/flutter_flow/nav/nav.dart`](../../lib/flutter_flow
 flowchart TD
     ROOT["/ — _initialize"]
     ROOT -->|"loggedIn"| HOME
-    ROOT -->|"anonymous"| INIT
+    ROOT -->|"signed out"| INIT
 
     subgraph unauth["Intended for signed-out users"]
         INIT["/initialPage<br/>Login · Sign Up"]
@@ -80,8 +80,8 @@ the same way.
 
 What an unauthenticated visitor actually sees depends on how each page handles a null user —
 some will render empty, some will throw. That is incidental behaviour, not a security boundary.
-The data itself is protected only by Firestore rules, which currently permit unauthenticated
-reads of every user document (issue #1).
+The data itself is protected only by Firestore rules, which require a real sign-in to read a user
+document and refuse an anonymous Firebase user (issue #1).
 
 Fixing this is mechanical: add `requireAuth: true` to the 14 routes intended for signed-in users.
 It is worth doing regardless of the rules work, because the two defend different things — rules
