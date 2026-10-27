@@ -10,9 +10,12 @@ service firebase.storage {
           && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
-    // Live ruleset d3a07e98 (2026-10-27): a signed-in user reads every file,
-    // including cms_uploads/, gifs/, icons/ and videos/. Was any signed-in
-    // user reads and writes everything.
+    // Written to match live ruleset d3a07e98 (Firebase console, 2026-10-27):
+    // a signed-in user reads every file, including cms_uploads/, gifs/,
+    // icons/ and videos/. The repo holds no copy of d3a07e98, so before
+    // deploying, diff this file against the console text of d3a07e98.
+    // The live ruleset before d3a07e98 (not this repo's earlier file) let
+    // any signed-in user read and write everything.
     match /{allPaths=**} {
       allow read: if signedIn();
       allow write: if false;
