@@ -11,3 +11,5 @@ metadata:
 `sentenceLetters` does not advance its mora cursor on a mismatch. Every later letter stays uncolored.
 The failure is no color, never a wrong color. The drill falls back to word-level coloring (PIN-8) when
 scored morae are left over.
+The drill's `_letters` in `quiet_room_speak_widget.dart` falls back to `words[i].letters` when any letter
+stays uncolored, not only on a count mismatch. It then shows the scored words one space apart.
