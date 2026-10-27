@@ -1,8 +1,9 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
-// The per-lesson speaking drill (PIN-6). It walks one grammar lesson's sentences: every
-// example, then every practice item with its answer in the blank. For each one the
-// learner plays the sentence, speaks it once, and the drill judges what was heard.
+// The per-lesson speaking drill (PIN-6). It walks one grammar lesson's sentences point
+// by point: each point's examples, then its practice items with the answer in the blank.
+// For each one the learner plays the sentence, speaks it once, and the drill judges what
+// was heard.
 //
 // Judging reuses `SpeechService.judge()`. The expected kana is the kanji twin's reading
 // (every `漢字{かな}` bracket replaced by its reading), so an example the lesson prints in
@@ -67,8 +68,8 @@ Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en) {
       ));
 }
 
-/// Every example in [lesson], then every practice item with its answer in the blank.
-/// Point by point, in the order the lesson teaches them. An example that joins forms
+/// Point by point, in the order the lesson teaches them: each point's examples, then
+/// its practice items with the answer in the blank. An example that joins forms
 /// with ／ gives one sentence per form, and no sentence contains ／.
 List<SpeakSentence> lessonSentences(Map<String, dynamic> lesson) {
   final out = <SpeakSentence>[];
