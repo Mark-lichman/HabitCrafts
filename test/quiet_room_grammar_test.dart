@@ -1,7 +1,6 @@
 // Widget tests for the grammar screen: the By use view, a choice question's feedback,
 // the typed-answer box (PIN-3), the hint behind its tap and the practice result
-// (PIN-3 of the mastery plan),
-// the 漢字 toggle (PIN-4), the tap-a-word reading hint
+// (PIN-3 of the mastery plan), the 漢字 toggle (PIN-4), the tap-a-word reading hint
 // (PIN-16) and the speaking drill link (PIN-6).
 
 import 'package:flutter/material.dart';
@@ -359,6 +358,24 @@ void main() {
       await tester.pump();
       expect(find.text('Type an answer first.'), findsNothing);
       expect(results, isEmpty);
+    });
+
+    testWidgets('a whitespace-only Check is not an attempt either',
+        (tester) async {
+      final fills = firstFills();
+      final results = await pumpRecorded(tester);
+
+      // An ASCII space and a full-width space: the box is not empty, the answer is.
+      await tester.enterText(answerBoxes.first, '  　');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      expect(results, isEmpty);
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      expect(find.text('Correct.'), findsNothing);
+      expect(find.textContaining('Not quite.'), findsNothing);
+      expect(find.text('Got it'), findsNothing);
+      expect(answerBoxes, findsNWidgets(fills.length));
     });
 
     testWidgets('a self-mark and a pick are carried in the result',
