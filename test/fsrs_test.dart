@@ -16,6 +16,18 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 SrsRating _rating(int value) => SrsRating.fromValue(value);
 
 void main() {
+  group('SrsRating', () {
+    test('fromValue rejects values outside 1 to 4', () {
+      for (final value in [0, 5]) {
+        expect(
+            () => SrsRating.fromValue(value),
+            throwsA(isA<ArgumentError>().having(
+                (e) => e.message, 'message', contains('Invalid rating value'))),
+            reason: 'value $value');
+      }
+    });
+  });
+
   group('FSRS golden sequence from py-fsrs', () {
     final golden =
         jsonDecode(File('test/fixtures/fsrs_golden.json').readAsStringSync())
@@ -174,6 +186,32 @@ void main() {
       expect(fsrsDesiredRetention, 0.90);
       expect(fsrsMaximumInterval, 90);
     });
+
+    test('a first answer takes the initial stability of its rating', () {
+      // w0 to w3 are the initial stabilities; the interval is the stability rounded, at
+      // least 1 day. Only an Again counts as a lapse.
+      const expected = {
+        SrsRating.again: (0.2172, 1, 1),
+        SrsRating.hard: (1.1771, 1, 0),
+        SrsRating.good: (3.2602, 3, 0),
+        SrsRating.easy: (16.1507, 16, 0),
+      };
+      for (final MapEntry(key: rating, value: (stability, interval, lapses))
+          in expected.entries) {
+        final state = scheduler.first(rating, 0);
+        expect(state.stability, closeTo(stability, 1e-12), reason: '$rating');
+        expect(state.interval, interval, reason: '$rating');
+        expect(state.reps, 1, reason: '$rating');
+        expect(state.lapses, lapses, reason: '$rating');
+      }
+    });
+
+    test('a later wrong answer raises reps and lapses by one', () {
+      final first = scheduler.first(SrsRating.good, 0);
+      final after = scheduler.review(first, SrsRating.again, 3);
+      expect(after.reps, first.reps + 1);
+      expect(after.lapses, first.lapses + 1);
+    });
   });
 
   group('nextDue load spreading', () {
@@ -216,7 +254,7 @@ void main() {
       expect(
           scheduler
               .nextDue(stateWith(90), {for (var d = 185; d <= 190; d++) d: 10}),
-          inInclusiveRange(185, 190));
+          190);
     });
   });
 
@@ -264,6 +302,10 @@ void main() {
       expect(s.box, 3);
       expect(s.interval, 14);
       expect(s.dueDay, 21);
+    });
+
+    test('an Easy answer is a clear', () {
+      expect(leitner.review(inBox(2, 0), SrsRating.easy, 7).box, 3);
     });
 
     test('a clear more than 50% late moves up two boxes', () {
