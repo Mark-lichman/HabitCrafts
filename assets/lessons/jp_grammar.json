@@ -6500,6 +6500,32 @@
    }
   },
   {
+   "id": "file.particle_clozes.json",
+   "type": "source_file",
+   "source": "hand-written from Mari's particle examples",
+   "title": "particle_clozes.json",
+   "summary": "5 clozes. A cloze for each particle whose example does not hold it verbatim.",
+   "uses": [],
+   "search": [
+    "pipeline/jp/particle_clozes.json",
+    "particle_clozes.json",
+    "hand-written from Mari's particle examples"
+   ],
+   "file": "pipeline/jp/particle_clozes.json",
+   "role": "a cloze for each particle whose example does not hold it verbatim",
+   "origin": "hand-written from Mari's particle examples",
+   "counts": {
+    "clozes": 5
+   },
+   "from": [
+    "particle_clozes.json"
+   ],
+   "open": {
+    "screen": "search",
+    "query": "particle_clozes.json"
+   }
+  },
+  {
    "id": "file.jp_lessons.json",
    "type": "source_file",
    "source": "Langoal word-list PDFs",

@@ -1,8 +1,8 @@
 """Every data file has a catalog entry with live counts, and the lesson doc restates none (PIN-13).
 
 The catalog (pipeline/jp/catalog.py) emits one `source_file` entry per data file: the
-five extraction bundles, each draft, uses.json, the kanji list, corrections.json and
-jp_lessons.json.
+five extraction bundles, each draft, uses.json, the kanji list, corrections.json,
+particle_clozes.json and jp_lessons.json.
 Each entry carries its role, its origin and counts computed from the file. These tests
 recompute the counts here, straight from the files, so a hand-typed count in the
 catalog fails. They also scan docs/japanese-lessons.md for any of those counts: a
@@ -65,6 +65,8 @@ def expected_counts() -> dict[str, dict[str, int]]:
     r = _read(JP / "corrections.json")
     out["pipeline/jp/corrections.json"] = {"approved sources": len(r["approved_sources"]),
                                            "corrections": len(r["corrections"])}
+    c = _read(JP / "particle_clozes.json")
+    out["pipeline/jp/particle_clozes.json"] = {"clozes": len(c["clozes"])}
     v = _read(ASSETS / "jp_lessons.json")
     out["assets/lessons/jp_lessons.json"] = {
         "lessons": len(v["lessons"]), "words": sum(len(l["items"]) for l in v["lessons"]),

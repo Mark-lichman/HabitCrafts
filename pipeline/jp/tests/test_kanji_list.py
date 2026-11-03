@@ -95,9 +95,10 @@ def test_watashi_kanji_is_allowed():
 def test_every_twin_kanji_is_in_the_list():
     ok = _allowed()
     bad = []
-    for where, twin, kana in _twins():
-        # A kanji the hiragana field itself prints would be kept; since plan A7 none does.
-        outside = {c for c in KANJI.findall(twin) if c not in ok and c not in kana}
+    for where, twin, _ in _twins():
+        # No hiragana field prints a kanji (plan A7), so no field is exempt: every kanji
+        # in a twin must be on the list.
+        outside = {c for c in KANJI.findall(twin) if c not in ok}
         if outside:
             bad.append(f"{where}: {''.join(sorted(outside))} in {twin!r}")
     assert bad == [], f"{len(bad)} twins use kanji outside kanji_n5_n4.json:\n" + "\n".join(bad)

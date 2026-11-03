@@ -217,19 +217,76 @@ def test_every_particle_has_a_cloze_probe():
         assert c["from"] == ("example" if verbatim else "particle_clozes.json"), pa["id"]
 
 
-def test_a_particle_with_no_cloze_fails_the_publish():
+def _hand_clozes(tmp_path, monkeypatch, edit) -> None:
+    """Point publish.CLOZES at a copy of particle_clozes.json after `edit` changed it."""
+    import publish
+    doc = json.loads(publish.CLOZES.read_text(encoding="utf-8"))
+    edit(doc["clozes"])
+    path = tmp_path / "particle_clozes.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(publish, "CLOZES", path)
+
+
+def test_a_particle_with_no_cloze_fails_the_publish(tmp_path, monkeypatch):
     import copy
     import publish
     s04 = copy.deepcopy(bundle("s04_mari_checklist"))
     hand = next(pa for pa in s04["particles"] if pa["expression"] not in pa["example"])
     hand["id"] = "mari.particle.99"
-    with pytest.raises(SystemExit, match="no such particle|no cloze"):
+    with pytest.raises(SystemExit, match="no such particle"):
         publish.particle_clozes(s04)
     s04 = copy.deepcopy(bundle("s04_mari_checklist"))
     hand = next(pa for pa in s04["particles"] if pa["expression"] not in pa["example"])
     hand["example"] = hand["expression"] + "です。"  # now blankable: the hand cloze is stale
     with pytest.raises(SystemExit, match="stale"):
         publish.particle_clozes(s04)
+    # The guard A15 rests on: a hand-cloze particle whose cloze is missing from the file.
+    _hand_clozes(tmp_path, monkeypatch, lambda clozes: clozes.pop("mari.particle.13"))
+    with pytest.raises(SystemExit, match="has no cloze for it"):
+        publish.particle_clozes(bundle("s04_mari_checklist"))
+
+
+def test_a_hand_cloze_that_does_not_fill_back_to_its_example_fails(tmp_path, monkeypatch):
+    import publish
+    _hand_clozes(tmp_path, monkeypatch,
+                 lambda clozes: clozes["mari.particle.13"].update(prompt="やすい＿＿、かいます。"))
+    with pytest.raises(SystemExit, match="filled in is not its example"):
+        publish.particle_clozes(bundle("s04_mari_checklist"))
+
+
+def test_a_cloze_that_shows_its_answer_fails():
+    import copy
+    import publish
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    pa = next(pa for pa in s04["particles"] if pa["expression"] == "でも")
+    pa["example"] = "でもでも わかります。"  # blanking the first leaves the second in view
+    with pytest.raises(SystemExit, match="one blank and must not show its answer"):
+        publish.particle_clozes(s04)
+
+
+def test_a_cloze_that_is_not_kana_fails():
+    import copy
+    import publish
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    pa = next(pa for pa in s04["particles"] if pa["expression"] == "として")
+    pa["expression"], pa["example"] = "通訳として", "通訳として はたらいて います。"
+    with pytest.raises(SystemExit, match="cloze not kana"):
+        publish.particle_clozes(s04)
+
+
+def test_an_unknown_required_form_fails_the_publish():
+    import publish
+    with pytest.raises(SystemExit, match="maps to no conjugation idea"):
+        publish.prereqs({"id": "x", "requires_forms": ["bogus"]})
+
+
+def test_catalog_search_terms_are_the_corrected_text():
+    # catalog.build() without bundles applies the s04 corrections itself, so a search
+    # term is the text the app shows: the printed sign of mari.L33.3 reads in hiragana.
+    entry = next(e for e in build_catalog()["entries"]
+                 if e["type"] == "grammar_point" and e["id"] == "mari.L33.3")
+    assert entry["search"][0].startswith("「たちいりきんし」")
+    assert not any(KANJI.search(s) for s in entry["search"]), entry["search"]
 
 
 def test_every_point_carries_its_form_prereqs():
