@@ -68,6 +68,21 @@ Attempt answer(ItemDef item, int day, Grade grade,
 Attempt withBadRating(Attempt attempt) =>
     Attempt.fromJson({...attempt.toJson(), 'rating': 9});
 
+/// The error [withBadRating] trips in the replay (`SrsRating.fromValue`), pinned by message.
+final Matcher throwsBadRating = throwsA(isA<ArgumentError>()
+    .having((e) => e.message, 'message', 'Invalid rating value: 9'));
+
+/// The scheduler without its load term: the nominal due day, whatever the load. The replay
+/// through it must differ from the live states, or load spreading moved no due day and the
+/// rebuild test proves nothing about the load term.
+class _NoSpread extends FsrsScheduler {
+  const _NoSpread();
+
+  @override
+  int nextDue(SrsState state, Map<int, int> loadByDay) =>
+      state.lastReviewDay + state.interval;
+}
+
 /// A mastery state that cannot be serialised: the SQLite write throws inside its transaction.
 class _Unwritable extends MasteryState {
   const _Unwritable(String id)
@@ -189,7 +204,7 @@ void main() {
             item: g, scheduler: scheduler);
         final third = store.recordAnswer(answer(g, 3, Grade.clear, minute: 1),
             item: g, scheduler: scheduler);
-        await expectLater(bad, throwsArgumentError);
+        await expectLater(bad, throwsBadRating);
         expect((await third).srs!.reps, 3);
         expect((await store.attempts()).length, 3);
       });
@@ -200,7 +215,8 @@ void main() {
             store.appendAttempt(answer(g, 1, Grade.clear),
                 srs: scheduler.first(SrsRating.good, 1),
                 mastery: MasteryState.initial(w.id)),
-            throwsArgumentError);
+            throwsA(isA<ArgumentError>().having((e) => e.message, 'message',
+                contains('written with an attempt on'))));
         expect(await store.attempts(), isEmpty);
         expect(await store.srs(g.id), isNull);
         expect(await store.mastery(w.id), isNull);
@@ -374,7 +390,7 @@ void main() {
           'a rebuild from the log and the seed events lands on the live states',
           () async {
         // A 120-day learner over a slice of the catalog, answering whatever is due, with load
-        // spreading over a crowded seed, early practice and Say-it in the mix.
+        // spreading over a crowded seed, early practice, Say-it and late seeds in the mix.
         final rng = Random(8);
         final items = [
           ...catalog.ofKind(ItemKind.grammar).take(12),
@@ -423,12 +439,31 @@ void main() {
                 scheduler: scheduler);
           }
         }
+        // Late seeds, after every attempt is logged (more lessons ticked after the first
+        // launch), all on a day an attempt's spread chose from a window wider than one day.
+        // A replay that applied every seed first would show that attempt the late seeds on its
+        // day, a load the live writer never saw, and spread it onto another day of its window.
+        // The seeds follow the last attempt, so no later review (which reads `lastReviewDay`,
+        // not the due day) hides the moved day from the equality below.
+        final spread = (await store.allSrs()).values.firstWhere(
+            (s) =>
+                s.dueDay > 119 &&
+                (s.interval * loadSpreadFraction).round() >= 1,
+            orElse: () => throw StateError('no spread due day past day 119'));
+        await store.appendSeeds([
+          for (var i = 0; i < 10; i++)
+            SeedEvent(itemId: 'late.$i', dueDay: spread.dueDay, atUtc: at(120)),
+        ]);
         final srs = await store.allSrs();
         final mastery = await store.allMastery();
         final load = await store.loadByDay();
-        expect(srs.values.any((s) => s.interval >= 20), isTrue,
+        // The load term moved at least one due day: without it the replay lands elsewhere.
+        expect(
+            replayLog(await store.exportLog(), catalog.byId, const _NoSpread())
+                .srs,
+            isNot(srs),
             reason:
-                'the history reaches intervals where load spreading moves due days');
+                'the history reaches states where load spreading moves due days');
         expect(mastery.values.any((m) => m.status == MasteryStatus.mastered),
             isTrue);
 
@@ -509,6 +544,10 @@ void main() {
             await other.putDay(const DayRecord(day: 1, plan: '{}'));
             await other.putMeta('k', 'v');
             await other.appendSeed('stale', 1, atUtc: at(0));
+            // A logged attempt too: the import restarts both row id sequences, or the
+            // re-export's ids drift from the file's.
+            await other.recordAnswer(answer(g, 20, Grade.wrong),
+                item: g, scheduler: scheduler);
             await importStudy(other, text,
                 lookup: catalog.byId, scheduler: scheduler);
             expect(await other.allSrs(), await store.allSrs());
@@ -577,7 +616,7 @@ void main() {
             attempts: [withBadRating(answer(g, 2, Grade.clear))],
             seeds: [SeedEvent(itemId: 'x', dueDay: 1, atUtc: at(0))]);
         await expectLater(
-            store.importLog(log, catalog.byId, scheduler), throwsArgumentError);
+            store.importLog(log, catalog.byId, scheduler), throwsBadRating);
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
         expect(await store.srs(g.id), kept.srs);
@@ -849,7 +888,7 @@ void main() {
       final rebuilding = store.rebuild(catalog.byId, scheduler);
       final answering = store.recordAnswer(answer(g, 2, Grade.clear),
           item: g, scheduler: scheduler);
-      await expectLater(rebuilding, throwsArgumentError);
+      await expectLater(rebuilding, throwsBadRating);
       expect((await answering).srs, isNotNull);
       await store.close();
     });

@@ -28,9 +28,9 @@
 // no seed", never by MasteryStatus.neu, or that item drops out of the queue. Build the Not yet
 // known and Due today sets from SrsState and seeds, not from MasteryStatus.
 //
-// The replace-style writers (`rebuild`, `importLog`) read the log across several awaits before
-// they write, so they run on the same chain as `recordAnswer` (`_serialized`): an answer never
-// lands between a replay's read and its write.
+// `rebuild` reads the log across several awaits before it writes, and `importLog` replaces the
+// whole record, so both run on the same chain as `recordAnswer` (`_serialized`): no answer reads
+// its before-state on one side of a replay's write and commits on the other.
 
 import 'attempt.dart';
 import 'mastery_rule.dart';
