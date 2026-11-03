@@ -1483,6 +1483,15 @@ void main() {
         expect(tester.getTopLeft(find.text('Next sentence')), firstNext,
             reason: 'sentence ${i + 1}: ${all[i].kana}');
       }
+      // The last sentence reads Finish in the same slot. The label is centered, so
+      // its x shifts with the shorter text and only its y is comparable.
+      await tester.tap(find.text('Next sentence'));
+      await tester.pump();
+      expect(find.text('Next sentence'), findsNothing);
+      expect(tester.getSize(box).height, firstBox.height,
+          reason: 'last sentence: ${all.last.kana}');
+      expect(tester.getTopLeft(find.text('Finish')).dy, firstNext.dy,
+          reason: 'last sentence: ${all.last.kana}');
     });
 
     testWidgets('a sentence taller than the minimum grows the box',
