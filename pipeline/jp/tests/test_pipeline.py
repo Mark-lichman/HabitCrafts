@@ -174,18 +174,22 @@ def hiragana_strings(doc: dict):
     textbook pair's `kanji_*` sentences are its kanji mode, so none of those is here."""
     for g in doc["grammar"]:
         for p in g["points"]:
+            yield f"{p['id']} pattern", p["pattern"]
             yield f"{p['id']} example", p["example"]
             for i, e in enumerate(p.get("examples", [])):
                 yield f"{p['id']} ex{i}", e["jp"]
             for i, q in enumerate(p.get("practice", [])):
-                for s in [q.get("prompt", ""), q.get("answer", ""), *q.get("accepted", []),
-                          *q.get("options", []), *q.get("why_wrong", {})]:
+                for s in [q.get("prompt", ""), q.get("answer", ""), q.get("hint", ""),
+                          *q.get("accepted", []), *q.get("options", []),
+                          *q.get("why_wrong", {})]:
                     yield f"{p['id']} p{i}", s
     for pa in doc["particles"]:
         c = pa["cloze"]
         for s in [pa["expression"], pa["example"], c["prompt"], c["answer"], *c["accepted"]]:
             yield pa["id"], s
     for i, pr in enumerate(doc["pairs"]):
+        yield f"pair {i}", pr["transitive"]
+        yield f"pair {i}", pr["intransitive"]
         yield f"pair {i}", pr["ex_transitive"]
         yield f"pair {i}", pr["ex_intransitive"]
     for e in doc["catalog"]:
@@ -196,6 +200,9 @@ def hiragana_strings(doc: dict):
 
 def test_no_hiragana_mode_string_holds_a_kanji():
     doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    # Positive controls: the pattern can match a kanji, and the scan is not empty.
+    assert KANJI.search("立入禁止")
+    assert any(True for _ in hiragana_strings(doc))
     bad = [(where, s) for where, s in hiragana_strings(doc) if KANJI.search(s)]
     assert bad == [], f"kanji in hiragana mode: {bad}"
     sign = next(p for g in doc["grammar"] for p in g["points"] if p["id"] == "mari.L33.3")
