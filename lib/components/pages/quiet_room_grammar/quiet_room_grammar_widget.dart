@@ -806,10 +806,13 @@ class _PracticeState extends State<_Practice>
             textInputAction: TextInputAction.done,
             autocorrect: false,
             onSubmitted: (_) => _check(),
+            // An edit drops the verdict and its self-mark together, so a later
+            // report never carries a Got it from the answer before the edit.
             onChanged: (_) {
-              if (_verdict != null || _emptyNote) {
+              if (_verdict != null || _selfMark != null || _emptyNote) {
                 setState(() {
                   _verdict = null;
+                  _selfMark = null;
                   _emptyNote = false;
                 });
               }
