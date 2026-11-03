@@ -7,6 +7,12 @@
 // PIN-7) and the letter colors (PIN-8) all come from the code the drill ships with.
 //
 // The lessonSentences and judge() groups still pin the lesson data the drill walks.
+//
+// Plan 2026-11-02, Task 1 (End state 11) adds: the voice is stopped before the microphone
+// opens and Play waits on speakAndWait; Cancel on Checking and a pause retire the attempt so
+// a late result is dropped; a combined example's English splits with its Japanese; one
+// position counter, with the tally on an end card; a self-mark is kept with its attempt in
+// the score log; and the sentence box keeps Next in place.
 
 import 'dart:async';
 import 'dart:convert';
@@ -26,6 +32,7 @@ import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.
 import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
+import 'speech_service_test.dart' show FakeStt, FakeTts;
 
 /// Lesson 26's sentences, as the drill walks them.
 List<SpeakSentence> lesson26() {
@@ -135,10 +142,14 @@ class FakeMic implements PronRecorder {
   StreamController<Uint8List>? ctl;
   int starts = 0;
 
+  /// Runs at the top of [start], so a test can read state at the moment the mic opens.
+  void Function()? onStart;
+
   bool get open => ctl != null && !ctl!.isClosed;
 
   @override
   Future<Stream<Uint8List>?> start(int sampleRate) async {
+    onStart?.call();
     starts++;
     ctl = StreamController<Uint8List>(onCancel: () async {});
     return ctl!.stream;
@@ -184,6 +195,12 @@ class Rig {
   final FakeAuth auth;
   final FakeMic mic = FakeMic();
   final FakeClock clock = FakeClock();
+
+  /// The app's own voice, on a fake engine, so Play and the stop before Speak are real
+  /// SpeechService calls.
+  final FakeTts tts = FakeTts();
+  late final SpeechService voice =
+      SpeechService.withEngines(stt: FakeStt(), tts: tts);
   final List<Map<String, Object?>> sent = [];
   PronunciationService? service;
 
@@ -200,15 +217,20 @@ class Rig {
         },
       );
 
-  Widget widget({SpeakPlay? play}) => QuietRoomSpeakWidget(
-        lesson: 26,
+  /// [realVoice] plays through [voice] instead of the [play] seam.
+  Widget widget({SpeakPlay? play, bool realVoice = false, int lesson = 26}) =>
+      QuietRoomSpeakWidget(
+        lesson: lesson,
         newService: make,
         callerAuth: auth,
-        play: play ?? (_) async => null,
+        speech: voice,
+        play: realVoice ? null : play ?? (_) async => null,
       );
 
-  Future<void> open(WidgetTester tester, {SpeakPlay? play}) =>
-      pumpStudyScreen(tester, widget(play: play));
+  Future<void> open(WidgetTester tester,
+          {SpeakPlay? play, bool realVoice = false, int lesson = 26}) =>
+      pumpStudyScreen(
+          tester, widget(play: play, realVoice: realVoice, lesson: lesson));
 
   /// Feeds [ms] of audio at [amp] in 100 ms chunks, advancing the clock with it.
   Future<void> feed(WidgetTester tester, int amp, int ms) async {
@@ -260,6 +282,28 @@ List<(String, Color?)> letterColors(WidgetTester tester) {
   });
   return out;
 }
+
+/// Walks the rest of the set with Next and Finish, to the end card.
+Future<void> walkToEnd(WidgetTester tester) async {
+  for (var i = 0; i < 400; i++) {
+    if (find.text('Finish').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Finish'));
+      await tester.pump();
+      return;
+    }
+    await tester.tap(find.text('Next sentence'));
+    await tester.pump();
+  }
+  fail('the set never ended');
+}
+
+/// The end card's tally.
+String tallyOf(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const ValueKey('speak-tally'))).data!;
+
+/// The header's position counter.
+String positionOf(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const ValueKey('speak-position'))).data!;
 
 QuietRoomTokens tokensOf(WidgetTester tester) =>
     QuietRoomTokens.of(tester.element(find.text('Next sentence')));
@@ -365,6 +409,67 @@ void main() {
       expect(s.map((x) => x.kana), ['いこう', 'たべよう', 'しよう']);
       expect(s.map((x) => x.surface), ['行こう', '食べよう', 'しよう']);
       expect(s.map((x) => x.en), everyElement('volitional'));
+    });
+
+    test('splits the English of a combined example alongside its Japanese', () {
+      List<SpeakSentence> one(String jp, String en) => lessonSentences({
+            'points': [
+              {
+                'examples': [
+                  {'jp': jp, 'en': en}
+                ],
+              }
+            ],
+          });
+      // Slash, sentence and comma joins each split when the count matches.
+      expect(one('とまれ！／はいるな！', "Stop! / Don't enter!").map((x) => x.en),
+          ['Stop!', "Don't enter!"]);
+      expect(one('あめが ふります。／ゆきが ふります。', 'It rains. It snows.').map((x) => x.en),
+          ['It rains.', 'It snows.']);
+      expect(one('いかせる／たべさせる', 'to make go, to make eat').map((x) => x.en),
+          ['to make go', 'to make eat']);
+      // A shared lead is carried onto the bare items of a comma list.
+      expect(one('よまれる／たべられる', 'passive of よむ, たべる').map((x) => x.en),
+          ['passive of よむ', 'passive of たべる']);
+      // A count that does not match keeps the whole English on every form.
+      expect(one('いこう／たべよう', 'volitional').map((x) => x.en),
+          ['volitional', 'volitional']);
+      expect(one('いこう／たべよう', 'a / b / c').map((x) => x.en),
+          ['a / b / c', 'a / b / c']);
+    });
+
+    test('every shipped combined example gives each form its own English', () {
+      final doc = readLessonFile();
+      var combined = 0;
+      for (final lesson
+          in (doc['grammar'] as List).cast<Map<String, dynamic>>()) {
+        for (final p
+            in (lesson['points'] as List).cast<Map<String, dynamic>>()) {
+          for (final e in (p['examples'] as List? ?? const [])
+              .cast<Map<String, dynamic>>()) {
+            final jp = e['jp'] as String;
+            if (!jp.contains('／')) continue;
+            combined++;
+            final s = lessonSentences({
+              'points': [
+                {
+                  'examples': [e]
+                }
+              ]
+            });
+            final where = 'lesson ${lesson['lesson']}: $jp';
+            expect(s, hasLength(jp.split('／').length), reason: where);
+            expect(s.map((x) => x.en).toSet(), hasLength(s.length),
+                reason: '$where -> ${s.map((x) => x.en).toList()}');
+            for (final x in s) {
+              expect(x.en, isNotEmpty, reason: where);
+              expect(x.en.contains('／') || x.en.contains(' / '), isFalse,
+                  reason: where);
+            }
+          }
+        }
+      }
+      expect(combined, greaterThan(0));
     });
 
     test('every shipped sentence is judged correct in kana and in kanji', () {
@@ -521,7 +626,6 @@ void main() {
 
       expect(find.text('That’s it'), findsOneWidget);
       expect(find.text('Score 98.6'), findsOneWidget);
-      expect(find.text('1 of 1'), findsOneWidget);
       expect(find.text('Got it'), findsNothing);
 
       final letters = letterColors(tester);
@@ -538,6 +642,11 @@ void main() {
             reason: letters[i].$1);
       }
       expect(letters.where((l) => l.$2 == t.sage600).length, greaterThan(5));
+
+      // The tally waits for the end of the set.
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      await walkToEnd(tester);
+      expect(tallyOf(tester), '1 of 1');
     });
 
     testWidgets(
@@ -587,7 +696,6 @@ void main() {
 
       expect(find.text('Not quite'), findsOneWidget);
       expect(find.text('Score 44.8'), findsOneWidget);
-      expect(find.text('0 of 1'), findsOneWidget);
       expect(find.text('Got it'), findsNothing);
 
       final letters = letterColors(tester);
@@ -611,6 +719,9 @@ void main() {
       final struck =
           spans.where((s) => s.style?.decoration == TextDecoration.lineThrough);
       expect(struck.map((s) => s.text), ['あたま']);
+
+      await walkToEnd(tester);
+      expect(tallyOf(tester), '0 of 1');
     });
 
     testWidgets('a close score is amber with the score, then self-check',
@@ -625,12 +736,12 @@ void main() {
       expect(find.byKey(const ValueKey('speak-letters')), findsOneWidget);
       expect(find.text('That’s it'), findsNothing);
       expect(find.text('Not quite'), findsNothing);
-      expect(find.text('Say it'), findsOneWidget);
 
       await tester.tap(find.text('Got it'));
       await tester.pump();
-      expect(find.text('1 of 1'), findsOneWidget);
       expect(find.text('Marked as said.'), findsOneWidget);
+      await walkToEnd(tester);
+      expect(tallyOf(tester), '1 of 1');
     });
 
     testWidgets(
@@ -706,8 +817,9 @@ void main() {
       expect(find.textContaining('Score '), findsNothing);
       await tester.tap(find.text('Missed it'));
       await tester.pump();
-      expect(find.text('0 of 1'), findsOneWidget);
       expect(find.text('Not quite'), findsNothing);
+      await walkToEnd(tester);
+      expect(tallyOf(tester), '0 of 1');
     });
 
     testWidgets('a failed anonymous sign-in goes to self-check with no call',
@@ -920,7 +1032,6 @@ void main() {
       expect(rig.sent, isEmpty);
       expect(find.text('That’s it'), findsNothing);
       expect(find.text('Can’t check this one'), findsNothing);
-      expect(find.text('Say it'), findsOneWidget);
       expect(buttonAction(tester, 'Speak'), isNotNull);
       expect(await tester.runAsync(savedAttempts), isEmpty);
     });
@@ -961,6 +1072,284 @@ void main() {
       expect(find.text('No Japanese voice found.'), findsOneWidget);
       expect(buttonAction(tester, 'Speak'), isNotNull);
       expect(buttonAction(tester, 'Play'), isNotNull);
+    });
+
+    testWidgets('stops its own voice before the microphone opens',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      int? stopsAtMic;
+      rig.mic.onStart = () => stopsAtMic = rig.tts.stops;
+      final before = rig.tts.stops;
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.mic.starts, 1);
+      expect(stopsAtMic, before + 1,
+          reason: 'the voice is stopped before the microphone opens');
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Play holds Speak until the voice finishes, past the speak() cap',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester, realVoice: true);
+      await tester.tap(find.text('Play'));
+      await rig.settle(tester);
+      expect(rig.tts.spoken, [firstSentence().kana]);
+      expect(buttonAction(tester, 'Speak'), isNull);
+
+      // speak() would have returned at its cap. speakAndWait waits for the voice.
+      await tester.pump(SpeechService.speakWait + const Duration(seconds: 1));
+      await rig.settle(tester);
+      expect(buttonAction(tester, 'Speak'), isNull);
+      expect(buttonAction(tester, 'Play'), isNull);
+
+      rig.tts.finish();
+      await rig.settle(tester);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(buttonAction(tester, 'Play'), isNotNull);
+    });
+
+    testWidgets('Cancel on Checking drops the late result and frees Speak',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture))
+        ..scoreGate = Completer<void>();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('Checking…'), findsOneWidget);
+
+      await tester.tap(find.text('Cancel'));
+      await rig.settle(tester);
+      expect(find.text('Checking…'), findsNothing);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(buttonAction(tester, 'Next sentence'), isNotNull);
+
+      // The score lands after the Cancel: it is dropped, shown nowhere and kept nowhere.
+      rig.scoreGate!.complete();
+      await rig.settle(tester);
+      expect(find.text('That’s it'), findsNothing);
+      expect(find.textContaining('Score '), findsNothing);
+      expect(await tester.runAsync(savedAttempts), isEmpty);
+      await walkToEnd(tester);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      expect(find.text('Nothing was scored this time.'), findsOneWidget);
+    });
+
+    testWidgets('a late result after Cancel never lands on a newer attempt',
+        (tester) async {
+      final rig = Rig(reply: fixture(_badFixture))
+        ..scoreGate = Completer<void>();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      await tester.tap(find.text('Cancel'));
+      await rig.settle(tester);
+
+      // A new attempt opens the microphone while the old score is still out.
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.mic.starts, 2);
+      expect(find.text('Listening'), findsOneWidget);
+      rig.scoreGate!.complete();
+      await rig.settle(tester);
+      // The old wrong score neither shows nor ends the new listen.
+      expect(find.text('Not quite'), findsNothing);
+      expect(find.text('Listening'), findsOneWidget);
+      expect(rig.mic.open, isTrue);
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+    });
+
+    testWidgets('the app going to the background retires the attempt',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.feed(tester, _loud, 300);
+      expect(rig.mic.open, isTrue);
+      final stops = rig.tts.stops;
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      await rig.settle(tester);
+      expect(rig.mic.open, isTrue,
+          reason: 'inactive and hidden keep the listen');
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await rig.settle(tester);
+      expect(rig.mic.open, isFalse);
+      expect(rig.tts.stops, greaterThan(stops));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await rig.settle(tester);
+      expect(find.text('Listening'), findsNothing);
+      expect(find.text('Can’t check this one'), findsNothing);
+      expect(rig.sent, isEmpty);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(await tester.runAsync(savedAttempts), isEmpty);
+    });
+
+    testWidgets('a pause while Checking drops the result that lands later',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture))
+        ..scoreGate = Completer<void>();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('Checking…'), findsOneWidget);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      rig.scoreGate!.complete();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await rig.settle(tester);
+      expect(find.text('That’s it'), findsNothing);
+      expect(find.text('Checking…'), findsNothing);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(await tester.runAsync(savedAttempts), isEmpty);
+    });
+
+    testWidgets('a Got it after an unverified result is kept with the attempt',
+        (tester) async {
+      final rig = Rig(error: Exception('offline'));
+      await rig.speakOnce(tester);
+      expect(find.text('Can’t check this one'), findsOneWidget);
+      // Marked at once, before the attempt's own save has a chance to finish.
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await rig.settle(tester);
+
+      var saved = await tester.runAsync(savedAttempts);
+      expect(saved, hasLength(1));
+      expect(saved!.single['verdict'], 'unverified');
+      expect(saved.single['selfMark'], 'got_it');
+
+      // A Missed it on the next sentence is kept too, on its own attempt.
+      await tester.tap(find.text('Next sentence'));
+      await tester.pump();
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await rig.settle(tester);
+      saved = await tester.runAsync(savedAttempts);
+      expect(saved!.map((a) => a['selfMark']), ['got_it', 'missed_it']);
+      expect(saved.last['sentence'], lesson26()[1].kana);
+      expect(saved.map((a) => a['verdict']), everyElement('unverified'));
+
+      // The marks read back, and Recent scores names them.
+      final back = await tester.runAsync(SpeakScoreLog.load);
+      expect(back!.map((a) => a.selfMark), [true, false]);
+      expect(find.textContaining('unverified · got it'), findsOneWidget);
+      expect(find.textContaining('unverified · missed it'), findsOneWidget);
+    });
+
+    testWidgets('a close result keeps its self-mark too', (tester) async {
+      final rig = Rig(reply: goodWithScore(70));
+      await rig.speakOnce(tester);
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await rig.settle(tester);
+      final saved = await tester.runAsync(savedAttempts);
+      expect(saved!.single['verdict'], 'close');
+      expect(saved.single['selfMark'], 'missed_it');
+    });
+
+    testWidgets('a scored attempt carries no self-mark', (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.speakOnce(tester);
+      await rig.settle(tester);
+      final saved = await tester.runAsync(savedAttempts);
+      expect(saved!.single['verdict'], 'correct');
+      expect(saved.single['selfMark'], isNull);
+    });
+
+    testWidgets(
+        'the header shows one position counter, and the tally waits for the end',
+        (tester) async {
+      final all = lesson26();
+      await Rig().open(tester);
+      expect(positionOf(tester), '1 of ${all.length}');
+      expect(find.textContaining('Sentence 1 of'), findsNothing);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      await tester.tap(find.text('Next sentence'));
+      await tester.pump();
+      expect(positionOf(tester), '2 of ${all.length}');
+    });
+
+    testWidgets('the set ends on a tally card instead of wrapping silently',
+        (tester) async {
+      final all = lesson26();
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.speakOnce(tester);
+      for (var i = 1; i < all.length; i++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
+      // The last sentence offers Finish, not another Next.
+      expect(find.text(all.last.kana), findsOneWidget);
+      expect(positionOf(tester), '${all.length} of ${all.length}');
+      expect(find.text('Next sentence'), findsNothing);
+      await tester.tap(find.text('Finish'));
+      await tester.pump();
+
+      expect(find.text('End of the lesson'), findsOneWidget);
+      expect(tallyOf(tester), '1 of 1');
+      expect(find.text(firstSentence().kana), findsNothing);
+      expect(find.text('Speak'), findsNothing);
+
+      // Go again starts the set and its tally from the top.
+      await tester.tap(find.text('Go again'));
+      await tester.pump();
+      expect(find.text(firstSentence().kana), findsOneWidget);
+      expect(positionOf(tester), '1 of ${all.length}');
+      await walkToEnd(tester);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      expect(find.text('Nothing was scored this time.'), findsOneWidget);
+    });
+
+    testWidgets('Next does not move from sentence to sentence', (tester) async {
+      final all = lesson26();
+      await Rig().open(tester);
+      final box = find.byKey(const ValueKey('speak-sentence-box'));
+      final firstBox = tester.getSize(box);
+      final firstNext = tester.getTopLeft(find.text('Next sentence'));
+      for (var i = 1; i < all.length - 1; i++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+        expect(tester.getSize(box).height, firstBox.height,
+            reason: 'sentence ${i + 1}: ${all[i].kana}');
+        expect(tester.getTopLeft(find.text('Next sentence')), firstNext,
+            reason: 'sentence ${i + 1}: ${all[i].kana}');
+      }
+    });
+
+    testWidgets('a combined example shows each form with its own English',
+        (tester) async {
+      final doc = readLessonFile();
+      final lesson = (doc['grammar'] as List)
+          .cast<Map<String, dynamic>>()
+          .firstWhere((l) => l['lesson'] == 31);
+      final all = lessonSentences(lesson);
+      final i = all.indexWhere((x) => x.kana == 'たべよう');
+      expect(i, isNonNegative);
+      await Rig().open(tester, lesson: 31);
+      for (var k = 0; k < i; k++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
+      expect(find.text('たべよう'), findsOneWidget);
+      expect(find.text("let's eat"), findsOneWidget);
+      expect(find.textContaining("let's go /"), findsNothing);
     });
 
     testWidgets('Next moves to the second sentence', (tester) async {

@@ -18,14 +18,24 @@
 //     service ends the listen after a silence that follows speech. No Stop tap is needed
 //     (PIN-7). Stop stays as a way out of a false start.
 //   * One check at a time: Speak and Next wait until the check returns, so two checks never
-//     share the microphone.
+//     share the microphone. Cancel on the Checking panel retires the attempt instead: the
+//     microphone is already closed, so a new Speak may start while the old score is still
+//     out, and that late score is dropped.
+//   * The app's own voice: Play waits on `SpeechService.speakAndWait`, so Speak stays
+//     disabled until the voice has finished, and Speak stops any voice before the
+//     microphone opens.
+//   * The app going to the background (`paused`) retires the attempt and closes the
+//     microphone, so no check runs behind the app.
+//   * One position counter in the header. The tally waits for the end of the set, which
+//     shows it on an end card instead of wrapping back to the first sentence.
 //
 // 🚨 NOTHING THAT CANNOT BE SCORED IS EVER MARKED WRONG (PIN-3).
 //   * `correct` is marked right and shows the score.
 //   * `close` shows the score in amber, then asks the learner: "Got it" or "Missed it".
 //   * `wrong` is marked wrong and shows the score. Only a real Azure score can say wrong.
 //   * `unverified` (no microphone, no speech, no network, a failed sign-in or call) asks
-//     the same self-check question.
+//     the same self-check question. The Got it or Missed it is kept with the attempt in
+//     the score log, so no self-mark is lost.
 // Every scored result shows the sentence with each hiragana letter colored by its syllable
 // score (PIN-8). Every attempt's sentence, scores and verdict stay on the device and the
 // newest are listed under "Recent scores", so the operator can tune the cutoffs (PIN-4).
@@ -68,17 +78,58 @@ class SpeakSentence {
 const String _joiner = '／';
 
 /// Splits a hiragana text and its twin on ／ into one [SpeakSentence] per form. When the
-/// two sides do not split alike, the whole pair is one sentence.
+/// two sides do not split alike, the whole pair is one sentence. The English splits
+/// alongside (see [splitEnglish]). When it cannot, every form keeps the whole English.
 Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en) {
   final kanaParts = jp.split(_joiner);
   final rubyParts = ruby.split(_joiner);
   final pairs =
       kanaParts.length == rubyParts.length ? rubyParts : <String>[ruby];
-  return pairs.map((r) => SpeakSentence(
-        kana: rubyKana(r),
-        surface: rubySurface(r),
-        en: en,
-      ));
+  final ens = splitEnglish(en, pairs.length) ?? [for (final _ in pairs) en];
+  return [
+    for (var i = 0; i < pairs.length; i++)
+      SpeakSentence(
+        kana: rubyKana(pairs[i]),
+        surface: rubySurface(pairs[i]),
+        en: ens[i],
+      )
+  ];
+}
+
+/// The English of a combined example cut into [n] parts, one per form, or null when no
+/// join gives exactly [n]. The joins are tried in order: ／, a spaced slash, a sentence end,
+/// then a comma. In a comma list whose first part carries a lead (passive of よむ, たべる),
+/// the bare items after it take that lead too.
+List<String>? splitEnglish(String en, int n) {
+  if (n < 2) return null;
+  final sentenceEnd = RegExp(r'([.!?])\s+');
+  final joins = <List<String> Function(String)>[
+    (e) => e.split(_joiner),
+    (e) => e.split(RegExp(r'\s+/\s+')),
+    (e) =>
+        e.replaceAllMapped(sentenceEnd, (m) => '${m[1]}\u0000').split('\u0000'),
+    (e) => _sharedLead(e.split(RegExp(r',\s+'))),
+  ];
+  for (final join in joins) {
+    final parts = [
+      for (final p in join(en))
+        if (p.trim().isNotEmpty) p.trim()
+    ];
+    if (parts.length == n) return parts;
+  }
+  return null;
+}
+
+/// passive of よむ, たべる becomes passive of よむ, passive of たべる. Only when every later
+/// part is one bare word and the first part has a lead before its own item.
+List<String> _sharedLead(List<String> parts) {
+  if (parts.length < 2) return parts;
+  final first = parts.first.trim();
+  final cut = first.lastIndexOf(' ');
+  final rest = parts.skip(1).map((p) => p.trim()).toList();
+  if (cut <= 0 || rest.any((p) => p.contains(' '))) return parts;
+  final lead = first.substring(0, cut + 1);
+  return [first, for (final p in rest) '$lead$p'];
 }
 
 /// Point by point, in the order the lesson teaches them: each point's examples, then
@@ -131,6 +182,7 @@ class SpeakAttempt {
     this.fluency,
     this.completeness,
     this.words = const [],
+    this.selfMark,
   });
 
   factory SpeakAttempt.of(
@@ -157,6 +209,31 @@ class SpeakAttempt {
   final double? completeness;
   final List<WordScore> words;
 
+  /// The learner's own mark after a close or unverified result: true for Got it, false for
+  /// Missed it, null when the drill scored it or nothing was marked.
+  final bool? selfMark;
+
+  /// This attempt with the learner's own mark.
+  SpeakAttempt marked(bool gotIt) => SpeakAttempt(
+        sentence: sentence,
+        verdict: verdict,
+        at: at,
+        overall: overall,
+        accuracy: accuracy,
+        fluency: fluency,
+        completeness: completeness,
+        words: words,
+        selfMark: gotIt,
+      );
+
+  /// The same attempt as [other]: one sentence at one moment.
+  bool sameAs(SpeakAttempt other) =>
+      sentence == other.sentence &&
+      at.toIso8601String() == other.at.toIso8601String();
+
+  static const String _gotIt = 'got_it';
+  static const String _missedIt = 'missed_it';
+
   Map<String, Object?> toJson() => {
         'sentence': sentence,
         'verdict': verdict.name,
@@ -174,6 +251,11 @@ class SpeakAttempt {
               'syllables': w.syllableScores,
             }
         ],
+        'selfMark': switch (selfMark) {
+          true => _gotIt,
+          false => _missedIt,
+          null => null,
+        },
       };
 
   /// Null for an entry this build cannot read, so one bad entry never hides the rest.
@@ -207,6 +289,11 @@ class SpeakAttempt {
       fluency: num_(raw['fluency']),
       completeness: num_(raw['completeness']),
       words: words,
+      selfMark: switch (raw['selfMark']) {
+        _gotIt => true,
+        _missedIt => false,
+        _ => null,
+      },
     );
   }
 }
@@ -233,11 +320,29 @@ class SpeakScoreLog {
   }
 
   /// Appends [a] and returns the log as saved. Never throws: a failed save keeps the drill
-  /// running and returns what could be read. The drill runs one check at a time, so two
-  /// saves never overlap.
+  /// running and returns what could be read. The drill chains its saves, so two never
+  /// overlap.
   static Future<List<SpeakAttempt>> add(SpeakAttempt a) async {
     final list = await load();
     list.add(a);
+    return _save(list);
+  }
+
+  /// Keeps the learner's Got it or Missed it on the logged attempt [a]. An attempt the log
+  /// does not hold (its own save failed) is appended with the mark, so no mark is lost.
+  /// Never throws.
+  static Future<List<SpeakAttempt>> mark(SpeakAttempt a, bool gotIt) async {
+    final list = await load();
+    final i = list.lastIndexWhere((e) => e.sameAs(a));
+    if (i < 0) {
+      list.add(a.marked(gotIt));
+    } else {
+      list[i] = list[i].marked(gotIt);
+    }
+    return _save(list);
+  }
+
+  static Future<List<SpeakAttempt>> _save(List<SpeakAttempt> list) async {
     if (list.length > keep) list.removeRange(0, list.length - keep);
     try {
       final p = await SharedPreferences.getInstance();
@@ -259,16 +364,19 @@ class QuietRoomSpeakWidget extends StatefulWidget {
     this.play,
     this.newService,
     this.callerAuth,
+    this.speech,
   });
 
   /// The grammar lesson number, as in `grammar[].lesson`.
   final int? lesson;
 
-  /// Test seams. Null plays with [SpeechService.instance], records with the real
-  /// microphone, and signs in through Firebase.
+  /// Test seams. Null plays and stops the voice with [SpeechService.instance], records with
+  /// the real microphone, and signs in through Firebase. [play], when set, replaces only
+  /// Play's voice. The stop before Speak still goes to [speech].
   final SpeakPlay? play;
   final SpeakServiceFactory? newService;
   final CallerAuth? callerAuth;
+  final SpeechService? speech;
 
   static String routeName = 'quietRoomSpeak';
   static String routePath = '/quietRoomSpeak';
@@ -277,13 +385,18 @@ class QuietRoomSpeakWidget extends StatefulWidget {
   State<QuietRoomSpeakWidget> createState() => _QuietRoomSpeakWidgetState();
 }
 
-class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
+class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
+    with WidgetsBindingObserver {
   late final PronunciationService _svc;
+  late final SpeechService _voice = widget.speech ?? SpeechService.instance;
 
   int _index = 0;
 
-  /// True from Speak until the check returns. Speak and Next wait meanwhile, so one check
-  /// owns the microphone at a time.
+  /// True once Next has passed the last sentence: the end card shows the tally.
+  bool _done = false;
+
+  /// True from Speak until the check returns or the attempt is retired (Stop, Cancel, a
+  /// pause). Speak and Next wait meanwhile, so one check owns the microphone at a time.
   bool _busy = false;
 
   /// True once this check's microphone has opened, and [_scoring] once it has closed again:
@@ -291,7 +404,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   bool _micOpened = false;
   bool _scoring = false;
 
-  /// True after Stop. The check winds down and its result is dropped.
+  /// True after Stop or a pause. The check winds down and its result is dropped.
   bool _stopped = false;
   bool _heardVoice = false;
 
@@ -302,28 +415,44 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
   /// The last attempt on this sentence, or null before one.
   PronunciationResult? _result;
 
+  /// The logged entry for [_result], so a self-mark lands on the attempt it answers.
+  SpeakAttempt? _logged;
+
   /// The learner's own mark after a self-check: true for "Got it".
   bool? _selfMark;
 
   int _seen = 0;
   int _right = 0;
 
-  /// Bumped by every Speak and Stop. A check whose attempt is no longer current drops its
-  /// result instead of showing it.
+  /// Bumped by every Speak and every retire (Stop, Cancel, a pause, dispose). A check whose
+  /// attempt is no longer current drops its result instead of showing or keeping it.
   int _attempt = 0;
 
   /// The device's score log, oldest first.
   List<SpeakAttempt> _log = const [];
 
+  /// Every log write runs after the one before, so a self-mark never races the save of the
+  /// attempt it marks.
+  Future<void> _logWrites = Future<void>.value();
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final make =
         widget.newService ?? (signIn) => PronunciationService(signIn: signIn);
     _svc = make(_signIn);
     _svc.listening.addListener(_onMic);
     SpeakScoreLog.load().then((log) {
       if (mounted && log.isNotEmpty) setState(() => _log = log);
+    });
+  }
+
+  /// Queues a log write after the ones before it and shows the log it saved.
+  void _writeLog(Future<List<SpeakAttempt>> Function() write) {
+    _logWrites = _logWrites.then((_) async {
+      final log = await write();
+      if (mounted) setState(() => _log = log);
     });
   }
 
@@ -342,23 +471,33 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _attempt++;
     _svc.listening.removeListener(_onMic);
     _svc.dispose();
-    if (widget.play == null) SpeechService.instance.stopSpeaking();
+    _voice.stopSpeaking();
     super.dispose();
   }
 
+  /// The microphone and the voice never run behind the app: a pause retires the attempt.
+  /// Inactive and hidden do not, because a permission dialog makes the app inactive too.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.paused) return;
+    _voice.stopSpeaking();
+    if (_busy) _retire();
+  }
+
   Future<String?> _say(String text) =>
-      widget.play?.call(text) ?? SpeechService.instance.speak(text);
+      widget.play?.call(text) ?? _voice.speakAndWait(text);
 
   Future<void> _play(SpeakSentence s) async {
     if (_playing || _busy) return;
     setState(() => _playing = true);
     try {
       // Spoken as a pause, the way quiet_room_grammar_widget.dart reads a joined example.
-      // Off the web, speak() returns when the voice has finished or at
-      // SpeechService.speakWait, whichever comes first, so the buttons stay disabled until
-      // then. On the web it returns at once.
+      // speakAndWait returns when the voice says it has finished (or at its safety cap), so
+      // Play and Speak stay disabled for the whole sentence, not only for speak()'s cap.
       final err = await _say(s.kana.replaceAll(_joiner, '、'));
       if (err != null && mounted) {
         final t = QuietRoomTokens.of(context);
@@ -383,15 +522,22 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
       _stopped = false;
       _heardVoice = false;
       _result = null;
+      _logged = null;
       _selfMark = null;
     });
     try {
+      // The app's own voice must never reach the microphone: stop it before it opens.
+      await _voice.stopSpeaking();
+      if (!mounted || attempt != _attempt) return;
       // check() never throws: anything it cannot score comes back unverified (PIN-3).
       final r = await _svc.check(s.kana);
-      // Stop retired this attempt while it ran: its result is dropped, not kept.
+      // Stop, Cancel or a pause retired this attempt while it ran: its result is dropped,
+      // not shown, counted or kept.
       if (!mounted || attempt != _attempt) return;
+      final entry = SpeakAttempt.of(s.kana, r, DateTime.now());
       setState(() {
         _result = r;
+        _logged = entry;
         if (r.verdict == Judgement.correct) {
           _seen++;
           _right++;
@@ -399,11 +545,11 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           _seen++;
         }
       });
-      SpeakScoreLog.add(SpeakAttempt.of(s.kana, r, DateTime.now())).then((log) {
-        if (mounted) setState(() => _log = log);
-      });
+      _writeLog(() => SpeakScoreLog.add(entry));
     } finally {
-      if (mounted) {
+      // Only the current attempt frees the buttons. A retired one was freed by its retire,
+      // and may since have been followed by a newer attempt that still owns them.
+      if (mounted && attempt == _attempt) {
         setState(() {
           _busy = false;
           _scoring = false;
@@ -412,28 +558,59 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     }
   }
 
-  Future<void> _stop() async {
-    // Retire the attempt first, so its result is dropped.
-    _attempt++;
+  /// Retires the attempt in flight, so its result is dropped, then frees the buttons once
+  /// the microphone is closed. Stop, Cancel on Checking, and a pause all end here.
+  Future<void> _retire() async {
+    final retired = ++_attempt;
     setState(() => _stopped = true);
+    // While listening this closes the microphone. While checking it is already closed, and
+    // the score still out is dropped when it lands.
     await _svc.cancel();
+    if (!mounted || retired != _attempt) return;
+    setState(() {
+      _busy = false;
+      _scoring = false;
+      _stopped = false;
+    });
   }
 
   void _mark(bool gotIt) {
     if (_selfMark != null) return;
+    final entry = _logged;
     setState(() {
       _selfMark = gotIt;
       _seen++;
       if (gotIt) _right++;
     });
+    // Kept with the attempt it answers, after that attempt's own save (no mark is lost).
+    if (entry != null) _writeLog(() => SpeakScoreLog.mark(entry, gotIt));
   }
 
   /// Ignored during a check, so a pending result is never credited to the next sentence.
+  /// Past the last sentence the set ends on the tally card, and never wraps silently.
   void _next(int count) {
     if (_busy) return;
     setState(() {
-      _index = (_index + 1) % count;
+      if (_index + 1 >= count) {
+        _done = true;
+      } else {
+        _index++;
+      }
       _result = null;
+      _logged = null;
+      _selfMark = null;
+    });
+  }
+
+  /// Starts the set and its tally again from the first sentence.
+  void _again() {
+    setState(() {
+      _index = 0;
+      _done = false;
+      _seen = 0;
+      _right = 0;
+      _result = null;
+      _logged = null;
       _selfMark = null;
     });
   }
@@ -458,7 +635,25 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
               child: Text('This lesson has no sentences to speak.',
                   style: qrText(t, color: t.clay600)));
         }
-        final s = sentences[_index % sentences.length];
+        final title = Text('Speak lesson ${lesson['lesson']}',
+            style: qrTitle(t, size: 22));
+        if (_done) {
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+            children: [
+              title,
+              const SizedBox(height: 16),
+              _endCard(t, sentences.length),
+              if (_log.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                _recentScores(t),
+              ],
+            ],
+          );
+        }
+        final index = _index.clamp(0, sentences.length - 1);
+        final s = sentences[index];
+        final last = index == sentences.length - 1;
         final Widget action;
         if (_busy && !_stopped) {
           action = _scoring ? _checkingPanel(t) : _listeningPanel(t);
@@ -470,30 +665,34 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
           children: [
             Row(
               children: [
-                Expanded(
-                    child: Text('Speak lesson ${lesson['lesson']}',
-                        style: qrTitle(t, size: 22))),
-                Text(_seen == 0 ? 'Say it' : '$_right of $_seen',
+                Expanded(child: title),
+                // The one position counter. The tally waits for the end card.
+                Text('${index + 1} of ${sentences.length}',
+                    key: const ValueKey('speak-position'),
                     style: qrText(t,
                         size: 14, weight: FontWeight.w600, color: t.inkMuted)),
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-                'Sentence ${_index % sentences.length + 1} of ${sentences.length}. '
-                'Play it, then say it once.',
+            Text('Play it, then say it once.',
                 style: qrText(t, size: 13.5, color: t.inkMuted)),
             const SizedBox(height: 16),
             QrCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(s.kana, style: qrText(t, size: 20, height: 1.5)),
-                  if (s.en.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(s.en, style: qrText(t, size: 13.5, color: t.inkMuted)),
+              // A fixed minimum height, so a short sentence does not pull Next up.
+              child: ConstrainedBox(
+                key: const ValueKey('speak-sentence-box'),
+                constraints: const BoxConstraints(minHeight: _sentenceBoxMin),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(s.kana, style: qrText(t, size: 20, height: 1.5)),
+                    if (s.en.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(s.en,
+                          style: qrText(t, size: 13.5, color: t.inkMuted)),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -508,7 +707,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
                 onPressed: _busy ? null : () => _next(sentences.length),
                 style: TextButton.styleFrom(
                     minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
-                child: Text('Next sentence',
+                child: Text(last ? 'Finish' : 'Next sentence',
                     style: qrText(t,
                         size: 14, weight: FontWeight.w600, color: t.brand600)),
               ),
@@ -599,7 +798,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
                       size: 13, weight: FontWeight.w600, color: t.inkMuted)),
               const SizedBox(width: 10),
               TextButton(
-                onPressed: _stop,
+                onPressed: _retire,
                 child: Text('Stop',
                     style: qrText(t,
                         size: 13, weight: FontWeight.w600, color: t.brand600)),
@@ -611,15 +810,73 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
     );
   }
 
-  /// The recording is on its way to Azure.
+  /// The recording is on its way to Azure. Cancel retires the attempt, so the score that
+  /// lands later is dropped and Speak is free at once.
   Widget _checkingPanel(QuietRoomTokens t) {
     return Container(
       decoration: _panel(t),
-      padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
-      child: Center(
-        child: Text('Checking…',
-            style: qrText(t,
-                size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+      padding: const EdgeInsets.fromLTRB(15, 4, 15, 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Checking…',
+              style: qrText(t,
+                  size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+          const SizedBox(width: 10),
+          TextButton(
+            onPressed: _retire,
+            style: TextButton.styleFrom(
+                minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
+            child: Text('Cancel',
+                style: qrText(t,
+                    size: 13, weight: FontWeight.w600, color: t.brand600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The end of the set: the tally of what was scored or self-marked, and Go again.
+  Widget _endCard(QuietRoomTokens t, int count) {
+    return QrCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('End of the lesson',
+              style: qrText(t, size: 16, weight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Text('You went through all $count sentences.',
+              style: qrText(t, size: 13.5, color: t.inkMuted)),
+          const SizedBox(height: 10),
+          if (_seen == 0)
+            Text('Nothing was scored this time.',
+                style: qrText(t, size: 13.5, color: t.inkMuted))
+          else ...[
+            Text('$_right of $_seen',
+                key: const ValueKey('speak-tally'),
+                style: qrTitle(t, size: 22)),
+            const SizedBox(height: 2),
+            Text('said right, scored or marked by you',
+                style: qrText(t, size: 13, color: t.inkMuted)),
+          ],
+          const SizedBox(height: 12),
+          SizedBox(
+            height: QuietRoomMetrics.targetMin,
+            child: ElevatedButton(
+              onPressed: _again,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: t.brand600,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(QuietRoomMetrics.radiusSm)),
+              ),
+              child: Text('Go again',
+                  style: qrText(t,
+                      size: 15, weight: FontWeight.w600, color: t.onBrand)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -779,6 +1036,10 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
         _ => t.amber700,
       };
 
+  /// The sentence box's least height: three lines of kana and two of English, so Next
+  /// stays put from sentence to sentence.
+  static const double _sentenceBoxMin = 132;
+
   /// How many attempts the drill lists under Recent scores.
   static const int _recentShown = 8;
 
@@ -798,7 +1059,13 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget> {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
                 '${a.overall == null ? 'no score' : formatScore(a.overall!)}'
-                ' · ${a.verdict.name} · ${a.sentence}',
+                ' · ${a.verdict.name}'
+                '${switch (a.selfMark) {
+                  true => ' · got it',
+                  false => ' · missed it',
+                  null => '',
+                }}'
+                ' · ${a.sentence}',
                 style: qrText(t, size: 12.5, color: t.inkMuted)),
           ),
       ],
