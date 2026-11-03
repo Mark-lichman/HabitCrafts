@@ -1,8 +1,10 @@
 // The study store (Task 8, D14, D26, A4, A5). One suite runs against both implementations:
 // `JpStoreMemory` (the web store) and `JpStoreSqlite` through the ffi factory. The SQLite-only
-// group covers the schema version, the indexes, a reopen of the file and the rollback of an
-// answer that fails inside its transaction.
+// group covers the schema version, the indexes, a reopen of the file, the upgrade steps and
+// the rollback of an answer that fails inside its transaction. The gated memory store holds a
+// rebuild or an import open so an answer can try to land inside it.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -73,6 +75,53 @@ class _Unwritable extends MasteryState {
 
   @override
   Map<String, dynamic> toJson() => throw StateError('unwritable');
+}
+
+/// A memory store whose log read (in a rebuild) and log write (in an import) wait on [gate],
+/// so a test can start an answer while either is open.
+class _Gated extends JpStoreMemory {
+  Completer<void>? gate;
+
+  Future<void> _wait() => gate?.future ?? Future.value();
+
+  @override
+  Future<List<SeedEvent>> seeds() async {
+    await _wait();
+    return super.seeds();
+  }
+
+  @override
+  Future<void> replaceLog(StudyLog log) async {
+    await _wait();
+    return super.replaceLog(log);
+  }
+}
+
+/// The grammar point [id] as the asset defines it.
+Map<String, dynamic> pointDef(String id) {
+  for (final lesson in (grammarDoc['grammar'] as List)) {
+    for (final p in ((lesson as Map)['points'] as List)) {
+      if ((p as Map)['id'] == id) return Map<String, dynamic>.from(p);
+    }
+  }
+  throw StateError('no grammar point $id');
+}
+
+/// The first example in the asset that joins forms with ／: its point id, its index among the
+/// point's examples and its second form. Read from the asset, not from `sayItSentences`.
+({String itemId, int index, String form}) firstSlashExample() {
+  for (final lesson in (grammarDoc['grammar'] as List)) {
+    for (final p in ((lesson as Map)['points'] as List)) {
+      final examples = ((p as Map)['examples'] as List? ?? const []);
+      for (var i = 0; i < examples.length; i++) {
+        final jp = (examples[i] as Map)['jp'] as String;
+        if (jp.contains('／')) {
+          return (itemId: p['id'] as String, index: i, form: jp.split('／')[1]);
+        }
+      }
+    }
+  }
+  throw StateError('the asset has no ／ example');
 }
 
 typedef Opener = Future<JpStore> Function();
@@ -473,6 +522,11 @@ void main() {
               'line counts disagree',
           '${good}not json\n': 'line 2 is not a JSON object',
           oneAttempt: 'line 2: FormatException: rating 9 is outside 1 to 4',
+          // A blank line is skipped and still counted: the named line is the file's own.
+          '$good\n{"type":"mystery"}\n':
+              'line 3: FormatException: unknown type',
+          '$good\n\nnot json\n': 'line 4 is not a JSON object',
+          '\n{"format":"other","version":1}\n': 'line 2 is not the header',
         };
         for (final e in bad.entries) {
           await expectLater(
@@ -514,6 +568,17 @@ void main() {
         final sentence = sayItSentences(grammarDoc)
             .entries
             .firstWhere((e) => e.value.itemId == point.id);
+        // A practice sentence and a ／-split example form, read from the asset itself.
+        final practice = (pointDef(point.id)['practice'] as List).first as Map;
+        final practiceKana = (practice['prompt'] as String)
+            .replaceAll('＿＿', practice['answer'] as String);
+        final slash = firstSlashExample();
+        final spokenAt = [
+          DateTime(2026, 10, 20, 19),
+          DateTime(2026, 10, 21, 19),
+          DateTime(2026, 10, 23, 19),
+          DateTime(2026, 10, 24, 19),
+        ];
 
         setUp(() async {
           SharedPreferences.setMockInitialValues({});
@@ -525,17 +590,41 @@ void main() {
           await SpeakScoreLog.add(SpeakAttempt(
               sentence: sentence.key,
               verdict: Judgement.correct,
-              at: DateTime(2026, 10, 20, 19)));
+              at: spokenAt[0]));
           await SpeakScoreLog.add(SpeakAttempt(
               sentence: sentence.key,
               verdict: Judgement.unverified,
-              at: DateTime(2026, 10, 21, 19),
+              at: spokenAt[1],
               selfMark: false));
           await SpeakScoreLog.add(SpeakAttempt(
               sentence: 'どこにもないぶん',
               verdict: Judgement.correct,
               at: DateTime(2026, 10, 22, 19)));
+          await SpeakScoreLog.add(SpeakAttempt(
+              sentence: practiceKana,
+              verdict: Judgement.correct,
+              at: spokenAt[2]));
+          await SpeakScoreLog.add(SpeakAttempt(
+              sentence: slash.form,
+              verdict: Judgement.correct,
+              at: spokenAt[3]));
         });
+
+        /// The attempt the migration writes for the first spoken sentence.
+        Attempt firstSayIt({String sessionId = kV2MigrationSession}) => Attempt(
+              itemId: point.id,
+              probeId: sentence.value.probeId,
+              template: kSayItTemplate,
+              production: true,
+              selfGraded: false,
+              atUtc: spokenAt[0].toUtc(),
+              localDay: localDay(spokenAt[0]),
+              grade: Grade.clear,
+              rating: fsrsRatingFor(Grade.clear),
+              wasDue: false,
+              source: Source.sayIt,
+              sessionId: sessionId,
+            );
 
         Future<V2MigrationReport> migrate() async => migrateV2Keys(
               store,
@@ -551,7 +640,8 @@ void main() {
           final report = await migrate();
           expect(report.dueToday, 1);
           expect(report.notes, 1);
-          expect(report.sayIt, 2);
+          expect(report.sayIt, 4);
+          expect(report.alreadyLogged, 0);
           expect(report.skipped, 3);
 
           // review_needed: due today, by a seed event, with no attempt on the self-check.
@@ -562,25 +652,29 @@ void main() {
 
           // Say-it history: on the point, never credit, never a schedule.
           final log = await store.attempts();
-          expect(log.map((a) => a.itemId).toSet(), {point.id});
+          expect(log.map((a) => a.itemId).toSet(), {point.id, slash.itemId});
           expect(
               log.every((a) => a.source == Source.sayIt && !a.wasDue), isTrue);
-          expect(log.map((a) => a.probeId).toSet(), {sentence.value.probeId});
-          expect(log.map((a) => a.grade), [Grade.clear, Grade.unscored],
+          // The example, the practice item (answer in the blank) and the ／-split form each
+          // name the probe they came from.
+          expect(log.map((a) => a.probeId), [
+            sentence.value.probeId,
+            sentence.value.probeId,
+            'p0',
+            'ex${slash.index}'
+          ]);
+          expect(log.map((a) => a.grade),
+              [Grade.clear, Grade.unscored, Grade.clear, Grade.clear],
               reason: 'an unverified check is never wrong');
           // Each attempt keeps its own instant and local day, not the migration's.
-          expect(log.map((a) => a.localDay), [
-            localDay(DateTime(2026, 10, 20, 19)),
-            localDay(DateTime(2026, 10, 21, 19)),
-          ]);
-          expect(log.map((a) => a.atUtc), [
-            DateTime(2026, 10, 20, 19).toUtc(),
-            DateTime(2026, 10, 21, 19).toUtc(),
-          ]);
+          expect(log.map((a) => a.localDay), spokenAt.map(localDay).toList());
+          expect(
+              log.map((a) => a.atUtc), spokenAt.map((d) => d.toUtc()).toList());
           expect(await store.srs(point.id), isNull);
           await store.rebuild(catalog.byId, scheduler);
           expect((await store.mastery(point.id))!.status, MasteryStatus.neu);
           expect(await store.srs(point.id), isNull);
+          expect(await store.srs(slash.itemId), isNull);
 
           // The keys stay for one release.
           final prefs = await SharedPreferences.getInstance();
@@ -590,12 +684,151 @@ void main() {
           // Once only.
           final again = await migrate();
           expect(again.alreadyRan, isTrue);
-          expect((await store.attempts()).length, 2);
+          expect((await store.attempts()).length, 4);
           expect((await store.seeds()).length, 1);
+        });
+
+        test('a run cut short before the flag logs no Say-it attempt twice',
+            () async {
+          // The first run died after the seed and one Say-it attempt, before the flag.
+          await store.appendSeed(point.id, today,
+              atUtc: DateTime.utc(2026, 11, 3, 9));
+          await store.appendAttempt(firstSayIt(sessionId: 'first-run'));
+          final report = await migrate();
+          expect(report.sayIt, 3);
+          expect(report.alreadyLogged, 1);
+          expect(report.dueToday, 1);
+          final log = await store.attempts();
+          expect(log.length, 4);
+          expect(
+              log.where((a) =>
+                  a.itemId == point.id &&
+                  a.probeId == sentence.value.probeId &&
+                  a.atUtc == spokenAt[0].toUtc()),
+              hasLength(1));
+          expect(log.first.sessionId, 'first-run',
+              reason: 'the logged one stays');
+          // The seed repeats in the log and the item is still due once, today.
+          expect((await store.seeds()).length, 2);
+          expect(await store.dueOnOrBefore(today),
+              [DueItem(itemId: point.id, dueDay: today, seeded: true)]);
+          expect((await migrate()).alreadyRan, isTrue);
+        });
+
+        test(
+            'an unreadable score log is counted as skipped, never read as empty',
+            () async {
+          for (final (raw, name) in [
+            ('not json', 'not JSON'),
+            ('{"a":1}', 'not a list'),
+            (1, 'not a string'),
+          ]) {
+            await store.close();
+            store = await entry.value();
+            final prefs = await SharedPreferences.getInstance();
+            if (raw is String) {
+              await prefs.setString(SpeakScoreLog.prefsKey, raw);
+            } else {
+              await prefs.setInt(SpeakScoreLog.prefsKey, raw as int);
+            }
+            final report = await migrate();
+            expect(report.sayIt, 0, reason: name);
+            expect(report.skipped, 3, reason: '$name: two keys and the blob');
+            expect(await store.attempts(), isEmpty, reason: name);
+            expect(await store.meta(kV2MigrationFlag), isNotNull, reason: name);
+          }
         });
       });
     });
   }
+
+  test('every drill sentence of every lesson maps to a point of that lesson',
+      () {
+    // The oracle is the drill's own `lessonSentences` over each whole lesson, not the map
+    // under test. A sentence it would show must land on a point of its lesson.
+    final map = sayItSentences(grammarDoc);
+    var sentences = 0, practice = 0, forms = 0;
+    for (final lesson in (grammarDoc['grammar'] as List)) {
+      final l = Map<String, dynamic>.from(lesson as Map);
+      final ids = {for (final p in l['points'] as List) (p as Map)['id']};
+      for (final s in lessonSentences(l)) {
+        sentences++;
+        final hit = map[s.kana];
+        expect(hit, isNotNull, reason: 'lesson ${l['lesson']}: ${s.kana}');
+        expect(ids, contains(hit!.itemId), reason: s.kana);
+        if (hit.probeId.startsWith('p')) practice++;
+        if (RegExp(r'^ex\d+$').hasMatch(hit.probeId)) forms++;
+      }
+    }
+    expect(sentences, greaterThan(0));
+    expect(practice, greaterThan(0), reason: 'the practice branch is mapped');
+    expect(forms, greaterThan(0), reason: 'the examples branch is mapped');
+    // A ／-joined example maps each form, by the asset's own split.
+    final slash = firstSlashExample();
+    expect(
+        map[slash.form], (itemId: slash.itemId, probeId: 'ex${slash.index}'));
+  });
+
+  group('the write chain', () {
+    final g = firstOf(ItemKind.grammar);
+
+    test('an answer never lands between a rebuild\'s read and its write',
+        () async {
+      final store = _Gated();
+      final first = await store.recordAnswer(answer(g, 1, Grade.clear),
+          item: g, scheduler: scheduler);
+      store.gate = Completer<void>();
+      final rebuilding = store.rebuild(catalog.byId, scheduler);
+      final answering = store.recordAnswer(answer(g, 2, Grade.clear),
+          item: g, scheduler: scheduler);
+      // Everything that can run before the gate opens has run.
+      await Future<void>.delayed(Duration.zero);
+      expect(await store.attempts(), [first.attempt],
+          reason: 'the answer waits for the rebuild');
+      store.gate!.complete();
+      final result = await rebuilding;
+      final second = await answering;
+      expect(result.srs[g.id], first.srs);
+      expect(second.srs!.reps, 2);
+      expect(await store.srs(g.id), second.srs,
+          reason: 'the answer\'s write stands, not the stale replay');
+      expect(await store.mastery(g.id), second.mastery);
+      expect((await store.attempts()).length, 2);
+      await store.close();
+    });
+
+    test('an answer never lands between an import\'s two writes', () async {
+      final store = _Gated();
+      store.gate = Completer<void>();
+      final log =
+          StudyLog(seeds: [SeedEvent(itemId: 'x', dueDay: 1, atUtc: at(0))]);
+      final importing = store.importLog(log, catalog.byId, scheduler);
+      final answering = store.recordAnswer(answer(g, 1, Grade.clear),
+          item: g, scheduler: scheduler);
+      await Future<void>.delayed(Duration.zero);
+      expect(await store.attempts(), isEmpty,
+          reason: 'the answer waits for the import');
+      store.gate!.complete();
+      await importing;
+      final out = await answering;
+      expect(await store.attempts(), [out.attempt]);
+      expect(await store.srs(g.id), out.srs);
+      expect((await store.seeds()).single.itemId, 'x');
+      await store.close();
+    });
+
+    test('a failed rebuild does not break the chain for the next answer',
+        () async {
+      final store = JpStoreMemory();
+      await store.appendAttempt(withBadRating(answer(g, 1, Grade.clear)));
+      final rebuilding = store.rebuild(catalog.byId, scheduler);
+      final answering = store.recordAnswer(answer(g, 2, Grade.clear),
+          item: g, scheduler: scheduler);
+      await expectLater(rebuilding, throwsArgumentError);
+      expect((await answering).srs, isNotNull);
+      await store.close();
+    });
+  });
 
   test(
       'sayItGrade: a speech close is hinted, unverified is never wrong (PIN-3)',
@@ -677,6 +910,87 @@ void main() {
       } finally {
         await dir.delete(recursive: true);
       }
+    });
+
+    test('onUpgrade runs the step to each later version and keeps the rows',
+        () async {
+      final dir = await Directory.systemTemp.createTemp('jp_store_test');
+      final path = '${dir.path}/jp_study.db';
+      try {
+        final g = firstOf(ItemKind.grammar);
+        var store =
+            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        final out = await store.recordAnswer(answer(g, 3, Grade.clear),
+            item: g, scheduler: scheduler);
+        await store.close();
+
+        final ran = <int>[];
+        final toV2 = {
+          2: (Database db) async {
+            ran.add(2);
+            await db.execute('CREATE TABLE v2 (x INTEGER)');
+          },
+        };
+        store = await JpStoreSqlite.open(
+            factory: databaseFactoryFfi,
+            path: path,
+            version: 2,
+            upgrades: toV2);
+        expect(ran, [2]);
+        expect(await store.schemaVersion(), 2);
+        expect(await store.attempts(), [out.attempt]);
+        expect(await store.srs(g.id), out.srs);
+        await store.close();
+
+        // No step to version 3: the open throws, and the file stays at 2 with its rows.
+        await expectLater(
+            JpStoreSqlite.open(
+                factory: databaseFactoryFfi,
+                path: path,
+                version: 3,
+                upgrades: toV2),
+            throwsA(isA<StateError>().having((e) => e.message, 'message',
+                contains('no upgrade step to version 3'))));
+        store = await JpStoreSqlite.open(
+            factory: databaseFactoryFfi,
+            path: path,
+            version: 2,
+            upgrades: toV2);
+        expect(ran, [2], reason: 'a step runs once per file');
+        expect(await store.schemaVersion(), 2);
+        expect(await store.attempts(), [out.attempt]);
+        await store.close();
+      } finally {
+        await dir.delete(recursive: true);
+      }
+    });
+
+    test('onCreate at a later version runs the steps after version 1',
+        () async {
+      final ran = <int>[];
+      final store = await JpStoreSqlite.open(
+          factory: databaseFactoryFfi,
+          path: inMemoryDatabasePath,
+          version: 3,
+          upgrades: {
+            2: (db) async => ran.add(2),
+            3: (db) async => ran.add(3),
+          });
+      try {
+        expect(ran, [2, 3]);
+        expect(await store.schemaVersion(), 3);
+        expect(await store.attempts(), isEmpty);
+      } finally {
+        await store.close();
+      }
+      await expectLater(
+          JpStoreSqlite.open(
+              factory: databaseFactoryFfi,
+              path: inMemoryDatabasePath,
+              version: 2,
+              upgrades: {}),
+          throwsA(isA<StateError>().having((e) => e.message, 'message',
+              contains('no upgrade step to version 2'))));
     });
   });
 

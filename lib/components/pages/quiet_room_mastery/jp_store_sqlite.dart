@@ -74,9 +74,25 @@ Future<void> _createV1(Database db) async {
 }
 
 /// Opens the platform's store: SQLite on the phone, memory on web (A4).
+///
+/// Each call opens a new store. The app opens one per run and shares it; two stores on web
+/// do not see each other, and two on the phone do not serialize answers.
 Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
   if (isWeb) return JpStoreMemory();
   return JpStoreSqlite.open();
+}
+
+/// Runs the steps in [upgrades] that take a file at [from] to [to], in order. Throws a
+/// [StateError], inside the open's transaction, when a step is missing.
+Future<void> _upgrade(Database db, int from, int to,
+    Map<int, Future<void> Function(Database db)> upgrades) async {
+  for (var v = from + 1; v <= to; v++) {
+    final step = upgrades[v];
+    if (step == null) {
+      throw StateError('jp store: no upgrade step to version $v');
+    }
+    await step(db);
+  }
 }
 
 class JpStoreSqlite extends JpStore {
@@ -86,31 +102,29 @@ class JpStoreSqlite extends JpStore {
 
   /// Opens (creating or upgrading) the store at [path], by default [kJpStoreFileName] in the
   /// app's databases directory, through [factory], by default sqflite's platform factory.
-  static Future<JpStoreSqlite> open(
-      {DatabaseFactory? factory, String? path}) async {
+  ///
+  /// [version] and [upgrades] are test seams: the build always opens at
+  /// [kJpStoreSchemaVersion] with the registered steps.
+  static Future<JpStoreSqlite> open({
+    DatabaseFactory? factory,
+    String? path,
+    int version = kJpStoreSchemaVersion,
+    Map<int, Future<void> Function(Database db)>? upgrades,
+  }) async {
     final f = factory ?? sqflite.databaseFactory;
     final p = path ?? '${await f.getDatabasesPath()}/$kJpStoreFileName';
+    final steps = upgrades ?? _upgrades;
     final db = await f.openDatabase(
       p,
       options: OpenDatabaseOptions(
-        version: kJpStoreSchemaVersion,
+        version: version,
         // An in-memory path must not hand back an earlier store's database.
         singleInstance: p != inMemoryDatabasePath,
         onCreate: (db, version) async {
           await _createV1(db);
-          for (var v = 2; v <= version; v++) {
-            await _upgrades[v]!(db);
-          }
+          await _upgrade(db, 1, version, steps);
         },
-        onUpgrade: (db, from, to) async {
-          for (var v = from + 1; v <= to; v++) {
-            final step = _upgrades[v];
-            if (step == null) {
-              throw StateError('jp store: no upgrade step to version $v');
-            }
-            await step(db);
-          }
-        },
+        onUpgrade: (db, from, to) => _upgrade(db, from, to, steps),
       ),
     );
     return JpStoreSqlite._(db);

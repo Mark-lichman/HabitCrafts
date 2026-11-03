@@ -19,8 +19,16 @@
 //   * anything else: the scheduler's first or review, then `nextDue` spreads the due day over
 //     the load of every other item.
 // Mastery is `masteryAfter` (mastery_rule.dart), which owns PIN-3, PIN-4 and PIN-14.
-
-import 'dart:async';
+//
+// 🚨 HAZARD FOR THE INTAKE (Task 14) AND THE ITEM PAGE (Task 6): `masteryAfter` leaves only an
+// early clear alone. An early hinted or self answer on an item with no SrsState and no seed
+// moves its mastery from New to Learning with zero clears, while `srsAfter` writes no schedule,
+// so the item is Learning and never due. Select New intake items by "no SrsState and no seed",
+// never by MasteryStatus.neu, or that item drops out of the queue.
+//
+// The replace-style writers (`rebuild`, `importLog`) read the log across several awaits before
+// they write, so they run on the same chain as `recordAnswer` (`_serialized`): an answer never
+// lands between a replay's read and its write.
 
 import 'attempt.dart';
 import 'mastery_rule.dart';
@@ -280,8 +288,17 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
 abstract class JpStore {
   JpStore();
 
-  /// The tail of the [recordAnswer] chain: each answer starts after the one before it settles.
+  /// The tail of the write chain: each [recordAnswer], [rebuild] or [importLog] starts after
+  /// the one before it settles.
   Future<void> _answers = Future.value();
+
+  /// Runs [body] after every earlier chained write settles. A failed body does not break the
+  /// chain for the next one.
+  Future<T> _serialized<T>(Future<T> Function() body) {
+    final run = _answers.then((_) => body());
+    _answers = run.then((_) {}, onError: (Object _) {});
+    return run;
+  }
 
   // --- the log ---------------------------------------------------------------
 
@@ -364,16 +381,14 @@ abstract class JpStore {
   /// written in one transaction (D14). [item] is null only for an id the catalog no longer
   /// knows; its mastery is then left alone.
   ///
-  /// Answers run one at a time, in call order: the reads before the write span several
-  /// awaits, so two overlapping answers on one item would both start from the same state
-  /// and the second write would drop the first. A failed answer does not break the chain.
+  /// Answers run one at a time, in call order, on the chain [rebuild] and [importLog] also
+  /// join: the reads before the write span several awaits, so two overlapping answers on one
+  /// item would both start from the same state and the second write would drop the first. A
+  /// failed answer does not break the chain.
   Future<AnswerOutcome> recordAnswer(Attempt attempt,
-      {required ItemDefLike? item, required Scheduler scheduler}) {
-    final run = _answers
-        .then((_) => _recordAnswer(attempt, item: item, scheduler: scheduler));
-    _answers = run.then((_) {}, onError: (Object _) {});
-    return run;
-  }
+          {required ItemDefLike? item, required Scheduler scheduler}) =>
+      _serialized(
+          () => _recordAnswer(attempt, item: item, scheduler: scheduler));
 
   Future<AnswerOutcome> _recordAnswer(Attempt attempt,
       {required ItemDefLike? item, required Scheduler scheduler}) async {
@@ -397,23 +412,27 @@ abstract class JpStore {
       attempts: await attempts(), seeds: await seeds(), notes: await notes());
 
   /// Rebuilds the schedule, the mastery states and the seeded due days from the log and the
-  /// seed events (D14, D26), and returns what it wrote.
-  Future<ReplayResult> rebuild(ItemLookup lookup, Scheduler scheduler) async {
-    final result = replayLog(await exportLog(), lookup, scheduler);
-    await replaceDerived(result);
-    return result;
-  }
+  /// seed events (D14, D26), and returns what it wrote. Runs on the [recordAnswer] chain, so
+  /// no answer lands between its read of the log and its write.
+  Future<ReplayResult> rebuild(ItemLookup lookup, Scheduler scheduler) =>
+      _serialized(() async {
+        final result = replayLog(await exportLog(), lookup, scheduler);
+        await replaceDerived(result);
+        return result;
+      });
 
   /// Replaces the record with [log] (an import) and the derived states with its replay.
   /// The replay runs first, before any write: a log it cannot replay (such as an attempt
-  /// whose rating no [SrsRating] has) throws here and the record stays as it was.
+  /// whose rating no [SrsRating] has) throws here and the record stays as it was. Runs on
+  /// the [recordAnswer] chain, so no answer lands between its two writes.
   Future<ReplayResult> importLog(
-      StudyLog log, ItemLookup lookup, Scheduler scheduler) async {
-    final result = replayLog(log, lookup, scheduler);
-    await replaceLog(log);
-    await replaceDerived(result);
-    return result;
-  }
+          StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
+      _serialized(() async {
+        final result = replayLog(log, lookup, scheduler);
+        await replaceLog(log);
+        await replaceDerived(result);
+        return result;
+      });
 }
 
 /// Throws when [mastery] belongs to another item than [attempt]. Both implementations call it

@@ -15,7 +15,10 @@
 //     attempt); `can_use_it` is kept as the item's note and schedules nothing;
 //   * `jp.speak.scores`: each spoken attempt becomes a Say-it attempt on the grammar point whose
 //     sentence it was. Say-it never counts toward mastery and never moves the schedule (D4).
-// It runs once per store: a flag in the store's meta records it.
+// It runs once per store: a flag in the store's meta records it, written last. A run the app
+// cut short before the flag runs again on the next launch: a Say-it attempt it already logged
+// (same point, probe, instant and source) is skipped, so the history is never logged twice.
+// A `jp.speak.scores` blob this build cannot read counts as skipped and still sets the flag.
 
 import 'dart:convert';
 
@@ -59,24 +62,28 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
 
 /// Reads an export written by [encodeStudyExport]. Throws a [FormatException] naming the line
 /// for a missing or foreign header, a newer version, an unknown line type, an unreadable line,
-/// an attempt whose rating no [SrsRating] has, or counts that disagree with the header.
+/// an attempt whose rating no [SrsRating] has, or counts that disagree with the header. A
+/// blank line is skipped and still counted, so the named line is the file's own.
 StudyLog decodeStudyExport(String text) {
-  final lines = const LineSplitter()
-      .convert(text)
-      .where((l) => l.trim().isNotEmpty)
-      .toList();
+  final all = const LineSplitter().convert(text);
+  final lines = <({int no, String text})>[
+    for (var i = 0; i < all.length; i++)
+      if (all[i].trim().isNotEmpty) (no: i + 1, text: all[i])
+  ];
   if (lines.isEmpty) throw const FormatException('study export: empty');
   Map<String, dynamic> parse(int i) {
     try {
-      return jsonDecode(lines[i]) as Map<String, dynamic>;
+      return jsonDecode(lines[i].text) as Map<String, dynamic>;
     } catch (_) {
-      throw FormatException('study export: line ${i + 1} is not a JSON object');
+      throw FormatException(
+          'study export: line ${lines[i].no} is not a JSON object');
     }
   }
 
   final header = parse(0);
   if (header['format'] != kStudyExportFormat) {
-    throw const FormatException('study export: line 1 is not the header');
+    throw FormatException(
+        'study export: line ${lines[0].no} is not the header');
   }
   final version = header['version'];
   if (version is! int || version > kStudyExportVersion) {
@@ -105,7 +112,7 @@ StudyLog decodeStudyExport(String text) {
           throw FormatException('unknown type ${j['type']}');
       }
     } catch (e) {
-      throw FormatException('study export: line ${i + 1}: $e');
+      throw FormatException('study export: line ${lines[i].no}: $e');
     }
   }
   if (header['attempts'] != attempts.length ||
@@ -152,6 +159,7 @@ class V2MigrationReport {
     this.dueToday = 0,
     this.notes = 0,
     this.sayIt = 0,
+    this.alreadyLogged = 0,
     this.skipped = 0,
   });
 
@@ -166,7 +174,11 @@ class V2MigrationReport {
   /// Spoken attempts imported as Say-it history.
   final int sayIt;
 
-  /// Keys or attempts left out: an unknown point, an unknown value, a sentence no point has.
+  /// Spoken attempts a run cut short had already logged, left as they are.
+  final int alreadyLogged;
+
+  /// Keys or attempts left out: an unknown point, an unknown value, a sentence no point has,
+  /// or the whole score log when it cannot be read.
   final int skipped;
 }
 
@@ -236,7 +248,7 @@ Future<V2MigrationReport> migrateV2Keys(
   if (await store.meta(kV2MigrationFlag) != null) {
     return const V2MigrationReport(alreadyRan: true);
   }
-  var dueToday = 0, notes = 0, sayIt = 0, skipped = 0;
+  var dueToday = 0, notes = 0, sayIt = 0, alreadyLogged = 0, skipped = 0;
 
   final seeds = <SeedEvent>[];
   for (final key in prefs.getKeys().toList()..sort()) {
@@ -259,8 +271,17 @@ Future<V2MigrationReport> migrateV2Keys(
 
   final sentences = sayItSentences(grammar);
   final raw = prefs.get(SpeakScoreLog.prefsKey);
-  final list = raw is String ? _decodeList(raw) : const <Object?>[];
-  for (final entry in list) {
+  final list = raw == null ? const <Object?>[] : _decodeList(raw);
+  if (list == null) {
+    // The whole score log is unreadable: counted, never read as empty (S4).
+    skipped++;
+  }
+  // A run cut short before the flag logged some of these already (one transaction each).
+  final logged = {
+    for (final a in await store.attempts())
+      if (a.source == Source.sayIt) _sayItKey(a.itemId, a.probeId, a.atUtc)
+  };
+  for (final entry in list ?? const <Object?>[]) {
     final a = SpeakAttempt.fromJson(entry);
     final target = a == null ? null : sentences[a.sentence];
     if (a == null ||
@@ -268,6 +289,10 @@ Future<V2MigrationReport> migrateV2Keys(
         !known(target.itemId) ||
         a.at.year < 2000) {
       skipped++;
+      continue;
+    }
+    if (logged.contains(_sayItKey(target.itemId, target.probeId, a.at))) {
+      alreadyLogged++;
       continue;
     }
     final grade = sayItGrade(a);
@@ -290,14 +315,24 @@ Future<V2MigrationReport> migrateV2Keys(
 
   await store.putMeta(kV2MigrationFlag, nowUtc.toUtc().toIso8601String());
   return V2MigrationReport(
-      dueToday: dueToday, notes: notes, sayIt: sayIt, skipped: skipped);
+      dueToday: dueToday,
+      notes: notes,
+      sayIt: sayIt,
+      alreadyLogged: alreadyLogged,
+      skipped: skipped);
 }
 
-List<Object?> _decodeList(String raw) {
+/// The identity of one imported Say-it attempt: its point, probe and instant.
+String _sayItKey(String itemId, String probeId, DateTime at) =>
+    '$itemId\u0000$probeId\u0000${at.toUtc().toIso8601String()}';
+
+/// The score log's entries, or null when the blob is not a string, not JSON or not a list.
+List<Object?>? _decodeList(Object raw) {
+  if (raw is! String) return null;
   try {
     final v = jsonDecode(raw);
-    return v is List ? v : const [];
+    return v is List ? v : null;
   } catch (_) {
-    return const [];
+    return null;
   }
 }
