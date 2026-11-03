@@ -681,15 +681,20 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
               // A fixed minimum height, so a short sentence does not pull Next up.
               child: ConstrainedBox(
                 key: const ValueKey('speak-sentence-box'),
-                constraints: const BoxConstraints(minHeight: _sentenceBoxMin),
+                constraints: BoxConstraints(minHeight: _sentenceBoxMin),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(s.kana, style: qrText(t, size: 20, height: 1.5)),
+                    Text(s.kana,
+                        style: qrText(t,
+                            size: _kanaSize, height: _kanaLineHeight)),
                     if (s.en.isNotEmpty) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: _enGap),
                       Text(s.en,
-                          style: qrText(t, size: 13.5, color: t.inkMuted)),
+                          style: qrText(t,
+                              size: _enSize,
+                              height: _enLineHeight,
+                              color: t.inkMuted)),
                     ],
                   ],
                 ),
@@ -1036,9 +1041,21 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
         _ => t.amber700,
       };
 
+  /// The sentence text metrics: the kana line, the gap, and the English line. The box's
+  /// least height is built from them, so the two cannot drift apart.
+  static const double _kanaSize = 20;
+  static const double _kanaLineHeight = 1.5;
+  static const double _enGap = 6;
+  static const double _enSize = 13.5;
+  static const double _enLineHeight = 1.4;
+
   /// The sentence box's least height: three lines of kana and two of English, so Next
-  /// stays put from sentence to sentence.
-  static const double _sentenceBoxMin = 132;
+  /// stays put from sentence to sentence. A taller sentence still grows the box. Each
+  /// line is rounded up as the engine draws it, on whole pixels.
+  static final double _sentenceBoxMin =
+      3 * (_kanaSize * _kanaLineHeight).ceilToDouble() +
+          _enGap +
+          2 * (_enSize * _enLineHeight).ceilToDouble();
 
   /// How many attempts the drill lists under Recent scores.
   static const int _recentShown = 8;

@@ -1323,6 +1323,13 @@ void main() {
       final box = find.byKey(const ValueKey('speak-sentence-box'));
       final firstBox = tester.getSize(box);
       final firstNext = tester.getTopLeft(find.text('Next sentence'));
+      // The minimum is in effect: at the wide test view every lesson 26 sentence is one
+      // line of kana and one of English, so a box that merely fits its text would be
+      // shorter than this. The box holds three lines of kana, the gap and two of English.
+      final kanaLine = tester.getSize(find.text(all.first.kana)).height;
+      final enLine = tester.getSize(find.text(all.first.en)).height;
+      expect(firstBox.height, greaterThan(kanaLine + 6 + enLine));
+      expect(firstBox.height, closeTo(3 * kanaLine + 6 + 2 * enLine, 0.01));
       for (var i = 1; i < all.length - 1; i++) {
         await tester.tap(find.text('Next sentence'));
         await tester.pump();
@@ -1331,6 +1338,37 @@ void main() {
         expect(tester.getTopLeft(find.text('Next sentence')), firstNext,
             reason: 'sentence ${i + 1}: ${all[i].kana}');
       }
+    });
+
+    testWidgets('a sentence taller than the minimum grows the box',
+        (tester) async {
+      // The other arm of the minimum: it is a floor, not a fixed height. At a phone
+      // width lesson 26's longest sentence wraps past three lines of kana and two of
+      // English, and the box must follow its text rather than clip it.
+      final all = lesson26();
+      await Rig().open(tester);
+      final box = find.byKey(const ValueKey('speak-sentence-box'));
+      final floor = tester.getSize(box).height;
+      tester.view.physicalSize = const Size(360, 12000);
+      await tester.pump();
+      var grew = 0;
+      for (var i = 0; i < all.length; i++) {
+        if (i > 0) {
+          await tester.tap(find.text('Next sentence'));
+          await tester.pump();
+        }
+        final content = tester.getSize(find.text(all[i].kana)).height +
+            6 +
+            tester.getSize(find.text(all[i].en)).height;
+        if (content > floor) grew++;
+        expect(tester.getSize(box).height,
+            closeTo(content > floor ? content : floor, 0.01),
+            reason: 'sentence ${i + 1}: ${all[i].kana}');
+        expect(tester.takeException(), isNull,
+            reason: 'sentence ${i + 1}: ${all[i].kana}');
+      }
+      expect(grew, greaterThan(0),
+          reason: 'no lesson 26 sentence outgrows the minimum at 360 px');
     });
 
     testWidgets('a combined example shows each form with its own English',
