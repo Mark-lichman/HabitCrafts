@@ -92,6 +92,11 @@ class _Unwritable extends MasteryState {
   Map<String, dynamic> toJson() => throw StateError('unwritable');
 }
 
+/// The error [_Unwritable] throws, pinned by message: a [StateError] raised before the mastery
+/// write (by the store, or by sqflite) would pass a type check with no rollback to prove.
+final Matcher throwsUnwritable = throwsA(
+    isA<StateError>().having((e) => e.message, 'message', 'unwritable'));
+
 /// A memory store whose log read (in a rebuild) and whole-record write (in an import) wait on
 /// [gate], so a test can start an answer while either is open.
 class _Gated extends JpStoreMemory {
@@ -921,7 +926,7 @@ void main() {
             store.appendAttempt(answer(g, 1, Grade.clear),
                 srs: scheduler.first(SrsRating.good, 1),
                 mastery: _Unwritable(g.id)),
-            throwsStateError);
+            throwsUnwritable);
         expect(await store.attempts(), isEmpty);
         expect(await store.srs(g.id), isNull);
         expect(await store.mastery(g.id), isNull);
@@ -950,7 +955,7 @@ void main() {
             srs: {g.id: scheduler.first(SrsRating.good, 2)},
             mastery: {g.id: _Unwritable(g.id)},
             seedDue: const {'x': 2});
-        await expectLater(store.replaceAll(log, result), throwsStateError);
+        await expectLater(store.replaceAll(log, result), throwsUnwritable);
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
         expect(await store.notes(), {'keep': 'note'});
