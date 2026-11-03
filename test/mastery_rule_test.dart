@@ -2,6 +2,8 @@
 // PIN-15). Every case is an attempt list replayed through `masteryAfter`, so each clause of the
 // rule is pinned by history alone (PIN-1), in the style of streak_test.dart.
 
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
@@ -731,15 +733,33 @@ void main() {
       }
     });
 
+    // masteryAfter refuses a mismatch on either side: the attempt's item or the def's item.
+    // Each arm has its own case so deleting one arm turns one case red.
+    final refused = throwsA(isA<ArgumentError>()
+        .having((e) => e.message, 'message', contains('applied to')));
+
     test('an attempt for another item is refused', () {
       expect(
           () => masteryAfter(MasteryState.initial(particle.id),
               att(0, Grade.clear, item: word), particle),
-          throwsArgumentError);
+          refused);
+    });
+
+    test('a def for another item is refused', () {
+      expect(
+          () => masteryAfter(
+              MasteryState.initial(particle.id), att(0, Grade.clear), word),
+          refused);
+    });
+
+    test('a replay refuses an attempt for another item', () {
+      expect(() => replay([att(0, Grade.clear, item: word)]), refused);
     });
 
     test('Attempt and MasteryState survive a JSON round trip', () {
-      final a = att(3, Grade.hinted, hint: 2, revealed: true);
+      // production true with selfGraded false (the helper's fixed value), so a swap of those
+      // two keys reads differently here even where `mirror` has both true.
+      final a = att(3, Grade.hinted, hint: 2, revealed: true, production: true);
       expect(Attempt.fromJson(a.toJson()), a);
       final full = Attempt(
         id: 7,
@@ -772,9 +792,66 @@ void main() {
       expect(decoded.sAfter, 12.5);
       expect(decoded.sBefore, isNot(decoded.sAfter));
       expect(decoded.rBefore, isNot(decoded.rAfter));
+      // The mirror of `full`: every enum, nullable and small int takes its other value, and
+      // across `a`, `full` and `mirror` every pair of bool fields differs on at least one, so
+      // a swapped or hard-coded key reads differently somewhere. Encoded to text and back, so
+      // the map is JSON-encodable as well (D14).
+      final mirror = Attempt(
+        id: null,
+        itemId: word.id,
+        probeId: 'p2',
+        template: 't2',
+        production: true,
+        selfGraded: true,
+        atUtc: DateTime.utc(2026, 2, 5, 6),
+        localDay: 35,
+        grade: Grade.self,
+        rating: kRatingHard,
+        hintLevel: 1,
+        revealed: false,
+        wasDue: false,
+        source: Source.keepSharp,
+        elapsedDays: null,
+        rBefore: null,
+        rAfter: null,
+        sBefore: null,
+        sAfter: null,
+        durationMs: 0,
+        sessionId: 's-mirror',
+      );
+      final mirrorDecoded = Attempt.fromJson(
+          jsonDecode(jsonEncode(mirror.toJson())) as Map<String, dynamic>);
+      expect(mirrorDecoded, mirror);
+      expect(mirrorDecoded.id, isNull);
+      expect(mirrorDecoded.production, isTrue);
+      expect(mirrorDecoded.selfGraded, isTrue);
+      expect(mirrorDecoded.grade, Grade.self);
+      expect(mirrorDecoded.rating, kRatingHard);
+      expect(mirrorDecoded.wasDue, isFalse);
+      expect(mirrorDecoded.source, Source.keepSharp);
+      expect(mirrorDecoded.elapsedDays, isNull);
       final s = replay(
           [...fourClears(29), att(60, Grade.wrong), att(61, Grade.clear)]);
       expect(MasteryState.fromJson(s.toJson()), s);
+      // A production clear next to a non-production one on another template, so the ClearRef
+      // keys for production, template and probeId each read a different value per entry.
+      final learning = MasteryState(
+        itemId: word.id,
+        status: MasteryStatus.learning,
+        clears: const [
+          ClearRef(day: 5, template: 't2', production: true, probeId: 'p2'),
+          ClearRef(day: 9, template: 't1', production: false, probeId: 'p1'),
+        ],
+        hintStreak: 1,
+        lastScoredDay: 9,
+      );
+      final learningDecoded = MasteryState.fromJson(
+          jsonDecode(jsonEncode(learning.toJson())) as Map<String, dynamic>);
+      expect(learningDecoded, learning);
+      expect(learningDecoded.clears.first.production, isTrue);
+      expect(learningDecoded.clears.last.production, isFalse);
+      expect(learningDecoded.masteredOn, isNull);
+      expect(learningDecoded.shakyOn, isNull);
     });
   });
 }
