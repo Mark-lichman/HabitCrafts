@@ -2130,21 +2130,19 @@
    "detail": "わかる is written 分{わ}かる (ruling of 2026-10-26).",
    "by": "operator-ruling",
    "status": "applied"
-  }
- ],
- "dismissed": [
+  },
   {
    "point_id": "mari.L33.3",
    "where": "ex0",
    "field": "jp",
    "index": null,
-   "rule": "R6",
+   "rule": "R1",
    "current": "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。",
-   "fix": "「立入禁止{たちいりきんし}」は 入{はい}っては いけないという 意味{いみ}です。",
-   "detail": "Only the quoted sign is exempt; 入る and 意味 are common N4 words written in kanji everywhere else in the course.",
-   "by": "independent-lm",
-   "status": "dismissed",
-   "why": "mari.L33.3's first example is Mari's verbatim text with the kanji sign 「立入禁止」. publish.twin_errors checks this twin against the printed text, so only the sign may carry a bracket; the fix would print 入っては and 意味, which are not in Mari's text."
+   "fix": "「たちいりきんし」は 入{はい}っては いけないという 意味{いみ}です。",
+   "detail": "The sign is now hiragana in the example (corrections.json, plan A7), so the twin no longer prints Mari's kanji. 禁 is outside kanji_n5_n4.json, so the sign is written in hiragana (R1); 入る and 意味 take their kanji (R6), as the dismissed finding on this twin asked.",
+   "by": "red-team-A7",
+   "status": "applied"
   }
- ]
+ ],
+ "dismissed": []
 }

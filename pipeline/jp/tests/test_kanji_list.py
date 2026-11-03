@@ -6,8 +6,8 @@ addition, so わかる is written 分{わ}かる. The list lives in pipeline/jp/
 with its source and each level's count, and the Tanos pages it was read from are committed
 under pipeline/jp/tanos/, so these tests check the file against its own recorded counts,
 each level against the archived page's kanji table, and every twin against the file. A
-word with any other kanji is written in hiragana. The one field that prints kanji itself (Mari's verbatim sign in mari.L33.3)
-keeps the kanji it prints, since its twin is checked against the printed text.
+word with any other kanji is written in hiragana. No hiragana field prints kanji: Mari's
+sign in mari.L33.3 is written in hiragana since plan A7.
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ def test_every_twin_kanji_is_in_the_list():
     ok = _allowed()
     bad = []
     for where, twin, kana in _twins():
-        # A field that prints kanji (mari.L33.3's sign) may keep exactly those kanji.
+        # A kanji the hiragana field itself prints would be kept; since plan A7 none does.
         outside = {c for c in KANJI.findall(twin) if c not in ok and c not in kana}
         if outside:
             bad.append(f"{where}: {''.join(sorted(outside))} in {twin!r}")
