@@ -133,7 +133,9 @@ class SrsState {
       'due: $dueDay, interval: $interval, reps: $reps, lapses: $lapses, box: $box)';
 }
 
-/// The share of an interval the due day may move to a less-loaded day (D12).
+/// The share of an interval behind the load-spread window (D12). The window is
+/// `round(interval * loadSpreadFraction)` whole days on each side of the nominal due day: 0
+/// days for intervals under 10, 1 day at 10, 2 at 30 and 5 at 90.
 const double loadSpreadFraction = 0.05;
 
 /// One scheduling algorithm. Every method is pure.
@@ -154,10 +156,11 @@ abstract class Scheduler {
   /// last review equal the stability.
   double retrievability(SrsState state, int day);
 
-  /// The due day after load spreading: the least-loaded day within 5% of the interval of the
-  /// nominal due day, never past `maximumInterval` and never before one day after the last
-  /// review. Ties go to the day closest to the nominal one, then the earlier. `loadByDay`
-  /// maps a local day to the items already due on it; a missing day has no load.
+  /// The due day after load spreading: the least-loaded day within
+  /// `round(interval * loadSpreadFraction)` whole days of the nominal due day (0 days for
+  /// intervals under 10, 5 days at 90), never past `maximumInterval` and never before one day
+  /// after the last review. Ties go to the day closest to the nominal one, then the earlier.
+  /// `loadByDay` maps a local day to the items already due on it; a missing day has no load.
   int nextDue(SrsState state, Map<int, int> loadByDay) =>
       spreadDueDay(state, loadByDay, maximumInterval: maximumInterval);
 }
