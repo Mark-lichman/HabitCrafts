@@ -255,7 +255,7 @@ That also disposes of the sheets' own defects, since their spelling is never kep
 The sheet never states these, and they make the list usable:
 
 - **Verb group I / II / III.** Everything downstream depends on it. A verb whose ます form alone
-  cannot decide its group (`しまいます`) is flagged `groupUncertain`, and the UI
+  cannot decide its group (`しまいます`, `ふくしゅうします`) is flagged `groupUncertain`, and the UI
   badges it `I?` / `III?` rather than guessing.
 - **Transitive / intransitive pairs.** Confusing the pair is the classic error at this level.
 
