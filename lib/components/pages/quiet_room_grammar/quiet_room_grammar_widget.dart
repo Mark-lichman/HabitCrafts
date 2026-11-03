@@ -746,11 +746,13 @@ class _PracticeState extends State<_Practice>
                   Expanded(
                       child: Text('Hint: ${q['hint']}',
                           style: qrText(t, size: 12.5, color: t.inkMuted)))
-                else ...[
-                  // Flexible, so two buttons on a narrow phone wrap instead of
-                  // overflowing.
-                  if (q['hint'] != null)
-                    Flexible(
+                // Expanded, so two buttons on a narrow phone wrap instead of
+                // overflowing, and Show answer stays flush right under Check
+                // before and after the hint tap.
+                else if (q['hint'] != null)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
                       child: TextButton(
                         onPressed: () => _update(() => _hintTaken = true),
                         style: TextButton.styleFrom(
@@ -763,8 +765,9 @@ class _PracticeState extends State<_Practice>
                                 color: t.brand600)),
                       ),
                     ),
+                  )
+                else
                   const Spacer(),
-                ],
                 TextButton(
                   onPressed: () => _update(() => _revealed = true),
                   style: TextButton.styleFrom(

@@ -340,6 +340,20 @@ void main() {
       expect(results.single.verdict, isNull);
     });
 
+    testWidgets('Show answer stays flush right under Check around the hint tap',
+        (tester) async {
+      await pumpRecorded(tester);
+      expect(firstFills().first['hint'], isNotNull);
+      double right(String label) => tester
+          .getTopRight(find.widgetWithText(TextButton, label).first)
+          .dx;
+
+      expect(right('Show answer'), right('Check'));
+      await tester.tap(find.text('Show hint').first);
+      await tester.pump();
+      expect(right('Show answer'), right('Check'));
+    });
+
     testWidgets('an empty Check is not an attempt and says so', (tester) async {
       final fills = firstFills();
       final results = await pumpRecorded(tester);

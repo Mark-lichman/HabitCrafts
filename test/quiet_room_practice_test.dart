@@ -9,12 +9,15 @@
 //     drill does, and the no-microphone case says why; Got it is right and Missed it is
 //     missed (PIN-13);
 //   * a speech "close" is with help, never right;
-//   * the result handed on carries the hint level and the revealed flag;
-//   * Next is disabled while listening, and Stop or a pause drops the listen's result;
+//   * the result handed on carries the hint level and the revealed flag, after a
+//     self-mark too;
+//   * Next is disabled while listening, and Stop or a pause drops the listen's result,
+//     even a Stop tapped while the app voice is still stopping;
 //   * a raw recogniser code reaches the screen as a plain sentence;
 //   * the deck is shuffled without replacement, with a position and an end, and Go again
 //     starts every count of the tally from zero.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -252,6 +255,61 @@ void main() {
       expect(rig.results.last.tally, PracticeTally.missed);
       expect(
           await finish(tester, rig), '0 on your own · 0 with help · 1 missed');
+    });
+
+    testWidgets('a self-mark keeps the hint level and the revealed flag (PIN-3)',
+        (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      expect(rig.results.last.selfMark, isTrue);
+      expect(rig.results.last.hintLevel, 1);
+      expect(rig.results.last.revealed, isFalse);
+      expect(rig.results.last.tally, PracticeTally.hinted);
+
+      // Down the whole ladder: a Got it with the answer showing is missed.
+      await rig.next(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      while (find.text('More').evaluate().isNotEmpty) {
+        await tester.tap(find.text('More'));
+        await tester.pump();
+      }
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final r = rig.results.last;
+      expect(r.selfMark, isTrue);
+      expect(r.revealed, isTrue);
+      expect(r.hintLevel, practiceHintSteps(r.word).length);
+      expect(r.tally, PracticeTally.missed);
+      expect(
+          await finish(tester, rig), '0 on your own · 1 with help · 1 missed');
+    });
+
+    testWidgets('a Stop while the voice is stopping never opens the microphone',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      rig.tts.stopGate = Completer<void>();
+      await rig.tapSpeak(tester);
+      expect(find.text('Stop'), findsOneWidget);
+      expect(rig.stt.listens, 0);
+
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+      rig.tts.stopGate!.complete();
+      await rig.settle(tester);
+      expect(rig.stt.listens, 0,
+          reason: 'the retired attempt must not open the microphone');
+      expect(find.text('Stop'), findsNothing);
+      expect(find.byKey(const ValueKey('practice-verdict')), findsNothing);
+      expect(rig.results, isEmpty);
+      expect(find.text('Speak'), findsOneWidget);
     });
 
     testWidgets('an unmarked unverified listen leaves the tally at zero',
