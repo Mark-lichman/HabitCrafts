@@ -124,6 +124,13 @@ void main() {
                 revealingHintLevel: 3),
             Grade.wrong);
       }
+      expect(
+          gradeAnswer(
+              outcome: Outcome.none,
+              selfGraded: false,
+              hintLevel: 3,
+              revealingHintLevel: 3),
+          Grade.wrong);
     });
 
     test('a reveal on a machine-checked probe is wrong, even before trying',
@@ -620,16 +627,19 @@ void main() {
       expect(s.shakyOn, 60);
       expect(s.masteredOn, 29);
       expect(s.clearCount, 0);
+      expect(s.keptReviews, 1);
+      expect(s.keptClear, 0);
     });
 
     test('one hinted on a Mastered item keeps the badge, two make it Shaky',
         () {
       expect(replay([...mastered, att(60, Grade.hinted)]).status,
           MasteryStatus.mastered);
-      expect(
-          replay([...mastered, att(60, Grade.hinted), att(62, Grade.hinted)])
-              .status,
-          MasteryStatus.shaky);
+      final s =
+          replay([...mastered, att(60, Grade.hinted), att(62, Grade.hinted)]);
+      expect(s.status, MasteryStatus.shaky);
+      expect(s.keptReviews, 2);
+      expect(s.keptClear, 0);
     });
 
     test('two clears on two days, the second 7 days on, regain it', () {
