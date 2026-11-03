@@ -10,6 +10,10 @@
 //     token keeps a cancelled listen from stopping a newer one, a cancelled listen's late
 //     result never completes the newer one, and a cancel while the permission prompt is
 //     pending never opens the recogniser.
+//   * A cancel that lands while the level tap is starting never opens the recogniser, and a
+//     stale listen that finishes while a newer listen is open never zeroes its level. The web
+//     tap-stop half of that finally guard (`_pending == null`) has no fixture: MicLevelTap is
+//     built inside the service and its non-web stub is a no-op.
 //   * A recogniser error ends the listen at once and reads as a plain sentence, never a raw code.
 //
 // The service runs on fake engines (SpeechService.withEngines), so no platform channel is used.
@@ -42,6 +46,13 @@ class FakeStt implements SttEngine {
   /// Runs at the top of [listen], so a test can read state at the moment the mic opens.
   void Function()? onListen;
 
+  /// The newest listen's level callback, so a test can feed the platform's sound level.
+  void Function(double)? onLevel;
+
+  /// When set, [listen] holds after its bookkeeping until the test completes it, as a
+  /// platform listen that has not yet returned.
+  Completer<void>? listenGate;
+
   @override
   bool get isListening => _listening;
 
@@ -61,6 +72,9 @@ class FakeStt implements SttEngine {
     listens++;
     _listening = true;
     _onFinals.add(onFinal);
+    this.onLevel = onLevel;
+    final g = listenGate;
+    if (g != null) await g.future;
   }
 
   @override
@@ -403,6 +417,58 @@ void main() {
       stt.hear(['じしょ']);
       expect((await second).judgement, Judgement.correct);
       expect(stt.stops, 1);
+    });
+
+    test('a cancel while the level tap starts never opens the recogniser',
+        () async {
+      final stt = FakeStt();
+      final s = SpeechService.withEngines(stt: stt, tts: FakeTts());
+      final first = s.listenOnce(expectedKana: 'ほん');
+      await settle();
+      stt.hear(['ほん']);
+      await first;
+      // A nonzero level, so the reset at the top of the next listen is a change the
+      // listener sees. listenOnce zeroes the level after it takes the pending slot and
+      // before the tap starts, so a cancel from that notification lands in the window
+      // between the tap start and the listen.
+      stt.onLevel!(5);
+      expect(s.level.value, greaterThan(0));
+      s.level.addListener(() {
+        if (s.level.value == 0) unawaited(s.cancel());
+      });
+      final second = s.listenOnce(expectedKana: 'じしょ');
+      final r = await second.timeout(const Duration(seconds: 1));
+      expect(r.judgement, Judgement.unverified);
+      expect(stt.listens, 1,
+          reason: 'the cancelled listen never opens the mic');
+    });
+
+    test('a stale listen that finishes never zeroes a newer listen’s level',
+        () async {
+      final stt = FakeStt();
+      final s = SpeechService.withEngines(stt: stt, tts: FakeTts());
+      stt.listenGate = Completer<void>();
+      final gate = stt.listenGate!;
+      final first = s.listenOnce(expectedKana: 'ほん');
+      await settle(); // held inside _stt.listen
+      await s.cancel();
+      stt.listenGate = null;
+      final second = s.listenOnce(expectedKana: 'じしょ');
+      await settle();
+      stt.onLevel!(5);
+      expect(s.level.value, greaterThan(0));
+
+      // The platform returns the first listen, so its finally runs while the newer listen
+      // owns the level.
+      gate.complete();
+      await settle();
+      expect((await first).judgement, Judgement.unverified);
+      expect(s.level.value, greaterThan(0),
+          reason: 'the stale listen must leave the newer level alone');
+      stt.hear(['じしょ']);
+      expect((await second).judgement, Judgement.correct);
+      expect(s.level.value, 0,
+          reason: 'the listen that owns the level resets it');
     });
 
     test('an old listen’s late result never completes a newer listen',
