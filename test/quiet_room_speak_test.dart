@@ -141,9 +141,14 @@ class FakeClock implements PronClock {
 class FakeMic implements PronRecorder {
   StreamController<Uint8List>? ctl;
   int starts = 0;
+  int stops = 0;
 
   /// Runs at the top of [start], so a test can read state at the moment the mic opens.
   void Function()? onStart;
+
+  /// When set, [start] holds until the test completes it, as the first-run microphone
+  /// prompt does.
+  Completer<void>? startGate;
 
   bool get open => ctl != null && !ctl!.isClosed;
 
@@ -151,12 +156,15 @@ class FakeMic implements PronRecorder {
   Future<Stream<Uint8List>?> start(int sampleRate) async {
     onStart?.call();
     starts++;
+    final gate = startGate;
+    if (gate != null) await gate.future;
     ctl = StreamController<Uint8List>(onCancel: () async {});
     return ctl!.stream;
   }
 
   @override
   Future<void> stop() async {
+    stops++;
     final c = ctl;
     if (c == null || c.isClosed) return;
     final closed = c.close();
@@ -528,6 +536,24 @@ void main() {
       // An empty form is skipped, not matched by contains('').
       expect(SpeechService.judge('猫', 'ねこ', kanjiForms: ['']),
           Judgement.unverified);
+    });
+  });
+
+  group('SpeakScoreLog.mark', () {
+    test('appends an attempt the log does not hold, with its mark', () async {
+      SharedPreferences.setMockInitialValues({});
+      final attempt = SpeakAttempt(
+        sentence: firstSentence().kana,
+        verdict: Judgement.unverified,
+        at: DateTime(2026, 11, 2, 9),
+      );
+      // The attempt's own save never happened. The mark still lands, on the attempt.
+      await SpeakScoreLog.mark(attempt, true);
+      final log = await SpeakScoreLog.load();
+      expect(log, hasLength(1));
+      expect(log.single.selfMark, isTrue);
+      expect(log.single.sentence, attempt.sentence);
+      expect(log.single.verdict, Judgement.unverified);
     });
   });
 
@@ -1036,6 +1062,43 @@ void main() {
       expect(await tester.runAsync(savedAttempts), isEmpty);
     });
 
+    testWidgets('Stop keeps Speak disabled until a pending microphone start resolves',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      rig.mic.startGate = Completer<void>();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.mic.starts, 1);
+      expect(rig.mic.open, isFalse, reason: 'the start is still pending');
+
+      // Stop lands while the start is pending. The check still owns the microphone it is
+      // about to open, so Speak waits for it.
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+      expect(find.text('Listening'), findsNothing);
+      expect(buttonAction(tester, 'Speak'), isNull,
+          reason: 'Speak waits for the pending start');
+      expect(rig.mic.starts, 1);
+
+      rig.mic.startGate!.complete();
+      await rig.settle(tester);
+      expect(rig.mic.stops, 1, reason: 'the cancelled start closes its own mic');
+      expect(rig.mic.open, isFalse);
+      expect(rig.sent, isEmpty);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+
+      // The next check opens a fresh microphone that no late stop closes.
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.mic.starts, 2);
+      expect(rig.mic.stops, 1);
+      expect(rig.mic.open, isTrue);
+      expect(find.text('Listening'), findsOneWidget);
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+    });
+
     testWidgets('Speak and Play are disabled while the sentence plays',
         (tester) async {
       final rig = Rig(reply: fixture(_goodFixture));
@@ -1086,6 +1149,24 @@ void main() {
       expect(rig.mic.starts, 1);
       expect(stopsAtMic, before + 1,
           reason: 'the voice is stopped before the microphone opens');
+      await rig.sayAndGoQuiet(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+    });
+
+    testWidgets('the microphone waits for the voice stop to finish',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      // A platform stop takes time. An unawaited stop would open the mic at once.
+      rig.tts.stopGate = Completer<void>();
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.tts.stops, 1);
+      expect(rig.mic.starts, 0, reason: 'the stop has not finished');
+
+      rig.tts.stopGate!.complete();
+      await rig.settle(tester);
+      expect(rig.mic.starts, 1);
       await rig.sayAndGoQuiet(tester);
       expect(find.text('That’s it'), findsOneWidget);
     });
@@ -1323,9 +1404,9 @@ void main() {
       final box = find.byKey(const ValueKey('speak-sentence-box'));
       final firstBox = tester.getSize(box);
       final firstNext = tester.getTopLeft(find.text('Next sentence'));
-      // The minimum is in effect: at the wide test view every lesson 26 sentence is one
-      // line of kana and one of English, so a box that merely fits its text would be
-      // shorter than this. The box holds three lines of kana, the gap and two of English.
+      // The minimum is in effect: at the wide test view the first lesson 26 sentence is
+      // one line of kana and one of English, so a box that only fits its text would be
+      // shorter than three kana lines, the gap and two English lines. The box holds that.
       final kanaLine = tester.getSize(find.text(all.first.kana)).height;
       final enLine = tester.getSize(find.text(all.first.en)).height;
       expect(firstBox.height, greaterThan(kanaLine + 6 + enLine));

@@ -18,9 +18,11 @@
 //     service ends the listen after a silence that follows speech. No Stop tap is needed
 //     (PIN-7). Stop stays as a way out of a false start.
 //   * One check at a time: Speak and Next wait until the check returns, so two checks never
-//     share the microphone. Cancel on the Checking panel retires the attempt instead: the
-//     microphone is already closed, so a new Speak may start while the old score is still
-//     out, and that late score is dropped.
+//     share the microphone. Stop and a pause while listening wait for it too, because a
+//     recorder start still pending closes its microphone only once it resolves. Cancel on
+//     the Checking panel retires the attempt instead: the microphone is already closed, so
+//     a new Speak may start while the old score is still out, and that late score is
+//     dropped.
 //   * The app's own voice: Play waits on `SpeechService.speakAndWait`, so Speak stays
 //     disabled until the voice has finished, and Speak stops any voice before the
 //     microphone opens.
@@ -395,8 +397,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// True once Next has passed the last sentence: the end card shows the tally.
   bool _done = false;
 
-  /// True from Speak until the check returns or the attempt is retired (Stop, Cancel, a
-  /// pause). Speak and Next wait meanwhile, so one check owns the microphone at a time.
+  /// True from Speak until the check returns, or until a retire on the Checking panel
+  /// (Cancel, a pause) frees it early. A retire while listening (Stop, a pause) waits for
+  /// the check. Speak and Next wait meanwhile, so one check owns the microphone at a time.
   bool _busy = false;
 
   /// True once this check's microphone has opened, and [_scoring] once it has closed again:
@@ -406,6 +409,11 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
 
   /// True after Stop or a pause. The check winds down and its result is dropped.
   bool _stopped = false;
+
+  /// The check in flight, so a retire while listening can wait for it. The service marks a
+  /// check cancelled only once its recorder start has resolved, so a retire that freed Speak
+  /// at once could let a second check open the microphone the first is about to close.
+  Future<PronunciationResult>? _check;
   bool _heardVoice = false;
 
   /// True while Play's voice is speaking. Play and Speak are disabled meanwhile, so the
@@ -525,12 +533,14 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _logged = null;
       _selfMark = null;
     });
+    Future<PronunciationResult>? check;
     try {
       // The app's own voice must never reach the microphone: stop it before it opens.
       await _voice.stopSpeaking();
       if (!mounted || attempt != _attempt) return;
       // check() never throws: anything it cannot score comes back unverified (PIN-3).
-      final r = await _svc.check(s.kana);
+      check = _check = _svc.check(s.kana);
+      final r = await check;
       // Stop, Cancel or a pause retired this attempt while it ran: its result is dropped,
       // not shown, counted or kept.
       if (!mounted || attempt != _attempt) return;
@@ -547,6 +557,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       });
       _writeLog(() => SpeakScoreLog.add(entry));
     } finally {
+      // A newer attempt may own _check by now (after a Cancel on Checking): leave its own.
+      if (check != null && identical(_check, check)) _check = null;
       // Only the current attempt frees the buttons. A retired one was freed by its retire,
       // and may since have been followed by a newer attempt that still owns them.
       if (mounted && attempt == _attempt) {
@@ -563,9 +575,13 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   Future<void> _retire() async {
     final retired = ++_attempt;
     setState(() => _stopped = true);
-    // While listening this closes the microphone. While checking it is already closed, and
-    // the score still out is dropped when it lands.
+    // While listening the check still owns the microphone, so the buttons wait for it to
+    // return: a recorder start still pending resolves, sees the cancel and closes the
+    // microphone it opened. While checking it is already closed, so Speak is free at once
+    // and the score still out is dropped when it lands.
+    final inFlight = _scoring ? null : _check;
     await _svc.cancel();
+    await inFlight;
     if (!mounted || retired != _attempt) return;
     setState(() {
       _busy = false;
