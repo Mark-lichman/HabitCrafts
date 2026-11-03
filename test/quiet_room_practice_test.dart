@@ -6,7 +6,8 @@
 //
 // What is pinned (End state 11, PIN-3):
 //   * an unverified listen never counts by itself; it asks Got it or Missed it, as the speak
-//     drill does, and the no-microphone case says why;
+//     drill does, and the no-microphone case says why; Got it is right and Missed it is
+//     missed (PIN-13);
 //   * a speech "close" is with help, never right;
 //   * the result handed on carries the hint level and the revealed flag;
 //   * Next is disabled while listening, and Stop or a pause drops the listen's result;
@@ -235,6 +236,23 @@ void main() {
       expect(await finish(tester, rig), startsWith('1 on your own'));
     });
 
+    testWidgets('Missed it after an unverified listen is missed (PIN-13)',
+        (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      expect(find.text('Missed it'), findsOneWidget);
+
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      expect(find.text('Marked to try again.'), findsOneWidget);
+      expect(find.text('Missed it'), findsNothing);
+      expect(rig.results.last.selfMark, isFalse);
+      expect(rig.results.last.tally, PracticeTally.missed);
+      expect(
+          await finish(tester, rig), '0 on your own · 0 with help · 1 missed');
+    });
+
     testWidgets('an unmarked unverified listen leaves the tally at zero',
         (tester) async {
       final rig = Rig();
@@ -273,7 +291,12 @@ void main() {
       final rig = Rig();
       await rig.open(tester);
       final before = rig.tts.stops;
+      // Read at the moment the recogniser opens, so a stop that lands later cannot pass.
+      int? stopsWhenMicOpened;
+      rig.stt.onListen = () => stopsWhenMicOpened = rig.tts.stops;
       await rig.tapSpeak(tester);
+      expect(stopsWhenMicOpened, before + 1,
+          reason: 'the voice is stopped before the microphone opens');
       expect(rig.tts.stops, before + 1);
       expect(rig.stt.listens, 1);
       await tester.tap(find.text('Stop'));
@@ -286,20 +309,24 @@ void main() {
       await rig.open(tester);
       await rig.tapSpeak(tester);
       expect(find.text('Stop'), findsOneWidget);
-      for (final s in [
-        AppLifecycleState.inactive,
-        AppLifecycleState.hidden,
-        AppLifecycleState.paused,
-      ]) {
-        tester.binding.handleAppLifecycleStateChanged(s);
-      }
+      // Inactive and hidden come first on the way down and must not end the listen: a
+      // permission dialog or a notification shade makes the app inactive too.
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
       await rig.settle(tester);
-      expect(find.text('Stop'), findsNothing);
+      expect(find.text('Stop'), findsOneWidget);
+      expect(rig.stt.cancels, 0);
+
+      // Paused is the state that ends it. The recogniser is cancelled on the spot, before
+      // any frame: hidden switched frames off, so the screen is checked after resumed.
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       expect(rig.stt.cancels, greaterThanOrEqualTo(1));
-      expect(rig.results, isEmpty);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await rig.settle(tester);
+      expect(find.text('Stop'), findsNothing);
+      expect(rig.results, isEmpty);
     });
 
     testWidgets('a raw recogniser code shows as a plain sentence',
@@ -335,6 +362,9 @@ void main() {
       expect(seen.toSet(), words.keys.toSet(),
           reason: 'shuffled without replacement');
       expect(seen.length, words.length);
+      // Random(7) fixes the order, and that order is not the file's.
+      expect(seen, isNot(orderedEquals(words.keys.toList())),
+          reason: 'the deck is shuffled');
       expect(find.text('That’s all ${words.length} words'), findsOneWidget);
       expect(find.text('Go again'), findsOneWidget);
 

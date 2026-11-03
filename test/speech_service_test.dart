@@ -3,7 +3,8 @@
 //   * The speak wait (PIN-15): SpeechService.speak waits for the voice for at most
 //     SpeechService.speakWait, and that one named constant is the only place the wait is set.
 //   * speakAndWait completes on the voice's completion handler, at SpeechService.speakAndWaitCap
-//     when no handler comes, and at once on stopSpeaking.
+//     when no handler comes, at once on stopSpeaking, at once when speak() fails, and when a
+//     second speakAndWait replaces it.
 //   * cancel() completes the pending listenOnce with an empty, unverified result, and the attempt
 //     token keeps a cancelled listen from stopping a newer one.
 //   * A recogniser error ends the listen at once and reads as a plain sentence, never a raw code.
@@ -31,6 +32,9 @@ class FakeStt implements SttEngine {
   void Function(List<String>)? _onFinal;
   void Function(String)? _onError;
 
+  /// Runs at the top of [listen], so a test can read state at the moment the mic opens.
+  void Function()? onListen;
+
   @override
   bool get isListening => _listening;
 
@@ -46,6 +50,7 @@ class FakeStt implements SttEngine {
     required void Function(List<String> alternates) onFinal,
     required void Function(double raw) onLevel,
   }) async {
+    onListen?.call();
     listens++;
     _listening = true;
     _onFinal = onFinal;
@@ -81,6 +86,9 @@ class FakeTts implements TtsEngine {
   int stops = 0;
   void Function()? _onDone;
 
+  /// When set, [speak] fails with it instead of speaking.
+  Object? speakError;
+
   @override
   set onDone(void Function()? f) => _onDone = f;
 
@@ -100,7 +108,11 @@ class FakeTts implements TtsEngine {
   Future<void> use(Map<String, String> voice) async {}
 
   @override
-  Future<void> speak(String text) async => spoken.add(text);
+  Future<void> speak(String text) async {
+    final e = speakError;
+    if (e != null) throw e;
+    spoken.add(text);
+  }
 
   @override
   Future<void> stop() async => stops++;
@@ -190,6 +202,37 @@ void main() {
       final s = SpeechService.withEngines(
           stt: FakeStt(), tts: FakeTts(hasJapanese: false));
       expect(await s.speakAndWait('ほん'), startsWith('No Japanese voice'));
+    });
+
+    test('completes at once when speak() fails, not at the cap', () {
+      fakeAsync((async) {
+        final tts = FakeTts()..speakError = StateError('no voice');
+        final s = SpeechService.withEngines(stt: FakeStt(), tts: tts);
+        var done = false;
+        s.speakAndWait('ほん').then((_) => done = true);
+        async.flushMicrotasks();
+        async.elapse(const Duration(milliseconds: 1));
+        expect(done, isTrue,
+            reason: 'a failed voice must not hold the drill for the cap');
+        expect(async.elapsed, lessThan(SpeechService.speakAndWaitCap));
+      });
+    });
+
+    test('a second speakAndWait releases the first waiter', () async {
+      final tts = FakeTts();
+      final s = SpeechService.withEngines(stt: FakeStt(), tts: tts);
+      var firstDone = false;
+      var secondDone = false;
+      s.speakAndWait('ほん').then((_) => firstDone = true);
+      await settle();
+      expect(firstDone, isFalse);
+      s.speakAndWait('じしょ').then((_) => secondDone = true);
+      await settle();
+      expect(firstDone, isTrue, reason: 'the newer utterance replaces it');
+      expect(secondDone, isFalse, reason: 'the newer voice is still playing');
+      tts.finish();
+      await settle();
+      expect(secondDone, isTrue);
     });
   });
 

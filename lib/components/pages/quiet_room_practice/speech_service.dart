@@ -457,9 +457,11 @@ class SpeechService {
       if (identical(_pending, done)) _pending = null;
       // 🚨 In a finally because the tap holds a live getUserMedia track. If `listen` throws,
       // an early return would leave it polling and the browser's recording light on with no
-      // control left to switch it off. A stale listen leaves it alone: [cancel] already
-      // closed this listen's tap, and a newer listen owns the current one.
-      if (token == _listenToken) {
+      // control left to switch it off. A stale listen leaves the tap alone only while a newer
+      // listen owns it (`_pending` is then that listen's completer). With no newer listen the
+      // stale one still stops it: [cancel] may have run while `start` was awaiting
+      // getUserMedia, when there was no stream or poll yet to stop. The stop is idempotent.
+      if (token == _listenToken || _pending == null) {
         await _levelTap.stop();
         level.value = 0;
       }
