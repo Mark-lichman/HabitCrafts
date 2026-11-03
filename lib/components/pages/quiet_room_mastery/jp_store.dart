@@ -278,7 +278,10 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
 
 /// The study record. Every method is asynchronous because the phone's store is SQLite.
 abstract class JpStore {
-  const JpStore();
+  JpStore();
+
+  /// The tail of the [recordAnswer] chain: each answer starts after the one before it settles.
+  Future<void> _answers = Future.value();
 
   // --- the log ---------------------------------------------------------------
 
@@ -360,7 +363,19 @@ abstract class JpStore {
   /// Records one answer: the attempt, the item's next schedule and its next mastery state,
   /// written in one transaction (D14). [item] is null only for an id the catalog no longer
   /// knows; its mastery is then left alone.
+  ///
+  /// Answers run one at a time, in call order: the reads before the write span several
+  /// awaits, so two overlapping answers on one item would both start from the same state
+  /// and the second write would drop the first. A failed answer does not break the chain.
   Future<AnswerOutcome> recordAnswer(Attempt attempt,
+      {required ItemDefLike? item, required Scheduler scheduler}) {
+    final run = _answers
+        .then((_) => _recordAnswer(attempt, item: item, scheduler: scheduler));
+    _answers = run.then((_) {}, onError: (Object _) {});
+    return run;
+  }
+
+  Future<AnswerOutcome> _recordAnswer(Attempt attempt,
       {required ItemDefLike? item, required Scheduler scheduler}) async {
     final id = attempt.itemId;
     final before = await srs(id);
@@ -389,11 +404,15 @@ abstract class JpStore {
     return result;
   }
 
-  /// Replaces the record with [log] (an import) and rebuilds from it.
+  /// Replaces the record with [log] (an import) and the derived states with its replay.
+  /// The replay runs first, before any write: a log it cannot replay (such as an attempt
+  /// whose rating no [SrsRating] has) throws here and the record stays as it was.
   Future<ReplayResult> importLog(
       StudyLog log, ItemLookup lookup, Scheduler scheduler) async {
+    final result = replayLog(log, lookup, scheduler);
     await replaceLog(log);
-    return rebuild(lookup, scheduler);
+    await replaceDerived(result);
+    return result;
   }
 }
 

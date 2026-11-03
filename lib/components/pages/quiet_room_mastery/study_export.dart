@@ -5,7 +5,8 @@
 //   line 1   the header: {"format": "habitcrafts.jp.study", "version": 1, "exportedAtUtc",
 //            "attempts": n, "seeds": n, "notes": n}
 //   then     {"type": "seed", ...SeedEvent}, {"type": "attempt", ...Attempt} and
-//            {"type": "note", "itemId", "note"}, seeds first, each kind in log order.
+//            {"type": "note", "itemId", "note"}, seeds first, each log kind in log order and
+//            the notes by item id, so the same record exports the same bytes from either store.
 // Reading it back replaces the store's log and rebuilds every state from it (JpStore.importLog),
 // so an export is also a backup and the input for fitting FSRS offline (A1).
 //
@@ -49,7 +50,8 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
     for (final s in log.seeds) jsonEncode({'type': 'seed', ...s.toJson()}),
     for (final a in log.attempts)
       jsonEncode({'type': 'attempt', ...a.toJson()}),
-    for (final e in log.notes.entries)
+    for (final e
+        in log.notes.entries.toList()..sort((a, b) => a.key.compareTo(b.key)))
       jsonEncode({'type': 'note', 'itemId': e.key, 'note': e.value}),
   ];
   return '${lines.join('\n')}\n';
@@ -57,7 +59,7 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
 
 /// Reads an export written by [encodeStudyExport]. Throws a [FormatException] naming the line
 /// for a missing or foreign header, a newer version, an unknown line type, an unreadable line,
-/// or counts that disagree with the header.
+/// an attempt whose rating no [SrsRating] has, or counts that disagree with the header.
 StudyLog decodeStudyExport(String text) {
   final lines = const LineSplitter()
       .convert(text)
@@ -88,7 +90,13 @@ StudyLog decodeStudyExport(String text) {
     try {
       switch (j['type']) {
         case 'attempt':
-          attempts.add(Attempt.fromJson(j));
+          final attempt = Attempt.fromJson(j);
+          final rating = attempt.rating;
+          if (rating != null &&
+              !SrsRating.values.any((r) => r.value == rating)) {
+            throw FormatException('rating $rating is outside 1 to 4');
+          }
+          attempts.add(attempt);
         case 'seed':
           seeds.add(SeedEvent.fromJson(j));
         case 'note':

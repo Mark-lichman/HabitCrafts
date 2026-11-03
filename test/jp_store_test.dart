@@ -1,6 +1,7 @@
 // The study store (Task 8, D14, D26, A4, A5). One suite runs against both implementations:
 // `JpStoreMemory` (the web store) and `JpStoreSqlite` through the ffi factory. The SQLite-only
-// group covers the schema version, the indexes and a reopen of the file.
+// group covers the schema version, the indexes, a reopen of the file and the rollback of an
+// answer that fails inside its transaction.
 
 import 'dart:convert';
 import 'dart:io';
@@ -61,6 +62,19 @@ Attempt answer(ItemDef item, int day, Grade grade,
   );
 }
 
+/// [attempt] with a rating no [SrsRating] has: the replay throws on it.
+Attempt withBadRating(Attempt attempt) =>
+    Attempt.fromJson({...attempt.toJson(), 'rating': 9});
+
+/// A mastery state that cannot be serialised: the SQLite write throws inside its transaction.
+class _Unwritable extends MasteryState {
+  const _Unwritable(String id)
+      : super(itemId: id, status: MasteryStatus.learning);
+
+  @override
+  Map<String, dynamic> toJson() => throw StateError('unwritable');
+}
+
 typedef Opener = Future<JpStore> Function();
 
 final Map<String, Opener> implementations = {
@@ -102,6 +116,33 @@ void main() {
         expect(out.mastery!.status, MasteryStatus.learning);
         expect(out.mastery!.clearCount, 1);
         expect(await store.mastery(g.id), out.mastery);
+      });
+
+      test('overlapping answers on one item run in order and match a rebuild',
+          () async {
+        final g = firstOf(ItemKind.grammar);
+        // Neither call is awaited before the next starts.
+        final first = store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
+        final second = store.recordAnswer(answer(g, 2, Grade.clear),
+            item: g, scheduler: scheduler);
+        final outs = await Future.wait([first, second]);
+        expect(outs[1].srs!.reps, 2,
+            reason: 'the second answer reviews the first one\'s schedule');
+        expect(outs[1].mastery!.clearCount, 2);
+        final srs = await store.allSrs();
+        final mastery = await store.allMastery();
+        final result = await store.rebuild(catalog.byId, scheduler);
+        expect(srs, result.srs);
+        expect(mastery, result.mastery);
+        // A failed answer does not break the chain for the next one.
+        final bad = store.recordAnswer(withBadRating(answer(g, 3, Grade.clear)),
+            item: g, scheduler: scheduler);
+        final third = store.recordAnswer(answer(g, 3, Grade.clear, minute: 1),
+            item: g, scheduler: scheduler);
+        await expectLater(bad, throwsArgumentError);
+        expect((await third).srs!.reps, 3);
+        expect((await store.attempts()).length, 3);
       });
 
       test('a mastery state for another item writes nothing', () async {
@@ -356,7 +397,11 @@ void main() {
           () async {
         final g = firstOf(ItemKind.grammar), p = firstOf(ItemKind.particle);
         await store.appendSeed(p.id, 2, atUtc: at(0));
-        await store.setNote(g.id, kNoteCanUseIt);
+        // Two notes, written in the reverse of their id order: the export sorts them.
+        final noted = {g.id: kNoteCanUseIt, p.id: 'other'};
+        for (final id in noted.keys.toList()..sort((a, b) => b.compareTo(a))) {
+          await store.setNote(id, noted[id]);
+        }
         for (final (day, grade) in [
           (1, Grade.clear),
           (4, Grade.hinted),
@@ -373,11 +418,17 @@ void main() {
         expect(header['format'], kStudyExportFormat);
         expect(header['version'], kStudyExportVersion);
         expect(
-            [header['attempts'], header['seeds'], header['notes']], [4, 1, 1]);
-        expect(lines.length, 7);
+            [header['attempts'], header['seeds'], header['notes']], [4, 1, 2]);
+        expect(lines.length, 8);
         for (final l in lines.skip(1)) {
           expect(jsonDecode(l), isA<Map<String, dynamic>>());
         }
+        final noteIds = [
+          for (final l in lines.skip(1))
+            if (l.contains('"type":"note"'))
+              (jsonDecode(l) as Map<String, dynamic>)['itemId'] as String
+        ];
+        expect(noteIds, noted.keys.toList()..sort());
 
         // Into a fresh store of each kind: the same states and the same export.
         for (final open in implementations.values) {
@@ -389,7 +440,7 @@ void main() {
                 lookup: catalog.byId, scheduler: scheduler);
             expect(await other.allSrs(), await store.allSrs());
             expect(await other.allMastery(), await store.allMastery());
-            expect(await other.notes(), {g.id: kNoteCanUseIt});
+            expect(await other.notes(), noted);
             expect(await other.dueOnOrBefore(1000),
                 await store.dueOnOrBefore(1000));
             expect(await other.day(1), isNotNull, reason: 'days stay');
@@ -400,25 +451,59 @@ void main() {
         }
       });
 
-      test('a bad export is refused and changes nothing', () async {
+      test(
+          'a bad export is refused, by the guard it trips, and changes nothing',
+          () async {
+        final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
+        await store.setNote('keep', 'note');
+        final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
         final good = encodeStudyExport(const StudyLog(), exportedAt: at(0));
-        final bad = <String>[
-          '',
-          '{"format":"other","version":1}',
-          good.replaceFirst('"version":1', '"version":2'),
-          '$good{"type":"mystery"}\n',
-          '$good{"type":"seed","itemId":"x","dueDay":1,"atUtc":"2026-01-01T00:00:00.000Z"}\n',
-          '${good}not json\n',
-        ];
-        for (final text in bad) {
+        final oneAttempt = encodeStudyExport(
+            StudyLog(attempts: [withBadRating(answer(g, 2, Grade.clear))]),
+            exportedAt: at(0));
+        final bad = <String, String>{
+          '': 'empty',
+          '{"format":"other","version":1}': 'line 1 is not the header',
+          good.replaceFirst('"version":1', '"version":2'):
+              'version 2 is not readable',
+          '$good{"type":"mystery"}\n': 'unknown type',
+          '$good{"type":"seed","itemId":"x","dueDay":1,"atUtc":"2026-01-01T00:00:00.000Z"}\n':
+              'line counts disagree',
+          '${good}not json\n': 'line 2 is not a JSON object',
+          oneAttempt: 'line 2: FormatException: rating 9 is outside 1 to 4',
+        };
+        for (final e in bad.entries) {
           await expectLater(
-              importStudy(store, text,
+              importStudy(store, e.key,
                   lookup: catalog.byId, scheduler: scheduler),
-              throwsFormatException,
-              reason: text);
+              throwsA(isA<FormatException>()
+                  .having((x) => x.message, 'message', contains(e.value))),
+              reason: e.key);
         }
         expect((await store.seeds()).single.itemId, 'keep');
+        expect(await store.attempts(), [kept.attempt]);
+        expect(await store.notes(), {'keep': 'note'});
+        expect(await store.srs(g.id), kept.srs);
+        expect(await store.mastery(g.id), kept.mastery);
+      });
+
+      test('a log the replay rejects is not imported', () async {
+        final g = firstOf(ItemKind.grammar);
+        await store.appendSeed('keep', 1, atUtc: at(0));
+        final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
+        final log = StudyLog(
+            attempts: [withBadRating(answer(g, 2, Grade.clear))],
+            seeds: [SeedEvent(itemId: 'x', dueDay: 1, atUtc: at(0))]);
+        await expectLater(
+            store.importLog(log, catalog.byId, scheduler), throwsArgumentError);
+        expect((await store.seeds()).single.itemId, 'keep');
+        expect(await store.attempts(), [kept.attempt]);
+        expect(await store.srs(g.id), kept.srs);
+        expect(await store.mastery(g.id), kept.mastery);
+        expect((await store.item('keep'))!.seedDueDay, 1);
       });
 
       group('the v2 migration', () {
@@ -483,6 +568,15 @@ void main() {
           expect(log.map((a) => a.probeId).toSet(), {sentence.value.probeId});
           expect(log.map((a) => a.grade), [Grade.clear, Grade.unscored],
               reason: 'an unverified check is never wrong');
+          // Each attempt keeps its own instant and local day, not the migration's.
+          expect(log.map((a) => a.localDay), [
+            localDay(DateTime(2026, 10, 20, 19)),
+            localDay(DateTime(2026, 10, 21, 19)),
+          ]);
+          expect(log.map((a) => a.atUtc), [
+            DateTime(2026, 10, 20, 19).toUtc(),
+            DateTime(2026, 10, 21, 19).toUtc(),
+          ]);
           expect(await store.srs(point.id), isNull);
           await store.rebuild(catalog.byId, scheduler);
           expect((await store.mastery(point.id))!.status, MasteryStatus.neu);
@@ -503,7 +597,42 @@ void main() {
     });
   }
 
+  test(
+      'sayItGrade: a speech close is hinted, unverified is never wrong (PIN-3)',
+      () {
+    SpeakAttempt spoke(Judgement verdict, {bool? selfMark}) => SpeakAttempt(
+        sentence: 'x', verdict: verdict, at: at(0), selfMark: selfMark);
+    expect(sayItGrade(spoke(Judgement.correct)), Grade.clear);
+    expect(sayItGrade(spoke(Judgement.close)), Grade.hinted);
+    expect(sayItGrade(spoke(Judgement.wrong)), Grade.wrong);
+    expect(sayItGrade(spoke(Judgement.unverified, selfMark: true)), Grade.self);
+    expect(sayItGrade(spoke(Judgement.unverified, selfMark: false)),
+        Grade.unscored);
+    expect(sayItGrade(spoke(Judgement.unverified)), Grade.unscored);
+  });
+
   group('JpStoreSqlite', () {
+    test('an answer that fails inside its transaction writes nothing',
+        () async {
+      final store = await JpStoreSqlite.open(
+          factory: databaseFactoryFfi, path: inMemoryDatabasePath);
+      try {
+        final g = firstOf(ItemKind.grammar);
+        // The throw lands in the mastery write, after the attempt and schedule rows went
+        // in: only a rollback leaves all three empty.
+        await expectLater(
+            store.appendAttempt(answer(g, 1, Grade.clear),
+                srs: scheduler.first(SrsRating.good, 1),
+                mastery: _Unwritable(g.id)),
+            throwsStateError);
+        expect(await store.attempts(), isEmpty);
+        expect(await store.srs(g.id), isNull);
+        expect(await store.mastery(g.id), isNull);
+      } finally {
+        await store.close();
+      }
+    });
+
     test('the file survives a reopen, and the schema is the planned one',
         () async {
       final dir = await Directory.systemTemp.createTemp('jp_store_test');
