@@ -67,7 +67,8 @@ bool earnsMasteryCredit(Grade grade) => grade == Grade.clear;
 /// highest hint taken before answering; a level at or above [revealingHintLevel] showed the
 /// answer, so it is wrong. On a machine-checked probe, [revealed] means "show the answer" was
 /// used, which is wrong too. [secondTry] marks a right answer after a wrong one on the same
-/// probe. [selfOverride] is the learner's Got it over a check that could not score.
+/// probe. [selfOverride] is the learner's Got it over a check that could not score: it applies
+/// only when [outcome] is [Outcome.none]. A verified right, close or wrong keeps its own grade.
 Grade gradeAnswer({
   required Outcome outcome,
   required bool selfGraded,
@@ -81,7 +82,9 @@ Grade gradeAnswer({
     return Grade.wrong;
   }
   if (!selfGraded && revealed) return Grade.wrong;
-  if (!selfGraded && selfOverride) return Grade.self;
+  if (!selfGraded && selfOverride && outcome == Outcome.none) {
+    return Grade.self;
+  }
   switch (outcome) {
     case Outcome.none:
       return Grade.unscored;
@@ -118,7 +121,8 @@ class Attempt {
     this.sAfter,
     this.durationMs = 0,
     required this.sessionId,
-  });
+  }) : assert(grade != Grade.clear || hintLevel == 0,
+            'a clear never carries a hint (PIN-3); grade it through gradeAnswer');
 
   /// The log's row id, assigned by the store; null before it is written.
   final int? id;

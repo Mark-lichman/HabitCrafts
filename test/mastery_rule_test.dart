@@ -156,6 +156,26 @@ void main() {
           Grade.self);
     });
 
+    test('a self override never replaces a verified verdict', () {
+      expect(
+          gradeAnswer(
+              outcome: Outcome.wrong, selfGraded: false, selfOverride: true),
+          Grade.wrong);
+      expect(
+          gradeAnswer(
+              outcome: Outcome.close, selfGraded: false, selfOverride: true),
+          Grade.hinted);
+      expect(
+          gradeAnswer(
+              outcome: Outcome.right, selfGraded: false, selfOverride: true),
+          Grade.clear);
+    });
+
+    test('an Attempt refuses a clear that carries a hint level (PIN-3)', () {
+      expect(() => att(0, Grade.clear, hint: 1), throwsAssertionError);
+      expect(att(0, Grade.hinted, hint: 1).grade, Grade.hinted);
+    });
+
     test('self-graded: Got it after the reveal is clear, Missed it is wrong',
         () {
       expect(
@@ -189,6 +209,14 @@ void main() {
       expect(earnsMasteryCredit(Grade.clear), isTrue);
       for (final g in [Grade.hinted, Grade.self, Grade.wrong, Grade.unscored]) {
         expect(earnsMasteryCredit(g), isFalse, reason: '$g');
+      }
+    });
+
+    test('earnsMasteryCredit and masteryAfter agree on every grade (PIN-3)',
+        () {
+      for (final g in Grade.values) {
+        final s = replay([att(0, g)]);
+        expect(s.clearCount, earnsMasteryCredit(g) ? 1 : 0, reason: '$g');
       }
     });
   });
@@ -459,6 +487,26 @@ void main() {
       ], pair);
       expect(s.status, MasteryStatus.learning);
     });
+
+    test('exactly two templates on one template only is not Mastered', () {
+      // Three sentences meet the transfer clause, so only the template clause
+      // blocks: the gate is >= kTemplatesNeeded, not >.
+      final s = replay([
+        for (final (d, sentence) in [
+          (0, 's1'),
+          (2, 's2'),
+          (8, 's3'),
+          (29, 's2')
+        ])
+          att(d, Grade.clear,
+              item: grammar,
+              template: 'typed',
+              probe: sentence,
+              production: true),
+      ], grammar);
+      expect(s.status, MasteryStatus.learning);
+      expect(s.clearCount, 4);
+    });
   });
 
   group('transfer per kind (D4 clause 5)', () {
@@ -534,6 +582,30 @@ void main() {
 
     test('a particle and a word carry no sentence transfer clause', () {
       expect(replay(fourClears(29)).status, MasteryStatus.mastered);
+      final w = replay([
+        att(0, Grade.clear, item: word, template: 'card', probe: 'w1'),
+        att(2, Grade.clear, item: word, template: 'card', probe: 'w1'),
+        att(8, Grade.clear,
+            item: word, template: 'spoken', probe: 'w1', production: true),
+        att(29, Grade.clear, item: word, template: 'card', probe: 'w1'),
+      ], word);
+      expect(w.status, MasteryStatus.mastered);
+    });
+
+    test('a one-template pair still needs both directions', () {
+      const onePair = _Item('s02_pairs_one', ItemKind.pair, probeCount: 2);
+      Attempt p(int d, String dir) =>
+          att(d, Grade.clear, item: onePair, probe: dir, template: 'reveal');
+      expect(
+          replay([p(0, 'jp-en'), p(2, 'jp-en'), p(8, 'jp-en'), p(29, 'jp-en')],
+                  onePair)
+              .status,
+          MasteryStatus.learning);
+      expect(
+          replay([p(0, 'jp-en'), p(2, 'en-jp'), p(8, 'jp-en'), p(29, 'jp-en')],
+                  onePair)
+              .status,
+          MasteryStatus.mastered);
     });
   });
 
@@ -613,6 +685,29 @@ void main() {
       expect(s.keptReviews, 3);
       expect(s.keptClear, 2);
     });
+
+    test('a clear between two hinted keeps a Mastered item and its streak', () {
+      final s = replay([
+        ...mastered,
+        att(60, Grade.hinted),
+        att(62, Grade.clear),
+        att(64, Grade.hinted),
+      ]);
+      expect(s.status, MasteryStatus.mastered);
+      expect(s.hintStreak, 1);
+    });
+
+    test('an early wrong on a Mastered item is not a kept review', () {
+      final before = replay([
+        ...mastered,
+        att(60, Grade.clear, source: Source.keepSharp),
+      ]);
+      final after = masteryAfter(before,
+          att(70, Grade.wrong, due: false, source: Source.early), particle);
+      expect(after.status, MasteryStatus.shaky);
+      expect(after.keptReviews, before.keptReviews);
+      expect(after.keptClear, before.keptClear);
+    });
   });
 
   group('purity (PIN-1)', () {
@@ -623,12 +718,17 @@ void main() {
         att(61, Grade.clear),
         att(68, Grade.clear),
       ];
-      var s = MasteryState.initial(particle.id);
-      for (final a in history) {
-        s = masteryAfter(s, a, particle);
+      // The stored state is enough to continue the fold (D14): replay a prefix,
+      // round-trip it through JSON, then fold the rest onto it.
+      final whole = replay(history);
+      for (var k = 0; k <= history.length; k++) {
+        final prefix = replay(history.sublist(0, k));
+        var s = MasteryState.fromJson(prefix.toJson());
+        for (final a in history.sublist(k)) {
+          s = masteryAfter(s, a, particle);
+        }
+        expect(s, whole, reason: 'split at $k');
       }
-      expect(replay(history), s);
-      expect(replay(history), replay(List.of(history)));
     });
 
     test('an attempt for another item is refused', () {
@@ -641,6 +741,37 @@ void main() {
     test('Attempt and MasteryState survive a JSON round trip', () {
       final a = att(3, Grade.hinted, hint: 2, revealed: true);
       expect(Attempt.fromJson(a.toJson()), a);
+      final full = Attempt(
+        id: 7,
+        itemId: particle.id,
+        probeId: 'p1',
+        template: 't1',
+        production: false,
+        selfGraded: false,
+        atUtc: DateTime.utc(2026, 1, 4, 12),
+        localDay: 3,
+        grade: Grade.clear,
+        rating: kRatingGood,
+        wasDue: true,
+        source: Source.review,
+        elapsedDays: 2.5,
+        rBefore: 0.9,
+        rAfter: 0.95,
+        sBefore: 10.0,
+        sAfter: 12.5,
+        durationMs: 8000,
+        sessionId: 's-full',
+      );
+      final decoded = Attempt.fromJson(full.toJson());
+      expect(decoded, full);
+      expect(decoded.id, 7);
+      expect(decoded.elapsedDays, 2.5);
+      expect(decoded.rBefore, 0.9);
+      expect(decoded.rAfter, 0.95);
+      expect(decoded.sBefore, 10.0);
+      expect(decoded.sAfter, 12.5);
+      expect(decoded.sBefore, isNot(decoded.sAfter));
+      expect(decoded.rBefore, isNot(decoded.rAfter));
       final s = replay(
           [...fourClears(29), att(60, Grade.wrong), att(61, Grade.clear)]);
       expect(MasteryState.fromJson(s.toJson()), s);
