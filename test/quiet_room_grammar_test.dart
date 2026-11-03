@@ -1,5 +1,6 @@
 // Widget tests for the grammar screen: the By use view, a choice question's feedback,
-// the typed-answer box (PIN-3), the hint behind its tap and the practice result,
+// the typed-answer box (PIN-3), the hint behind its tap and the practice result
+// (PIN-3 of the mastery plan),
 // the 漢字 toggle (PIN-4), the tap-a-word reading hint
 // (PIN-16) and the speaking drill link (PIN-6).
 
@@ -258,7 +259,7 @@ void main() {
     });
   });
 
-  group('the practice result (PIN-3)', () {
+  group('the practice result (PIN-3 of the mastery plan)', () {
     /// Pumps the screen with a recorder for every practice result it reports.
     Future<List<GrammarPracticeResult>> pumpRecorded(
         WidgetTester tester) async {
