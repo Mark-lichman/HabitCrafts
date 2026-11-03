@@ -7,8 +7,9 @@
 //     second speakAndWait replaces it. A stopSpeaking still in flight releases only the waiter
 //     it was called on, never one that began during its platform stop.
 //   * cancel() completes the pending listenOnce with an empty, unverified result, the attempt
-//     token keeps a cancelled listen from stopping a newer one, and a cancelled listen's late
-//     result never completes the newer one.
+//     token keeps a cancelled listen from stopping a newer one, a cancelled listen's late
+//     result never completes the newer one, and a cancel while the permission prompt is
+//     pending never opens the recogniser.
 //   * A recogniser error ends the listen at once and reads as a plain sentence, never a raw code.
 //
 // The service runs on fake engines (SpeechService.withEngines), so no platform channel is used.
@@ -218,7 +219,8 @@ void main() {
       expect(done, isTrue);
     });
 
-    test('a stop in flight releases only the waiter it was called on', () async {
+    test('a stop in flight releases only the waiter it was called on',
+        () async {
       final tts = FakeTts();
       final s = SpeechService.withEngines(stt: FakeStt(), tts: tts);
       var firstDone = false;
@@ -260,7 +262,8 @@ void main() {
 
       tts.stopGate!.complete();
       await settle();
-      expect(done, isFalse, reason: 'no utterance was playing when the stop began');
+      expect(done, isFalse,
+          reason: 'no utterance was playing when the stop began');
       tts.finish();
       await settle();
       expect(done, isTrue);
@@ -362,6 +365,44 @@ void main() {
       await s.cancel();
       stt.hear(['ほん']);
       expect((await f).judgement, Judgement.unverified);
+    });
+
+    test('a cancel during the permission prompt never opens the recogniser',
+        () async {
+      final gate = Completer<bool>();
+      final stt = FakeStt();
+      final s = SpeechService.withEngines(
+          stt: stt, tts: FakeTts(), micPermission: () => gate.future);
+      final f = s.listenOnce(expectedKana: 'ほん');
+      await settle();
+      await s.cancel();
+      gate.complete(true);
+      final r = await f.timeout(const Duration(seconds: 1));
+      expect(r.judgement, Judgement.unverified);
+      expect(r.heard, '');
+      expect(stt.listens, 0);
+    });
+
+    test('a cancel during the permission prompt leaves a newer listen free',
+        () async {
+      final gate = Completer<bool>();
+      final stt = FakeStt();
+      final s = SpeechService.withEngines(
+          stt: stt, tts: FakeTts(), micPermission: () => gate.future);
+      final first = s.listenOnce(expectedKana: 'ほん');
+      await settle();
+      await s.cancel();
+      final second = s.listenOnce(expectedKana: 'じしょ');
+      await settle();
+      gate.complete(true);
+      final r = await first.timeout(const Duration(seconds: 1));
+      expect(r.judgement, Judgement.unverified);
+      await settle();
+      expect(stt.listens, 1, reason: 'only the newer listen opens the mic');
+      expect(stt.isListening, isTrue);
+      stt.hear(['じしょ']);
+      expect((await second).judgement, Judgement.correct);
+      expect(stt.stops, 1);
     });
 
     test('an old listen’s late result never completes a newer listen',
