@@ -368,11 +368,17 @@ class SpeechService {
     return 'Speech failed: ${msg.length > 140 ? msg.substring(0, 140) : msg}';
   }
 
+  /// Stops the voice and releases the [speakAndWait] that was waiting when the stop was
+  /// called. 🚨 That waiter is captured BEFORE the await: a speakAndWait that starts while the
+  /// platform stop is still in flight is a new utterance, and releasing it here would let its
+  /// caller open the microphone over its own voice. The lifecycle callers do not await this.
   Future<void> stopSpeaking() async {
+    final s = _speaking;
     try {
       await _tts.stop();
     } catch (_) {}
-    _speechDone();
+    if (s != null && !s.isCompleted) s.complete();
+    if (identical(_speaking, s)) _speaking = null;
   }
 
   /// Asks for the microphone and initialises the recogniser. RECORD_AUDIO is already declared in
