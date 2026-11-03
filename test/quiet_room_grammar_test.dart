@@ -383,6 +383,30 @@ void main() {
       expect(results.last.hintTaken, isFalse);
     });
 
+    testWidgets('an edit after Got it drops the self-mark from the next result',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+
+      await tester.enterText(answerBoxes.first, 'ittara');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      expect(results.last.selfMark, isTrue);
+
+      // The edit takes the pills away, and the mark with them.
+      await tester.enterText(answerBoxes.first, 'ぬ');
+      await tester.pump();
+      expect(find.text('Got it'), findsNothing);
+
+      await tester.tap(find.text('Show answer').first);
+      await tester.pump();
+
+      expect(results.last.revealed, isTrue);
+      expect(results.last.verdict, isNull);
+      expect(results.last.selfMark, isNull);
+    });
+
     testWidgets('Tap for English is a reading aid, not an attempt (D28)',
         (tester) async {
       final results = await pumpRecorded(tester);
@@ -448,6 +472,41 @@ void main() {
               .controller!
               .text,
           'ぬぬぬ');
+    });
+
+    testWidgets('a reveal survives the scroll', (tester) async {
+      final q = firstFills().first;
+      final before = unanswered(q['prompt'] as String);
+      final revealedPrompt =
+          (q['prompt'] as String).replaceAll('＿＿', '［${q['answer']}］');
+      await pumpRecorded(tester);
+
+      await tester.tap(find.text('Show answer').first);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      expect(find.text(revealedPrompt), findsOneWidget);
+      expect(find.text(before), findsNothing);
+
+      // A phone-sized view, scrolled to the end, takes the first card off screen.
+      final page = find
+          .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down)
+          .first;
+      tester.view.physicalSize = const Size(400, 500);
+      await tester.pump();
+      await tester.scrollUntilVisible(
+          find.textContaining('Pattern, goal and first example'), 600,
+          scrollable: page);
+      await tester.pump();
+      expect(find.text(revealedPrompt), findsNothing);
+
+      // Back up. A card that lost its reveal would show the blank again.
+      await tester.scrollUntilVisible(find.text(revealedPrompt), -600,
+          scrollable: page);
+      await tester.pump();
+
+      expect(find.text(revealedPrompt), findsOneWidget);
+      expect(find.text(before, skipOffstage: false), findsNothing);
     });
   });
 
