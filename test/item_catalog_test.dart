@@ -204,14 +204,53 @@ void main() {
       }
     }
     expect(withPrereqs, greaterThan(0));
-    final first = (grammarDoc['grammar'] as List).first['points'].first
-        as Map<String, dynamic>;
-    final forms = (first['prereqs'] as List).cast<String>();
-    final item = catalog.byId(first['id'] as String)!;
-    for (final form in forms) {
-      expect(item.prereqs.where((p) => p.startsWith('$form.g')), isNotEmpty,
-          reason: '$form is not carried onto ${item.id}');
+    // Every form a point names must reach the item, so a silent drop (a form with no
+    // matching idea) fails here and never reorders the introductions (Task 14).
+    for (final lesson in grammarDoc['grammar'] as List) {
+      for (final point
+          in (lesson['points'] as List).cast<Map<String, dynamic>>()) {
+        final forms = (point['prereqs'] as List? ?? const []).cast<String>();
+        final item = catalog.byId(point['id'] as String)!;
+        for (final form in forms) {
+          expect(item.prereqs.where((p) => p.startsWith('$form.g')), isNotEmpty,
+              reason: '$form is not carried onto ${item.id}');
+        }
+      }
     }
+  });
+
+  group('fromDocs fails loudly on a doctored asset', () {
+    Map<String, dynamic> copyOf(Map<String, dynamic> doc) =>
+        json.decode(json.encode(doc)) as Map<String, dynamic>;
+
+    Matcher throwsStateErrorWith(String fragment) => throwsA(isA<StateError>()
+        .having((e) => e.message, 'message', contains(fragment)));
+
+    test('a missing verb_pair row is a row count mismatch', () {
+      final grammar = copyOf(grammarDoc);
+      final rows = grammar['catalog'] as List;
+      final i = rows.indexWhere((c) => c['type'] == 'verb_pair');
+      rows.removeAt(i);
+      expect(() => ItemCatalog.fromDocs(grammar, lessonsDoc),
+          throwsStateErrorWith('verb_pair rows'));
+    });
+
+    test('a verb_pair row whose title differs from its pair is a mismatch', () {
+      final grammar = copyOf(grammarDoc);
+      final rows = grammar['catalog'] as List;
+      final row = rows.firstWhere((c) => c['type'] == 'verb_pair') as Map;
+      row['title'] = 'なし / なし';
+      expect(() => ItemCatalog.fromDocs(grammar, lessonsDoc),
+          throwsStateErrorWith('its catalog row'));
+    });
+
+    test('a repeated word item is a duplicate id', () {
+      final lessons = copyOf(lessonsDoc);
+      final items = (lessons['lessons'] as List).first['items'] as List;
+      items.add(copyOf(items.first as Map<String, dynamic>));
+      expect(() => ItemCatalog.fromDocs(grammarDoc, lessons),
+          throwsStateErrorWith('duplicate item ids'));
+    });
   });
 
   test('conjugation ideas take the verbs of their group as probes', () {
