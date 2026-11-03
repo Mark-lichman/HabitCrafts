@@ -830,6 +830,15 @@ void main() {
       expect(mirrorDecoded.wasDue, isFalse);
       expect(mirrorDecoded.source, Source.keepSharp);
       expect(mirrorDecoded.elapsedDays, isNull);
+      // An unscored row logs no FSRS rating (fsrsRatingFor returns null), and Task 8 replays
+      // such rows from the log (D14). `a`, `full` and `mirror` all carry a rating, so a
+      // defaulted or non-nullable rating reads differently here and nowhere else.
+      final u = att(4, Grade.unscored);
+      final uDecoded = Attempt.fromJson(
+          jsonDecode(jsonEncode(u.toJson())) as Map<String, dynamic>);
+      expect(uDecoded, u);
+      expect(uDecoded.rating, isNull);
+      expect(uDecoded.grade, Grade.unscored);
       final s = replay(
           [...fourClears(29), att(60, Grade.wrong), att(61, Grade.clear)]);
       expect(MasteryState.fromJson(s.toJson()), s);
@@ -852,6 +861,23 @@ void main() {
       expect(learningDecoded.clears.last.production, isFalse);
       expect(learningDecoded.masteredOn, isNull);
       expect(learningDecoded.shakyOn, isNull);
+      // The kept-rate state: keptClear is nonzero only after a Mastered item is reviewed, so
+      // the shaky, learning and prefix states above all carry keptClear 0. This one carries
+      // the numerator and denominator the kept rate reads (End state 17), both nonzero and
+      // different, so a dropped or hard-coded keptClear key reads differently here.
+      final k = replay([
+        ...fourClears(29),
+        att(60, Grade.clear, source: Source.keepSharp),
+        att(90, Grade.hinted),
+        att(120, Grade.clear),
+      ]);
+      final kDecoded = MasteryState.fromJson(
+          jsonDecode(jsonEncode(k.toJson())) as Map<String, dynamic>);
+      expect(kDecoded, k);
+      expect(kDecoded.status, MasteryStatus.mastered);
+      expect(kDecoded.keptReviews, 3);
+      expect(kDecoded.keptClear, 2);
+      expect(kDecoded.masteredOn, 29);
     });
   });
 }
