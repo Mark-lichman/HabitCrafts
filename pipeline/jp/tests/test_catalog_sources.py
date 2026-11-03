@@ -164,6 +164,22 @@ def test_published_app_file_carries_the_source_entries(sources):
     assert any(t["id"] == "source_file" for t in committed["types"])
 
 
+def test_every_word_has_one_catalog_word_entry():
+    # Plan Task 4: beside the per-lesson vocabulary rows, the catalog carries one entry per
+    # word (id, reading, gloss, lesson, verb group), keyed by the word's image-stem id.
+    cat = build_catalog()
+    vocab = _read(ASSETS / "jp_lessons.json")
+    all_words = [(l["lesson"], w) for l in vocab["lessons"] for w in l["items"]]
+    assert len(cat["words"]) == len(all_words)
+    assert len({w["id"] for w in cat["words"]}) == len(all_words), "two word entries share an id"
+    for entry, (lesson, w) in zip(cat["words"], all_words):
+        assert entry == {"id": w["id"], "reading": w["kana"], "gloss": w["gloss"],
+                         "lesson": lesson, "verbGroup": w.get("verbGroup")}
+    rows = [e for e in cat["entries"] if e["type"] == "vocabulary"]
+    assert len(rows) == len(vocab["lessons"]), "the per-lesson rows stay"
+    assert _read(ASSETS / "jp_grammar.json")["words"] == cat["words"]
+
+
 # ───────────── the lesson doc (PIN-13) ─────────────
 
 def _prose_numbers(text: str) -> list[tuple[int, str, str]]:

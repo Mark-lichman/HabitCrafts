@@ -34,7 +34,7 @@ fails if this doc restates one.
 
 | File | Role | Origin | Produced by |
 | --- | --- | --- | --- |
-| `assets/lessons/jp_lessons.json` | vocabulary, lesson by lesson; the file states its own missing lessons | Langoal word-list PDFs | an extractor run from a scratchpad (see Regenerating) |
+| `assets/lessons/jp_lessons.json` | vocabulary, lesson by lesson; the file states its own missing lessons | Langoal word-list PDFs | an extractor run from a scratchpad (see Regenerating), then `pipeline/jp/vocab_clean.py` |
 | `assets/lessons/jp_grammar.json` | grammar lessons, particles, number tables, verb pairs, conjugation drill, and the catalog | everything below, merged | **only** `pipeline/jp/publish.py`, never by hand |
 | `pipeline/jp/fixtures/s01_number/` | counters, months, dates and lengths of time | `number.pdf`, a picture of a table with an OCR layer | `s01_counters.py` |
 | `pipeline/jp/fixtures/s02_pairs_mari/` | transitive and intransitive verb pairs with examples | Mari's Canva table | `s02_pairs_mari.py` |
@@ -46,6 +46,7 @@ fails if this doc restates one.
 | `pipeline/jp/uses.json` | the uses each grammar point serves ("Asking for advice") | LM Use Tagging, kept as reviewable data | an LM, then review |
 | `pipeline/jp/kanji_n5_n4.json` | the only kanji a kanji version may use; the file records its source URLs, its archived snapshots and each level's count and its operator additions, each with its reason | the Tanos JLPT N5 and N4 kanji pages, archived byte for byte under `pipeline/jp/tanos/`, plus the operator additions it records | fetched once, then by hand: `test_kanji_list.py` checks the file against the archived pages and every twin against the file |
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
+| `pipeline/jp/particle_clozes.json` | a cloze for each particle whose example does not hold it verbatim | hand-written from Mari's particle examples | by hand; `publish.py` blanks the rest itself |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
 
 Each extractor writes `out/<source>/lesson_bundle.json`, which git ignores, and the fixture
@@ -151,16 +152,15 @@ sentence keeps playing after the cap. On the web `speak` returns at once.
 ## Script rule: hiragana first
 
 - Japanese words show in **hiragana** by default. **Katakana** is used for foreign loanwords.
-- No romaji is kept as a reading (see below). Some vocabulary glosses in `jp_lessons.json` still
-  carry a romaji spelling the extractor failed to discard; that is a known data defect.
+- No romaji is kept as a reading (see below). The printed romaji the extractor failed to discard
+  from some vocabulary glosses is dropped by `pipeline/jp/vocab_clean.py`.
 - Kanji sits behind a tap. On the grammar screen the 漢字 toggle shows every sentence's kanji
   version, with a reading hint on each kanji word (see above). In the drills, a 漢字 tap shows the
   textbook verb pairs as printed.
 - A kanji version uses only kanji from `pipeline/jp/kanji_n5_n4.json`. Its readings equal its
   hiragana sentence exactly, with one bracket per kanji word and okurigana outside it.
-- One Mari example, `mari.L33.3`, quotes the sign 「立入禁止」 printed in kanji, so it shows the
-  sign in kanji in both views. Its kanji version carries the sign's reading, so the reading hint
-  and the speaking drill still have hiragana for it.
+- No hiragana sentence holds a kanji. Mari's one kanji example, the sign in `mari.L33.3`, is
+  written in hiragana by a reviewed correction in `pipeline/jp/corrections.json`.
 
 ## How the grammar file is built
 
@@ -239,8 +239,9 @@ extractor, the same piece of work that would unlock grammar for the early lesson
 The sheets print the hiragana or katakana word, its romaji and a gloss **with no labels**, so
 position does not tell you which Latin string is which. The extractor romanises the word itself
 and uses that *only* to identify and discard the printed romaji. Whatever is left is the gloss.
-The discard is not complete: some glosses in `jp_lessons.json` still carry the printed romaji (the
-known data defect named under Script rule above).
+The discard was not complete, so `pipeline/jp/vocab_clean.py` drops a gloss's leading token when
+it is the item's own reading in Hepburn romaji. The match is strict, so an English first meaning
+(`watch, clock`) stays.
 
 That also disposes of the sheets' own defects, since their spelling is never kept:
 

@@ -26,6 +26,14 @@
       "from": null,
       "to": 2,
       "why": "変える is an Ichidan (group 2) verb: jisho.org entry for 変える, from EDICT (EDRDG)."
+    },
+    {
+      "source": "s04_mari_checklist",
+      "item": "mari.L33.3",
+      "field": "example",
+      "from": "立入禁止",
+      "to": "たちいりきんし",
+      "why": "The app is hiragana first, so the sign Mari quotes in kanji is written in hiragana in the example. 禁 is outside kanji_n5_n4.json, so the kanji version writes it in hiragana too."
     }
   ]
 }

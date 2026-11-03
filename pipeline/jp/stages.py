@@ -27,7 +27,7 @@ STAGES: dict[str, tuple[str, ...]] = {
     "conjugate.py": ("ValidatingSources",),
     "catalog.py": ("Cataloging",),
     # check_draft() is the deterministic Validating gate for the LM drafts. It also runs
-    # the kanji twin checks (check_twin, twin_errors) on every draft field.
+    # the kanji twin checks (check_twin, ruby_errors) on every draft field.
     "publish.py": ("Validating", "KanjiValidating", "PublishingApp"),
     # Applies the reviewed findings of the judge pass to the drafts.
     "review/apply_judge_fixes.py": ("Judging",),
@@ -35,11 +35,13 @@ STAGES: dict[str, tuple[str, ...]] = {
     # 私{わたし}, and 分{わ}かる) to the twins, and logs each change as a judge finding.
     "review/apply_kanji_rulings.py": ("Judging",),
     # Kanji twin helpers: reading-of, printed-text, and the bracket-form check that
-    # publish.twin_errors() calls.
+    # publish.check_twin() calls.
     "ruby.py": ("KanjiValidating",),
 }
 
 HELPERS: dict[str, str] = {
     "stages.py": "this registry",
     "refresh_fixtures.py": "copies extractor output into the CI fixtures; runs no stage",
+    "vocab_clean.py": "cleans the committed vocabulary file after a re-extraction; the "
+                      "word-list extractor is not part of this pipeline, so it runs no stage",
 }
