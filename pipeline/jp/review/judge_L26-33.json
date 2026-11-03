@@ -1,0 +1,11 @@
+{"judge": "independent-lm", "lessons": [26, 33], "items_checked": 124,
+ "findings": [
+  {"point_id": "mari.L27.4", "item_index": 3, "verdict": "explanation_wrong", "detail": "why_wrong says だけ goes with a positive verb, not with ありません. だけ can take a negative (Xだけ たべません = X is the one thing I don't eat); here it just gives the wrong meaning.", "fix": "だけ: \"みっかだけ ありません means 'only three days are missing', not 'only three days'; with ありません use しか.\"", "confidence": "medium"},
+  {"point_id": "mari.L27.5", "item_index": 0, "verdict": "missing_accepted", "detail": "すきじゃないです and すきではないです are common, correct polite negatives of すきです and are not accepted.", "fix": "accepted: [\"すきでは ありません\", \"すきじゃないです\", \"すきではないです\", \"すきじゃありません\", \"すきではありません\"]", "confidence": "medium"},
+  {"point_id": "mari.L30.3", "item_index": -1, "verdict": "explanation_wrong", "detail": "'Setting a task aside to deal with later' is not a meaning of ておきます; ておく marks doing the action (now or later) so it is done/handled, or leaving a state as is.", "fix": "explain: \"ておきます can also mean leaving something as it is, or getting a task done so it is taken care of. Ask someone to leave things as they are with ておいて ください.\"", "confidence": "medium"},
+  {"point_id": "mari.L33.4", "item_index": 0, "verdict": "missing_accepted", "detail": "でんわすると いいました ('she said') is also correct for the English line and would be marked wrong.", "fix": "accepted: [\"いっていました\", \"いいました\"]", "confidence": "medium"}
+ ],
+ "use_tag_disagreements": [
+  {"point_id": "mari.L30.3", "current": ["plan"], "suggested": ["request", "state"], "why": "This point is leaving things as they are, mostly as ておいて ください requests; it is not about stating a plan."},
+  {"point_id": "mari.L33.3", "current": ["hearsay"], "suggested": [], "why": "〜という いみです explains what a word or sign means; it is not passing on something heard or read. No existing use fits well; consider a new 'explaining meaning' use."}
+ ]}

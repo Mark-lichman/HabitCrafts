@@ -1,0 +1,324 @@
+{
+  "lesson": 40,
+  "title": "Embedded Questions and Trying",
+  "points": [
+    {
+      "id": "mari.L40.1",
+      "explain": "Put か after a question that has a question word to fit it inside a bigger sentence, like 'I don't know where ...'.",
+      "form": "ぎもんし ＋ ふつうForm ＋ か、〜",
+      "note": "Use plain form inside, and drop だ after nouns and な adjectives: なんじか, not なんじだか.",
+      "examples": [
+        {
+          "jp": "どこで うって いるか、しりません。",
+          "jp_ruby": "どこで 売{う}って いるか、知{し}りません。",
+          "en": "I don't know where they sell it."
+        },
+        {
+          "jp": "パーティーに だれが くるか、わかりません。",
+          "jp_ruby": "パーティーに だれが 来{く}るか、分{わ}かりません。",
+          "en": "I don't know who is coming to the party."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "かいぎは ＿＿ はじまるか、おしえて ください。",
+          "prompt_ruby": "かいぎは ＿＿ 始{はじ}まるか、教{おし}えて ください。",
+          "en": "Please tell me what time the meeting starts.",
+          "answer": "なんじに",
+          "answer_ruby": "何時{なんじ}に",
+          "accepted": [
+            "なんじから"
+          ],
+          "accepted_ruby": [
+            "何時{なんじ}から"
+          ],
+          "hint": "the question word for 'what time'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この ことばは どういう いみ＿＿、しらべます。",
+          "prompt_ruby": "この ことばは どういう 意味{いみ}＿＿、しらべます。",
+          "en": "I'll look up what this word means.",
+          "answer": "か",
+          "answer_ruby": "か",
+          "options": [
+            "か",
+            "かどうか",
+            "を"
+          ],
+          "options_ruby": [
+            "か",
+            "かどうか",
+            "を"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "A question word (どういう) is already in the clause, so end it with か, not かどうか.",
+          "why_wrong": {
+            "かどうか": "かどうか is for yes or no questions. どういう already asks what.",
+            "を": "The clause needs か to embed the question."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "かぎを どこに ＿＿、わすれました。",
+          "prompt_ruby": "かぎを どこに ＿＿、わすれました。",
+          "en": "I forgot where I put my key.",
+          "answer": "おいたか",
+          "answer_ruby": "おいたか",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おいたかどうか",
+            "おいたか",
+            "おきましたか"
+          ],
+          "options_ruby": [
+            "おいたかどうか",
+            "おいたか",
+            "おきましたか"
+          ],
+          "hint": "With a question word, use plain form ＋ か inside the sentence.",
+          "why_wrong": {
+            "おいたかどうか": "かどうか is only for yes or no questions; どこ is a question word.",
+            "おきましたか": "Use the plain form inside an embedded question, not ます."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あの ひとが ＿＿、しって いますか。",
+          "prompt_ruby": "あの 人{ひと}が ＿＿、知{し}って いますか。",
+          "en": "Do you know who that person is?",
+          "answer": "だれか",
+          "answer_ruby": "だれか",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "だれが",
+            "だれかどうか",
+            "だれか"
+          ],
+          "options_ruby": [
+            "だれが",
+            "だれかどうか",
+            "だれか"
+          ],
+          "hint": "Question word ＋ か fits a question inside a bigger sentence.",
+          "why_wrong": {
+            "だれが": "An embedded question must end with か.",
+            "だれかどうか": "かどうか is never used with a question word like だれ."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L40.2",
+      "explain": "Use かどうか for a yes-or-no question inside a sentence. It means 'whether or not.'",
+      "form": "ふつうForm ＋ かどうか、〜",
+      "note": "Do not use a question word with かどうか. Drop だ after nouns and な adjectives: ひまかどうか.",
+      "examples": [
+        {
+          "jp": "あした ひまかどうか、おしえて ください。",
+          "jp_ruby": "明日{あした} ひまかどうか、教{おし}えて ください。",
+          "en": "Please let me know whether you're free tomorrow."
+        },
+        {
+          "jp": "まちがいが ないかどうか、しらべて ください。",
+          "jp_ruby": "まちがいが ないかどうか、しらべて ください。",
+          "en": "Please check whether there are any mistakes."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "かれが くる＿＿、わかりません。",
+          "prompt_ruby": "かれが 来{く}る＿＿、分{わ}かりません。",
+          "en": "I don't know whether he will come.",
+          "answer": "かどうか",
+          "answer_ruby": "かどうか",
+          "accepted": [
+            "か"
+          ],
+          "accepted_ruby": [
+            "か"
+          ],
+          "hint": "the phrase meaning 'whether or not'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この みせが やすい＿＿、ともだちに ききます。",
+          "prompt_ruby": "この 店{みせ}が 安{やす}い＿＿、ともだちに 聞{き}きます。",
+          "en": "I'll ask a friend whether this shop is cheap.",
+          "answer": "かどうか",
+          "answer_ruby": "かどうか",
+          "options": [
+            "かどうか",
+            "どうか",
+            "かどう"
+          ],
+          "options_ruby": [
+            "かどうか",
+            "どうか",
+            "かどう"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "the phrase meaning 'whether or not'"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この みずは ＿＿、わかりません。",
+          "prompt_ruby": "この 水{みず}は ＿＿、分{わ}かりません。",
+          "en": "I don't know whether this water is safe to drink.",
+          "answer": "のめるかどうか",
+          "answer_ruby": "飲{の}めるかどうか",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "のめますかどうか",
+            "のめるかどうか",
+            "のめるどうか"
+          ],
+          "options_ruby": [
+            "飲{の}めますかどうか",
+            "飲{の}めるかどうか",
+            "飲{の}めるどうか"
+          ],
+          "hint": "Plain form ＋ かどうか means 'whether or not.'",
+          "why_wrong": {
+            "のめますかどうか": "Use the plain form before かどうか, not the ます form.",
+            "のめるどうか": "The か is missing; the phrase is かどうか."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "あした ＿＿、インターネットで しらべます。",
+          "prompt_ruby": "明日{あした} ＿＿、インターネットで しらべます。",
+          "en": "I'll check online whether it will rain tomorrow.",
+          "answer": "あめかどうか",
+          "answer_ruby": "雨{あめ}かどうか",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "あめかどうか",
+            "あめだかどうか",
+            "あめなかどうか"
+          ],
+          "options_ruby": [
+            "雨{あめ}かどうか",
+            "雨{あめ}だかどうか",
+            "雨{あめ}なかどうか"
+          ],
+          "hint": "A noun takes かどうか directly, with no だ.",
+          "why_wrong": {
+            "あめだかどうか": "Drop だ after a noun before かどうか.",
+            "あめなかどうか": "A noun takes かどうか directly, with no な."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L40.3",
+      "explain": "て みます means 'try doing' something to see what it is like. Use it for testing or trying something new.",
+      "form": "てForm ＋ みます",
+      "note": "It means 'try and see,' not 'make an effort to do something hard.'",
+      "examples": [
+        {
+          "jp": "この りょうりを たべて みて ください。",
+          "jp_ruby": "この 料理{りょうり}を 食{た}べて みて ください。",
+          "en": "Please try this dish."
+        },
+        {
+          "jp": "いちど ふじさんに のぼって みたいです。",
+          "jp_ruby": "一度{いちど} ふじさんに のぼって みたいです。",
+          "en": "I'd like to try climbing Mt. Fuji someday."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "この くつを ＿＿ みても いいですか。",
+          "prompt_ruby": "この くつを ＿＿ みても いいですか。",
+          "en": "May I try on these shoes?",
+          "answer": "はいて",
+          "answer_ruby": "はいて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "て form of はきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わからない ことばは じしょで ＿＿ みます。",
+          "prompt_ruby": "分{わ}からない ことばは じしょで ＿＿ みます。",
+          "en": "I'll try looking up words I don't know in the dictionary.",
+          "answer": "しらべて",
+          "answer_ruby": "しらべて",
+          "options": [
+            "しらべて",
+            "しらべる",
+            "しらべ"
+          ],
+          "options_ruby": [
+            "しらべて",
+            "しらべる",
+            "しらべ"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "て form of しらべます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あたらしい レストランへ ＿＿ みたいです。",
+          "prompt_ruby": "新{あたら}しい レストランへ ＿＿ みたいです。",
+          "en": "I'd like to try going to the new restaurant.",
+          "answer": "いって",
+          "answer_ruby": "行{い}って",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "いく",
+            "いきて",
+            "いって"
+          ],
+          "options_ruby": [
+            "行{い}く",
+            "行{い}きて",
+            "行{い}って"
+          ],
+          "hint": "て form ＋ みます means 'try doing'; いきます is irregular: いって.",
+          "why_wrong": {
+            "いく": "みます follows the て form, not the dictionary form.",
+            "いきて": "いきます is an exception: its て form is いって."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "この ペンで ＿＿ みて ください。",
+          "prompt_ruby": "この ペンで ＿＿ みて ください。",
+          "en": "Please try writing with this pen.",
+          "answer": "かいて",
+          "answer_ruby": "書{か}いて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "かきて",
+            "かいて",
+            "かく"
+          ],
+          "options_ruby": [
+            "書{か}きて",
+            "書{か}いて",
+            "書{か}く"
+          ],
+          "hint": "て form ＋ みます means 'try doing'; き becomes いて.",
+          "why_wrong": {
+            "かきて": "かきます is Group I: き becomes いて, so かいて.",
+            "かく": "みます follows the て form, not the dictionary form."
+          }
+        }
+      ]
+    }
+  ]
+}

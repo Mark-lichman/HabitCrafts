@@ -1,0 +1,330 @@
+{
+ "source_id": "s03_pairs_textbook",
+ "sha256": "03c8dbe08c8d0f4727575910e8cb8f100b3f9279e12ebc1f0d37bd03101114d7",
+ "state": "needs_review",
+ "item_count": 26,
+ "validation": {
+  "passed": true,
+  "failures": []
+ },
+ "review_notes": [
+  "かえる: group cannot be decided from the dictionary form (pair なまえを かえる / なまえが かわる). Marked uncertain.",
+  "12 verb pairings shared with Mari's table (source 2), all checked"
+ ],
+ "transcribed_by": "claude-vision",
+ "ocr_engine": "Windows.Media.Ocr ja",
+ "title": "8課 他動詞{たどうし}・自動詞{じどうし} Transitive and intransitive verbs",
+ "patterns": {
+  "transitive": "動作主{どうさしゅ}が／は＋～(目的語{もくてきご})を＋他動詞{たどうし}",
+  "intransitive": "～が／は＋自動詞{じどうし}"
+ },
+ "focus": {
+  "transitive": "Focus is on the action or behavior of an agent.",
+  "intransitive": "Focus is on the action or behavior."
+ },
+ "model": {
+  "transitive": "わたしは 火{ひ}を けしました。",
+  "intransitive": "火{ひ}が きえました。"
+ },
+ "ocr_weakest": [
+  {
+   "score": 0.62,
+   "line": "きっぷが なくなる",
+   "ocr": "、つぶがなくなる"
+  },
+  {
+   "score": 0.71,
+   "line": "みんなが 集まって、旅行の そうだんを します。",
+   "ocr": "③みんなが集まって、旅行の"
+  },
+  {
+   "score": 0.72,
+   "line": "へやに いた 虫を 外に 出しました。",
+   "ocr": "②へやにいた虫を外に"
+  },
+  {
+   "score": 0.77,
+   "line": "トムは 古い おもちゃを 集めて います。",
+   "ocr": "③トムは古いおもちやを集めて"
+  },
+  {
+   "score": 0.8,
+   "line": "パンを やく",
+   "ocr": "バンをやく"
+  },
+  {
+   "score": 0.8,
+   "line": "電気が つく",
+   "ocr": "電気がっく"
+  },
+  {
+   "score": 0.83,
+   "line": "いすが ならぶ",
+   "ocr": "いすがならふ"
+  },
+  {
+   "score": 0.83,
+   "line": "きっぷを なくす",
+   "ocr": "ぷをなくす"
+  }
+ ],
+ "items": [
+  {
+   "id": "s03_pairs_textbook.1",
+   "transitive": "電気{でんき}を つける",
+   "intransitive": "電気{でんき}が つく",
+   "transitive_kana": "でんきを つける",
+   "intransitive_kana": "でんきが つく",
+   "transitive_verb": "つける",
+   "transitive_group": 2,
+   "intransitive_verb": "つく",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.2",
+   "transitive": "かぎを しめる",
+   "intransitive": "かぎが しまる",
+   "transitive_kana": "かぎを しめる",
+   "intransitive_kana": "かぎが しまる",
+   "transitive_verb": "しめる",
+   "transitive_group": 2,
+   "intransitive_verb": "しまる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.3",
+   "transitive": "ごみを おとす",
+   "intransitive": "ごみが おちる",
+   "transitive_kana": "ごみを おとす",
+   "intransitive_kana": "ごみが おちる",
+   "transitive_verb": "おとす",
+   "transitive_group": 1,
+   "intransitive_verb": "おちる",
+   "intransitive_group": 2
+  },
+  {
+   "id": "s03_pairs_textbook.4",
+   "transitive": "いすを ならべる",
+   "intransitive": "いすが ならぶ",
+   "transitive_kana": "いすを ならべる",
+   "intransitive_kana": "いすが ならぶ",
+   "transitive_verb": "ならべる",
+   "transitive_group": 2,
+   "intransitive_verb": "ならぶ",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.5",
+   "transitive": "仕事{しごと}を 見{み}つける",
+   "intransitive": "仕事{しごと}が 見{み}つかる",
+   "transitive_kana": "しごとを みつける",
+   "intransitive_kana": "しごとが みつかる",
+   "transitive_verb": "みつける",
+   "transitive_group": 2,
+   "intransitive_verb": "みつかる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.6",
+   "transitive": "話{はなし}を つづける",
+   "intransitive": "話{はなし}が つづく",
+   "transitive_kana": "はなしを つづける",
+   "intransitive_kana": "はなしが つづく",
+   "transitive_verb": "つづける",
+   "transitive_group": 2,
+   "intransitive_verb": "つづく",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.7",
+   "transitive": "ねだんを 上{あ}げる",
+   "intransitive": "ねだんが 上{あ}がる",
+   "transitive_kana": "ねだんを あげる",
+   "intransitive_kana": "ねだんが あがる",
+   "transitive_verb": "あげる",
+   "transitive_group": 2,
+   "intransitive_verb": "あがる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.8",
+   "transitive": "ねだんを 下{さ}げる",
+   "intransitive": "ねだんが 下{さ}がる",
+   "transitive_kana": "ねだんを さげる",
+   "intransitive_kana": "ねだんが さがる",
+   "transitive_verb": "さげる",
+   "transitive_group": 2,
+   "intransitive_verb": "さがる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.9",
+   "transitive": "えだを おる",
+   "intransitive": "えだが おれる",
+   "transitive_kana": "えだを おる",
+   "intransitive_kana": "えだが おれる",
+   "transitive_verb": "おる",
+   "transitive_group": 1,
+   "intransitive_verb": "おれる",
+   "intransitive_group": 2
+  },
+  {
+   "id": "s03_pairs_textbook.10",
+   "transitive": "家{いえ}を こわす",
+   "intransitive": "家{いえ}が こわれる",
+   "transitive_kana": "いえを こわす",
+   "intransitive_kana": "いえが こわれる",
+   "transitive_verb": "こわす",
+   "transitive_group": 1,
+   "intransitive_verb": "こわれる",
+   "intransitive_group": 2
+  },
+  {
+   "id": "s03_pairs_textbook.11",
+   "transitive": "子{こ}どもを 起{お}こす",
+   "intransitive": "子{こ}どもが 起{お}きる",
+   "transitive_kana": "こどもを おこす",
+   "intransitive_kana": "こどもが おきる",
+   "transitive_verb": "おこす",
+   "transitive_group": 1,
+   "intransitive_verb": "おきる",
+   "intransitive_group": 2
+  },
+  {
+   "id": "s03_pairs_textbook.12",
+   "transitive": "パンを やく",
+   "intransitive": "パンが やける",
+   "transitive_kana": "パンを やく",
+   "intransitive_kana": "パンが やける",
+   "transitive_verb": "やく",
+   "transitive_group": 1,
+   "intransitive_verb": "やける",
+   "intransitive_group": 2
+  },
+  {
+   "id": "s03_pairs_textbook.13",
+   "transitive": "車{くるま}を 止{と}める",
+   "intransitive": "車{くるま}が 止{と}まる",
+   "transitive_kana": "くるまを とめる",
+   "intransitive_kana": "くるまが とまる",
+   "transitive_verb": "とめる",
+   "transitive_group": 2,
+   "intransitive_verb": "とまる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.14",
+   "transitive": "じゅぎょうを 始{はじ}める",
+   "intransitive": "じゅぎょうが 始{はじ}まる",
+   "transitive_kana": "じゅぎょうを はじめる",
+   "intransitive_kana": "じゅぎょうが はじまる",
+   "transitive_verb": "はじめる",
+   "transitive_group": 2,
+   "intransitive_verb": "はじまる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.15",
+   "transitive": "ねこを 家{いえ}に 入{い}れる",
+   "intransitive": "ねこが 家{いえ}に 入{はい}る",
+   "transitive_kana": "ねこを いえに いれる",
+   "intransitive_kana": "ねこが いえに はいる",
+   "transitive_verb": "いれる",
+   "transitive_group": 2,
+   "intransitive_verb": "はいる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.16",
+   "transitive": "きっぷを なくす",
+   "intransitive": "きっぷが なくなる",
+   "transitive_kana": "きっぷを なくす",
+   "intransitive_kana": "きっぷが なくなる",
+   "transitive_verb": "なくす",
+   "transitive_group": 1,
+   "intransitive_verb": "なくなる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.17",
+   "transitive": "自転車{じてんしゃ}を なおす",
+   "intransitive": "自転車{じてんしゃ}が なおる",
+   "transitive_kana": "じてんしゃを なおす",
+   "intransitive_kana": "じてんしゃが なおる",
+   "transitive_verb": "なおす",
+   "transitive_group": 1,
+   "intransitive_verb": "なおる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.18",
+   "transitive": "病気{びょうき}を なおす",
+   "intransitive": "病気{びょうき}が なおる",
+   "transitive_kana": "びょうきを なおす",
+   "intransitive_kana": "びょうきが なおる",
+   "transitive_verb": "なおす",
+   "transitive_group": 1,
+   "intransitive_verb": "なおる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.19",
+   "transitive": "名前{なまえ}を かえる",
+   "intransitive": "名前{なまえ}が かわる",
+   "transitive_kana": "なまえを かえる",
+   "intransitive_kana": "なまえが かわる",
+   "transitive_verb": "かえる",
+   "transitive_group": null,
+   "intransitive_verb": "かわる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.20",
+   "transitive": "へやを あたたかく する",
+   "intransitive": "へやが あたたかく なる",
+   "transitive_kana": "へやを あたたかく する",
+   "intransitive_kana": "へやが あたたかく なる",
+   "kind": "adjective + する / なる",
+   "transitive_verb": "あたたかく する",
+   "transitive_group": 3,
+   "intransitive_verb": "あたたかく なる",
+   "intransitive_group": 1
+  },
+  {
+   "id": "s03_pairs_textbook.ex.transitive.1",
+   "side": "transitive",
+   "sentence": "暑{あつ}いので、まどを 開{あ}けます。",
+   "kana": "あついので、まどを あけます。"
+  },
+  {
+   "id": "s03_pairs_textbook.ex.transitive.2",
+   "side": "transitive",
+   "sentence": "へやに いた 虫{むし}を 外{そと}に 出{だ}しました。",
+   "kana": "へやに いた むしを そとに だしました。"
+  },
+  {
+   "id": "s03_pairs_textbook.ex.transitive.3",
+   "side": "transitive",
+   "sentence": "トムは 古{ふる}い おもちゃを 集{あつ}めて います。",
+   "kana": "トムは ふるい おもちゃを あつめて います。"
+  },
+  {
+   "id": "s03_pairs_textbook.ex.intransitive.1",
+   "side": "intransitive",
+   "sentence": "車{くるま}の ドアが 急{きゅう}に 開{あ}きました。",
+   "kana": "くるまの ドアが きゅうに あきました。"
+  },
+  {
+   "id": "s03_pairs_textbook.ex.intransitive.2",
+   "side": "intransitive",
+   "sentence": "学生{がくせい}は 後{うし}ろの ドアから 出{で}ます。",
+   "kana": "がくせいは うしろの ドアから でます。"
+  },
+  {
+   "id": "s03_pairs_textbook.ex.intransitive.3",
+   "side": "intransitive",
+   "sentence": "みんなが 集{あつ}まって、旅行{りょこう}の そうだんを します。",
+   "kana": "みんなが あつまって、りょこうの そうだんを します。"
+  }
+ ]
+}

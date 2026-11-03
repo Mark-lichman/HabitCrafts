@@ -11,6 +11,10 @@
     {
       "source": "functions",
       "codebase": "functions"
+    },
+    {
+      "source": "speech_functions",
+      "codebase": "speech_functions"
     }
   ],
   "storage": {

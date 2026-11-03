@@ -1,0 +1,72 @@
+{
+ "judge": "independent-lm",
+ "lessons": [
+  42,
+  50
+ ],
+ "items_checked": 108,
+ "findings": [
+  {
+   "point_id": "mari.L42.1",
+   "item_index": 0,
+   "verdict": "missing_accepted",
+   "detail": "べんきょうする ため、にほんへ いきます is also correct (ため without に is common, slightly written). A learner typing ため would be marked wrong.",
+   "fix": "accepted: [\"ため\"]",
+   "confidence": "medium"
+  },
+  {
+   "point_id": "mari.L45.2",
+   "item_index": 2,
+   "verdict": "explanation_wrong",
+   "detail": "why_wrong says ために cannot follow an い-adjective. False: さむいために is grammatical in the cause sense ('because it is cold'). It is wrong here for meaning, not form.",
+   "fix": "ために: \"ために gives a purpose or cause, not 'even though'; it does not show an unexpected result.\"",
+   "confidence": "high"
+  },
+  {
+   "point_id": "mari.L49.3",
+   "item_index": 0,
+   "verdict": "missing_accepted",
+   "detail": "Other common respectful forms of きます fit the blank: おこしに なります, and the widely used みえます / おみえに なります.",
+   "fix": "accepted: [\"おいでに なります\", \"おこしに なります\", \"みえます\", \"おみえに なります\"]",
+   "confidence": "medium"
+  },
+  {
+   "point_id": "mari.L50.3",
+   "item_index": -1,
+   "verdict": "explanation_wrong",
+   "detail": "The note says not to use ございます for people. True for existence (いらっしゃいます), but でございます about yourself is correct: わたくしは たなか でございます.",
+   "fix": "Note: ございます (exists) is for things. For a person who is there, use いらっしゃいます or おります. でございます is fine for identifying yourself.",
+   "confidence": "high",
+   "judge": "lead"
+  }
+ ],
+ "use_tag_disagreements": [
+  {
+   "point_id": "mari.L44.1",
+   "current": [
+    "regret",
+    "opinion"
+   ],
+   "suggested": [
+    "regret",
+    "opinion",
+    "emphasis"
+   ],
+   "why": "すぎます is about degree ('too much'), which matches 'Stressing how much or how little'."
+  },
+  {
+   "point_id": "mari.L46.3",
+   "current": [
+    "certain"
+   ],
+   "suggested": [
+    "certain",
+    "guess"
+   ],
+   "why": "はずです is a reasoned expectation ('should be'), not a stated fact; it also fits 'Guessing what is likely'."
+  }
+ ],
+ "notes": [
+  "L50 was reviewed separately by the lead: the judge reported L50.json missing, but it exists."
+ ]
+}

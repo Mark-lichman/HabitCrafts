@@ -122,9 +122,9 @@ shows the first emoji while the stored value is whatever was last selected (#20)
 3. An attached reminder is deleted, and no further notifications fire for it.
 4. The habit stays finished across a restart.
 
-**Currently fails for any habit with a reminder.** `firestore.rules:120` denies reminder deletes,
-and the unguarded delete at `goal_habit_list_item_model.dart:68` aborts the action block before
-`is_finished` is ever written — so the habit reappears every session (#14).
+**Currently fails for any habit with a reminder.** The reminders rule in `firestore.rules` denies
+reminder deletes, and the unguarded delete at `goal_habit_list_item_model.dart:68` aborts the
+action block before `is_finished` is ever written — so the habit reappears every session (#14).
 
 **Data:** `habits`, `reminders`
 
@@ -236,7 +236,7 @@ view another member's profile.
 4. Height displays consistently between the settings screen and the public preview.
 
 **Assertion 2 fails today** — the `*Public` flags appear nowhere in `firestore.rules`; they are
-client-side decoration, and every user document is world-readable (#1).
+client-side decoration, and every user document is readable by any signed-in user (#1).
 
 **Assertion 3 fails for age** — the tag renders the **viewer's** birthday (#20).
 

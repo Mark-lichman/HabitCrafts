@@ -1,0 +1,854 @@
+[
+ {
+  "id": "mari.L26.1",
+  "lesson": 26,
+  "pattern": "ふつうForm＋んです（explanation）",
+  "example": "あたまが いたいんです。",
+  "goal": "Explain a reason or circumstance",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L26.2",
+  "lesson": 26,
+  "pattern": "ふつうForm＋んですが、てForm＋いただけませんか（request）",
+  "example": "にもつが おおいんですが、てつだって いただけませんか。",
+  "goal": "Politely ask for help after explaining the situation",
+  "requires_forms": [
+   "plain",
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L26.3",
+  "lesson": 26,
+  "pattern": "ふつうForm＋んですが、ぎもんし＋たらいいですか（listen to advice）",
+  "example": "かぜを ひいたんですが、どう したら いいですか。",
+  "goal": "Ask for advice about what to do",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L27.1",
+  "lesson": 27,
+  "pattern": "Nが かのうどうし（Potential form）",
+  "example": "わたしは かんじが よめます。",
+  "goal": "Describe what you are able to do using potential verbs",
+  "requires_forms": [
+   "potential"
+  ]
+ },
+ {
+  "id": "mari.L27.2",
+  "lesson": 27,
+  "pattern": "Nが みえます／きこえます",
+  "example": "ここから ふじさんが みえます。",
+  "goal": "Describe what you can see or hear",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L27.3",
+  "lesson": 27,
+  "pattern": "Nが できます",
+  "example": "にほんごが できます。",
+  "goal": "Describe abilities using a noun",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L27.4",
+  "lesson": 27,
+  "pattern": "Nしか〜ません",
+  "example": "100えんしか ありません。",
+  "goal": "Emphasize a limited amount using 'only'",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L27.5",
+  "lesson": 27,
+  "pattern": "〜は〜、〜は〜（Contrast）",
+  "example": "にくは たべますが、さかなは たべません。",
+  "goal": "Contrast two things",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L27.6",
+  "lesson": 27,
+  "pattern": "Compound particle（には・へは・とはなど）",
+  "example": "とうきょうには ともだちが います。",
+  "goal": "Combine particles to add nuance",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L28.1",
+  "lesson": 28,
+  "pattern": "ますForm＋ながら、〜（simultaneous）",
+  "example": "おんがくを ききながら、べんきょうします。",
+  "goal": "Describe two actions done at the same time",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L28.2",
+  "lesson": 28,
+  "pattern": "てForm＋います（habit）",
+  "example": "まいあさ ジョギングを しています。",
+  "goal": "Describe a habitual action",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L28.3",
+  "lesson": 28,
+  "pattern": "〜し、〜し（Parallel / reason）",
+  "example": "この まちは べんりだし、にぎやかです。",
+  "goal": "List multiple qualities or reasons",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L29.1",
+  "lesson": 29,
+  "pattern": "Nが てForm (intransitive)＋います（Result status）",
+  "example": "まどが あいて います。",
+  "goal": "Describe the resulting state of an event",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L29.2",
+  "lesson": 29,
+  "pattern": "Nは てForm (intransitive)＋います（The topic has been decided）",
+  "example": "でんきは ついて います。",
+  "goal": "Describe an ongoing resulting state with a defined topic",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L29.3",
+  "lesson": 29,
+  "pattern": "てForm＋しまいます（Complete）",
+  "example": "レポートを かいて しまいました。",
+  "goal": "Emphasize that something is completely finished",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L29.4",
+  "lesson": 29,
+  "pattern": "てForm＋しまいました（Regret）",
+  "example": "だいじな しゃしんを なくして しまいました。",
+  "goal": "Express regret about something that happened",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L30.1",
+  "lesson": 30,
+  "pattern": "てForm＋あります（Pre-arranged results）",
+  "example": "かべに ポスターが はって あります。",
+  "goal": "Describe a state that was intentionally arranged",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L30.2",
+  "lesson": 30,
+  "pattern": "てForm＋おきます（Preparation）",
+  "example": "パーティーの まえに りょうりを つくって おきます。",
+  "goal": "Describe preparing something in advance",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L30.3",
+  "lesson": 30,
+  "pattern": "てForm＋おきます（Leave it as it is）",
+  "example": "つかれたので、そうじは あした して おきます。",
+  "goal": "Describe leaving something as-is for later",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L31.1",
+  "lesson": 31,
+  "pattern": "いこうけい (Volitional form)",
+  "example": "いこう／たべよう／しよう／こよう",
+  "goal": "Correctly form the volitional form",
+  "requires_forms": [
+   "volitional"
+  ]
+ },
+ {
+  "id": "mari.L31.2",
+  "lesson": 31,
+  "pattern": "いこうけい＋とおもっています（intention）",
+  "example": "らいねん りゅうがくしようと おもっています。",
+  "goal": "Express your own intention or plan",
+  "requires_forms": [
+   "volitional"
+  ]
+ },
+ {
+  "id": "mari.L31.3",
+  "lesson": 31,
+  "pattern": "まだ てForm＋いません",
+  "example": "まだ しゅうしょくさきが きまって いません。",
+  "goal": "Say something has not happened yet",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L31.4",
+  "lesson": 31,
+  "pattern": "じしょForm・ないForm＋つもりです",
+  "example": "らいねん けっこんする つもりです。",
+  "goal": "State a future intention",
+  "requires_forms": [
+   "dictionary",
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L31.5",
+  "lesson": 31,
+  "pattern": "じしょForm・Nounの＋よていです",
+  "example": "らいしゅう しゅっちょうする よていです。",
+  "goal": "State a scheduled plan",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L32.1",
+  "lesson": 32,
+  "pattern": "たForm / ないForm ＋ほうが いいです",
+  "example": "はやく びょういんへ いった ほうが いいです。",
+  "goal": "Give advice or a recommendation",
+  "requires_forms": [
+   "nai",
+   "ta"
+  ]
+ },
+ {
+  "id": "mari.L32.2",
+  "lesson": 32,
+  "pattern": "ふつうForm＋でしょう（Conjecture）",
+  "example": "あしたは はれるでしょう。",
+  "goal": "Express a confident guess about the future",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L32.3",
+  "lesson": 32,
+  "pattern": "ふつうForm＋かもしれません（possibility）",
+  "example": "あした あめが ふるかもしれません。",
+  "goal": "Express a weaker possibility",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L33.1",
+  "lesson": 33,
+  "pattern": "めいれいけい／きんしけいの かつよう　（Imperative form）",
+  "example": "とまれ！／はいるな！",
+  "goal": "Correctly form imperative and prohibitive forms",
+  "requires_forms": [
+   "imperative",
+   "prohibitive"
+  ]
+ },
+ {
+  "id": "mari.L33.2",
+  "lesson": 33,
+  "pattern": "「〜」と かいて あります／よみます",
+  "example": "かんばんに「きんえん」と かいて あります。",
+  "goal": "Explain what a sign or text says",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L33.3",
+  "lesson": 33,
+  "pattern": "〜は〜という いみです",
+  "example": "「立入禁止」は はいっては いけないという いみです。",
+  "goal": "Explain the meaning of a word or phrase",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L33.4",
+  "lesson": 33,
+  "pattern": "〜と いって いました／つたえて いただけませんか",
+  "example": "たなかさんは あした やすむと いって いました。",
+  "goal": "Relay someone else's message",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L34.1",
+  "lesson": 34,
+  "pattern": "じしょForm / たForm / Noun の ＋とおりに、〜",
+  "example": "せんせいの いう とおりに かいて ください。",
+  "goal": "Describe doing something exactly as instructed",
+  "requires_forms": [
+   "dictionary",
+   "ta"
+  ]
+ },
+ {
+  "id": "mari.L34.2",
+  "lesson": 34,
+  "pattern": "たForm / Nounの＋あとで、〜",
+  "example": "しごとが おわった あとで、のみに いきます。",
+  "goal": "Describe an action after another is completed",
+  "requires_forms": [
+   "ta"
+  ]
+ },
+ {
+  "id": "mari.L34.3",
+  "lesson": 34,
+  "pattern": "てForm／ないForm＋で、〜（Attendant circumstances）",
+  "example": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
+  "goal": "Describe the manner or accompanying condition of an action",
+  "requires_forms": [
+   "te",
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L34.4",
+  "lesson": 34,
+  "pattern": "ないForm＋で、〜",
+  "example": "じしょを つかわないで、よんで ください。",
+  "goal": "Say you do one thing without doing another",
+  "requires_forms": [
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L35.1",
+  "lesson": 35,
+  "pattern": "じょうけんけい（Conditional Form）",
+  "example": "はやく おきれば、まにあいます。",
+  "goal": "Express a conditional using verbs",
+  "requires_forms": [
+   "conditional"
+  ]
+ },
+ {
+  "id": "mari.L35.2",
+  "lesson": 35,
+  "pattern": "いadj ＋ければ、〜",
+  "example": "やすければ、かいます。",
+  "goal": "Express a conditional using i-adjectives",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L35.3",
+  "lesson": 35,
+  "pattern": "なadj／Noun ＋なら、〜",
+  "example": "ひまなら、てつだって ください。",
+  "goal": "Express a conditional using na-adjectives or nouns",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L35.4",
+  "lesson": 35,
+  "pattern": "ぎもんし＋じょうけんけい＋いいですか",
+  "example": "どこで きっぷを かえば いいですか。",
+  "goal": "Ask for advice using a conditional question",
+  "requires_forms": [
+   "conditional"
+  ]
+ },
+ {
+  "id": "mari.L35.5",
+  "lesson": 35,
+  "pattern": "Noun＋なら、〜（topic）",
+  "example": "すしなら、あの みせが おいしいです。",
+  "goal": "Introduce a topic using 'if we're talking about'",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L36.1",
+  "lesson": 36,
+  "pattern": "じしょForm / ないForm＋ように、〜（goal）",
+  "example": "よく きこえるように、おおきい こえで はなして ください。",
+  "goal": "Express a goal or purpose ('so that')",
+  "requires_forms": [
+   "dictionary",
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L36.2",
+  "lesson": 36,
+  "pattern": "じしょForm ＋ように なります／ないForm＋くなります（change）",
+  "example": "ひらがなが よめるように なりました。",
+  "goal": "Describe a gradual change in ability or state",
+  "requires_forms": [
+   "dictionary",
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L36.3",
+  "lesson": 36,
+  "pattern": "じしょForm / ないForm ＋ように します（Effort）",
+  "example": "まいにち うんどうする ように します。",
+  "goal": "Describe making an effort to form a habit",
+  "requires_forms": [
+   "dictionary",
+   "nai"
+  ]
+ },
+ {
+  "id": "mari.L37.1",
+  "lesson": 37,
+  "pattern": "うけみけい (Passive Form)",
+  "example": "よまれる／たべられる／される／こられる",
+  "goal": "Correctly form the passive voice",
+  "requires_forms": [
+   "passive"
+  ]
+ },
+ {
+  "id": "mari.L37.2",
+  "lesson": 37,
+  "pattern": "Personは Personに＋Passive Form",
+  "example": "わたしは あにに おかしを たべられました。",
+  "goal": "Describe an action done to you by someone (with inconvenience)",
+  "requires_forms": [
+   "passive"
+  ]
+ },
+ {
+  "id": "mari.L37.3",
+  "lesson": 37,
+  "pattern": "Personは Personにpossessionsを＋Passive Form",
+  "example": "わたしは でんしゃで あしを ふまれました。",
+  "goal": "Describe someone affecting your belongings",
+  "requires_forms": [
+   "passive"
+  ]
+ },
+ {
+  "id": "mari.L37.4",
+  "lesson": 37,
+  "pattern": "objectが／は＋Passive Form",
+  "example": "この おてらは 1400ねんに たてられました。",
+  "goal": "Describe historical facts or general truths using the passive",
+  "requires_forms": [
+   "passive"
+  ]
+ },
+ {
+  "id": "mari.L38.1",
+  "lesson": 38,
+  "pattern": "じしょForm + のは［ adj ］です",
+  "example": "にほんごを はなすのは たのしいです。",
+  "goal": "Describe a quality of an action using nominalization",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L38.2",
+  "lesson": 38,
+  "pattern": "じしょForm + のが［ adj ］です",
+  "example": "かんじを おぼえるのが たいへんです。",
+  "goal": "Describe difficulty or ease of an action",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L38.3",
+  "lesson": 38,
+  "pattern": "じしょForm + の をわすれました",
+  "example": "かぎを かけるのを わすれました。",
+  "goal": "Say you forgot to do something",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L38.4",
+  "lesson": 38,
+  "pattern": "ふつうForm + の をしっていますか",
+  "example": "たなかさんが けっこんするのを しって います。",
+  "goal": "Say you know that something is happening",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L38.5",
+  "lesson": 38,
+  "pattern": "ふつうForm + のは Nです",
+  "example": "わたしが すきなのは なつです。",
+  "goal": "Identify a specific thing using nominalization",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L39.1",
+  "lesson": 39,
+  "pattern": "てForm、〜（reason）",
+  "example": "かぜを ひいて、がっこうを やすみました。",
+  "goal": "Give a reason using the te-form",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L39.2",
+  "lesson": 39,
+  "pattern": "いadj（くて）／なadj（で）、〜（reason）",
+  "example": "からくて たべられませんでした。",
+  "goal": "Give a reason using an adjective",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L39.3",
+  "lesson": 39,
+  "pattern": "Noun（で）、〜（reason）",
+  "example": "びょうきで、かいしゃを やすみました。",
+  "goal": "Give a reason using a noun",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L39.4",
+  "lesson": 39,
+  "pattern": "ふつうFrom＋ので、〜（Reason・Polite）",
+  "example": "あめが ふって いるので、でかけません。",
+  "goal": "Give a polite, objective reason",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L40.1",
+  "lesson": 40,
+  "pattern": "ぎもんし＋か、〜（Uncertain）",
+  "example": "どこで うって いるか、しりません。",
+  "goal": "Express an embedded uncertain question",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L40.2",
+  "lesson": 40,
+  "pattern": "〜かどうか、〜",
+  "example": "あした ひまかどうか、おしえて ください。",
+  "goal": "Ask whether something is true or not",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L40.3",
+  "lesson": 40,
+  "pattern": "てForm＋みます（Attempt）",
+  "example": "この りょうりを たべて みて ください。",
+  "goal": "Say you will try doing something",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L41.1",
+  "lesson": 41,
+  "pattern": "Nounを いただきます／くださいます／やります",
+  "example": "せんせいから ほんを いただきました。",
+  "goal": "Use humble and respectful giving/receiving verbs",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L41.2",
+  "lesson": 41,
+  "pattern": "てForm＋いただきます／くださいます／やります",
+  "example": "せんせいに さくぶんを なおして いただきました。",
+  "goal": "Describe favors using humble and respectful forms",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L41.3",
+  "lesson": 41,
+  "pattern": "てForm＋くださいませんか（Polite request）",
+  "example": "もういちど せつめいして くださいませんか。",
+  "goal": "Make a very polite request",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L42.1",
+  "lesson": 42,
+  "pattern": "じしょForm／Nounの＋ために、〜（purpose）",
+  "example": "けんこうの ために、まいあさ はしって います。",
+  "goal": "Express a purpose ('in order to')",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L42.2",
+  "lesson": 42,
+  "pattern": "じしょForm／Nounの＋のに、〜（use / purpose）",
+  "example": "この はさみは かみを きるのに つかいます。",
+  "goal": "Explain what something is used for",
+  "requires_forms": [
+   "dictionary"
+  ]
+ },
+ {
+  "id": "mari.L42.3",
+  "lesson": 42,
+  "pattern": "すうりょうし(quantifier)＋は／も（emphasis）",
+  "example": "この しごとに みっかも かかりました。",
+  "goal": "Emphasize a quantity as surprisingly large or small",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L43.1",
+  "lesson": 43,
+  "pattern": "ますForm／adj＋そうです（manner; state; appearance）",
+  "example": "この ケーキは おいしそうです。／あめが ふりそうです。",
+  "goal": "Describe the appearance of a situation ('looks like')",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L43.2",
+  "lesson": 43,
+  "pattern": "てForm＋きます（to do… and come back）",
+  "example": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
+  "goal": "Describe a change beginning or a quick round trip",
+  "requires_forms": [
+   "te"
+  ]
+ },
+ {
+  "id": "mari.L44.1",
+  "lesson": 44,
+  "pattern": "ますForm / いadjい / なadj＋すぎます（too much）",
+  "example": "ゆうべ たべすぎました。",
+  "goal": "Say something was done to excess",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L44.2",
+  "lesson": 44,
+  "pattern": "ますForm＋やすい／にくいです",
+  "example": "この じは よみやすいです。／この かんじは おぼえにくいです。",
+  "goal": "Describe how easy or hard something is",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L44.3",
+  "lesson": 44,
+  "pattern": "いadj（く）／なadj（に）＋します（Deliberate change）",
+  "example": "へやを きれいに しました。",
+  "goal": "Describe deliberately changing something",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L44.4",
+  "lesson": 44,
+  "pattern": "adj → adverb",
+  "example": "じを おおきく かきます。",
+  "goal": "Use an adjective as an adverb.",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L45.1",
+  "lesson": 45,
+  "pattern": "ふつうForm＋ばあい (は)、〜",
+  "example": "ちこくする ばあいは、れんらくして ください。",
+  "goal": "Describe what to do in a certain case",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L45.2",
+  "lesson": 45,
+  "pattern": "ふつうForm＋のに、〜（Paradox）",
+  "example": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
+  "goal": "Express a surprising or disappointing contrast",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L46.1",
+  "lesson": 46,
+  "pattern": "じしょForm／〜ている／たForm＋ところです",
+  "example": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。",
+  "goal": "Describe the exact stage of an action",
+  "requires_forms": [
+   "dictionary",
+   "ta"
+  ]
+ },
+ {
+  "id": "mari.L46.2",
+  "lesson": 46,
+  "pattern": "たForm＋ばかりです",
+  "example": "さっき たべたばかりです。",
+  "goal": "Say something happened only a short time ago",
+  "requires_forms": [
+   "ta"
+  ]
+ },
+ {
+  "id": "mari.L46.3",
+  "lesson": 46,
+  "pattern": "ふつうForm＋はずです（Considering objective reasons）",
+  "example": "たなかさんは くる はずです。",
+  "goal": "Express strong confidence in an expectation",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L47.1",
+  "lesson": 47,
+  "pattern": "ふつうForm＋そうです（hearsay）",
+  "example": "てんきよほうに よると、あした ゆきが ふるそうです。",
+  "goal": "Report information heard from another source",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L47.2",
+  "lesson": 47,
+  "pattern": "ふつうForm＋ようです（Estimation）",
+  "example": "だれも いないようです。",
+  "goal": "Express a conclusion based on evidence or observation",
+  "requires_forms": [
+   "plain"
+  ]
+ },
+ {
+  "id": "mari.L48.1",
+  "lesson": 48,
+  "pattern": "しえきけい (Causative verbs)",
+  "example": "いかせる／たべさせる／させる／こさせる",
+  "goal": "Correctly form the causative",
+  "requires_forms": [
+   "causative"
+  ]
+ },
+ {
+  "id": "mari.L48.2",
+  "lesson": 48,
+  "pattern": "Personを〜（さ）せます（compulsion・permission）",
+  "example": "せんせいは がくせいを たたせました。",
+  "goal": "Describe making or letting someone do something",
+  "requires_forms": [
+   "causative"
+  ]
+ },
+ {
+  "id": "mari.L48.3",
+  "lesson": 48,
+  "pattern": "Personに（もの）を〜（さ）せます",
+  "example": "ははは わたしに へやを そうじさせました。",
+  "goal": "Describe making someone do something to an object",
+  "requires_forms": [
+   "causative"
+  ]
+ },
+ {
+  "id": "mari.L48.4",
+  "lesson": 48,
+  "pattern": "しえきけい（て）＋いただけませんか（Request for permission）",
+  "example": "すこし やすませて いただけませんか。",
+  "goal": "Politely ask permission to do something",
+  "requires_forms": [
+   "causative"
+  ]
+ },
+ {
+  "id": "mari.L49.1",
+  "lesson": 49,
+  "pattern": "そんけいごの うけみがた（〜（ら）れます）",
+  "example": "しゃちょうは もう かえられました。",
+  "goal": "Use respectful language for someone else's action",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L49.2",
+  "lesson": 49,
+  "pattern": "お＋ますけい＋に なります",
+  "example": "しゃちょうは もう おかえりに なりました。",
+  "goal": "Use the polite honorific pattern for respect",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L49.3",
+  "lesson": 49,
+  "pattern": "とくべつな そんけいご（いらっしゃる・めしあがる など）",
+  "example": "せんせいは もう めしあがりましたか。",
+  "goal": "Use special honorific verbs",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L49.4",
+  "lesson": 49,
+  "pattern": "お＋ますけい＋ください",
+  "example": "どうぞ おかけください。",
+  "goal": "Make a respectful request",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L50.1",
+  "lesson": 50,
+  "pattern": "お／ご＋ますけい＋します（けんじょうご）",
+  "example": "にもつを おもちします。",
+  "goal": "Use humble language to lower yourself when helping someone",
+  "requires_forms": [
+   "masu"
+  ]
+ },
+ {
+  "id": "mari.L50.2",
+  "lesson": 50,
+  "pattern": "とくべつな けんじょうご（もうす・まいる・いただく など）",
+  "example": "わたしは たなかと もうします。",
+  "goal": "Use special humble verbs",
+  "requires_forms": []
+ },
+ {
+  "id": "mari.L50.3",
+  "lesson": 50,
+  "pattern": "ていねいご（です・ます／ございます）",
+  "example": "こちらに ございます。",
+  "goal": "Use polite language appropriately in formal contexts",
+  "requires_forms": []
+ }
+]
