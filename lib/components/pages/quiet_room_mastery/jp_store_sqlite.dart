@@ -381,53 +381,56 @@ class JpStoreSqlite extends JpStore {
       _db.insert('meta', {'key': key, 'value': value},
           conflictAlgorithm: ConflictAlgorithm.replace);
 
-  @override
-  Future<void> replaceDerived(ReplayResult result) =>
-      _db.transaction((txn) async {
-        await txn.delete('srs');
-        await txn.delete('mastery');
-        await txn.update('items', {'seedDueDay': null});
-        for (final e in result.srs.entries) {
-          await _putSrs(txn, e.key, e.value);
-        }
-        for (final m in result.mastery.values) {
-          await _putMastery(txn, m);
-        }
-        for (final e in result.seedDue.entries) {
-          await _ensureItem(txn, e.key);
-          await txn.update('items', {'seedDueDay': e.value},
-              where: 'itemId = ?', whereArgs: [e.key]);
-        }
-        await txn.delete('items', where: 'seedDueDay IS NULL AND note IS NULL');
+  Future<void> _writeDerived(Transaction txn, ReplayResult result) async {
+    await txn.delete('srs');
+    await txn.delete('mastery');
+    await txn.update('items', {'seedDueDay': null});
+    for (final e in result.srs.entries) {
+      await _putSrs(txn, e.key, e.value);
+    }
+    for (final m in result.mastery.values) {
+      await _putMastery(txn, m);
+    }
+    for (final e in result.seedDue.entries) {
+      await _ensureItem(txn, e.key);
+      await txn.update('items', {'seedDueDay': e.value},
+          where: 'itemId = ?', whereArgs: [e.key]);
+    }
+    await txn.delete('items', where: 'seedDueDay IS NULL AND note IS NULL');
+  }
+
+  Future<void> _writeLog(Transaction txn, StudyLog log) async {
+    for (final t in const ['attempts', 'seeds', 'items']) {
+      await txn.delete(t);
+    }
+    // Restart the row ids, so an imported log keeps its numbering.
+    await txn.execute(
+        "DELETE FROM sqlite_sequence WHERE name IN ('attempts', 'seeds')");
+    for (final a in log.attempts) {
+      await _insertAttempt(txn, a);
+    }
+    for (final s in log.seeds) {
+      await txn.insert('seeds', {
+        'itemId': s.itemId,
+        'dueDay': s.dueDay,
+        'atUtc': s.atUtc.toUtc().toIso8601String(),
       });
+    }
+    for (final e in log.notes.entries) {
+      await txn.insert('items', {'itemId': e.key, 'note': e.value});
+    }
+  }
 
   @override
-  Future<void> replaceLog(StudyLog log) => _db.transaction((txn) async {
-        for (final t in const [
-          'attempts',
-          'seeds',
-          'items',
-          'srs',
-          'mastery'
-        ]) {
-          await txn.delete(t);
-        }
-        // Restart the row ids, so an imported log keeps its numbering.
-        await txn.execute(
-            "DELETE FROM sqlite_sequence WHERE name IN ('attempts', 'seeds')");
-        for (final a in log.attempts) {
-          await _insertAttempt(txn, a);
-        }
-        for (final s in log.seeds) {
-          await txn.insert('seeds', {
-            'itemId': s.itemId,
-            'dueDay': s.dueDay,
-            'atUtc': s.atUtc.toUtc().toIso8601String(),
-          });
-        }
-        for (final e in log.notes.entries) {
-          await txn.insert('items', {'itemId': e.key, 'note': e.value});
-        }
+  Future<void> replaceDerived(ReplayResult result) =>
+      _db.transaction((txn) => _writeDerived(txn, result));
+
+  /// One transaction: a throw in either write rolls back both.
+  @override
+  Future<void> replaceAll(StudyLog log, ReplayResult result) =>
+      _db.transaction((txn) async {
+        await _writeLog(txn, log);
+        await _writeDerived(txn, result);
       });
 
   @override

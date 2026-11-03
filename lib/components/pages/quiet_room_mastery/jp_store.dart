@@ -20,11 +20,13 @@
 //     the load of every other item.
 // Mastery is `masteryAfter` (mastery_rule.dart), which owns PIN-3, PIN-4 and PIN-14.
 //
-// 🚨 HAZARD FOR THE INTAKE (Task 14) AND THE ITEM PAGE (Task 6): `masteryAfter` leaves only an
-// early clear alone. An early hinted or self answer on an item with no SrsState and no seed
-// moves its mastery from New to Learning with zero clears, while `srsAfter` writes no schedule,
-// so the item is Learning and never due. Select New intake items by "no SrsState and no seed",
-// never by MasteryStatus.neu, or that item drops out of the queue.
+// 🚨 HAZARD FOR THE INTAKE (Task 14), THE TOPIC INDEX (Task 22) AND THE PRACTICE-NOW ENTRY
+// POINTS (Tasks 23, 24); the rule lives in mastery_rule.dart (Task 6): `masteryAfter` leaves
+// only an early clear alone. An early hinted or self answer on an item with no SrsState and no
+// seed moves its mastery from New to Learning with zero clears, while `srsAfter` writes no
+// schedule, so the item is Learning and never due. Select New intake items by "no SrsState and
+// no seed", never by MasteryStatus.neu, or that item drops out of the queue. Build the Not yet
+// known and Due today sets from SrsState and seeds, not from MasteryStatus.
 //
 // The replace-style writers (`rebuild`, `importLog`) read the log across several awaits before
 // they write, so they run on the same chain as `recordAnswer` (`_serialized`): an answer never
@@ -369,9 +371,10 @@ abstract class JpStore {
   /// Notes, the log, the days and the flags stay.
   Future<void> replaceDerived(ReplayResult result);
 
-  /// Replaces the log and the notes with [log] and clears the derived states, in one
-  /// transaction. The days and the flags stay. Callers rebuild after it.
-  Future<void> replaceLog(StudyLog log);
+  /// Replaces the log and the notes with [log] and the derived states with [result], in one
+  /// transaction: a write that fails leaves the old log, caches and notes in place. The days
+  /// and the flags stay. [importLog] is its caller; [result] is [log]'s replay.
+  Future<void> replaceAll(StudyLog log, ReplayResult result);
 
   Future<void> close();
 
@@ -421,16 +424,15 @@ abstract class JpStore {
         return result;
       });
 
-  /// Replaces the record with [log] (an import) and the derived states with its replay.
-  /// The replay runs first, before any write: a log it cannot replay (such as an attempt
-  /// whose rating no [SrsRating] has) throws here and the record stays as it was. Runs on
-  /// the [recordAnswer] chain, so no answer lands between its two writes.
+  /// Replaces the record with [log] (an import) and the derived states with its replay, in
+  /// one transaction ([replaceAll]). The replay runs first, before any write: a log it cannot
+  /// replay (such as an attempt whose rating no [SrsRating] has) throws here and the record
+  /// stays as it was. Runs on the [recordAnswer] chain, so no answer lands during its write.
   Future<ReplayResult> importLog(
           StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
       _serialized(() async {
         final result = replayLog(log, lookup, scheduler);
-        await replaceLog(log);
-        await replaceDerived(result);
+        await replaceAll(log, result);
         return result;
       });
 }

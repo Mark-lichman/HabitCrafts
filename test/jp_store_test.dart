@@ -77,8 +77,8 @@ class _Unwritable extends MasteryState {
   Map<String, dynamic> toJson() => throw StateError('unwritable');
 }
 
-/// A memory store whose log read (in a rebuild) and log write (in an import) wait on [gate],
-/// so a test can start an answer while either is open.
+/// A memory store whose log read (in a rebuild) and whole-record write (in an import) wait on
+/// [gate], so a test can start an answer while either is open.
 class _Gated extends JpStoreMemory {
   Completer<void>? gate;
 
@@ -91,9 +91,9 @@ class _Gated extends JpStoreMemory {
   }
 
   @override
-  Future<void> replaceLog(StudyLog log) async {
+  Future<void> replaceAll(StudyLog log, ReplayResult result) async {
     await _wait();
-    return super.replaceLog(log);
+    return super.replaceAll(log, result);
   }
 }
 
@@ -308,9 +308,9 @@ void main() {
       });
 
       test(
-          'early practice: a clear changes nothing, a wrong counts and is due tomorrow (PIN-14)',
+          'early practice: a clear, a hinted or a self answer leaves the schedule alone, a wrong counts and is due tomorrow (PIN-14)',
           () async {
-        final g = firstOf(ItemKind.grammar);
+        final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
         final first = await store.recordAnswer(answer(g, 10, Grade.clear),
             item: g, scheduler: scheduler);
         final early = await store.recordAnswer(
@@ -320,6 +320,17 @@ void main() {
         expect(early.srs, first.srs);
         expect(early.mastery, first.mastery);
         expect(await store.srs(g.id), first.srs);
+        // A hinted and a self answer leave the schedule alone too. Their mastery is not
+        // asserted: the intake owner may change that rule (the jp_store.dart hazard note).
+        for (final (grade, minute) in [(Grade.hinted, 1), (Grade.self, 2)]) {
+          final out = await store.recordAnswer(
+              answer(g, 11, grade,
+                  source: Source.early, wasDue: false, minute: minute),
+              item: g,
+              scheduler: scheduler);
+          expect(out.srs, first.srs, reason: '$grade');
+          expect(await store.srs(g.id), first.srs, reason: '$grade');
+        }
         final wrong = await store.recordAnswer(
             answer(g, 11, Grade.wrong,
                 source: Source.early, wasDue: false, minute: 5),
@@ -328,7 +339,19 @@ void main() {
         expect(wrong.srs!.dueDay, 12);
         expect(wrong.srs!.lapses, 1);
         expect(wrong.mastery!.clearCount, 0);
-        expect((await store.attempts()).length, 3);
+        // An early wrong on an item with no schedule yet: due tomorrow all the same.
+        expect(await store.srs(w.id), isNull);
+        final fresh = await store.recordAnswer(
+            answer(w, 11, Grade.wrong,
+                source: Source.early, wasDue: false, minute: 6),
+            item: w,
+            scheduler: scheduler);
+        expect(fresh.srs!.dueDay, 12);
+        expect(fresh.srs,
+            scheduler.first(SrsRating.again, 11).copyWith(dueDay: 12),
+            reason: 'a first review rated Again, not a clear');
+        expect(await store.srs(w.id), fresh.srs);
+        expect((await store.attempts()).length, 6);
       });
 
       test('unscored and Say-it answers move neither schedule nor mastery',
@@ -484,6 +507,7 @@ void main() {
           final other = await open();
           try {
             await other.putDay(const DayRecord(day: 1, plan: '{}'));
+            await other.putMeta('k', 'v');
             await other.appendSeed('stale', 1, atUtc: at(0));
             await importStudy(other, text,
                 lookup: catalog.byId, scheduler: scheduler);
@@ -493,6 +517,7 @@ void main() {
             expect(await other.dueOnOrBefore(1000),
                 await store.dueOnOrBefore(1000));
             expect(await other.day(1), isNotNull, reason: 'days stay');
+            expect(await other.meta('k'), 'v', reason: 'flags stay');
             expect(await exportStudy(other, exportedAt: at(10)), text);
           } finally {
             await other.close();
@@ -797,7 +822,7 @@ void main() {
       await store.close();
     });
 
-    test('an answer never lands between an import\'s two writes', () async {
+    test('an answer never lands during an import\'s write', () async {
       final store = _Gated();
       store.gate = Completer<void>();
       final log =
@@ -861,6 +886,40 @@ void main() {
         expect(await store.attempts(), isEmpty);
         expect(await store.srs(g.id), isNull);
         expect(await store.mastery(g.id), isNull);
+      } finally {
+        await store.close();
+      }
+    });
+
+    test('an import whose derived write fails keeps the old record', () async {
+      final store = await JpStoreSqlite.open(
+          factory: databaseFactoryFfi, path: inMemoryDatabasePath);
+      try {
+        final g = firstOf(ItemKind.grammar);
+        await store.appendSeed('keep', 1, atUtc: at(0));
+        await store.setNote('keep', 'note');
+        await store.putMeta('k', 'v');
+        final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
+        // The throw lands in the mastery write, after the new log and the new schedule rows
+        // went in: only one transaction over both leaves the old record whole.
+        final log = StudyLog(
+            attempts: [answer(g, 2, Grade.clear)],
+            seeds: [SeedEvent(itemId: 'x', dueDay: 2, atUtc: at(0))],
+            notes: const {'x': 'new'});
+        final result = ReplayResult(
+            srs: {g.id: scheduler.first(SrsRating.good, 2)},
+            mastery: {g.id: _Unwritable(g.id)},
+            seedDue: const {'x': 2});
+        await expectLater(store.replaceAll(log, result), throwsStateError);
+        expect((await store.seeds()).single.itemId, 'keep');
+        expect(await store.attempts(), [kept.attempt]);
+        expect(await store.notes(), {'keep': 'note'});
+        expect(await store.srs(g.id), kept.srs);
+        expect(await store.mastery(g.id), kept.mastery);
+        expect((await store.item('keep'))!.seedDueDay, 1);
+        expect(await store.item('x'), isNull);
+        expect(await store.meta('k'), 'v');
       } finally {
         await store.close();
       }

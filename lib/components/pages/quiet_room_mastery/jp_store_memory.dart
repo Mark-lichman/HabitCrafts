@@ -131,8 +131,7 @@ class JpStoreMemory extends JpStore {
   @override
   Future<void> putMeta(String key, String value) async => _meta[key] = value;
 
-  @override
-  Future<void> replaceDerived(ReplayResult result) async {
+  void _writeDerived(ReplayResult result) {
     _srs
       ..clear()
       ..addAll(result.srs);
@@ -144,8 +143,7 @@ class JpStoreMemory extends JpStore {
       ..addAll(result.seedDue);
   }
 
-  @override
-  Future<void> replaceLog(StudyLog log) async {
+  void _writeLog(StudyLog log) {
     _attempts.clear();
     _seeds.clear();
     _attemptSeq = 0;
@@ -159,9 +157,17 @@ class JpStoreMemory extends JpStore {
     _notes
       ..clear()
       ..addAll(log.notes);
-    _srs.clear();
-    _mastery.clear();
-    _seedDue.clear();
+  }
+
+  @override
+  Future<void> replaceDerived(ReplayResult result) async =>
+      _writeDerived(result);
+
+  /// One synchronous block, no await between the log and the states.
+  @override
+  Future<void> replaceAll(StudyLog log, ReplayResult result) async {
+    _writeLog(log);
+    _writeDerived(result);
   }
 
   @override
