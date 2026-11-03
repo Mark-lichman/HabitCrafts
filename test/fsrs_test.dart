@@ -241,9 +241,24 @@ void main() {
           139);
     });
 
+    test('a nearer tied day beats an earlier one', () {
+      // Days 138 and 141 tie at zero load; 141 is 1 day from the nominal 140, 138 is 2.
+      expect(
+          scheduler
+              .nextDue(stateWith(40), {138: 0, 141: 0, 139: 5, 140: 5, 142: 5}),
+          141);
+    });
+
     test('short intervals are not moved', () {
       expect(scheduler.nextDue(stateWith(5), {105: 50, 104: 0, 106: 0}), 105);
       expect(scheduler.nextDue(stateWith(1), {101: 50, 102: 0}), 101);
+    });
+
+    test('the window opens at interval 10, where 0.5 rounds up to 1 day', () {
+      // 9 * 0.05 is 0.45, which rounds to 0: the window is day 109 alone.
+      expect(scheduler.nextDue(stateWith(9), {109: 50, 108: 0, 110: 0}), 109);
+      // 10 * 0.05 is 0.5, which rounds to 1: days 109 to 111, and the earlier tied day wins.
+      expect(scheduler.nextDue(stateWith(10), {110: 50, 109: 0, 111: 0}), 109);
     });
 
     test('never moves past the 90-day cap', () {
@@ -338,6 +353,17 @@ void main() {
       final clear = leitner.review(start, SrsRating.good, 0);
       expect(clear.box, 3);
       expect(clear.dueDay, start.dueDay);
+      expect(clear.reps, start.reps + 1);
+      final hint = leitner.review(start, SrsRating.hard, 0);
+      expect(hint.box, 3);
+      expect(hint.dueDay, start.dueDay);
+      expect(hint.reps, start.reps + 1);
+      // With the flag set, a later day is still same-day: the hint keeps the old last review
+      // and due day instead of restarting the box interval from day 5.
+      final flagged = leitner.review(start, SrsRating.hard, 5, sameDay: true);
+      expect(flagged.lastReviewDay, start.lastReviewDay);
+      expect(flagged.dueDay, start.dueDay);
+      expect(flagged.reps, start.reps + 1);
       expect(leitner.review(start, SrsRating.again, 0).box, 1);
     });
 
