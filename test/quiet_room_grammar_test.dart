@@ -426,6 +426,35 @@ void main() {
       expect(results.single.picked, wrong);
     });
 
+    testWidgets('a right pick prints no hint, with no hint flag',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+      final choice = openingChoice();
+      final hint = choice['hint'] as String;
+      final wrong = (choice['options'] as List)
+          .cast<String>()
+          .firstWhere((o) => o != choice['answer']);
+      expect(find.textContaining(hint), findsNothing);
+
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+      // The prompt shows the answer, so the tap registered, and the hint is the
+      // wrong-pick arm's alone.
+      expect(find.textContaining('［${choice['answer']}］'), findsOneWidget);
+      expect(find.textContaining(hint), findsNothing);
+      expect(results.single.index, 1);
+      expect(results.single.picked, choice['answer']);
+      expect(results.single.hintTaken, isFalse);
+      expect(results.single.verdict, isNull);
+
+      // The lock holds on this arm too: a wrong option after the pick reports
+      // nothing and prints no hint.
+      await tester.tap(find.text(wrong).first);
+      await tester.pump();
+      expect(results.single.picked, choice['answer']);
+      expect(find.textContaining(hint), findsNothing);
+    });
+
     testWidgets('an edit after Got it drops the self-mark from the next result',
         (tester) async {
       final results = await pumpRecorded(tester);
