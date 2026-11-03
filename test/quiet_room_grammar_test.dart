@@ -401,6 +401,31 @@ void main() {
       expect(results.last.hintTaken, isFalse);
     });
 
+    testWidgets('a wrong pick prints the hint after the lock, with no hint flag',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+      final choice = openingChoice();
+      final hint = choice['hint'] as String;
+      final wrong = (choice['options'] as List)
+          .cast<String>()
+          .firstWhere((o) => o != choice['answer']);
+      // No fill-in hint is open, so the hint text is absent until the pick.
+      expect(find.textContaining(hint), findsNothing);
+
+      await tester.tap(find.text(wrong).first);
+      await tester.pump();
+      expect(find.textContaining(hint), findsOneWidget);
+      expect(results.single.index, 1);
+      expect(results.single.picked, wrong);
+      expect(results.single.hintTaken, isFalse);
+      expect(results.single.verdict, isNull);
+
+      // The options are locked, so the printed hint cannot lead a second pick.
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+      expect(results.single.picked, wrong);
+    });
+
     testWidgets('an edit after Got it drops the self-mark from the next result',
         (tester) async {
       final results = await pumpRecorded(tester);
