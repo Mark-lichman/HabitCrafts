@@ -1,5 +1,6 @@
 // Widget tests for the grammar screen: the By use view, a choice question's feedback,
-// the typed-answer box (PIN-3), the 漢字 toggle (PIN-4), the tap-a-word reading hint
+// the typed-answer box (PIN-3), the hint behind its tap and the practice result,
+// the 漢字 toggle (PIN-4), the tap-a-word reading hint
 // (PIN-16) and the speaking drill link (PIN-6).
 
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
-    show RubyTapText, rubyWords;
+    show RubyTapText, TypedVerdict, rubyWords;
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 import 'package:habit_craft/flutter_flow/quiet_room.dart';
@@ -198,7 +199,8 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('a wrong typed answer shows the hint once', (tester) async {
+    testWidgets('a wrong typed answer leaves the hint behind its tap',
+        (tester) async {
       final q = firstFills().first;
       final hint = q['hint'] as String?;
       expect(hint, isNotNull, reason: 'the opening fill item carries a hint');
@@ -208,8 +210,14 @@ void main() {
       await tester.tap(find.text('Check').first);
       await tester.pump();
 
-      // The 'Hint:' row under the box is the only place the hint appears.
+      // A wrong answer is no hint request, so the hint stays hidden.
       expect(find.textContaining('Not quite.'), findsOneWidget);
+      expect(find.text('Hint: $hint'), findsNothing);
+
+      await tester.tap(find.text('Show hint').first);
+      await tester.pump();
+
+      // The 'Hint:' row under the box is the only place the hint appears.
       expect(find.textContaining(hint!), findsOneWidget);
       expect(find.text('Hint: $hint'), findsOneWidget);
     });
@@ -247,6 +255,199 @@ void main() {
       expect(find.textContaining("Can't check that spelling"), findsOneWidget);
       expect(find.text('Got it'), findsOneWidget);
       expect(find.text('Missed it'), findsOneWidget);
+    });
+  });
+
+  group('the practice result (PIN-3)', () {
+    /// Pumps the screen with a recorder for every practice result it reports.
+    Future<List<GrammarPracticeResult>> pumpRecorded(
+        WidgetTester tester) async {
+      final results = <GrammarPracticeResult>[];
+      await pumpStudyScreen(
+          tester, QuietRoomGrammarWidget(onPracticeResult: results.add));
+      return results;
+    }
+
+    /// The opening point's second item, a choice.
+    Map<String, dynamic> openingChoice() {
+      final q = ((firstLesson()['points'] as List).first['practice'] as List)[1]
+          as Map<String, dynamic>;
+      expect(q['options'], isNotEmpty);
+      return q;
+    }
+
+    testWidgets('a fill-in hint shows only after a Show hint tap',
+        (tester) async {
+      final fills = firstFills();
+      final hint = fills.first['hint'] as String;
+      final results = await pumpRecorded(tester);
+
+      expect(find.text('Hint: $hint'), findsNothing);
+      expect(find.textContaining(hint), findsNothing);
+      expect(find.text('Show hint'),
+          findsNWidgets(fills.where((f) => f['hint'] != null).length));
+
+      await tester.tap(find.text('Show hint').first);
+      await tester.pump();
+
+      expect(find.text('Hint: $hint'), findsOneWidget);
+      expect(results.last.hintTaken, isTrue);
+      expect(results.last.revealed, isFalse);
+      expect(results.last.pointId,
+          ((firstLesson()['points'] as List).first as Map)['id']);
+      expect(results.last.index, 0);
+    });
+
+    testWidgets('the hint tap is remembered on the item', (tester) async {
+      final results = await pumpRecorded(tester);
+      await tester.tap(find.text('Show hint').first);
+      await tester.pump();
+
+      // A clear typed after the hint still says the hint was taken.
+      await tester.enterText(
+          answerBoxes.first, firstFills().first['answer'] as String);
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      expect(find.text('Correct.'), findsOneWidget);
+      expect(results.last.verdict, TypedVerdict.right);
+      expect(results.last.hintTaken, isTrue);
+    });
+
+    testWidgets('a clear typed with no hint says no hint was taken',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+      await tester.enterText(
+          answerBoxes.first, firstFills().first['answer'] as String);
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      expect(results, hasLength(1));
+      expect(results.single.verdict, TypedVerdict.right);
+      expect(results.single.hintTaken, isFalse);
+      expect(results.single.revealed, isFalse);
+      expect(results.single.picked, isNull);
+    });
+
+    testWidgets('Show answer is recorded as revealed', (tester) async {
+      final results = await pumpRecorded(tester);
+      await tester.tap(find.text('Show answer').first);
+      await tester.pump();
+
+      expect(results, hasLength(1));
+      expect(results.single.revealed, isTrue);
+      expect(results.single.hintTaken, isFalse);
+      expect(results.single.verdict, isNull);
+    });
+
+    testWidgets('an empty Check is not an attempt and says so', (tester) async {
+      final fills = firstFills();
+      final results = await pumpRecorded(tester);
+
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      expect(results, isEmpty);
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      expect(find.text('Correct.'), findsNothing);
+      expect(find.textContaining('Not quite.'), findsNothing);
+      expect(answerBoxes, findsNWidgets(fills.length));
+
+      // Typing clears the note, and typing alone is no attempt.
+      await tester.enterText(answerBoxes.first, 'ぬ');
+      await tester.pump();
+      expect(find.text('Type an answer first.'), findsNothing);
+      expect(results, isEmpty);
+    });
+
+    testWidgets('a self-mark and a pick are carried in the result',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+
+      await tester.enterText(answerBoxes.first, 'ittara');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+      expect(results.last.verdict, TypedVerdict.selfCheck);
+      expect(results.last.selfMark, isNull);
+
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      expect(results.last.selfMark, isTrue);
+      expect(results.last.index, 0);
+
+      final choice = openingChoice();
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+      expect(results.last.index, 1);
+      expect(results.last.picked, choice['answer']);
+      expect(results.last.hintTaken, isFalse);
+    });
+
+    testWidgets('Tap for English is a reading aid, not an attempt (D28)',
+        (tester) async {
+      final results = await pumpRecorded(tester);
+      await tester.tap(find.text('Tap for English').first);
+      await tester.pump();
+
+      expect(results, isEmpty);
+    });
+
+    testWidgets(
+        'a typed answer, a hint, a pick and an English line survive the scroll',
+        (tester) async {
+      final fills = firstFills();
+      final opening = (firstLesson()['points'] as List).first as Map;
+      final shownEn =
+          ((opening['examples'] as List).first as Map)['en'] as String;
+      final choice = openingChoice();
+      final pickedPrompt = (choice['prompt'] as String)
+          .replaceAll('＿＿', '［${choice['answer']}］');
+      await pumpRecorded(tester);
+
+      await tester.enterText(answerBoxes.first, 'ぬぬぬ');
+      await tester.tap(find.text('Show hint').first);
+      await tester.tap(find.text('Tap for English').first);
+      await tester.tap(find.text(choice['answer'] as String).first);
+      // The keyboard goes away. A focused box would keep its card alive by itself.
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      expect(find.text(pickedPrompt), findsOneWidget);
+      expect(find.text(shownEn), findsOneWidget);
+
+      // A phone-sized view, scrolled to the end, takes the first card off screen.
+      final page = find
+          .byWidgetPredicate(
+              (w) => w is Scrollable && w.axisDirection == AxisDirection.down)
+          .first;
+      tester.view.physicalSize = const Size(400, 500);
+      await tester.pump();
+      await tester.scrollUntilVisible(
+          find.textContaining('Pattern, goal and first example'), 600,
+          scrollable: page);
+      await tester.pump();
+      expect(find.text(pickedPrompt), findsNothing);
+
+      // Back up. A card that lost its state would never show the picked prompt.
+      await tester.scrollUntilVisible(find.text(pickedPrompt), -600,
+          scrollable: page);
+      await tester.pump();
+
+      expect(find.text(pickedPrompt), findsOneWidget);
+      expect(find.text(shownEn, skipOffstage: false), findsOneWidget);
+      expect(find.text('Hint: ${fills.first['hint']}', skipOffstage: false),
+          findsOneWidget);
+      expect(
+          tester
+              .widget<TextField>(find
+                  .byWidgetPredicate(
+                      (w) =>
+                          w is TextField &&
+                          w.decoration?.hintText == 'Type the answer',
+                      skipOffstage: false)
+                  .first)
+              .controller!
+              .text,
+          'ぬぬぬ');
     });
   });
 
