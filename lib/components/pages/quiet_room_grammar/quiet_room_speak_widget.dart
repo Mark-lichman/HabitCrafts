@@ -413,6 +413,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// The check in flight, so a retire while listening can wait for it. The service marks a
   /// check cancelled only once its recorder start has resolved, so a retire that freed Speak
   /// at once could let a second check open the microphone the first is about to close.
+  /// A Cancel on Checking leaves the dropped check here until its score lands, so Speak
+  /// clears it first: a Stop before the new microphone opens must not wait on that score.
   Future<PronunciationResult>? _check;
   bool _heardVoice = false;
 
@@ -532,6 +534,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _result = null;
       _logged = null;
       _selfMark = null;
+      // The check a Cancel on Checking left behind is not this attempt's: a Stop that
+      // lands while the voice stop below is pending must not wait for its score.
+      _check = null;
     });
     Future<PronunciationResult>? check;
     try {
@@ -557,7 +562,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       });
       _writeLog(() => SpeakScoreLog.add(entry));
     } finally {
-      // A newer attempt may own _check by now (after a Cancel on Checking): leave its own.
+      // A newer attempt may have cleared or replaced _check by now (after a Cancel on
+      // Checking): leave what it holds.
       if (check != null && identical(_check, check)) _check = null;
       // Only the current attempt frees the buttons. A retired one was freed by its retire,
       // and may since have been followed by a newer attempt that still owns them.

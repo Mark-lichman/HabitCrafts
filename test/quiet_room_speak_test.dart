@@ -1060,9 +1060,13 @@ void main() {
       expect(find.text('Can’t check this one'), findsNothing);
       expect(buttonAction(tester, 'Speak'), isNotNull);
       expect(await tester.runAsync(savedAttempts), isEmpty);
+      await walkToEnd(tester);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      expect(find.text('Nothing was scored this time.'), findsOneWidget);
     });
 
-    testWidgets('Stop keeps Speak disabled until a pending microphone start resolves',
+    testWidgets(
+        'Stop keeps Speak disabled until a pending microphone start resolves',
         (tester) async {
       final rig = Rig(reply: fixture(_goodFixture));
       rig.mic.startGate = Completer<void>();
@@ -1083,7 +1087,8 @@ void main() {
 
       rig.mic.startGate!.complete();
       await rig.settle(tester);
-      expect(rig.mic.stops, 1, reason: 'the cancelled start closes its own mic');
+      expect(rig.mic.stops, 1,
+          reason: 'the cancelled start closes its own mic');
       expect(rig.mic.open, isFalse);
       expect(rig.sent, isEmpty);
       expect(buttonAction(tester, 'Speak'), isNotNull);
@@ -1219,6 +1224,41 @@ void main() {
       expect(find.text('Nothing was scored this time.'), findsOneWidget);
     });
 
+    testWidgets('a Stop before the mic opens never waits on a cancelled score',
+        (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture))
+        ..scoreGate = Completer<void>();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      await tester.tap(find.text('Cancel'));
+      await rig.settle(tester);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+
+      // The next Speak is still stopping the voice when Stop lands: no microphone has
+      // opened, so nothing is in flight for this attempt. The cancelled score is still out.
+      rig.tts.stopGate = Completer<void>();
+      await rig.tapSpeak(tester);
+      await rig.settle(tester);
+      expect(rig.mic.starts, 1, reason: 'the voice stop holds the microphone');
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+      expect(buttonAction(tester, 'Speak'), isNotNull,
+          reason: 'Speak must not wait for the score the Cancel dropped');
+      expect(buttonAction(tester, 'Next sentence'), isNotNull);
+      expect(find.text('Listening'), findsNothing);
+
+      // Both late arrivals land on retired attempts: nothing shows and nothing is kept.
+      rig.tts.stopGate!.complete();
+      rig.scoreGate!.complete();
+      await rig.settle(tester);
+      expect(rig.mic.starts, 1);
+      expect(find.text('That’s it'), findsNothing);
+      expect(find.text('Listening'), findsNothing);
+      expect(buttonAction(tester, 'Speak'), isNotNull);
+      expect(await tester.runAsync(savedAttempts), isEmpty);
+    });
+
     testWidgets('a late result after Cancel never lands on a newer attempt',
         (tester) async {
       final rig = Rig(reply: fixture(_badFixture))
@@ -1343,6 +1383,30 @@ void main() {
       final saved = await tester.runAsync(savedAttempts);
       expect(saved!.single['verdict'], 'close');
       expect(saved.single['selfMark'], 'missed_it');
+    });
+
+    testWidgets('an unverified result left unmarked counts nothing at the end',
+        (tester) async {
+      final rig = Rig(error: Exception('offline'));
+      await rig.speakOnce(tester);
+      expect(find.text('Can’t check this one'), findsOneWidget);
+      expect(find.text('Got it'), findsOneWidget);
+      // Neither Got it nor Missed it: the result stays unverified, never wrong.
+      await walkToEnd(tester);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      expect(find.text('Nothing was scored this time.'), findsOneWidget);
+    });
+
+    testWidgets('a close result left unmarked counts nothing at the end',
+        (tester) async {
+      final rig = Rig(reply: goodWithScore(70));
+      await rig.speakOnce(tester);
+      expect(find.text('Close'), findsOneWidget);
+      expect(find.text('Got it'), findsOneWidget);
+      // Neither Got it nor Missed it: a close result is not counted until marked.
+      await walkToEnd(tester);
+      expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
+      expect(find.text('Nothing was scored this time.'), findsOneWidget);
     });
 
     testWidgets('a scored attempt carries no self-mark', (tester) async {
