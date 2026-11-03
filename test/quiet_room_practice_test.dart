@@ -12,7 +12,8 @@
 //   * the result handed on carries the hint level and the revealed flag;
 //   * Next is disabled while listening, and Stop or a pause drops the listen's result;
 //   * a raw recogniser code reaches the screen as a plain sentence;
-//   * the deck is shuffled without replacement, with a position and an end.
+//   * the deck is shuffled without replacement, with a position and an end, and Go again
+//     starts every count of the tally from zero.
 
 import 'dart:convert';
 import 'dart:io';
@@ -375,6 +376,42 @@ void main() {
               .widget<Text>(find.byKey(const ValueKey('practice-position')))
               .data,
           '1 of ${words.length}');
+    });
+
+    testWidgets('Go again starts every count of the tally from zero',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      // One of each on the first pass, so a reset that skips any one count is visible.
+      await rig.say(tester, rig.shownKana(tester));
+      expect(rig.results.last.tally, PracticeTally.right);
+      await rig.next(tester);
+      await rig.say(tester, '${rig.shownKana(tester)}です');
+      expect(rig.results.last.tally, PracticeTally.hinted);
+      await rig.next(tester);
+      // A plain-kana mismatch cannot be checked by itself, so the miss is the learner's mark
+      // (PIN-13).
+      await rig.say(tester, 'ぱぱぱ');
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      expect(rig.results.last.tally, PracticeTally.missed);
+      expect(
+          await finish(tester, rig), '1 on your own · 1 with help · 1 missed');
+
+      await tester.tap(find.text('Go again'));
+      await rig.settle(tester);
+      expect(find.byKey(const ValueKey('practice-verdict')), findsNothing,
+          reason: 'the first pass’s card does not carry over');
+      await rig.say(tester, 'ぱぱぱ');
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      // Each unverified listen hands on its uncounted result and then the mark, so the first
+      // pass handed on four results and the second pass two more.
+      expect(rig.results, hasLength(6));
+      expect(rig.results.last.tally, PracticeTally.missed);
+      expect(
+          await finish(tester, rig), '0 on your own · 0 with help · 1 missed',
+          reason: 'no count from the first pass carries over');
     });
   });
 }
