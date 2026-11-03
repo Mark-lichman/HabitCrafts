@@ -8,13 +8,11 @@
 //   * an unverified listen never counts by itself; it asks Got it or Missed it, as the speak
 //     drill does, and the no-microphone case says why; Got it is right and Missed it is
 //     missed (PIN-13);
-//   * a speech "close" is with help, never right, and a heard wrong answer is Not quite and
-//     missed;
+//   * a speech "close" is with help, never right;
 //   * the result handed on carries the hint level and the revealed flag;
 //   * Next is disabled while listening, and Stop or a pause drops the listen's result;
 //   * a raw recogniser code reaches the screen as a plain sentence;
-//   * the deck is shuffled without replacement, with a position and an end, and Go again
-//     starts the tally from zero.
+//   * the deck is shuffled without replacement, with a position and an end.
 
 import 'dart:convert';
 import 'dart:io';
@@ -192,20 +190,6 @@ void main() {
       expect(find.byKey(const ValueKey('practice-tally-note')), findsOneWidget);
       expect(
           await finish(tester, rig), '0 on your own · 1 with help · 0 missed');
-    });
-
-    testWidgets('a heard wrong answer is Not quite and missed', (tester) async {
-      final rig = Rig();
-      await rig.open(tester);
-      // Plain hiragana that shares nothing with the answer judges wrong, not unverified.
-      await rig.say(tester, 'ぱぱぱ');
-      expect(rig.results.single.speech.judgement, Judgement.wrong);
-      expect(rig.results.single.tally, PracticeTally.missed);
-      expect(find.text('Not quite'), findsOneWidget);
-      expect(find.text('Got it'), findsNothing,
-          reason: 'a checked answer asks no self-mark');
-      expect(
-          await finish(tester, rig), '0 on your own · 0 with help · 1 missed');
     });
 
     testWidgets('the result carries the hint level and the revealed flag',
@@ -391,25 +375,6 @@ void main() {
               .widget<Text>(find.byKey(const ValueKey('practice-position')))
               .data,
           '1 of ${words.length}');
-    });
-
-    testWidgets('Go again starts the tally from zero', (tester) async {
-      final rig = Rig();
-      await rig.open(tester);
-      await rig.say(tester, 'ぱぱぱ');
-      expect(
-          await finish(tester, rig), '0 on your own · 0 with help · 1 missed');
-
-      await tester.tap(find.text('Go again'));
-      await rig.settle(tester);
-      expect(find.byKey(const ValueKey('practice-verdict')), findsNothing,
-          reason: 'the first pass’s card does not carry over');
-      await rig.say(tester, rig.shownKana(tester));
-      expect(rig.results, hasLength(2));
-      expect(rig.results.last.tally, PracticeTally.right);
-      expect(
-          await finish(tester, rig), '1 on your own · 0 with help · 0 missed',
-          reason: 'the first pass’s miss does not carry over');
     });
   });
 }

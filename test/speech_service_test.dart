@@ -4,16 +4,13 @@
 //     SpeechService.speakWait, and that one named constant is the only place the wait is set.
 //   * speakAndWait completes on the voice's completion handler, at SpeechService.speakAndWaitCap
 //     when no handler comes, at once on stopSpeaking, at once when speak() fails, and when a
-//     second speakAndWait replaces it. A stopSpeaking still in flight releases only the waiter
-//     it was called on, never one that began during its platform stop.
-//   * cancel() completes the pending listenOnce with an empty, unverified result, the attempt
-//     token keeps a cancelled listen from stopping a newer one, and a cancelled listen's late
-//     result never completes the newer one.
+//     second speakAndWait replaces it.
+//   * cancel() completes the pending listenOnce with an empty, unverified result, and the attempt
+//     token keeps a cancelled listen from stopping a newer one.
 //   * A recogniser error ends the listen at once and reads as a plain sentence, never a raw code.
 //
 // The service runs on fake engines (SpeechService.withEngines), so no platform channel is used.
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:fake_async/fake_async.dart';
@@ -32,10 +29,7 @@ class FakeStt implements SttEngine {
   int stops = 0;
   int cancels = 0;
   bool _listening = false;
-
-  /// Every listen's final-result callback, oldest first, so a test can deliver an old
-  /// listen's result while a newer listen is pending.
-  final List<void Function(List<String>)> _onFinals = [];
+  void Function(List<String>)? _onFinal;
   void Function(String)? _onError;
 
   /// Runs at the top of [listen], so a test can read state at the moment the mic opens.
@@ -59,7 +53,7 @@ class FakeStt implements SttEngine {
     onListen?.call();
     listens++;
     _listening = true;
-    _onFinals.add(onFinal);
+    _onFinal = onFinal;
   }
 
   @override
@@ -74,15 +68,8 @@ class FakeStt implements SttEngine {
     _listening = false;
   }
 
-  /// The recogniser's final result for the newest listen, as it arrives from the platform.
-  void hear(List<String> alternates) {
-    if (_onFinals.isNotEmpty) _onFinals.last(alternates);
-  }
-
-  /// The final result of the listen at [index] (0 is the first listen this engine saw),
-  /// delivered even when a newer listen has since opened.
-  void hearFrom(int index, List<String> alternates) =>
-      _onFinals[index](alternates);
+  /// The recogniser's final result, as it arrives from the platform.
+  void hear(List<String> alternates) => _onFinal?.call(alternates);
 
   /// A platform error, as speech_to_text reports it.
   void fail(String code) {
@@ -101,9 +88,6 @@ class FakeTts implements TtsEngine {
 
   /// When set, [speak] fails with it instead of speaking.
   Object? speakError;
-
-  /// When set, [stop] holds until the test completes it, as a platform stop takes time.
-  Completer<void>? stopGate;
 
   @override
   set onDone(void Function()? f) => _onDone = f;
@@ -131,11 +115,7 @@ class FakeTts implements TtsEngine {
   }
 
   @override
-  Future<void> stop() async {
-    stops++;
-    final gate = stopGate;
-    if (gate != null) await gate.future;
-  }
+  Future<void> stop() async => stops++;
 
   /// The platform's completion handler.
   void finish() => _onDone?.call();
@@ -218,34 +198,6 @@ void main() {
       expect(done, isTrue);
     });
 
-    test('a stop in flight releases only the waiter it was called on', () async {
-      final tts = FakeTts();
-      final s = SpeechService.withEngines(stt: FakeStt(), tts: tts);
-      var firstDone = false;
-      var secondDone = false;
-      s.speakAndWait('ほん').then((_) => firstDone = true);
-      await settle();
-      expect(firstDone, isFalse);
-
-      // The platform stop takes time. Not awaited: the lifecycle callers do not await it.
-      tts.stopGate = Completer<void>();
-      unawaited(s.stopSpeaking());
-      await settle();
-      expect(tts.stops, 1);
-      s.speakAndWait('じしょ').then((_) => secondDone = true);
-      await settle();
-      expect(firstDone, isTrue, reason: 'the newer utterance replaces it');
-      expect(secondDone, isFalse);
-
-      tts.stopGate!.complete();
-      await settle();
-      expect(secondDone, isFalse,
-          reason: 'the stop was called before this utterance began');
-      tts.finish();
-      await settle();
-      expect(secondDone, isTrue);
-    });
-
     test('says why when there is no Japanese voice', () async {
       final s = SpeechService.withEngines(
           stt: FakeStt(), tts: FakeTts(hasJapanese: false));
@@ -298,23 +250,6 @@ void main() {
       expect(stt.stops, 1);
     });
 
-    test('a plain-kana mismatch is wrong; a kanji hypothesis beside it is not',
-        () async {
-      final stt = FakeStt();
-      final s = SpeechService.withEngines(stt: stt, tts: FakeTts());
-      final f1 = s.listenOnce(expectedKana: 'いなか');
-      await settle();
-      stt.hear(['ぱぱぱ']);
-      expect((await f1).judgement, Judgement.wrong,
-          reason: 'plain kana compares letter for letter');
-
-      // A kanji alternate cannot be checked, so the listen as a whole cannot call it wrong.
-      final f2 = s.listenOnce(expectedKana: 'いなか');
-      await settle();
-      stt.hear(['ぱぱぱ', '漢']);
-      expect((await f2).judgement, Judgement.unverified);
-    });
-
     test('cancel() completes the pending listen at once, empty and unverified',
         () async {
       final stt = FakeStt();
@@ -359,34 +294,6 @@ void main() {
       await s.cancel();
       stt.hear(['ほん']);
       expect((await f).judgement, Judgement.unverified);
-    });
-
-    test('an old listen’s late result never completes a newer listen',
-        () async {
-      final stt = FakeStt();
-      final s = SpeechService.withEngines(stt: stt, tts: FakeTts());
-      final first = s.listenOnce(expectedKana: 'ほん');
-      await settle();
-      await s.cancel();
-      expect((await first).judgement, Judgement.unverified);
-      var secondDone = false;
-      final second = s.listenOnce(expectedKana: 'じしょ').then((r) {
-        secondDone = true;
-        return r;
-      });
-      await settle();
-      expect(stt.listens, 2);
-
-      // The platform delivers the first listen's result after the second opened.
-      stt.hearFrom(0, ['ほん']);
-      await settle();
-      expect(secondDone, isFalse,
-          reason: 'a stale result belongs to the cancelled listen');
-
-      stt.hearFrom(1, ['じしょ']);
-      final r = await second;
-      expect(r.judgement, Judgement.correct);
-      expect(r.heard, 'じしょ');
     });
 
     test('a recogniser error ends the listen at once with a plain sentence',

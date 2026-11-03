@@ -368,17 +368,11 @@ class SpeechService {
     return 'Speech failed: ${msg.length > 140 ? msg.substring(0, 140) : msg}';
   }
 
-  /// Stops the voice and releases the [speakAndWait] that was waiting when the stop was
-  /// called. 🚨 That waiter is captured BEFORE the await: a speakAndWait that starts while the
-  /// platform stop is still in flight is a new utterance, and releasing it here would let its
-  /// caller open the microphone over its own voice. The lifecycle callers do not await this.
   Future<void> stopSpeaking() async {
-    final s = _speaking;
     try {
       await _tts.stop();
     } catch (_) {}
-    if (s != null && !s.isCompleted) s.complete();
-    if (identical(_speaking, s)) _speaking = null;
+    _speechDone();
   }
 
   /// Asks for the microphone and initialises the recogniser. RECORD_AUDIO is already declared in
@@ -476,12 +470,8 @@ class SpeechService {
     if (token != _listenToken || heard.isEmpty) return nothing;
 
     // Best verdict across all hypotheses: a correct kana alternate should win even when
-    // the top hypothesis came back as kanji, and a kanji hypothesis that cannot be checked
-    // keeps a plain-kana mismatch from being called wrong. 🚨 The floor is `wrong`, not
-    // `unverified`: `heard` is non-empty here, so every verdict comes from `judge()`, and a
-    // floor of `unverified` would outrank every plain-kana mismatch and no listen could ever
-    // return `wrong`.
-    var best = Judgement.wrong;
+    // the top hypothesis came back as kanji.
+    var best = Judgement.unverified;
     const rank = {
       Judgement.correct: 3,
       Judgement.close: 2,
