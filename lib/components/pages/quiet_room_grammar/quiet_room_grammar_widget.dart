@@ -15,6 +15,13 @@
 // `RubyTapText` in jp_study_kit.dart). A fill-in item takes a typed answer from the
 // Japanese keyboard (PIN-3), judged by `checkTypedAnswer()` in jp_study_kit.dart. Each
 // lesson opens its speaking drill from "Speak this lesson" (PIN-6).
+//
+// A fill-in item's hint stays behind a "Show hint" tap, and the item remembers the tap,
+// so a typed answer can be told apart from a hinted one (PIN-3 of the 2026-11-02 mastery
+// plan). Each practice change reports a `GrammarPracticeResult` through
+// `onPracticeResult`. "Tap for English" on an example is a reading aid and reports
+// nothing (D28). The cards keep themselves alive, so a pick, a typed answer, a hint and
+// a reveal survive the lesson scroll.
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,14 +39,61 @@ const List<Locale> jpKeyboard = [Locale('ja', 'JP')];
 String jpShown(bool kanji, String kana, Object? ruby) =>
     kanji && ruby is String ? rubySurface(ruby) : kana;
 
+/// What the learner did on one practice item, for the attempt writer to grade.
+///
+/// The item is [index] in the practice list of the point [pointId]. [picked] is the
+/// tapped option of a choice item (its hiragana key). [verdict] is the last typed
+/// check. [hintTaken] stays true once "Show hint" was tapped. [revealed] is true after
+/// "Show answer". [selfMark] is the learner's own mark after a self-check: true for
+/// "Got it", false for "Missed it". An empty Check reports nothing: it is no attempt.
+///
+/// A choice item has no "Show hint": its hint prints only under a wrong pick, after
+/// the options lock, so a result with [picked] set always has [hintTaken] false. The
+/// attempt writer grades a pick with no hint flag (PIN-3 of the mastery plan).
+@immutable
+class GrammarPracticeResult {
+  const GrammarPracticeResult({
+    required this.pointId,
+    required this.index,
+    required this.item,
+    this.picked,
+    this.verdict,
+    this.hintTaken = false,
+    this.revealed = false,
+    this.selfMark,
+  });
+
+  final String pointId;
+  final int index;
+  final Map<String, dynamic> item;
+  final String? picked;
+  final TypedVerdict? verdict;
+  final bool hintTaken;
+  final bool revealed;
+  final bool? selfMark;
+
+  @override
+  String toString() =>
+      'GrammarPracticeResult($pointId#$index, picked: $picked, '
+      'verdict: $verdict, hintTaken: $hintTaken, revealed: $revealed, '
+      'selfMark: $selfMark)';
+}
+
 class QuietRoomGrammarWidget extends StatefulWidget {
   const QuietRoomGrammarWidget(
-      {super.key, this.initialLesson, this.initialQuery});
+      {super.key,
+      this.initialLesson,
+      this.initialQuery,
+      this.onPracticeResult});
 
   final int? initialLesson;
 
   /// Opens with this search already typed (a catalog link to an untaught particle).
   final String? initialQuery;
+
+  /// Hears every change to a practice item's result: a pick, a typed check, a hint
+  /// tap, a reveal or a self-mark. Never an empty Check, never "Tap for English".
+  final ValueChanged<GrammarPracticeResult>? onPracticeResult;
 
   static String routeName = 'quietRoomGrammar';
   static String routePath = '/quietRoomGrammar';
@@ -242,6 +296,7 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
                     lesson: crossLesson ? p['lesson'] as int? : null,
                     useNames: useNames,
                     kanji: _kanji,
+                    onPracticeResult: widget.onPracticeResult,
                   ),
                 )),
             const SizedBox(height: 4),
@@ -288,9 +343,11 @@ class _PointCard extends StatefulWidget {
       {required this.point,
       this.lesson,
       this.useNames = const {},
-      this.kanji = false});
+      this.kanji = false,
+      this.onPracticeResult});
 
   final Map<String, dynamic> point;
+  final ValueChanged<GrammarPracticeResult>? onPracticeResult;
 
   /// Set when the card shows outside its lesson (search, by use), so it says where it
   /// comes from.
@@ -304,7 +361,12 @@ class _PointCard extends StatefulWidget {
   State<_PointCard> createState() => _PointCardState();
 }
 
-class _PointCardState extends State<_PointCard> {
+/// Kept alive, so a shown English line survives the lesson scroll.
+class _PointCardState extends State<_PointCard>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final Set<int> _shownEn = {};
   String? _check;
 
@@ -320,6 +382,7 @@ class _PointCardState extends State<_PointCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final t = QuietRoomTokens.of(context);
     final p = widget.point;
     final examples = ((p['examples'] as List?) ??
@@ -383,9 +446,14 @@ class _PointCardState extends State<_PointCard> {
           if (practice.isNotEmpty) ...[
             const SizedBox(height: 12),
             _label(t, 'Practice'),
-            ...practice.map((q) => Padding(
+            ...practice.asMap().entries.map((q) => Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: _Practice(item: q, kanji: widget.kanji),
+                  child: _Practice(
+                      item: q.value,
+                      kanji: widget.kanji,
+                      pointId: _id,
+                      index: q.key,
+                      onResult: widget.onPracticeResult),
                 )),
           ],
           const SizedBox(height: 14),
@@ -479,21 +547,36 @@ class _PointCardState extends State<_PointCard> {
 }
 
 /// One practice item. "choose" checks the tap. "fill" takes a typed answer from the
-/// Japanese keyboard (PIN-3), or reveals the answer on request.
+/// Japanese keyboard (PIN-3), shows its hint on a "Show hint" tap, or reveals the
+/// answer on request. Each change reports a [GrammarPracticeResult] to [onResult].
 ///
 /// 🚨 A typed answer is marked wrong only when it is plain kana that matches no answer
 /// form. An answer the matcher cannot compare goes to self-check (PIN-2, PIN-7).
 class _Practice extends StatefulWidget {
-  const _Practice({required this.item, this.kanji = false});
+  const _Practice(
+      {required this.item,
+      required this.pointId,
+      required this.index,
+      this.kanji = false,
+      this.onResult});
 
   final Map<String, dynamic> item;
+  final String pointId;
+  final int index;
   final bool kanji;
+  final ValueChanged<GrammarPracticeResult>? onResult;
 
   @override
   State<_Practice> createState() => _PracticeState();
 }
 
-class _PracticeState extends State<_Practice> {
+/// Kept alive, so a pick, a typed answer, a hint and a reveal survive the lesson
+/// scroll.
+class _PracticeState extends State<_Practice>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   bool _revealed = false;
   String? _picked;
 
@@ -503,6 +586,30 @@ class _PracticeState extends State<_Practice> {
   /// The learner's own mark after a self-check: true for "Got it".
   bool? _selfMark;
 
+  /// Set by the "Show hint" tap and never cleared: the item remembers it (PIN-3 of
+  /// the mastery plan).
+  bool _hintTaken = false;
+
+  /// An empty Check says so here instead of judging nothing.
+  bool _emptyNote = false;
+
+  GrammarPracticeResult get result => GrammarPracticeResult(
+        pointId: widget.pointId,
+        index: widget.index,
+        item: widget.item,
+        picked: _picked,
+        verdict: _verdict,
+        hintTaken: _hintTaken,
+        revealed: _revealed,
+        selfMark: _selfMark,
+      );
+
+  /// Applies [change], then reports the new result.
+  void _update(VoidCallback change) {
+    setState(change);
+    widget.onResult?.call(result);
+  }
+
   @override
   void dispose() {
     _typed.dispose();
@@ -511,14 +618,21 @@ class _PracticeState extends State<_Practice> {
 
   void _check() {
     final v = checkTypedAnswer(_typed.text, widget.item);
-    setState(() {
-      _verdict = v == TypedVerdict.empty ? null : v;
+    // An empty box is no attempt: nothing is judged and nothing is reported.
+    if (v == TypedVerdict.empty) {
+      setState(() => _emptyNote = true);
+      return;
+    }
+    _update(() {
+      _verdict = v;
       _selfMark = null;
+      _emptyNote = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final t = QuietRoomTokens.of(context);
     final q = widget.item;
     final kanji = widget.kanji;
@@ -599,7 +713,7 @@ class _PracticeState extends State<_Practice> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(999),
                     onTap: _picked == null
-                        ? () => setState(() => _picked = o)
+                        ? () => _update(() => _picked = o)
                         : null,
                     child: Container(
                       constraints: const BoxConstraints(minHeight: 40),
@@ -619,17 +733,43 @@ class _PracticeState extends State<_Practice> {
             )
           else ...[
             if (!done) _answerBox(t),
+            if (!done && _emptyNote)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text('Type an answer first.',
+                    style: qrText(t, size: 12.5, color: t.inkMuted)),
+              ),
             if (feedbackApplies) _feedback(t, shownAnswer),
             if (!done)
               Row(children: [
-                if (q['hint'] != null)
+                if (q['hint'] != null && _hintTaken)
                   Expanded(
                       child: Text('Hint: ${q['hint']}',
                           style: qrText(t, size: 12.5, color: t.inkMuted)))
+                // Expanded, so two buttons on a narrow phone wrap instead of
+                // overflowing, and Show answer stays flush right under Check
+                // before and after the hint tap.
+                else if (q['hint'] != null)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () => _update(() => _hintTaken = true),
+                        style: TextButton.styleFrom(
+                            minimumSize:
+                                const Size(0, QuietRoomMetrics.targetMin)),
+                        child: Text('Show hint',
+                            style: qrText(t,
+                                size: 13,
+                                weight: FontWeight.w600,
+                                color: t.brand600)),
+                      ),
+                    ),
+                  )
                 else
                   const Spacer(),
                 TextButton(
-                  onPressed: () => setState(() => _revealed = true),
+                  onPressed: () => _update(() => _revealed = true),
                   style: TextButton.styleFrom(
                       minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
                   child: Text('Show answer',
@@ -647,7 +787,10 @@ class _PracticeState extends State<_Practice> {
                   style: qrText(t, size: 12.5, color: t.inkMuted)),
             ),
           // A wrong tap says why that option is wrong, then names the rule. The line
-          // quotes the option as the toggle showed it.
+          // quotes the option as the toggle showed it. The rule is the item's hint,
+          // shown only now that the options are locked (`onTap` is null once
+          // `_picked` is set), so it never leads an answer and `_hintTaken` stays
+          // false for a pick (PIN-3 of the mastery plan).
           if (_picked != null && _picked != answer)
             Padding(
               padding: const EdgeInsets.only(top: 6),
@@ -674,8 +817,16 @@ class _PracticeState extends State<_Practice> {
             textInputAction: TextInputAction.done,
             autocorrect: false,
             onSubmitted: (_) => _check(),
+            // An edit drops the verdict and its self-mark together, so a later
+            // report never carries a Got it from the answer before the edit.
             onChanged: (_) {
-              if (_verdict != null) setState(() => _verdict = null);
+              if (_verdict != null || _selfMark != null || _emptyNote) {
+                setState(() {
+                  _verdict = null;
+                  _selfMark = null;
+                  _emptyNote = false;
+                });
+              }
             },
             style: qrText(t, size: 16, color: t.inkStrong),
             cursorColor: t.brand600,
@@ -715,7 +866,8 @@ class _PracticeState extends State<_Practice> {
       TypedVerdict.right => Text('Correct.',
           style:
               qrText(t, size: 13, weight: FontWeight.w600, color: t.sage700)),
-      // The 'Hint:' row under the box already shows the hint, so this line stays bare.
+      // The hint stays behind its own tap, so this line does not offer it (PIN-3 of
+      // the mastery plan).
       TypedVerdict.wrong => Text('Not quite. Try again, or show the answer.',
           style: qrText(t, size: 12.5, color: t.clay600)),
       // Cannot be compared letter for letter, so the learner judges it (PIN-2).
@@ -732,13 +884,13 @@ class _PracticeState extends State<_Practice> {
                   label: 'Got it',
                   on: _selfMark == true,
                   solid: false,
-                  onTap: () => setState(() => _selfMark = true)),
+                  onTap: () => _update(() => _selfMark = true)),
               const SizedBox(width: 8),
               QrPill(
                   label: 'Missed it',
                   on: _selfMark == false,
                   solid: false,
-                  onTap: () => setState(() => _selfMark = false)),
+                  onTap: () => _update(() => _selfMark = false)),
             ]),
           ],
         ),

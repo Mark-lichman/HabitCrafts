@@ -1,8 +1,8 @@
 """Every data file has a catalog entry with live counts, and the lesson doc restates none (PIN-13).
 
 The catalog (pipeline/jp/catalog.py) emits one `source_file` entry per data file: the
-five extraction bundles, each draft, uses.json, the kanji list, corrections.json and
-jp_lessons.json.
+five extraction bundles, each draft, uses.json, the kanji list, corrections.json,
+particle_clozes.json and jp_lessons.json.
 Each entry carries its role, its origin and counts computed from the file. These tests
 recompute the counts here, straight from the files, so a hand-typed count in the
 catalog fails. They also scan docs/japanese-lessons.md for any of those counts: a
@@ -65,6 +65,8 @@ def expected_counts() -> dict[str, dict[str, int]]:
     r = _read(JP / "corrections.json")
     out["pipeline/jp/corrections.json"] = {"approved sources": len(r["approved_sources"]),
                                            "corrections": len(r["corrections"])}
+    c = _read(JP / "particle_clozes.json")
+    out["pipeline/jp/particle_clozes.json"] = {"clozes": len(c["clozes"])}
     v = _read(ASSETS / "jp_lessons.json")
     out["assets/lessons/jp_lessons.json"] = {
         "lessons": len(v["lessons"]), "words": sum(len(l["items"]) for l in v["lessons"]),
@@ -162,6 +164,22 @@ def test_published_app_file_carries_the_source_entries(sources):
     shipped = [e for e in committed["catalog"] if e["type"] == "source_file"]
     assert shipped == sources, "run: python pipeline/jp/publish.py, then commit the asset"
     assert any(t["id"] == "source_file" for t in committed["types"])
+
+
+def test_every_word_has_one_catalog_word_entry():
+    # Plan Task 4: beside the per-lesson vocabulary rows, the catalog carries one entry per
+    # word (id, reading, gloss, lesson, verb group), keyed by the word's image-stem id.
+    cat = build_catalog()
+    vocab = _read(ASSETS / "jp_lessons.json")
+    all_words = [(l["lesson"], w) for l in vocab["lessons"] for w in l["items"]]
+    assert len(cat["words"]) == len(all_words)
+    assert len({w["id"] for w in cat["words"]}) == len(all_words), "two word entries share an id"
+    for entry, (lesson, w) in zip(cat["words"], all_words):
+        assert entry == {"id": w["id"], "reading": w["kana"], "gloss": w["gloss"],
+                         "lesson": lesson, "verbGroup": w.get("verbGroup")}
+    rows = [e for e in cat["entries"] if e["type"] == "vocabulary"]
+    assert len(rows) == len(vocab["lessons"]), "the per-lesson rows stay"
+    assert _read(ASSETS / "jp_grammar.json")["words"] == cat["words"]
 
 
 # ───────────── the lesson doc (PIN-13) ─────────────

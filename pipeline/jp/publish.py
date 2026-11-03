@@ -13,6 +13,14 @@ and the app says so. A draft that fails validation is left out, with the reason 
 Each Japanese draft field carries a `_ruby` twin, its kanji version written
 `漢字{かんじ}` (see ruby.py). A present twin is always checked, and passes through to the
 app file. A missing twin fails validation while REQUIRE_RUBY is true, as it ships.
+
+Every hiragana field is kana: no example is exempt. Mari's one kanji example (the sign
+in mari.L33.3) is rewritten in hiragana by a reviewed correction (plan A7).
+
+For the mastery queue, each particle gets one cloze probe (its `expression` blanked in
+its example, or a hand-written one from particle_clozes.json where the example does not
+hold the expression verbatim), and each grammar point carries `prereqs`: the conjugation
+ideas (`conj.<form>`) its pattern uses, from the checklist's `requires_forms`.
 """
 
 from __future__ import annotations
@@ -24,16 +32,23 @@ from pathlib import Path
 from common import OUT_DIR, is_kana
 from catalog import build as build_catalog
 from conjugate import conjugate, group
-from ruby import kana_of, plain_of, ruby_errors
+from ruby import plain_of, ruby_errors
 
 HERE = Path(__file__).parent
 ASSET = HERE.parents[1] / "assets" / "lessons" / "jp_grammar.json"
 DRAFTS = HERE / "drafts"
+CLOZES = HERE / "particle_clozes.json"
+BLANK = "＿＿"
 # Every draft carries its twins, so a missing one fails the draft (PIN-9). The twins
 # passed a judge pass whose findings are in review/judge_ruby.json.
 REQUIRE_RUBY = True
 FORMS = ["masu", "te", "ta", "nai", "potential", "volitional", "conditional",
          "imperative", "prohibitive", "passive", "causative", "causative_passive"]
+# The checklist's `requires_forms` names, as conjugation-idea ids. The dictionary form is
+# the verb as given, so it needs no drill. The plain (short) form is built from the ない
+# and た forms, so a point that uses it comes after those two.
+FORM_PREREQS = {**{f: [f"conj.{f}"] for f in FORMS}, "dictionary": [],
+                "plain": ["conj.nai", "conj.ta"]}
 JP_PUNCT = re.compile(r"[。、！？「」／・＿\s0-9０-９ー〜～（）()]")
 
 
@@ -65,25 +80,12 @@ def kana_ok(s: str) -> bool:
     return not s or is_kana(s)
 
 
-def twin_errors(ruby: str, kana: str) -> list[str]:
-    """ruby_errors(), except for a field that itself holds kanji (Mari's verbatim
-    「立入禁止」 in mari.L33.3): its reading cannot equal the field, so the twin must
-    read every kanji and print as the field (plain_of(ruby) == kana)."""
-    if kana_ok(kana):
-        return ruby_errors(ruby, kana)
-    errs = ruby_errors(ruby, kana_of(ruby))  # bracket form, and no kanji left unread
-    if not errs and plain_of(ruby) != kana:
-        errs.append(f"printed text {plain_of(ruby)!r} is not the field {kana!r}")
-    return errs
-
-
 def check_twin(owner: str, obj: dict, field: str) -> list[str]:
     """Check the `<field>_ruby` twin of one Japanese field (a string or a list of strings).
 
     A list field gets a parallel twin list of strings. A twin whose field is absent is
     checked against the empty value, so a stray twin is never passed through unchecked.
-    why_wrong is not twinned: it stays keyed by the hiragana option (PIN-9). A
-    kanji-bearing field is matched on its printed text (see twin_errors).
+    why_wrong is not twinned: it stays keyed by the hiragana option (PIN-9).
     """
     twin = f"{field}_ruby"
     kana = obj.get(field, [] if field in ("accepted", "options") else "")
@@ -99,7 +101,7 @@ def check_twin(owner: str, obj: dict, field: str) -> list[str]:
         if not isinstance(ruby, str):
             return [f"{owner}: {twin} must be a string"]
         pairs_ = [(ruby, kana)]
-    return [f"{owner}: {twin} {e}" for r, k in pairs_ for e in twin_errors(r, k)]
+    return [f"{owner}: {twin} {e}" for r, k in pairs_ for e in ruby_errors(r, k)]
 
 
 def check_draft(d: dict, mari: dict) -> list[str]:
@@ -119,7 +121,7 @@ def check_draft(d: dict, mari: dict) -> list[str]:
         if len(set(prompts)) != len(prompts):
             errs.append(f"{pid}: two practice items share a prompt")
         for e in ex:
-            if not kana_ok(e.get("jp", "")) and pid != "mari.L33.3":
+            if not kana_ok(e.get("jp", "")):
                 errs.append(f"{pid}: example not kana: {e.get('jp')!r}")
             errs += check_twin(pid, e, "jp")
         for q in pr:
@@ -144,6 +146,56 @@ def check_draft(d: dict, mari: dict) -> list[str]:
             if re.search(r"\d(にち|ほん|ひき|はい|ふん|ぷん|さつ|かい|こ|にん|か)", prompt + ans):
                 errs.append(f"{pid}: digit before a kana counter hides the reading")
     return errs
+
+
+def particle_clozes(s04: dict) -> list[dict]:
+    """One cloze per particle (A9). Where the example holds the expression verbatim, the
+    cloze blanks its first occurrence. Otherwise particle_clozes.json holds a hand-written
+    one, which must give back the example when its answer (or an accepted spelling) fills
+    the blank. A particle with neither, a stale hand-written cloze, or a cloze whose
+    answer leaks into its prompt fails the publish."""
+    hand = json.loads(CLOZES.read_text(encoding="utf-8"))["clozes"]
+    ids = {pa["id"] for pa in s04["particles"]}
+    unknown = set(hand) - ids
+    if unknown:
+        raise SystemExit(f"particle_clozes.json: no such particle {sorted(unknown)}")
+    out = []
+    for pa in s04["particles"]:
+        expr, ex = pa["expression"], pa["example"]
+        if expr in ex:
+            if pa["id"] in hand:
+                raise SystemExit(f"particle_clozes.json: {pa['id']} can be blanked from its "
+                                 "example, so its hand-written cloze is stale")
+            c = {"prompt": ex.replace(expr, BLANK, 1), "answer": expr, "accepted": [],
+                 "from": "example"}
+        elif pa["id"] in hand:
+            h = hand[pa["id"]]
+            c = {"prompt": h["prompt"], "answer": h["answer"],
+                 "accepted": h.get("accepted", []), "from": "particle_clozes.json"}
+            if not any(c["prompt"].replace(BLANK, a, 1) == ex
+                       for a in [c["answer"], *c["accepted"]]):
+                raise SystemExit(f"particle_clozes.json: {pa['id']} filled in is not its "
+                                 f"example {ex!r}")
+        else:
+            raise SystemExit(f"{pa['id']}: {expr!r} is not in its example, and "
+                             "particle_clozes.json has no cloze for it")
+        if c["prompt"].count(BLANK) != 1 or c["answer"] in c["prompt"]:
+            raise SystemExit(f"{pa['id']}: cloze needs one blank and must not show its answer")
+        if not all(kana_ok(s) for s in [c["prompt"], c["answer"], *c["accepted"]]):
+            raise SystemExit(f"{pa['id']}: cloze not kana")
+        out.append(c)
+    return out
+
+
+def prereqs(point: dict) -> list[str]:
+    """The conjugation ideas a checklist point uses, in order, from `requires_forms`."""
+    out: list[str] = []
+    for f in point.get("requires_forms") or []:
+        if f not in FORM_PREREQS:
+            raise SystemExit(f"{point['id']}: requires_forms names {f!r}, which maps to no "
+                             "conjugation idea")
+        out += [p for p in FORM_PREREQS[f] if p not in out]
+    return out
 
 
 def reference(b: dict) -> list[dict]:
@@ -223,7 +275,7 @@ def run(out: Path = ASSET) -> tuple[dict, list[str]]:
         lessons[d["lesson"]] = d
     # Cataloging runs before Publishing: every item's type and uses come from it, so the
     # app's search and sort read the same catalog the pipeline checked.
-    catalog = build_catalog()
+    catalog = build_catalog(bundles=bundles)
     cat_uses = {e["id"]: e["uses"] for e in catalog["entries"]}
     missing = set(mari) - set(cat_uses)
     if missing:
@@ -237,7 +289,7 @@ def run(out: Path = ASSET) -> tuple[dict, list[str]]:
             "lesson": n, "title": d.get("title", ""),
             "status": "draft" if d else "outline",
             "points": [{"id": p["id"], "pattern": p["pattern"], "goal": p["goal"],
-                        "uses": cat_uses[p["id"]],
+                        "uses": cat_uses[p["id"]], "prereqs": prereqs(p),
                         "example": p["example"], **{k: v for k, v in drafted.get(p["id"], {}).items()
                                                      if k not in ("id",)}} for p in pts],
         })
@@ -250,8 +302,10 @@ def run(out: Path = ASSET) -> tuple[dict, list[str]]:
         "uses": catalog["uses"],
         "catalog": catalog["entries"],
         "grammar": grammar,
-        "particles": [{k: p[k] for k in ("expression", "meaning", "example", "taught_in")}
-                      for p in s04["particles"]],
+        "words": catalog["words"],
+        "particles": [{**{k: p[k] for k in ("id", "expression", "meaning", "example",
+                                            "taught_in")}, "cloze": c}
+                      for p, c in zip(s04["particles"], particle_clozes(s04))],
         "reference": reference(bundles["s01_number"]),
         "pairs": pairs(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"]),
         "conjugation": drill(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"], review),
