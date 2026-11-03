@@ -46,6 +46,10 @@ String jpShown(bool kanji, String kana, Object? ruby) =>
 /// check. [hintTaken] stays true once "Show hint" was tapped. [revealed] is true after
 /// "Show answer". [selfMark] is the learner's own mark after a self-check: true for
 /// "Got it", false for "Missed it". An empty Check reports nothing: it is no attempt.
+///
+/// A choice item has no "Show hint": its hint prints only under a wrong pick, after
+/// the options lock, so a result with [picked] set always has [hintTaken] false. The
+/// attempt writer grades a pick with no hint flag (PIN-3 of the mastery plan).
 @immutable
 class GrammarPracticeResult {
   const GrammarPracticeResult({
@@ -780,7 +784,10 @@ class _PracticeState extends State<_Practice>
                   style: qrText(t, size: 12.5, color: t.inkMuted)),
             ),
           // A wrong tap says why that option is wrong, then names the rule. The line
-          // quotes the option as the toggle showed it.
+          // quotes the option as the toggle showed it. The rule is the item's hint,
+          // shown only now that the options are locked (`onTap` is null once
+          // `_picked` is set), so it never leads an answer and `_hintTaken` stays
+          // false for a pick (PIN-3 of the mastery plan).
           if (_picked != null && _picked != answer)
             Padding(
               padding: const EdgeInsets.only(top: 6),
