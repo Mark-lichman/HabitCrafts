@@ -205,13 +205,23 @@ def test_the_pass_cleans_a_raw_item_once():
     assert once == {"id": "L06_08", "kana": "とります", "context": "しゃしんを",
                     "gloss": "take (a photo)", "image": raw["image"]}
     assert clean_item(once) == once
-    hyphen = clean_item({"kana": "サッカ-", "gloss": "soccer", "image": "x/L06_37.webp"})
-    assert hyphen["kana"] == "サッカー" and "context" not in hyphen
+
+
+@pytest.mark.parametrize("hyphen", ["-", "－", "‐"], ids=["ascii", "full-width", "u2010"])
+def test_every_printed_hyphen_becomes_a_long_vowel_mark(hyphen):
+    item = clean_item({"kana": "サッカ" + hyphen, "gloss": "soccer", "image": "x/L06_37.webp"})
+    assert item["kana"] == "サッカー" and "context" not in item
+
+
+def test_two_bracketed_parts_join_into_one_context():
+    item = clean_item({"kana": "あいます[ともだち]（に）", "gloss": "meet",
+                       "image": "x/L13_03.webp"})
+    assert item["kana"] == "あいます" and item["context"] == "ともだち・に"
 
 
 def test_a_repeated_id_fails_the_pass():
     doc = {"lessons": [{"lesson": 2, "items": [
         {"kana": "ほん", "gloss": "book", "image": "a/L02_00.webp"},
         {"kana": "ほん", "gloss": "book", "image": "b/L02_00.webp"}]}]}
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit, match="two items share an image stem"):
         clean(doc)

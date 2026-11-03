@@ -22,8 +22,8 @@ catalog is built. The app's home search finds each cataloged data file by name, 
 name such as `jp_lessons.json` into the search box to see its counts. Tapping a data file's entry
 searches for everything that came from that file. The cataloged files are the extraction
 bundles under `pipeline/jp/fixtures/`, each draft in `pipeline/jp/drafts/` (the `L<n>.json`
-lessons and `_points.json`), `uses.json`, `kanji_n5_n4.json`, `corrections.json` and
-`jp_lessons.json`.
+lessons and `_points.json`), `uses.json`, `kanji_n5_n4.json`, `corrections.json`,
+`particle_clozes.json` and `jp_lessons.json`.
 `jp_grammar.json` holds the catalog and has no entry of its own. `assets/lessons/img/`, the
 judge files under `pipeline/jp/review/` and the archived Tanos pages under `pipeline/jp/tanos/`
 have no entry.
