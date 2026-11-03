@@ -582,7 +582,8 @@ class _PracticeState extends State<_Practice>
   /// The learner's own mark after a self-check: true for "Got it".
   bool? _selfMark;
 
-  /// Set by the "Show hint" tap and never cleared: the item remembers it (PIN-3).
+  /// Set by the "Show hint" tap and never cleared: the item remembers it (PIN-3 of
+  /// the mastery plan).
   bool _hintTaken = false;
 
   /// An empty Check says so here instead of judging nothing.
@@ -855,7 +856,8 @@ class _PracticeState extends State<_Practice>
       TypedVerdict.right => Text('Correct.',
           style:
               qrText(t, size: 13, weight: FontWeight.w600, color: t.sage700)),
-      // The hint stays behind its own tap, so this line does not offer it (PIN-3).
+      // The hint stays behind its own tap, so this line does not offer it (PIN-3 of
+      // the mastery plan).
       TypedVerdict.wrong => Text('Not quite. Try again, or show the answer.',
           style: qrText(t, size: 12.5, color: t.clay600)),
       // Cannot be compared letter for letter, so the learner judges it (PIN-2).
