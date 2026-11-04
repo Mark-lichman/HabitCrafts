@@ -6,6 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show debugSetSharedJpStore;
 
 import 'jp_screen_harness.dart';
 
@@ -78,26 +81,37 @@ void main() {
     expect(reports, isEmpty);
   });
 
+  test("a recorder with no store of its own writes to the app's one shared store",
+      () async {
+    final shared = JpStoreMemory();
+    debugSetSharedJpStore(shared);
+    addTearDown(() => debugSetSharedJpStore(null));
+    final recorder = AttemptRecorder(items: () async => (_) => null);
+    final written = await recorder.record(_answer('ref.x.a'));
+
+    expect(written?.itemId, 'ref.x.a');
+    expect((await shared.attempts()).map((a) => a.itemId), ['ref.x.a']);
+  });
+
   // No SQLite plugin answers in a unit test, so the app's shared open fails here the way
   // it would on a phone with no usable database.
   test(
-      'the shared store reports a failed open once, and the next call tries again',
+      'a failed shared open loses each answer with a report, and the next answer tries again',
       () async {
     TestWidgetsFlutterBinding.ensureInitialized();
+    debugSetSharedJpStore(null);
     final capture = ReportCapture();
-    final errors = <Object>[];
-    for (var i = 0; i < 2; i++) {
-      try {
-        await sharedJpStore();
-      } catch (e) {
-        errors.add(e);
-      }
-    }
+    final recorder = AttemptRecorder(items: () async => (_) => null);
+    final first = await recorder.record(_answer('ref.x.a'));
+    final second = await recorder.record(_answer('ref.x.b'));
     final reports = capture.stop();
 
-    expect(errors, hasLength(2));
-    expect(reports.map((r) => r.context.toString()),
-        ['while opening the study store', 'while opening the study store']);
+    expect(first, isNull);
+    expect(second, isNull);
+    expect(reports.map((r) => r.context.toString()), [
+      'while logging the attempt on ref.x.a',
+      'while logging the attempt on ref.x.b',
+    ]);
     expect(reports.map((r) => r.library), everyElement('quiet room drills'));
   });
 }

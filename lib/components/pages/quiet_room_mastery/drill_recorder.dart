@@ -11,10 +11,14 @@
 // drill is the Say-it track and writes `sayIt`, which never moves the schedule or the
 // mastery state (D4).
 //
+// With no store injected, a recorder writes to the app's one shared store (`sharedJpStore`),
+// the same one the grammar and lesson screens use, so the phone holds one SQLite handle.
+//
 // The screens never wait on a write and never fail because of one. A store that cannot open
-// (no SQLite in a widget test, say) or a write that throws loses that attempt: the loss goes
+// (no SQLite in a unit test, say) or a write that throws loses that attempt: the loss goes
 // to FlutterError.reportError, so the app's handler records it (S4), and `record` resolves
-// null so the screen can tell the learner. The writes run one after another, so two quick
+// null so the screen can tell the learner. A failed shared open is not kept, so the next
+// answer tries the open again. The writes run one after another, so two quick
 // answers on one item never read the same before-state.
 
 import 'dart:async';
@@ -25,29 +29,9 @@ import 'attempt.dart';
 import 'fsrs.dart';
 import 'item_catalog.dart';
 import 'jp_store.dart';
-import 'jp_store_sqlite.dart' show openJpStore;
+import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'local_day.dart';
 import 'scheduler.dart';
-
-/// The app's one study store, opened on first use and shared by every screen. A failed open
-/// goes to [FlutterError.reportError] and is forgotten, so the next write tries again.
-Future<JpStore> sharedJpStore() => _shared ??= _openShared();
-
-/// One open attempt, reported once however many callers await it.
-Future<JpStore> _openShared() {
-  final open = openJpStore();
-  open.then((_) {}, onError: (Object e, StackTrace s) {
-    _shared = null;
-    FlutterError.reportError(FlutterErrorDetails(
-        exception: e,
-        stack: s,
-        library: 'quiet room drills',
-        context: ErrorDescription('while opening the study store')));
-  });
-  return open;
-}
-
-Future<JpStore>? _shared;
 
 /// What a screen shows when an answer did not reach the study record (S4: the learner
 /// sees it). Shared by the drills and the speak drill so a lost answer reads one way.
