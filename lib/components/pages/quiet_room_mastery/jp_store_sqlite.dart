@@ -84,9 +84,9 @@ Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
 
 Future<JpStore>? _shared;
 
-/// The app's one store, opened on first use and shared by every screen that writes an
-/// answer, so their answers run on one write chain. A failed open is not cached: the next
-/// call tries again.
+/// One store, opened on first use and shared by the screens that call it, so their
+/// answers run on one write chain. A screen that opens its own store does not join that
+/// chain. A failed open is not cached: the next call tries again.
 Future<JpStore> sharedJpStore() => _shared ??= openJpStore().then(
       (store) => store,
       onError: (Object e, StackTrace s) {

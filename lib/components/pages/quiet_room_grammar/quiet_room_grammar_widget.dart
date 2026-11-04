@@ -168,7 +168,8 @@ Grade? gradeGrammarAnswer(GrammarAnswer answer, GrammarPracticeResult r,
 /// Writes the grammar screen's answers to the study record, one at a time in answer order,
 /// so each answer reads whether its item is due after the one before it has landed.
 ///
-/// A write that fails reaches [onError]; the screen says so rather than lose it quietly.
+/// A write that fails reaches [onError]; the screen says so, or reports it once the
+/// screen is gone, rather than lose it quietly.
 class GrammarAttemptWriter {
   GrammarAttemptWriter({
     required this.store,
@@ -307,9 +308,18 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
         : () async => (await ItemCatalog.load()).byId,
     scheduler: widget.scheduler,
     clock: widget.clock,
-    onError: (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(const SnackBar(
+    onError: (e) {
+      // After unmount, or with no messenger, the lost attempt still reaches a
+      // handler (docs/standards.md S4): the same report Tasks 10 and 11 make.
+      final messenger = mounted ? ScaffoldMessenger.maybeOf(context) : null;
+      if (messenger == null) {
+        FlutterError.reportError(FlutterErrorDetails(
+            exception: e,
+            library: 'quiet room grammar',
+            context: ErrorDescription('while logging a grammar attempt')));
+        return;
+      }
+      messenger.showSnackBar(const SnackBar(
           content: Text('That answer was not saved.'),
           duration: Duration(seconds: 5)));
     },
