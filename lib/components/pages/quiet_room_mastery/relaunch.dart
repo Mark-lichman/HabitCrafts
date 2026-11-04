@@ -5,7 +5,7 @@
 //     builds today's plan: first launch seeds, then plans.
 //   * done: today already has a plan and its session is complete; the end card.
 //   * resume: today already has a plan and its session is not complete.
-//   * today: the last session was yesterday, one day ago with one day missed, or never (a seed
+//   * today: the last session was yesterday, two days ago with one day missed, or never (a seed
 //     with no plan yet); today's plan is built and stored.
 //   * welcomeBack: two or more local days were missed since the last session; the return plan
 //     (warm-up, low-retrievability cap, New paused) is built and stored behind the Welcome back
@@ -137,8 +137,9 @@ DayPlan? _decode(String plan) {
   }
 }
 
-/// The latest local day before [today] with a `DayRecord`, or null when there is none. A
-/// record on a day after [today] (the clock moved back) is not a session before today.
+/// The latest local day with a `DayRecord` when it is before [today], [today] when today's
+/// record exists or a later one does (the clock moved back), which the caller counts as no
+/// day missed, or null when there is no record at all.
 Future<int?> _lastSessionBefore(JpStore store, int today) async {
   final last = await store.lastDay();
   if (last == null || last < today) return last;

@@ -25,7 +25,7 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'attempt.dart';
+import 'attempt.dart' show ItemKind;
 import 'item_catalog.dart';
 import 'jp_store.dart';
 import 'study_export.dart';
