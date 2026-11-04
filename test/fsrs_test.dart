@@ -35,7 +35,7 @@ void main() {
     final reviews = (golden['reviews'] as List).cast<Map<String, dynamic>>();
 
     test('the fixture is dated and holds 40 reviews', () {
-      expect(golden['recorded'], isA<String>());
+      expect(golden['recorded'], matches(RegExp(r'^\d{4}-\d{2}-\d{2}$')));
       expect(reviews, hasLength(40));
     });
 
@@ -156,6 +156,18 @@ void main() {
         expect(scheduler.review(state, SrsRating.again, 0).stability,
             lessThanOrEqualTo(s));
       }
+      // Under the 0.001 stability floor the formula alone would lift S; only the explicit
+      // post-lapse min() keeps it at the old value.
+      const tiny = SrsState(
+          stability: 0.0005,
+          difficulty: 1.0,
+          lastReviewDay: 0,
+          dueDay: 1,
+          interval: 1);
+      expect(scheduler.review(tiny, SrsRating.again, 1000).stability,
+          lessThanOrEqualTo(0.0005));
+      expect(scheduler.review(tiny, SrsRating.again, 0).stability,
+          lessThanOrEqualTo(0.0005));
     });
 
     test('intervals stay in 1 to 90 days', () {
@@ -189,21 +201,35 @@ void main() {
 
     test('a first answer takes the initial stability of its rating', () {
       // w0 to w3 are the initial stabilities; the interval is the stability rounded, at
-      // least 1 day. Only an Again counts as a lapse.
+      // least 1 day. Only an Again counts as a lapse. The difficulties were recorded from
+      // py-fsrs 6.3.2 with the vendored parameters (a first review_card of each rating).
       const expected = {
-        SrsRating.again: (0.2172, 1, 1),
-        SrsRating.hard: (1.1771, 1, 0),
-        SrsRating.good: (3.2602, 3, 0),
-        SrsRating.easy: (16.1507, 16, 0),
+        SrsRating.again: (0.2172, 7.0114, 1, 1),
+        SrsRating.hard: (1.1771, 6.243132948566265, 1, 0),
+        SrsRating.good: (3.2602, 4.884631634813845, 3, 0),
+        SrsRating.easy: (16.1507, 2.482438522375997, 16, 0),
       };
-      for (final MapEntry(key: rating, value: (stability, interval, lapses))
-          in expected.entries) {
+      for (final MapEntry(
+            key: rating,
+            value: (stability, difficulty, interval, lapses)
+          ) in expected.entries) {
         final state = scheduler.first(rating, 0);
         expect(state.stability, closeTo(stability, 1e-12), reason: '$rating');
+        expect(state.difficulty, closeTo(difficulty, 1e-6), reason: '$rating');
         expect(state.interval, interval, reason: '$rating');
         expect(state.reps, 1, reason: '$rating');
         expect(state.lapses, lapses, reason: '$rating');
       }
+    });
+
+    test('a same-day Easy after a first Good matches py-fsrs', () {
+      // Recorded from py-fsrs 6.3.2 with the vendored parameters: review_card Good, then
+      // Easy at the same instant. The golden sequence has no same-day Easy row.
+      final first = scheduler.first(SrsRating.good, 1000);
+      final after = scheduler.review(first, SrsRating.easy, 1000);
+      expect(after.stability, closeTo(7.51322686707478, 1e-6));
+      expect(after.difficulty, closeTo(3.6846254319625134, 1e-6));
+      expect(after.interval, 8);
     });
 
     test('a later wrong answer raises reps and lapses by one', () {
@@ -327,6 +353,10 @@ void main() {
       // Box 2 is 7 days; 50% late is 10.5 days, so day 11 is more than 50% late.
       expect(leitner.review(inBox(2, 0), SrsRating.good, 10).box, 3);
       expect(leitner.review(inBox(2, 0), SrsRating.good, 11).box, 4);
+      // Box 3 is 14 days: day 21 is exactly 50% late, a one-box clear; day 22 is more than
+      // 50% late.
+      expect(leitner.review(inBox(3, 0), SrsRating.good, 21).box, 4);
+      expect(leitner.review(inBox(3, 0), SrsRating.good, 22).box, 5);
     });
 
     test('a hinted answer stays in its box', () {

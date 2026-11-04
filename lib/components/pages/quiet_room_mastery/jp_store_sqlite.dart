@@ -84,11 +84,16 @@ Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
 
 Future<JpStore>? _sharedStore;
 
-/// The one store of the run: opened on first use and kept. Every screen that writes answers
-/// without an injected store goes through here, so the phone holds one SQLite handle. A
-/// failed open is not kept, so the next call tries again.
-Future<JpStore> sharedJpStore() =>
-    _sharedStore ??= openJpStore().catchError((Object e) {
+/// The one store of the run: opened on first use and kept. Every screen that reads or writes
+/// answers without an injected store goes through here (the practice, grammar, lesson and
+/// drill screens and the study record page), so the phone holds one SQLite handle and web
+/// holds one memory store. A failed open is not kept, so the next call tries again. Each
+/// caller reports its own failed open.
+///
+/// [open] is a seam for the retry test; the app passes nothing and opens the platform's store.
+Future<JpStore> sharedJpStore(
+        {Future<JpStore> Function() open = openJpStore}) =>
+    _sharedStore ??= open().catchError((Object e) {
       _sharedStore = null;
       throw e;
     });
@@ -107,8 +112,7 @@ Future<void> _upgrade(Database db, int from, int to,
 }
 
 /// Replaces the store [sharedJpStore] hands out, for widget tests that cannot open SQLite.
-/// Null forgets it. Kept apart from [sharedJpStore] so a sibling branch that adds the same
-/// opener merges without a text conflict.
+/// Null forgets it. It is the one test seam for the shared store.
 @visibleForTesting
 void debugSetSharedJpStore(JpStore? store) =>
     _sharedStore = store == null ? null : Future.value(store);

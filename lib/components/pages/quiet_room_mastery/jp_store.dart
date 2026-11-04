@@ -22,11 +22,11 @@
 //
 // 🚨 HAZARD FOR THE INTAKE (Task 14), THE TOPIC INDEX (Task 22) AND THE PRACTICE-NOW ENTRY
 // POINTS (Tasks 23, 24); the rule lives in mastery_rule.dart (Task 6): `masteryAfter` leaves
-// only an early clear alone. An early hinted or self answer on an item with no SrsState and no
-// seed moves its mastery from New to Learning with zero clears, while `srsAfter` writes no
-// schedule, so the item is Learning and never due. Select New intake items by "no SrsState and
-// no seed", never by MasteryStatus.neu, or that item drops out of the queue. Build the Not yet
-// known and Due today sets from SrsState and seeds, not from MasteryStatus.
+// an early clear, hinted or self answer alone, the same set `srsAfter` leaves alone (ASK-2), so
+// an early answer short of a wrong never moves an item out of New without a schedule. Still
+// select New intake items by "no SrsState and no seed", never by MasteryStatus.neu, and build
+// the Not yet known and Due today sets from SrsState and seeds, not from MasteryStatus: the
+// schedule, not the badge, decides what is due.
 //
 // `rebuild` reads the log across several awaits before it writes, and `importLog` replaces the
 // whole record, so both run on the same chain as `recordAnswer` (`_serialized`): no answer reads

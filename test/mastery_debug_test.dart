@@ -15,6 +15,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show debugSetSharedJpStore, sharedJpStore;
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
@@ -354,18 +356,43 @@ void main() {
     });
   });
 
-  group('sharedStore', () {
-    test('drops a failed open so the next visit retries it', () async {
+  group('the shared store', () {
+    test('sharedJpStore drops a failed open so the next call retries it',
+        () async {
+      debugSetSharedJpStore(null);
+      addTearDown(() => debugSetSharedJpStore(null));
       Future<JpStore> failing() async =>
           throw StateError('the database file is locked');
       final store = JpStoreMemory();
       Future<JpStore> working() async => store;
 
-      await expectLater(sharedStore(open: failing), throwsStateError);
-      expect(await sharedStore(open: working), same(store),
+      await expectLater(sharedJpStore(open: failing), throwsStateError);
+      expect(await sharedJpStore(open: working), same(store),
           reason: 'the rejected open was not kept');
-      expect(await sharedStore(open: failing), same(store),
+      expect(await sharedJpStore(open: failing), same(store),
           reason: 'a store that opened is kept for the app run');
+    });
+
+    testWidgets('with no store injected the page reads the shared store',
+        (tester) async {
+      final shared = JpStoreMemory();
+      debugSetSharedJpStore(shared);
+      addTearDown(() => debugSetSharedJpStore(null));
+      final word = firstOf(ItemKind.word);
+      await tester.runAsync(
+          () => record(shared, answer(word, today, Grade.clear, minute: -5)));
+      tester.view.physicalSize = const Size(1200, 20000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        home: MasteryDebugWidget(
+          catalog: catalog,
+          clock: FixedClock(noonOf(today)),
+          files: FakeFiles(),
+        ),
+      ));
+      await settle(tester);
+      expect(find.text('1 attempt'), findsOneWidget);
     });
   });
 
