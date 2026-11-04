@@ -1115,6 +1115,35 @@ void main() {
     });
 
     testWidgets(
+        'the right answer retyped after a self-check showed it writes a hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      // Romaji from a keyboard left in English: the matcher cannot compare it, so
+      // the screen prints the answer for the learner to compare.
+      await typeAndCheck(tester, 'ittara');
+      expect(find.textContaining('Compare with the answer:'), findsOneWidget);
+      await typeAndCheck(tester, fillAnswer());
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.hinted]);
+      // The answer was on screen, so it earns no clear (PIN-3).
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets('the right answer retyped after Got it writes self then hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await typeAndCheck(tester, 'ittara');
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      await typeAndCheck(tester, fillAnswer());
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.self, Grade.hinted]);
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets(
         'an early clear changes neither the schedule nor mastery (PIN-14)',
         (tester) async {
       final store = await pumpWithStore(tester);
