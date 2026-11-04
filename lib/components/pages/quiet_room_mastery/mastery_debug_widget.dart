@@ -238,7 +238,8 @@ const Map<ItemKind, String> _kindName = {
 
 /// Where Export writes and Import reads. A seam for the test.
 abstract class StudyRecordFiles {
-  /// Saves [text] as [fileName]; false when the learner cancels.
+  /// Saves [text] as [fileName]; false when the learner cancels. The web picker cannot report
+  /// a cancel (see [PickerStudyRecordFiles.save]), so on web a cancel still reads as saved.
   Future<bool> save(String fileName, String text);
 
   /// The chosen file's text; null only when the learner cancels. A chosen file that cannot
@@ -257,7 +258,9 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
       fileName: fileName,
       bytes: utf8.encode(text),
     );
-    // On web saveFile starts the browser download and then always returns null.
+    // On web saveFile starts the browser download and then always returns null, so a cancel
+    // is not visible here. The web store is in memory ([openJpStore]), so that export holds
+    // only this page load's answers.
     return kIsWeb || path != null;
   }
 
