@@ -6,9 +6,10 @@
 //
 // Where an answer counts (D23, PIN-14): an item whose due day (its schedule, or its seed when
 // it has no schedule yet) has arrived is a `review`. Any other item, a New one included, is
-// `early`: a clear changes nothing and a wrong counts, so a free drill never pulls an item
-// into the queue ahead of the daily intake (PIN-6). The speak drill is the Say-it track and
-// writes `sayIt`, which never moves the schedule or the mastery state (D4).
+// `early`: a clear changes nothing, so a clear never pulls an item into the queue ahead of
+// the daily intake, and a wrong counts and makes the item due tomorrow (PIN-14). The speak
+// drill is the Say-it track and writes `sayIt`, which never moves the schedule or the
+// mastery state (D4).
 //
 // The screens never wait on a write and never fail because of one. A store that cannot open
 // (no SQLite in a widget test, say) or a write that throws loses that attempt: the loss goes
