@@ -75,30 +75,23 @@ Future<void> _createV1(Database db) async {
 
 /// Opens the platform's store: SQLite on the phone, memory on web (A4).
 ///
-/// Each call opens a new store. The app opens one per run and shares it; two stores on web
-/// do not see each other, and two on the phone do not serialize answers.
+/// Each call opens a new store. The app opens one per run through [sharedJpStore]; two
+/// stores on web do not see each other, and two on the phone do not serialize answers.
 Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
   if (isWeb) return JpStoreMemory();
   return JpStoreSqlite.open();
 }
 
-Future<JpStore>? _shared;
+Future<JpStore>? _sharedStore;
 
-/// One store, opened on first use and shared by the screens that call it, so their
-/// answers run on one write chain. A screen that opens its own store does not join that
-/// chain. A failed open is not cached: the next call tries again.
-Future<JpStore> sharedJpStore() => _shared ??= openJpStore().then(
-      (store) => store,
-      onError: (Object e, StackTrace s) {
-        _shared = null;
-        Error.throwWithStackTrace(e, s);
-      },
-    );
-
-/// Replaces the shared store, for widget tests that cannot open SQLite. Null forgets it.
-@visibleForTesting
-void debugSetSharedJpStore(JpStore? store) =>
-    _shared = store == null ? null : Future.value(store);
+/// The one store of the run: opened on first use and kept. Every screen that writes answers
+/// without an injected store goes through here, so the phone holds one SQLite handle. A
+/// failed open is not kept, so the next call tries again.
+Future<JpStore> sharedJpStore() =>
+    _sharedStore ??= openJpStore().catchError((Object e) {
+      _sharedStore = null;
+      throw e;
+    });
 
 /// Runs the steps in [upgrades] that take a file at [from] to [to], in order. Throws a
 /// [StateError], inside the open's transaction, when a step is missing.
@@ -112,6 +105,13 @@ Future<void> _upgrade(Database db, int from, int to,
     await step(db);
   }
 }
+
+/// Replaces the store [sharedJpStore] hands out, for widget tests that cannot open SQLite.
+/// Null forgets it. Kept apart from [sharedJpStore] so a sibling branch that adds the same
+/// opener merges without a text conflict.
+@visibleForTesting
+void debugSetSharedJpStore(JpStore? store) =>
+    _sharedStore = store == null ? null : Future.value(store);
 
 class JpStoreSqlite extends JpStore {
   JpStoreSqlite._(this._db);
