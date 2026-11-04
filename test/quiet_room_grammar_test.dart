@@ -356,9 +356,8 @@ void main() {
         (tester) async {
       await pumpRecorded(tester);
       expect(firstFills().first['hint'], isNotNull);
-      double right(String label) => tester
-          .getTopRight(find.widgetWithText(TextButton, label).first)
-          .dx;
+      double right(String label) =>
+          tester.getTopRight(find.widgetWithText(TextButton, label).first).dx;
 
       expect(right('Show answer'), right('Check'));
       await tester.tap(find.text('Show hint').first);
@@ -427,7 +426,8 @@ void main() {
       expect(results.last.hintTaken, isFalse);
     });
 
-    testWidgets('a wrong pick prints the hint after the lock, with no hint flag',
+    testWidgets(
+        'a wrong pick prints the hint after the lock, with no hint flag',
         (tester) async {
       final results = await pumpRecorded(tester);
       final choice = openingChoice();
@@ -954,9 +954,7 @@ void main() {
       await pumpStudyScreen(
           tester,
           QuietRoomGrammarWidget(
-              store: store,
-              itemLookup: catalog.byId,
-              clock: FixedClock(noon)));
+              store: store, itemLookup: catalog.byId, clock: FixedClock(noon)));
       return store;
     }
 
@@ -1040,7 +1038,8 @@ void main() {
       expect(await store.mastery(openingPoint()), isNull);
     });
 
-    testWidgets('a wrong check, then the right answer, writes wrong then hinted',
+    testWidgets(
+        'a wrong check, then the right answer, writes wrong then hinted',
         (tester) async {
       final store = await pumpWithStore(tester, dueToday: true);
       await typeAndCheck(tester, 'ぬぬぬ');
@@ -1194,9 +1193,7 @@ void main() {
       await pumpStudyScreen(
           tester,
           QuietRoomGrammarWidget(
-              store: store,
-              itemLookup: catalog.byId,
-              clock: FixedClock(noon)));
+              store: store, itemLookup: catalog.byId, clock: FixedClock(noon)));
 
       await typeAndCheck(tester, fillAnswer());
       await tester.pump();

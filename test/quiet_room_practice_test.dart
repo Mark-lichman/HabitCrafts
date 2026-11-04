@@ -20,8 +20,9 @@
 //
 // The attempt log (Task 10, D17): every verdict, self-mark and skip writes one Attempt to the
 // injected JpStoreMemory with its hint level and revealed flag. Correct is clear, close is
-// hinted, a hint is hinted, the whole answer showing is wrong, unverified is unscored, a Got it
-// over it is self and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
+// hinted, a hint is hinted, the whole answer showing writes one wrong per word, and later
+// listens and the mark are unscored (ASK-4), unverified is unscored, a Got it over it is self
+// and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
 // An answer on a word that is not due is early (PIN-14).
 
 import 'dart:async';
@@ -812,6 +813,35 @@ void main() {
       expect(await rig.attempts(tester), isEmpty);
       await rig.next(tester);
       expect((await rig.attempts(tester)).single.grade, Grade.unscored);
+    });
+
+    testWidgets(
+        'after the whole answer shows, a word writes one wrong and one review (ASK-4)',
+        (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      while (find.text('More').evaluate().isNotEmpty) {
+        await tester.tap(find.text('More'));
+        await tester.pump();
+      }
+      for (var i = 0; i < 3; i++) {
+        await rig.tapSpeak(tester);
+      }
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+
+      final all = await rig.attempts(tester);
+      expect(all.map((a) => a.grade),
+          [Grade.wrong, Grade.unscored, Grade.unscored, Grade.unscored]);
+      expect(all.every((a) => a.itemId == id && a.revealed), isTrue);
+      expect(all.skip(1).map((a) => a.rating), everyElement(isNull));
+      final srs = await rig.store.srs(id);
+      expect(srs!.reps, 1, reason: 'one scheduler review');
+      expect(srs.lapses, 1);
     });
 
     testWidgets('a second listen on the same word writes hinted',

@@ -66,8 +66,9 @@ bool earnsMasteryCredit(Grade grade) => grade == Grade.clear;
 /// it and [Outcome.wrong] is Missed it, and the reveal itself is expected. [hintLevel] is the
 /// highest hint taken before answering; a level at or above [revealingHintLevel] showed the
 /// answer, so it is wrong. On a machine-checked probe, [revealed] means "show the answer" was
-/// used, which is wrong too. [secondTry] marks a right answer after a wrong one, or after
-/// the answer was shown, on the same probe. [selfOverride] is the learner's Got it over a
+/// used, which is wrong too. [secondTry] marks a right answer after an earlier answer on the
+/// same probe that was wrong or showed the answer (a typed check after a wrong check, a
+/// second listen on the speaking screen). [selfOverride] is the learner's Got it over a
 /// check that could not score: it applies only when [outcome] is [Outcome.none]. A verified
 /// right, close or wrong keeps its own grade.
 Grade gradeAnswer({

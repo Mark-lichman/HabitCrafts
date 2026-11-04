@@ -28,8 +28,9 @@
 // after a self-check, and a "Show answer" reveal. The item's schedule and mastery move
 // in the same transaction (`JpStore.recordAnswer`). A hint tap, an empty Check, "Tap
 // for English" and the lesson's "Can use it" and "Review" pills write nothing. An
-// answer on an item that is not due is early practice (PIN-14): a clear changes
-// neither its schedule nor its mastery, a wrong counts. `gradeGrammarAnswer` holds the
+// answer on an item that is not due is early practice (PIN-14, ASK-2): a clear, hinted
+// or self answer changes neither its schedule nor its mastery, a wrong counts.
+// `gradeGrammarAnswer` holds the
 // grades (D17).
 
 import 'package:flutter/material.dart';

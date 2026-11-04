@@ -341,8 +341,7 @@ void main() {
         expect(early.srs, first.srs);
         expect(early.mastery, first.mastery);
         expect(await store.srs(g.id), first.srs);
-        // A hinted and a self answer leave the schedule alone too. Their mastery is not
-        // asserted: the intake owner may change that rule (the jp_store.dart hazard note).
+        // A hinted and a self answer leave the schedule and the mastery alone too (PIN-14, ASK-2).
         for (final (grade, minute) in [(Grade.hinted, 1), (Grade.self, 2)]) {
           final out = await store.recordAnswer(
               answer(g, 11, grade,
@@ -350,7 +349,9 @@ void main() {
               item: g,
               scheduler: scheduler);
           expect(out.srs, first.srs, reason: '$grade');
+          expect(out.mastery, first.mastery, reason: '$grade');
           expect(await store.srs(g.id), first.srs, reason: '$grade');
+          expect(await store.mastery(g.id), first.mastery, reason: '$grade');
         }
         final wrong = await store.recordAnswer(
             answer(g, 11, Grade.wrong,

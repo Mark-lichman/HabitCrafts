@@ -25,6 +25,8 @@
 //   * `correct` is clear, or hinted with a hint taken or on a second listen of the same word
 //     (the verdict showed the answer); `close` is hinted; `wrong` is wrong;
 //   * a hint at the last rung (the whole answer) makes any answer wrong, as the tally says;
+//     only the first such wrong on a word in a pass is scored, and later listens and the mark
+//     on that word log as unscored, so rehearsal after a reveal costs one lapse (ASK-4);
 //   * `unverified` writes unscored; the learner's Got it then writes self (no mastery credit,
 //     PIN-3) and Missed it writes wrong;
 //   * Next on a word with no kept listen is a skip: unscored, or wrong when the answer showed.
@@ -56,7 +58,7 @@ import '../quiet_room_mastery/attempt.dart';
 import '../quiet_room_mastery/fsrs.dart';
 import '../quiet_room_mastery/item_catalog.dart';
 import '../quiet_room_mastery/jp_store.dart';
-import '../quiet_room_mastery/jp_store_sqlite.dart';
+import '../quiet_room_mastery/jp_store_sqlite.dart' show sharedJpStore;
 import '../quiet_room_mastery/local_day.dart';
 import '../quiet_room_mastery/scheduler.dart';
 import 'listening_bars.dart';
@@ -129,10 +131,6 @@ Grade practiceSkipGrade(Map<String, dynamic> word, int hintLevel) =>
       hintLevel: hintLevel,
       revealingHintLevel: practiceHintSteps(word).length,
     );
-
-/// The store the screen writes to when none is injected: opened once per app run and shared.
-Future<JpStore>? _defaultStore;
-Future<JpStore> _practiceStore() => _defaultStore ??= openJpStore();
 
 /// One listen on one word, as the screen hands it on.
 class PracticeResult {
@@ -209,8 +207,8 @@ class QuietRoomPracticeWidget extends StatefulWidget {
   /// again with the learner's mark after a self-check.
   final ValueChanged<PracticeResult>? onResult;
 
-  /// Where the attempts go. Null writes to the app's store (SQLite on the phone, memory on
-  /// web), opened once per run.
+  /// Where the attempts go. Null writes to the app's one shared store (`sharedJpStore`).
+  /// SQLite on the phone, memory on web.
   final JpStore? store;
 
   /// The item definitions the mastery rule needs. Null reads the item catalog.
@@ -248,6 +246,9 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
 
   /// True once the card on screen added to the tally (ASK-1: each word counts once).
   bool _counted = false;
+
+  /// True once the card on screen wrote its wrong for the whole answer showing (ASK-4).
+  bool _revealWrongWritten = false;
 
   /// The lesson's illustrated words, shuffled once. Each is shown once per pass.
   List<Map<String, dynamic>> _deck = const [];
@@ -333,6 +334,7 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
     _micError = null;
     _answered = false;
     _counted = false;
+    _revealWrongWritten = false;
     _shownAt = _clock.now();
   }
 
@@ -381,10 +383,18 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
   }
 
   /// Shows [r], adds it to the tally if it is the word's first checked or marked result
-  /// (ASK-1), and logs it.
+  /// (ASK-1), and logs it. Once the whole answer showed, the word's first verdict writes one
+  /// wrong; each later listen and mark on it logs as unscored (ASK-4).
   void _keep(PracticeResult r) {
     final secondTry = r.selfMark == null && _answered;
-    final grade = practiceGrade(r, secondTry: secondTry);
+    var grade = practiceGrade(r, secondTry: secondTry);
+    if (r.revealed && grade == Grade.wrong) {
+      if (_revealWrongWritten) {
+        grade = Grade.unscored;
+      } else {
+        _revealWrongWritten = true;
+      }
+    }
     setState(() {
       _result = r;
       _answered = true;
@@ -411,7 +421,7 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
     final id = practiceItemId(word);
     _writes = _writes.then((_) async {
       try {
-        final store = widget.store ?? await _practiceStore();
+        final store = widget.store ?? await sharedJpStore();
         final lookup = widget.items ?? (await ItemCatalog.load()).byId;
         final due =
             (await store.srs(id))?.dueDay ?? (await store.item(id))?.seedDueDay;

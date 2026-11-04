@@ -131,6 +131,12 @@ void main() {
     final a = written.single;
     expect(a.itemId, id);
     expect(a.probeId, 'card');
+    // The mastery rule reads these from the attempt: they must match the catalog probe.
+    final probe =
+        catalog().byId(id)!.probes.singleWhere((p) => p.id == a.probeId);
+    expect(probe.template, a.template);
+    expect(probe.selfGraded, a.selfGraded);
+    expect(probe.production, a.production);
     expect(a.template, 'card');
     expect(a.selfGraded, isTrue);
     expect(a.production, isFalse);
