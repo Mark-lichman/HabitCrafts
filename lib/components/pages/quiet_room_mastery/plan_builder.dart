@@ -318,12 +318,14 @@ class DayPlan {
       );
 
   /// The plan after the entry at [index] was answered unscored: the entry moves to the end of
-  /// its section, once. An entry already requeued stays where it is.
+  /// its section, once. An entry already requeued stays where it is. A re-ask that
+  /// [afterWrong] placed later in the plan does not count as the end of the Repair section.
   DayPlan afterUnscored(int index) {
     final entry = entries[index];
     if (entry.requeued) return this;
     final next = [...entries]..removeAt(index);
-    final last = next.lastIndexWhere((e) => e.section == entry.section);
+    final last = next.lastIndexWhere(
+        (e) => e.section == entry.section && e.reask == entry.reask);
     next.insert(
         last < index ? index : last + 1, entry.copyWith(requeued: true));
     return _withEntries(next);

@@ -515,13 +515,14 @@ void main() {
       }
       final p = await plan(store, tuesday);
       expect(p.newSkip, NewSkip.none);
-      expect(p.section(PlanSection.due), isEmpty, reason: 'none of them is due');
+      expect(p.section(PlanSection.due), isEmpty,
+          reason: 'none of them is due');
       expect(p.stretchOffer, isTrue);
-      final offered = [
-        for (final e in [...p.section(PlanSection.newItems), ...p.stretchEntries])
-          e.itemId
-      ];
-      final held = {for (final w in [...seeded, ...stated]) w.id};
+      final shown = [...p.section(PlanSection.newItems), ...p.stretchEntries];
+      final offered = [for (final e in shown) e.itemId];
+      final held = {
+        for (final w in [...seeded, ...stated]) w.id
+      };
       expect(offered.where(held.contains), isEmpty);
       // The oracle is the catalog, not the intake: the first two level-0 items, then the
       // first unintroduced words of the first lesson fill New and then the stretch.
@@ -783,6 +784,38 @@ void main() {
       final repaired = p.afterUnscored(0);
       expect(repaired.entries[0].itemId, p.entries[0].itemId);
       expect(repaired.entries[0].requeued, isTrue);
+    });
+
+    test('an unscored repair stays ahead of Due when a re-ask sits later',
+        () async {
+      final store = JpStoreMemory();
+      final words = wordsOf(5);
+      await seedEverything(store, tuesday);
+      // Two wrongs yesterday open the plan as two repairs.
+      await store.appendAttempt(wrongOn(words[0], tuesday - 1));
+      await store.appendAttempt(wrongOn(words[1], tuesday - 1));
+      for (final w in ofKind(ItemKind.word).skip(100).take(5)) {
+        await due(store, w, tuesday, 0.8);
+      }
+      final p = await plan(store, tuesday);
+      expect([for (final e in p.section(PlanSection.repair)) e.itemId],
+          [words[0].id, words[1].id]);
+      // A wrong on the first repair places its re-ask after the Due block.
+      final wrong = p.afterWrong(0);
+      final reaskAt = wrong.entries.indexWhere((e) => e.reask);
+      final firstDue =
+          wrong.entries.indexWhere((e) => e.section == PlanSection.due);
+      expect(reaskAt, greaterThan(firstDue));
+      // The second repair, unscored, returns to the end of the Repair
+      // section proper, not past the re-ask and the Due block.
+      final unscored = wrong.afterUnscored(1);
+      expect(unscored.entries.length, wrong.entries.length);
+      expect(unscored.entries[1].itemId, words[1].id);
+      expect(unscored.entries[1].requeued, isTrue);
+      expect(unscored.entries[2].section, PlanSection.due);
+      final reask = unscored.entries.indexWhere((e) => e.reask);
+      expect(reask, greaterThan(firstDue));
+      expect(unscored.entries[reask].itemId, words[0].id);
     });
 
     test('the plan round-trips through the day record', () async {
