@@ -20,8 +20,9 @@
 //
 // The attempt log (Task 10, D17): every verdict, self-mark and skip writes one Attempt to the
 // injected JpStoreMemory with its hint level and revealed flag. Correct is clear, close is
-// hinted, a hint is hinted, the whole answer showing is wrong, unverified is unscored, a Got it
-// over it is self and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
+// hinted, a hint is hinted, the whole answer showing writes one wrong per word, and later
+// listens and the mark are unscored (ASK-4), unverified is unscored, a Got it over it is self
+// and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
 // An answer on a word that is not due is early (PIN-14).
 
 import 'dart:async';
