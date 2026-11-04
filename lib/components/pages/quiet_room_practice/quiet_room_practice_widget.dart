@@ -19,6 +19,21 @@
 //     It asks the same self-check question as the speak drill, "Got it" or "Missed it", and
 //     only the learner's mark counts.
 //
+// 🚨 EVERY ANSWER IS LOGGED (plan 2026-11-02, Task 10, D17). Each verdict, self-mark and skip
+// writes one `Attempt` on the word's `spoken` probe through the injected `JpStore`, with its hint
+// level and revealed flag:
+//   * `correct` is clear, or hinted with a hint taken or on a second listen of the same word
+//     (the verdict showed the answer); `close` is hinted; `wrong` is wrong;
+//   * a hint at the last rung (the whole answer) makes any answer wrong, as the tally says;
+//   * `unverified` writes unscored; the learner's Got it then writes self (no mastery credit,
+//     PIN-3) and Missed it writes wrong;
+//   * Next on a word with no kept listen is a skip: unscored, or wrong when the answer showed.
+// An answer on a word that is not due is `source: early` (PIN-14); the store applies the rule.
+//
+// THE TALLY COUNTS EACH WORD ONCE (operator ruling ASK-1, 2026-11-03): only the first checked
+// or marked result on a word adds to it, so the counts sum to at most the deck size. The log
+// still records every listen.
+//
 // One listen at a time: Speak first stops the app's own voice, Next waits while the microphone
 // is open, Stop and the app going to the background retire the listen so a late result is
 // dropped, never shown.
@@ -37,6 +52,13 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 
 import '/flutter_flow/quiet_room.dart';
+import '../quiet_room_mastery/attempt.dart';
+import '../quiet_room_mastery/fsrs.dart';
+import '../quiet_room_mastery/item_catalog.dart';
+import '../quiet_room_mastery/jp_store.dart';
+import '../quiet_room_mastery/jp_store_sqlite.dart';
+import '../quiet_room_mastery/local_day.dart';
+import '../quiet_room_mastery/scheduler.dart';
 import 'listening_bars.dart';
 import 'speech_service.dart';
 
@@ -60,6 +82,57 @@ List<String> practiceHintSteps(Map<String, dynamic> word) {
     kana,
   ];
 }
+
+/// The probe the practice screen asks: spoken recall of a word (item_catalog.dart).
+const String kPracticeProbe = 'spoken';
+
+/// The word's mastery item id: its image stem (D19), as the item catalog names it.
+String practiceItemId(Map<String, dynamic> word) {
+  final image = word['image'] as String?;
+  if (image == null || image.isEmpty) return word['id'] as String;
+  final file = image.split('/').last;
+  final dot = file.lastIndexOf('.');
+  return dot > 0 ? file.substring(0, dot) : file;
+}
+
+/// The grade [r] writes to the log (D17, PIN-3, PIN-13).
+///
+/// [secondTry] marks a listen on a word that already showed a verdict, and so its answer.
+/// A self-mark grades the learner's word: Got it over an unverified listen is self, Missed it
+/// is wrong.
+Grade practiceGrade(PracticeResult r, {bool secondTry = false}) {
+  final mark = r.selfMark;
+  final outcome = mark == false
+      ? Outcome.wrong
+      : switch (r.speech.judgement) {
+          Judgement.correct => Outcome.right,
+          Judgement.close => Outcome.close,
+          Judgement.wrong => Outcome.wrong,
+          Judgement.unverified => Outcome.none,
+        };
+  return gradeAnswer(
+    outcome: outcome,
+    selfGraded: false,
+    hintLevel: r.hintLevel,
+    revealingHintLevel: practiceHintSteps(r.word).length,
+    revealed: r.revealed,
+    secondTry: secondTry,
+    selfOverride: mark == true,
+  );
+}
+
+/// The grade a skip writes: unscored, or wrong when the hints had shown the answer.
+Grade practiceSkipGrade(Map<String, dynamic> word, int hintLevel) =>
+    gradeAnswer(
+      outcome: Outcome.none,
+      selfGraded: false,
+      hintLevel: hintLevel,
+      revealingHintLevel: practiceHintSteps(word).length,
+    );
+
+/// The store the screen writes to when none is injected: opened once per app run and shared.
+Future<JpStore>? _defaultStore;
+Future<JpStore> _practiceStore() => _defaultStore ??= openJpStore();
 
 /// One listen on one word, as the screen hands it on.
 class PracticeResult {
@@ -118,6 +191,10 @@ class QuietRoomPracticeWidget extends StatefulWidget {
     this.speech,
     this.random,
     this.onResult,
+    this.store,
+    this.items,
+    this.clock,
+    this.scheduler,
   });
 
   /// Null practises every lesson at once.
@@ -132,6 +209,17 @@ class QuietRoomPracticeWidget extends StatefulWidget {
   /// again with the learner's mark after a self-check.
   final ValueChanged<PracticeResult>? onResult;
 
+  /// Where the attempts go. Null writes to the app's store (SQLite on the phone, memory on
+  /// web), opened once per run.
+  final JpStore? store;
+
+  /// The item definitions the mastery rule needs. Null reads the item catalog.
+  final ItemLookup? items;
+
+  /// Null reads the device clock and schedules with FSRS.
+  final Clock? clock;
+  final Scheduler? scheduler;
+
   static String routeName = 'quietRoomPractice';
   static String routePath = '/quietRoomPractice';
 
@@ -144,6 +232,22 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
     with WidgetsBindingObserver {
   late final SpeechService _speech = widget.speech ?? SpeechService.instance;
   late final Random _rng = widget.random ?? Random();
+  late final Clock _clock = widget.clock ?? const SystemClock();
+  late final Scheduler _scheduler = widget.scheduler ?? const FsrsScheduler();
+  late final String _sessionId =
+      'practice-${_clock.now().toUtc().microsecondsSinceEpoch}';
+
+  /// The tail of this screen's writes, so attempts land in the order they were given.
+  Future<void> _writes = Future.value();
+
+  /// When the card on screen was shown, for the attempt's duration.
+  DateTime? _shownAt;
+
+  /// True once a listen on the card on screen was kept, so its verdict showed the answer.
+  bool _answered = false;
+
+  /// True once the card on screen added to the tally (ASK-1: each word counts once).
+  bool _counted = false;
 
   /// The lesson's illustrated words, shuffled once. Each is shown once per pass.
   List<Map<String, dynamic>> _deck = const [];
@@ -214,7 +318,10 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
         setState(() => _error = 'No illustrated words in this lesson.');
         return;
       }
-      setState(() => _deck = pool..shuffle(_rng));
+      setState(() {
+        _deck = pool..shuffle(_rng);
+        _shownAt = _clock.now();
+      });
     } catch (_) {
       if (mounted) setState(() => _error = 'Could not load the vocabulary.');
     }
@@ -224,11 +331,22 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
     _hintLevel = 0;
     _result = null;
     _micError = null;
+    _answered = false;
+    _counted = false;
+    _shownAt = _clock.now();
   }
 
   /// Ignored while listening, so a pending result is never credited to the next word.
+  /// Leaving a word with no kept listen is a skip, and the skip is logged.
   void _next() {
     if (_deck.isEmpty || _listening) return;
+    final card = _card;
+    if (card != null && !_answered) {
+      _write(card,
+          grade: practiceSkipGrade(card, _hintLevel),
+          hintLevel: _hintLevel,
+          revealed: _hintLevel >= practiceHintSteps(card).length);
+    }
     setState(() {
       _clearCard();
       if (_pos + 1 >= _deck.length) {
@@ -262,12 +380,71 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
     }
   }
 
+  /// Shows [r], adds it to the tally if it is the word's first checked or marked result
+  /// (ASK-1), and logs it.
   void _keep(PracticeResult r) {
+    final secondTry = r.selfMark == null && _answered;
+    final grade = practiceGrade(r, secondTry: secondTry);
     setState(() {
       _result = r;
-      _count(r.tally);
+      _answered = true;
+      final t = r.tally;
+      if (t != PracticeTally.uncounted && !_counted) {
+        _counted = true;
+        _count(t);
+      }
     });
+    _write(r.word, grade: grade, hintLevel: r.hintLevel, revealed: r.revealed);
     widget.onResult?.call(r);
+  }
+
+  /// Logs one attempt on [word]'s spoken probe. The time is read now; the write runs after
+  /// the screen's earlier writes. A write that fails goes to [FlutterError.reportError], so
+  /// the app's error handler records it (S4); the verdict still shows, and the lost attempt
+  /// earns no credit.
+  void _write(Map<String, dynamic> word,
+      {required Grade grade, required int hintLevel, required bool revealed}) {
+    final now = _clock.now();
+    final day = localDay(now);
+    final shown = _shownAt;
+    final duration = shown == null ? 0 : now.difference(shown).inMilliseconds;
+    final id = practiceItemId(word);
+    _writes = _writes.then((_) async {
+      try {
+        final store = widget.store ?? await _practiceStore();
+        final lookup = widget.items ?? (await ItemCatalog.load()).byId;
+        final due =
+            (await store.srs(id))?.dueDay ?? (await store.item(id))?.seedDueDay;
+        final wasDue = due != null && due <= day;
+        await store.recordAnswer(
+          Attempt(
+            itemId: id,
+            probeId: kPracticeProbe,
+            template: kPracticeProbe,
+            production: true,
+            selfGraded: false,
+            atUtc: now.toUtc(),
+            localDay: day,
+            grade: grade,
+            rating: fsrsRatingFor(grade),
+            hintLevel: hintLevel,
+            revealed: revealed,
+            wasDue: wasDue,
+            source: wasDue ? Source.review : Source.early,
+            durationMs: duration < 0 ? 0 : duration,
+            sessionId: _sessionId,
+          ),
+          item: lookup(id),
+          scheduler: _scheduler,
+        );
+      } catch (e, s) {
+        FlutterError.reportError(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'quiet room practice',
+            context: ErrorDescription('while logging the attempt on $id')));
+      }
+    });
   }
 
   Future<void> _listen() async {

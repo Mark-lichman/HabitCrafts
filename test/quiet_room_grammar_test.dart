@@ -1,7 +1,12 @@
 // Widget tests for the grammar screen: the By use view, a choice question's feedback,
 // the typed-answer box (PIN-3), the hint behind its tap and the practice result
 // (PIN-3 of the mastery plan), the 漢字 toggle (PIN-4), the tap-a-word reading hint
-// (PIN-16) and the speaking drill link (PIN-6).
+// (PIN-16), the speaking drill link (PIN-6) and the attempts the screen writes
+// through its injected JpStore (Task 9 of the mastery plan: D17, PIN-3, PIN-14).
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +16,13 @@ import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dar
     show RubyTapText, TypedVerdict, rubyWords;
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
@@ -911,4 +923,356 @@ void main() {
 
     expect(find.text('drill for $lesson'), findsOneWidget);
   });
+
+  group('the attempts the screen writes (Task 9: D17, PIN-3, PIN-14)', () {
+    /// The shipped catalog, built from the assets on disk.
+    final catalog = ItemCatalog.fromDocs(
+        readLessonFile(),
+        json.decode(File('assets/lessons/jp_lessons.json').readAsStringSync())
+            as Map<String, dynamic>);
+
+    /// Noon on 2026-03-02, local time.
+    final noon = DateTime(2026, 3, 2, 12);
+    final today = localDay(noon);
+
+    List<Map<String, dynamic>> openingPoints() =>
+        (firstLesson()['points'] as List).cast<Map<String, dynamic>>();
+
+    /// The opening point: its first item is a fill-in, its second a choice.
+    String openingPoint() => openingPoints().first['id'] as String;
+
+    /// Pumps the screen on a fresh memory store. [dueToday] seeds every point of the
+    /// opening lesson due today, so its answers are reviews rather than early practice.
+    Future<JpStore> pumpWithStore(WidgetTester tester,
+        {bool dueToday = false}) async {
+      final store = JpStoreMemory();
+      if (dueToday) {
+        for (final p in openingPoints()) {
+          await store.appendSeed(p['id'] as String, today, atUtc: noon.toUtc());
+        }
+      }
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store,
+              itemLookup: catalog.byId,
+              clock: FixedClock(noon)));
+      return store;
+    }
+
+    Future<void> typeAndCheck(WidgetTester tester, String text) async {
+      await tester.enterText(answerBoxes.first, text);
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+    }
+
+    String fillAnswer() => firstFills().first['answer'] as String;
+
+    testWidgets('a clear typed with no hint writes a clear', (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await typeAndCheck(tester, fillAnswer());
+
+      final a = (await store.attempts()).single;
+      expect(a.itemId, openingPoint());
+      expect(a.probeId, 'p0');
+      expect(a.template, 'fill');
+      expect(a.production, isTrue);
+      expect(a.selfGraded, isFalse);
+      expect(a.grade, Grade.clear);
+      expect(a.rating, kRatingGood);
+      expect(a.hintLevel, 0);
+      expect(a.revealed, isFalse);
+      expect(a.wasDue, isTrue);
+      expect(a.source, Source.review);
+      expect(a.localDay, today);
+
+      // The schedule and the mastery moved with it, in the same answer.
+      expect((await store.srs(openingPoint()))!.lastReviewDay, today);
+      final m = (await store.mastery(openingPoint()))!;
+      expect(m.status, MasteryStatus.learning);
+      expect(m.clears, hasLength(1));
+    });
+
+    testWidgets('a clear typed after Show hint writes a hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await tester.tap(find.text('Show hint').first);
+      await tester.pump();
+      // The hint tap alone is no attempt.
+      expect(await store.attempts(), isEmpty);
+
+      await typeAndCheck(tester, fillAnswer());
+
+      final a = (await store.attempts()).single;
+      expect(a.grade, Grade.hinted);
+      expect(a.rating, kRatingHard);
+      expect(a.hintLevel, 1);
+      expect(a.revealed, isFalse);
+      // A hinted answer earns no clear (PIN-3).
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets('Show answer writes a wrong with the revealed flag',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await tester.tap(find.text('Show answer').first);
+      await tester.pump();
+
+      final a = (await store.attempts()).single;
+      expect(a.probeId, 'p0');
+      expect(a.grade, Grade.wrong);
+      expect(a.rating, kRatingAgain);
+      expect(a.revealed, isTrue);
+      expect(a.hintLevel, 0);
+    });
+
+    testWidgets('an empty Check writes nothing', (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+      await tester.enterText(answerBoxes.first, '  　');
+      await tester.tap(find.text('Check').first);
+      await tester.pump();
+
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      expect(await store.attempts(), isEmpty);
+      expect(await store.srs(openingPoint()), isNull);
+      expect(await store.mastery(openingPoint()), isNull);
+    });
+
+    testWidgets('a wrong check, then the right answer, writes wrong then hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await typeAndCheck(tester, 'ぬぬぬ');
+      await typeAndCheck(tester, fillAnswer());
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.wrong, Grade.hinted]);
+    });
+
+    testWidgets('a pick writes a clear when right and a wrong when not',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      final choice = (openingPoints().first['practice'] as List)[1]
+          as Map<String, dynamic>;
+      expect(choice['options'], isNotEmpty);
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+
+      final a = (await store.attempts()).single;
+      expect(a.probeId, 'p1');
+      expect(a.template, 'choose');
+      expect(a.production, isFalse);
+      expect(a.grade, Grade.clear);
+      expect(a.hintLevel, 0);
+
+      // A wrong pick on the second point's first choice item, found inside the item
+      // that shows its prompt, since another item may show the same option text.
+      final second = openingPoints()[1];
+      final practice =
+          (second['practice'] as List).cast<Map<String, dynamic>>();
+      final qi = practice
+          .indexWhere((q) => (q['options'] as List? ?? const []).isNotEmpty);
+      expect(qi, isNonNegative);
+      final q = practice[qi];
+      final wrong = (q['options'] as List)
+          .cast<String>()
+          .firstWhere((o) => o != q['answer']);
+      final itemBox = find
+          .ancestor(
+              of: find.text(unanswered(q['prompt'] as String)),
+              matching: find.byType(Column))
+          .first;
+      await tester
+          .tap(find.descendant(of: itemBox, matching: find.text(wrong)));
+      await tester.pump();
+
+      final last = (await store.attempts()).last;
+      expect(last.itemId, second['id']);
+      expect(last.probeId, 'p$qi');
+      expect(last.grade, Grade.wrong);
+    });
+
+    testWidgets(
+        'Got it on an answer it cannot compare writes self, Missed it wrong',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await typeAndCheck(tester, 'ittara');
+      // The check could not score, so the Check itself is no attempt yet.
+      expect(await store.attempts(), isEmpty);
+
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      // A second tap on the same pill changes nothing and writes nothing.
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      await tester.tap(find.text('Missed it'));
+      await tester.pump();
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.self, Grade.wrong]);
+      // Self earns no clear (PIN-3).
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets(
+        'the right answer retyped after a self-check showed it writes a hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      // Romaji from a keyboard left in English: the matcher cannot compare it, so
+      // the screen prints the answer for the learner to compare.
+      await typeAndCheck(tester, 'ittara');
+      expect(find.textContaining('Compare with the answer:'), findsOneWidget);
+      await typeAndCheck(tester, fillAnswer());
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.hinted]);
+      // The answer was on screen, so it earns no clear (PIN-3).
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets('the right answer retyped after Got it writes self then hinted',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await typeAndCheck(tester, 'ittara');
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      await typeAndCheck(tester, fillAnswer());
+
+      final grades = [for (final a in await store.attempts()) a.grade];
+      expect(grades, [Grade.self, Grade.hinted]);
+      expect((await store.mastery(openingPoint()))!.clears, isEmpty);
+    });
+
+    testWidgets(
+        'an early clear changes neither the schedule nor mastery (PIN-14)',
+        (tester) async {
+      final store = await pumpWithStore(tester);
+      await typeAndCheck(tester, fillAnswer());
+
+      final a = (await store.attempts()).single;
+      expect(a.grade, Grade.clear);
+      expect(a.wasDue, isFalse);
+      expect(a.source, Source.early);
+      expect(await store.srs(openingPoint()), isNull);
+      final m = await store.mastery(openingPoint());
+      expect(m?.status ?? MasteryStatus.neu, MasteryStatus.neu);
+      expect(m?.clears ?? const [], isEmpty);
+    });
+
+    testWidgets('an early wrong counts: the item is due tomorrow (PIN-14)',
+        (tester) async {
+      final store = await pumpWithStore(tester);
+      await tester.tap(find.text('Show answer').first);
+      await tester.pump();
+
+      final a = (await store.attempts()).single;
+      expect(a.grade, Grade.wrong);
+      expect(a.source, Source.early);
+      expect((await store.srs(openingPoint()))!.dueDay, today + 1);
+    });
+
+    testWidgets('a reading aid and the lesson pills write no attempt',
+        (tester) async {
+      final store = await pumpWithStore(tester, dueToday: true);
+      await tester.tap(find.text('Tap for English').first);
+      await tester.pump();
+      await tester.tap(find.text('Can use it').first);
+      await tester.pump();
+      await tester.tap(find.text('Review').first);
+      await tester.pump();
+
+      expect(await store.attempts(), isEmpty);
+    });
+
+    testWidgets('a failed write says so, and the next answer still lands',
+        (tester) async {
+      final store = _FailingOnceStore();
+      for (final p in openingPoints()) {
+        await store.appendSeed(p['id'] as String, today, atUtc: noon.toUtc());
+      }
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store,
+              itemLookup: catalog.byId,
+              clock: FixedClock(noon)));
+
+      await typeAndCheck(tester, fillAnswer());
+      await tester.pump();
+      // Never lost quietly.
+      expect(find.text('That answer was not saved.'), findsOneWidget);
+      expect(await store.attempts(), isEmpty);
+
+      // The write chain survives the failure.
+      final choice = (openingPoints().first['practice'] as List)[1]
+          as Map<String, dynamic>;
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+      final a = (await store.attempts()).single;
+      expect(a.probeId, 'p1');
+      expect(a.grade, Grade.clear);
+    });
+
+    testWidgets('a write that fails after the screen is gone is reported',
+        (tester) async {
+      final store = _GatedStore();
+      for (final p in openingPoints()) {
+        await store.appendSeed(p['id'] as String, today, atUtc: noon.toUtc());
+      }
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store, itemLookup: catalog.byId, clock: FixedClock(noon)));
+      await typeAndCheck(tester, fillAnswer());
+      await tester.pump();
+      expect(store.gate, isNotNull, reason: 'the write is in flight');
+
+      // Leave the screen before the write settles.
+      await tester.pumpWidget(const SizedBox());
+
+      final reported = <FlutterErrorDetails>[];
+      final prior = FlutterError.onError;
+      FlutterError.onError = reported.add;
+      addTearDown(() => FlutterError.onError = prior);
+      store.gate!.completeError(StateError('disk full'));
+      await tester.pump();
+      FlutterError.onError = prior;
+
+      // No snackbar can show, so the failure reaches a handler (S4).
+      expect(reported, hasLength(1));
+      expect(reported.single.exception, isA<StateError>());
+      expect(reported.single.library, 'quiet room grammar');
+      expect(reported.single.context.toString(),
+          'while logging a grammar attempt');
+      expect(await store.attempts(), isEmpty);
+    });
+  });
+}
+
+/// A memory store whose answer write waits on [gate] until the test settles it.
+class _GatedStore extends JpStoreMemory {
+  Completer<AnswerOutcome>? gate;
+
+  @override
+  Future<AnswerOutcome> recordAnswer(Attempt attempt,
+      {required ItemDefLike? item, required Scheduler scheduler}) {
+    gate = Completer<AnswerOutcome>();
+    return gate!.future;
+  }
+}
+
+/// A memory store whose first answer write throws, as a full disk would.
+class _FailingOnceStore extends JpStoreMemory {
+  bool _failed = false;
+
+  @override
+  Future<AnswerOutcome> recordAnswer(Attempt attempt,
+      {required ItemDefLike? item, required Scheduler scheduler}) {
+    if (!_failed) {
+      _failed = true;
+      return Future.error(StateError('disk full'));
+    }
+    return super.recordAnswer(attempt, item: item, scheduler: scheduler);
+  }
 }

@@ -1,4 +1,4 @@
-// Tests for the vocabulary speaking screen (plan 2026-11-02, Task 2).
+// Tests for the vocabulary speaking screen (plan 2026-11-02, Tasks 2 and 10).
 //
 // The screen runs a real SpeechService on fake engines (SpeechService.withEngines), so the
 // listen, Stop, pause and error paths are the ones the screen ships with. The deck is the real
@@ -15,7 +15,14 @@
 //     even a Stop tapped while the app voice is still stopping;
 //   * a raw recogniser code reaches the screen as a plain sentence;
 //   * the deck is shuffled without replacement, with a position and an end, and Go again
-//     starts every count of the tally from zero.
+//     starts every count of the tally from zero;
+//   * each word counts once on the end card: a second listen leaves the tally alone (ASK-1).
+//
+// The attempt log (Task 10, D17): every verdict, self-mark and skip writes one Attempt to the
+// injected JpStoreMemory with its hint level and revealed flag. Correct is clear, close is
+// hinted, a hint is hinted, the whole answer showing is wrong, unverified is unscored, a Got it
+// over it is self and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
+// An answer on a word that is not due is early (PIN-14).
 
 import 'dart:async';
 import 'dart:convert';
@@ -26,6 +33,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.dart';
 
@@ -48,8 +61,36 @@ Map<String, Map<String, dynamic>> lessonWords() {
   };
 }
 
+/// A word item as the catalog defines it: three templates, two production probes.
+class _Word implements ItemDefLike {
+  const _Word(this.id);
+
+  @override
+  final String id;
+  @override
+  ItemKind get kind => ItemKind.word;
+  @override
+  int get templateCount => 3;
+  @override
+  bool get hasProductionProbe => true;
+  @override
+  int get probeCount => 3;
+}
+
+/// A store whose attempt write always fails, as a disk I/O error would.
+class _FailingStore extends JpStoreMemory {
+  @override
+  Future<Attempt> appendAttempt(Attempt attempt,
+          {SrsState? srs, MasteryState? mastery}) async =>
+      throw StateError('disk full');
+}
+
+/// 10:00 on 2026-11-03, well inside one local day.
+final DateTime _now = DateTime(2026, 11, 3, 10);
+
 class Rig {
-  Rig({bool mic = true}) {
+  Rig({bool mic = true, JpStoreMemory? store})
+      : store = store ?? JpStoreMemory() {
     service = SpeechService.withEngines(
         stt: stt, tts: tts, micPermission: () async => mic);
   }
@@ -58,6 +99,18 @@ class Rig {
   final FakeTts tts = FakeTts();
   late final SpeechService service;
   final List<PracticeResult> results = [];
+  final JpStoreMemory store;
+  final FixedClock clock = FixedClock(_now);
+
+  /// The attempts the screen has written, oldest first.
+  Future<List<Attempt>> attempts(WidgetTester tester) async {
+    await settle(tester);
+    return store.attempts();
+  }
+
+  /// The item id of the word on screen.
+  String shownId(WidgetTester tester) =>
+      practiceItemId(lessonWords()[shownImage(tester)]!);
 
   Future<void> open(WidgetTester tester) async {
     // A future cached by an earlier test's fake clock never reaches this one: load afresh,
@@ -71,6 +124,9 @@ class Rig {
         speech: service,
         random: Random(7),
         onResult: results.add,
+        store: store,
+        items: _Word.new,
+        clock: clock,
       ),
     );
     // The lesson file is large, so its load decodes off the fake clock.
@@ -257,7 +313,8 @@ void main() {
           await finish(tester, rig), '0 on your own · 0 with help · 1 missed');
     });
 
-    testWidgets('a self-mark keeps the hint level and the revealed flag (PIN-3)',
+    testWidgets(
+        'a self-mark keeps the hint level and the revealed flag (PIN-3)',
         (tester) async {
       final rig = Rig(mic: false);
       await rig.open(tester);
@@ -470,6 +527,301 @@ void main() {
       expect(
           await finish(tester, rig), '0 on your own · 0 with help · 1 missed',
           reason: 'no count from the first pass carries over');
+    });
+
+    testWidgets(
+        'a second listen on the same word leaves the tally alone (ASK-1)',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      expect(rig.results.last.tally, PracticeTally.right);
+      // A second listen on the same word, this time close: it is shown and logged, but the
+      // word already counted.
+      await rig.say(tester, '${rig.shownKana(tester)}です');
+      expect(rig.results.last.tally, PracticeTally.hinted);
+      expect(find.text('Close'), findsOneWidget);
+      await rig.next(tester);
+      // A self-checked word counts through its mark, once.
+      await rig.say(tester, 'ぱぱぱ');
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      expect(rig.results.last.tally, PracticeTally.right);
+      final words = lessonWords().length;
+      final tally = await finish(tester, rig);
+      expect(tally, '1 on your own · 0 with help · 1 missed');
+      final sum = RegExp(r'\d+')
+          .allMatches(tally)
+          .map((m) => int.parse(m.group(0)!))
+          .fold<int>(0, (a, b) => a + b);
+      expect(sum, lessThanOrEqualTo(words));
+    });
+  });
+
+  group('practiceGrade (D17)', () {
+    const word = {'kana': 'ほん', 'gloss': 'book', 'image': 'x/L25_01.webp'};
+    final top = practiceHintSteps(word).length;
+    PracticeResult r(Judgement j,
+            {int hint = 0, bool? mark, String heard = 'x'}) =>
+        PracticeResult(
+            word: word,
+            speech: SpeechResult(heard, j),
+            hintLevel: hint,
+            revealed: hint >= top,
+            selfMark: mark);
+
+    test('each judgement maps to its grade', () {
+      expect(practiceGrade(r(Judgement.correct)), Grade.clear);
+      expect(practiceGrade(r(Judgement.close)), Grade.hinted);
+      expect(practiceGrade(r(Judgement.wrong)), Grade.wrong);
+      expect(practiceGrade(r(Judgement.unverified, heard: '')), Grade.unscored);
+    });
+
+    test('a hint is hinted and the whole answer showing is wrong (PIN-3)', () {
+      expect(practiceGrade(r(Judgement.correct, hint: 1)), Grade.hinted);
+      expect(practiceGrade(r(Judgement.correct, hint: top)), Grade.wrong);
+      expect(practiceGrade(r(Judgement.close, hint: top)), Grade.wrong);
+    });
+
+    test('a second listen is hinted, never clear', () {
+      expect(
+          practiceGrade(r(Judgement.correct), secondTry: true), Grade.hinted);
+      expect(practiceGrade(r(Judgement.wrong), secondTry: true), Grade.wrong);
+    });
+
+    test('a self-mark: Got it is self, Missed it is wrong', () {
+      expect(practiceGrade(r(Judgement.unverified, heard: '', mark: true)),
+          Grade.self);
+      expect(practiceGrade(r(Judgement.unverified, heard: '漢', mark: true)),
+          Grade.self);
+      expect(practiceGrade(r(Judgement.unverified, hint: 1, mark: true)),
+          Grade.self);
+      expect(practiceGrade(r(Judgement.unverified, mark: false)), Grade.wrong);
+      expect(practiceGrade(r(Judgement.unverified, hint: top, mark: true)),
+          Grade.wrong);
+    });
+
+    test('a skip is unscored unless the answer showed', () {
+      expect(practiceSkipGrade(word, 0), Grade.unscored);
+      expect(practiceSkipGrade(word, 1), Grade.unscored);
+      expect(practiceSkipGrade(word, top), Grade.wrong);
+    });
+
+    test('the item id is the image stem, as the catalog names it', () {
+      expect(practiceItemId(word), 'L25_01');
+    });
+
+    test(
+        'every lesson word\'s id resolves to a catalog word with the spoken probe',
+        () {
+      Map<String, dynamic> read(String path) =>
+          json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
+      final lessons = read(_lessonFile);
+      final catalog =
+          ItemCatalog.fromDocs(read('assets/lessons/jp_grammar.json'), lessons);
+      // Every illustrated word of every lesson, so lesson 25's deck is a subset.
+      final words = [
+        for (final l
+            in (lessons['lessons'] as List).cast<Map<String, dynamic>>())
+          for (final w in (l['items'] as List).cast<Map<String, dynamic>>())
+            if (w['image'] != null) w,
+      ];
+      expect(words, containsAll(lessonWords().values));
+      for (final w in words) {
+        final id = practiceItemId(w);
+        final item = catalog.byId(id);
+        expect(item, isNotNull, reason: '$id is not in the catalog');
+        expect(item!.kind, ItemKind.word, reason: '$id is not a word');
+        final probe = item.probes.where((p) => p.id == kPracticeProbe);
+        expect(probe, hasLength(1), reason: '$id has no $kPracticeProbe probe');
+        expect(probe.single.production, isTrue,
+            reason: '$id: the $kPracticeProbe probe is not production');
+      }
+    });
+  });
+
+  group('the attempt log (Task 10)', () {
+    testWidgets('a correct answer writes one clear on the spoken probe',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      final a = (await rig.attempts(tester)).single;
+      expect(a.itemId, id);
+      expect(a.probeId, 'spoken');
+      expect(a.template, 'spoken');
+      expect(a.production, isTrue);
+      expect(a.selfGraded, isFalse);
+      expect(a.grade, Grade.clear);
+      expect(a.rating, kRatingGood);
+      expect(a.hintLevel, 0);
+      expect(a.revealed, isFalse);
+      expect(a.localDay, localDay(_now));
+      // Not due: practice ahead of the queue is early (PIN-14) and moves no schedule.
+      expect(a.wasDue, isFalse);
+      expect(a.source, Source.early);
+      expect(await rig.store.srs(id), isNull);
+    });
+
+    testWidgets('an answer on a due word is a review and moves its schedule',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
+      await rig.say(tester, rig.shownKana(tester));
+      final a = (await rig.attempts(tester)).single;
+      expect(a.wasDue, isTrue);
+      expect(a.source, Source.review);
+      expect(a.grade, Grade.clear);
+      expect(await rig.store.srs(id), isNotNull);
+      expect((await rig.store.mastery(id))!.status, MasteryStatus.learning);
+    });
+
+    testWidgets(
+        'a failed write reaches the error handler, the verdict still shows (S4)',
+        (tester) async {
+      final rig = Rig(store: _FailingStore());
+      await rig.open(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      expect(find.byKey(const ValueKey('practice-verdict')), findsOneWidget);
+      expect(await rig.attempts(tester), isEmpty);
+      final error = tester.takeException();
+      expect(error, isNotNull);
+      expect(error, isA<StateError>());
+    });
+
+    testWidgets('close writes hinted (PIN-3)', (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await rig.say(tester, '${rig.shownKana(tester)}です');
+      final a = (await rig.attempts(tester)).single;
+      expect(a.grade, Grade.hinted);
+      expect(a.rating, kRatingHard);
+      expect(a.hintLevel, 0);
+    });
+
+    testWidgets('a hint writes hinted, the whole answer showing writes wrong',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      await rig.say(tester, rig.shownKana(tester));
+      var a = (await rig.attempts(tester)).last;
+      expect(a.grade, Grade.hinted);
+      expect(a.hintLevel, 1);
+      expect(a.revealed, isFalse);
+
+      await rig.next(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      while (find.text('More').evaluate().isNotEmpty) {
+        await tester.tap(find.text('More'));
+        await tester.pump();
+      }
+      await rig.say(tester, rig.shownKana(tester));
+      final all = await rig.attempts(tester);
+      expect(all, hasLength(2), reason: 'an answered word writes no skip');
+      a = all.last;
+      expect(a.grade, Grade.wrong);
+      expect(a.revealed, isTrue);
+      expect(a.hintLevel, practiceHintSteps(rig.results.last.word).length);
+    });
+
+    testWidgets(
+        'unverified with nothing heard writes unscored, and Got it writes self',
+        (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      var all = await rig.attempts(tester);
+      expect(all.single.grade, Grade.unscored);
+      expect(all.single.rating, isNull);
+
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      all = await rig.attempts(tester);
+      expect(all, hasLength(2));
+      expect(all.last.grade, Grade.self);
+      expect(all.last.rating, kRatingHard);
+      expect(all.last.itemId, all.first.itemId);
+    });
+
+    testWidgets('Missed it writes wrong (PIN-13)', (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Missed it'));
+      await rig.settle(tester);
+      final all = await rig.attempts(tester);
+      expect(all.map((a) => a.grade), [Grade.unscored, Grade.wrong]);
+    });
+
+    testWidgets('Got it on an unverified transcript writes self',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      await rig.say(tester, '漢');
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final all = await rig.attempts(tester);
+      expect(all.map((a) => a.grade), [Grade.unscored, Grade.self]);
+      expect(all.last.hintLevel, 1);
+      expect(all.last.revealed, isFalse);
+    });
+
+    testWidgets('a skip writes unscored, or wrong when the answer showed',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      final first = rig.shownId(tester);
+      await rig.next(tester);
+      var all = await rig.attempts(tester);
+      expect(all.single.itemId, first);
+      expect(all.single.grade, Grade.unscored);
+
+      final second = rig.shownId(tester);
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      while (find.text('More').evaluate().isNotEmpty) {
+        await tester.tap(find.text('More'));
+        await tester.pump();
+      }
+      await rig.next(tester);
+      all = await rig.attempts(tester);
+      expect(all, hasLength(2));
+      expect(all.last.itemId, second);
+      expect(all.last.grade, Grade.wrong);
+      expect(all.last.revealed, isTrue);
+    });
+
+    testWidgets('a Stop then Next writes one skip, not the dropped listen',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+      rig.stt.hear([rig.shownKana(tester)]);
+      await rig.settle(tester);
+      expect(await rig.attempts(tester), isEmpty);
+      await rig.next(tester);
+      expect((await rig.attempts(tester)).single.grade, Grade.unscored);
+    });
+
+    testWidgets('a second listen on the same word writes hinted',
+        (tester) async {
+      final rig = Rig();
+      await rig.open(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      await rig.say(tester, rig.shownKana(tester));
+      final all = await rig.attempts(tester);
+      expect(all.map((a) => a.grade), [Grade.clear, Grade.hinted]);
     });
   });
 }

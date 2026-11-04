@@ -16,25 +16,66 @@
 // extraction (lesson 20 pairs しゅうり with "denwa, repair, call"). A stated gap is
 // honest; silently shipping wrong vocabulary is not. Do not "fix" this by re-adding
 // those decks without solving the multi-item page problem first.
+//
+// EVERY CARD IS A SELF-GRADED PROBE (PIN-13). A word card has no machine check: the learner
+// thinks of the meaning, turns the card over and grades it. Knew it writes a clear and Not
+// yet a wrong against the word's `card` probe, through the study record (JpStore). An answer
+// on a word that is not due is early practice (PIN-14, D23): a clear changes nothing, a wrong
+// counts. The store, the item lookup, the clock and the scheduler are injectable for tests.
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
+import '/components/pages/quiet_room_mastery/attempt.dart';
+import '/components/pages/quiet_room_mastery/fsrs.dart';
+import '/components/pages/quiet_room_mastery/item_catalog.dart';
+import '/components/pages/quiet_room_mastery/jp_store.dart';
+import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart';
+import '/components/pages/quiet_room_mastery/local_day.dart';
+import '/components/pages/quiet_room_mastery/scheduler.dart';
 import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 import '/components/pages/quiet_room_practice/speech_service.dart';
 
 class QuietRoomLessonWidget extends StatefulWidget {
-  const QuietRoomLessonWidget({super.key, this.initialLesson});
+  const QuietRoomLessonWidget({
+    super.key,
+    this.initialLesson,
+    this.store,
+    this.items,
+    this.clock = const SystemClock(),
+    this.scheduler = const FsrsScheduler(),
+  });
 
+  /// The lesson to open. Null opens the last-opened one, or else the newest.
   final int? initialLesson;
+
+  /// The study record. Null uses the screen's shared store, opened once per run.
+  final JpStore? store;
+
+  /// The item definitions. Null uses the catalog, loaded once per run.
+  final ItemLookup? items;
+
+  final Clock clock;
+  final Scheduler scheduler;
 
   static String routeName = 'quietRoomLesson';
   static String routePath = '/quietRoomLesson';
+
+  /// Where the last-opened word lesson is kept. The word lessons are not the grammar
+  /// lessons, so this is not `jp.grammar.lastLesson`.
+  static const lastLessonKey = 'jp.vocab.lastLesson';
+
+  /// Shown when a Knew it or Not yet could not be written (S4).
+  static const saveFailedMessage = 'Could not save that answer. Try again.';
+
+  /// The probe a card answer is written against (item_catalog.dart).
+  static const cardProbe = 'card';
 
   @override
   State<QuietRoomLessonWidget> createState() => _QuietRoomLessonWidgetState();
@@ -51,6 +92,14 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
   /// together" and "sum up"), and keying by text would flip both at once.
   final Set<int> _revealed = <int>{};
 
+  /// The grade written per word id while this lesson view is open. Keyed by id, which is
+  /// unique even for a word listed twice (PIN-16). A card with a grade takes no second one.
+  final Map<String, Grade> _graded = <String, Grade>{};
+
+  /// One id per screen open: the `sessionId` of its attempts.
+  late final String _sessionId =
+      'lesson-${widget.clock.now().toUtc().microsecondsSinceEpoch}';
+
   @override
   void initState() {
     super.initState();
@@ -62,17 +111,104 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
     try {
       final raw = await rootBundle.loadString('assets/lessons/jp_lessons.json');
       final d = json.decode(raw) as Map<String, dynamic>;
+      final ls = (d['lessons'] as List).cast<Map<String, dynamic>>();
+      if (_lesson == null) {
+        final last = await _remembered();
+        if (last != null && ls.any((l) => l['lesson'] == last)) _lesson = last;
+      }
       if (!mounted) return;
       setState(() {
         _doc = d;
-        final ls = (d['lessons'] as List).cast<Map<String, dynamic>>();
         _lesson ??= ls.isEmpty ? null : ls.last['lesson'] as int;
       });
+      if (_lesson != null) _remember(_lesson!);
     } catch (_) {
       // Surfaced, not swallowed: an empty screen with no explanation is a silent
       // failure, which S4 forbids.
       if (mounted) setState(() => _error = 'Could not load the vocabulary.');
     }
+  }
+
+  /// The last-opened lesson, or null. A preference that cannot be read only loses the
+  /// convenience, so the screen falls back to the newest lesson.
+  static Future<int?> _remembered() async {
+    try {
+      return (await SharedPreferences.getInstance())
+          .getInt(QuietRoomLessonWidget.lastLessonKey);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _remember(int lesson) async {
+    try {
+      await (await SharedPreferences.getInstance())
+          .setInt(QuietRoomLessonWidget.lastLessonKey, lesson);
+    } catch (_) {
+      // Remembering the lesson is a convenience; the screen works without it.
+    }
+  }
+
+  /// Writes the learner's grade for a revealed card (PIN-13): Knew it is clear, Not yet is
+  /// wrong. A word whose due day has not come, or that has none yet, is early practice
+  /// (PIN-14), so the lesson page never introduces a New word through a clear.
+  Future<void> _grade(Map<String, dynamic> word, bool knew) async {
+    final id = _wordId(word);
+    if (_graded.containsKey(id)) return;
+    final grade = gradeAnswer(
+        outcome: knew ? Outcome.right : Outcome.wrong, selfGraded: true);
+    setState(() => _graded[id] = grade);
+    try {
+      final store = widget.store ?? await sharedJpStore();
+      final ItemLookup lookup = widget.items ?? (await ItemCatalog.load()).byId;
+      final now = widget.clock.now();
+      final today = localDay(now);
+      final due =
+          (await store.srs(id))?.dueDay ?? (await store.item(id))?.seedDueDay;
+      final wasDue = due != null && due <= today;
+      await store.recordAnswer(
+        Attempt(
+          itemId: id,
+          probeId: QuietRoomLessonWidget.cardProbe,
+          template: QuietRoomLessonWidget.cardProbe,
+          production: false,
+          selfGraded: true,
+          atUtc: now.toUtc(),
+          localDay: today,
+          grade: grade,
+          rating: fsrsRatingFor(grade),
+          revealed: true,
+          wasDue: wasDue,
+          source: wasDue ? Source.review : Source.early,
+          sessionId: _sessionId,
+        ),
+        item: lookup(id),
+        scheduler: widget.scheduler,
+      );
+    } catch (e) {
+      // S4: a grade that was not kept must not look kept. The reason is logged first, so
+      // a disk-full failure and a catalog failure can be told apart on a retry, and so it
+      // survives the learner leaving the screen before the message shows.
+      debugPrint('lesson: could not log the attempt on $id: $e');
+      if (!mounted) return;
+      setState(() => _graded.remove(id));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(QuietRoomLessonWidget.saveFailedMessage,
+            style: GoogleFonts.schibstedGrotesk(fontSize: 13)),
+        duration: const Duration(seconds: 5),
+      ));
+    }
+  }
+
+  /// The word's item id: its image stem (D19), read in the catalog's order so an attempt
+  /// always logs under the id the catalog knows. `id` is the fallback for a word with no
+  /// image.
+  static String _wordId(Map<String, dynamic> w) {
+    final image = w['image'] as String?;
+    if (image == null || image.isEmpty) return w['id'] as String? ?? '';
+    final file = image.split('/').last;
+    final dot = file.lastIndexOf('.');
+    return dot > 0 ? file.substring(0, dot) : file;
   }
 
   List<Map<String, dynamic>> get _lessons =>
@@ -224,11 +360,15 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(999),
-              onTap: () => setState(() {
-                _lesson = no;
-                _filter = 0;
-                _revealed.clear();
-              }),
+              onTap: () {
+                setState(() {
+                  _lesson = no;
+                  _filter = 0;
+                  _revealed.clear();
+                  _graded.clear();
+                });
+                _remember(no);
+              },
               child: Container(
                 alignment: Alignment.center,
                 constraints: const BoxConstraints(minWidth: 40),
@@ -344,11 +484,13 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
     final pair = i['intransitive'] as String?;
     final shown = _revealed.contains(index);
     final kana = i['kana'] as String? ?? '';
+    final wordContext = i['context'] as String?;
+    final head = wordContext == null ? kana : '$kana, $wordContext';
 
-    return Semantics(
+    final card = Semantics(
       button: true,
       toggled: shown,
-      label: shown ? '$kana, ${i['gloss']}' : '$kana, tap to show the meaning',
+      label: shown ? '$head, ${i['gloss']}' : '$head, tap to show the meaning',
       excludeSemantics: true,
       child: Material(
         color: Colors.transparent,
@@ -360,11 +502,6 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
           child: Container(
             constraints:
                 const BoxConstraints(minHeight: QuietRoomMetrics.targetMin),
-            decoration: BoxDecoration(
-              color: t.surface,
-              border: Border.all(color: t.border, width: 1),
-              borderRadius: BorderRadius.circular(12),
-            ),
             padding: const EdgeInsets.fromLTRB(15, 13, 15, 13),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,12 +522,27 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
                       const SizedBox(width: 11),
                     ],
                     Expanded(
-                      child: Text(
-                        kana,
-                        style: GoogleFonts.schibstedGrotesk(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: t.inkStrong),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            kana,
+                            style: GoogleFonts.schibstedGrotesk(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: t.inkStrong),
+                          ),
+                          // The words the head word usually takes (たばこを for すいます).
+                          // Part of the Japanese prompt, so it shows before the reveal.
+                          if (wordContext != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              wordContext,
+                              style: GoogleFonts.schibstedGrotesk(
+                                  fontSize: 13, color: t.inkMuted),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                     // Hearing the word gives nothing away that the kana does not already
@@ -468,6 +620,76 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // The pills sit outside the card's tap target, so a grade never turns the card back.
+    final id = _wordId(i);
+    final graded = _graded[id];
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.border, width: 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          card,
+          if (shown || graded != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 0, 15, 12),
+              child: Row(
+                children: [
+                  _gradePill(t, 'Knew it', graded == Grade.clear,
+                      graded == null ? () => _grade(i, true) : null),
+                  const SizedBox(width: 8),
+                  _gradePill(t, 'Not yet', graded == Grade.wrong,
+                      graded == null ? () => _grade(i, false) : null),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// A quiet self-grade pill (PIN-13). Once the card is graded the chosen pill stays marked
+  /// and neither takes another tap: one grade per card while this lesson is open.
+  Widget _gradePill(
+      QuietRoomTokens t, String label, bool chosen, VoidCallback? onTap) {
+    return Semantics(
+      button: true,
+      selected: chosen,
+      enabled: onTap != null,
+      excludeSemantics: true,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: Container(
+            constraints:
+                const BoxConstraints(minHeight: QuietRoomMetrics.targetMin),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: chosen ? t.surfaceTinted : t.surface,
+              border:
+                  Border.all(color: chosen ? t.brand600 : t.border, width: 1),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Text(
+              label,
+              style: GoogleFonts.schibstedGrotesk(
+                fontSize: 12.5,
+                fontWeight: chosen ? FontWeight.w600 : FontWeight.w500,
+                color: chosen ? t.brand600 : t.inkMuted,
+              ),
             ),
           ),
         ),

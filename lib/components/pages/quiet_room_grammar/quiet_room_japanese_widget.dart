@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
 import 'quiet_room_grammar_widget.dart';
@@ -127,6 +128,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
                       QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
               _row(t, 'Vocabulary', 'Minna no Nihongo · 620 words',
                   () => _open(QuietRoomLessonWidget.routeName)),
+              _studyRecordLink(t),
             ],
           ],
         );
@@ -349,6 +351,18 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
       ),
     );
   }
+
+  /// The quiet way to the study record debug page (Task 13): a plain text link, last.
+  Widget _studyRecordLink(QuietRoomTokens t) => Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: Center(
+          child: TextButton(
+            onPressed: () => _open(MasteryDebugWidget.routeName),
+            child: Text('Study record',
+                style: qrText(t, size: 12.5, color: t.inkSubtle)),
+          ),
+        ),
+      );
 
   Widget _row(
           QuietRoomTokens t, String title, String sub, VoidCallback onTap) =>

@@ -7,11 +7,18 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show debugSetSharedJpStore;
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 
 /// The app lesson file, read straight from disk to derive what each test expects.
 Map<String, dynamic> readLessonFile() =>
@@ -24,8 +31,14 @@ Map<String, dynamic> readLessonFile() =>
 /// isolate, which the test's fake clock never advances. That cached future belongs to
 /// the real zone, so the screen's FutureBuilder hears it complete only after a real
 /// event-loop turn. Hence the second `runAsync` before the final pumps.
+///
+/// A screen that writes answers and has no store of its own uses the shared one, which
+/// on the phone is SQLite. A test cannot open that, so each pump shares a fresh memory
+/// store instead.
 Future<void> pumpStudyScreen(WidgetTester tester, Widget screen) async {
   SharedPreferences.setMockInitialValues({});
+  debugSetSharedJpStore(JpStoreMemory());
+  addTearDown(() => debugSetSharedJpStore(null));
   tester.view.physicalSize = const Size(1200, 12000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -35,4 +48,55 @@ Future<void> pumpStudyScreen(WidgetTester tester, Widget screen) async {
   await tester.runAsync(() => Future<void>.delayed(Duration.zero));
   await tester.pump();
   await tester.pump();
+}
+
+/// A memory store whose attempt write throws on every call until [failures] runs out: the
+/// seam for the lost-write tests (S4). Every read still answers, so the recorder reaches the
+/// write itself before it fails.
+class ThrowingJpStore extends JpStoreMemory {
+  ThrowingJpStore({this.failures = -1});
+
+  /// Writes left to fail; a negative count fails every write.
+  int failures;
+
+  /// The ids whose write was refused, in order.
+  final List<String> refused = [];
+
+  @override
+  Future<Attempt> appendAttempt(Attempt attempt,
+      {SrsState? srs, MasteryState? mastery}) {
+    if (failures != 0) {
+      if (failures > 0) failures--;
+      refused.add(attempt.itemId);
+      throw StateError('jp store: disk full');
+    }
+    return super.appendAttempt(attempt, srs: srs, mastery: mastery);
+  }
+}
+
+/// Routes [FlutterError.onError] to [reports] until [stop], so a reported failure is read
+/// by the test instead of failing it.
+///
+/// Call [stop] right after the action under test and before the first `expect`: an expect
+/// that fails while the handler is overridden trips the test binding's own check
+/// (`_pendingExceptionDetails != null`) and the runner stalls instead of reporting.
+/// Tear-down restores the handler for a test that never reaches [stop].
+class ReportCapture {
+  ReportCapture() : _prior = FlutterError.onError {
+    FlutterError.onError = reports.add;
+    addTearDown(stop);
+  }
+
+  final List<FlutterErrorDetails> reports = [];
+  final FlutterExceptionHandler? _prior;
+  bool _stopped = false;
+
+  /// Puts the handler back and returns what was reported while it was overridden.
+  List<FlutterErrorDetails> stop() {
+    if (!_stopped) {
+      _stopped = true;
+      FlutterError.onError = _prior;
+    }
+    return reports;
+  }
 }
