@@ -81,7 +81,8 @@ void main() {
     expect(reports, isEmpty);
   });
 
-  test("a recorder with no store of its own writes to the app's one shared store",
+  test(
+      "a recorder with no store of its own writes to the app's one shared store",
       () async {
     final shared = JpStoreMemory();
     debugSetSharedJpStore(shared);
@@ -95,9 +96,10 @@ void main() {
 
   // No SQLite plugin answers in a unit test, so the app's shared open fails here the way
   // it would on a phone with no usable database.
-  test(
-      'a failed shared open loses each answer with a report, and the next answer tries again',
-      () async {
+  // The test sees two reports, one per answer. It cannot tell a fresh open from a cached
+  // failure, so the shared store's retry (sharedJpStore in jp_store_sqlite.dart) is not
+  // claimed here.
+  test('a failed shared open loses each answer with its own report', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     debugSetSharedJpStore(null);
     final capture = ReportCapture();
