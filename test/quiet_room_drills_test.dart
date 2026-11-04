@@ -30,7 +30,9 @@ final _catalog = ItemCatalog.fromDocs(
 
 /// A drill wired to a fresh memory store through the real recorder.
 class DrillRig {
-  final store = JpStoreMemory();
+  DrillRig({JpStoreMemory? store}) : store = store ?? JpStoreMemory();
+
+  final JpStoreMemory store;
   late final recorder = AttemptRecorder.on(store, lookup: _catalog.byId);
 
   Future<void> open(WidgetTester tester, String mode) => pumpStudyScreen(
@@ -371,6 +373,116 @@ void main() {
       await tester.pump();
       expect(find.text('Got it'), findsNothing);
       expect(await rig.attempts(tester), isEmpty);
+    });
+  });
+
+  // S4: a write that fails is never silent. The failure reaches the app's error handler
+  // with the item it was for, the learner is told, and the drill still moves on, so a
+  // learner never sees a mark they believe was credited while nothing was written.
+  group('a lost write (S4)', () {
+    /// The one report on [itemId]: its exception is the store's, and its context names
+    /// the item.
+    void expectReported(List<FlutterErrorDetails> reports, String itemId) {
+      expect(reports, hasLength(1));
+      expect(reports.single.exception, isA<StateError>());
+      expect(reports.single.context.toString(), contains(itemId));
+      expect(reports.single.library, 'quiet room drills');
+    }
+
+    testWidgets(
+        'conjugation: the failed write is reported with its item id, the learner '
+        'is told, and the next card still comes', (tester) async {
+      final capture = ReportCapture();
+      final doc = readLessonFile();
+      final store = ThrowingJpStore();
+      final rig = DrillRig(store: store);
+      await rig.open(tester, 'conjugation');
+      final v = shownVerb(doc);
+      await tester.tap(find.text('Say it, then tap'));
+      await tester.pump();
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      final written = await rig.attempts(tester);
+      final reports = capture.stop();
+
+      expect(written, isEmpty);
+      expect(store.refused, ['conj.te.g${v['group']}']);
+      expectReported(reports, 'conj.te.g${v['group']}');
+      await tester.pump();
+      expect(find.text(kAnswerNotSaved), findsOneWidget);
+      // The drill moved on: the next verb is up and asks for its own reveal.
+      expect(find.text(v['dictionary'] as String), findsNothing);
+      expect(find.text('Say it, then tap'), findsOneWidget);
+    });
+
+    testWidgets(
+        'pairs: the failed write is reported with its item id, the learner is '
+        'told, and the card shows its mark', (tester) async {
+      final capture = ReportCapture();
+      final ids = pairItemIds(readLessonFile());
+      final store = ThrowingJpStore();
+      final rig = DrillRig(store: store);
+      await rig.open(tester, 'pairs');
+      await tester.tap(find.text('を ?').first);
+      await tester.pump();
+      await tester.tap(find.text('Missed it'));
+      await tester.pump();
+      final written = await rig.attempts(tester);
+      final reports = capture.stop();
+
+      expect(written, isEmpty);
+      expect(store.refused, [ids[0]]);
+      expectReported(reports, ids[0]);
+      await tester.pump();
+      expect(find.text(kAnswerNotSaved), findsOneWidget);
+      expect(find.text('Marked as missed.'), findsOneWidget);
+    });
+
+    testWidgets(
+        'tables: the failed write is reported with its item id, the learner is '
+        'told, and the cell shows its mark', (tester) async {
+      final capture = ReportCapture();
+      final doc = readLessonFile();
+      final table = (doc['reference'] as List).first as Map<String, dynamic>;
+      final col = (table['columns'] as List).first as Map<String, dynamic>;
+      final cell = (table['cells'] as List)
+          .cast<Map<String, dynamic>>()
+          .firstWhere((c) => c['col'] == col['written']);
+      final id = 'ref.${table['id']}.${cell['row']}';
+      final store = ThrowingJpStore();
+      final rig = DrillRig(store: store);
+      await rig.open(tester, 'reference');
+      await tester.tap(find.text('${cell['row']} ${col['written']}'));
+      await tester.pump();
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      final written = await rig.attempts(tester);
+      final reports = capture.stop();
+
+      expect(written, isEmpty);
+      expect(store.refused, [id]);
+      expectReported(reports, id);
+      await tester.pump();
+      expect(find.text(kAnswerNotSaved), findsOneWidget);
+      expect(find.text('Marked as got it.'), findsOneWidget);
+    });
+
+    testWidgets('a write that lands is not reported and shows no notice',
+        (tester) async {
+      final capture = ReportCapture();
+      final rig = DrillRig();
+      await rig.open(tester, 'pairs');
+      await tester.tap(find.text('を ?').first);
+      await tester.pump();
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+      final written = await rig.attempts(tester);
+      await tester.pump();
+      final reports = capture.stop();
+
+      expect(written, hasLength(1));
+      expect(reports, isEmpty);
+      expect(find.text(kAnswerNotSaved), findsNothing);
     });
   });
 }

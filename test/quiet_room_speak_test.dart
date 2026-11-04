@@ -209,7 +209,9 @@ class FakeAuth implements CallerAuth {
 
 /// The drill with a real PronunciationService on fake seams.
 class Rig {
-  Rig({this.reply, this.error, FakeAuth? auth}) : auth = auth ?? FakeAuth();
+  Rig({this.reply, this.error, FakeAuth? auth, JpStoreMemory? store})
+      : auth = auth ?? FakeAuth(),
+        store = store ?? JpStoreMemory();
 
   Object? reply;
   Object? error;
@@ -229,7 +231,7 @@ class Rig {
   PronunciationService? service;
 
   /// The study record the drill writes to, through the real recorder.
-  final JpStoreMemory store = JpStoreMemory();
+  final JpStoreMemory store;
   late final AttemptRecorder recorder =
       AttemptRecorder.on(store, lookup: _catalog.byId);
 
@@ -1748,6 +1750,77 @@ void main() {
       expect(written, hasLength(1));
       expectSayIt(written.single, all[i]);
       expect(written.single.probeId, startsWith('p'));
+    });
+
+    // S4: a Say-it write that fails is never silent. The failure reaches the app's error
+    // handler with the sentence's item, the learner is told, and the drill still moves on.
+    group('a lost write (S4)', () {
+      void expectReported(List<FlutterErrorDetails> reports, String itemId) {
+        expect(reports, hasLength(1));
+        expect(reports.single.exception, isA<StateError>());
+        expect(reports.single.context.toString(), contains(itemId));
+        expect(reports.single.library, 'quiet room drills');
+      }
+
+      testWidgets(
+          'a scored result whose write fails is reported with its item id, the '
+          'learner is told, and Next still moves on', (tester) async {
+        final capture = ReportCapture();
+        final s = firstSentence();
+        final store = ThrowingJpStore();
+        final rig = Rig(reply: fixture(_goodFixture), store: store);
+        await rig.speakOnce(tester);
+        final written = await rig.attempts(tester);
+        final reports = capture.stop();
+
+        expect(find.text('That’s it'), findsOneWidget);
+        expect(written, isEmpty);
+        expect(store.refused, [s.itemId]);
+        expectReported(reports, s.itemId!);
+        await tester.pump();
+        expect(find.text(kAnswerNotSaved), findsOneWidget);
+        // The score log, the tuning aid, still kept the attempt.
+        final saved = await tester.runAsync(savedAttempts);
+        expect(saved, hasLength(1));
+
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+        expect(find.text(lesson26()[1].kana), findsOneWidget);
+      });
+
+      testWidgets(
+          'a self-mark whose write fails is reported with its item id and the '
+          'learner is told', (tester) async {
+        final capture = ReportCapture();
+        final s = firstSentence();
+        final store = ThrowingJpStore();
+        final rig = Rig(error: Exception('offline'), store: store);
+        await rig.speakOnce(tester);
+        await tester.tap(find.text('Got it'));
+        final written = await rig.attempts(tester);
+        final reports = capture.stop();
+
+        expect(written, isEmpty);
+        expect(store.refused, [s.itemId]);
+        expectReported(reports, s.itemId!);
+        await tester.pump();
+        expect(find.text(kAnswerNotSaved), findsOneWidget);
+        expect(find.text('Marked as said.'), findsOneWidget);
+      });
+
+      testWidgets('a write that lands is not reported and shows no notice',
+          (tester) async {
+        final capture = ReportCapture();
+        final rig = Rig(reply: fixture(_goodFixture));
+        await rig.speakOnce(tester);
+        final written = await rig.attempts(tester);
+        await tester.pump();
+        final reports = capture.stop();
+
+        expect(written, hasLength(1));
+        expect(reports, isEmpty);
+        expect(find.text(kAnswerNotSaved), findsNothing);
+      });
     });
   });
 }

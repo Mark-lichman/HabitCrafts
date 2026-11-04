@@ -68,14 +68,16 @@ class _QuietRoomDrillsWidgetState extends State<QuietRoomDrillsWidget> {
       widget.recorder ?? (_own ??= AttemptRecorder());
 
   /// Writes one self-graded answer: Got it is clear and Missed it is wrong (PIN-13). The
-  /// screen never waits on the write.
+  /// screen never waits on the write. A write that is lost (the recorder has reported it)
+  /// tells the learner through [_notSaved], so a mark on screen is never taken for credit.
   void _record(
       {required String itemId,
       required String probeId,
       required String template,
       required bool production,
       required bool gotIt}) {
-    _recorder.record(DrillAnswer(
+    _recorder
+        .record(DrillAnswer(
       itemId: itemId,
       probeId: probeId,
       template: template,
@@ -85,7 +87,17 @@ class _QuietRoomDrillsWidgetState extends State<QuietRoomDrillsWidget> {
           outcome: gotIt ? Outcome.right : Outcome.wrong,
           selfGraded: true,
           revealed: true),
-    ));
+    ))
+        .then((a) {
+      if (a == null) _notSaved();
+    });
+  }
+
+  /// Shown when a mark did not reach the study record (S4: the learner sees it).
+  void _notSaved() {
+    if (!mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(const SnackBar(
+        content: Text(kAnswerNotSaved), duration: Duration(seconds: 5)));
   }
 
   @override
@@ -97,7 +109,7 @@ class _QuietRoomDrillsWidgetState extends State<QuietRoomDrillsWidget> {
         builder: (context, doc) => switch (drill) {
           JpDrill.reference =>
             _Reference(doc: doc, table: widget.table, record: _record),
-          JpDrill.pairs => _Pairs(doc: doc, record: _record),
+          JpDrill.pairs => _Pairs(doc: doc, record: _record, lost: _notSaved),
           JpDrill.conjugation =>
             _Conjugation(doc: doc, form: widget.form, record: _record),
         },
@@ -407,10 +419,13 @@ class _ReferenceState extends State<_Reference> {
 // ───────────────────────────── verb pairs ─────────────────────────────
 
 class _Pairs extends StatefulWidget {
-  const _Pairs({required this.doc, required this.record});
+  const _Pairs({required this.doc, required this.record, required this.lost});
 
   final Map<String, dynamic> doc;
   final _Record record;
+
+  /// Tells the learner a mark was not saved; see [_QuietRoomDrillsWidgetState._notSaved].
+  final VoidCallback lost;
 
   @override
   State<_Pairs> createState() => _PairsState();
@@ -428,11 +443,17 @@ class _PairsState extends State<_Pairs> {
 
   /// The pair ids, in the order of the pairs (item_catalog.dart `pairItemIds`). Null when the
   /// asset's pairs and catalog rows do not line up; the catalog refuses that asset too, so
-  /// the drill then writes nothing rather than a mark under a wrong id.
+  /// the drill then writes nothing rather than a mark under a wrong id. The mismatch goes
+  /// to [FlutterError.reportError] once, and every mark after it tells the learner (S4).
   late final List<String>? _ids = () {
     try {
       return pairItemIds(widget.doc);
-    } on StateError {
+    } on StateError catch (e, s) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room drills',
+          context: ErrorDescription('while mapping the verb pairs to items')));
       return null;
     }
   }();
@@ -440,7 +461,9 @@ class _PairsState extends State<_Pairs> {
   void _mark(int i, bool gotIt) {
     final ids = _ids;
     if (_marks.containsKey(i)) return;
-    if (ids != null && i < ids.length) {
+    if (ids == null) {
+      widget.lost();
+    } else {
       final probe = _reverse ? kPairToIntransitive : kPairToTransitive;
       widget.record(
         itemId: ids[i],

@@ -10,12 +10,15 @@
 // into the queue ahead of the daily intake (PIN-6). The speak drill is the Say-it track and
 // writes `sayIt`, which never moves the schedule or the mastery state (D4).
 //
-// The screens never wait on a write and never fail because of one: a store that cannot open
-// (no SQLite in a widget test, say) or a write that throws drops that attempt silently. The
-// writes run one after another, so two quick answers on one item never read the same
-// before-state.
+// The screens never wait on a write and never fail because of one. A store that cannot open
+// (no SQLite in a widget test, say) or a write that throws loses that attempt: the loss goes
+// to FlutterError.reportError, so the app's handler records it (S4), and `record` resolves
+// null so the screen can tell the learner. The writes run one after another, so two quick
+// answers on one item never read the same before-state.
 
 import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 
 import 'attempt.dart';
 import 'fsrs.dart';
@@ -26,14 +29,28 @@ import 'local_day.dart';
 import 'scheduler.dart';
 
 /// The app's one study store, opened on first use and shared by every screen. A failed open
-/// is forgotten, so the next write tries again.
-Future<JpStore> sharedJpStore() {
-  final open = _shared ??= openJpStore();
-  open.then((_) {}, onError: (Object _) => _shared = null);
+/// goes to [FlutterError.reportError] and is forgotten, so the next write tries again.
+Future<JpStore> sharedJpStore() => _shared ??= _openShared();
+
+/// One open attempt, reported once however many callers await it.
+Future<JpStore> _openShared() {
+  final open = openJpStore();
+  open.then((_) {}, onError: (Object e, StackTrace s) {
+    _shared = null;
+    FlutterError.reportError(FlutterErrorDetails(
+        exception: e,
+        stack: s,
+        library: 'quiet room drills',
+        context: ErrorDescription('while opening the study store')));
+  });
   return open;
 }
 
 Future<JpStore>? _shared;
+
+/// What a screen shows when an answer did not reach the study record (S4: the learner
+/// sees it). Shared by the drills and the speak drill so a lost answer reads one way.
+const String kAnswerNotSaved = 'That answer was not saved.';
 
 /// The catalog's lookup, loaded once per app run.
 Future<ItemLookup> catalogLookup() async => (await ItemCatalog.load()).byId;
@@ -100,19 +117,35 @@ class AttemptRecorder {
 
   Future<void> _tail = Future<void>.value();
 
-  /// Settles once every write queued so far has landed or been dropped.
+  /// Settles once every write queued so far has landed or been lost.
   Future<void> get idle => _tail;
 
-  /// Queues one answer. Never throws; the attempt as logged, or null when it was dropped.
+  /// Queues one answer. Never throws. Resolves to the attempt as logged, or to null when
+  /// the write was lost: the loss has gone to [FlutterError.reportError] by then, and the
+  /// screen shows the learner that the answer was not saved.
   Future<Attempt?> record(DrillAnswer answer) {
-    final run = _tail
-        .then((_) => _write(answer))
-        .then<Attempt?>((a) => a, onError: (Object _) => null);
+    final run = _tail.then((_) => _write(answer));
     _tail = run.then((_) {});
     return run;
   }
 
+  /// Writes [a]. Catches every failure, so the queue after it still runs (S4: the failure
+  /// is reported, never swallowed).
   Future<Attempt?> _write(DrillAnswer a) async {
+    try {
+      return await _writeOrThrow(a);
+    } catch (e, s) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room drills',
+          context:
+              ErrorDescription('while logging the attempt on ${a.itemId}')));
+      return null;
+    }
+  }
+
+  Future<Attempt> _writeOrThrow(DrillAnswer a) async {
     final store = await _store();
     final lookup = await _items();
     final at = a.atUtc ?? clock.now();

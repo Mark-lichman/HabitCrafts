@@ -666,11 +666,14 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   }
 
   /// Writes one Say-it attempt for [s], graded as the score log grades [entry], at the
-  /// instant the sentence was spoken. Never waits and never fails the drill.
+  /// instant the sentence was spoken. Never waits and never fails the drill. A write that
+  /// is lost (the recorder has reported it) tells the learner through [_notSaved], so the
+  /// result on screen is never taken for a saved attempt.
   void _recordSayIt(SpeakSentence s, SpeakAttempt entry) {
     final itemId = s.itemId, probeId = s.probeId;
     if (itemId == null || probeId == null) return;
-    _recorder.record(DrillAnswer(
+    _recorder
+        .record(DrillAnswer(
       itemId: itemId,
       probeId: probeId,
       template: kSayItTemplate,
@@ -679,6 +682,20 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       selfGraded: false,
       sayIt: true,
       atUtc: entry.at,
+    ))
+        .then((a) {
+      if (a == null) _notSaved();
+    });
+  }
+
+  /// Shown when a Say-it attempt did not reach the study record (S4: the learner sees it).
+  void _notSaved() {
+    if (!mounted) return;
+    final t = QuietRoomTokens.of(context);
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+      content:
+          Text(kAnswerNotSaved, style: qrText(t, size: 13, color: t.onBrand)),
+      duration: const Duration(seconds: 5),
     ));
   }
 
