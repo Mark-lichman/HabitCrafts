@@ -1,7 +1,8 @@
 // The daily plan builder (Task 14, PIN-5, PIN-6, PIN-9, PIN-10, PIN-11, PIN-12, D26, D27).
 // Every case builds a plan from a memory store and the shipped catalog with an injected clock,
 // and states one rule: the sections, the Due order and interleave, keep-sharp's week, the
-// budget and its hard stop, the New skips, the stretch and catch-up offers, return mode's
+// budget and its hard stop, the New skips and the New exclusion of every item with a seed or a
+// state, the stretch and catch-up offers, return mode's
 // warm-up and its cap, and the requeue of an unscored entry.
 
 import 'dart:convert';
@@ -128,6 +129,14 @@ Future<void> seedEverything(JpStore store, int day,
               itemId: i.id, dueDay: day + 500, atUtc: DateTime.utc(2026, 1, 1)),
     ]);
 
+/// New is empty and the stretch is off: every candidate was already introduced. Asserted
+/// wherever a test relies on [seedEverything] or a repair to keep New out of the plan.
+void expectNoNew(DayPlan p) {
+  expect(p.section(PlanSection.newItems), isEmpty);
+  expect(p.stretchOffer, isFalse);
+  expect(p.stretchEntries, isEmpty);
+}
+
 void expectNoTripleRuns(List<QueueEntry> entries) {
   for (var i = 2; i < entries.length; i++) {
     final a = entries[i - 2], b = entries[i - 1], c = entries[i];
@@ -175,7 +184,9 @@ void main() {
         () async {
       final store = JpStoreMemory();
       final words = wordsOf(5);
-      await seedEverything(store, tuesday);
+      // words[1] has no seed and no state: a wrong on an early practice. Its repair alone
+      // keeps it out of New.
+      await seedEverything(store, tuesday, except: {words[1].id});
       // Wrong yesterday, and due today too: Repair only.
       await store.appendAttempt(wrongOn(words[0], tuesday - 1));
       await store.appendAttempt(wrongOn(words[0], tuesday - 1));
@@ -195,6 +206,7 @@ void main() {
           [words[3].id]);
       final ids = [for (final e in p.entries) e.itemId];
       expect(ids.toSet().length, ids.length, reason: 'one entry per item');
+      expectNoNew(p);
     });
 
     test('a wrong is re-asked about 10 minutes later from the repair slot',
@@ -280,6 +292,8 @@ void main() {
           isTrue);
       expect(dueEntries.every((e) => e.wasDue && e.source == Source.review),
           isTrue);
+      // Every item has a seed or a state, so nothing is New.
+      expectNoNew(p);
     });
 
     test('no more than two in a row share a kind or a lesson', () async {
@@ -299,6 +313,7 @@ void main() {
       expect(d.length, 9);
       expectNoTripleRuns(d);
       expect([for (final e in d) e.itemId].take(2), [words[0].id, words[1].id]);
+      expectNoNew(p);
     });
 
     test(
@@ -366,6 +381,8 @@ void main() {
           keep.every((e) => e.source == Source.keepSharp && !e.wasDue), isTrue);
       expect([for (final e in p.section(PlanSection.due)) e.itemId],
           [dueMastered.id]);
+      // The two Mastered items keep-sharp left out have a state: not New either.
+      expectNoNew(p);
     });
 
     test(
@@ -478,6 +495,47 @@ void main() {
       final out = newIntakeOrder(catalog, introduced, 50);
       expect(out.where((i) => introduced.contains(i.id)), isEmpty);
       expect(out.map((i) => i.id).toSet().length, out.length);
+    });
+
+    test(
+        'the plan never introduces an item that has a seed or a state, due or not',
+        () async {
+      final store = JpStoreMemory();
+      // A fresh record introduces two particles and then lesson 2's words in order, so
+      // these five would be among the first ten words without their seed or state.
+      final words = wordsOf(2);
+      final seeded = [words[0], words[2], words[4]];
+      final stated = [words[1], words[3]];
+      for (final w in seeded) {
+        await seed(store, w, tuesday + 500);
+      }
+      for (final w in stated) {
+        await store.putSrs(
+            w.id, stateWithR(tuesday, 0.9, dueDay: tuesday + 30));
+      }
+      final p = await plan(store, tuesday);
+      expect(p.newSkip, NewSkip.none);
+      expect(p.section(PlanSection.due), isEmpty, reason: 'none of them is due');
+      expect(p.stretchOffer, isTrue);
+      final offered = [
+        for (final e in [...p.section(PlanSection.newItems), ...p.stretchEntries])
+          e.itemId
+      ];
+      final held = {for (final w in [...seeded, ...stated]) w.id};
+      expect(offered.where(held.contains), isEmpty);
+      // The oracle is the catalog, not the intake: the first two level-0 items, then the
+      // first unintroduced words of the first lesson fill New and then the stretch.
+      final rest = [
+        for (final w in words)
+          if (!held.contains(w.id)) w.id
+      ];
+      expect(offered, [
+        for (final i in ofKind(ItemKind.particle).take(kFoundationNewPerDay))
+          i.id,
+        ...rest.take(kNewPerDay + kStretchNew - kFoundationNewPerDay),
+      ]);
+      expect(p.section(PlanSection.newItems).length, kNewPerDay);
+      expect(p.stretchEntries.length, kStretchNew);
     });
 
     test('New is skipped when two or more days were missed', () async {
@@ -696,6 +754,7 @@ void main() {
       // Without the return, nothing caps them.
       final normal = await plan(store, tuesday);
       expect(normal.section(PlanSection.due).length, 46);
+      expectNoNew(normal);
     });
   });
 
