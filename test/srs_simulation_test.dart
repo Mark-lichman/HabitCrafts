@@ -89,7 +89,7 @@ void main() {
   test('the seeded run clears its backlog before day 45 (PIN-8)', () {
     expect(seeded.peakBacklog, greaterThan(0),
         reason: 'the seed should start with more due than one session holds');
-    expect(seeded.lastBacklogDay, isNotNull);
+    expect(seeded.lastBacklogDay, isNotNull, reason: seeded.summary());
     expect(seeded.lastBacklogDay!, lessThan(45), reason: seeded.summary());
   });
 
