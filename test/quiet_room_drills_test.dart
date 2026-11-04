@@ -68,8 +68,7 @@ void expectInCatalog(List<Attempt> attempts) {
 Map<String, dynamic> shownVerb(Map<String, dynamic> doc) {
   final verbs = (doc['conjugation']['verbs'] as List)
       .cast<Map<String, dynamic>>()
-      .where(
-          (v) => find.text(v['dictionary'] as String).evaluate().isNotEmpty)
+      .where((v) => find.text(v['dictionary'] as String).evaluate().isNotEmpty)
       .toList();
   expect(verbs, hasLength(1));
   return verbs.single;
@@ -325,6 +324,33 @@ void main() {
       expect(written.map((a) => a.template), everyElement('cell'));
       expect(written.map((a) => a.grade), [Grade.clear, Grade.wrong]);
       expectInCatalog(written);
+    });
+
+    testWidgets(
+        'a pair hidden before its mark writes nothing, and its next reveal asks '
+        'for a new mark', (tester) async {
+      final ids = pairItemIds(readLessonFile());
+      final rig = DrillRig();
+      await rig.open(tester, 'pairs');
+      await tester.tap(find.text('を ?').first);
+      await tester.pump();
+      expect(find.text('Got it'), findsOneWidget);
+      // Tap the card again, away from its buttons: hidden, no mark asked, nothing written.
+      final card = find.ancestor(
+          of: find.text('Missed it'), matching: find.byType(QrCard));
+      await tester.tapAt(tester.getTopLeft(card) + const Offset(4, 4));
+      await tester.pump();
+      expect(find.text('Got it'), findsNothing);
+      expect(await rig.attempts(tester), isEmpty);
+
+      await tester.tap(find.text('を ?').first);
+      await tester.pump();
+      await tester.tap(find.text('Missed it'));
+      await tester.pump();
+      final written = await rig.attempts(tester);
+      expect(written.map((a) => a.itemId), [ids[0]]);
+      expect(written.single.grade, Grade.wrong);
+      expect(find.text('Marked as missed.'), findsOneWidget);
     });
 
     testWidgets('a cell hidden again before its mark writes nothing',

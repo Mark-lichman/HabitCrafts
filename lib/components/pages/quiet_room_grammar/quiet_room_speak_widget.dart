@@ -41,12 +41,26 @@
 // Every scored result shows the sentence with each hiragana letter colored by its syllable
 // score (PIN-8). Every attempt's sentence, scores and verdict stay on the device and the
 // newest are listed under "Recent scores", so the operator can tune the cutoffs (PIN-4).
+//
+// The study record (plan 2026-11-02, Task 11). Each sentence belongs to a grammar point and
+// one of its examples (`ex<i>`) or practice items (`p<i>`). One `Attempt` per scored or
+// self-marked sentence goes to the [AttemptRecorder] with `Source.sayIt`, the Say-it track,
+// which never counts toward the four clears and never moves the schedule (D4). The grade is
+// the score log's own (`sayItGrade`): correct is clear, close is hinted, wrong is wrong, all
+// written when the score lands; an unverified result writes only once marked, Got it as self
+// and Missed it as unscored, because unverified is never wrong. A self-mark after a close
+// stays in the score log only: the close already wrote its attempt. `SpeakScoreLog` stays as
+// the tuning aid beside the record.
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '/components/pages/quiet_room_mastery/drill_recorder.dart';
+import '/components/pages/quiet_room_mastery/item_catalog.dart'
+    show kSayItTemplate;
+import '/components/pages/quiet_room_mastery/study_export.dart' show sayItGrade;
 import '/components/pages/quiet_room_practice/anon_caller.dart';
 import '/components/pages/quiet_room_practice/listening_bars.dart';
 import '/components/pages/quiet_room_practice/pronunciation_service.dart';
@@ -66,14 +80,27 @@ typedef SpeakPlay = Future<String?> Function(String text);
 typedef SpeakServiceFactory = PronunciationService Function(
     CallerSignIn signIn);
 
-/// One sentence of the drill: the hiragana shown and scored, its kanji surface, and English.
+/// One sentence of the drill: the hiragana shown and scored, its kanji surface, and English,
+/// with the grammar point and the probe it came from.
 class SpeakSentence {
-  const SpeakSentence(
-      {required this.kana, required this.surface, required this.en});
+  const SpeakSentence({
+    required this.kana,
+    required this.surface,
+    required this.en,
+    this.itemId,
+    this.probeId,
+  });
 
   final String kana;
   final String surface;
   final String en;
+
+  /// The grammar point's id (`mari.L26.1`); null for a point with no id, which is not logged.
+  final String? itemId;
+
+  /// The example (`ex<i>`) or practice item (`p<i>`) of the point, as the catalog names it.
+  /// The forms of one combined example share it.
+  final String? probeId;
 }
 
 /// Several forms joined in one example: いこう／たべよう／しよう／こよう.
@@ -82,7 +109,8 @@ const String _joiner = '／';
 /// Splits a hiragana text and its twin on ／ into one [SpeakSentence] per form. When the
 /// two sides do not split alike, the whole pair is one sentence. The English splits
 /// alongside (see [splitEnglish]). When it cannot, every form keeps the whole English.
-Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en) {
+Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en,
+    {String? itemId, String? probeId}) {
   final kanaParts = jp.split(_joiner);
   final rubyParts = ruby.split(_joiner);
   final pairs =
@@ -94,6 +122,8 @@ Iterable<SpeakSentence> _sentencesOf(String jp, String ruby, String en) {
         kana: rubyKana(pairs[i]),
         surface: rubySurface(pairs[i]),
         en: ens[i],
+        itemId: itemId,
+        probeId: probeId,
       )
   ];
 }
@@ -140,20 +170,27 @@ List<String> _sharedLead(List<String> parts) {
 List<SpeakSentence> lessonSentences(Map<String, dynamic> lesson) {
   final out = <SpeakSentence>[];
   for (final p in (lesson['points'] as List).cast<Map<String, dynamic>>()) {
-    for (final e
-        in (p['examples'] as List? ?? const []).cast<Map<String, dynamic>>()) {
+    final id = p['id'] as String?;
+    final examples =
+        (p['examples'] as List? ?? const []).cast<Map<String, dynamic>>();
+    for (var i = 0; i < examples.length; i++) {
+      final e = examples[i];
       final jp = e['jp'] as String;
       out.addAll(_sentencesOf(
-          jp, e['jp_ruby'] as String? ?? jp, e['en'] as String? ?? ''));
+          jp, e['jp_ruby'] as String? ?? jp, e['en'] as String? ?? '',
+          itemId: id, probeId: 'ex$i'));
     }
-    for (final q
-        in (p['practice'] as List? ?? const []).cast<Map<String, dynamic>>()) {
+    final practice =
+        (p['practice'] as List? ?? const []).cast<Map<String, dynamic>>();
+    for (var i = 0; i < practice.length; i++) {
+      final q = practice[i];
       final answer = q['answer'] as String;
       final prompt = q['prompt'] as String;
       final kana = prompt.replaceAll('＿＿', answer);
       final ruby = (q['prompt_ruby'] as String? ?? prompt)
           .replaceAll('＿＿', q['answer_ruby'] as String? ?? answer);
-      out.addAll(_sentencesOf(kana, ruby, q['en'] as String? ?? ''));
+      out.addAll(_sentencesOf(kana, ruby, q['en'] as String? ?? '',
+          itemId: id, probeId: 'p$i'));
     }
   }
   return out;
@@ -367,6 +404,7 @@ class QuietRoomSpeakWidget extends StatefulWidget {
     this.newService,
     this.callerAuth,
     this.speech,
+    this.recorder,
   });
 
   /// The grammar lesson number, as in `grammar[].lesson`.
@@ -380,6 +418,10 @@ class QuietRoomSpeakWidget extends StatefulWidget {
   final CallerAuth? callerAuth;
   final SpeechService? speech;
 
+  /// Where the Say-it attempts go. Null writes to the app's study store, with one recorder
+  /// per visit to the screen.
+  final AttemptRecorder? recorder;
+
   static String routeName = 'quietRoomSpeak';
   static String routePath = '/quietRoomSpeak';
 
@@ -391,6 +433,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
     with WidgetsBindingObserver {
   late final PronunciationService _svc;
   late final SpeechService _voice = widget.speech ?? SpeechService.instance;
+  late final AttemptRecorder _recorder = widget.recorder ?? AttemptRecorder();
 
   int _index = 0;
 
@@ -427,6 +470,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
 
   /// The logged entry for [_result], so a self-mark lands on the attempt it answers.
   SpeakAttempt? _logged;
+
+  /// The sentence [_result] answers, so its self-mark is recorded against the same probe.
+  SpeakSentence? _loggedSentence;
 
   /// The learner's own mark after a self-check: true for "Got it".
   bool? _selfMark;
@@ -533,6 +579,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _heardVoice = false;
       _result = null;
       _logged = null;
+      _loggedSentence = null;
       _selfMark = null;
       // The check a Cancel on Checking left behind is not this attempt's: a Stop that
       // lands while the voice stop below is pending must not wait for its score.
@@ -553,6 +600,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       setState(() {
         _result = r;
         _logged = entry;
+        _loggedSentence = s;
         if (r.verdict == Judgement.correct) {
           _seen++;
           _right++;
@@ -561,6 +609,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
         }
       });
       _writeLog(() => SpeakScoreLog.add(entry));
+      // A scored result is the attempt; an unverified one waits for its self-mark.
+      if (r.verdict != Judgement.unverified) _recordSayIt(s, entry);
     } finally {
       // A newer attempt may have cleared or replaced _check by now (after a Cancel on
       // Checking): leave what it holds.
@@ -599,6 +649,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   void _mark(bool gotIt) {
     if (_selfMark != null) return;
     final entry = _logged;
+    final sentence = _loggedSentence;
     setState(() {
       _selfMark = gotIt;
       _seen++;
@@ -606,6 +657,29 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
     });
     // Kept with the attempt it answers, after that attempt's own save (no mark is lost).
     if (entry != null) _writeLog(() => SpeakScoreLog.mark(entry, gotIt));
+    // An unverified result is recorded once it is marked. A close one already was.
+    if (entry != null &&
+        sentence != null &&
+        entry.verdict == Judgement.unverified) {
+      _recordSayIt(sentence, entry.marked(gotIt));
+    }
+  }
+
+  /// Writes one Say-it attempt for [s], graded as the score log grades [entry], at the
+  /// instant the sentence was spoken. Never waits and never fails the drill.
+  void _recordSayIt(SpeakSentence s, SpeakAttempt entry) {
+    final itemId = s.itemId, probeId = s.probeId;
+    if (itemId == null || probeId == null) return;
+    _recorder.record(DrillAnswer(
+      itemId: itemId,
+      probeId: probeId,
+      template: kSayItTemplate,
+      grade: sayItGrade(entry),
+      production: true,
+      selfGraded: false,
+      sayIt: true,
+      atUtc: entry.at,
+    ));
   }
 
   /// Ignored during a check, so a pending result is never credited to the next sentence.
@@ -620,6 +694,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       }
       _result = null;
       _logged = null;
+      _loggedSentence = null;
       _selfMark = null;
     });
   }
@@ -633,6 +708,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _right = 0;
       _result = null;
       _logged = null;
+      _loggedSentence = null;
       _selfMark = null;
     });
   }

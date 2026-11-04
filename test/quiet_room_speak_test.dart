@@ -13,6 +13,11 @@
 // a late result is dropped; a combined example's English splits with its Japanese; one
 // position counter, with the tally on an end card; a self-mark is kept with its attempt in
 // the score log; and the sentence box keeps Next in place.
+//
+// Task 11 adds the study record: one Say-it attempt per scored or self-marked sentence,
+// against the sentence's grammar point and probe, through an injected recorder on a memory
+// store. The tests assert the item and probe ids, and that the Say-it track moves neither the
+// schedule nor the mastery state (D4).
 
 import 'dart:async';
 import 'dart:convert';
@@ -24,6 +29,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/anon_caller.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/listening_bars.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart';
@@ -45,6 +55,12 @@ List<SpeakSentence> lesson26() {
 
 /// The drill's first sentence, the one shown when the screen opens.
 SpeakSentence firstSentence() => lesson26().first;
+
+/// The shipped item catalog, read from disk like the lesson file.
+final _catalog = ItemCatalog.fromDocs(
+    readLessonFile(),
+    json.decode(File('assets/lessons/jp_lessons.json').readAsStringSync())
+        as Map<String, dynamic>);
 
 /// The first lesson 26 sentence whose kanji surface differs from its kana, with its index.
 /// Chosen from the data, not pinned, so it holds whichever words a later twin rewrite
@@ -212,6 +228,18 @@ class Rig {
   final List<Map<String, Object?>> sent = [];
   PronunciationService? service;
 
+  /// The study record the drill writes to, through the real recorder.
+  final JpStoreMemory store = JpStoreMemory();
+  late final AttemptRecorder recorder =
+      AttemptRecorder.on(store, lookup: _catalog.byId);
+
+  /// The attempts written so far, once the recorder's queue drains.
+  Future<List<Attempt>> attempts(WidgetTester tester) async {
+    await settle(tester);
+    await recorder.idle;
+    return store.attempts();
+  }
+
   PronunciationService make(CallerSignIn signIn) =>
       service = PronunciationService(
         recorder: mic,
@@ -233,6 +261,7 @@ class Rig {
         callerAuth: auth,
         speech: voice,
         play: realVoice ? null : play ?? (_) async => null,
+        recorder: recorder,
       );
 
   Future<void> open(WidgetTester tester,
@@ -340,6 +369,45 @@ void main() {
   });
 
   group('lessonSentences', () {
+    test(
+        'every sentence of every lesson names its grammar point and a probe '
+        'of that point in the catalog', () {
+      final doc = readLessonFile();
+      var n = 0;
+      for (final lesson
+          in (doc['grammar'] as List).cast<Map<String, dynamic>>()) {
+        for (final s in lessonSentences(lesson)) {
+          n++;
+          final item = _catalog.byId(s.itemId ?? '');
+          expect(item, isNotNull, reason: '${s.kana}: no point ${s.itemId}');
+          expect(item!.probes.map((p) => p.id), contains(s.probeId),
+              reason: '${s.kana}: ${s.probeId} is not a probe of ${s.itemId}');
+        }
+      }
+      expect(n, greaterThan(0));
+    });
+
+    test('an example is ex<i> and a practice item p<i>, in point order', () {
+      final doc = readLessonFile();
+      final lesson = (doc['grammar'] as List)
+          .cast<Map<String, dynamic>>()
+          .firstWhere((l) => l['lesson'] == 26);
+      final point =
+          (lesson['points'] as List).cast<Map<String, dynamic>>().first;
+      final examples = (point['examples'] as List? ?? const []).length;
+      final practice = (point['practice'] as List? ?? const []).length;
+      final first = lessonSentences({
+        'points': [point]
+      });
+      expect(first.map((s) => s.itemId).toSet(), {point['id']});
+      // A combined example gives several sentences under one probe id.
+      expect(first.map((s) => s.probeId).toSet(), {
+        for (var i = 0; i < examples; i++) 'ex$i',
+        for (var i = 0; i < practice; i++) 'p$i',
+      });
+      expect(first.first.probeId, examples > 0 ? 'ex0' : 'p0');
+    });
+
     test('holds every example and every completed practice item', () {
       final doc = readLessonFile();
       final lesson = (doc['grammar'] as List)
@@ -1550,6 +1618,136 @@ void main() {
       await tester.tap(find.text('Next sentence'));
       await tester.pump();
       expect(find.text(second.kana), findsOneWidget);
+    });
+  });
+
+  group('the drill writes Say-it attempts (Task 11)', () {
+    /// The shared fields of every Say-it attempt on [s].
+    void expectSayIt(Attempt a, SpeakSentence s) {
+      expect(a.itemId, s.itemId);
+      expect(a.probeId, s.probeId);
+      expect(a.source, Source.sayIt);
+      expect(a.template, kSayItTemplate);
+      expect(a.production, isTrue);
+      expect(a.selfGraded, isFalse);
+      expect(a.hintLevel, 0);
+      expect(a.rating, fsrsRatingFor(a.grade));
+    }
+
+    testWidgets(
+        'a correct score writes one clear against the sentence\'s point, which '
+        'moves neither the schedule nor the mastery state (D4)',
+        (tester) async {
+      final s = firstSentence();
+      expect(s.itemId, isNotNull);
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.speakOnce(tester);
+      expect(find.text('That’s it'), findsOneWidget);
+
+      final written = await rig.attempts(tester);
+      expect(written, hasLength(1));
+      expectSayIt(written.single, s);
+      expect(written.single.grade, Grade.clear);
+      expect(written.single.probeId, 'ex0');
+      // The attempt keeps the instant the score log keeps, so the two line up.
+      final saved = await tester.runAsync(savedAttempts);
+      expect(written.single.atUtc,
+          DateTime.parse(saved!.single['at'] as String).toUtc());
+
+      expect(await rig.store.srs(s.itemId!), isNull);
+      final m = await rig.store.mastery(s.itemId!);
+      expect(m?.status ?? MasteryStatus.neu, MasteryStatus.neu);
+      expect(m?.clears ?? const [], isEmpty);
+    });
+
+    testWidgets('a wrong score writes one wrong', (tester) async {
+      final rig = Rig(reply: fixture(_badFixture));
+      await rig.speakOnce(tester);
+      expect(find.text('Not quite'), findsOneWidget);
+      final written = await rig.attempts(tester);
+      expect(written.map((a) => a.grade), [Grade.wrong]);
+      expectSayIt(written.single, firstSentence());
+      expect(await rig.store.srs(firstSentence().itemId!), isNull);
+    });
+
+    testWidgets(
+        'a close score writes one hinted, and its self-mark writes no second '
+        'attempt', (tester) async {
+      final rig = Rig(reply: goodWithScore(70));
+      await rig.speakOnce(tester);
+      expect(find.text('Close'), findsOneWidget);
+      var written = await rig.attempts(tester);
+      expect(written.map((a) => a.grade), [Grade.hinted]);
+      expectSayIt(written.single, firstSentence());
+
+      await tester.tap(find.text('Got it'));
+      written = await rig.attempts(tester);
+      expect(written.map((a) => a.grade), [Grade.hinted]);
+    });
+
+    testWidgets(
+        'an unverified result writes nothing until marked: Got it is self and '
+        'Missed it is unscored, never wrong', (tester) async {
+      final all = lesson26();
+      final rig = Rig(error: Exception('offline'));
+      await rig.speakOnce(tester);
+      expect(find.text('Can’t check this one'), findsOneWidget);
+      expect(await rig.attempts(tester), isEmpty,
+          reason: 'an unverified result alone is not an answer');
+
+      await tester.tap(find.text('Got it'));
+      var written = await rig.attempts(tester);
+      expect(written.map((a) => a.grade), [Grade.self]);
+      expectSayIt(written.single, all[0]);
+
+      await tester.tap(find.text('Next sentence'));
+      await tester.pump();
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      await tester.tap(find.text('Missed it'));
+      written = await rig.attempts(tester);
+      expect(written.map((a) => a.grade), [Grade.self, Grade.unscored]);
+      expectSayIt(written.last, all[1]);
+      expect(written.map((a) => a.grade), isNot(contains(Grade.wrong)));
+    });
+
+    testWidgets('an unverified result left unmarked writes nothing',
+        (tester) async {
+      final rig = Rig(error: Exception('offline'));
+      await rig.speakOnce(tester);
+      await tester.tap(find.text('Next sentence'));
+      await tester.pump();
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets('a listen cut short with Stop writes nothing', (tester) async {
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await rig.feed(tester, _loud, 300);
+      await tester.tap(find.text('Stop'));
+      await rig.settle(tester);
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets(
+        'a practice sentence is recorded against its practice probe, with the '
+        'same point', (tester) async {
+      final all = lesson26();
+      final i = all.indexWhere((s) => s.probeId!.startsWith('p'));
+      expect(i, isNonNegative, reason: 'lesson 26 has no practice sentence');
+      final rig = Rig(reply: fixture(_goodFixture));
+      await rig.open(tester);
+      for (var k = 0; k < i; k++) {
+        await tester.tap(find.text('Next sentence'));
+        await tester.pump();
+      }
+      await rig.tapSpeak(tester);
+      await rig.sayAndGoQuiet(tester);
+      final written = await rig.attempts(tester);
+      expect(written, hasLength(1));
+      expectSayIt(written.single, all[i]);
+      expect(written.single.probeId, startsWith('p'));
     });
   });
 }

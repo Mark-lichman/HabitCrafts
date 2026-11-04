@@ -33,6 +33,16 @@ import 'mastery_rule.dart';
 /// The template of a grammar point's example sentence: the Say-it track, never scored (D4).
 const String kSayItTemplate = 'say';
 
+/// The templates of the self-graded drill probes. The drills screen writes its attempts with
+/// these, so a drill and the catalog never name one template two ways.
+const String kConjugateTemplate = 'conjugate';
+const String kCellTemplate = 'cell';
+
+/// A pair's two directions, each its own template and probe id: shown the intransitive verb,
+/// recall the transitive one ([kPairToTransitive]), and the reverse.
+const String kPairToTransitive = 'transitive';
+const String kPairToIntransitive = 'intransitive';
+
 /// The id of the conjugation idea for [form] in verb [group] (1, 2 or 3).
 String conjugationItemId(String form, int group) => 'conj.$form.g$group';
 
@@ -323,7 +333,7 @@ List<ItemDef> _conjugationIdeas(
           if (v['group'] == group && _str(v[form]).isNotEmpty)
             ProbeDef(
               id: _str(v['dictionary']),
-              template: 'conjugate',
+              template: kConjugateTemplate,
               text: _str(v['dictionary']),
               answer: _str(v[form]),
               production: true,
@@ -358,14 +368,14 @@ List<ItemDef> _pairs(Map<String, dynamic> grammar) {
       probes: [
         // Shown the intransitive verb, give the transitive one, and the reverse.
         ProbeDef(
-            id: 'transitive',
-            template: 'transitive',
+            id: kPairToTransitive,
+            template: kPairToTransitive,
             text: _str(p['intransitive']),
             answer: _str(p['transitive']),
             selfGraded: true),
         ProbeDef(
-            id: 'intransitive',
-            template: 'intransitive',
+            id: kPairToIntransitive,
+            template: kPairToIntransitive,
             text: _str(p['transitive']),
             answer: _str(p['intransitive']),
             selfGraded: true),
@@ -385,7 +395,7 @@ List<ItemDef> _tableRows(Map<String, dynamic> grammar) {
           if (c['row'] == row)
             ProbeDef(
               id: _str(c['col']),
-              template: 'cell',
+              template: kCellTemplate,
               text: '$row ${_str(c['col'])}',
               answer: _str(c['reading']),
               selfGraded: true,

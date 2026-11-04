@@ -105,8 +105,9 @@ class AttemptRecorder {
 
   /// Queues one answer. Never throws; the attempt as logged, or null when it was dropped.
   Future<Attempt?> record(DrillAnswer answer) {
-    final run = _tail.then((_) => _write(answer)).then<Attempt?>((a) => a,
-        onError: (Object _) => null);
+    final run = _tail
+        .then((_) => _write(answer))
+        .then<Attempt?>((a) => a, onError: (Object _) => null);
     _tail = run.then((_) {});
     return run;
   }
