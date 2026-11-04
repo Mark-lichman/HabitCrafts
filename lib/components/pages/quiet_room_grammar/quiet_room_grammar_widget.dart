@@ -686,6 +686,11 @@ class _PointCardState extends State<_PointCard>
     );
   }
 
+  /// The lesson card's own "Can use it" or "Review" mark. It goes to `SelfCheck` only:
+  /// no `Attempt`, no schedule, no grade (the self-check pill the plan grades is the
+  /// probe's Got it or Missed it, `_PracticeState._mark`). The one-time v2 import in
+  /// study_export.dart is the only reader that schedules from `jp.selfcheck.*`. Pinned by
+  /// the test 'a reading aid and the lesson pills write no attempt'.
   void _setCheck(String v) {
     final next = _check == v ? null : v;
     setState(() => _check = next);
