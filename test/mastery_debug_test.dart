@@ -90,6 +90,30 @@ class BrokenStore extends JpStoreMemory {
       throw StateError('the attempts table is unreadable');
 }
 
+/// A store whose seed read fails: the summary shows no seed count, so it must not read one.
+class SeedlessStore extends JpStoreMemory {
+  @override
+  Future<List<SeedEvent>> seeds() async =>
+      throw StateError('summarizeRecord read the seed rows');
+}
+
+/// A Shaky [item] with one regain clear per day of [days]; no due day, so its row shows only
+/// the count.
+MasteryState shakyWith(ItemDef item, List<int> days) {
+  final p = item.scoredProbes.first;
+  return MasteryState.initial(item.id).copyWith(
+    status: MasteryStatus.shaky,
+    clears: [
+      for (final d in days)
+        ClearRef(
+            day: d,
+            template: p.template,
+            production: p.production,
+            probeId: p.id),
+    ],
+  );
+}
+
 Future<void> pumpDebug(WidgetTester tester, JpStore store,
     {StudyRecordFiles? files}) async {
   tester.view.physicalSize = const Size(1200, 20000);
@@ -232,6 +256,26 @@ void main() {
       expect(s.medianSessionMinutes, isNull);
       expect(s.byStatus[MasteryStatus.neu]!.length, catalog.items.length);
     });
+
+    test('reads no seed rows, since the page shows no seed count', () async {
+      final s = await summarizeRecord(SeedlessStore(), catalog, today: today);
+      expect(s.attemptCount, 0);
+    });
+  });
+
+  group('sharedStore', () {
+    test('drops a failed open so the next visit retries it', () async {
+      Future<JpStore> failing() async =>
+          throw StateError('the database file is locked');
+      final store = JpStoreMemory();
+      Future<JpStore> working() async => store;
+
+      await expectLater(sharedStore(open: failing), throwsStateError);
+      expect(await sharedStore(open: working), same(store),
+          reason: 'the rejected open was not kept');
+      expect(await sharedStore(open: failing), same(store),
+          reason: 'a store that opened is kept for the app run');
+    });
   });
 
   group('the page', () {
@@ -261,6 +305,28 @@ void main() {
       for (final action in ['Rebuild from log', 'Export', 'Import']) {
         expect(find.text(action), findsOneWidget);
       }
+    });
+
+    testWidgets('a Shaky row shows a bare clear count with no denominator',
+        (tester) async {
+      final store = JpStoreMemory();
+      final words = catalog.ofKind(ItemKind.word);
+      // Two clears two days apart: still Shaky, since the regain gap is longer than that.
+      final two = shakyWith(words[0], [today - 3, today - 1]);
+      expect(
+          two.clears.last.day - two.clears.first.day, lessThan(kRegainGapDays));
+      final one = shakyWith(words[1], [today - 1]);
+      await tester.runAsync(() async {
+        await store.putMastery(two);
+        await store.putMastery(one);
+      });
+      await pumpDebug(tester, store);
+
+      expect(find.text('Shaky · 2'), findsOneWidget);
+      expect(find.text('2 clears toward regaining'), findsOneWidget);
+      expect(find.text('1 clear toward regaining'), findsOneWidget);
+      expect(find.textContaining('of $kRegainClears'), findsNothing,
+          reason: 'no row promises a regain the gap clause still blocks');
     });
 
     testWidgets('Rebuild from log replays the log over a stale cache',

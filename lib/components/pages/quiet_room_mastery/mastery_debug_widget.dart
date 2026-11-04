@@ -18,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -72,14 +72,14 @@ class AnswerTime {
   final double? medianMs;
 }
 
-/// What the page shows, read off the store in one pass.
+/// What the page shows, read off the store in one pass. Seed counts are not here: the action
+/// messages take theirs from [JpStore.exportLog], and nothing else on the page shows one.
 class RecordSummary {
   const RecordSummary({
     required this.byStatus,
     required this.load14,
     required this.overdue,
     required this.attemptCount,
-    required this.seedCount,
     required this.answerTimes,
     required this.sessionCount,
     required this.medianSessionMinutes,
@@ -95,7 +95,6 @@ class RecordSummary {
   /// Items due before today.
   final int overdue;
   final int attemptCount;
-  final int seedCount;
   final Map<ItemKind, AnswerTime> answerTimes;
   final int sessionCount;
   final double? medianSessionMinutes;
@@ -125,7 +124,6 @@ Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
   final dueDay = {for (final d in due) d.itemId: d.dueDay};
   final load = await store.loadByDay();
   final attempts = await store.attempts();
-  final seeds = await store.seeds();
 
   final byStatus = {for (final s in MasteryStatus.values) s: <RecordRow>[]};
   for (final item in catalog.items) {
@@ -201,7 +199,6 @@ Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
     load14: load14,
     overdue: overdue,
     attemptCount: attempts.length,
-    seedCount: seeds.length,
     answerTimes: answerTimes,
     sessionCount: all.length,
     medianSessionMinutes: _median(all.map(minutes).toList()),
@@ -272,13 +269,27 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
   }
 }
 
-/// The store the page opens when none is injected: one per app run.
+/// The store the page opens when none is injected: one per app run. A failed open is not
+/// kept, so the next visit to the page retries it instead of showing the same error until
+/// the app restarts.
 ///
 /// 🚨 The screens that write attempts (Tasks 9 to 12) open their own until the session work
 /// shares one store. On the phone every SQLite open reaches the same file, so this page reads
 /// what they wrote. On web each memory store is its own, so this page shows only its own.
+///
+/// [open] is a seam for the test; the page passes nothing and opens the app's store.
 Future<JpStore>? _appStore;
-Future<JpStore> _defaultStore() => _appStore ??= openJpStore();
+@visibleForTesting
+Future<JpStore> sharedStore({Future<JpStore> Function() open = openJpStore}) {
+  return _appStore ??= () async {
+    try {
+      return await open();
+    } catch (_) {
+      _appStore = null;
+      rethrow;
+    }
+  }();
+}
 
 class MasteryDebugWidget extends StatefulWidget {
   const MasteryDebugWidget({
@@ -325,7 +336,7 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
 
   Future<void> _load() async {
     try {
-      final store = _store ??= widget.store ?? await _defaultStore();
+      final store = _store ??= widget.store ?? await sharedStore();
       final catalog = _catalog ??= widget.catalog ?? await ItemCatalog.load();
       final summary = await summarizeRecord(store, catalog, today: _today);
       if (mounted) setState(() => _summary = summary);
@@ -509,8 +520,10 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
     final detail = [
       if (row.status == MasteryStatus.learning)
         '${row.clears} of $kClearsToMaster',
+      // A bare count: regaining also needs the kRegainGapDays gap (mastery_rule.dart), so
+      // an 'n of kRegainClears' denominator would promise what the gap clause still blocks.
       if (row.status == MasteryStatus.shaky)
-        '${row.clears} of $kRegainClears to regain',
+        '${_plural(row.clears, 'clear')} toward regaining',
       if (due != null) due,
     ].join(' · ');
     return Padding(
