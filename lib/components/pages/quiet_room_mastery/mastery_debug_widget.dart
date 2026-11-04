@@ -273,6 +273,9 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
   }
 }
 
+/// The one store [sharedStore] hands out, or null before the first open or after a failed one.
+Future<JpStore>? _appStore;
+
 /// The store the page opens when none is injected: one per app run. A failed open is not
 /// kept, so the next visit to the page retries it instead of showing the same error until
 /// the app restarts.
@@ -282,7 +285,6 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
 /// what they wrote. On web each memory store is its own, so this page shows only its own.
 ///
 /// [open] is a seam for the test; the page passes nothing and opens the app's store.
-Future<JpStore>? _appStore;
 @visibleForTesting
 Future<JpStore> sharedStore({Future<JpStore> Function() open = openJpStore}) {
   return _appStore ??= () async {
