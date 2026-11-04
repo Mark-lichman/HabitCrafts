@@ -18,6 +18,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -38,6 +39,10 @@ const int kAnswerTimeMinSamples = 50;
 
 /// The days the load strip and the early-session median cover.
 const int kDebugWindowDays = 14;
+
+/// A local day past every due day, for [JpStore.dueOnOrBefore]. It fits in 32 bits: on web a
+/// shift past 31 bits is 0, so a wider bound would read no due days at all.
+const int _kFarFutureDay = 0x7fffffff;
 
 /// One catalog item as the page lists it.
 class RecordRow {
@@ -116,7 +121,7 @@ double? _median(List<num> values) {
 Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
     {required int today}) async {
   final mastery = await store.allMastery();
-  final due = await store.dueOnOrBefore(1 << 40);
+  final due = await store.dueOnOrBefore(_kFarFutureDay);
   final dueDay = {for (final d in due) d.itemId: d.dueDay};
   final load = await store.loadByDay();
   final attempts = await store.attempts();
@@ -254,7 +259,8 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
       fileName: fileName,
       bytes: utf8.encode(text),
     );
-    return path != null;
+    // On web saveFile starts the browser download and then always returns null.
+    return kIsWeb || path != null;
   }
 
   @override

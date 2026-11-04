@@ -62,14 +62,18 @@ Future<void> record(JpStore store, Attempt a) =>
     store.recordAnswer(a, item: catalog.byId(a.itemId), scheduler: scheduler);
 
 class FakeFiles implements StudyRecordFiles {
-  FakeFiles({this.toOpen});
+  FakeFiles({this.toOpen, this.saves = true});
 
   String? toOpen;
+
+  /// False cancels the save dialog.
+  final bool saves;
   String? savedName;
   String? savedText;
 
   @override
   Future<bool> save(String fileName, String text) async {
+    if (!saves) return false;
     savedName = fileName;
     savedText = text;
     return true;
@@ -77,6 +81,13 @@ class FakeFiles implements StudyRecordFiles {
 
   @override
   Future<String?> open() async => toOpen;
+}
+
+/// A store whose attempt read fails, for the page's load-error branch.
+class BrokenStore extends JpStoreMemory {
+  @override
+  Future<List<Attempt>> attempts({String? itemId}) async =>
+      throw StateError('the attempts table is unreadable');
 }
 
 Future<void> pumpDebug(WidgetTester tester, JpStore store,
@@ -295,6 +306,47 @@ void main() {
       final log = decodeStudyExport(files.savedText!);
       expect(log.attempts.single.itemId, word.id);
       expect(find.text('Exported 1 attempt and 0 seeds.'), findsOneWidget);
+    });
+
+    testWidgets('a cancelled Export says so and saves nothing', (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      await tester.runAsync(
+          () => record(store, answer(word, today, Grade.clear, minute: -5)));
+      final files = FakeFiles(saves: false);
+      await pumpDebug(tester, store, files: files);
+
+      await tester.tap(find.text('Export'));
+      await settle(tester);
+
+      expect(find.text('Export cancelled.'), findsOneWidget);
+      expect(files.savedText, isNull);
+    });
+
+    testWidgets('a cancelled Import after Replace changes nothing',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      await tester.runAsync(
+          () => record(store, answer(word, today, Grade.clear, minute: -5)));
+      await pumpDebug(tester, store, files: FakeFiles(toOpen: null));
+
+      await tester.tap(find.text('Import'));
+      await settle(tester);
+      await tester.tap(find.text('Replace'));
+      await settle(tester);
+
+      expect(find.text('Import cancelled.'), findsOneWidget);
+      expect((await tester.runAsync(() => store.attempts()))!.length, 1);
+      expect(find.text('1 attempt'), findsOneWidget);
+    });
+
+    testWidgets('a store that cannot be read shows the load error',
+        (tester) async {
+      await pumpDebug(tester, BrokenStore());
+
+      expect(find.text('Could not read the study record.'), findsOneWidget);
+      expect(find.text('Study record'), findsNothing);
     });
 
     testWidgets('Import asks first, then replaces the record with the file',
