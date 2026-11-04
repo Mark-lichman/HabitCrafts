@@ -21,8 +21,16 @@
 // written with `wasDue: true` and `source: review`, as the Python reference (sim_queue.py) does.
 // Written with `wasDue: false`, the introduction's clear never counts and the four counting
 // clears wait for the first four FSRS reviews (about days 3, 14, 50 and 140): measured on
-// 2026-11-04, run A then masters 152 items by day 120 instead of 410, under End state 8's 200.
+// 2026-11-04, run A then masters 145 items by day 120 instead of 393, under End state 8's 200.
 // The Review session (Task 18) must write a New entry's answer the same way.
+//
+// 🚨 A RE-ASK IS ANSWERED AS NOT DUE, whatever section the wrong came from. The wrong before it
+// scheduled the item for tomorrow at the earliest (`srsAfter`, D11), so at the re-ask the item
+// is not due and its clear starts no run of counting clears (End state 2: each clear while
+// due). The plan's entry keeps the original `wasDue`, which would count a Due re-ask's clear
+// and never a New one's; the harness writes `wasDue: false` for every re-ask instead. Measured
+// on 2026-11-04, run A masters 393 items by day 120 this way against 410 with the entry's flag,
+// both over End state 8's 200. The Review session (Task 18) must write a re-ask the same way.
 
 import 'dart:math' as math;
 
@@ -319,8 +327,10 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
       final n = scoredAnswers[item.id] ?? 0;
       final probe = probeFor(item, n);
       final grade = gradeOf(learner.answer(r), probe);
-      final isNew = entry.section == PlanSection.newItems && !entry.reask;
-      final wasDue = entry.wasDue || isNew;
+      // A re-ask is never due (see the header): the wrong before it scheduled the item for
+      // tomorrow at the earliest. Otherwise the plan's flag, with a New entry answered as due.
+      final isNew = entry.section == PlanSection.newItems;
+      final wasDue = !entry.reask && (entry.wasDue || isNew);
       final attempt = Attempt(
         itemId: item.id,
         probeId: probe.id,
