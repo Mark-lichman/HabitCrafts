@@ -97,7 +97,8 @@ Future<Launch> onLaunch(
           record: record,
           daysMissed: stored.daysMissed);
     }
-    // A record this build cannot read: today's plan is built again below.
+    // A record this build cannot read: today's plan is built again below. Its completion is
+    // kept, so a finished session never reopens and never takes a second intake (PIN-6).
   }
 
   final last = await _lastSessionBefore(store, today);
@@ -111,11 +112,16 @@ Future<Launch> onLaunch(
     clock: FixedClock(now),
     scheduler: settings.scheduler,
   );
-  final written = DayRecord(day: today, plan: plan.encode());
+  final completed = record?.completed ?? false;
+  final written =
+      DayRecord(day: today, plan: plan.encode(), completed: completed);
   await store.putDay(written);
   return Launch(
-    decision:
-        plan.returnMode ? LaunchDecision.welcomeBack : LaunchDecision.today,
+    decision: completed
+        ? LaunchDecision.done
+        : plan.returnMode
+            ? LaunchDecision.welcomeBack
+            : LaunchDecision.today,
     day: today,
     plan: plan,
     record: written,

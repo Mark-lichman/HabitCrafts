@@ -2,7 +2,8 @@
 // at an injected instant, and states one launch case: first launch, first launch then the
 // seed then today's plan, resume and done on the same day, the next day, one missed day, two
 // or more missed days as Welcome back with the return plan and no item reset, Welcome back
-// again until the first answer, a stored plan this build cannot read, and the 04:00 boundary.
+// again until the first answer, a stored plan this build cannot read (unfinished, and finished
+// so it stays done), and the 04:00 boundary.
 
 import 'dart:convert';
 import 'dart:io';
@@ -201,6 +202,26 @@ void main() {
     expect(launch.decision, LaunchDecision.today);
     expect(launch.daysMissed, 0);
     expect(DayPlan.decode((await store.day(day0))!.plan).day, day0);
+  });
+
+  test(
+      'a finished session whose stored plan this build cannot read stays done, '
+      'not reopened (PIN-6)', () async {
+    final store = JpStoreMemory();
+    await seedFromLessons(day0, store, catalog, nowUtc: at(day0).toUtc());
+    await store.putDay(const DayRecord(
+        day: day0, plan: '{"not": "a plan"}', position: 9, completed: true));
+    final launch = await onLaunch(at(day0), store, catalog);
+    expect(launch.decision, LaunchDecision.done);
+    expect(launch.record!.completed, isTrue);
+    final stored = await store.day(day0);
+    expect(stored!.completed, isTrue);
+    expect(DayPlan.decode(stored.plan).day, day0);
+    // Asked again the same day, it is still done.
+    expect(
+        (await onLaunch(at(day0).add(const Duration(hours: 2)), store, catalog))
+            .decision,
+        LaunchDecision.done);
   });
 
   test(
