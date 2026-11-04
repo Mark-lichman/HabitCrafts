@@ -77,16 +77,6 @@ class QuietRoomLessonWidget extends StatefulWidget {
   /// The probe a card answer is written against (item_catalog.dart).
   static const cardProbe = 'card';
 
-  static Future<JpStore>? _sharedStore;
-
-  /// The store when none is injected: opened on first use and kept for the run. A failed
-  /// open is not kept, so the next answer tries again.
-  static Future<JpStore> sharedStore() =>
-      _sharedStore ??= openJpStore().catchError((Object e) {
-        _sharedStore = null;
-        throw e;
-      });
-
   @override
   State<QuietRoomLessonWidget> createState() => _QuietRoomLessonWidgetState();
 }
@@ -169,13 +159,12 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         outcome: knew ? Outcome.right : Outcome.wrong, selfGraded: true);
     setState(() => _graded[id] = grade);
     try {
-      final store = widget.store ?? await QuietRoomLessonWidget.sharedStore();
-      final ItemLookup lookup =
-          widget.items ?? (await ItemCatalog.load()).byId;
+      final store = widget.store ?? await sharedJpStore();
+      final ItemLookup lookup = widget.items ?? (await ItemCatalog.load()).byId;
       final now = widget.clock.now();
       final today = localDay(now);
-      final due = (await store.srs(id))?.dueDay ??
-          (await store.item(id))?.seedDueDay;
+      final due =
+          (await store.srs(id))?.dueDay ?? (await store.item(id))?.seedDueDay;
       final wasDue = due != null && due <= today;
       await store.recordAnswer(
         Attempt(
@@ -211,11 +200,13 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
     }
   }
 
-  /// The word's item id: its image stem (D19), which the clean-up pass also writes as `id`.
+  /// The word's item id: its image stem (D19), read in the catalog's order so an attempt
+  /// always logs under the id the catalog knows. `id` is the fallback for a word with no
+  /// image.
   static String _wordId(Map<String, dynamic> w) {
-    final id = w['id'] as String?;
-    if (id != null && id.isNotEmpty) return id;
-    final file = (w['image'] as String? ?? '').split('/').last;
+    final image = w['image'] as String?;
+    if (image == null || image.isEmpty) return w['id'] as String? ?? '';
+    final file = image.split('/').last;
     final dot = file.lastIndexOf('.');
     return dot > 0 ? file.substring(0, dot) : file;
   }

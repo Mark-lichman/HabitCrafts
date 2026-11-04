@@ -28,11 +28,11 @@ Map<String, dynamic> readWordFile() =>
         as Map<String, dynamic>;
 
 /// The words of lesson [no], in screen order.
-List<Map<String, dynamic>> wordsOf(int no) => ((readWordFile()['lessons']
-            as List)
-        .cast<Map<String, dynamic>>()
-        .firstWhere((l) => l['lesson'] == no)['items'] as List)
-    .cast<Map<String, dynamic>>();
+List<Map<String, dynamic>> wordsOf(int no) =>
+    ((readWordFile()['lessons'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((l) => l['lesson'] == no)['items'] as List)
+        .cast<Map<String, dynamic>>();
 
 /// The first word of the course that carries a `context` line, and its lesson.
 ({int lesson, Map<String, dynamic> word}) firstWithContext() {
@@ -61,9 +61,10 @@ final DateTime kNow = DateTime(2026, 11, 3, 10);
 
 /// Pumps the screen. The word file is warmed under `runAsync` first: a large `loadString`
 /// decodes on another isolate, which the fake clock never advances.
-Future<void> pumpLesson(WidgetTester tester, QuietRoomLessonWidget screen) async {
-  await tester.runAsync(
-      () => rootBundle.loadString('assets/lessons/jp_lessons.json'));
+Future<void> pumpLesson(
+    WidgetTester tester, QuietRoomLessonWidget screen) async {
+  await tester
+      .runAsync(() => rootBundle.loadString('assets/lessons/jp_lessons.json'));
   await pumpStudyScreen(tester, screen);
 }
 
@@ -191,6 +192,55 @@ void main() {
     expect(await store.srs(id), isNull);
     final m = await store.mastery(id);
     expect(m == null || m.status == MasteryStatus.neu, isTrue);
+  });
+
+  testWidgets(
+      'Knew it reads the schedule before the seed: a word due tomorrow is early',
+      (tester) async {
+    final word = wordsOf(30).first;
+    final id = word['id'] as String;
+    final store = JpStoreMemory();
+    final today = FixedClock(kNow).today();
+    // Seeded for a past day, then one wrong today: the schedule now says tomorrow and the
+    // older seed must not win.
+    await store.appendSeed(id, today - 5, atUtc: kNow.toUtc());
+    await store.recordAnswer(
+      Attempt(
+        itemId: id,
+        probeId: 'card',
+        template: 'card',
+        production: false,
+        selfGraded: true,
+        atUtc: kNow.toUtc(),
+        localDay: today,
+        grade: Grade.wrong,
+        rating: kRatingAgain,
+        revealed: true,
+        wasDue: true,
+        source: Source.review,
+        sessionId: 'setup',
+      ),
+      item: catalog().byId(id),
+      scheduler: const FsrsScheduler(),
+    );
+    final srsBefore = (await store.srs(id))!;
+    expect(srsBefore.dueDay, today + 1);
+    final clearsBefore = (await store.mastery(id))!.clears;
+
+    await pumpLesson(tester, screen(lesson: 30, store: store));
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(knewIt);
+    await tester.pumpAndSettle();
+
+    final written = await store.attempts();
+    expect(written, hasLength(2));
+    final a = written.last;
+    expect(a.grade, Grade.clear);
+    expect(a.wasDue, isFalse);
+    expect(a.source, Source.early);
+    // PIN-14: the early clear moved neither the schedule nor the clears.
+    expect((await store.srs(id))!.dueDay, srsBefore.dueDay);
+    expect((await store.mastery(id))!.clears, clearsBefore);
   });
 
   testWidgets('a write that fails says so and leaves the pills to try again',
