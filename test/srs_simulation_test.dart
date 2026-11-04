@@ -59,6 +59,8 @@ void main() {
       'no session passes the 20-minute ceiling and no plan fills past the '
       'ceiling less the repair slot (PIN-5)', () {
     for (final run in all()) {
+      // Holds by the harness hard stop: `ask` refuses any answer that would pass the ceiling
+      // (session behavior, PIN-5). The planner check is `peakPlannedSeconds` below.
       expect(run.peakSeconds, lessThanOrEqualTo(kCeilingSeconds),
           reason: run.summary());
       expect(run.peakPlannedSeconds,
@@ -95,6 +97,7 @@ void main() {
       'day 120, at least one item of every kind (PIN-7)', () {
     // Four counting clears with the last 21 or more days after the one before need at least
     // four sessions spread over about a month.
+    expect(seeded.firstMasteredDay, isNotNull, reason: seeded.summary());
     expect(seeded.firstMasteredDay!, greaterThanOrEqualTo(21),
         reason: seeded.summary());
     final byKind = seeded.masteredByKind;
@@ -112,6 +115,9 @@ void main() {
         expect(day.stretchWithWorkLeft, isFalse,
             reason: 'run ${run.config.label}, day ${day.day}');
         if (day.stretchOffered) {
+          // These two restate how the harness builds `stretchOffered` (the plan offered it,
+          // every entry was answered, the ceiling left room). The real check is
+          // `stretchWithWorkLeft` above, which reads the store on its own.
           expect(day.planStretchOffer, isTrue);
           expect(day.hitCeiling, isFalse);
         }
@@ -134,7 +140,9 @@ void main() {
     expect(back.newSkip, NewSkip.daysMissed);
     // The break leaves a backlog, gone within two weeks of the return.
     expect(withBreak.peakBacklog, greaterThan(0));
-    expect(withBreak.lastBacklogDay!, lessThan(back.day + 14),
+    // `lastBacklogDay` reads active days only, so a null (no backlog left after the return)
+    // is the outcome this test wants, not a failure.
+    expect((withBreak.lastBacklogDay ?? 0), lessThan(back.day + 14),
         reason: withBreak.summary());
   });
 }

@@ -202,7 +202,8 @@ class SimRun {
   int get stretchOfferedDays => days.where((d) => d.stretchOffered).length;
   int get stretchTaken => days.fold<int>(0, (s, d) => s + d.stretch);
 
-  /// Mastered items by kind at the end of the run.
+  /// Items ever Mastered during the run, by kind (from `masteredOn`, so an item that later
+  /// went Shaky still counts here but not in [masteredEnd]).
   Map<ItemKind, int> get masteredByKind {
     final out = {for (final k in ItemKind.values) k: 0};
     for (final id in masteredOn.keys) {
@@ -222,7 +223,8 @@ class SimRun {
         'target, $daysAtCeiling at the ceiling, peak backlog $peakBacklog, last day with a '
         'backlog ${lastBacklogDay ?? 'none'}, first Mastered on day '
         '${firstMasteredDay ?? 'none'}, median ${medianMasteredDay ?? 'none'}, '
-        '$masteredEnd Mastered by day ${config.days} ($kinds), stretch offered on '
+        '$masteredEnd Mastered on day ${config.days}, ever Mastered by kind: ($kinds), '
+        'stretch offered on '
         '$stretchOfferedDays days, $stretchTaken stretch items taken';
   }
 
