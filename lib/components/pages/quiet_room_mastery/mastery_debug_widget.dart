@@ -241,7 +241,8 @@ abstract class StudyRecordFiles {
   /// Saves [text] as [fileName]; false when the learner cancels.
   Future<bool> save(String fileName, String text);
 
-  /// The chosen file's text; null when the learner cancels.
+  /// The chosen file's text; null only when the learner cancels. A chosen file that cannot
+  /// be read throws, so the page reports a read failure and never calls it a cancel.
   Future<String?> open();
 }
 
@@ -264,8 +265,11 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
   Future<String?> open() async {
     final picked = await FilePicker.platform
         .pickFiles(dialogTitle: 'Import a study record', withData: true);
-    final bytes = picked?.files.single.bytes;
-    return bytes == null ? null : utf8.decode(bytes);
+    if (picked == null) return null;
+    // withData asked for the bytes; null here means the chosen file could not be read.
+    final bytes = picked.files.single.bytes;
+    if (bytes == null) throw StateError('the chosen file could not be read');
+    return utf8.decode(bytes);
   }
 }
 

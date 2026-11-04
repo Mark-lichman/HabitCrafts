@@ -5,6 +5,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
@@ -18,6 +19,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_wi
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'jp_screen_harness.dart';
 
@@ -81,6 +83,31 @@ class FakeFiles implements StudyRecordFiles {
 
   @override
   Future<String?> open() async => toOpen;
+}
+
+/// The device picker, answering pickFiles with [result]: null is a cancel, a file with no
+/// bytes is one the platform could not read.
+class FakePicker extends FilePicker with MockPlatformInterfaceMixin {
+  FakePicker(this.result);
+
+  final FilePickerResult? result;
+
+  @override
+  Future<FilePickerResult?> pickFiles({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    bool allowCompression = false,
+    int compressionQuality = 0,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+    bool readSequential = false,
+  }) async =>
+      result;
 }
 
 /// A store whose attempt read fails, for the page's load-error branch.
@@ -260,6 +287,29 @@ void main() {
     test('reads no seed rows, since the page shows no seed count', () async {
       final s = await summarizeRecord(SeedlessStore(), catalog, today: today);
       expect(s.attemptCount, 0);
+    });
+  });
+
+  group('PickerStudyRecordFiles.open', () {
+    const files = PickerStudyRecordFiles();
+
+    test('a cancelled picker is null', () async {
+      FilePicker.platform = FakePicker(null);
+      expect(await files.open(), isNull);
+    });
+
+    test('a chosen file with no bytes throws, never a cancel', () async {
+      FilePicker.platform = FakePicker(
+          FilePickerResult([PlatformFile(name: 'record.jsonl', size: 0)]));
+      await expectLater(files.open, throwsStateError);
+    });
+
+    test('a chosen file with bytes is its text', () async {
+      final bytes = utf8.encode('{"a":1}');
+      FilePicker.platform = FakePicker(FilePickerResult([
+        PlatformFile(name: 'record.jsonl', size: bytes.length, bytes: bytes)
+      ]));
+      expect(await files.open(), '{"a":1}');
     });
   });
 
