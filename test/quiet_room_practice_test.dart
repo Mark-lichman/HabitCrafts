@@ -814,6 +814,35 @@ void main() {
       expect((await rig.attempts(tester)).single.grade, Grade.unscored);
     });
 
+    testWidgets(
+        'after the whole answer shows, a word writes one wrong and one review (ASK-4)',
+        (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
+      await tester.tap(find.text('Give me a hint'));
+      await tester.pump();
+      while (find.text('More').evaluate().isNotEmpty) {
+        await tester.tap(find.text('More'));
+        await tester.pump();
+      }
+      for (var i = 0; i < 3; i++) {
+        await rig.tapSpeak(tester);
+      }
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+
+      final all = await rig.attempts(tester);
+      expect(all.map((a) => a.grade),
+          [Grade.wrong, Grade.unscored, Grade.unscored, Grade.unscored]);
+      expect(all.every((a) => a.itemId == id && a.revealed), isTrue);
+      expect(all.skip(1).map((a) => a.rating), everyElement(isNull));
+      final srs = await rig.store.srs(id);
+      expect(srs!.reps, 1, reason: 'one scheduler review');
+      expect(srs.lapses, 1);
+    });
+
     testWidgets('a second listen on the same word writes hinted',
         (tester) async {
       final rig = Rig();

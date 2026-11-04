@@ -300,6 +300,16 @@ void main() {
       expect(s.clearCount, 2);
     });
 
+    test('one clear per day even when the local day steps back', () {
+      // A timezone change can make the local day run 10, 9, 10.
+      final s = replay([
+        att(10, Grade.clear),
+        att(9, Grade.clear),
+        att(10, Grade.clear),
+      ]);
+      expect(s.clearCount, 2);
+    });
+
     test('a keep-sharp review counts like a review', () {
       final s = replay([
         for (final d in [0, 2, 8, 29])
@@ -366,13 +376,41 @@ void main() {
       expect(s.hintStreak, 1);
     });
 
-    test('self is treated as hinted', () {
-      final s = replay([
+    test('self earns no credit and is neutral for the hinted row (ASK-3)', () {
+      final learning = replay([
         att(0, Grade.clear),
         att(2, Grade.self),
         att(3, Grade.self),
       ]);
+      expect(learning.clearCount, 1, reason: 'no credit, and no reset');
+      expect(learning.hintStreak, 0);
+      expect(learning.lastScoredDay, 3, reason: 'the review is recorded');
+
+      final mastered = replay([
+        ...fourClears(29),
+        att(40, Grade.self),
+        att(42, Grade.self),
+      ]);
+      expect(mastered.status, MasteryStatus.mastered);
+      expect(mastered.hintStreak, 0);
+      expect(mastered.keptReviews, 2);
+      expect(mastered.keptClear, 0);
+
+      final afterSelf = replay([
+        ...fourClears(29),
+        att(40, Grade.self),
+        att(42, Grade.hinted),
+      ]);
+      expect(afterSelf.status, MasteryStatus.mastered);
+      expect(afterSelf.hintStreak, 1,
+          reason: 'a hinted after a self starts at 1');
+    });
+
+    test('a first self answer moves New to Learning at 0 of 4', () {
+      final s = replay([att(0, Grade.self)]);
+      expect(s.status, MasteryStatus.learning);
       expect(s.clearCount, 0);
+      expect(s.hintStreak, 0);
     });
 
     test('hinted answers alone never master an item (PIN-3)', () {
@@ -414,6 +452,27 @@ void main() {
       ]);
       expect(s.status, MasteryStatus.neu);
       expect(s.clearCount, 0);
+    });
+
+    test('an early hinted or self answer changes nothing (PIN-14, ASK-2)', () {
+      final states = {
+        'New': MasteryState.initial(particle.id),
+        'Learning': replay([att(0, Grade.clear), att(2, Grade.hinted)]),
+        'Mastered': replay(fourClears(29)),
+      };
+      expect(states['Mastered']!.status, MasteryStatus.mastered);
+      for (final MapEntry(key: name, value: before) in states.entries) {
+        for (final grade in [Grade.hinted, Grade.self]) {
+          final after = masteryAfter(
+              before,
+              att(40, grade,
+                  due: false,
+                  source: Source.early,
+                  hint: grade == Grade.hinted ? 1 : 0),
+              particle);
+          expect(after, before, reason: 'an early $grade on a $name item');
+        }
+      }
     });
 
     test('an early-practice wrong counts as a real wrong (PIN-14)', () {

@@ -18,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -28,7 +28,7 @@ import 'attempt.dart';
 import 'fsrs.dart';
 import 'item_catalog.dart';
 import 'jp_store.dart';
-import 'jp_store_sqlite.dart' show openJpStore;
+import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'local_day.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
@@ -259,8 +259,8 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
       bytes: utf8.encode(text),
     );
     // On web saveFile starts the browser download and then always returns null, so a cancel
-    // is not visible here. The web store is in memory ([openJpStore]), so that export holds
-    // only this page load's answers.
+    // is not visible here. The web store is in memory (`sharedJpStore`), so that export holds
+    // only this app run's answers.
     return kIsWeb || path != null;
   }
 
@@ -276,30 +276,6 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
   }
 }
 
-/// The one store [sharedStore] hands out, or null before the first open or after a failed one.
-Future<JpStore>? _appStore;
-
-/// The store the page opens when none is injected: one per app run. A failed open is not
-/// kept, so the next visit to the page retries it instead of showing the same error until
-/// the app restarts.
-///
-/// 🚨 The screens that write attempts (Tasks 9 to 12) open their own until the session work
-/// shares one store. On the phone every SQLite open reaches the same file, so this page reads
-/// what they wrote. On web each memory store is its own, so this page shows only its own.
-///
-/// [open] is a seam for the test; the page passes nothing and opens the app's store.
-@visibleForTesting
-Future<JpStore> sharedStore({Future<JpStore> Function() open = openJpStore}) {
-  return _appStore ??= () async {
-    try {
-      return await open();
-    } catch (_) {
-      _appStore = null;
-      rethrow;
-    }
-  }();
-}
-
 class MasteryDebugWidget extends StatefulWidget {
   const MasteryDebugWidget({
     super.key,
@@ -313,7 +289,7 @@ class MasteryDebugWidget extends StatefulWidget {
   static String routeName = 'quietRoomStudyRecord';
   static String routePath = '/quietRoomStudyRecord';
 
-  /// Null opens the app's store.
+  /// Null reads the app's one shared store (`sharedJpStore`), the one the screens write to.
   final JpStore? store;
 
   /// Null loads the shipped catalog.
@@ -345,7 +321,7 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
 
   Future<void> _load() async {
     try {
-      final store = _store ??= widget.store ?? await sharedStore();
+      final store = _store ??= widget.store ?? await sharedJpStore();
       final catalog = _catalog ??= widget.catalog ?? await ItemCatalog.load();
       final summary = await summarizeRecord(store, catalog, today: _today);
       if (mounted) setState(() => _summary = summary);

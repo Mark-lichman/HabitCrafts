@@ -1037,6 +1037,9 @@ void main() {
           .length;
       expect(lows, greaterThan(0));
       expect(lows * kLowRCapDivisor, lessThanOrEqualTo(p.entries.length));
+      // The cap admits lows up to its equal arm: each low needs kLowRCapDivisor - 1 others.
+      expect(lows, (mid.length + seededWords.length) ~/ (kLowRCapDivisor - 1));
+      expect(p.entries.length, lows * kLowRCapDivisor);
       // Every non-low due item is planned; the capped lows wait for tomorrow.
       final ids = {for (final e in p.entries) e.itemId};
       expect(

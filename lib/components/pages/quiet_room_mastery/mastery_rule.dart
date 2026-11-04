@@ -16,8 +16,10 @@
 // A wrong, or two hinted in a row, on a Mastered item makes it Shaky; two clears on two days,
 // the second 7 or more days after the first, regain it (PIN-4).
 //
-// Early practice (PIN-14): a clear on an item that is not due changes nothing; a wrong counts.
-// Unscored changes nothing. The Say-it track never counts.
+// Early practice (PIN-14, ASK-2): a clear, hinted or self answer on an item that is not due
+// changes nothing; a wrong counts. A self answer (Got it over a check that could not score)
+// records the review with no credit and leaves the hinted row alone (ASK-3). Unscored changes
+// nothing. The Say-it track never counts.
 //
 // The numbers are constants so they can change later: the log replays (D4).
 
@@ -142,7 +144,7 @@ class MasteryState {
   /// The counting clears since the last reset. When Shaky, the regain clears.
   final List<ClearRef> clears;
 
-  /// Hinted (or self) answers in a row.
+  /// Hinted answers in a row. A self answer leaves it as it was (ASK-3).
   final int hintStreak;
 
   /// The local day of the last scored review: clear, hinted, self or wrong. Unscored is excluded.
@@ -265,10 +267,11 @@ MasteryState masteryAfter(
         'attempt for ${attempt.itemId} applied to ${state.itemId} (${item.id})');
   }
   final grade = attempt.grade;
-  // Nothing scored, the Say-it track, and an early clear leave the state as it was.
+  // Nothing scored, the Say-it track, and an early clear, hinted or self answer leave the
+  // state as it was. Only an early wrong counts (PIN-14, operator ruling ASK-2).
   if (grade == Grade.unscored) return state;
   if (attempt.source == Source.sayIt) return state;
-  if (attempt.source == Source.early && grade == Grade.clear) return state;
+  if (attempt.source == Source.early && grade != Grade.wrong) return state;
 
   final day = attempt.localDay;
   final wasMastered = state.status == MasteryStatus.mastered;
@@ -295,8 +298,12 @@ MasteryState masteryAfter(
         hintStreak: 0,
       );
 
-    case Grade.hinted:
     case Grade.self:
+      // A Got it over a check that could not score: the review is recorded, with no credit
+      // (PIN-3). It is neutral for the hinted row, so the streak and clears stay (ASK-3).
+      return base;
+
+    case Grade.hinted:
       // No credit (PIN-3). Two in a row: the hint is carrying the item.
       final streak = state.hintStreak + 1;
       if (streak < kHintedInARowReset) return base.copyWith(hintStreak: streak);
@@ -308,8 +315,7 @@ MasteryState masteryAfter(
       );
 
     case Grade.clear:
-      final counts = attempt.wasDue &&
-          (state.clears.isEmpty || state.clears.last.day != day);
+      final counts = attempt.wasDue && !state.clears.any((c) => c.day == day);
       if (wasMastered || !counts) return base.copyWith(hintStreak: 0);
       final clears = [
         ...state.clears,
