@@ -4,6 +4,7 @@
 // (PIN-16), the speaking drill link (PIN-6) and the attempts the screen writes
 // through its injected JpStore (Task 9 of the mastery plan: D17, PIN-3, PIN-14).
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -1212,7 +1213,53 @@ void main() {
       expect(a.probeId, 'p1');
       expect(a.grade, Grade.clear);
     });
+
+    testWidgets('a write that fails after the screen is gone is reported',
+        (tester) async {
+      final store = _GatedStore();
+      for (final p in openingPoints()) {
+        await store.appendSeed(p['id'] as String, today, atUtc: noon.toUtc());
+      }
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store, itemLookup: catalog.byId, clock: FixedClock(noon)));
+      await typeAndCheck(tester, fillAnswer());
+      await tester.pump();
+      expect(store.gate, isNotNull, reason: 'the write is in flight');
+
+      // Leave the screen before the write settles.
+      await tester.pumpWidget(const SizedBox());
+
+      final reported = <FlutterErrorDetails>[];
+      final prior = FlutterError.onError;
+      FlutterError.onError = reported.add;
+      addTearDown(() => FlutterError.onError = prior);
+      store.gate!.completeError(StateError('disk full'));
+      await tester.pump();
+      FlutterError.onError = prior;
+
+      // No snackbar can show, so the failure reaches a handler (S4).
+      expect(reported, hasLength(1));
+      expect(reported.single.exception, isA<StateError>());
+      expect(reported.single.library, 'quiet room grammar');
+      expect(reported.single.context.toString(),
+          'while logging a grammar attempt');
+      expect(await store.attempts(), isEmpty);
+    });
   });
+}
+
+/// A memory store whose answer write waits on [gate] until the test settles it.
+class _GatedStore extends JpStoreMemory {
+  Completer<AnswerOutcome>? gate;
+
+  @override
+  Future<AnswerOutcome> recordAnswer(Attempt attempt,
+      {required ItemDefLike? item, required Scheduler scheduler}) {
+    gate = Completer<AnswerOutcome>();
+    return gate!.future;
+  }
 }
 
 /// A memory store whose first answer write throws, as a full disk would.
