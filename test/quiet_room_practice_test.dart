@@ -34,9 +34,11 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.dart';
 
@@ -75,11 +77,20 @@ class _Word implements ItemDefLike {
   int get probeCount => 3;
 }
 
+/// A store whose attempt write always fails, as a disk I/O error would.
+class _FailingStore extends JpStoreMemory {
+  @override
+  Future<Attempt> appendAttempt(Attempt attempt,
+          {SrsState? srs, MasteryState? mastery}) async =>
+      throw StateError('disk full');
+}
+
 /// 10:00 on 2026-11-03, well inside one local day.
 final DateTime _now = DateTime(2026, 11, 3, 10);
 
 class Rig {
-  Rig({bool mic = true}) {
+  Rig({bool mic = true, JpStoreMemory? store})
+      : store = store ?? JpStoreMemory() {
     service = SpeechService.withEngines(
         stt: stt, tts: tts, micPermission: () async => mic);
   }
@@ -88,7 +99,7 @@ class Rig {
   final FakeTts tts = FakeTts();
   late final SpeechService service;
   final List<PracticeResult> results = [];
-  final JpStoreMemory store = JpStoreMemory();
+  final JpStoreMemory store;
   final FixedClock clock = FixedClock(_now);
 
   /// The attempts the screen has written, oldest first.
@@ -600,6 +611,34 @@ void main() {
     test('the item id is the image stem, as the catalog names it', () {
       expect(practiceItemId(word), 'L25_01');
     });
+
+    test(
+        'every lesson word\'s id resolves to a catalog word with the spoken probe',
+        () {
+      Map<String, dynamic> read(String path) =>
+          json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
+      final lessons = read(_lessonFile);
+      final catalog =
+          ItemCatalog.fromDocs(read('assets/lessons/jp_grammar.json'), lessons);
+      // Every illustrated word of every lesson, so lesson 25's deck is a subset.
+      final words = [
+        for (final l
+            in (lessons['lessons'] as List).cast<Map<String, dynamic>>())
+          for (final w in (l['items'] as List).cast<Map<String, dynamic>>())
+            if (w['image'] != null) w,
+      ];
+      expect(words, containsAll(lessonWords().values));
+      for (final w in words) {
+        final id = practiceItemId(w);
+        final item = catalog.byId(id);
+        expect(item, isNotNull, reason: '$id is not in the catalog');
+        expect(item!.kind, ItemKind.word, reason: '$id is not a word');
+        final probe = item.probes.where((p) => p.id == kPracticeProbe);
+        expect(probe, hasLength(1), reason: '$id has no $kPracticeProbe probe');
+        expect(probe.single.production, isTrue,
+            reason: '$id: the $kPracticeProbe probe is not production');
+      }
+    });
   });
 
   group('the attempt log (Task 10)', () {
@@ -639,6 +678,19 @@ void main() {
       expect(a.grade, Grade.clear);
       expect(await rig.store.srs(id), isNotNull);
       expect((await rig.store.mastery(id))!.status, MasteryStatus.learning);
+    });
+
+    testWidgets(
+        'a failed write reaches the error handler, the verdict still shows (S4)',
+        (tester) async {
+      final rig = Rig(store: _FailingStore());
+      await rig.open(tester);
+      await rig.say(tester, rig.shownKana(tester));
+      expect(find.byKey(const ValueKey('practice-verdict')), findsOneWidget);
+      expect(await rig.attempts(tester), isEmpty);
+      final error = tester.takeException();
+      expect(error, isNotNull);
+      expect(error, isA<StateError>());
     });
 
     testWidgets('close writes hinted (PIN-3)', (tester) async {

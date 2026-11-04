@@ -399,7 +399,9 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
   }
 
   /// Logs one attempt on [word]'s spoken probe. The time is read now; the write runs after
-  /// the screen's earlier writes. A write that fails is reported, never shown as an answer.
+  /// the screen's earlier writes. A write that fails goes to [FlutterError.reportError], so
+  /// the app's error handler records it (S4); the verdict still shows, and the lost attempt
+  /// earns no credit.
   void _write(Map<String, dynamic> word,
       {required Grade grade, required int hintLevel, required bool revealed}) {
     final now = _clock.now();
@@ -435,8 +437,12 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
           item: lookup(id),
           scheduler: _scheduler,
         );
-      } catch (e) {
-        debugPrint('practice: could not log the attempt on $id: $e');
+      } catch (e, s) {
+        FlutterError.reportError(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'quiet room practice',
+            context: ErrorDescription('while logging the attempt on $id')));
       }
     });
   }
