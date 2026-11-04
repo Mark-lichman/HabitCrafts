@@ -2,7 +2,7 @@
 // Every case builds a plan from a memory store and the shipped catalog with an injected clock,
 // and states one rule: the sections and the say-it exclusion from Repair, the skip of a store
 // row whose id left the catalog, the Due order and interleave, keep-sharp's week, the budget
-// and its hard stop, the New skips and the New exclusion of every item with a seed or a
+// and its hard stop on Due and on Repair, the New skips and the New exclusion of every item with a seed or a
 // state, the stretch and catch-up offers, return mode's warm-up and its cap, and the requeue
 // of an unscored entry or a re-ask.
 
@@ -330,6 +330,53 @@ void main() {
       final late = p.afterWrong(p.entries.length - 2);
       expect(late.entries.last.reask, isTrue);
     });
+
+    test(
+        'the hard stop holds on repairs: a wrong past the fill is left for Due',
+        () async {
+      // Three words of lesson 5 wrong yesterday, against a ceiling of the repair slot plus
+      // 25 seconds: a fill of 25 holds two words of 10, not the third.
+      final words = wordsOf(5).take(3).toList();
+      expect(words.length, 3);
+      Future<DayPlan> planWith(PlanBudget budget) async {
+        final store = JpStoreMemory();
+        await seedEverything(store, tuesday,
+            except: {for (final w in words) w.id});
+        for (final w in words) {
+          await store.appendAttempt(wrongOn(w, tuesday - 1));
+        }
+        return plan(store, tuesday, budget: budget);
+      }
+
+      const budget = PlanBudget(ceilingSeconds: kRepairSlotSeconds + 25);
+      expect(budget.fillSeconds, 25);
+      expect(budget.targetSeconds, kTargetSeconds);
+      final p = await planWith(budget);
+      expect([for (final e in p.section(PlanSection.repair)) e.itemId],
+          [words[0].id, words[1].id]);
+      expect([
+        for (final e in p.entries.take(2)) e.itemId
+      ], [
+        words[0].id,
+        words[1].id
+      ], reason: 'the repairs that fit open the plan');
+      expect(p.dueLeft, 1);
+      final shown = [...p.entries, ...p.stretchEntries, ...p.catchUpEntries];
+      expect(shown.where((e) => e.itemId == words[2].id), isEmpty,
+          reason: 'the third wrong is left for tomorrow');
+      expect(p.plannedSeconds, lessThanOrEqualTo(budget.fillSeconds));
+      expect(p.plannedSeconds + p.repairSlotSeconds,
+          lessThanOrEqualTo(budget.ceilingSeconds));
+      expectNoNew(p);
+
+      // The boundary: a fill of exactly two words still holds both.
+      const exact = PlanBudget(ceilingSeconds: kRepairSlotSeconds + 20);
+      final q = await planWith(exact);
+      expect([for (final e in q.section(PlanSection.repair)) e.itemId],
+          [words[0].id, words[1].id]);
+      expect(q.dueLeft, 1);
+      expect(q.plannedSeconds, exact.fillSeconds);
+    });
   });
 
   group('Due (D26)', () {
@@ -477,6 +524,20 @@ void main() {
       expect([for (final e in p.section(PlanSection.due)) e.itemId],
           [dueMastered.id]);
       // The two Mastered items keep-sharp left out have a state: not New either.
+      expectNoNew(p);
+    });
+
+    test('the hard stop holds on keep-sharp: a fill of two words takes two',
+        () async {
+      final store = JpStoreMemory();
+      await seedEverything(store, monday);
+      final items = await masterTwelve(store, monday);
+      const budget = PlanBudget(ceilingSeconds: kRepairSlotSeconds + 25);
+      final p = await plan(store, monday, budget: budget);
+      expect(p.keepSharpRan, isTrue);
+      expect([for (final e in p.section(PlanSection.keepSharp)) e.itemId],
+          [for (final i in items.reversed.take(2)) i.id]);
+      expect(p.plannedSeconds, lessThanOrEqualTo(budget.fillSeconds));
       expectNoNew(p);
     });
 
@@ -766,19 +827,26 @@ void main() {
   });
 
   group('Return mode (PIN-9, D26)', () {
-    test(
-        'a warm-up of 5 to 8 level-0 stateful items between 0.6 and 0.85 comes first',
-        () async {
-      final store = JpStoreMemory();
-      await seedEverything(store, tuesday);
+    /// Everything seeded, then four particles, four conjugations and two table
+    /// rows due on [day] with retrievability 0.62 to 0.80, the last the highest.
+    Future<List<ItemDef>> warmFoundations(JpStore store, int day) async {
+      await seedEverything(store, day);
       final foundations = [
         ...ofKind(ItemKind.particle).take(4),
         ...ofKind(ItemKind.conjugation).take(4),
         ...ofKind(ItemKind.tableRow).take(2),
       ];
       for (var i = 0; i < foundations.length; i++) {
-        await due(store, foundations[i], tuesday, 0.62 + i * 0.02);
+        await due(store, foundations[i], day, 0.62 + i * 0.02);
       }
+      return foundations;
+    }
+
+    test(
+        'a warm-up of 5 to 8 level-0 stateful items between 0.6 and 0.85 comes first',
+        () async {
+      final store = JpStoreMemory();
+      final foundations = await warmFoundations(store, tuesday);
       // Outside the window, or not foundational: never a warm-up.
       final tooLow = ofKind(ItemKind.pair)[0];
       final tooHigh = ofKind(ItemKind.pair)[1];
@@ -812,6 +880,22 @@ void main() {
       expect(rs, [...rs]..sort((a, b) => b.compareTo(a)));
       final ids = [for (final e in p.entries) e.itemId];
       expect(ids.toSet().length, ids.length);
+    });
+
+    test(
+        'the hard stop holds on the warm-up: a fill of two table rows takes two',
+        () async {
+      final store = JpStoreMemory();
+      final foundations = await warmFoundations(store, tuesday);
+      final rows = foundations.reversed.take(2).toList();
+      final fill = rows.fold<int>(0, (s, i) => s + kCostSeconds[i.kind]!);
+      final budget = PlanBudget(ceilingSeconds: kRepairSlotSeconds + fill);
+      final p = await plan(store, tuesday, daysMissed: 4, budget: budget);
+      expect([for (final e in p.section(PlanSection.warmUp)) e.itemId],
+          [for (final i in rows) i.id]);
+      expect(p.entries.length, 2, reason: 'nothing else fits');
+      expect(p.plannedSeconds, budget.fillSeconds);
+      expect(p.dueLeft, foundations.length - 2);
     });
 
     test(
