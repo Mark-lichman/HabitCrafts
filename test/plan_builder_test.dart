@@ -1,9 +1,9 @@
 // The daily plan builder (Task 14, PIN-5, PIN-6, PIN-9, PIN-10, PIN-11, PIN-12, D26, D27).
 // Every case builds a plan from a memory store and the shipped catalog with an injected clock,
-// and states one rule: the sections, the Due order and interleave, keep-sharp's week, the
-// budget and its hard stop, the New skips and the New exclusion of every item with a seed or a
-// state, the stretch and catch-up offers, return mode's
-// warm-up and its cap, and the requeue of an unscored entry.
+// and states one rule: the sections and the say-it exclusion from Repair, the Due order and
+// interleave, keep-sharp's week, the budget and its hard stop, the New skips and the New
+// exclusion of every item with a seed or a state, the stretch and catch-up offers, return
+// mode's warm-up and its cap, and the requeue of an unscored entry or a re-ask.
 
 import 'dart:convert';
 import 'dart:io';
@@ -206,6 +206,32 @@ void main() {
           [words[3].id]);
       final ids = [for (final e in p.entries) e.itemId];
       expect(ids.toSet().length, ids.length, reason: 'one entry per item');
+      expectNoNew(p);
+    });
+
+    test("a say-it wrong is never a repair: it stays out, or stays Due",
+        () async {
+      final store = JpStoreMemory();
+      final words = wordsOf(5);
+      // words[1] has no seed and no state: its repair alone keeps it out of New.
+      await seedEverything(store, tuesday, except: {words[1].id});
+      // A spoken-sentence miss yesterday on a seeded word: not due today.
+      await store.appendAttempt(Attempt.fromJson(
+          {...wrongOn(words[0], tuesday - 1).toJson(), 'source': 'sayIt'}));
+      // The same miss on a word due today: a Due entry, not a repair.
+      await store.appendAttempt(Attempt.fromJson(
+          {...wrongOn(words[2], tuesday - 1).toJson(), 'source': 'sayIt'}));
+      await due(store, words[2], tuesday, 0.5);
+      // A scored wrong yesterday: the one repair.
+      await store.appendAttempt(wrongOn(words[1], tuesday - 1));
+
+      final p = await plan(store, tuesday);
+      expect([for (final e in p.section(PlanSection.repair)) e.itemId],
+          [words[1].id]);
+      expect([for (final e in p.section(PlanSection.due)) e.itemId],
+          [words[2].id]);
+      expect(p.entries.where((e) => e.itemId == words[0].id), isEmpty,
+          reason: 'the say-it track never moves the schedule');
       expectNoNew(p);
     });
 
@@ -816,6 +842,45 @@ void main() {
       final reask = unscored.entries.indexWhere((e) => e.reask);
       expect(reask, greaterThan(firstDue));
       expect(unscored.entries[reask].itemId, words[0].id);
+    });
+
+    test('an unscored re-ask moves to the end of the re-asks, not the repairs',
+        () async {
+      final store = JpStoreMemory();
+      final words = wordsOf(5);
+      await seedEverything(store, tuesday);
+      await store.appendAttempt(wrongOn(words[0], tuesday - 1));
+      await store.appendAttempt(wrongOn(words[1], tuesday - 1));
+      for (final w in ofKind(ItemKind.word).skip(100).take(5)) {
+        await due(store, w, tuesday, 0.8);
+      }
+      final p = await plan(store, tuesday);
+      // Both repairs wrong: two re-asks, both past the Due block.
+      final twice = p.afterWrong(0).afterWrong(1);
+      final firstDue =
+          twice.entries.indexWhere((e) => e.section == PlanSection.due);
+      final reasks = [
+        for (var i = 0; i < twice.entries.length; i++)
+          if (twice.entries[i].reask) i
+      ];
+      expect(reasks.length, 2);
+      expect(reasks.first, greaterThan(firstDue));
+      expect(twice.entries[reasks.first].itemId, words[0].id);
+      expect(twice.entries[reasks.last].itemId, words[1].id);
+      // The first re-ask, unscored, lands after the second re-ask.
+      final moved = twice.afterUnscored(reasks.first);
+      expect(moved.entries.length, twice.entries.length);
+      final last = moved.entries.lastIndexWhere((e) => e.reask);
+      expect(moved.entries[last].itemId, words[0].id);
+      expect(moved.entries[last].requeued, isTrue);
+      expect(moved.entries[last].reask, isTrue);
+      expect(moved.entries[last - 1].itemId, words[1].id);
+      expect(moved.entries[last - 1].reask, isTrue);
+      // The Repair section proper and everything before Due are untouched.
+      expect(moved.entries.sublist(0, firstDue),
+          twice.entries.sublist(0, firstDue));
+      expect(
+          moved.entries.sublist(0, firstDue).every((e) => !e.requeued), isTrue);
     });
 
     test('the plan round-trips through the day record', () async {
