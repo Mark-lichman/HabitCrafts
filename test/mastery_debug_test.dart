@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -86,11 +87,30 @@ class FakeFiles implements StudyRecordFiles {
 }
 
 /// The device picker, answering pickFiles with [result]: null is a cancel, a file with no
-/// bytes is one the platform could not read.
+/// bytes is one the platform could not read. saveFile answers [savePath], null for a cancel,
+/// and records what it was handed.
 class FakePicker extends FilePicker with MockPlatformInterfaceMixin {
-  FakePicker(this.result);
+  FakePicker(this.result, {this.savePath});
 
   final FilePickerResult? result;
+  final String? savePath;
+  String? savedFileName;
+  Uint8List? savedBytes;
+
+  @override
+  Future<String?> saveFile({
+    String? dialogTitle,
+    String? fileName,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Uint8List? bytes,
+    bool lockParentWindow = false,
+  }) async {
+    savedFileName = fileName;
+    savedBytes = bytes;
+    return savePath;
+  }
 
   @override
   Future<FilePickerResult?> pickFiles({
@@ -310,6 +330,27 @@ void main() {
         PlatformFile(name: 'record.jsonl', size: bytes.length, bytes: bytes)
       ]));
       expect(await files.open(), '{"a":1}');
+    });
+  });
+
+  // These run on the VM, so kIsWeb is false and the picker's answer decides. On web
+  // saveFile always answers null after starting the download, so there save is always true.
+  group('PickerStudyRecordFiles.save', () {
+    const files = PickerStudyRecordFiles();
+
+    test('a cancelled save dialog is false', () async {
+      final picker = FakePicker(null);
+      FilePicker.platform = picker;
+      expect(await files.save('record.jsonl', '{"a":1}'), isFalse);
+    });
+
+    test('a chosen path is true and hands the picker the name and the text',
+        () async {
+      final picker = FakePicker(null, savePath: '/tmp/record.jsonl');
+      FilePicker.platform = picker;
+      expect(await files.save('record.jsonl', '{"a":1}'), isTrue);
+      expect(picker.savedFileName, 'record.jsonl');
+      expect(String.fromCharCodes(picker.savedBytes!), '{"a":1}');
     });
   });
 
