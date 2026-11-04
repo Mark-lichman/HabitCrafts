@@ -21,6 +21,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
@@ -1153,5 +1154,49 @@ void main() {
 
       expect(await store.attempts(), isEmpty);
     });
+
+    testWidgets('a failed write says so, and the next answer still lands',
+        (tester) async {
+      final store = _FailingOnceStore();
+      for (final p in openingPoints()) {
+        await store.appendSeed(p['id'] as String, today, atUtc: noon.toUtc());
+      }
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store,
+              itemLookup: catalog.byId,
+              clock: FixedClock(noon)));
+
+      await typeAndCheck(tester, fillAnswer());
+      await tester.pump();
+      // Never lost quietly.
+      expect(find.text('That answer was not saved.'), findsOneWidget);
+      expect(await store.attempts(), isEmpty);
+
+      // The write chain survives the failure.
+      final choice = (openingPoints().first['practice'] as List)[1]
+          as Map<String, dynamic>;
+      await tester.tap(find.text(choice['answer'] as String).first);
+      await tester.pump();
+      final a = (await store.attempts()).single;
+      expect(a.probeId, 'p1');
+      expect(a.grade, Grade.clear);
+    });
   });
+}
+
+/// A memory store whose first answer write throws, as a full disk would.
+class _FailingOnceStore extends JpStoreMemory {
+  bool _failed = false;
+
+  @override
+  Future<AnswerOutcome> recordAnswer(Attempt attempt,
+      {required ItemDefLike? item, required Scheduler scheduler}) {
+    if (!_failed) {
+      _failed = true;
+      return Future.error(StateError('disk full'));
+    }
+    return super.recordAnswer(attempt, item: item, scheduler: scheduler);
+  }
 }
