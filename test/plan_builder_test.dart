@@ -1,9 +1,10 @@
 // The daily plan builder (Task 14, PIN-5, PIN-6, PIN-9, PIN-10, PIN-11, PIN-12, D26, D27).
 // Every case builds a plan from a memory store and the shipped catalog with an injected clock,
-// and states one rule: the sections and the say-it exclusion from Repair, the Due order and
-// interleave, keep-sharp's week, the budget and its hard stop, the New skips and the New
-// exclusion of every item with a seed or a state, the stretch and catch-up offers, return
-// mode's warm-up and its cap, and the requeue of an unscored entry or a re-ask.
+// and states one rule: the sections and the say-it exclusion from Repair, the skip of a store
+// row whose id left the catalog, the Due order and interleave, keep-sharp's week, the budget
+// and its hard stop, the New skips and the New exclusion of every item with a seed or a
+// state, the stretch and catch-up offers, return mode's warm-up and its cap, and the requeue
+// of an unscored entry or a re-ask.
 
 import 'dart:convert';
 import 'dart:io';
@@ -233,6 +234,74 @@ void main() {
       expect(p.entries.where((e) => e.itemId == words[0].id), isEmpty,
           reason: 'the say-it track never moves the schedule');
       expectNoNew(p);
+    });
+
+    test('a store row whose id left the catalog is skipped on every arm',
+        () async {
+      // A row outlives its catalog id when a lesson file drops or renames an
+      // item. One ghost per arm: a state due today, a seed due today, a
+      // Mastered state not due, and a scored wrong yesterday.
+      const ghostDue = 'ghost_due';
+      const ghostSeed = 'ghost_seed';
+      const ghostMastered = 'ghost_mastered';
+      const ghostWrong = 'ghost_wrong';
+      const ghosts = {ghostDue, ghostSeed, ghostMastered, ghostWrong};
+      for (final id in ghosts) {
+        expect(catalog.byId(id), isNull, reason: '$id is in the catalog');
+      }
+      final words = wordsOf(5);
+      Future<JpStoreMemory> haunted(int day) async {
+        final store = JpStoreMemory();
+        await seedEverything(store, day);
+        await store.putSrs(ghostDue, stateWithR(day, 0.5));
+        await store.appendSeed(ghostSeed, day, atUtc: DateTime.utc(2026, 1, 1));
+        await store.putSrs(
+            ghostMastered, stateWithR(day, 0.9, dueDay: day + 30));
+        await store.putMastery(MasteryState(
+            itemId: ghostMastered,
+            status: MasteryStatus.mastered,
+            masteredOn: day - 40));
+        await store.appendAttempt(Attempt.fromJson(
+            {...wrongOn(words[0], day - 1).toJson(), 'itemId': ghostWrong}));
+        // One live word due today, so the plan is not empty by accident.
+        await due(store, words[1], day, 0.5);
+        return store;
+      }
+
+      // Tuesday and Monday: keep-sharp runs on both with no day record, and
+      // Monday is the first session of its week by definition.
+      for (final day in [tuesday, monday]) {
+        final p = await plan(await haunted(day), day);
+        expect(p.keepSharpRan, isTrue, reason: 'day $day');
+        final shown = [
+          ...p.entries,
+          ...p.stretchEntries,
+          ...p.catchUpEntries,
+        ];
+        expect([for (final e in shown) e.itemId], [words[1].id],
+            reason: 'day $day');
+        // The ghosts add nothing to the backlog either.
+        expect(p.backlogSeconds, kCostSeconds[ItemKind.word],
+            reason: 'day $day');
+        expect(p.dueLeft, 0, reason: 'day $day');
+        expectNoNew(p);
+      }
+
+      // orderDue on its own, since dueById shields it inside buildPlan: a
+      // ghost with a state and a ghost without one are both left out.
+      final state = stateWithR(tuesday, 0.5);
+      final ordered = orderDue(
+        [
+          DueItem(itemId: ghostDue, dueDay: tuesday, seeded: false),
+          DueItem(itemId: ghostSeed, dueDay: tuesday, seeded: true),
+          DueItem(itemId: words[1].id, dueDay: tuesday, seeded: false),
+          DueItem(itemId: words[2].id, dueDay: tuesday, seeded: true),
+        ],
+        catalog: catalog,
+        srs: {ghostDue: state, words[1].id: state},
+        retrievability: (_) => 0.5,
+      );
+      expect([for (final i in ordered) i.id], [words[1].id, words[2].id]);
     });
 
     test('a wrong is re-asked about 10 minutes later from the repair slot',
