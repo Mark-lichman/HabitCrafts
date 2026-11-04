@@ -33,6 +33,41 @@ import 'mastery_rule.dart';
 /// The template of a grammar point's example sentence: the Say-it track, never scored (D4).
 const String kSayItTemplate = 'say';
 
+/// The id of the conjugation idea for [form] in verb [group] (1, 2 or 3).
+String conjugationItemId(String form, int group) => 'conj.$form.g$group';
+
+/// The id of the reference table row [row] of table [tableId].
+String tableRowItemId(String tableId, String row) => 'ref.$tableId.$row';
+
+/// The pair ids, in the order of `grammar['pairs']`: the pairs carry no id in their own list,
+/// so the catalog lists one `verb_pair` row per pair in the same order, titled
+/// `intransitive / transitive`. Checked, so a reordered asset fails loudly rather than
+/// shifting ids. Throws a [StateError] when the two lists do not line up.
+List<String> pairItemIds(Map<String, dynamic> grammar) {
+  final pairs = _maps(grammar['pairs']);
+  final rows = [
+    for (final c in _maps(grammar['catalog']))
+      if (c['type'] == 'verb_pair') c
+  ];
+  if (rows.length != pairs.length) {
+    throw StateError(
+        'item catalog: ${pairs.length} pairs but ${rows.length} verb_pair rows');
+  }
+  final ids = <String>[];
+  for (var i = 0; i < pairs.length; i++) {
+    final title = _pairTitle(pairs[i]);
+    if (rows[i]['title'] != title) {
+      throw StateError(
+          'item catalog: pair $i is "$title" but its catalog row is "${rows[i]['title']}"');
+    }
+    ids.add(rows[i]['id'] as String);
+  }
+  return ids;
+}
+
+String _pairTitle(Map<String, dynamic> p) =>
+    '${_str(p['intransitive'])} / ${_str(p['transitive'])}';
+
 /// One question over an item.
 class ProbeDef {
   const ProbeDef({
@@ -297,7 +332,7 @@ List<ItemDef> _conjugationIdeas(
       ];
       if (probes.isEmpty) continue;
       out.add(ItemDef(
-        id: 'conj.$form.g$group',
+        id: conjugationItemId(form, group),
         kind: ItemKind.conjugation,
         title: '$form, group $group',
         prereqLevel: 0,
@@ -308,31 +343,17 @@ List<ItemDef> _conjugationIdeas(
   return out;
 }
 
-/// The pairs carry no id in their own list; the catalog lists one `verb_pair` row per pair in
-/// the same order, titled `intransitive / transitive`. Checked, so a reordered asset fails
-/// loudly rather than shifting ids.
+/// One item per pair, with the ids from [pairItemIds].
 List<ItemDef> _pairs(Map<String, dynamic> grammar) {
   final pairs = _maps(grammar['pairs']);
-  final rows = [
-    for (final c in _maps(grammar['catalog']))
-      if (c['type'] == 'verb_pair') c
-  ];
-  if (rows.length != pairs.length) {
-    throw StateError(
-        'item catalog: ${pairs.length} pairs but ${rows.length} verb_pair rows');
-  }
+  final ids = pairItemIds(grammar);
   final out = <ItemDef>[];
   for (var i = 0; i < pairs.length; i++) {
     final p = pairs[i];
-    final title = '${_str(p['intransitive'])} / ${_str(p['transitive'])}';
-    if (rows[i]['title'] != title) {
-      throw StateError(
-          'item catalog: pair $i is "$title" but its catalog row is "${rows[i]['title']}"');
-    }
     out.add(ItemDef(
-      id: rows[i]['id'] as String,
+      id: ids[i],
       kind: ItemKind.pair,
-      title: title,
+      title: _pairTitle(p),
       prereqLevel: 0,
       probes: [
         // Shown the intransitive verb, give the transitive one, and the reverse.
@@ -373,7 +394,7 @@ List<ItemDef> _tableRows(Map<String, dynamic> grammar) {
       ];
       if (probes.isEmpty) continue;
       out.add(ItemDef(
-        id: 'ref.${table['id']}.$row',
+        id: tableRowItemId(table['id'] as String, row),
         kind: ItemKind.tableRow,
         title: '${_str(table['title'])}: $row',
         prereqLevel: 0,
