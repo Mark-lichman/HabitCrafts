@@ -2,9 +2,9 @@
 // Every case builds a plan from a memory store and the shipped catalog with an injected clock,
 // and states one rule: the sections and the say-it exclusion from Repair, the skip of a store
 // row whose id left the catalog, the Due order and interleave, keep-sharp's week, the budget
-// and its hard stop on Due and on Repair, the New skips and the New exclusion of every item with a seed or a
-// state, the stretch and catch-up offers, return mode's warm-up and its cap, and the requeue
-// of an unscored entry or a re-ask.
+// and its hard stop on the warm-up, Repair, Due, keep-sharp and New, the New skips and the
+// New exclusion of every item with a seed or a state, the stretch and catch-up offers, return
+// mode's warm-up and its cap, and the requeue of an unscored entry or a re-ask.
 
 import 'dart:convert';
 import 'dart:io';
@@ -361,6 +361,8 @@ void main() {
         words[1].id
       ], reason: 'the repairs that fit open the plan');
       expect(p.dueLeft, 1);
+      // Unseeded and stateless, words[2] is also the first New candidate: the New arm's
+      // budget stop cuts it, and the New arm's own case sits in the budget group below.
       final shown = [...p.entries, ...p.stretchEntries, ...p.catchUpEntries];
       expect(shown.where((e) => e.itemId == words[2].id), isEmpty,
           reason: 'the third wrong is left for tomorrow');
@@ -824,6 +826,36 @@ void main() {
       expect(tight.stretchOffer, isFalse);
       expect(tight.stretchEntries, isEmpty);
     });
+
+    test('the hard stop holds on New: a fill of three intake items takes three',
+        () async {
+      // An empty store on a weekday: no repair, no due, no keep-sharp, so the fill is New's
+      // alone. The ceiling leaves room for the first three of intake, not the fourth.
+      final first =
+          newIntakeOrder(catalog, <String>{}, kNewPerDay + kStretchNew)
+              .take(3)
+              .toList();
+      expect(first.length, 3);
+      final fill = first.fold<int>(0, (s, i) => s + kCostSeconds[i.kind]!);
+      final budget = PlanBudget(ceilingSeconds: kRepairSlotSeconds + fill);
+      final p = await plan(JpStoreMemory(), tuesday, budget: budget);
+      expect(p.newSkip, NewSkip.none);
+      expect([for (final e in p.section(PlanSection.newItems)) e.itemId],
+          [for (final i in first) i.id]);
+      expect(p.entries.length, 3, reason: 'nothing else fits');
+      expect(p.plannedSeconds, budget.fillSeconds);
+      expect(p.stretchOffer, isFalse);
+      expect(p.stretchEntries, isEmpty);
+
+      // The boundary: one second short of the third item's cost takes two.
+      final short = PlanBudget(ceilingSeconds: kRepairSlotSeconds + fill - 1);
+      final q = await plan(JpStoreMemory(), tuesday, budget: short);
+      expect([for (final e in q.section(PlanSection.newItems)) e.itemId],
+          [for (final i in first.take(2)) i.id]);
+      expect(q.plannedSeconds, lessThan(short.fillSeconds));
+      expect(q.stretchOffer, isFalse);
+      expect(q.stretchEntries, isEmpty);
+    });
   });
 
   group('Return mode (PIN-9, D26)', () {
@@ -846,7 +878,7 @@ void main() {
         'a warm-up of 5 to 8 level-0 stateful items between 0.6 and 0.85 comes first',
         () async {
       final store = JpStoreMemory();
-      final foundations = await warmFoundations(store, tuesday);
+      await warmFoundations(store, tuesday);
       // Outside the window, or not foundational: never a warm-up.
       final tooLow = ofKind(ItemKind.pair)[0];
       final tooHigh = ofKind(ItemKind.pair)[1];
