@@ -18,7 +18,7 @@
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:sqflite_common/sqlite_api.dart';
 
@@ -81,6 +81,24 @@ Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
   if (isWeb) return JpStoreMemory();
   return JpStoreSqlite.open();
 }
+
+Future<JpStore>? _shared;
+
+/// The app's one store, opened on first use and shared by every screen that writes an
+/// answer, so their answers run on one write chain. A failed open is not cached: the next
+/// call tries again.
+Future<JpStore> sharedJpStore() => _shared ??= openJpStore().then(
+      (store) => store,
+      onError: (Object e, StackTrace s) {
+        _shared = null;
+        Error.throwWithStackTrace(e, s);
+      },
+    );
+
+/// Replaces the shared store, for widget tests that cannot open SQLite. Null forgets it.
+@visibleForTesting
+void debugSetSharedJpStore(JpStore? store) =>
+    _shared = store == null ? null : Future.value(store);
 
 /// Runs the steps in [upgrades] that take a file at [from] to [to], in order. Throws a
 /// [StateError], inside the open's transaction, when a step is missing.
