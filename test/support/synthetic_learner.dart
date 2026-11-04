@@ -31,6 +31,8 @@
 // and never a New one's; the harness writes `wasDue: false` for every re-ask instead. Measured
 // on 2026-11-04, run A masters 393 items by day 120 this way against 410 with the entry's flag,
 // both over End state 8's 200. The Review session (Task 18) must write a re-ask the same way.
+//
+// Both pins live in `harnessWasDue`, and test/srs_simulation_test.dart holds them red by value.
 
 import 'dart:math' as math;
 
@@ -99,6 +101,11 @@ Grade gradeOf(LearnerAnswer answer, ProbeDef probe) => switch (answer) {
       LearnerAnswer.wrong =>
         gradeAnswer(outcome: Outcome.wrong, selfGraded: probe.selfGraded),
     };
+
+/// The `wasDue` the harness writes for an answer on [entry] (the two header pins): a re-ask
+/// is never due, a New entry is due, and any other entry carries the plan's flag.
+bool harnessWasDue(QueueEntry entry) =>
+    !entry.reask && (entry.wasDue || entry.section == PlanSection.newItems);
 
 /// How one run starts and what the learner does.
 class SimConfig {
@@ -327,10 +334,6 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
       final n = scoredAnswers[item.id] ?? 0;
       final probe = probeFor(item, n);
       final grade = gradeOf(learner.answer(r), probe);
-      // A re-ask is never due (see the header): the wrong before it scheduled the item for
-      // tomorrow at the earliest. Otherwise the plan's flag, with a New entry answered as due.
-      final isNew = entry.section == PlanSection.newItems;
-      final wasDue = !entry.reask && (entry.wasDue || isNew);
       final attempt = Attempt(
         itemId: item.id,
         probeId: probe.id,
@@ -342,7 +345,7 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
         grade: grade,
         rating: fsrsRatingFor(grade),
         hintLevel: grade == Grade.hinted ? 1 : 0,
-        wasDue: wasDue,
+        wasDue: harnessWasDue(entry),
         source: entry.source,
         durationMs: entry.costSeconds * 1000,
         sessionId: 'sim${config.label}-$today',

@@ -5,7 +5,8 @@
 // and the mastery rule, with a memory store and an injected clock. Four runs: from scratch
 // (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C), and with the
 // stretch taken whenever the end card offers it (D). The test prints each run's summary and a
-// 10-day table, so the simulator numbers in the plan's Context can be re-measured here.
+// 10-day table, so the simulator numbers in the plan's Context can be re-measured here. The
+// last test holds the harness's two scoring pins (`harnessWasDue`) by value, for Task 18.
 
 import 'dart:convert';
 import 'dart:io';
@@ -144,5 +145,31 @@ void main() {
     // is the outcome this test wants, not a failure.
     expect((withBreak.lastBacklogDay ?? 0), lessThan(back.day + 14),
         reason: withBreak.summary());
+  });
+
+  test(
+      'the harness writes a New entry as due with source review and a re-ask '
+      'as not due, the two pins Task 18 follows', () {
+    // The expected values are the header pins of synthetic_learner.dart, written by hand.
+    QueueEntry entry(PlanSection section, {required bool wasDue}) => QueueEntry(
+        itemId: 'x',
+        kind: ItemKind.word,
+        section: section,
+        costSeconds: 10,
+        wasDue: wasDue);
+    final fresh = entry(PlanSection.newItems, wasDue: false);
+    final due = entry(PlanSection.due, wasDue: true);
+    final keepSharp = entry(PlanSection.keepSharp, wasDue: false);
+    // The New-entry pin: the plan's flag is false, the answer is written as due.
+    expect(harnessWasDue(fresh), isTrue);
+    expect(fresh.source, Source.review);
+    // The plan's flag passes through on every other section, both ways.
+    expect(harnessWasDue(due), isTrue);
+    expect(harnessWasDue(keepSharp), isFalse);
+    // The re-ask pin: a re-ask is not due, whichever section the wrong came from.
+    for (final first in [fresh, due, keepSharp]) {
+      final reask = first.copyWith(section: PlanSection.repair, reask: true);
+      expect(harnessWasDue(reask), isFalse, reason: first.section.name);
+    }
   });
 }
