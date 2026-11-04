@@ -117,7 +117,8 @@ enum GrammarAnswer {
 /// A typed item is machine-checked, and its "Show hint" names the rule, never the answer,
 /// so a hint makes a right answer hinted, not wrong. A reveal is wrong. Got it over a
 /// check that could not score is the learner's override, `self`; Missed it is wrong.
-/// [secondTry] marks a right answer after a wrong one on the same item: hinted.
+/// [secondTry] marks a right answer after a wrong one, or after the answer was shown,
+/// on the same item: hinted.
 Grade? gradeGrammarAnswer(GrammarAnswer answer, GrammarPracticeResult r,
     {bool secondTry = false}) {
   final hintLevel = r.hintTaken ? 1 : 0;
@@ -808,9 +809,10 @@ class _PracticeState extends State<_Practice>
         selfMark: _selfMark,
       );
 
-  /// Set once a wrong answer on this item is written, so a later right answer is a
-  /// second try: hinted, never clear (PIN-3).
-  bool _triedWrong = false;
+  /// Set once the answer has been seen on this item: a wrong written (a wrong check,
+  /// Missed it or Show answer), or the answer shown by a self-check. A later right
+  /// answer is then a second try: hinted, never clear (PIN-3).
+  bool _answerSeen = false;
 
   /// Applies [change], then reports the new result.
   void _update(VoidCallback change) {
@@ -821,10 +823,10 @@ class _PracticeState extends State<_Practice>
   /// Writes [kind] on the current result as an attempt, when it is one.
   void _answer(GrammarAnswer kind) {
     final r = result;
-    final secondTry = _triedWrong;
+    final secondTry = _answerSeen;
     final grade = gradeGrammarAnswer(kind, r, secondTry: secondTry);
     if (grade == null) return;
-    if (grade == Grade.wrong) _triedWrong = true;
+    if (grade == Grade.wrong) _answerSeen = true;
     widget.writer?.record(kind, r, secondTry: secondTry);
   }
 
@@ -853,6 +855,9 @@ class _PracticeState extends State<_Practice>
       _selfMark = null;
       _emptyNote = false;
     });
+    // A self-check prints the answer for the learner to compare, so any right answer
+    // retyped after it is a second try (PIN-3).
+    if (v == TypedVerdict.selfCheck) _answerSeen = true;
     // A self-check verdict waits for Got it or Missed it.
     _answer(GrammarAnswer.check);
   }
