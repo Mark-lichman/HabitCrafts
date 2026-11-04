@@ -229,8 +229,18 @@ void main() {
 
   testWidgets('a named lesson wins over the remembered one and is remembered',
       (tester) async {
-    await pumpLesson(tester, screen(lesson: 6));
+    // A remembered lesson is seeded first, so the named one has something to beat. The
+    // harness resets the prefs, so the screen is pumped directly, as the test above does.
+    SharedPreferences.setMockInitialValues(
+        {QuietRoomLessonWidget.lastLessonKey: 12});
+    await tester.runAsync(
+        () => rootBundle.loadString('assets/lessons/jp_lessons.json'));
+    await tester.pumpWidget(MaterialApp(home: screen(lesson: 6)));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+
     expect(find.text('第6課'), findsOneWidget);
+    expect(find.text('第12課'), findsNothing);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 6);
   });

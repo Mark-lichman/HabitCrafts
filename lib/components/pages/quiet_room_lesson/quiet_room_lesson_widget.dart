@@ -196,8 +196,11 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         item: lookup(id),
         scheduler: widget.scheduler,
       );
-    } catch (_) {
-      // S4: a grade that was not kept must not look kept.
+    } catch (e) {
+      // S4: a grade that was not kept must not look kept. The reason is logged first, so
+      // a disk-full failure and a catalog failure can be told apart on a retry, and so it
+      // survives the learner leaving the screen before the message shows.
+      debugPrint('lesson: could not log the attempt on $id: $e');
       if (!mounted) return;
       setState(() => _graded.remove(id));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
