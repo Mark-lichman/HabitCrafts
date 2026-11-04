@@ -12,6 +12,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show debugSetSharedJpStore;
 
 /// The app lesson file, read straight from disk to derive what each test expects.
 Map<String, dynamic> readLessonFile() =>
@@ -24,8 +27,14 @@ Map<String, dynamic> readLessonFile() =>
 /// isolate, which the test's fake clock never advances. That cached future belongs to
 /// the real zone, so the screen's FutureBuilder hears it complete only after a real
 /// event-loop turn. Hence the second `runAsync` before the final pumps.
+///
+/// A screen that writes answers and has no store of its own uses the shared one, which
+/// on the phone is SQLite. A test cannot open that, so each pump shares a fresh memory
+/// store instead.
 Future<void> pumpStudyScreen(WidgetTester tester, Widget screen) async {
   SharedPreferences.setMockInitialValues({});
+  debugSetSharedJpStore(JpStoreMemory());
+  addTearDown(() => debugSetSharedJpStore(null));
   tester.view.physicalSize = const Size(1200, 12000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);

@@ -22,12 +22,29 @@
 // `onPracticeResult`. "Tap for English" on an example is a reading aid and reports
 // nothing (D28). The cards keep themselves alive, so a pick, a typed answer, a hint and
 // a reveal survive the lesson scroll.
+//
+// Every answer writes one `Attempt` to the study record at answer time (Task 9 of the
+// mastery plan): a pick, a typed Check the matcher can judge, a Got it or Missed it
+// after a self-check, and a "Show answer" reveal. The item's schedule and mastery move
+// in the same transaction (`JpStore.recordAnswer`). A hint tap, an empty Check, "Tap
+// for English" and the lesson's "Can use it" and "Review" pills write nothing. An
+// answer on an item that is not due is early practice (PIN-14): a clear changes
+// neither its schedule nor its mastery, a wrong counts. `gradeGrammarAnswer` holds the
+// grades (D17).
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
+import '/components/pages/quiet_room_mastery/attempt.dart';
+import '/components/pages/quiet_room_mastery/fsrs.dart';
+import '/components/pages/quiet_room_mastery/item_catalog.dart';
+import '/components/pages/quiet_room_mastery/jp_store.dart';
+import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show sharedJpStore;
+import '/components/pages/quiet_room_mastery/local_day.dart';
+import '/components/pages/quiet_room_mastery/scheduler.dart';
 import '/components/pages/quiet_room_practice/speech_service.dart';
 import 'jp_study_kit.dart';
 import 'quiet_room_speak_widget.dart';
@@ -79,14 +96,176 @@ class GrammarPracticeResult {
       'selfMark: $selfMark)';
 }
 
+/// What the learner just did on a practice item that counts as an answer.
+enum GrammarAnswer {
+  /// Tapped an option of a choice item.
+  pick,
+
+  /// A typed Check the matcher could judge right or wrong.
+  check,
+
+  /// Got it or Missed it after a self-check the matcher could not judge.
+  selfMark,
+
+  /// "Show answer".
+  reveal,
+}
+
+/// The grade of [answer] on the item [r] describes, or null when it is no attempt (D17,
+/// PIN-3).
+///
+/// A typed item is machine-checked, and its "Show hint" names the rule, never the answer,
+/// so a hint makes a right answer hinted, not wrong. A reveal is wrong. Got it over a
+/// check that could not score is the learner's override, `self`; Missed it is wrong.
+/// [secondTry] marks a right answer after a wrong one on the same item: hinted.
+Grade? gradeGrammarAnswer(GrammarAnswer answer, GrammarPracticeResult r,
+    {bool secondTry = false}) {
+  final hintLevel = r.hintTaken ? 1 : 0;
+  switch (answer) {
+    case GrammarAnswer.pick:
+      if (r.picked == null) return null;
+      return gradeAnswer(
+          outcome: r.picked == r.item['answer'] ? Outcome.right : Outcome.wrong,
+          selfGraded: false,
+          hintLevel: hintLevel,
+          secondTry: secondTry);
+    case GrammarAnswer.check:
+      final Outcome outcome;
+      switch (r.verdict) {
+        case TypedVerdict.right:
+          outcome = Outcome.right;
+        case TypedVerdict.wrong:
+          outcome = Outcome.wrong;
+        // Waits for the self-mark; an empty box is no attempt.
+        case TypedVerdict.selfCheck:
+        case TypedVerdict.empty:
+        case null:
+          return null;
+      }
+      return gradeAnswer(
+          outcome: outcome,
+          selfGraded: false,
+          hintLevel: hintLevel,
+          secondTry: secondTry);
+    case GrammarAnswer.selfMark:
+      if (r.selfMark == null) return null;
+      return gradeAnswer(
+          outcome: r.selfMark! ? Outcome.none : Outcome.wrong,
+          selfGraded: false,
+          hintLevel: hintLevel,
+          selfOverride: r.selfMark!,
+          secondTry: secondTry);
+    case GrammarAnswer.reveal:
+      return gradeAnswer(
+          outcome: Outcome.wrong,
+          selfGraded: false,
+          hintLevel: hintLevel,
+          revealed: true);
+  }
+}
+
+/// Writes the grammar screen's answers to the study record, one at a time in answer order,
+/// so each answer reads whether its item is due after the one before it has landed.
+///
+/// A write that fails reaches [onError]; the screen says so rather than lose it quietly.
+class GrammarAttemptWriter {
+  GrammarAttemptWriter({
+    required this.store,
+    required this.lookup,
+    this.scheduler = const FsrsScheduler(),
+    this.clock = const SystemClock(),
+    this.onError,
+  }) : sessionId = 'grammar-${clock.now().toUtc().toIso8601String()}';
+
+  final Future<JpStore> Function() store;
+  final Future<ItemLookup> Function() lookup;
+  final Scheduler scheduler;
+  final Clock clock;
+  final void Function(Object error)? onError;
+
+  /// Every attempt from one opening of the screen shares it.
+  final String sessionId;
+
+  Future<void> _tail = Future.value();
+
+  /// Grades [answer] and writes it. Returns the written outcome, or null when the answer
+  /// is no attempt or the write failed.
+  Future<AnswerOutcome?> record(GrammarAnswer answer, GrammarPracticeResult r,
+      {bool secondTry = false}) {
+    final grade = gradeGrammarAnswer(answer, r, secondTry: secondTry);
+    if (grade == null) return Future.value();
+    final at = clock.now();
+    final run = _tail.then((_) => _write(grade, r, at));
+    _tail = run.then((_) {});
+    return run;
+  }
+
+  Future<AnswerOutcome?> _write(
+      Grade grade, GrammarPracticeResult r, DateTime at) async {
+    try {
+      final s = await store();
+      final byId = await lookup();
+      final itemId = r.pointId;
+      final day = localDay(at);
+      final before = await s.srs(itemId);
+      final due = before?.dueDay ?? (await s.item(itemId))?.seedDueDay;
+      final wasDue = due != null && due <= day;
+      // The same template and production flag the catalog gives the probe
+      // (item_catalog.dart `_grammarPoints`).
+      final template = r.item['kind'] as String? ?? '';
+      final attempt = Attempt(
+        itemId: itemId,
+        probeId: 'p${r.index}',
+        template: template,
+        production: template == 'fill',
+        selfGraded: false,
+        atUtc: at.toUtc(),
+        localDay: day,
+        grade: grade,
+        rating: fsrsRatingFor(grade),
+        hintLevel: r.hintTaken ? 1 : 0,
+        revealed: r.revealed,
+        wasDue: wasDue,
+        source: wasDue ? Source.review : Source.early,
+        elapsedDays:
+            before == null ? null : (day - before.lastReviewDay).toDouble(),
+        sBefore: before?.stability,
+        rBefore: before == null ? null : scheduler.retrievability(before, day),
+        sessionId: sessionId,
+      );
+      return await s.recordAnswer(attempt,
+          item: byId(itemId), scheduler: scheduler);
+    } catch (e, s) {
+      debugPrint('grammar attempt not saved: $e\n$s');
+      onError?.call(e);
+      return null;
+    }
+  }
+}
+
 class QuietRoomGrammarWidget extends StatefulWidget {
   const QuietRoomGrammarWidget(
       {super.key,
       this.initialLesson,
       this.initialQuery,
-      this.onPracticeResult});
+      this.onPracticeResult,
+      this.store,
+      this.itemLookup,
+      this.clock = const SystemClock(),
+      this.scheduler = const FsrsScheduler()});
 
   final int? initialLesson;
+
+  /// Where the answers are written. Null uses the app's shared store (`sharedJpStore`).
+  final JpStore? store;
+
+  /// The item definitions for the mastery rule. Null loads the catalog
+  /// (`ItemCatalog.load`).
+  final ItemLookup? itemLookup;
+
+  /// Dates each answer and decides whether its item is due.
+  final Clock clock;
+  final Scheduler scheduler;
 
   /// Opens with this search already typed (a catalog link to an untaught particle).
   final String? initialQuery;
@@ -117,6 +296,23 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   static Future<void> _remember(int lesson) async =>
       (await SharedPreferences.getInstance())
           .setInt('jp.grammar.lastLesson', lesson);
+
+  late final GrammarAttemptWriter _writer = GrammarAttemptWriter(
+    store: widget.store != null
+        ? () => Future.value(widget.store!)
+        : sharedJpStore,
+    lookup: widget.itemLookup != null
+        ? () => Future.value(widget.itemLookup!)
+        : () async => (await ItemCatalog.load()).byId,
+    scheduler: widget.scheduler,
+    clock: widget.clock,
+    onError: (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(const SnackBar(
+          content: Text('That answer was not saved.'),
+          duration: Duration(seconds: 5)));
+    },
+  );
 
   @override
   void initState() {
@@ -297,6 +493,7 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
                     useNames: useNames,
                     kanji: _kanji,
                     onPracticeResult: widget.onPracticeResult,
+                    writer: _writer,
                   ),
                 )),
             const SizedBox(height: 4),
@@ -344,10 +541,12 @@ class _PointCard extends StatefulWidget {
       this.lesson,
       this.useNames = const {},
       this.kanji = false,
-      this.onPracticeResult});
+      this.onPracticeResult,
+      this.writer});
 
   final Map<String, dynamic> point;
   final ValueChanged<GrammarPracticeResult>? onPracticeResult;
+  final GrammarAttemptWriter? writer;
 
   /// Set when the card shows outside its lesson (search, by use), so it says where it
   /// comes from.
@@ -453,7 +652,8 @@ class _PointCardState extends State<_PointCard>
                       kanji: widget.kanji,
                       pointId: _id,
                       index: q.key,
-                      onResult: widget.onPracticeResult),
+                      onResult: widget.onPracticeResult,
+                      writer: widget.writer),
                 )),
           ],
           const SizedBox(height: 14),
@@ -558,13 +758,17 @@ class _Practice extends StatefulWidget {
       required this.pointId,
       required this.index,
       this.kanji = false,
-      this.onResult});
+      this.onResult,
+      this.writer});
 
   final Map<String, dynamic> item;
   final String pointId;
   final int index;
   final bool kanji;
   final ValueChanged<GrammarPracticeResult>? onResult;
+
+  /// Writes each answer as an attempt (Task 9 of the mastery plan).
+  final GrammarAttemptWriter? writer;
 
   @override
   State<_Practice> createState() => _PracticeState();
@@ -604,10 +808,31 @@ class _PracticeState extends State<_Practice>
         selfMark: _selfMark,
       );
 
+  /// Set once a wrong answer on this item is written, so a later right answer is a
+  /// second try: hinted, never clear (PIN-3).
+  bool _triedWrong = false;
+
   /// Applies [change], then reports the new result.
   void _update(VoidCallback change) {
     setState(change);
     widget.onResult?.call(result);
+  }
+
+  /// Writes [kind] on the current result as an attempt, when it is one.
+  void _answer(GrammarAnswer kind) {
+    final r = result;
+    final secondTry = _triedWrong;
+    final grade = gradeGrammarAnswer(kind, r, secondTry: secondTry);
+    if (grade == null) return;
+    if (grade == Grade.wrong) _triedWrong = true;
+    widget.writer?.record(kind, r, secondTry: secondTry);
+  }
+
+  /// Sets the self-mark. A tap on the pill already on reports again but writes nothing.
+  void _mark(bool gotIt) {
+    final changed = _selfMark != gotIt;
+    _update(() => _selfMark = gotIt);
+    if (changed) _answer(GrammarAnswer.selfMark);
   }
 
   @override
@@ -628,6 +853,8 @@ class _PracticeState extends State<_Practice>
       _selfMark = null;
       _emptyNote = false;
     });
+    // A self-check verdict waits for Got it or Missed it.
+    _answer(GrammarAnswer.check);
   }
 
   @override
@@ -713,7 +940,10 @@ class _PracticeState extends State<_Practice>
                   child: InkWell(
                     borderRadius: BorderRadius.circular(999),
                     onTap: _picked == null
-                        ? () => _update(() => _picked = o)
+                        ? () {
+                            _update(() => _picked = o);
+                            _answer(GrammarAnswer.pick);
+                          }
                         : null,
                     child: Container(
                       constraints: const BoxConstraints(minHeight: 40),
@@ -769,7 +999,10 @@ class _PracticeState extends State<_Practice>
                 else
                   const Spacer(),
                 TextButton(
-                  onPressed: () => _update(() => _revealed = true),
+                  onPressed: () {
+                    _update(() => _revealed = true);
+                    _answer(GrammarAnswer.reveal);
+                  },
                   style: TextButton.styleFrom(
                       minimumSize: const Size(0, QuietRoomMetrics.targetMin)),
                   child: Text('Show answer',
@@ -884,13 +1117,13 @@ class _PracticeState extends State<_Practice>
                   label: 'Got it',
                   on: _selfMark == true,
                   solid: false,
-                  onTap: () => _update(() => _selfMark = true)),
+                  onTap: () => _mark(true)),
               const SizedBox(width: 8),
               QrPill(
                   label: 'Missed it',
                   on: _selfMark == false,
                   solid: false,
-                  onTap: () => _update(() => _selfMark = false)),
+                  onTap: () => _mark(false)),
             ]),
           ],
         ),
