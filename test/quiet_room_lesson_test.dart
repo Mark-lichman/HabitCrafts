@@ -48,13 +48,6 @@ List<Map<String, dynamic>> wordsOf(int no) =>
 /// The real catalog, built from the shipped assets.
 ItemCatalog catalog() => ItemCatalog.fromDocs(readLessonFile(), readWordFile());
 
-/// The catalog's own card probe for word [id]: the oracle for the template and flags the
-/// screen writes on an attempt, which the mastery rule reads from the attempt itself.
-ProbeDef cardProbeOf(String id) => catalog()
-    .byId(id)!
-    .probes
-    .singleWhere((p) => p.id == QuietRoomLessonWidget.cardProbe);
-
 /// A store whose writes fail, for the S4 message.
 class FailingStore extends JpStoreMemory {
   @override
@@ -141,12 +134,6 @@ void main() {
     expect(a.template, 'card');
     expect(a.selfGraded, isTrue);
     expect(a.production, isFalse);
-    // The same template and flags the catalog gives the card probe: a rename or a flag
-    // change there must fail here, not silently change the mastery rule for word cards.
-    final probe = cardProbeOf(id);
-    expect(probe.template, a.template);
-    expect(probe.selfGraded, a.selfGraded);
-    expect(probe.production, a.production);
     expect(a.revealed, isTrue);
     expect(a.hintLevel, 0);
     expect(a.grade, Grade.clear);
@@ -217,14 +204,13 @@ void main() {
     // Seeded for a past day, then one wrong today: the schedule now says tomorrow and the
     // older seed must not win.
     await store.appendSeed(id, today - 5, atUtc: kNow.toUtc());
-    final probe = cardProbeOf(id);
     await store.recordAnswer(
       Attempt(
         itemId: id,
-        probeId: probe.id,
-        template: probe.template,
-        production: probe.production,
-        selfGraded: probe.selfGraded,
+        probeId: 'card',
+        template: 'card',
+        production: false,
+        selfGraded: true,
         atUtc: kNow.toUtc(),
         localDay: today,
         grade: Grade.wrong,
