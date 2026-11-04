@@ -75,12 +75,23 @@ Future<void> _createV1(Database db) async {
 
 /// Opens the platform's store: SQLite on the phone, memory on web (A4).
 ///
-/// Each call opens a new store. The app opens one per run and shares it; two stores on web
-/// do not see each other, and two on the phone do not serialize answers.
+/// Each call opens a new store. The app opens one per run through [sharedJpStore]; two
+/// stores on web do not see each other, and two on the phone do not serialize answers.
 Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
   if (isWeb) return JpStoreMemory();
   return JpStoreSqlite.open();
 }
+
+Future<JpStore>? _sharedStore;
+
+/// The one store of the run: opened on first use and kept. Every screen that writes answers
+/// without an injected store goes through here, so the phone holds one SQLite handle. A
+/// failed open is not kept, so the next call tries again.
+Future<JpStore> sharedJpStore() =>
+    _sharedStore ??= openJpStore().catchError((Object e) {
+      _sharedStore = null;
+      throw e;
+    });
 
 /// Runs the steps in [upgrades] that take a file at [from] to [to], in order. Throws a
 /// [StateError], inside the open's transaction, when a step is missing.
