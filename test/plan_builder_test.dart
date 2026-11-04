@@ -78,6 +78,25 @@ Future<void> due(JpStore store, ItemDef item, int day, double r,
         {int lapses = 0}) =>
     store.putSrs(item.id, stateWithR(day, r, lapses: lapses));
 
+/// A fresh store whose first [count] catalog words are due on [day] at retrievability [r].
+Future<JpStoreMemory> storeWithDueWords(int count, int day,
+    {double r = 0.7}) async {
+  final store = JpStoreMemory();
+  for (final w in ofKind(ItemKind.word).take(count)) {
+    await due(store, w, day, r);
+  }
+  return store;
+}
+
+/// How many items of [kind] cost exactly [seconds]; fails when the division is not exact,
+/// so a boundary case never drifts off its value when a cost is retuned.
+int itemsCosting(int seconds, ItemKind kind) {
+  final each = kCostSeconds[kind]!;
+  expect(seconds % each, 0,
+      reason: '$seconds s is not a whole number of $kind');
+  return seconds ~/ each;
+}
+
 Future<void> mastered(JpStore store, ItemDef item, int day, double r) async {
   await store.putSrs(item.id, stateWithR(day, r, dueDay: day + 30));
   await store.putMastery(MasteryState(
@@ -306,11 +325,7 @@ void main() {
 
     test('a wrong is re-asked about 10 minutes later from the repair slot',
         () async {
-      final store = JpStoreMemory();
-      final words = ofKind(ItemKind.word).take(80).toList();
-      for (final w in words) {
-        await due(store, w, tuesday, 0.7);
-      }
+      final store = await storeWithDueWords(80, tuesday);
       final p = await plan(store, tuesday);
       expect(p.repairSlotSeconds, kRepairSlotSeconds);
       final after = p.afterWrong(0);
@@ -589,6 +604,21 @@ void main() {
       expect(ran.gateHeld, isTrue);
       expect(ran.keepSharpRan, isTrue);
       expect(ran.section(PlanSection.keepSharp).length, kKeepSharpCount);
+
+      // A backlog exactly at the gate is not above it: keep-sharp runs.
+      final atGate = JpStoreMemory();
+      await seedEverything(atGate, monday);
+      await masterTwelve(atGate, monday);
+      final gate = PlanBudget.standard.gateSeconds;
+      for (final g in ofKind(ItemKind.grammar)
+          .take(itemsCosting(gate, ItemKind.grammar))) {
+        await due(atGate, g, monday, 0.7);
+      }
+      final held = await plan(atGate, monday, daysMissed: 3);
+      expect(held.backlogSeconds, gate);
+      expect(held.gateHeld, isTrue);
+      expect(held.keepSharpRan, isTrue);
+      expect(held.section(PlanSection.keepSharp).length, kKeepSharpCount);
     });
   });
 
@@ -725,20 +755,44 @@ void main() {
       expect(p.gateHeld, isFalse);
       expect(p.newSkip, NewSkip.backlog);
       expect(p.section(PlanSection.newItems), isEmpty);
+
+      // A backlog exactly at the gate is not above it. The words past the fill leave
+      // the target spent, so New is skipped for that reason and not for the backlog.
+      final gate = PlanBudget.standard.gateSeconds;
+      final atGate = await plan(
+          await storeWithDueWords(itemsCosting(gate, ItemKind.word), tuesday),
+          tuesday);
+      expect(atGate.backlogSeconds, gate);
+      expect(atGate.gateHeld, isTrue);
+      expect(atGate.newSkip, NewSkip.targetSpent);
+      expect(atGate.section(PlanSection.newItems), isEmpty);
     });
 
     test('New is skipped once the target is spent', () async {
-      final store = JpStoreMemory();
       // 95 words at 10 s: 950 s, past the target and under the gate; all of it fits.
-      for (final w in ofKind(ItemKind.word).take(95)) {
-        await due(store, w, tuesday, 0.7);
-      }
+      final store = await storeWithDueWords(95, tuesday);
       final p = await plan(store, tuesday);
       expect(p.gateHeld, isTrue);
       expect(p.dueLeft, 0);
       expect(p.newSkip, NewSkip.targetSpent);
       expect(p.section(PlanSection.newItems), isEmpty);
       expect(p.stretchOffer, isFalse);
+
+      // Due that costs exactly the target spends it; one word less leaves New its 8.
+      final words = itemsCosting(kTargetSeconds, ItemKind.word);
+      final spent =
+          await plan(await storeWithDueWords(words, tuesday), tuesday);
+      expect(spent.dueLeft, 0);
+      expect(spent.plannedSeconds, kTargetSeconds);
+      expect(spent.newSkip, NewSkip.targetSpent);
+      expect(spent.section(PlanSection.newItems), isEmpty);
+      expect(spent.stretchOffer, isFalse);
+      final under =
+          await plan(await storeWithDueWords(words - 1, tuesday), tuesday);
+      expect(under.dueLeft, 0);
+      expect(under.section(PlanSection.due).length, words - 1);
+      expect(under.newSkip, NewSkip.none);
+      expect(under.section(PlanSection.newItems).length, kNewPerDay);
     });
   });
 
@@ -773,17 +827,32 @@ void main() {
 
     test('no catch-up when what the ceiling leaves is under the gate',
         () async {
-      final store = JpStoreMemory();
       // 130 words: 1300 s, under the gate, more than the ceiling holds.
-      for (final w in ofKind(ItemKind.word).take(130)) {
-        await due(store, w, tuesday, 0.7);
-      }
+      final store = await storeWithDueWords(130, tuesday);
       final p = await plan(store, tuesday);
       expect(p.dueLeft, greaterThan(0));
       expect(p.catchUpOffer, isFalse);
       expect(p.catchUpEntries, isEmpty);
       expect(p.stretchOffer, isFalse, reason: 'due items are left');
       expect(p.newSkip, NewSkip.targetSpent);
+
+      // What the ceiling leaves must be above the gate, not at it: a leftover that
+      // costs exactly the gate gets no catch-up, and one word more does.
+      final fillWords =
+          itemsCosting(PlanBudget.standard.fillSeconds, ItemKind.word);
+      final gateWords =
+          itemsCosting(PlanBudget.standard.gateSeconds, ItemKind.word);
+      final atGate = await plan(
+          await storeWithDueWords(fillWords + gateWords, tuesday), tuesday);
+      expect(atGate.plannedSeconds, PlanBudget.standard.fillSeconds);
+      expect(atGate.dueLeft, gateWords);
+      expect(atGate.catchUpOffer, isFalse);
+      expect(atGate.catchUpEntries, isEmpty);
+      final over = await plan(
+          await storeWithDueWords(fillWords + gateWords + 1, tuesday), tuesday);
+      expect(over.dueLeft, gateWords + 1);
+      expect(over.catchUpOffer, isTrue);
+      expect(over.catchUpEntries.length, kCatchUpBlock);
     });
 
     test('a small day fills under the target with repairs, due and 8 new',
@@ -825,6 +894,19 @@ void main() {
       expect(tight.gateHeld, isTrue);
       expect(tight.stretchOffer, isFalse);
       expect(tight.stretchEntries, isEmpty);
+
+      // A ceiling that leaves exactly the room for the four still offers them.
+      final exact = await plan(store, tuesday,
+          budget: PlanBudget(
+              targetSeconds: kTargetSeconds,
+              ceilingSeconds: need + kRepairSlotSeconds));
+      expect(exact.plannedSeconds, roomy.plannedSeconds);
+      expect(exact.stretchOffer, isTrue);
+      expect(exact.stretchEntries.length, kStretchNew);
+      expect(
+          exact.plannedSeconds +
+              exact.stretchEntries.fold<int>(0, (s, e) => s + e.costSeconds),
+          exact.ceilingSeconds - exact.repairSlotSeconds);
     });
 
     test('the hard stop holds on New: a fill of three intake items takes three',
