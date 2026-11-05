@@ -11,6 +11,7 @@
 //   * the median session length, over every session and over the first 14 days of sessions
 //     (End state 16);
 //   * Rebuild from log (JpStore.rebuild), Export and Import (study_export.dart).
+// Each item row opens the item page (item_detail_widget.dart).
 // Reached from the quiet "Study record" link at the bottom of the Japanese hub.
 //
 // The counts are computed here from the store, never restated anywhere else (de-mirror).
@@ -27,6 +28,7 @@ import '../quiet_room_grammar/jp_study_kit.dart';
 import 'attempt.dart';
 import 'fsrs.dart';
 import 'item_catalog.dart';
+import 'item_detail_widget.dart' show openItemDetail;
 import 'jp_store.dart';
 import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'local_day.dart';
@@ -511,19 +513,31 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
         '${_plural(row.clears, 'clear')} toward regaining',
       if (due != null) due,
     ].join(' · ');
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(
-            child: Text(row.item.title,
-                style: qrText(t, size: 13, color: t.inkStrong))),
-        if (detail.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child:
-                Text(detail, style: qrText(t, size: 12.5, color: t.inkMuted)),
-          ),
-      ]),
+    return InkWell(
+      key: ValueKey('record-item-${row.item.id}'),
+      onTap: () => _openItem(row.item.id),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+              child: Text(row.item.title,
+                  style: qrText(t, size: 13, color: t.inkStrong))),
+          if (detail.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child:
+                  Text(detail, style: qrText(t, size: 12.5, color: t.inkMuted)),
+            ),
+        ]),
+      ),
     );
+  }
+
+  /// Opens the item page over [itemId], then reads the record again: a Practice now answer
+  /// there may have moved the item.
+  Future<void> _openItem(String itemId) async {
+    await openItemDetail(context, itemId,
+        store: _store, catalog: _catalog, clock: widget.clock);
+    if (mounted) await _load();
   }
 }

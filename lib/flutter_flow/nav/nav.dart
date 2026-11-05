@@ -29,9 +29,12 @@ import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import '/components/pages/quiet_room_mastery/item_detail_widget.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import '/components/pages/quiet_room_mastery/review_page.dart';
 import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
+import '/components/pages/quiet_room_mastery/topic_page_widget.dart';
+import '/components/pages/quiet_room_mastery/topics_widget.dart';
 import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
 
 export 'package:go_router/go_router.dart';
@@ -211,6 +214,27 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: QuietRoomReviewPage.routeName,
           path: QuietRoomReviewPage.routePath,
           builder: (context, params) => const QuietRoomReviewPage(),
+        ),
+        // Topics, the topic page and the item page (plan 2026-11-02, Task 23). Each reads the
+        // record itself, so a deep link or a refresh lands on the same topic or item.
+        FFRoute(
+          name: QuietRoomTopicsWidget.routeName,
+          path: QuietRoomTopicsWidget.routePath,
+          builder: (context, params) => const QuietRoomTopicsWidget(),
+        ),
+        FFRoute(
+          name: TopicPageWidget.routeName,
+          path: TopicPageWidget.routePath,
+          builder: (context, params) => TopicPageWidget(
+            topicId: params.getParam('topic', ParamType.String) ?? '',
+          ),
+        ),
+        FFRoute(
+          name: ItemDetailWidget.routeName,
+          path: ItemDetailWidget.routePath,
+          builder: (context, params) => ItemDetailWidget(
+            itemId: params.getParam('item', ParamType.String) ?? '',
+          ),
         ),
         FFRoute(
           name: WelcomeBackWidget.routeName,

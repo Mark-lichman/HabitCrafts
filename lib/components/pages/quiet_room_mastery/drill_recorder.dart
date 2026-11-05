@@ -54,6 +54,7 @@ class DrillAnswer {
     this.hintLevel = 0,
     this.revealed = false,
     this.sayIt = false,
+    this.answerShown = false,
     this.atUtc,
   });
 
@@ -68,6 +69,12 @@ class DrillAnswer {
 
   /// The spoken sentence track (D4): logged as `Source.sayIt`, never counted.
   final bool sayIt;
+
+  /// Whether the answer was already on screen when the learner answered: a self-graded
+  /// reveal, a compare after a check that could not judge, or the hint ladder's last rung.
+  /// The Review session moves straight on after such a wrong; after any other wrong the
+  /// probe stays with the answer and one Next (operator ruling 2026-11-05). Not logged.
+  final bool answerShown;
 
   /// The answer's instant; null means now.
   final DateTime? atUtc;

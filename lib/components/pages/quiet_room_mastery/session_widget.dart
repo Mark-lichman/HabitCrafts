@@ -12,8 +12,14 @@
 // | clear                  | Clear, with the new interval                           |
 // | hinted                 | Right with a hint, no credit (PIN-3)                   |
 // | self                   | Marked as got it, no credit (PIN-3)                    |
-// | wrong                  | Not this time; the item comes back in about 10 minutes |
+// | wrong                  | no card (operator ruling 2026-11-05), see below        |
 // | unscored               | Not counted; the entry moves to the end of its section |
+//
+// A wrong shows no card. When the answer was already on screen (a self-graded Not yet or
+// Missed it, `DrillAnswer.answerShown`), the session moves straight to the next entry. When
+// it was not (a typed wrong, a wrong pick, Show answer), the probe stays with the full answer
+// and the session adds one Next. Either way the item is re-asked at the end of the section it
+// was answered in, and the wrong schedules it Again for another day.
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
@@ -21,7 +27,7 @@
 //
 // The budget (PIN-5, PIN-11): the running estimate is the sum of the per-kind estimates of the
 // entries answered so far (the plan's own prices, A2). A wrong is re-asked through
-// `DayPlan.afterWrong`, about 10 minutes of estimated answers later. When the estimate reaches
+// `DayPlan.afterWrong`, as the last entry of its section. When the estimate reaches
 // the 15-minute target with entries left, the soft stop offers Stop and Keep going. The session
 // ends before an entry that would pass the 20-minute ceiling: what is left stays due, and the
 // next plan picks it up tomorrow. Nothing runs past the ceiling except the catch-up block, and
@@ -201,7 +207,8 @@ SessionProbeBuilder standardProbeBuilder(
 /// Why the session ended.
 enum SessionEnd { finished, stopped, ceiling }
 
-enum _Phase { loading, asking, saving, verdict, softStop, end }
+/// `held`: a wrong whose answer was not on screen; the probe stays, showing it, under Next.
+enum _Phase { loading, asking, saving, verdict, held, softStop, end }
 
 /// The Review session over one day's [plan].
 class SessionWidget extends StatefulWidget {
@@ -276,8 +283,11 @@ class _SessionWidgetState extends State<SessionWidget> {
 
   /// The Mastered just shown is a Shaky item's regain, not the fourth clear.
   bool _regained = false;
-  bool _reasked = false;
   int? _interval;
+
+  // The probe held on screen after a wrong, and its section line from before the re-ask.
+  ItemDef? _heldItem;
+  String? _heldLine;
 
   // The day's counts.
   final Map<Grade, int> _counts = {};
@@ -465,13 +475,12 @@ class _SessionWidgetState extends State<SessionWidget> {
     }
 
     final grade = d.grade;
+    final line = sectionPosition(_plan, _index);
     var next = _plan;
     var nextIndex = _index + 1;
-    var reasked = false;
     if (outcome != null) {
       if (grade == Grade.wrong) {
         next = _plan.afterWrong(_index);
-        reasked = !identical(next, _plan);
       } else if (grade == Grade.unscored) {
         next = _plan.afterUnscored(_index);
         // A moved entry leaves the next one at this index.
@@ -489,16 +498,27 @@ class _SessionWidgetState extends State<SessionWidget> {
     _plan = next;
     await _saveDay(nextIndex);
     if (!mounted) return;
+    // A saved wrong shows no card: straight on when the answer was already on screen, else
+    // the probe stays with the answer under one Next (operator ruling 2026-11-05).
+    final wrong = grade == Grade.wrong && outcome != null;
+    final moveOn = wrong && d.answerShown;
+    final hold = wrong && !d.answerShown;
     setState(() {
       _grade = grade;
       _lost = outcome == null;
       _justMastered = justMastered;
       _regained = justMastered && before.status == MasteryStatus.shaky;
-      _reasked = reasked;
       _interval = srs == null ? null : srs.dueDay - localDay(now);
       _index = nextIndex;
-      _phase = _Phase.verdict;
+      _heldItem = hold ? item : null;
+      _heldLine = hold ? line : null;
+      _phase = moveOn
+          ? _Phase.loading
+          : hold
+              ? _Phase.held
+              : _Phase.verdict;
     });
+    if (moveOn) await _next();
   }
 
   Future<void> _saveDay(int position, {bool completed = false}) async {
@@ -617,6 +637,7 @@ class _SessionWidgetState extends State<SessionWidget> {
       _Phase.loading =>
         const Center(child: CircularProgressIndicator.adaptive()),
       _Phase.asking || _Phase.saving => _asking(context, t),
+      _Phase.held => _asking(context, t, held: true),
       _Phase.verdict => _verdictCard(t),
       _Phase.softStop => _softStopCard(t),
       _Phase.end => _endCard(t),
@@ -638,12 +659,15 @@ class _SessionWidgetState extends State<SessionWidget> {
     );
   }
 
-  Widget _asking(BuildContext context, QuietRoomTokens t) {
-    final item = widget.catalog.byId(_entry.itemId)!;
+  /// The entry's probe under its section line. [held] keeps the answered probe on screen,
+  /// in the same place in the tree so it keeps its state (the answer it shows), and adds one
+  /// Next under it.
+  Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
+    final item = held ? _heldItem! : widget.catalog.byId(_entry.itemId)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(sectionPosition(_plan, _index),
+        Text(held ? _heldLine! : sectionPosition(_plan, _index),
             style: qrText(t,
                 size: 13, weight: FontWeight.w600, color: t.inkMuted)),
         const SizedBox(height: QuietRoomMetrics.space8),
@@ -659,6 +683,8 @@ class _SessionWidgetState extends State<SessionWidget> {
             ),
           ),
         ),
+        if (held)
+          _action(t, 'Next', () => _keepGoing(_Phase.held), primary: true),
       ],
     );
   }
@@ -745,14 +771,8 @@ class _SessionWidgetState extends State<SessionWidget> {
             _title(t, 'Marked as got it'),
             _line(t, 'No credit this time.'),
           ],
-        Grade.wrong => [
-            _title(t, 'Not this time'),
-            _line(
-                t,
-                _reasked
-                    ? 'It comes back in about 10 minutes, and again tomorrow.'
-                    : 'It comes back tomorrow.'),
-          ],
+        // Never shown: a saved wrong moves on or holds its probe (`_onAnswer`).
+        Grade.wrong => [_title(t, 'Not quite')],
         Grade.unscored => [
             _title(t, 'Not counted'),
             _line(t, 'It comes back later in this part.'),
@@ -789,7 +809,7 @@ class _SessionWidgetState extends State<SessionWidget> {
       if (_end == SessionEnd.ceiling && left > 0)
         _line(t, 'The rest is due tomorrow.'),
       _line(t,
-          '$answered answered · $clear clear · $hinted with help · $wrong not this time'),
+          '$answered answered · $clear clear · $hinted with help · $wrong missed'),
       if (_masteredToday.isNotEmpty) ...[
         _line(t, 'Mastered today'),
         for (final title in _masteredToday) _line(t, title),

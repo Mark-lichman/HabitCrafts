@@ -6,14 +6,17 @@
 // Sections, in the order the session shows them:
 //   * Warm-up (return mode only, PIN-9): 5 to 8 due stateful items that are level 0 or high
 //     reuse, with retrievability 0.6 to 0.85, most likely recalled first.
-//   * Repair (PIN-11): yesterday's wrongs. Today's wrongs come back about 10 minutes later
-//     through `DayPlan.afterWrong`, paid from the repair slot the budget holds back.
+//   * Repair (PIN-11): yesterday's wrongs. Today's wrongs come back at the end of the section
+//     they were answered in, through `DayPlan.afterWrong`, paid from the repair slot the
+//     budget holds back.
 //   * Due (D26): stateful items by ascending retrievability, ties by prerequisite level then
 //     lapses (most lapses first); then seeded items with no FSRS state by seed due day and
 //     lesson order; interleaved so no more than two in a row share a kind or a lesson.
 //   * Keep-sharp (PIN-10, D27): in the first session on or after the local day that is a
 //     Monday, the 10 Mastered items with the lowest retrievability that are not already due.
-//     In return mode it waits until the backlog is under the gate.
+//     A stored plan of the week counts only when its record shows an answer (operator ruling
+//     ASK-7), so an unanswered plan leaves keep-sharp to the next one. In return mode it
+//     waits until the backlog is under the gate.
 //   * New (PIN-6): 8 a day in lesson order with prerequisites (`newIntakeOrder`).
 //
 // The budget (PIN-5, A2): a 15-minute target and a 20-minute ceiling, priced with per-kind
@@ -57,9 +60,6 @@ const Map<ItemKind, int> kCostSeconds = {
 
 /// Seconds held back under the ceiling for today's wrongs, re-asked in the session (PIN-11).
 const int kRepairSlotSeconds = 90;
-
-/// How far ahead, in estimated seconds, a wrong item is re-asked in the same session (D11).
-const int kRepairReaskSeconds = 10 * 60;
 
 /// New items a day, and the opt-in stretch on top (D6, PIN-6).
 const int kNewPerDay = 8;
@@ -164,12 +164,15 @@ class QueueEntry {
   /// skipped, never on a copy of it: [DayPlan.afterWrong] clears it on the re-ask.
   final bool requeued;
 
-  /// A same-session re-ask of a wrong answer (PIN-11).
+  /// A same-session re-ask of a wrong answer (PIN-11), at the end of its section.
   final bool reask;
 
-  /// The attempt source an answer on this entry is written with.
-  Source get source =>
-      section == PlanSection.keepSharp ? Source.keepSharp : Source.review;
+  /// The attempt source an answer on this entry is written with. A re-ask is a review even in
+  /// Keep-sharp, as it was when re-asks sat in Repair: the wrong before it was the keep-sharp
+  /// answer.
+  Source get source => section == PlanSection.keepSharp && !reask
+      ? Source.keepSharp
+      : Source.review;
 
   QueueEntry copyWith(
           {PlanSection? section, bool? wasDue, bool? requeued, bool? reask}) =>
@@ -322,45 +325,37 @@ class DayPlan {
         catchUpEntries: catchUpEntries,
       );
 
+  /// The index after the last entry of [section] in [list], or [from] when none sits at or
+  /// after it.
+  static int _sectionEnd(List<QueueEntry> list, PlanSection section, int from) {
+    final last = list.lastIndexWhere((e) => e.section == section);
+    return last < from ? from : last + 1;
+  }
+
   /// The plan after the entry at [index] was answered unscored: the entry moves to the end of
-  /// its section, once. An entry already requeued stays where it is. A re-ask that
-  /// [afterWrong] placed later in the plan does not count as the end of the Repair section.
+  /// its section, after any re-ask there, once. An entry already requeued stays where it is.
   DayPlan afterUnscored(int index) {
     final entry = entries[index];
     if (entry.requeued) return this;
     final next = [...entries]..removeAt(index);
-    final last = next.lastIndexWhere(
-        (e) => e.section == entry.section && e.reask == entry.reask);
-    next.insert(
-        last < index ? index : last + 1, entry.copyWith(requeued: true));
+    next.insert(_sectionEnd(next, entry.section, index),
+        entry.copyWith(requeued: true));
     return _withEntries(next);
   }
 
-  /// The plan after the entry at [index] was answered wrong: a Repair re-ask of the item is
-  /// inserted about [kRepairReaskSeconds] of estimated answers later, or at the end (PIN-11).
-  /// The re-ask is not due: the wrong scheduled the item for tomorrow at the earliest, so its
-  /// clear starts no run of counting clears (End state 2). A re-ask is not re-asked again.
-  /// The re-ask starts unrequeued, whatever its source: `requeued` means the entry itself was
-  /// skipped once, and the session's resume estimate counts each such entry's skip on that.
+  /// The plan after the entry at [index] was answered wrong: a re-ask of the item goes to the
+  /// end of the section it was answered in (Repair, Due, Keep-sharp, New), after every entry
+  /// and re-ask already there (operator ruling 2026-11-05, PIN-11). The re-ask is not due:
+  /// the wrong scheduled the item Again for tomorrow at the earliest, so its clear starts no
+  /// run of counting clears (End state 2). A re-ask is not re-asked again. The re-ask starts
+  /// unrequeued, whatever its source: `requeued` means the entry itself was skipped once, and
+  /// the session's resume estimate counts each such entry's skip on that.
   DayPlan afterWrong(int index) {
     final entry = entries[index];
     if (entry.reask) return this;
-    var at = entries.length;
-    var ahead = 0;
-    for (var i = index + 1; i < entries.length; i++) {
-      if (ahead >= kRepairReaskSeconds) {
-        at = i;
-        break;
-      }
-      ahead += entries[i].costSeconds;
-    }
     final next = [...entries]..insert(
-        at,
-        entry.copyWith(
-            section: PlanSection.repair,
-            wasDue: false,
-            requeued: false,
-            reask: true));
+        _sectionEnd(entries, entry.section, index + 1),
+        entry.copyWith(wasDue: false, requeued: false, reask: true));
     return _withEntries(next);
   }
 
@@ -418,11 +413,13 @@ class DayPlan {
 int weekStartDay(int day) => day - (dateOfDay(day).weekday - DateTime.monday);
 
 /// Whether a plan built on a day from this week's Monday up to the day before [day] ran
-/// keep-sharp (D27). A record that does not decode as a plan is ignored.
+/// keep-sharp (D27). A plan counts only when its record shows an answer (operator ruling
+/// ASK-7, the ASK-5 test): an unanswered plan leaves keep-sharp to the next plan that week.
+/// A record that does not decode as a plan is ignored.
 Future<bool> keepSharpRanThisWeek(JpStore store, int day) async {
   for (var d = weekStartDay(day); d < day; d++) {
     final record = await store.day(d);
-    if (record == null) continue;
+    if (record == null || !record.answered) continue;
     try {
       if (DayPlan.decode(record.plan).keepSharpRan) return true;
     } on Object {

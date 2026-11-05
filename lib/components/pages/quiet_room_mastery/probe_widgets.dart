@@ -36,7 +36,14 @@
 // it. A listen that throws frees the controls and goes to FlutterError.reportError, the route
 // the recorder's lost write takes (S4), so the app's handler records it.
 //
-// Every widget shows the item's state pill with its n of 4 ([ProbeStatePill]).
+// A wrong answer never hides the answer (operator ruling 2026-11-05). A draft says whether
+// the answer was already on screen (`DrillAnswer.answerShown`: a self-graded reveal, a
+// compare, the ladder's last rung); the session moves straight on after such a wrong. After
+// any other wrong (a typed or spoken miss, a wrong pick, Show answer) the widget shows the
+// full answer, a fill-in as the whole sentence with the missing part filled in and marked,
+// and the learner's own answer when there is one, and the session adds one Next.
+//
+// Every widget shows the item's state pill with its n of 4 clears ([ProbeStatePill]).
 
 import 'dart:async';
 
@@ -54,16 +61,17 @@ import 'mastery_rule.dart';
 /// Receives the one graded draft a probe widget hands on.
 typedef ProbeAnswered = void Function(DrillAnswer answer);
 
-/// The state pill's text: the state and its n of 4 (D16). A Shaky item shows its regain
+/// The state pill's text: the n of 4 clears (D16), "0 of 4 clears". A New or Learning item
+/// shows no state word, so the chip never clashes with the session's section line (operator
+/// ruling 2026-11-05); the Mastered and Shaky markers stay. A Shaky item shows its regain
 /// clears as a bare count, because regaining also needs the [kRegainGapDays] gap, and a
 /// denominator would promise what the gap clause still blocks (as the study record page).
 String probeStateLabel(MasteryState s) {
   final n = s.clearCount;
   switch (s.status) {
     case MasteryStatus.neu:
-      return 'New · $n of $kClearsToMaster';
     case MasteryStatus.learning:
-      return 'Learning · $n of $kClearsToMaster';
+      return '$n of $kClearsToMaster clears';
     case MasteryStatus.mastered:
       return 'Mastered · $kClearsToMaster of $kClearsToMaster';
     case MasteryStatus.shaky:
@@ -116,6 +124,7 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
         {int hintLevel = 0,
         bool revealed = false,
         bool sayIt = false,
+        bool answerShown = false,
         bool? selfGraded}) =>
     DrillAnswer(
       itemId: item.id,
@@ -127,16 +136,25 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
       hintLevel: hintLevel,
       revealed: revealed,
       sayIt: sayIt,
+      answerShown: answerShown,
     );
 
 /// The line an answered probe leaves behind.
 String _verdictText(Grade g) => switch (g) {
       Grade.clear => 'Clear.',
       Grade.hinted => 'Right with help. No credit this time.',
-      Grade.wrong => 'Not this time.',
+      Grade.wrong => 'Not quite.',
       Grade.unscored => 'Not counted.',
       Grade.self => 'Marked as got it. No credit this time.',
     };
+
+/// The prompt with its blank (a run of ＿ or _) filled by [answer], as the text before, the
+/// answer and the text after. A prompt with no blank reads as the answer alone.
+(String, String, String) fillBlank(String prompt, String answer) {
+  final m = RegExp(r'[＿_]+').firstMatch(prompt);
+  if (m == null) return ('', answer, '');
+  return (prompt.substring(0, m.start), answer, prompt.substring(m.end));
+}
 
 // --- shared pieces -------------------------------------------------------------
 
@@ -185,6 +203,25 @@ Widget _answerLine(QuietRoomTokens t, String text) => Padding(
           style:
               qrText(t, size: 20, weight: FontWeight.w600, color: t.brand600)),
     );
+
+/// The full answer: the prompt with the missing part filled in and marked.
+Widget _fullAnswer(QuietRoomTokens t, String prompt, String answer) {
+  final (before, filled, after) = fillBlank(prompt, answer);
+  final base = qrText(t, size: 20, weight: FontWeight.w600, color: t.inkStrong);
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Text.rich(TextSpan(style: base, children: [
+      TextSpan(text: before),
+      TextSpan(
+          text: filled,
+          style: base.copyWith(
+              color: t.brand600,
+              decoration: TextDecoration.underline,
+              decorationColor: t.brand600)),
+      TextSpan(text: after),
+    ])),
+  );
+}
 
 Widget _quiet(QuietRoomTokens t, String text) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -305,6 +342,11 @@ class _ChooseProbeState extends State<ChooseProbe> {
               primary: _picked != null && o == widget.probe.answer),
       ]),
       if (_grade != null) _verdict(t, _grade!),
+      // A wrong pick: the answer was not on screen, so the full sentence shows.
+      if (_grade == Grade.wrong) ...[
+        _quiet(t, 'Your answer: ${_picked!}'),
+        _fullAnswer(t, widget.probe.text, widget.probe.answer),
+      ],
     ]);
   }
 }
@@ -359,14 +401,20 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 
   int get _hintLevel => _hintTaken ? 1 : 0;
 
-  void _report(Grade grade, {bool revealed = false}) {
+  /// What the learner typed, shown beside the answer after a wrong.
+  String? _given;
+
+  /// [answerShown] is true only after the compare: the answer was on screen before the mark.
+  void _report(Grade grade,
+      {bool revealed = false, bool answerShown = false, String? given}) {
     setState(() {
       _grade = grade;
+      _given = given;
       _showAnswer = true;
       _empty = false;
     });
     widget.onAnswer(_draft(widget.item, widget.probe, grade,
-        hintLevel: _hintLevel, revealed: revealed));
+        hintLevel: _hintLevel, revealed: revealed, answerShown: answerShown));
   }
 
   void _check() {
@@ -379,8 +427,12 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
         _report(gradeAnswer(
             outcome: Outcome.right, selfGraded: false, hintLevel: _hintLevel));
       case TypedVerdict.wrong:
-        _report(gradeAnswer(
-            outcome: Outcome.wrong, selfGraded: false, hintLevel: _hintLevel));
+        _report(
+            gradeAnswer(
+                outcome: Outcome.wrong,
+                selfGraded: false,
+                hintLevel: _hintLevel),
+            given: _typed.text.trim());
       case TypedVerdict.selfCheck:
         setState(() {
           _selfCheck = true;
@@ -390,11 +442,13 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
     }
   }
 
-  void _mark(bool gotIt) => _report(gradeAnswer(
-      outcome: gotIt ? Outcome.none : Outcome.wrong,
-      selfGraded: false,
-      hintLevel: _hintLevel,
-      selfOverride: gotIt));
+  void _mark(bool gotIt) => _report(
+      gradeAnswer(
+          outcome: gotIt ? Outcome.none : Outcome.wrong,
+          selfGraded: false,
+          hintLevel: _hintLevel,
+          selfOverride: gotIt),
+      answerShown: true);
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +460,7 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
       TextField(
         controller: _typed,
         enabled: open,
-        decoration: const InputDecoration(hintText: 'ひらがな'),
+        decoration: const InputDecoration(hintText: 'Type in hiragana'),
         onSubmitted: (_) => _check(),
       ),
       if (_empty) _quiet(t, 'Type an answer first.'),
@@ -430,7 +484,9 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
       if (widget.hint != null && open && !_hintTaken)
         _quietButton(t, 'Show hint', () => setState(() => _hintTaken = true)),
       if (widget.hint != null && _hintTaken) _quiet(t, widget.hint!),
-      if (_showAnswer) _answerLine(t, widget.probe.answer),
+      if (_grade == Grade.wrong && (_given ?? '').isNotEmpty)
+        _quiet(t, 'Your answer: ${_given!}'),
+      if (_showAnswer) _fullAnswer(t, widget.probe.text, widget.probe.answer),
       if (_selfCheck && _grade == null) ...[
         _quiet(t, 'This could not be checked. Compare it with the answer.'),
         _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
@@ -504,6 +560,9 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
   Grade? _grade;
   ProbeDef? _answeredOn;
 
+  /// The learner's own answer on a wrong, typed or heard; null on any other grade.
+  String? _given;
+
   bool get _card => widget.probe.template == 'card';
 
   List<String> get _steps => widget.hintSteps ?? wordHintSteps(widget.probe);
@@ -531,16 +590,23 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
         selfOverride: selfOverride,
       );
 
-  void _report(ProbeDef probe, Grade grade, {bool? revealed}) {
+  /// [given] is what the learner typed or was heard to say, shown beside the answer after a
+  /// wrong. The answer was on screen before the answer when the card was revealed, a compare
+  /// was waiting, or the ladder reached its last rung.
+  void _report(ProbeDef probe, Grade grade, {bool? revealed, String? given}) {
     _token++;
+    final answerShown = _cardRevealed || _awaiting != null || _revealedByHint;
     setState(() {
       _grade = grade;
       _answeredOn = probe;
+      _given = given;
       _awaiting = null;
       _empty = false;
     });
     widget.onAnswer(_draft(widget.item, probe, grade,
-        hintLevel: _hintLevel, revealed: revealed ?? _revealedByHint));
+        hintLevel: _hintLevel,
+        revealed: revealed ?? _revealedByHint,
+        answerShown: answerShown));
   }
 
   Future<void> _say() async {
@@ -559,7 +625,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
         case Judgement.close:
           _report(spoken, _grade0(Outcome.close));
         case Judgement.wrong:
-          _report(spoken, _grade0(Outcome.wrong));
+          _report(spoken, _grade0(Outcome.wrong), given: r.heard);
         case Judgement.unverified:
           setState(() {
             _awaiting = spoken;
@@ -598,7 +664,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
       case TypedVerdict.right:
         _report(typedProbe, _grade0(Outcome.right));
       case TypedVerdict.wrong:
-        _report(typedProbe, _grade0(Outcome.wrong));
+        _report(typedProbe, _grade0(Outcome.wrong), given: _typed.text.trim());
       case TypedVerdict.selfCheck:
         setState(() {
           _awaiting = typedProbe;
@@ -668,7 +734,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
           TextField(
             controller: _typed,
             enabled: !busy,
-            decoration: const InputDecoration(hintText: 'ひらがな'),
+            decoration: const InputDecoration(hintText: 'Type in hiragana'),
             onSubmitted: (_) => _check(),
           ),
           if (_empty) _quiet(t, 'Type an answer first.'),
@@ -688,6 +754,12 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
           _answerLine(t, widget.probe.answer),
           _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
         ],
+        if (_grade == Grade.wrong && (_given ?? '').isNotEmpty)
+          _quiet(
+              t,
+              _answeredOn?.template == 'typed'
+                  ? 'Your answer: ${_given!}'
+                  : 'Heard: ${_given!}'),
         if (_grade != null && _answeredOn != null)
           _answerLine(t, widget.probe.answer),
       ]);
@@ -736,8 +808,9 @@ class _RevealProbeState extends State<_RevealProbe> {
         hintLevel: hintLevel,
         revealed: true);
     setState(() => _grade = grade);
+    // The mark comes after the reveal, so the answer is already on screen.
     widget.onAnswer(_draft(widget.item, widget.probe, grade,
-        hintLevel: hintLevel, revealed: true));
+        hintLevel: hintLevel, revealed: true, answerShown: true));
   }
 
   @override
@@ -929,8 +1002,9 @@ class _SayItProbeState extends State<SayItProbe> {
       _grade = grade;
       _unverified = false;
     });
+    // The sentence said is on screen the whole time.
     widget.onAnswer(_draft(widget.item, widget.probe, grade,
-        sayIt: true, selfGraded: false));
+        sayIt: true, selfGraded: false, answerShown: true));
   }
 
   Future<void> _say() async {
