@@ -362,6 +362,29 @@ void main() {
       expect(practiceOrder(none, none.byId('form.te')!), teIds);
     });
 
+    test('topicOf resolves the record sets due, shaky and notYet by id', () {
+      final index = TopicIndex(
+        catalog: catalog,
+        grammar: grammar,
+        today: today,
+        seedDue: {teIds[1]: today},
+      );
+      expect(topicOf(index, 'due')!.itemIds, [teIds[1]]);
+      final notYet = topicOf(index, 'notYet')!.itemIds;
+      expect(notYet, contains(teIds[0]));
+      expect(notYet, isNot(contains(teIds[1])));
+      expect(topicOf(index, 'shaky')!.itemIds, isEmpty);
+      expect(topicOf(index, 'use.nope'), isNull);
+      // Every id the browse sets hand out resolves back to that topic, so a record-set id in
+      // topicOf cannot drift from the one browse() mints.
+      for (final set in BrowseSet.values) {
+        for (final topic in index.browse(set)) {
+          expect(topicOf(index, topic.id)?.id, topic.id,
+              reason: '${browseSetLabel(set)} minted ${topic.id}');
+        }
+      }
+    });
+
     testWidgets(
         'runs the session over the items, due first: a due clear is a review, an early clear '
         'changes nothing, an early wrong counts', (tester) async {
