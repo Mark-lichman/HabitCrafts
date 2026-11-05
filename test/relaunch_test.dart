@@ -2,8 +2,9 @@
 // at an injected instant, and states one launch case: first launch, first launch then the
 // seed then today's plan, resume and done on the same day, the next day, one missed day, two
 // or more missed days as Welcome back with the return plan and no item reset, Welcome back
-// again until the first answer, a stored plan this build cannot read (unfinished, and finished
-// so it stays done), and the 04:00 boundary.
+// again until the first answer, an unanswered return or plan that is no session day (ASK-5),
+// a stored plan this build cannot read (unfinished, and finished so it stays done), and the
+// 04:00 boundary.
 
 import 'dart:convert';
 import 'dart:io';
@@ -159,13 +160,12 @@ void main() {
     expect(srsBefore, isNotEmpty);
     expect(masteryBefore, isNotEmpty);
 
-    // The second return counts from the first: that launch's plan is a session day.
-    var last = day0;
+    // The first return is never answered, so it is no session day (ASK-5): the second
+    // return still counts from day0, the last day with an answer.
     for (final away in [3, 12]) {
       final launch = await onLaunch(at(day0 + away), store, catalog);
       expect(launch.decision, LaunchDecision.welcomeBack, reason: 'away $away');
-      expect(launch.daysMissed, day0 + away - last - 1);
-      last = day0 + away;
+      expect(launch.daysMissed, away - 1);
       expect(launch.plan!.returnMode, isTrue);
       expect(launch.plan!.newSkip, NewSkip.daysMissed);
       expect(launch.plan!.section(PlanSection.newItems), isEmpty);
@@ -191,6 +191,37 @@ void main() {
         at(day0 + 4).add(const Duration(hours: 3)), store, catalog);
     expect(resumed.decision, LaunchDecision.resume);
     expect(resumed.daysMissed, 3);
+  });
+
+  test(
+      'an unanswered Welcome back is no session day: the next day is still a return '
+      '(ASK-5)', () async {
+    final store = await launchedStore();
+    final back = await onLaunch(at(day0 + 4), store, catalog);
+    expect(back.decision, LaunchDecision.welcomeBack);
+    expect(back.daysMissed, 3);
+    // Nothing answered on day0 + 4; the next day counts from day0 again.
+    final next = await onLaunch(at(day0 + 5), store, catalog);
+    expect(next.decision, LaunchDecision.welcomeBack);
+    expect(next.daysMissed, 4);
+    expect(next.plan!.returnMode, isTrue);
+    expect(next.plan!.newSkip, NewSkip.daysMissed);
+    // Once the return is answered, the day after it is an ordinary next day.
+    await store.putDay(next.record!.copyWith(position: 1));
+    final after = await onLaunch(at(day0 + 6), store, catalog);
+    expect(after.decision, LaunchDecision.today);
+    expect(after.daysMissed, 0);
+  });
+
+  test(
+      'a plan built but never answered is no session day, a completed one is (ASK-5)',
+      () async {
+    final store = await launchedStore();
+    // Day0 + 1 is planned and left untouched; day0 + 2 then has one missed day, not none.
+    await onLaunch(at(day0 + 1), store, catalog);
+    final launch = await onLaunch(at(day0 + 2), store, catalog);
+    expect(launch.decision, LaunchDecision.today);
+    expect(launch.daysMissed, 1);
   });
 
   test('a stored plan this build cannot read is built again, not shown',

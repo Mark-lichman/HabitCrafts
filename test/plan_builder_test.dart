@@ -333,6 +333,9 @@ void main() {
       final at = after.entries.indexWhere((e) => e.reask);
       expect(after.entries[at].itemId, p.entries[0].itemId);
       expect(after.entries[at].section, PlanSection.repair);
+      // The wrong moved the item to tomorrow, so the re-ask is not due (End state 2).
+      expect(p.entries[0].wasDue, isTrue);
+      expect(after.entries[at].wasDue, isFalse);
       final between = after.entries
           .sublist(1, at)
           .fold<int>(0, (s, e) => s + e.costSeconds);
@@ -638,6 +641,10 @@ void main() {
       expect(levels.skip(kFoundationNewPerDay).first, isNot(0));
       expect(p.stretchOffer, isTrue);
       expect(p.stretchEntries.length, kStretchNew);
+      // A New or stretch entry is the item's scheduled introduction: its answer is written
+      // as due, so a clear on it is the first of the four (operator ruling ASK-6).
+      expect(news.every((e) => e.wasDue && e.source == Source.review), isTrue);
+      expect(p.stretchEntries.every((e) => e.wasDue), isTrue);
       final planned = {for (final e in p.entries) e.itemId};
       expect(
           p.stretchEntries.every((e) => !planned.contains(e.itemId)), isTrue);

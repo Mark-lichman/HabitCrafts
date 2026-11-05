@@ -16,23 +16,14 @@
 // card would offer it: the plan's `stretchOffer`, every entry answered, and room under the
 // ceiling.
 //
-// 🚨 A NEW ENTRY IS ANSWERED AS DUE. The plan marks New entries `wasDue: false` (no scheduled day
-// yet), but the session that asks one is the item's scheduled introduction, so its answer is
-// written with `wasDue: true` and `source: review`, as the Python reference (sim_queue.py) does.
-// Written with `wasDue: false`, the introduction's clear never counts and the four counting
-// clears wait for the first four FSRS reviews (about days 3, 14, 50 and 140): measured on
-// 2026-11-04, run A then masters 145 items by day 120 instead of 393, under End state 8's 200.
-// The Review session (Task 18) must write a New entry's answer the same way.
-//
-// 🚨 A RE-ASK IS ANSWERED AS NOT DUE, whatever section the wrong came from. The wrong before it
-// scheduled the item for tomorrow at the earliest (`srsAfter`, D11), so at the re-ask the item
-// is not due and its clear starts no run of counting clears (End state 2: each clear while
-// due). The plan's entry keeps the original `wasDue`, which would count a Due re-ask's clear
-// and never a New one's; the harness writes `wasDue: false` for every re-ask instead. Measured
-// on 2026-11-04, run A masters 393 items by day 120 this way against 410 with the entry's flag,
-// both over End state 8's 200. The Review session (Task 18) must write a re-ask the same way.
-//
-// Both pins live in `harnessWasDue`, and test/srs_simulation_test.dart holds them red by value.
+// 🚨 THE ANSWER CARRIES THE ENTRY'S `wasDue`, as the Review session writes it (Task 18). The plan
+// stamps it (operator ruling ASK-6): a New or stretch entry is due, because the session that asks
+// it is the item's scheduled introduction, so its clear is the first of the four; a re-ask from
+// `DayPlan.afterWrong` is not due, because the wrong before it scheduled the item for tomorrow at
+// the earliest (`srsAfter`, D11), so its clear starts no run of counting clears (End state 2).
+// Measured on 2026-11-04 before the ruling, writing New entries as not due mastered 145 items
+// by day 120 in run A instead of 393, under End state 8's 200. test/srs_simulation_test.dart
+// holds both stamps by value.
 
 import 'dart:math' as math;
 
@@ -101,11 +92,6 @@ Grade gradeOf(LearnerAnswer answer, ProbeDef probe) => switch (answer) {
       LearnerAnswer.wrong =>
         gradeAnswer(outcome: Outcome.wrong, selfGraded: probe.selfGraded),
     };
-
-/// The `wasDue` the harness writes for an answer on [entry] (the two header pins): a re-ask
-/// is never due, a New entry is due, and any other entry carries the plan's flag.
-bool harnessWasDue(QueueEntry entry) =>
-    !entry.reask && (entry.wasDue || entry.section == PlanSection.newItems);
 
 /// How one run starts and what the learner does.
 class SimConfig {
@@ -345,7 +331,7 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
         grade: grade,
         rating: fsrsRatingFor(grade),
         hintLevel: grade == Grade.hinted ? 1 : 0,
-        wasDue: harnessWasDue(entry),
+        wasDue: entry.wasDue,
         source: entry.source,
         durationMs: entry.costSeconds * 1000,
         sessionId: 'sim${config.label}-$today',

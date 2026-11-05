@@ -11,8 +11,10 @@
 //     (warm-up, low-retrievability cap, New paused) is built and stored behind the Welcome back
 //     screen. Relaunched the same day before its first answer, it shows Welcome back again.
 //
-// "The last session" is the latest local day with a `DayRecord`, and the days missed are the
-// local days strictly between it and today (`localDay`, D15).
+// "The last session" is the latest local day whose `DayRecord` shows an answer (position above
+// 0, or completed), and the days missed are the local days strictly between it and today
+// (`localDay`, D15). A plan that was built but never answered is no session day (operator
+// ruling ASK-5): a Welcome back left unanswered keeps return mode on the next launch.
 //
 // 🚨 NOTHING HERE RESETS AN ITEM. `onLaunch` reads the record and writes only today's
 // `DayRecord`: no attempt, no `SrsState`, no `MasteryState`, however long the break. A return
@@ -137,13 +139,41 @@ DayPlan? _decode(String plan) {
   }
 }
 
-/// The latest local day with a `DayRecord` when it is before [today], [today] when today's
-/// record exists or a later one does (the clock moved back), which the caller counts as no
-/// day missed, or null when there is no record at all.
+/// Whether [record] shows an answer: a session day for the days missed (ASK-5).
+bool _answered(DayRecord record) => record.position > 0 || record.completed;
+
+/// The latest local day before [today] whose `DayRecord` shows an answer, walking back from
+/// `store.lastDay()` (ASK-5); [today] when today's record exists or a later one does (the clock
+/// moved back), which the caller counts as no day missed; or null when no record shows an
+/// answer.
 Future<int?> _lastSessionBefore(JpStore store, int today) async {
   final last = await store.lastDay();
-  if (last == null || last < today) return last;
+  if (last == null) return null;
   // Today's record exists only when it did not decode; any later one is from a clock that
   // moved back. Neither counts as a day missed.
-  return today;
+  if (last >= today) return today;
+  // No record predates the seed (a plan needs it) and no answer predates the first attempt,
+  // so the walk stops at the earlier of the two.
+  final floor = await _earliestDay(store);
+  if (floor == null) return null;
+  for (var d = last; d >= floor; d--) {
+    final record = await store.day(d);
+    if (record != null && _answered(record)) return d;
+  }
+  return null;
+}
+
+/// The earliest local day of a seed or an attempt, or null when the log is empty.
+Future<int?> _earliestDay(JpStore store) async {
+  final seeds = await store.seeds();
+  final attempts = await store.attempts();
+  int? floor;
+  for (final s in seeds) {
+    final d = localDay(s.atUtc);
+    if (floor == null || d < floor) floor = d;
+  }
+  for (final a in attempts) {
+    if (floor == null || a.localDay < floor) floor = a.localDay;
+  }
+  return floor;
 }
