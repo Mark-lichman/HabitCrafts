@@ -142,6 +142,10 @@ class DayRecord {
   final int position;
   final bool completed;
 
+  /// Whether the record shows an answer: a position above 0, or completed (operator rulings
+  /// ASK-5 and ASK-7). A plan stored and never answered shows none.
+  bool get answered => position > 0 || completed;
+
   DayRecord copyWith({String? plan, int? position, bool? completed}) =>
       DayRecord(
         day: day,

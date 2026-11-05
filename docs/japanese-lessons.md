@@ -259,12 +259,13 @@ time-aware Leitner in `leitner.dart` shares the same `Scheduler` interface as a 
 every section. The session shows the sections in this order:
 
 - **Warm-up**, after a break only (see Relaunch).
-- **Repair**: yesterday's wrongs. A wrong today comes back about `kRepairReaskSeconds` later in
-  the same session, and again tomorrow.
+- **Repair**: yesterday's wrongs. A wrong today comes back as the last item of the section it
+  was answered in, and again on another day.
 - **Due**: items whose day has come, the least likely recalled first, then seeded items in seed
   order.
 - **Keep-sharp**: in the first session of each week, the `kKeepSharpCount` Mastered items most at
-  risk that are not already due.
+  risk that are not already due. A plan that was stored but never answered does not use up the
+  week's keep-sharp.
 - **New**: `kNewPerDay` items a day in lesson order, prerequisites first. An introduction answer
   is a due answer, so a clear there is the first of the clears.
 
@@ -276,7 +277,9 @@ or when the target is already spent.
 
 The **Review session** (`session_widget.dart`) walks the plan one item per screen under a line
 such as "Due · n of m". It writes each answer at once and shows its verdict: Clear with the new
-interval, Right with a hint and no credit, Not this time, or Mastered. At the target the **soft
+interval, Right with a hint and no credit, or Mastered. A wrong answer shows no verdict: when the
+answer was already on screen (Not yet, Missed it) the next item follows at once, and otherwise the
+item stays with its full answer, and the learner's own, under one Next. At the target the **soft
 stop** offers Stop and Keep going. The session never runs past the ceiling: what is left stays
 due and the next plan picks it up. A relaunch resumes where the session stopped, with its budget
 carried on.

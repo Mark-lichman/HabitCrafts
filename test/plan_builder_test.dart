@@ -323,30 +323,57 @@ void main() {
       expect([for (final i in ordered) i.id], [words[1].id, words[2].id]);
     });
 
-    test('a wrong is re-asked about 10 minutes later from the repair slot',
-        () async {
-      final store = await storeWithDueWords(80, tuesday);
-      final p = await plan(store, tuesday);
+    test(
+        'a wrong is re-asked as the last entry of its own section, from the repair slot '
+        '(operator ruling 2026-11-05)', () async {
+      final store = JpStoreMemory();
+      await seedEverything(store, monday);
+      final words = wordsOf(5);
+      await store.appendAttempt(wrongOn(words[0], monday - 1));
+      await store.appendAttempt(wrongOn(words[1], monday - 1));
+      for (final w in ofKind(ItemKind.word).skip(100).take(5)) {
+        await due(store, w, monday, 0.8);
+      }
+      for (var i = 0; i < 3; i++) {
+        await mastered(store, ofKind(ItemKind.word)[200 + i], monday, 0.9);
+      }
+      final p = await plan(store, monday);
       expect(p.repairSlotSeconds, kRepairSlotSeconds);
-      final after = p.afterWrong(0);
-      expect(after.entries.length, p.entries.length + 1);
-      final at = after.entries.indexWhere((e) => e.reask);
-      expect(after.entries[at].itemId, p.entries[0].itemId);
-      expect(after.entries[at].section, PlanSection.repair);
-      // The wrong moved the item to tomorrow, so the re-ask is not due (End state 2).
-      expect(p.entries[0].wasDue, isTrue);
-      expect(after.entries[at].wasDue, isFalse);
-      final between = after.entries
-          .sublist(1, at)
-          .fold<int>(0, (s, e) => s + e.costSeconds);
-      expect(between, greaterThanOrEqualTo(kRepairReaskSeconds));
-      expect(between - after.entries[at - 1].costSeconds,
-          lessThan(kRepairReaskSeconds));
-      // A re-ask is not re-asked again.
-      expect(identical(after.afterWrong(at), after), isTrue);
-      // Near the end the re-ask goes last.
-      final late = p.afterWrong(p.entries.length - 2);
-      expect(late.entries.last.reask, isTrue);
+      for (final s in [
+        PlanSection.repair,
+        PlanSection.due,
+        PlanSection.keepSharp,
+      ]) {
+        expect(p.section(s), isNotEmpty, reason: s.name);
+        final first = p.entries.indexWhere((e) => e.section == s);
+        final after = p.afterWrong(first);
+        expect(after.entries.length, p.entries.length + 1);
+        final mine = after.section(s);
+        // The re-ask is the last entry of its section, the rest of the section before it.
+        expect(mine.last.reask, isTrue, reason: s.name);
+        expect(mine.last.itemId, p.entries[first].itemId, reason: s.name);
+        expect(mine.length, p.section(s).length + 1, reason: s.name);
+        final at = after.entries.indexOf(mine.last);
+        expect(
+            at == after.entries.length - 1 ||
+                after.entries[at + 1].section != s,
+            isTrue,
+            reason: s.name);
+        // The wrong moved the item to tomorrow, so the re-ask is not due (End state 2), and
+        // a keep-sharp re-ask is a plain review.
+        expect(mine.last.wasDue, isFalse, reason: s.name);
+        expect(mine.last.source, Source.review, reason: s.name);
+        // A re-ask is not re-asked again.
+        expect(identical(after.afterWrong(at), after), isTrue, reason: s.name);
+      }
+      // A second wrong in the same section lands after the first re-ask.
+      final firstDue =
+          p.entries.indexWhere((e) => e.section == PlanSection.due);
+      final twice = p.afterWrong(firstDue).afterWrong(firstDue + 1);
+      final dues = twice.section(PlanSection.due);
+      expect([for (final e in dues.reversed.take(2)) e.itemId],
+          [p.entries[firstDue + 1].itemId, p.entries[firstDue].itemId]);
+      expect(dues.reversed.take(2).every((e) => e.reask), isTrue);
     });
 
     test(
@@ -584,6 +611,29 @@ void main() {
       await store.putDay(DayRecord(day: tuesday, plan: tue.encode()));
       final next = await plan(store, monday + 7);
       expect(next.keepSharpRan, isTrue);
+    });
+
+    test(
+        'an unanswered Monday plan leaves keep-sharp to Tuesday; an answered one keeps '
+        'it (operator ruling ASK-7)', () async {
+      final store = JpStoreMemory();
+      await seedEverything(store, monday);
+      await masterTwelve(store, monday);
+      final mon = await plan(store, monday);
+      expect(mon.keepSharpRan, isTrue);
+      // The plan is stored, but no answer was given: position 0, not completed.
+      await store.putDay(DayRecord(day: monday, plan: mon.encode()));
+      final tue = await plan(store, tuesday);
+      expect(tue.keepSharpRan, isTrue);
+      expect(tue.section(PlanSection.keepSharp).length, kKeepSharpCount);
+
+      // One answer on Monday makes it the week's keep-sharp.
+      await store
+          .putDay(DayRecord(day: monday, plan: mon.encode(), position: 1));
+      final after = await plan(store, tuesday);
+      expect(after.keepSharpRan, isFalse);
+      expect(after.section(PlanSection.keepSharp), isEmpty);
+      expect(await keepSharpRanThisWeek(store, tuesday), isTrue);
     });
 
     test('in return mode keep-sharp waits until the backlog is under the gate',
@@ -1089,7 +1139,8 @@ void main() {
       expect(repaired.entries[0].requeued, isTrue);
     });
 
-    test('an unscored repair stays ahead of Due when a re-ask sits later',
+    test(
+        'an unscored repair moves after the re-ask at the end of Repair, never into Due',
         () async {
       final store = JpStoreMemory();
       final words = wordsOf(5);
@@ -1103,25 +1154,25 @@ void main() {
       final p = await plan(store, tuesday);
       expect([for (final e in p.section(PlanSection.repair)) e.itemId],
           [words[0].id, words[1].id]);
-      // A wrong on the first repair places its re-ask after the Due block.
+      // A wrong on the first repair places its re-ask at the end of Repair, before Due.
       final wrong = p.afterWrong(0);
       final reaskAt = wrong.entries.indexWhere((e) => e.reask);
       final firstDue =
           wrong.entries.indexWhere((e) => e.section == PlanSection.due);
-      expect(reaskAt, greaterThan(firstDue));
-      // The second repair, unscored, returns to the end of the Repair
-      // section proper, not past the re-ask and the Due block.
+      expect(reaskAt, 2);
+      expect(firstDue, 3);
+      // The second repair, unscored, goes to the end of Repair: after the re-ask, before
+      // the Due block.
       final unscored = wrong.afterUnscored(1);
       expect(unscored.entries.length, wrong.entries.length);
-      expect(unscored.entries[1].itemId, words[1].id);
-      expect(unscored.entries[1].requeued, isTrue);
-      expect(unscored.entries[2].section, PlanSection.due);
-      final reask = unscored.entries.indexWhere((e) => e.reask);
-      expect(reask, greaterThan(firstDue));
-      expect(unscored.entries[reask].itemId, words[0].id);
+      expect([for (final e in unscored.entries.take(3)) e.itemId],
+          [words[0].id, words[0].id, words[1].id]);
+      expect(unscored.entries[1].reask, isTrue);
+      expect(unscored.entries[2].requeued, isTrue);
+      expect(unscored.entries[3].section, PlanSection.due);
     });
 
-    test('an unscored re-ask moves to the end of the re-asks, not the repairs',
+    test('an unscored re-ask moves to the end of its section, after the others',
         () async {
       final store = JpStoreMemory();
       final words = wordsOf(5);
@@ -1132,7 +1183,7 @@ void main() {
         await due(store, w, tuesday, 0.8);
       }
       final p = await plan(store, tuesday);
-      // Both repairs wrong: two re-asks, both past the Due block.
+      // Both repairs wrong: two re-asks, both at the end of Repair, before Due.
       final twice = p.afterWrong(0).afterWrong(1);
       final firstDue =
           twice.entries.indexWhere((e) => e.section == PlanSection.due);
@@ -1140,24 +1191,25 @@ void main() {
         for (var i = 0; i < twice.entries.length; i++)
           if (twice.entries[i].reask) i
       ];
-      expect(reasks.length, 2);
-      expect(reasks.first, greaterThan(firstDue));
+      expect(reasks, [2, 3]);
+      expect(firstDue, 4);
       expect(twice.entries[reasks.first].itemId, words[0].id);
       expect(twice.entries[reasks.last].itemId, words[1].id);
-      // The first re-ask, unscored, lands after the second re-ask.
+      // The first re-ask, unscored, lands after the second re-ask, still in Repair.
       final moved = twice.afterUnscored(reasks.first);
       expect(moved.entries.length, twice.entries.length);
       final last = moved.entries.lastIndexWhere((e) => e.reask);
+      expect(last, 3);
       expect(moved.entries[last].itemId, words[0].id);
       expect(moved.entries[last].requeued, isTrue);
       expect(moved.entries[last].reask, isTrue);
+      expect(moved.entries[last].section, PlanSection.repair);
       expect(moved.entries[last - 1].itemId, words[1].id);
       expect(moved.entries[last - 1].reask, isTrue);
-      // The Repair section proper and everything before Due are untouched.
-      expect(moved.entries.sublist(0, firstDue),
-          twice.entries.sublist(0, firstDue));
-      expect(
-          moved.entries.sublist(0, firstDue).every((e) => !e.requeued), isTrue);
+      // The repairs themselves and the Due block are untouched.
+      expect(moved.entries.sublist(0, 2), twice.entries.sublist(0, 2));
+      expect(moved.entries.sublist(firstDue), twice.entries.sublist(firstDue));
+      expect(moved.entries.sublist(0, 2).every((e) => !e.requeued), isTrue);
     });
 
     test(

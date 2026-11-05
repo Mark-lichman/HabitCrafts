@@ -2,13 +2,14 @@
 //
 // Each probe kind is driven to each grade it can report, with fake speech and pronunciation
 // services, and the test reads the `DrillAnswer` draft the widget hands on: the grade, the
-// template, the hint level, the revealed flag and the Say-it flag. Every widget shows the
-// item's state pill with its n of 4.
+// template, the hint level, the revealed flag, the Say-it flag and whether the answer was
+// already on screen. Every widget shows the item's state pill as "n of 4 clears".
 //
 // The rules under test: a hinted answer is hinted, never clear (PIN-3); a hint ladder's
 // revealing rung grades any answer wrong (D17); on a self-graded probe Got it after the
 // reveal is clear and Missed it is wrong (PIN-13); unverified is never wrong; an empty Check
-// is no attempt.
+// is no attempt; a wrong never hides the answer, and a typed one shows the learner's too
+// (operator ruling 2026-11-05); every typed answer box reads "Type in hiragana".
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -325,9 +326,11 @@ void _expectDraft(
 
 void main() {
   group('state pill', () {
-    test('every state names itself and its n of 4', () {
-      expect(probeStateLabel(const MasteryState.initial('x')), 'New · 0 of 4');
-      expect(probeStateLabel(_learning('x', 2)), 'Learning · 2 of 4');
+    test(
+        'New and Learning show only the n of 4 clears; Mastered and Shaky keep their '
+        'marker (operator ruling 2026-11-05)', () {
+      expect(probeStateLabel(const MasteryState.initial('x')), '0 of 4 clears');
+      expect(probeStateLabel(_learning('x', 2)), '2 of 4 clears');
       expect(
           probeStateLabel(const MasteryState(
               itemId: 'x', status: MasteryStatus.mastered, masteredOn: 40)),
@@ -389,8 +392,47 @@ void main() {
       ];
       for (final w in widgets) {
         await _pump(tester, w);
-        expect(find.text('Learning · 3 of 4'), findsOneWidget,
+        expect(find.text('3 of 4 clears'), findsOneWidget,
             reason: '${w.runtimeType} shows the pill');
+        expect(find.textContaining('Learning'), findsNothing,
+            reason: '${w.runtimeType}: no state word beside the section line');
+      }
+    });
+
+    testWidgets('a new item reads 0 of 4 clears', (tester) async {
+      await _pump(
+          tester,
+          ConjugationProbe(
+              item: _conj,
+              probe: _conj.probes.single,
+              state: const MasteryState.initial('conj.te.g1'),
+              onAnswer: (_) {}));
+      expect(find.text('0 of 4 clears'), findsOneWidget);
+      expect(find.textContaining('New'), findsNothing);
+    });
+  });
+
+  group('typed answer boxes (operator ruling 2026-11-05)', () {
+    testWidgets('every typed answer box asks for hiragana in words',
+        (tester) async {
+      for (final w in [
+        TypedFillProbe(
+            item: _grammar,
+            probe: _probe(_grammar, 'p1'),
+            state: const MasteryState.initial('mari.L26.1'),
+            checkItem: const {'answer': 'なんです'},
+            onAnswer: (_) {}),
+        WordRecallProbe(
+            item: _word,
+            probe: _probe(_word, 'spoken'),
+            state: const MasteryState.initial('L30_02'),
+            speech: FakeSpeech(),
+            onAnswer: (_) {}),
+      ]) {
+        await _pump(tester, w);
+        expect(find.text('Type in hiragana'), findsOneWidget,
+            reason: '${w.runtimeType}');
+        expect(find.text('ひらがな'), findsNothing, reason: '${w.runtimeType}');
       }
     });
   });
@@ -493,7 +535,13 @@ void main() {
           probeId: 'p1',
           template: 'fill',
           grade: Grade.wrong);
-      expect(find.text('なんです'), findsOneWidget, reason: 'the answer shows');
+      // Both answers show: the learner's, and the sentence with the part filled in.
+      expect(find.text('Your answer: です'), findsOneWidget);
+      expect(find.text('きょうは しごとが やすみなんです。'), findsOneWidget,
+          reason: 'the full answer shows');
+      expect(find.text('Not this time.'), findsNothing);
+      expect(a.single.answerShown, isFalse,
+          reason: 'the answer was not on screen before the check');
     });
 
     testWidgets('Show answer is wrong and recorded as revealed',
@@ -506,6 +554,17 @@ void main() {
           template: 'fill',
           grade: Grade.wrong,
           revealed: true);
+      expect(find.text('きょうは しごとが やすみなんです。'), findsOneWidget,
+          reason: 'Show answer shows the full answer');
+      expect(find.textContaining('Your answer'), findsNothing,
+          reason: 'nothing was typed');
+      expect(a.single.answerShown, isFalse);
+    });
+
+    test('the blank is filled with the answer, the parts around it kept', () {
+      expect(fillBlank('きょうは しごとが やすみ＿＿。', 'なんです'),
+          ('きょうは しごとが やすみ', 'なんです', '。'));
+      expect(fillBlank('no blank', 'x'), ('', 'x', ''));
     });
 
     testWidgets('an empty Check is not an attempt', (tester) async {
@@ -822,6 +881,9 @@ void main() {
           probeId: 'typed',
           template: 'typed',
           grade: Grade.wrong);
+      expect(answers.single.answerShown, isFalse);
+      expect(find.text('Your answer: かさ'), findsOneWidget);
+      expect(find.text('かばん'), findsOneWidget, reason: 'the answer shows');
     });
 
     testWidgets('a typed answer the matcher cannot judge says what was typed',
@@ -893,6 +955,8 @@ void main() {
           grade: Grade.wrong,
           revealed: true,
           selfGraded: true);
+      expect(answers.single.answerShown, isTrue,
+          reason: 'the card showed the answer before Not yet');
     });
 
     testWidgets('the card probe: a hint before the reveal is hinted',
@@ -1031,6 +1095,7 @@ void main() {
           grade: Grade.wrong,
           revealed: true,
           selfGraded: true);
+      expect(a.single.answerShown, isTrue);
     });
 
     testWidgets('conjugation: a hint before the reveal makes Got it hinted',

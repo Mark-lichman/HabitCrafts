@@ -140,7 +140,7 @@ DayPlan? _decode(String plan) {
 }
 
 /// Whether [record] shows an answer: a session day for the days missed (ASK-5).
-bool _answered(DayRecord record) => record.position > 0 || record.completed;
+bool _answered(DayRecord record) => record.answered;
 
 /// The latest local day before [today] whose `DayRecord` shows an answer, walking back from
 /// `store.lastDay()` (ASK-5); [today] when today's record exists or a later one does (the clock

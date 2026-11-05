@@ -5,8 +5,10 @@
 // probe_widgets_test.dart): it shows four buttons that hand on a clear, a hinted, a wrong or an
 // unscored draft. The cases: the section order and the "Due · 1 of 2" line, the attempt written
 // at answer time with the entry's `wasDue` and source (ASK-6), the no-credit card (PIN-3), the
-// Clear and Mastered cards (the fourth clear, and a Shaky item's regain), the repair re-ask
-// about 10 minutes later and not due (PIN-11), the skip that moves an entry to the end of its
+// Clear and Mastered cards (the fourth clear, and a Shaky item's regain), a wrong with no card
+// (straight on when the answer was on screen, else the probe held under one Next, with the
+// real probes) and its re-ask as the last entry of its section, not due (PIN-11, operator
+// ruling 2026-11-05), the skip that moves an entry to the end of its
 // section once, the soft stop at the target with Stop and Keep going, the end at the ceiling
 // with the rest left due (PIN-5), One more (10) inside the ceiling, the catch-up only when the
 // plan offers it and only on a tap (PIN-12), the stretch only under its conditions (PIN-6),
@@ -30,6 +32,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 
 Map<String, dynamic> _read(String path) =>
@@ -364,34 +367,135 @@ void main() {
   });
 
   testWidgets(
-      'a wrong shows Not this time and is re-asked about 10 minutes later in the same '
-      'session, as a not-due Repair (PIN-11)', (tester) async {
+      'a wrong shows no card: the probe stays under one Next, and the item is re-asked '
+      'as the last entry of its section, not due (operator ruling 2026-11-05, PIN-11)',
+      (tester) async {
     final rest = [
-      for (final w in words.skip(1).take(8))
+      for (final w in words.skip(1).take(4))
         entryOf(w, PlanSection.due, cost: 100)
     ];
+    final fresh = entryOf(words[5], PlanSection.newItems, cost: 100);
     final plan = planOf(
-        [entryOf(words[0], PlanSection.due, cost: 100), ...rest],
+        [entryOf(words[0], PlanSection.due, cost: 100), ...rest, fresh],
         target: 10000, ceiling: 20000);
     final h = await pumpSession(tester, plan);
     await h.tap('answer wrong');
-    expect(h.shows('Not this time'), isTrue);
-    expect(h.shows('It comes back in about 10 minutes, and again tomorrow.'),
-        isTrue);
+    // The fake probe's draft does not say the answer was on screen, so the probe stays.
+    expect(h.onScreen, words[0].id);
+    expect(h.shows('Due · 1 of 5'), isTrue);
+    for (final retired in [
+      'Not this time',
+      'Not quite',
+      'It comes back in about 10 minutes, and again tomorrow.',
+      'It comes back tomorrow.',
+    ]) {
+      expect(h.shows(retired), isFalse, reason: retired);
+    }
     await h.tap('Next');
-    // Six entries of 100 seconds come first: about 10 minutes of answers.
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < rest.length; i++) {
       expect(h.onScreen, rest[i].itemId);
       await h.answer(Grade.clear);
     }
+    // The re-ask is the last entry of Due, before New.
     expect(h.onScreen, words[0].id);
-    expect(h.shows('Repair · 1 of 1'), isTrue);
+    expect(h.shows('Due · 6 of 6'), isTrue);
+    final stored = DayPlan.decode((await h.store.day(today))!.plan)
+        .section(PlanSection.due);
+    expect(stored.last.itemId, words[0].id);
+    expect(stored.last.reask, isTrue);
     await h.answer(Grade.clear);
+    expect(h.onScreen, fresh.itemId);
     final onItem = await h.store.attempts(itemId: words[0].id);
     expect([for (final a in onItem) a.grade], [Grade.wrong, Grade.clear]);
     expect([for (final a in onItem) a.wasDue], [true, false]);
-    // A not-due clear starts no run of counting clears.
+    // The wrong scheduled it Again for another day, and a not-due clear starts no run of
+    // counting clears.
+    expect((await h.store.srs(words[0].id))!.dueDay, greaterThan(today));
     expect((await h.store.mastery(words[0].id))!.clearCount, 0);
+  });
+
+  group('the real probes after a wrong (operator ruling 2026-11-05)', () {
+    final grammar = _read('assets/lessons/jp_grammar.json');
+    final particle = catalog.ofKind(ItemKind.particle).first;
+
+    Future<Harness> pumpReal(WidgetTester tester, DayPlan plan) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = JpStoreMemory();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: plan,
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            probeBuilder: standardProbeBuilder(grammar: grammar),
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    testWidgets('Not yet on a word card moves straight on, with no card',
+        (tester) async {
+      final plan = planOf([
+        entryOf(words[0], PlanSection.due),
+        entryOf(words[1], PlanSection.due),
+      ]);
+      final h = await pumpReal(tester, plan);
+      expect(h.shows(words[0].probes.first.text), isTrue,
+          reason: 'the card shows the meaning');
+      await h.tap('Show me');
+      await h.tap('Not yet');
+      // The next word's card, with no result card and no Next between.
+      expect(h.shows('Due · 2 of 3'), isTrue);
+      expect(h.shows(words[1].probes.first.text), isTrue);
+      expect(h.shows('Next'), isFalse);
+      expect(h.shows('Not quite'), isFalse);
+      final onItem = await h.store.attempts(itemId: words[0].id);
+      expect([for (final a in onItem) a.grade], [Grade.wrong]);
+      // The re-ask is the last entry of Due.
+      final stored = DayPlan.decode((await h.store.day(today))!.plan);
+      expect(stored.section(PlanSection.due).last.itemId, words[0].id);
+      expect(stored.section(PlanSection.due).last.reask, isTrue);
+    });
+
+    testWidgets('Show answer shows the full answer and one Next',
+        (tester) async {
+      final plan = planOf([
+        entryOf(particle, PlanSection.due),
+        entryOf(words[1], PlanSection.due),
+      ]);
+      final h = await pumpReal(tester, plan);
+      final probe = particle.scoredProbes.first;
+      await h.tap('Show answer');
+      final (before, filled, after) = fillBlank(probe.text, probe.answer);
+      expect(h.shows('$before$filled$after'), isTrue,
+          reason: 'the prompt with the missing part filled in');
+      expect(h.shows('Next'), isTrue);
+      expect(h.shows('Not this time'), isFalse);
+      // Still the particle, under its line from before the re-ask, until Next.
+      expect(h.shows('Due · 1 of 2'), isTrue);
+      await h.tap('Next');
+      expect(h.shows('Due · 2 of 3'), isTrue);
+      expect(h.shows(words[1].probes.first.text), isTrue);
+    });
+
+    testWidgets('a wrong typed answer shows both answers under one Next',
+        (tester) async {
+      final plan = planOf([entryOf(particle, PlanSection.due)]);
+      final h = await pumpReal(tester, plan);
+      final probe = particle.scoredProbes.first;
+      await tester.enterText(find.byType(TextField), 'を');
+      await h.tap('Check');
+      final (before, filled, after) = fillBlank(probe.text, probe.answer);
+      expect(h.shows('Your answer: を'), isTrue);
+      expect(h.shows('$before$filled$after'), isTrue);
+      expect(h.shows('Next'), isTrue);
+    });
   });
 
   group('a skip (unscored)', () {
@@ -420,8 +524,7 @@ void main() {
       await h.answer(Grade.clear);
       expect(h.shows('Done for today'), isTrue);
       // The skip is an answer on the end card; it is none of the three listed counts.
-      expect(h.shows('5 answered · 4 clear · 0 with help · 0 not this time'),
-          isTrue);
+      expect(h.shows('5 answered · 4 clear · 0 with help · 0 missed'), isTrue);
       final onItem = await h.store.attempts(itemId: words[0].id);
       expect([for (final a in onItem) a.grade], [Grade.unscored, Grade.clear]);
       expect((await h.store.mastery(words[0].id))!.clearCount, 1);
@@ -443,8 +546,7 @@ void main() {
       expect(h.onScreen, words[1].id, reason: 'a requeued entry stays put');
       await h.answer(Grade.unscored);
       expect(h.shows('Done for today'), isTrue);
-      expect(h.shows('4 answered · 0 clear · 0 with help · 0 not this time'),
-          isTrue);
+      expect(h.shows('4 answered · 0 clear · 0 with help · 0 missed'), isTrue);
       final record = await h.store.day(today);
       expect(record!.position, 2);
       expect(
@@ -501,8 +603,7 @@ void main() {
     expect(h.shows('About 15 minutes'), isTrue);
     await h.tap('Stop');
     expect(h.shows('Done for today'), isTrue);
-    expect(h.shows('15 answered · 15 clear · 0 with help · 0 not this time'),
-        isTrue);
+    expect(h.shows('15 answered · 15 clear · 0 with help · 0 missed'), isTrue);
     expect((await h.store.day(today))!.completed, isTrue);
     // One more runs at most 10 entries, and never past the ceiling (5 fit: 900 + 5 x 60).
     await h.tap('One more (10)');
@@ -817,8 +918,7 @@ void main() {
       expect(h.onScreen, entries[9].itemId);
       await h.answer(Grade.clear);
       expect(h.shows('Done for today'), isTrue);
-      expect(h.shows('10 answered · 8 clear · 1 with help · 1 not this time'),
-          isTrue);
+      expect(h.shows('10 answered · 8 clear · 1 with help · 1 missed'), isTrue);
       expect(h.shows('Mastered today'), isTrue);
       expect(h.shows(words[30].title), isTrue);
       expect(h.shows(words[31].title), isFalse);
