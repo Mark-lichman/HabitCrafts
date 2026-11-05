@@ -335,9 +335,9 @@ Start.
    (`plan_builder.dart`).
 6. The end card offers the stretch only when repairs and due items are done, the backlog before
    the session was under the gate, no day was missed, and the ceiling leaves room. It offers
-   Catch up only when the day's plan was cut at the ceiling, the session ran through it or
-   reached the ceiling, and the backlog left over is still above the gate. Neither runs without
-   a tap.
+   Catch up only when the day's plan was cut at its fill limit (the ceiling less the repair
+   slot), the session finished that plan or reached the ceiling, and the backlog left over is
+   still above the gate. Neither runs without a tap.
 7. The `kClearsToMaster`-th qualifying clear shows the Mastered card, and only when the whole
    rule in `mastery_rule.dart` holds. A Mastered item keeps a due date.
 8. A launch after a break opens Welcome back with New paused. No item's schedule or mastery

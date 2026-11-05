@@ -286,9 +286,10 @@ opt-in offers, none of which runs on its own:
 
 - **One more** (`kOneMoreBlock` more, in `session_widget.dart`): only while the next item fits
   inside the ceiling.
-- **Catch up** (`kCatchUpBlock` more): past the ceiling, only when the day's plan was cut at the
-  ceiling, the session ran through it or reached the ceiling, and the backlog left over is still
-  above the gate, as in the first seeded weeks or after a break.
+- **Catch up** (`kCatchUpBlock` more): past the ceiling, only when the day's plan was cut at its
+  fill limit (the ceiling less the repair slot), the session finished that plan or reached the
+  ceiling, and the backlog left over is still above the gate, as in the first seeded weeks or
+  after a break.
 - **The stretch** (`kStretchNew` more new items): only when repairs and due items are done, the
   backlog before the session was under the gate, no day was missed, and the ceiling leaves room.
   The stretch is never forced.
