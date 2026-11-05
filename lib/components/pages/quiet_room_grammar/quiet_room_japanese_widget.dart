@@ -20,7 +20,8 @@
 // screen the hub opened returns on a later day: without that, a finished day's end card
 // would stay up the next morning with no Start, and a return after a break would skip
 // Welcome back. A resume behind a pushed screen waits for that screen to return, so a
-// session under way across midnight keeps its plan and tomorrow's is built after it.
+// session under way across the 04:00 day change keeps its plan and tomorrow's is built
+// after it.
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
