@@ -16,6 +16,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
@@ -242,7 +243,12 @@ void main() {
       final due = (await store.srs(word.id))!.dueDay;
       expect(shows('Next review: ${dueLabel(due, today)}'), isTrue);
       expect(shows('Seen clear: 2 of ${word.probeCount}'), isTrue);
-      expect(showsPart('hint 1'), isTrue);
+      // Each history row: date, grade, hint level, probe, and whether it counted.
+      expect(shows(DateFormat('EEE d MMM').format(dateOfDay(today - 5))), isTrue);
+      expect(shows(DateFormat('EEE d MMM').format(dateOfDay(today - 12))), isTrue);
+      expect(showsPart('With a hint · hint 1 · Type the reading'), isTrue);
+      expect(showsPart('Clear · Type the reading'), isTrue);
+      expect(showsPart('Clear · Recall card'), isTrue);
       expect(find.textContaining('counted'), findsNWidgets(3));
       expect(find.textContaining('not counted'), findsOneWidget);
       expect(shows(kPracticeNow), isTrue);
@@ -364,6 +370,9 @@ void main() {
 
       await tapText(tester, kPracticeNow);
       await tapText(tester, 'answer wrong');
+      // The verdict title is Wrong, never the retired 'Not this time' (ruling of 2026-11-05).
+      expect(shows('Wrong'), isTrue);
+      expect(find.textContaining('Not this time'), findsNothing);
       expect(shows('It comes back tomorrow.'), isTrue);
 
       final written = (await store.attempts(itemId: word.id)).last;
@@ -372,6 +381,8 @@ void main() {
       expect((await store.mastery(word.id))!.clearCount, 0);
       await tapText(tester, 'Done');
       expect(shows('Learning · 0 of 4'), isTrue);
+      expect(showsPart('Wrong · early · Recall card'), isTrue);
+      expect(find.textContaining('Not this time'), findsNothing);
     });
 
     testWidgets('a New item stays New after an early clear', (tester) async {

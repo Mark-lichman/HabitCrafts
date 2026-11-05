@@ -224,7 +224,7 @@ String probeLabel(ItemDef item, String probeId) {
 String gradeLabel(Grade g) => switch (g) {
       Grade.clear => 'Clear',
       Grade.hinted => 'With a hint',
-      Grade.wrong => 'Not this time',
+      Grade.wrong => 'Wrong',
       Grade.unscored => 'Not scored',
       Grade.self => 'Marked as got it',
     };
@@ -708,7 +708,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             _line(t, 'No credit this time.'),
           ],
         Grade.wrong => [
-            _title(t, 'Not this time'),
+            _title(t, 'Wrong'),
             _line(t, 'It comes back tomorrow.'),
           ],
         Grade.unscored => [
