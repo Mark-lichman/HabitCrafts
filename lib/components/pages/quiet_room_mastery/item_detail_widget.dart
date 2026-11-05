@@ -2,8 +2,9 @@
 //
 // The item page (plan 2026-11-02, Task 24, End state 9). One mastery item, read from its own
 // attempts only (PIN-1):
-//   * the state pill, "<n> of 4 clears" (D16, probe_widgets.dart `probeStateLabel`), and the next review day (the FSRS due day, else the
-//     seeded one; an item with neither is not in the queue yet);
+//   * the state pill, "<n> of 4 clears" (D16, probe_widgets.dart `probeStateLabel`), and the
+//     next review day (the FSRS due day, else the seeded one; an item with neither is not in
+//     the queue yet);
 //   * the probes seen clear: the scored probes with at least one clear answer;
 //   * what remains to Mastered (the four clears, the 21-day final gap, the second question kind,
 //     the production clear and the transfer clause, as mastery_rule.dart counts them), or to
@@ -619,16 +620,19 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   }
 
   /// The item's probe. [held] keeps the answered probe on screen, in the same place in the
-  /// tree so it keeps its state (the answer it shows), and adds one Next under it.
+  /// tree so it keeps its state (the answer it shows), and adds one Next under it. `_index`
+  /// already moved past a held item (`_onAnswer`), so the header counts the held item at
+  /// `_index`, the asked one at `_index + 1`.
   Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
     final item = held ? _heldItem! : _items[_index];
+    final position = held ? _index : _index + 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
             _items.length == 1
                 ? 'Practice'
-                : 'Practice · ${_index + 1} of ${_items.length}',
+                : 'Practice · $position of ${_items.length}',
             style: qrText(t,
                 size: 13, weight: FontWeight.w600, color: t.inkMuted)),
         const SizedBox(height: QuietRoomMetrics.space8),

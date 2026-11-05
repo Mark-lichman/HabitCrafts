@@ -421,6 +421,46 @@ void main() {
       expect(showsPart('Missed · Recall card'), isTrue);
     });
 
+    testWidgets(
+        'a held wrong on item 1 of 2 keeps its own position in the header',
+        (tester) async {
+      // The topic page (Task 23) runs the session over many items. The index moves before
+      // the held phase starts, so the header must count the held item, not the next one.
+      final store = JpStoreMemory();
+      final words = catalog.ofKind(ItemKind.word).take(2).toList();
+      tester.view.physicalSize = const Size(1000, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        home: PracticeSessionWidget(
+          items: words,
+          store: store,
+          catalog: catalog,
+          clock: FixedClock(at(today)),
+          probeBuilder: fakeProbe,
+        ),
+      ));
+      await settle(tester);
+      expect(shows('Practice · 1 of 2'), isTrue);
+      expect(shows('probe ${words[0].id}'), isTrue);
+
+      await tapText(tester, 'answer wrong');
+      expect(shows('Practice · 1 of 2'), isTrue,
+          reason: 'the held probe is still item 1');
+      expect(shows('Practice · 2 of 2'), isFalse);
+      expect(shows('probe ${words[0].id}'), isTrue);
+      expect(find.text('Next'), findsOneWidget);
+
+      await tapText(tester, 'Next');
+      expect(shows('Practice · 2 of 2'), isTrue);
+      expect(shows('probe ${words[1].id}'), isTrue);
+
+      await tapText(tester, 'answer wrong');
+      expect(shows('Practice · 2 of 2'), isTrue,
+          reason: 'a held wrong on the last item never reads 3 of 2');
+      expect(find.text('Next'), findsOneWidget);
+    });
+
     testWidgets('a New item stays New after an early clear', (tester) async {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
