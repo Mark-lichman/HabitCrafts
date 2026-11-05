@@ -377,6 +377,25 @@ void main() {
     });
 
     test(
+        'a wrong on a New entry is re-asked as the last New entry, not due '
+        '(operator ruling 2026-11-05)', () async {
+      // An empty store on day 300: no repair, due or keep-sharp, so the plan is New only.
+      final p = await plan(JpStoreMemory(), 300);
+      final fresh = p.section(PlanSection.newItems);
+      expect(fresh, isNotEmpty);
+      final first =
+          p.entries.indexWhere((e) => e.section == PlanSection.newItems);
+      final after = p.afterWrong(first);
+      final mine = after.section(PlanSection.newItems);
+      expect(mine.length, fresh.length + 1);
+      expect(mine.last.reask, isTrue);
+      expect(mine.last.itemId, p.entries[first].itemId);
+      expect(identical(after.entries.last, mine.last), isTrue);
+      expect(mine.last.wasDue, isFalse);
+      expect(mine.last.source, Source.review);
+    });
+
+    test(
         'the hard stop holds on repairs: a wrong past the fill is left for Due',
         () async {
       // Three words of lesson 5 wrong yesterday, against a ceiling of the repair slot plus
