@@ -6,8 +6,10 @@
 // state and a pill; a topic page shows its counts, its items with state and next due, Related
 // topics, and one loud Practice this topic; Practice this topic asks the due items first and
 // writes early answers per PIN-14 (a clear changes nothing, a wrong counts); a row opens the
-// item page; and nav.dart registers the Topics, topic page and item page routes. A fake probe
-// builder stands in for the probe widgets, as in item_detail_test.dart.
+// item page; a query past kSearchMax ends with a line that says the list is cut; the app
+// router resolves the Topics, topic page and item page routes by name with their query keys;
+// and under a router a topic row pushes the topic route with its id. A fake probe builder
+// stands in for the probe widgets, as in item_detail_test.dart.
 
 import 'dart:convert';
 import 'dart:io';
@@ -22,6 +24,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show debugSetSharedJpStore;
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart'
     show dueLabel;
@@ -29,6 +33,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.d
 import 'package:habit_craft/components/pages/quiet_room_mastery/topic_index.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/topic_page_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/topics_widget.dart';
+import 'package:habit_craft/flutter_flow/nav/nav.dart';
 
 import 'jp_screen_harness.dart' show holdHttpRequests;
 
@@ -215,6 +220,27 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets('a query past kSearchMax lists the first kSearchMax and says so',
+        (tester) async {
+      // A single letter is a substring of many English glosses.
+      const query = 'a';
+      final index = TopicIndex(catalog: catalog, grammar: grammar, today: today);
+      final all = index.search(query);
+      expect(all.length, greaterThan(kSearchMax),
+          reason: 'the query must overflow the list');
+      await pumpTopics(tester, JpStoreMemory());
+      await tester.enterText(find.byType(TextField), query);
+      await settle(tester);
+      expect(find.text(searchCutLine(all.length)), findsOneWidget);
+      final rows = find.byType(TopicListRow, skipOffstage: false);
+      expect(rows, findsNWidgets(kSearchMax));
+
+      // A narrow query is whole and has no such line.
+      await tester.enterText(find.byType(TextField), 'book');
+      await settle(tester);
+      expect(find.textContaining('Showing the first'), findsNothing);
+    });
+
     testWidgets('a search result row opens the item page', (tester) async {
       await pumpTopics(tester, JpStoreMemory());
       await tester.enterText(find.byType(TextField), 'book');
@@ -300,6 +326,12 @@ void main() {
       await tapKey(tester, 'related-group.1');
       await settle(tester);
       expect(shows('Group 1 verbs'), isTrue);
+      // The row's title alone would show on the form.te page too: the pushed page is the proof.
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is TopicPageWidget && w.topicId == 'group.1',
+              skipOffstage: false),
+          findsOneWidget);
     });
 
     testWidgets('an item row opens the item page', (tester) async {
@@ -391,16 +423,57 @@ void main() {
   });
 
   test('nav.dart registers the Topics, topic page and item page routes', () {
-    final nav = File('lib/flutter_flow/nav/nav.dart').readAsStringSync();
-    for (final route in [
-      'QuietRoomTopicsWidget.routeName',
-      'TopicPageWidget.routeName',
-      'ItemDetailWidget.routeName',
-    ]) {
-      expect(nav, contains('name: $route'), reason: route);
-    }
+    final router = createRouter(AppStateNotifier.instance);
+    addTearDown(router.dispose);
+    expect(router.namedLocation(QuietRoomTopicsWidget.routeName),
+        '/quietRoomTopics');
+    expect(
+        router.namedLocation(TopicPageWidget.routeName,
+            queryParameters: {'topic': 'form.te'}),
+        '/quietRoomTopic?topic=form.te');
+    expect(
+        router.namedLocation(ItemDetailWidget.routeName,
+            queryParameters: {'item': 'L02_00'}),
+        '/quietRoomItem?item=L02_00');
     expect(QuietRoomTopicsWidget.routePath, '/quietRoomTopics');
     expect(TopicPageWidget.routePath, '/quietRoomTopic');
     expect(ItemDetailWidget.routePath, '/quietRoomItem');
+  });
+
+  testWidgets(
+      'under the app router a topic row pushes the topic route with its id',
+      (tester) async {
+    // No injected store: the screen uses the shared one, so the row opens by route name.
+    debugSetSharedJpStore(JpStoreMemory());
+    addTearDown(() => debugSetSharedJpStore(null));
+    bigView(tester);
+    String? pushed;
+    final router = GoRouter(routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => QuietRoomTopicsWidget(
+          catalog: catalog,
+          grammar: grammar,
+          clock: FixedClock(at(today)),
+          probeBuilder: fakeProbe,
+        ),
+      ),
+      GoRoute(
+        name: TopicPageWidget.routeName,
+        path: TopicPageWidget.routePath,
+        builder: (_, state) {
+          pushed = state.uri.queryParameters['topic'];
+          return const Text('the topic page');
+        },
+      ),
+    ]);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await settle(tester);
+
+    await tapKey(tester, 'topic-use.condition');
+    await settle(tester);
+    expect(find.text('the topic page'), findsOneWidget);
+    expect(pushed, 'use.condition');
   });
 }

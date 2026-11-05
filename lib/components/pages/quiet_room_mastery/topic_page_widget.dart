@@ -93,8 +93,8 @@ List<String> practiceOrder(TopicIndex index, Topic topic) {
   return [for (final d in due) d.$1, ...rest];
 }
 
-/// The static topics that share items with [topic], most shared first, then in index order;
-/// [topic] itself left out.
+/// The static topics that share items with [topic], most shared first, then in the order
+/// first met while walking the topic's items; [topic] itself left out.
 List<Topic> relatedTopics(TopicIndex index, Topic topic,
     {int max = kRelatedMax}) {
   final shared = <String, int>{};

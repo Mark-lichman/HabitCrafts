@@ -5,7 +5,8 @@
 //   * One search box over the topic index (topic_index.dart `search`): a use, a pattern, a
 //     word, an English meaning, a conjugation form or a counter. While a query is typed, the
 //     results replace the browse sets: an item row shows its own state pill and its next
-//     review; a topic row shows its counts by state and its roll-up pill.
+//     review; a topic row shows its counts by state and its roll-up pill. A query with more
+//     than kSearchMax hits lists the first kSearchMax and ends with a line that says so.
 //   * The browse sets (By use, Verb forms, Verb groups, Counters and tables, Words by lesson,
 //     Due today, Shaky, Not yet known) as one row of choices; the chosen set lists its topics.
 //   * A topic row opens the topic page (topic_page_widget.dart), where Practice this topic
@@ -35,8 +36,13 @@ const String kTopicsSearchHint =
 /// The results line when a query finds nothing.
 const String kNoResultsLine = 'Nothing matches that yet.';
 
-/// The most results the screen lists for one query.
+/// The most results the screen lists for one query. Past it, the list ends with
+/// [searchCutLine], so a broad query never looks complete.
 const int kSearchMax = 60;
+
+/// The last row of a cut list: [total] hits, the first [kSearchMax] shown.
+String searchCutLine(int total) =>
+    'Showing the first $kSearchMax of $total. Type more to narrow the search.';
 
 class QuietRoomTopicsWidget extends StatefulWidget {
   const QuietRoomTopicsWidget({
@@ -196,15 +202,15 @@ class _QuietRoomTopicsWidgetState extends State<QuietRoomTopicsWidget> {
 
   List<Widget Function()> _results(
       QuietRoomTokens t, TopicIndex index, String query) {
-    final hits = index.search(query).take(kSearchMax).toList();
-    if (hits.isEmpty) {
+    final all = index.search(query);
+    if (all.isEmpty) {
       return [
         () =>
             Text(kNoResultsLine, style: qrText(t, size: 14, color: t.inkMuted)),
       ];
     }
     return [
-      for (final h in hits)
+      for (final h in all.take(kSearchMax))
         if (h.topic != null)
           () => _topicRow(h.topic!)
         else
@@ -215,6 +221,12 @@ class _QuietRoomTopicsWidgetState extends State<QuietRoomTopicsWidget> {
                 pill: ProbeStatePill(state: index.stateOf(h.itemId!)),
                 onTap: () => _openItem(h.itemId!),
               ),
+      if (all.length > kSearchMax)
+        () => Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(searchCutLine(all.length),
+                  style: qrText(t, size: 13, color: t.inkMuted)),
+            ),
     ];
   }
 
