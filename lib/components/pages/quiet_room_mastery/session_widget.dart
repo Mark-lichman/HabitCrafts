@@ -31,6 +31,15 @@
 // so a relaunch resumes where the session stopped (relaunch.dart); a position above 0 also
 // makes the day a session day for the days missed (ASK-5). The end marks the record completed.
 //
+// A resume carries the budget on, never restarts it (PIN-5): the running estimate is rebuilt
+// from the stored plan's entries before the position (the same entries the live estimate
+// summed), so the soft stop and the ceiling fall where they would have without the relaunch.
+// A catch-up block found in the stored plan was taken: its ceiling lift and its end come back
+// too. The end card's counts come from the day's review-session attempts in the store, and
+// the mastered-today list from the mastery states dated today, so a resume shows the day,
+// not the sitting. An offer whose entries are already in the plan was taken, so it never
+// shows twice.
+//
 // The end card is quiet: the day's counts, the items mastered today, the 14 dots over the days
 // whose session completed (`recentDays`), and up to three offers, each only on a tap:
 //   * One more (10): the next ten planned entries, while the ceiling leaves room;
@@ -63,6 +72,10 @@ const int kOneMoreBlock = 10;
 
 /// Days of dots on the end card.
 const int kEndCardDots = 14;
+
+/// The prefix of a session id the session makes for itself. A resume counts the day's
+/// attempts under this prefix on the end card.
+const String kReviewSessionPrefix = 'review-';
 
 /// The learner-facing name of a plan section.
 String sectionLabel(PlanSection s) => switch (s) {
@@ -205,12 +218,16 @@ class SessionWidget extends StatefulWidget {
   final Clock clock;
   final ItemCatalog catalog;
 
-  /// The entry to start on: the stored `DayRecord.position` on a resume.
+  /// The entry to start on: the stored `DayRecord.position` on a resume. The budget spent
+  /// before it is the cost of the plan's entries before it.
   final int position;
 
   /// Null loads [standardProbeBuilder] over the shipped grammar.
   final SessionProbeBuilder? probeBuilder;
   final Scheduler scheduler;
+
+  /// Null makes an id under [kReviewSessionPrefix]. An id outside the prefix is left out of
+  /// a resume's end-card counts.
   final String? sessionId;
 
   /// Called by the end card's Done; null pops the route.
@@ -234,8 +251,6 @@ class _SessionWidgetState extends State<SessionWidget> {
   /// Seconds the catch-up block lifts the ceiling by, once taken (PIN-12).
   int _lift = 0;
   bool _softStopSeen = false;
-  bool _catchUpTaken = false;
-  bool _stretchTaken = false;
   bool _completed = false;
 
   /// One more (10) ends again at this index.
@@ -268,16 +283,81 @@ class _SessionWidgetState extends State<SessionWidget> {
     super.initState();
     _plan = widget.plan;
     _index = widget.position.clamp(0, _plan.entries.length);
+    _spent = _sumCost(_plan.entries.take(_index).where(_askable));
+    _resumeCatchUp();
     _sessionId = widget.sessionId ??
-        'review-${_plan.day}-${widget.clock.now().toUtc().microsecondsSinceEpoch}';
+        '$kReviewSessionPrefix${_plan.day}-${widget.clock.now().toUtc().microsecondsSinceEpoch}';
     _start();
   }
 
   Future<void> _start() async {
     _builder = widget.probeBuilder ??
         standardProbeBuilder(grammar: await JpGrammarData.load());
+    await _loadDayTally();
     if (!mounted) return;
     await _next();
+  }
+
+  /// Whether the entry can be asked: the catalog knows the item and it has a scored probe.
+  bool _askable(QueueEntry e) {
+    final item = widget.catalog.byId(e.itemId);
+    return item != null && item.scoredProbes.isNotEmpty;
+  }
+
+  int _sumCost(Iterable<QueueEntry> entries) =>
+      entries.fold(0, (sum, e) => sum + e.costSeconds);
+
+  /// The entries of [more] not already in the plan.
+  List<QueueEntry> _unplanned(List<QueueEntry> more) {
+    final planned = {for (final e in _plan.entries) e.itemId};
+    return [
+      for (final e in more)
+        if (!planned.contains(e.itemId)) e
+    ];
+  }
+
+  /// Whether any entry of [more] is in the plan: an offer taken.
+  bool _anyPlanned(List<QueueEntry> more) =>
+      more.length != _unplanned(more).length;
+
+  /// A catch-up block in the stored plan was taken (PIN-12): the ceiling lift and the block's
+  /// end come back as `_catchUp` set them, from the entries before the block.
+  void _resumeCatchUp() {
+    final ids = {for (final e in _plan.catchUpEntries) e.itemId};
+    final entries = _plan.entries;
+    final first = entries.indexWhere((e) => ids.contains(e.itemId));
+    if (first < 0) return;
+    final block = [
+      for (final e in entries)
+        if (ids.contains(e.itemId)) e
+    ];
+    final before = _sumCost(entries.take(first).where(_askable));
+    _liftCeiling(spent: before, block: block);
+    _stopAt = first + block.length;
+  }
+
+  /// Moves the ceiling by the block's cost, from where the session stands.
+  void _liftCeiling({required int spent, required List<QueueEntry> block}) {
+    final from = spent > _ceiling ? spent : _ceiling;
+    _lift = from - _plan.ceilingSeconds + _sumCost(block);
+  }
+
+  /// The end card's day: the day's answers written under [kReviewSessionPrefix], and the
+  /// items whose mastery is dated today. Empty on a first start.
+  Future<void> _loadDayTally() async {
+    final day = _plan.day;
+    for (final a in await widget.store.attempts()) {
+      if (a.localDay != day) continue;
+      if (!a.sessionId.startsWith(kReviewSessionPrefix)) continue;
+      _counts[a.grade] = (_counts[a.grade] ?? 0) + 1;
+    }
+    for (final m in (await widget.store.allMastery()).values) {
+      if (m.masteredOn != day) continue;
+      final title = widget.catalog.byId(m.itemId)?.title;
+      if (title != null && !_masteredToday.contains(title)) {
+        _masteredToday.add(title);
+      }
+    }
   }
 
   /// Shows the entry at [_index], the soft stop, or the end.
@@ -295,12 +375,12 @@ class _SessionWidgetState extends State<SessionWidget> {
       setState(() => _phase = _Phase.softStop);
       return;
     }
-    final item = widget.catalog.byId(_entry.itemId);
-    if (item == null || item.scoredProbes.isEmpty) {
+    if (!_askable(_entry)) {
       // An id this catalog no longer knows: nothing to ask, so it stays due.
       _index++;
       return _next();
     }
+    final item = widget.catalog.byId(_entry.itemId)!;
     final state =
         await widget.store.mastery(item.id) ?? MasteryState.initial(item.id);
     final answered = (await widget.store.attempts(itemId: item.id)).length;
@@ -373,7 +453,9 @@ class _SessionWidgetState extends State<SessionWidget> {
     final justMastered = mastery != null &&
         mastery.status == MasteryStatus.mastered &&
         before.status != MasteryStatus.mastered;
-    if (justMastered) _masteredToday.add(item.title);
+    if (justMastered && !_masteredToday.contains(item.title)) {
+      _masteredToday.add(item.title);
+    }
     final srs = outcome?.srs;
     _spent += entry.costSeconds;
     _plan = next;
@@ -441,19 +523,16 @@ class _SessionWidgetState extends State<SessionWidget> {
 
   bool get _catchUpOffered =>
       _plan.catchUpOffer &&
-      !_catchUpTaken &&
       _plan.catchUpEntries.isNotEmpty &&
+      !_anyPlanned(_plan.catchUpEntries) &&
       (_end == SessionEnd.ceiling || _end == SessionEnd.finished);
-
-  int get _stretchSeconds =>
-      _plan.stretchEntries.fold(0, (sum, e) => sum + e.costSeconds);
 
   bool get _stretchOffered =>
       _plan.stretchOffer &&
-      !_stretchTaken &&
       _plan.stretchEntries.isNotEmpty &&
+      !_anyPlanned(_plan.stretchEntries) &&
       _index >= _plan.entries.length &&
-      _spent + _stretchSeconds <= _ceiling;
+      _spent + _sumCost(_plan.stretchEntries) <= _ceiling;
 
   void _oneMore() {
     _stopAt = _index + kOneMoreBlock;
@@ -463,11 +542,7 @@ class _SessionWidgetState extends State<SessionWidget> {
   /// Puts [more] next, skipping items already planned, and runs them. With [only], the
   /// session ends again after them.
   Future<void> _insert(List<QueueEntry> more, {bool only = false}) async {
-    final planned = {for (final e in _plan.entries) e.itemId};
-    final add = [
-      for (final e in more)
-        if (!planned.contains(e.itemId)) e
-    ];
+    final add = _unplanned(more);
     _plan = DayPlan.fromJson({
       ..._plan.toJson(),
       'entries': [
@@ -481,22 +556,16 @@ class _SessionWidgetState extends State<SessionWidget> {
     _keepGoing();
   }
 
-  /// The opt-in block past the ceiling (PIN-12): the ceiling moves by the block's cost, from
-  /// where the session stands, and the session ends again after the block.
+  /// The opt-in block past the ceiling (PIN-12): the ceiling moves by the cost of the entries
+  /// the block adds, from where the session stands, and the session ends again after them.
   void _catchUp() {
-    _catchUpTaken = true;
-    final block = _plan.catchUpEntries;
-    final cost = block.fold<int>(0, (sum, e) => sum + e.costSeconds);
-    final from = _spent > _ceiling ? _spent : _ceiling;
-    _lift = from - _plan.ceilingSeconds + cost;
+    final block = _unplanned(_plan.catchUpEntries);
+    _liftCeiling(spent: _spent, block: block);
     _insert(block, only: true);
   }
 
   /// The "4 more new" stretch (PIN-6), inside the ceiling.
-  void _stretch() {
-    _stretchTaken = true;
-    _insert(_plan.stretchEntries);
-  }
+  void _stretch() => _insert(_plan.stretchEntries);
 
   void _close() {
     final onClose = widget.onClose;

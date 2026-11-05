@@ -8,8 +8,9 @@
 // Clear and Mastered cards, the repair re-ask about 10 minutes later and not due (PIN-11), the
 // soft stop at the target with Stop and Keep going, the end at the ceiling with the rest left
 // due (PIN-5), One more (10) inside the ceiling, the catch-up only when the plan offers it and
-// only on a tap (PIN-12), the stretch only under its conditions (PIN-6), and the 14 dots over
-// the days whose session completed.
+// only on a tap (PIN-12), the stretch only under its conditions (PIN-6), the 14 dots over
+// the days whose session completed, and a resume (`position`) that carries the estimate, the
+// day's counts, the mastered-today list and a taken offer on instead of restarting them.
 
 import 'dart:convert';
 import 'dart:io';
@@ -133,13 +134,36 @@ class Harness {
   }
 }
 
+/// An answer on [item] on [day] with [grade], under [sessionId].
+Attempt attemptOf(ItemDef item, int day, Grade grade,
+    {String sessionId = '${kReviewSessionPrefix}earlier'}) {
+  final p = item.scoredProbes.first;
+  return Attempt(
+    itemId: item.id,
+    probeId: p.id,
+    template: p.template,
+    production: p.production,
+    selfGraded: p.selfGraded,
+    atUtc: at(day).toUtc(),
+    localDay: day,
+    grade: grade,
+    rating: fsrsRatingFor(grade),
+    hintLevel: grade == Grade.hinted ? 1 : 0,
+    wasDue: true,
+    source: Source.review,
+    sessionId: sessionId,
+  );
+}
+
+/// Pumps the session over [plan]; [position] above 0 is a resume of the stored day.
 Future<Harness> pumpSession(WidgetTester tester, DayPlan plan,
-    {JpStoreMemory? store}) async {
+    {JpStoreMemory? store, int position = 0}) async {
   tester.view.physicalSize = const Size(900, 2400);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
   final s = store ?? JpStoreMemory();
-  await s.putDay(DayRecord(day: today, plan: plan.encode()));
+  await s
+      .putDay(DayRecord(day: today, plan: plan.encode(), position: position));
   await tester.pumpWidget(MaterialApp(
     home: Scaffold(
       body: SessionWidget(
@@ -147,6 +171,7 @@ Future<Harness> pumpSession(WidgetTester tester, DayPlan plan,
         store: s,
         clock: FixedClock(at(today)),
         catalog: catalog,
+        position: position,
         probeBuilder: fakeProbe,
       ),
     ),
@@ -502,6 +527,180 @@ void main() {
     await h.answer(Grade.clear);
     // Today, yesterday, two and five days ago; twenty days ago is outside the 14.
     expect(h.shows('4 of 14 days'), isTrue);
+  });
+
+  group('a resume carries the day on (PIN-5)', () {
+    testWidgets(
+        'at 900 seconds answered, the soft stop shows before the first resumed entry, and '
+        'the ceiling still ends the session', (tester) async {
+      final entries = [
+        for (final w in words.take(15)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final h = await pumpSession(tester, planOf(entries), position: 9);
+      expect(h.onScreen, isNull, reason: 'no entry before the soft stop');
+      expect(h.shows('About 15 minutes'), isTrue);
+      await h.tap('Keep going');
+      for (var i = 0; i < 3; i++) {
+        expect(h.onScreen, entries[9 + i].itemId);
+        await h.answer(Grade.clear);
+      }
+      // 900 before the resume and 300 since: the next entry would pass the ceiling.
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(h.shows('The rest is due tomorrow.'), isTrue);
+      expect(await h.store.attempts(), hasLength(3));
+      final record = await h.store.day(today);
+      expect(record!.completed, isTrue);
+      expect(record.position, 12);
+    });
+
+    testWidgets(
+        'at 1200 seconds answered, the session ends on the ceiling card',
+        (tester) async {
+      final entries = [
+        for (final w in words.take(13)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final h = await pumpSession(tester, planOf(entries), position: 12);
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(h.shows('The rest is due tomorrow.'), isTrue);
+      expect(h.shows('One more (10)'), isFalse);
+      expect(await h.store.attempts(), isEmpty);
+      final record = await h.store.day(today);
+      expect(record!.completed, isTrue);
+      expect(record.position, 12);
+    });
+
+    testWidgets('wrong answers after a resume re-ask inside the ceiling only',
+        (tester) async {
+      final entries = [
+        for (final w in words.take(12)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final h = await pumpSession(tester, planOf(entries), position: 10);
+      await h.tap('Keep going');
+      // 1000 before the resume: two entries fit, and the wrong's re-ask does not.
+      await h.answer(Grade.wrong);
+      await h.answer(Grade.clear);
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(await h.store.attempts(itemId: entries[10].itemId), hasLength(1));
+    });
+
+    testWidgets(
+        'the end card counts the day\'s review answers and lists the items mastered today',
+        (tester) async {
+      final entries = [
+        for (final w in words.take(10)) entryOf(w, PlanSection.due, cost: 60)
+      ];
+      final store = JpStoreMemory();
+      // Nine review answers today before the relaunch, one from a drill screen today and
+      // one review answer yesterday: only the nine count.
+      for (var i = 0; i < 9; i++) {
+        await store.appendAttempt(attemptOf(words[i], today,
+            i == 7 ? Grade.hinted : (i == 8 ? Grade.wrong : Grade.clear)));
+      }
+      await store.appendAttempt(
+          attemptOf(words[20], today, Grade.clear, sessionId: 'drill-1'));
+      await store.appendAttempt(attemptOf(words[21], today - 1, Grade.clear));
+      await store.putMastery(MasteryState(
+          itemId: words[30].id,
+          status: MasteryStatus.mastered,
+          masteredOn: today));
+      await store.putMastery(MasteryState(
+          itemId: words[31].id,
+          status: MasteryStatus.mastered,
+          masteredOn: today - 1));
+      final h =
+          await pumpSession(tester, planOf(entries), store: store, position: 9);
+      expect(h.onScreen, entries[9].itemId);
+      await h.answer(Grade.clear);
+      expect(h.shows('Done for today'), isTrue);
+      expect(h.shows('10 answered · 8 clear · 1 with help · 1 not this time'),
+          isTrue);
+      expect(h.shows('Mastered today'), isTrue);
+      expect(h.shows(words[30].title), isTrue);
+      expect(h.shows(words[31].title), isFalse);
+    });
+
+    testWidgets('a stretch already in the stored plan is not offered again',
+        (tester) async {
+      final base = [for (final w in words.take(3)) entryOf(w, PlanSection.due)];
+      final stretch = [
+        for (final w in words.skip(3).take(kStretchNew))
+          entryOf(w, PlanSection.newItems)
+      ];
+      // The plan as `4 more new` left it: the four after the base, all answered.
+      final h = await pumpSession(
+          tester,
+          planOf([...base, ...stretch],
+              stretchOffer: true, stretchEntries: stretch),
+          position: base.length + stretch.length);
+      expect(h.shows('Done for today'), isTrue);
+      expect(h.shows('4 more new'), isFalse);
+    });
+
+    testWidgets(
+        'a catch-up block in the stored plan keeps its lifted ceiling and is not offered '
+        'again', (tester) async {
+      final base = [
+        for (final w in words.take(13)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final block = [
+        for (final w in words.skip(13).take(10)) entryOf(w, PlanSection.due)
+      ];
+      // The plan as the tap left it: the block where the ceiling fell, three answered.
+      final plan = planOf([...base.take(12), ...block, base[12]],
+          catchUpOffer: true, catchUpEntries: block);
+      final h = await pumpSession(tester, plan, position: 15);
+      // 1230 seconds answered: the soft stop shows once on this sitting, then the block runs.
+      await h.tap('Keep going');
+      final asked = <String>[];
+      while (h.onScreen != null) {
+        asked.add(h.onScreen!);
+        await h.answer(Grade.clear);
+      }
+      expect(asked, [for (final e in block.skip(3)) e.itemId]);
+      expect(h.shows('Catch up: 10 more'), isFalse);
+      // The entry past the block stays due: the lifted ceiling covers the block only.
+      expect(h.shows('One more (10)'), isFalse);
+      expect(await h.store.attempts(itemId: base[12].itemId), isEmpty);
+    });
+
+    testWidgets(
+        'a resumed catch-up block ends after the block even with room under its ceiling',
+        (tester) async {
+      final base = [
+        for (final w in words.take(5)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final block = [
+        for (final w in words.skip(5).take(10)) entryOf(w, PlanSection.due)
+      ];
+      // The plan finished under the ceiling, then the tap added the block; two answered.
+      final h = await pumpSession(
+          tester,
+          planOf([...base, ...block],
+              catchUpOffer: true, catchUpEntries: block),
+          position: 7);
+      expect(h.onScreen, block[2].itemId);
+      // The wrong's re-ask lands after the block, so the block's end stops before it.
+      await h.answer(Grade.wrong);
+      var more = 0;
+      while (h.onScreen != null) {
+        await h.answer(Grade.clear);
+        more++;
+      }
+      expect(more, 7);
+      expect(h.shows('Done for today'), isTrue);
+      expect(await h.store.attempts(itemId: block[2].itemId), hasLength(1));
+      expect(h.shows('Catch up: 10 more'), isFalse);
+      // One more runs the re-ask under the lifted ceiling and finishes the plan: the
+      // catch-up, already in the plan, is still not offered again.
+      await h.tap('One more (10)');
+      expect(h.onScreen, block[2].itemId);
+      await h.answer(Grade.clear);
+      expect(h.shows('Done for today'), isTrue);
+      expect(h.shows('Catch up: 10 more'), isFalse);
+    });
   });
 
   test('the section line names the section and the place in it', () {
