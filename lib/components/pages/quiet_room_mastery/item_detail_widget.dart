@@ -2,7 +2,7 @@
 //
 // The item page (plan 2026-11-02, Task 24, End state 9). One mastery item, read from its own
 // attempts only (PIN-1):
-//   * the state pill with its n of 4 (D16) and the next review day (the FSRS due day, else the
+//   * the state pill, "<n> of 4 clears" (D16, probe_widgets.dart `probeStateLabel`), and the next review day (the FSRS due day, else the
 //     seeded one; an item with neither is not in the queue yet);
 //   * the probes seen clear: the scored probes with at least one clear answer;
 //   * what remains to Mastered (the four clears, the 21-day final gap, the second question kind,
@@ -11,8 +11,8 @@
 //   * the Say-it counts, which never count toward Mastered (D4);
 //   * "no production probe yet" where the item has no production probe (A8), and "one question
 //     kind only" where its scored probes share one template (PIN-15);
-//   * the attempt history, newest first: date, grade, hint level, probe, and whether the answer
-//     counted toward the four clears (or the regain);
+//   * the attempt history, newest first: date, grade (a wrong reads Missed, ASK-9), hint level,
+//     probe, and whether the answer counted toward the four clears (or the regain);
 //   * Practice now, a one-item [PracticeSessionWidget].
 //
 // [itemDetailOf] is the pure read the page shows; the state is `masteryFromAttempts` over the
@@ -23,7 +23,10 @@
 // an item whose due day has arrived is answered as a `review`; any other item, a New one
 // included, as `early`, where a clear, a hinted or a self answer changes nothing and a wrong
 // counts (due tomorrow, the count reset). It never writes the day's `DayRecord`, so practice
-// never moves today's session. The topic page (Task 23) runs it over a topic's items.
+// never moves today's session. It follows the session's wrong-answer rule (operator ruling
+// 2026-11-05, ASK-9): a wrong shows no result card. When the answer was already on screen
+// (`DrillAnswer.answerShown`), practice moves straight on; else the probe stays, showing the
+// answer, under one Next. The topic page (Task 23) runs it over a topic's items.
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
 // page, a lesson page).
@@ -224,7 +227,7 @@ String probeLabel(ItemDef item, String probeId) {
 String gradeLabel(Grade g) => switch (g) {
       Grade.clear => 'Clear',
       Grade.hinted => 'With a hint',
-      Grade.wrong => 'Wrong',
+      Grade.wrong => 'Missed',
       Grade.unscored => 'Not scored',
       Grade.self => 'Marked as got it',
     };
@@ -444,7 +447,8 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
   }
 }
 
-enum _PracticePhase { loading, asking, saving, verdict, end }
+/// `held`: a wrong whose answer was not on screen; the probe stays, showing it, under Next.
+enum _PracticePhase { loading, asking, saving, verdict, held, end }
 
 /// Asks each of [items] once, in order, as practice outside the day's session (D23, PIN-14):
 /// a due item is answered as a review, any other as early practice. See the file comment.
@@ -491,6 +495,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   bool _lost = false;
   bool _justMastered = false;
   int? _interval;
+
+  /// The probe held on screen after a wrong.
+  ItemDef? _heldItem;
 
   @override
   void initState() {
@@ -551,6 +558,11 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
       }
     }
     if (!mounted) return;
+    // A saved wrong shows no card (ASK-9): straight on when the answer was already on
+    // screen, else the probe stays with the answer under one Next.
+    final wrong = written != null && written.grade == Grade.wrong;
+    final moveOn = wrong && d.answerShown;
+    final hold = wrong && !d.answerShown;
     setState(() {
       _written = written;
       _lost = written == null;
@@ -558,13 +570,21 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
           after.status == MasteryStatus.mastered &&
           before.status != MasteryStatus.mastered;
       _interval = interval;
+      _heldItem = hold ? item : null;
       _index++;
-      _phase = _PracticePhase.verdict;
+      _phase = moveOn
+          ? _PracticePhase.loading
+          : hold
+              ? _PracticePhase.held
+              : _PracticePhase.verdict;
     });
+    if (moveOn) await _show();
   }
 
   void _next() {
-    if (_phase != _PracticePhase.verdict) return;
+    if (_phase != _PracticePhase.verdict && _phase != _PracticePhase.held) {
+      return;
+    }
     setState(() => _phase = _PracticePhase.loading);
     _show();
   }
@@ -585,6 +605,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
       _PracticePhase.loading =>
         const Center(child: CircularProgressIndicator.adaptive()),
       _PracticePhase.asking || _PracticePhase.saving => _asking(context, t),
+      _PracticePhase.held => _asking(context, t, held: true),
       _PracticePhase.verdict => _verdictCard(t),
       _PracticePhase.end => _card(t, [
           _title(t, 'Practice done'),
@@ -597,8 +618,10 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
     );
   }
 
-  Widget _asking(BuildContext context, QuietRoomTokens t) {
-    final item = _items[_index];
+  /// The item's probe. [held] keeps the answered probe on screen, in the same place in the
+  /// tree so it keeps its state (the answer it shows), and adds one Next under it.
+  Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
+    final item = held ? _heldItem! : _items[_index];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -621,6 +644,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             ),
           ),
         ),
+        if (held) _action(t, 'Next', _next, primary: true),
       ],
     );
   }
@@ -707,16 +731,8 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             _title(t, 'Marked as got it'),
             _line(t, 'No credit this time.'),
           ],
-        // Practice now still shows a card on a wrong answer. The operator ruling of
-        // 2026-11-05 (a wrong answer shows no result card: the probe stays with the answer
-        // and one Next) names the session, session_widget.dart and probe_widgets.dart, not
-        // this widget. The task that executes that ruling decides whether this practice
-        // follows it. Until then the card stays, and the early-practice wrong test in
-        // test/item_detail_test.dart pins its title and line.
-        Grade.wrong => [
-            _title(t, 'Wrong'),
-            _line(t, 'It comes back tomorrow.'),
-          ],
+        // Never shown: a saved wrong moves on or holds its probe (`_onAnswer`, ASK-9).
+        Grade.wrong => [_title(t, 'Missed')],
         Grade.unscored => [
             _title(t, 'Not counted'),
             _line(t, 'Nothing was scored.'),

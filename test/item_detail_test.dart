@@ -76,23 +76,28 @@ Attempt answer(ItemDef item, int day, Grade grade,
 Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
     item: catalog.byId(a.itemId), scheduler: const FsrsScheduler());
 
-/// The fake probe: the item id and four answers.
+/// The fake probe: the item id, four answers and a wrong with the answer already shown.
 Widget fakeProbe(BuildContext context, SessionProbeRequest r) {
   final probe = r.item.scoredProbes.first;
-  DrillAnswer draft(Grade g) => DrillAnswer(
+  DrillAnswer draft(Grade g, {bool shown = false}) => DrillAnswer(
       itemId: r.item.id,
       probeId: probe.id,
       template: probe.template,
       production: probe.production,
       selfGraded: probe.selfGraded,
       grade: g,
-      hintLevel: g == Grade.hinted ? 1 : 0);
+      hintLevel: g == Grade.hinted ? 1 : 0,
+      answerShown: shown);
   return Column(children: [
     Text('probe ${r.item.id}'),
     for (final g in [Grade.clear, Grade.hinted, Grade.wrong, Grade.unscored])
       TextButton(
           onPressed: () => r.onAnswer(draft(g)),
           child: Text('answer ${g.name}')),
+    // A wrong whose answer was already on screen (a self-graded Missed it).
+    TextButton(
+        onPressed: () => r.onAnswer(draft(Grade.wrong, shown: true)),
+        child: const Text('answer shown wrong')),
   ]);
 }
 
@@ -239,13 +244,15 @@ void main() {
       await pumpItem(tester, store, word);
 
       expect(shows(word.title), isTrue);
-      expect(shows('Learning · 2 of 4'), isTrue);
+      expect(shows('2 of 4 clears'), isTrue);
       final due = (await store.srs(word.id))!.dueDay;
       expect(shows('Next review: ${dueLabel(due, today)}'), isTrue);
       expect(shows('Seen clear: 2 of ${word.probeCount}'), isTrue);
       // Each history row: date, grade, hint level, probe, and whether it counted.
-      expect(shows(DateFormat('EEE d MMM').format(dateOfDay(today - 5))), isTrue);
-      expect(shows(DateFormat('EEE d MMM').format(dateOfDay(today - 12))), isTrue);
+      expect(
+          shows(DateFormat('EEE d MMM').format(dateOfDay(today - 5))), isTrue);
+      expect(
+          shows(DateFormat('EEE d MMM').format(dateOfDay(today - 12))), isTrue);
       expect(showsPart('With a hint · hint 1 · Type the reading'), isTrue);
       expect(showsPart('Clear · Type the reading'), isTrue);
       expect(showsPart('Clear · Recall card'), isTrue);
@@ -261,7 +268,7 @@ void main() {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
       await pumpItem(tester, store, word);
-      expect(shows('New · 0 of 4'), isTrue);
+      expect(shows('0 of 4 clears'), isTrue);
       expect(shows(kNotQueuedLine), isTrue);
       expect(shows(kNoAnswersLine), isTrue);
     });
@@ -356,7 +363,7 @@ void main() {
 
       await tapText(tester, 'Done');
       expect(shows(kPracticeNow), isTrue, reason: 'back on the item page');
-      expect(shows('Learning · 1 of 4'), isTrue);
+      expect(shows('1 of 4 clears'), isTrue);
       expect(find.textContaining('not counted'), findsOneWidget);
     });
 
@@ -370,19 +377,48 @@ void main() {
 
       await tapText(tester, kPracticeNow);
       await tapText(tester, 'answer wrong');
-      // The verdict title is Wrong, never the retired 'Not this time' (ruling of 2026-11-05).
-      expect(shows('Wrong'), isTrue);
+      // A wrong shows no result card (ASK-9): the probe stays, showing its answer, under one
+      // Next. No verdict title, and never the retired 'Not this time'.
+      expect(shows('probe ${word.id}'), isTrue, reason: 'the probe stays');
+      expect(find.text('Next'), findsOneWidget);
+      expect(shows('Wrong'), isFalse);
+      expect(shows('It comes back tomorrow.'), isFalse);
       expect(find.textContaining('Not this time'), findsNothing);
-      expect(shows('It comes back tomorrow.'), isTrue);
 
       final written = (await store.attempts(itemId: word.id)).last;
       expect(written.source, Source.early);
       expect((await store.srs(word.id))!.dueDay, today + 1);
       expect((await store.mastery(word.id))!.clearCount, 0);
+
+      // A held probe takes no second answer.
+      await tester.tap(find.text('answer clear'));
+      await settle(tester);
+      expect((await store.attempts(itemId: word.id)).length, 2);
+
+      await tapText(tester, 'Next');
       await tapText(tester, 'Done');
-      expect(shows('Learning · 0 of 4'), isTrue);
-      expect(showsPart('Wrong · early · Recall card'), isTrue);
+      expect(shows('0 of 4 clears'), isTrue);
+      // The history labels a wrong answer Missed (ASK-9).
+      expect(showsPart('Missed · early · Recall card'), isTrue);
+      expect(find.textContaining('Wrong'), findsNothing);
       expect(find.textContaining('Not this time'), findsNothing);
+    });
+
+    testWidgets(
+        'a wrong with the answer already on screen moves straight on, no card (ASK-9)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      await store.appendSeed(word.id, today, atUtc: at(today - 1).toUtc());
+      await pumpItem(tester, store, word);
+      await tapText(tester, kPracticeNow);
+      await tapText(tester, 'answer shown wrong');
+      expect(shows('probe ${word.id}'), isFalse);
+      expect(find.text('Next'), findsNothing);
+      expect(shows('Practice done'), isTrue);
+      expect((await store.attempts(itemId: word.id)).single.grade, Grade.wrong);
+      await tapText(tester, 'Done');
+      expect(showsPart('Missed · Recall card'), isTrue);
     });
 
     testWidgets('a New item stays New after an early clear', (tester) async {
@@ -395,7 +431,7 @@ void main() {
           (await store.attempts(itemId: word.id)).single.source, Source.early);
       expect(await store.srs(word.id), isNull);
       await tapText(tester, 'Done');
-      expect(shows('New · 0 of 4'), isTrue);
+      expect(shows('0 of 4 clears'), isTrue);
       expect(shows(kNotQueuedLine), isTrue);
     });
 
@@ -413,7 +449,7 @@ void main() {
       expect(written.source, Source.review);
       expect(written.wasDue, isTrue);
       await tapText(tester, 'Done');
-      expect(shows('Learning · 1 of 4'), isTrue);
+      expect(shows('1 of 4 clears'), isTrue);
     });
 
     testWidgets('a hinted answer is right with no credit (PIN-3)',
@@ -427,7 +463,7 @@ void main() {
       expect(shows('Right with a hint'), isTrue);
       expect(shows('No credit this time.'), isTrue);
       await tapText(tester, 'Done');
-      expect(shows('Learning · 0 of 4'), isTrue);
+      expect(shows('0 of 4 clears'), isTrue);
     });
   });
 
@@ -448,6 +484,6 @@ void main() {
     await settle(tester);
     await settle(tester);
     expect(find.byType(ItemDetailWidget), findsOneWidget);
-    expect(shows('Learning · 1 of 4'), isTrue);
+    expect(shows('1 of 4 clears'), isTrue);
   });
 }
