@@ -14,6 +14,13 @@
 // The Today card names the plan's sections with their counts, the minutes line, and Start or
 // Resume; on a finished day it shows the end state. The old hero and rows stay below it
 // until the home becomes Today (plan 2026-11-02, Phase 7).
+//
+// The hub is the app's home, so the OS keeps it warm overnight. The launch is resolved
+// again when the app resumes on a later local day than the one it resolved, and when a
+// screen the hub opened returns on a later day: without that, a finished day's end card
+// would stay up the next morning with no Start, and a return after a break would skip
+// Welcome back. A resume behind a pushed screen waits for that screen to return, so a
+// session under way across midnight keeps its plan and tomorrow's is built after it.
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,7 +95,8 @@ class QuietRoomJapaneseWidget extends StatefulWidget {
       _QuietRoomJapaneseWidgetState();
 }
 
-class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
+class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
+    with WidgetsBindingObserver {
   int? _last;
   String _query = '';
   String? _use;
@@ -102,13 +110,36 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   /// "Not now" on Welcome back: the hub for the rest of this visit.
   bool _pastWelcome = false;
 
-  /// Only the latest launch resolution lands (a return from the session can overlap one).
+  /// Only the latest launch resolution lands (a return from the session or a resume on a
+  /// new day can overlap one).
   int _launchRun = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _readLast();
+    _relaunch();
+  }
+
+  /// A warm app resumed on a later local day resolves the launch again, so the hub never
+  /// keeps yesterday's card. Only resumed counts: inactive and hidden come with a
+  /// permission dialog or the notification shade, and paused shows nothing.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    // Behind a pushed screen the hub waits: `_open` and `_startSession` resolve the
+    // launch again when that screen returns, after the session's answers are in.
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    _relaunchIfNewDay();
+  }
+
+  /// Resolves the launch again when the local day moved past the one it resolved. Welcome
+  /// back may show again on the new day, so "Not now" is forgotten with the old day.
+  void _relaunchIfNewDay() {
+    final launch = _launch;
+    if (launch == null || localDay(widget.clock.now()) == launch.day) return;
+    _pastWelcome = false;
     _relaunch();
   }
 
@@ -140,6 +171,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchBox.dispose();
     super.dispose();
   }
@@ -167,7 +199,9 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   Future<void> _open(String route,
       [Map<String, dynamic> params = const {}]) async {
     await context.pushNamed(route, queryParameters: params);
+    if (!mounted) return;
     _readLast(); // the grammar screen may have moved on
+    _relaunchIfNewDay(); // and the day may have, while that screen was up
   }
 
   @override

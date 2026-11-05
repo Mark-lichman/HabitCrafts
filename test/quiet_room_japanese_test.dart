@@ -1,14 +1,17 @@
 // Widget tests for the Japanese start screen: the launch it resolves before it builds (the seed
-// confirmation on a first launch, the Today card on today, resume and done), and the search
-// over the extraction catalog.
+// confirmation on a first launch, the Today card on today, resume and done), the launch it
+// resolves again when a warm app meets a new local day, and the search over the extraction
+// catalog.
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart';
+import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
@@ -36,22 +39,51 @@ const int day0 = 300;
 /// 10:00 local on [day].
 DateTime at(int day) => dayStart(day).add(const Duration(hours: 6));
 
-/// A store whose first-launch seed ran on [day0].
-Future<JpStoreMemory> seededStore() async {
-  final store = JpStoreMemory();
+/// A store whose first-launch seed ran on [day0]. [into] is the store to seed, else a new one.
+Future<JpStoreMemory> seededStore({JpStoreMemory? into}) async {
+  final store = into ?? JpStoreMemory();
   await seedFromLessons(day0, store, catalog, nowUtc: at(day0).toUtc());
   return store;
 }
 
-/// Pumps the hub on [store] at [day], and lets the launch resolve.
+/// A memory store that counts its day-record reads: every launch resolution reads today's
+/// record first, so the count tells whether the hub resolved the launch again.
+class DayReadsStore extends JpStoreMemory {
+  int dayReads = 0;
+
+  @override
+  Future<DayRecord?> day(int day) {
+    dayReads++;
+    return super.day(day);
+  }
+}
+
+/// Pumps the hub on [store] at [day], and lets the launch resolve. A test that moves the day
+/// under the warm hub passes its own [clock] and sets it later.
 Future<void> pumpHub(WidgetTester tester, JpStore store,
-    {int day = day0, Map<String, Object> prefs = const {}}) async {
+    {int day = day0,
+    Map<String, Object> prefs = const {},
+    FixedClock? clock}) async {
   await pumpStudyScreen(
       tester,
       QuietRoomJapaneseWidget(
-          store: store, catalog: catalog, clock: FixedClock(at(day))),
+          store: store, catalog: catalog, clock: clock ?? FixedClock(at(day))),
       prefs: prefs);
   await settle(tester);
+}
+
+/// Sends one lifecycle event to the app, as the OS would, and lets the hub react.
+Future<void> lifecycle(WidgetTester tester, AppLifecycleState state) async {
+  tester.binding.handleAppLifecycleStateChanged(state);
+  await settle(tester);
+}
+
+/// A store whose [day0] session is finished. [into] is the store to build it in.
+Future<JpStoreMemory> doneStore({JpStoreMemory? into}) async {
+  final store = await seededStore(into: into);
+  final launch = await onLaunch(at(day0), store, catalog);
+  await store.putDay(launch.record!.copyWith(position: 5, completed: true));
+  return store;
 }
 
 /// Lets the store's futures and the asset loads finish.
@@ -282,10 +314,7 @@ void main() {
 
     testWidgets('a finished day shows the end state and no Start',
         (tester) async {
-      final store = await seededStore();
-      final launch = await onLaunch(at(day0), store, catalog);
-      await store.putDay(launch.record!.copyWith(position: 5, completed: true));
-      await pumpHub(tester, store);
+      await pumpHub(tester, await doneStore());
 
       expect(find.text('Done for today'), findsOneWidget);
       expect(find.text('Start'), findsNothing);
@@ -303,6 +332,114 @@ void main() {
       expect(find.byType(SessionWidget), findsOneWidget);
       final plan = DayPlan.decode((await store.day(day0))!.plan);
       expect(find.text(sectionPosition(plan, 0)), findsOneWidget);
+    });
+  });
+
+  // The hub is the app's home and stays warm overnight, so the launch resolved at start is
+  // stale by morning. The store is the oracle: today's record exists only once the launch
+  // ran again for the new day.
+  group('a warm hub on a new day (End state 6)', () {
+    testWidgets(
+        'a resume on the next day replaces the end card with the new plan and Start; '
+        'inactive, hidden and paused on that day change nothing',
+        (tester) async {
+      final store = await doneStore();
+      final clock = FixedClock(at(day0));
+      await pumpHub(tester, store, clock: clock);
+      expect(find.text('Done for today'), findsOneWidget);
+
+      clock.set(at(day0 + 1));
+      // The states on the way to the background and back, in the order the framework
+      // allows them. Only resumed is the app in front again.
+      await lifecycle(tester, AppLifecycleState.inactive);
+      await lifecycle(tester, AppLifecycleState.hidden);
+      await lifecycle(tester, AppLifecycleState.paused);
+      await lifecycle(tester, AppLifecycleState.hidden);
+      await lifecycle(tester, AppLifecycleState.inactive);
+      expect(find.text('Done for today'), findsOneWidget);
+      expect(find.text('Start'), findsNothing);
+      expect(await store.day(day0 + 1), isNull);
+
+      await lifecycle(tester, AppLifecycleState.resumed);
+      expect(find.text('Done for today'), findsNothing);
+      expect(find.text('Start'), findsOneWidget);
+      final plan = DayPlan.decode((await store.day(day0 + 1))!.plan);
+      expect(plan.returnMode, isFalse);
+      expect(find.text(todaySectionsLine(plan)), findsOneWidget);
+      // Yesterday stays finished: a relaunch rewrites no earlier day (PIN-9).
+      expect((await store.day(day0))!.completed, isTrue);
+    });
+
+    testWidgets('a resume on the same day leaves the launch alone',
+        (tester) async {
+      final store = DayReadsStore();
+      await doneStore(into: store);
+      await pumpHub(tester, store);
+      final reads = store.dayReads;
+      expect(reads, greaterThan(0), reason: 'the first launch read the record');
+
+      await lifecycle(tester, AppLifecycleState.resumed);
+      expect(find.text('Done for today'), findsOneWidget);
+      expect(find.text('Start'), findsNothing);
+      expect(store.dayReads, reads, reason: 'no second launch resolution');
+    });
+
+    testWidgets(
+        'a resume behind the session waits: the new day resolves when the session '
+        'returns, after its answers', (tester) async {
+      final store = await seededStore();
+      final clock = FixedClock(at(day0));
+      await pumpHub(tester, store, clock: clock);
+      await tester.tap(find.text('Start'));
+      await settle(tester);
+      expect(find.byType(SessionWidget), findsOneWidget);
+
+      clock.set(at(day0 + 1));
+      await lifecycle(tester, AppLifecycleState.resumed);
+      expect(find.byType(SessionWidget), findsOneWidget);
+      expect(await store.day(day0 + 1), isNull,
+          reason: 'tomorrow is not built under a session still under way');
+
+      Navigator.of(tester.element(find.byType(SessionWidget))).pop();
+      await settle(tester);
+      expect(find.byType(SessionWidget), findsNothing);
+      expect(find.text('Start'), findsOneWidget);
+      expect(await store.day(day0 + 1), isNotNull);
+    });
+
+    testWidgets(
+        'a study screen that returns on a new day brings the new plan with it',
+        (tester) async {
+      final store = await doneStore();
+      final clock = FixedClock(at(day0));
+      final router = GoRouter(routes: [
+        GoRoute(
+            path: '/',
+            builder: (_, __) => QuietRoomJapaneseWidget(
+                store: store, catalog: catalog, clock: clock)),
+        GoRoute(
+          name: QuietRoomGrammarWidget.routeName,
+          path: QuietRoomGrammarWidget.routePath,
+          builder: (_, __) => const Text('the grammar list'),
+        ),
+      ]);
+      addTearDown(router.dispose);
+      await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
+      await settle(tester);
+      expect(find.text('Done for today'), findsOneWidget);
+
+      await tester.tap(find.text('Grammar lessons'));
+      await tester.pumpAndSettle();
+      expect(find.text('the grammar list'), findsOneWidget);
+
+      clock.set(at(day0 + 1));
+      router.pop();
+      await tester.pumpAndSettle();
+      await settle(tester);
+      expect(find.text('the grammar list'), findsNothing);
+      expect(find.text('Done for today'), findsNothing);
+      expect(find.text('Start'), findsOneWidget);
+      expect(await store.day(day0 + 1), isNotNull);
     });
   });
 

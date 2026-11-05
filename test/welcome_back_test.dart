@@ -86,11 +86,20 @@ Future<void> settle(WidgetTester tester) async {
   }
 }
 
-Future<void> pumpHub(WidgetTester tester, JpStore store, int day) async {
+/// Pumps the hub at [day]. A test that moves the day under the warm hub passes its own
+/// [clock] and sets it later.
+Future<void> pumpHub(WidgetTester tester, JpStore store, int day,
+    {FixedClock? clock}) async {
   await pumpStudyScreen(
       tester,
       QuietRoomJapaneseWidget(
-          store: store, catalog: catalog, clock: FixedClock(at(day))));
+          store: store, catalog: catalog, clock: clock ?? FixedClock(at(day))));
+  await settle(tester);
+}
+
+/// The app comes to the front again, as the OS reports it, and the hub reacts.
+Future<void> resume(WidgetTester tester) async {
+  tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
   await settle(tester);
 }
 
@@ -175,6 +184,51 @@ void main() {
     final plan = DayPlan.decode((await store.day(back))!.plan);
     expect(find.text(todaySectionsLine(plan)), findsOneWidget);
     expect(todaySectionsLine(plan), isNot(contains('New')));
+  });
+
+  testWidgets(
+      'a warm hub left on the end card and resumed after the break opens on '
+      'Welcome back (End state 6)', (tester) async {
+    final store = await awayStore();
+    final clock = FixedClock(at(day0));
+    await pumpHub(tester, store, day0, clock: clock);
+    expect(find.text('Done for today'), findsOneWidget);
+    expect(find.text('Welcome back'), findsNothing);
+
+    clock.set(at(back));
+    await resume(tester);
+
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('You were away 3 days.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('today-card')), findsNothing);
+    expect(DayPlan.decode((await store.day(back))!.plan).returnMode, isTrue);
+    // Start is the session on the return plan, as from a cold launch.
+    await tester.tap(find.text('Start'));
+    await settle(tester);
+    expect(find.byType(SessionWidget), findsOneWidget);
+  });
+
+  testWidgets(
+      'Not now holds for the rest of the day, and a later day asks again',
+      (tester) async {
+    final store = await awayStore();
+    final clock = FixedClock(at(back));
+    await pumpHub(tester, store, back, clock: clock);
+    await tester.tap(find.text('Not now'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
+
+    // The same day: the hub stays, so a glance at another app never re-asks.
+    await resume(tester);
+    expect(find.text('Welcome back'), findsNothing);
+    expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
+
+    // The next day, still no session: the return plan and its screen come back.
+    clock.set(at(back + 1));
+    await resume(tester);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('You were away 4 days.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('today-card')), findsNothing);
   });
 
   testWidgets('one missed day is no return: the hub opens on the Today card',
