@@ -11,7 +11,10 @@
 // not studied.
 //
 // Any lesson can be unticked to skip it for now: its items stay New and arrive through the
-// daily intake (seed.dart). Confirm calls `seedFromLessons` with the ticked set, the device's
+// daily intake (seed.dart). Beside each section heading a toggle reads Select all, or Clear
+// all once every lesson of that section is ticked; the ticked count and Confirm follow it.
+// Confirm with no lesson ticked is allowed: it seeds no lesson item, only the level-0 items
+// every seed holds. Confirm calls `seedFromLessons` with the ticked set, the device's
 // `SharedPreferences` and the decoded `jp_grammar.json`, passed together so the v2 keys import
 // through the store's migration. The seed writes no attempt and no clear (PIN-7).
 
@@ -32,6 +35,11 @@ import 'seed.dart';
 /// The `SharedPreferences` key of the grammar lesson last opened. The grammar screen writes
 /// it; `QuietRoomJapaneseWidget.lastLessonKey` names the same key.
 const String kLastGrammarLessonKey = 'jp.grammar.lastLesson';
+
+/// The toggle beside each section heading: Select all, or Clear all when every lesson of the
+/// section is ticked.
+const String kSeedSelectAll = 'Select all';
+const String kSeedClearAll = 'Clear all';
 
 /// The lesson numbers the catalog holds for [kind], ascending.
 List<int> catalogLessons(ItemCatalog catalog, ItemKind kind) => ({
@@ -210,9 +218,14 @@ class _SeedConfirmWidgetState extends State<SeedConfirmWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style:
-                qrText(t, size: 13, weight: FontWeight.w600, color: t.sage700)),
+        Row(children: [
+          Expanded(
+            child: Text(title,
+                style: qrText(t,
+                    size: 13, weight: FontWeight.w600, color: t.sage700)),
+          ),
+          _allToggle(t, key, lessons, on),
+        ]),
         const SizedBox(height: 8),
         Wrap(
           spacing: 7,
@@ -231,6 +244,22 @@ class _SeedConfirmWidgetState extends State<SeedConfirmWidget> {
           ],
         ),
       ],
+    );
+  }
+
+  /// Select all, or Clear all once every lesson of the section is ticked. A section with no
+  /// lessons reads Select all and ticks nothing.
+  Widget _allToggle(
+      QuietRoomTokens t, String key, List<int> lessons, Set<int> on) {
+    final all = lessons.isNotEmpty && lessons.every(on.contains);
+    return TextButton(
+      key: ValueKey('seed-$key-all'),
+      onPressed: _busy
+          ? null
+          : () => setState(() => all ? on.clear() : on.addAll(lessons)),
+      child: Text(all ? kSeedClearAll : kSeedSelectAll,
+          style:
+              qrText(t, size: 13, weight: FontWeight.w600, color: t.brand600)),
     );
   }
 }
