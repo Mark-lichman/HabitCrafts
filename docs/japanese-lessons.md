@@ -56,8 +56,19 @@ the source files are not in the repo.
 ## What ships in the app
 
 No login: the app opens on Japanese study when signed out (`nav.dart`). The Japanese study
-screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks are
-kept on the phone.
+screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks and
+the study record (see "The study record and the daily review" below) are kept on the phone.
+
+Each word in `jp_lessons.json` carries two fields the app reads beside its reading and gloss:
+
+- **`id`**: the word's image stem (`L30_02`). It is the word's mastery item id, the join key
+  between the item catalog, the attempt log and the schedule, so it never changes for the same
+  card. Identical duplicate cards keep their own ids and pictures.
+- **`context`**: the bracketed or parenthesised part the sheet printed with the reading (`たばこを`
+  for `すいます`). The reading holds only the head word, and the vocabulary cards show the context
+  after it. A word without context has no such field.
+
+`pipeline/jp/vocab_clean.py` writes both fields.
 
 The grammar speaking drill signs in anonymously in the background, and only when a recording is
 ready to score (`ensureCaller()` in `quiet_room_practice/anon_caller.dart`). The scoring function
@@ -67,11 +78,15 @@ through their `signedIn()` helper.
 
 | Screen | File | What it does |
 | --- | --- | --- |
-| Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the grammar lesson to continue, search over the catalog, and a By use view |
+| Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the Today card (the day's review queue and Start or Resume), the grammar lesson to continue, search over the catalog, a By use view, and a quiet Study record link |
+| Review session | `quiet_room_mastery/review_page.dart`, `session_widget.dart` | the day's review queue, one item per screen, then the end card (see "The study record and the daily review") |
+| Welcome back | `quiet_room_mastery/welcome_back_widget.dart` | after a break: the days away, the items due, New paused, and Start |
+| Seed confirmation | `quiet_room_mastery/seed_confirm_widget.dart` | on a first launch: one tick per lesson already studied, then Confirm |
+| Study record | `quiet_room_mastery/mastery_debug_widget.dart` | every item under its state with its next due day, the coming days' load, answer times and session lengths; rebuild, export and import |
 | Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
 | Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and get a score by sound from Azure Pronunciation Assessment. Needs the internet. Signs in anonymously in the background to score. Anything it cannot score falls back to self-check (below) |
 | Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
-| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards; English hidden until tapped; tap to hear |
+| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards, each word with its context; English hidden until tapped, then Knew it or Not yet; tap to hear |
 | Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
 
 Grammar drafts ship marked as drafts until a person reviews them, and the screen says so.
@@ -148,6 +163,172 @@ Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, o
 `SpeechService.speakWait`, before it returns. Play and Speak stay disabled until then, so the
 microphone does not hear the app's own voice during a sentence that ends inside the cap. A longer
 sentence keeps playing after the cap. On the web `speak` returns at once.
+
+## The study record and the daily review
+
+The app tracks the idea, not the lesson. Every grammar point, particle, word, conjugation idea,
+verb pair and table row is a **mastery item** with its own record, and a lesson's numbers are
+counts over its items. An item's state comes from its own answers only, never from its lesson
+number.
+
+🚨 **This section restates no number that the code or the lesson files define.** Each rule below
+names the constant that holds its number, and each constant lives in exactly one Dart file under
+`lib/components/pages/quiet_room_mastery/`. Change the constant, not this doc. The counts (items
+per state, items due, the coming days' load, answer times, session lengths) are on the **Study
+record** page, `mastery_debug_widget.dart`, reached from the quiet Study record link at the foot
+of the Japanese home. That page computes them from the store each time it opens.
+
+### Items and the record
+
+`item_catalog.dart` builds the catalog of items from the two lesson files once per app run.
+Each item has a stable id, the join key between the catalog, the attempt log and the schedule: a
+word's id is its `id` field (the image stem), and the header of `item_catalog.dart` lists the id
+shape of every kind. Each item has one or more **probes**, the question templates that can ask
+it. A grammar point's example sentences are the Say-it track: they can be practised, but they
+never count toward mastery.
+
+The record is an append-only log of attempts and seed events, and it is the source of truth.
+The schedule and the mastery state are caches that `JpStore.rebuild` replays from the log
+(`jp_store.dart`). On the phone the store is SQLite (`jp_store_sqlite.dart`). On the web it is
+in memory (`jp_store_memory.dart`) and keeps nothing between loads. The Study record page
+exports the log as JSON Lines and imports it back (`study_export.dart`). An export is a backup
+and the input for fitting the scheduler offline.
+
+A study day runs from `kDayStartHour` to `kDayStartHour` local time (`local_day.dart`), so a late
+session after midnight still belongs to the evening it started in. The store, the daily plan and
+the day dots all use the one `localDay` function.
+
+### The grades
+
+Every answer gets one grade, and the grades are the same on every screen (`Grade` in
+`attempt.dart`, whose header holds the full table):
+
+| Grade | When | Counts toward mastery |
+| --- | --- | --- |
+| clear | right with no hint and nothing revealed, or Got it (Knew it) after the reveal on a probe with no machine check | yes |
+| hinted | right after a hint short of the answer, a second try, or a speech "close" | **never** |
+| wrong | wrong, Missed it (Not yet), a hint that reveals the answer, or a reveal on a machine-checked probe | resets the count |
+| unscored | nothing heard, an error, a cancel | no, and never wrong |
+| self | the learner overrides a check that could not score (Got it on unverified) | no |
+
+🚨 **A hinted answer earns zero credit toward mastery**, on every screen. Hints stay available.
+
+A conjugation, a verb pair, a table cell and a word card have no machine check. The learner
+thinks of the answer, reveals it and grades it: Got it is clear and Missed it is wrong.
+
+**Early practice** is an answer on an item that is not due, from a word card, a drill or the
+grammar screen. It is recorded, but a clear, a hinted or a self answer changes neither the
+schedule nor mastery. A wrong counts: the item is due tomorrow and its count resets.
+
+### The mastery rule
+
+Each item shows its state: **New**, **Learning** with its count ("n of
+`kClearsToMaster`"), **Mastered** or **Shaky**. `masteryAfter` in `mastery_rule.dart` computes
+the state as a pure fold over the item's own attempts. The file's header states the rule in
+full. In outline, an item is Mastered when all of these hold:
+
+1. `kClearsToMaster` clear answers on as many different local days, each given while the item was
+   due.
+2. The clear that completes the rule comes at least `kFinalGapDays` after the previous scored
+   review.
+3. No wrong since the first of them. `kHintedInARowReset` hinted answers in a row reset the count.
+4. Where the item has more than one template, `kTemplatesNeeded` different templates, with a
+   production clear where the item has a production probe. An item with one template needs only
+   the spaced clears.
+5. Transfer per kind (`kTransferProbes`): different sentences, verbs, directions or cells, capped
+   at the probes the item has.
+
+A wrong, or `kHintedInARowReset` hinted in a row, on a Mastered item makes it Shaky.
+`kRegainClears` clears on different days, the last at least `kRegainGapDays` after the first,
+win it back. A Mastered item never leaves the queue: it keeps a due date forever.
+
+### The scheduler
+
+The schedule is FSRS-6, vendored into `fsrs.dart` with its MIT notice and with learning steps
+removed. Its parameters, its desired retention (`fsrsDesiredRetention`) and its interval cap
+(`fsrsMaximumInterval`) are constants in that file. Clear is Good, hinted and self are Hard,
+wrong is Again, and unscored logs nothing. `Scheduler.nextDue` (`scheduler.dart`) spreads each
+due day over the load of every other item, within `loadSpreadFraction` of the interval. The
+time-aware Leitner in `leitner.dart` shares the same `Scheduler` interface as a fallback.
+
+### The daily plan and its budget
+
+`buildPlan` in `plan_builder.dart` builds one local day's plan, and the file's header describes
+every section. The session shows the sections in this order:
+
+- **Warm-up**, after a break only (see Relaunch).
+- **Repair**: yesterday's wrongs. A wrong today comes back about `kRepairReaskSeconds` later in
+  the same session, and again tomorrow.
+- **Due**: items whose day has come, the least likely recalled first, then seeded items in seed
+  order.
+- **Keep-sharp**: in the first session of each week, the `kKeepSharpCount` Mastered items most at
+  risk that are not already due.
+- **New**: `kNewPerDay` items a day in lesson order, prerequisites first.
+
+The budget is a target and a ceiling, `kTargetSeconds` and `kCeilingSeconds`, priced with the
+per-kind answer estimates in `kCostSeconds`. The Study record page shows the measured median
+answer time per kind, which is how the estimates get retuned by hand. New is skipped when the
+backlog before the session is above the **gate** (`kGateFactor` times the target), after a break,
+or when the target is already spent.
+
+The **Review session** (`session_widget.dart`) walks the plan one item per screen under a line
+such as "Due · n of m". It writes each answer at once and shows its verdict: Clear with the new
+interval, Right with a hint and no credit, Not this time, or Mastered. At the target the **soft
+stop** offers Stop and Keep going. The session never runs past the ceiling: what is left stays
+due and the next plan picks it up. A relaunch resumes where the session stopped, with its budget
+carried on.
+
+The end card shows the day's counts, the items mastered today and the day dots, then the
+opt-in offers, none of which runs on its own:
+
+- **One more** (`kOneMoreBlock` more, in `session_widget.dart`): only while the next item fits
+  inside the ceiling.
+- **Catch up** (`kCatchUpBlock` more): past the ceiling, only when the session reached the ceiling
+  with the backlog still above the gate, as in the first seeded weeks or after a break.
+- **The stretch** (`kStretchNew` more new items): only when repairs and due items are done, the
+  backlog before the session was under the gate, no day was missed, and the ceiling leaves room.
+  The stretch is never forced.
+
+### The first-launch seed
+
+On a first launch the **seed confirmation** (`seed_confirm_widget.dart`) asks which lessons are
+already studied: one tick per lesson, word lessons and grammar lessons apart. The default ticks
+run from `kSeedFirstWordLesson` to `kSeedLastWordLesson` for words and from
+`kSeedFirstGrammarLesson` to `kSeedLastGrammarLesson` for grammar (`seed.dart`). Any lesson can
+be unticked to skip it for now: its items stay New and arrive through the daily intake.
+
+`seedFromLessons` gives every word and grammar point of the ticked lessons, and every particle,
+conjugation idea, verb pair and table row, a due day spread over `kSeedSpreadDays` days in lesson
+order.
+
+🚨 **A seed is not an answer.** Each seeded item gets one seed event: an item id and a due day.
+The seed writes no attempt, no schedule and no clear, so no seeded item is Mastered until it
+earns the full rule from real answers. The first real answer on it is review one and clear one.
+
+The seed also imports the earlier study keys once (`migrateV2Keys` in `study_export.dart`): a
+grammar point marked Review is due today, and a grammar speaking score becomes a Say-it attempt.
+
+### Relaunch
+
+`onLaunch` in `relaunch.dart` decides what the app opens on before the first screen draws. The
+break threshold, `kReturnModeDaysMissed`, and the return-plan constants live in
+`plan_builder.dart`.
+
+| Decision | When | Opens on |
+| --- | --- | --- |
+| firstLaunch | the seed has never run | the seed confirmation, then today's plan |
+| resume | today has a plan and its session is not finished | the Today card with Resume |
+| done | today's session is finished | the Today card with the end state |
+| today | the last session was yesterday, or fewer than `kReturnModeDaysMissed` days were missed | today's plan on the Today card |
+| welcomeBack | `kReturnModeDaysMissed` or more days were missed | the Welcome back screen with the return plan |
+
+The **return plan** pauses New, opens with a warm-up of items still likely recalled
+(`kWarmUpMin` to `kWarmUpMax` items between `kWarmUpLowR` and `kWarmUpHighR` retrievability), and
+caps the items least likely recalled at a share of the plan (`kLowRetrievability`,
+`kLowRCapDivisor`). Keep-sharp waits until the backlog is under the gate.
+
+🚨 **Nothing at relaunch resets an item.** `onLaunch` writes only today's day record. A break
+changes what the plan shows first, never an item's schedule or mastery.
 
 ## Script rule: hiragana first
 

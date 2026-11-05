@@ -299,10 +299,62 @@ regulation.
 
 ---
 
+## J13 — Daily Japanese review
+
+**Actor:** signed-out learner on the phone · **Status:** UNVERIFIED
+
+**Preconditions:** no login. For the first-launch steps, a fresh install with an empty study
+record. For the return steps, a record whose last session was `kReturnModeDaysMissed` or more
+local days ago (`plan_builder.dart`).
+
+**Steps:** launch → on a first launch, the seed confirmation (`/quietRoomSeedConfirm`): untick any
+lesson to skip it for now → Confirm → the Japanese home → the Today card's Start → the Review
+session (`/quietRoomReview`): answer each item, with or without a hint → the soft stop at the
+target: Keep going or Stop → the end card → Done. On a later day: launch → the Today card with
+today's plan. After a break: launch → Welcome back (`/quietRoomWelcomeBack`) → Start.
+
+**Assertions:**
+1. A first launch shows the seed confirmation before the home, with the default lessons ticked
+   from `seed.dart`. Confirm seeds the ticked lessons and every level-0 item as due days, and
+   writes no attempt and no clear. An unticked lesson's items stay New, and every item is
+   unmastered afterwards.
+2. The Today card names each non-empty section with its count, in session order (Warm-up,
+   Repair, Due, Keep-sharp, New), with the minutes line and Start, or Resume after a relaunch the
+   same day.
+3. The session shows one item per screen under its section and position, and writes each answer
+   to the study record when it is given, so a relaunch mid-session resumes at the same item with
+   the budget carried on.
+4. A hinted answer shows as right with no credit and leaves the item's count unchanged. A wrong
+   answer comes back later in the same session and is due again tomorrow.
+5. The soft stop appears once the running estimate reaches `kTargetSeconds`, and the session ends
+   before any item that would pass `kCeilingSeconds`, leaving the rest due tomorrow
+   (`plan_builder.dart`).
+6. The end card offers the stretch only when repairs and due items are done, the backlog before
+   the session was under the gate, no day was missed, and the ceiling leaves room. It offers
+   Catch up only when the session reached the ceiling with the backlog still above the gate.
+   Neither runs without a tap.
+7. The `kClearsToMaster`-th qualifying clear shows the Mastered card, and only when the whole
+   rule in `mastery_rule.dart` holds. A Mastered item keeps a due date.
+8. A launch after a break opens Welcome back with New paused. No item's schedule or mastery
+   state changes because of the break.
+9. The study record survives an app restart (SQLite on the phone). The Study record page shows
+   each item's state and next due day, and its counts match the session's.
+
+**Data:** the phone-local study record (`quiet_room_mastery/jp_store_sqlite.dart`), the lesson
+files `assets/lessons/jp_grammar.json` and `assets/lessons/jp_lessons.json`. No Firestore.
+
+**Covered in part by:** `test/plan_builder_test.dart`, `test/relaunch_test.dart`,
+`test/seed_test.dart`, `test/session_widget_test.dart`, `test/quiet_room_japanese_test.dart`,
+`test/welcome_back_test.dart`. Assertion 9 needs the phone (plan 2026-11-02, Deferred
+validations).
+
+---
+
 ## Coverage summary
 
-Twelve journeys. **Six are known broken** (J4, J5, J8, J10, J11, J12) and the remaining six are
-unverified. J6, J7, and J9 each contain individual assertions that already fail.
+Thirteen journeys. **Six are known broken** (J4, J5, J8, J10, J11, J12) and the remaining seven
+are unverified. J6, J7, and J9 each contain individual assertions that already fail. J13 is the
+only journey with no Firestore data: its record stays on the phone.
 
 Reading down the list, the pattern is that **the create paths mostly work and the lifecycle paths
 do not** — creating habits, check-ins, groups, and messages is intact, while finishing, editing,
