@@ -30,6 +30,9 @@ import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
+import '/components/pages/quiet_room_mastery/review_page.dart';
+import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
+import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -98,6 +101,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       navigatorKey: appNavigatorKey,
       // Single-user Japanese build (2026-10-24): no login. Signed out, the app opens on
       // Japanese study instead of the launch screen. Signing in still reaches Today.
+      // QuietRoomJapaneseWidget runs `onLaunch` before it builds the hub: the seed confirmation
+      // on a first launch, Welcome back after a break, else the hub with its Today card.
       errorBuilder: (context, state) => appStateNotifier.loggedIn
           ? QuietRoomTodayWidget()
           : QuietRoomJapaneseWidget(),
@@ -199,6 +204,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: MasteryDebugWidget.routeName,
           path: MasteryDebugWidget.routePath,
           builder: (context, params) => const MasteryDebugWidget(),
+        ),
+        // The Review session's entry points (plan 2026-11-02, Task 20). Each resolves today's
+        // launch itself (`onLaunch`), so a deep link or a refresh lands on the same day.
+        FFRoute(
+          name: QuietRoomReviewPage.routeName,
+          path: QuietRoomReviewPage.routePath,
+          builder: (context, params) => const QuietRoomReviewPage(),
+        ),
+        FFRoute(
+          name: WelcomeBackWidget.routeName,
+          path: WelcomeBackWidget.routePath,
+          builder: (context, params) => const WelcomeBackWidget(),
+        ),
+        FFRoute(
+          name: SeedConfirmWidget.routeName,
+          path: SeedConfirmWidget.routePath,
+          builder: (context, params) => const SeedConfirmWidget(),
         ),
         FFRoute(
           name: QuietRoomPracticeWidget.routeName,

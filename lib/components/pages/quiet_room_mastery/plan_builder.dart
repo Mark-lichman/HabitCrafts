@@ -147,7 +147,10 @@ class QueueEntry {
   final PlanSection section;
   final int costSeconds;
 
-  /// Whether the item's scheduled day had arrived when the plan was built.
+  /// Whether an answer on this entry is written as due: the item's scheduled day had arrived
+  /// when the plan was built, or the entry is a New or stretch introduction, which is the
+  /// item's scheduled first day (operator ruling ASK-6), or false on a same-session re-ask,
+  /// which the wrong before it moved to tomorrow (D11). The session copies it onto the attempt.
   final bool wasDue;
 
   /// A seeded item with no FSRS state yet (D26).
@@ -157,7 +160,8 @@ class QueueEntry {
   /// The predicted recall when the plan was built; null with no FSRS state.
   final double? retrievability;
 
-  /// Moved to the end of its section once after an unscored answer.
+  /// Moved to the end of its section once after an unscored answer. Set on the entry that was
+  /// skipped, never on a copy of it: [DayPlan.afterWrong] clears it on the re-ask.
   final bool requeued;
 
   /// A same-session re-ask of a wrong answer (PIN-11).
@@ -167,13 +171,14 @@ class QueueEntry {
   Source get source =>
       section == PlanSection.keepSharp ? Source.keepSharp : Source.review;
 
-  QueueEntry copyWith({PlanSection? section, bool? requeued, bool? reask}) =>
+  QueueEntry copyWith(
+          {PlanSection? section, bool? wasDue, bool? requeued, bool? reask}) =>
       QueueEntry(
         itemId: itemId,
         kind: kind,
         section: section ?? this.section,
         costSeconds: costSeconds,
-        wasDue: wasDue,
+        wasDue: wasDue ?? this.wasDue,
         seeded: seeded,
         lesson: lesson,
         retrievability: retrievability,
@@ -333,7 +338,10 @@ class DayPlan {
 
   /// The plan after the entry at [index] was answered wrong: a Repair re-ask of the item is
   /// inserted about [kRepairReaskSeconds] of estimated answers later, or at the end (PIN-11).
-  /// A re-ask is not re-asked again.
+  /// The re-ask is not due: the wrong scheduled the item for tomorrow at the earliest, so its
+  /// clear starts no run of counting clears (End state 2). A re-ask is not re-asked again.
+  /// The re-ask starts unrequeued, whatever its source: `requeued` means the entry itself was
+  /// skipped once, and the session's resume estimate counts each such entry's skip on that.
   DayPlan afterWrong(int index) {
     final entry = entries[index];
     if (entry.reask) return this;
@@ -346,8 +354,13 @@ class DayPlan {
       }
       ahead += entries[i].costSeconds;
     }
-    final next = [...entries]
-      ..insert(at, entry.copyWith(section: PlanSection.repair, reask: true));
+    final next = [...entries]..insert(
+        at,
+        entry.copyWith(
+            section: PlanSection.repair,
+            wasDue: false,
+            requeued: false,
+            reask: true));
     return _withEntries(next);
   }
 
@@ -528,6 +541,8 @@ Future<DayPlan> buildPlan({
       if (catalog.byId(d.itemId) != null) d.itemId: d,
   };
 
+  // A New or stretch entry is the item's scheduled introduction, so its answer is due and a
+  // clear on it is the first of the four (operator ruling ASK-6).
   QueueEntry entryFor(ItemDef item, PlanSection section) {
     final due = dueById[item.id];
     return QueueEntry(
@@ -535,7 +550,7 @@ Future<DayPlan> buildPlan({
       kind: item.kind,
       section: section,
       costSeconds: budget.costOf(item.kind),
-      wasDue: due != null,
+      wasDue: due != null || section == PlanSection.newItems,
       seeded:
           due?.seeded ?? (srs[item.id] == null && seededIds.contains(item.id)),
       lesson: item.lesson,

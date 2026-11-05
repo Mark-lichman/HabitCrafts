@@ -20,6 +20,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -188,6 +189,8 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 void main() {
+  setUpAll(holdHttpRequests);
+
   group('summarizeRecord', () {
     test('sorts every catalog item into its state with its next due day',
         () async {
@@ -587,10 +590,27 @@ void main() {
   });
 
   group('reaching the page', () {
+    // The hub resolves the launch before it builds (Task 20), so it gets a store whose seed
+    // already ran and the catalog from disk: an unseeded store opens the seed confirmation.
+    Future<QuietRoomJapaneseWidget> seededHub() async {
+      final store = JpStoreMemory();
+      await seedFromLessons(today, store, catalog, nowUtc: noonOf(today));
+      return QuietRoomJapaneseWidget(
+          store: store, catalog: catalog, clock: FixedClock(noonOf(today)));
+    }
+
+    Future<void> settle(WidgetTester tester) async {
+      for (var i = 0; i < 4; i++) {
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+        await tester.pump();
+      }
+    }
+
     testWidgets('the hub ends with a quiet Study record link that opens it',
         (tester) async {
+      final hub = await seededHub();
       final router = GoRouter(routes: [
-        GoRoute(path: '/', builder: (_, __) => const QuietRoomJapaneseWidget()),
+        GoRoute(path: '/', builder: (_, __) => hub),
         GoRoute(
           name: MasteryDebugWidget.routeName,
           path: MasteryDebugWidget.routePath,
@@ -599,6 +619,7 @@ void main() {
       ]);
       addTearDown(router.dispose);
       await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
+      await settle(tester);
 
       final link = find.text('Study record');
       expect(link, findsOneWidget);
@@ -613,7 +634,9 @@ void main() {
 
     testWidgets('the hub hides the link while a search shows results',
         (tester) async {
-      await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+      await pumpStudyScreen(tester, await seededHub());
+      await settle(tester);
+      expect(find.text('Study record'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'advice');
       await tester.pump();
       expect(find.text('Study record'), findsNothing);

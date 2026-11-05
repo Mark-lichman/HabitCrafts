@@ -333,6 +333,9 @@ void main() {
       final at = after.entries.indexWhere((e) => e.reask);
       expect(after.entries[at].itemId, p.entries[0].itemId);
       expect(after.entries[at].section, PlanSection.repair);
+      // The wrong moved the item to tomorrow, so the re-ask is not due (End state 2).
+      expect(p.entries[0].wasDue, isTrue);
+      expect(after.entries[at].wasDue, isFalse);
       final between = after.entries
           .sublist(1, at)
           .fold<int>(0, (s, e) => s + e.costSeconds);
@@ -638,6 +641,10 @@ void main() {
       expect(levels.skip(kFoundationNewPerDay).first, isNot(0));
       expect(p.stretchOffer, isTrue);
       expect(p.stretchEntries.length, kStretchNew);
+      // A New or stretch entry is the item's scheduled introduction: its answer is written
+      // as due, so a clear on it is the first of the four (operator ruling ASK-6).
+      expect(news.every((e) => e.wasDue && e.source == Source.review), isTrue);
+      expect(p.stretchEntries.every((e) => e.wasDue), isTrue);
       final planned = {for (final e in p.entries) e.itemId};
       expect(
           p.stretchEntries.every((e) => !planned.contains(e.itemId)), isTrue);
@@ -1151,6 +1158,35 @@ void main() {
           twice.entries.sublist(0, firstDue));
       expect(
           moved.entries.sublist(0, firstDue).every((e) => !e.requeued), isTrue);
+    });
+
+    test(
+        'a re-ask of a requeued entry starts unrequeued, so a skip moves it once',
+        () async {
+      final store = JpStoreMemory();
+      for (final w in ofKind(ItemKind.word).skip(100).take(5)) {
+        await due(store, w, tuesday, 0.8);
+      }
+      final p = await plan(store, tuesday);
+      final dueStart =
+          p.entries.indexWhere((e) => e.section == PlanSection.due);
+      // The first Due entry skipped, then answered wrong at the end of Due.
+      final once = p.afterUnscored(dueStart);
+      final dueEnd =
+          once.entries.lastIndexWhere((e) => e.section == PlanSection.due);
+      expect(once.entries[dueEnd].requeued, isTrue);
+      final wrong = once.afterWrong(dueEnd);
+      final reaskAt = wrong.entries.indexWhere((e) => e.reask);
+      expect(wrong.entries[reaskAt].itemId, once.entries[dueEnd].itemId);
+      expect(wrong.entries[reaskAt].requeued, isFalse,
+          reason: 'requeued is the skipped entry\'s own, never inherited');
+      // So the re-ask, skipped, moves once like any entry, and is marked as skipped.
+      final moved = wrong.afterUnscored(reaskAt);
+      expect(identical(moved, wrong), isFalse);
+      final re = moved.entries.lastIndexWhere((e) => e.reask);
+      expect(moved.entries[re].itemId, once.entries[dueEnd].itemId);
+      expect(moved.entries[re].requeued, isTrue);
+      expect(identical(moved.afterUnscored(re), moved), isTrue);
     });
 
     test('the plan round-trips through the day record', () async {
