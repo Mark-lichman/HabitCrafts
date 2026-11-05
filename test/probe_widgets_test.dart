@@ -350,6 +350,7 @@ void main() {
             item: _grammar,
             probe: _probe(_grammar, 'p1'),
             state: state,
+            checkItem: const {'answer': 'なんです'},
             onAnswer: (_) {}),
         WordRecallProbe(
             item: _word,
@@ -427,7 +428,8 @@ void main() {
   });
 
   group('typed fill', () {
-    Future<Answers> open(WidgetTester tester) async {
+    Future<Answers> open(WidgetTester tester,
+        {Map<String, dynamic> checkItem = const {'answer': 'なんです'}}) async {
       final answers = Answers();
       await _pump(
           tester,
@@ -436,6 +438,7 @@ void main() {
               probe: _probe(_grammar, 'p1'),
               state: const MasteryState.initial('mari.L26.1'),
               hint: 'A noun needs な before んです',
+              checkItem: checkItem,
               onAnswer: answers.call));
       return answers;
     }
@@ -504,6 +507,32 @@ void main() {
       expect(a.list, isEmpty);
     });
 
+    testWidgets('the empty-Check message clears once an answer is checked',
+        (tester) async {
+      final a = await open(tester);
+      await _tap(tester, 'Check');
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      await _type(tester, 'なんです');
+      await _tap(tester, 'Check');
+      expect(a.single.grade, Grade.clear);
+      expect(find.text('Type an answer first.'), findsNothing);
+    });
+
+    testWidgets('an accepted alternate form is clear', (tester) async {
+      final a = await open(tester, checkItem: const {
+        'answer': 'いったら',
+        'accepted': ['いけば'],
+      });
+      await _type(tester, 'いけば');
+      await _tap(tester, 'Check');
+      _expectDraft(a.single,
+          itemId: 'mari.L26.1',
+          probeId: 'p1',
+          template: 'fill',
+          grade: Grade.clear,
+          selfGraded: false);
+    });
+
     testWidgets('an answer the matcher cannot judge: Got it is self',
         (tester) async {
       final a = await open(tester);
@@ -561,6 +590,23 @@ void main() {
     testWidgets('the picture prompt shows the meaning', (tester) async {
       await open(tester);
       expect(find.text('bag'), findsOneWidget);
+    });
+
+    testWidgets('the picture shows when an image asset is given',
+        (tester) async {
+      expect(wordImageAsset('L30_02'), 'assets/lessons/img/L30_02.webp');
+      await open(tester);
+      expect(find.byType(Image), findsNothing, reason: 'no asset, no picture');
+      await _pump(
+          tester,
+          WordRecallProbe(
+              item: _word,
+              probe: _probe(_word, 'spoken'),
+              state: _learning('L30_02', 1),
+              speech: speech,
+              imageAsset: wordImageAsset('L30_02'),
+              onAnswer: answers.call));
+      expect(find.byType(Image), findsOneWidget);
     });
 
     testWidgets('said right with no hint is clear', (tester) async {
@@ -698,6 +744,23 @@ void main() {
           probeId: 'typed',
           template: 'typed',
           grade: Grade.wrong);
+    });
+
+    testWidgets('a typed answer the matcher cannot judge says what was typed',
+        (tester) async {
+      await open(tester);
+      await _type(tester, '鞄');
+      await _tap(tester, 'Check');
+      expect(answers.list, isEmpty, reason: 'waits for the self-mark');
+      expect(find.textContaining('鞄'), findsOneWidget);
+      expect(find.textContaining('You typed: 鞄'), findsOneWidget);
+      expect(find.textContaining('Heard:'), findsNothing);
+      await _tap(tester, 'Got it');
+      _expectDraft(answers.single,
+          itemId: 'L30_02',
+          probeId: 'typed',
+          template: 'typed',
+          grade: Grade.self);
     });
 
     testWidgets('Skip is unscored', (tester) async {
@@ -1004,6 +1067,43 @@ void main() {
       await open(tester);
       await _tap(tester, 'Skip');
       expectSayIt(Grade.unscored);
+    });
+
+    testWidgets('one form of a ／-joined example is shown and scored',
+        (tester) async {
+      pron = FakePronunciation();
+      answers = Answers();
+      const joined = ProbeDef(
+          id: 'ex1',
+          template: kSayItTemplate,
+          text: 'いこう／たべよう',
+          answer: 'いこう／たべよう',
+          production: true,
+          selfGraded: true,
+          scored: false);
+      await _pump(
+          tester,
+          SayItProbe(
+              item: _grammar,
+              probe: joined,
+              state: _learning('mari.L26.1', 2),
+              pronunciation: pron,
+              sentence: 'いこう',
+              onAnswer: answers.call));
+      expect(find.text('いこう'), findsOneWidget);
+      expect(find.text('いこう／たべよう'), findsNothing);
+      await _tap(tester, 'Say it');
+      expect(pron.referenceTexts.last, 'いこう');
+      pron.answer(Judgement.correct);
+      await tester.pump();
+      await tester.pump();
+      _expectDraft(answers.single,
+          itemId: 'mari.L26.1',
+          probeId: 'ex1',
+          template: kSayItTemplate,
+          grade: Grade.clear,
+          selfGraded: false,
+          sayIt: true);
     });
 
     testWidgets('leaving mid-check cancels it and drops the result',

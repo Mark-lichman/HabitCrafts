@@ -8,12 +8,12 @@
 // | widget             | probe                         | check                               |
 // |--------------------|-------------------------------|-------------------------------------|
 // | [ChooseProbe]      | a grammar `choose` item       | the picked option                   |
-// | [TypedFillProbe]   | a `fill` item, a particle cloze | `checkTypedAnswer`, hint behind a tap |
+// | [TypedFillProbe]   | a `fill` item, a particle cloze | `checkTypedAnswer` on the caller's item map (accepted forms), hint behind a tap |
 // | [WordRecallProbe]  | a word: spoken, typed or card | `SpeechService`, `checkTypedAnswer`, or the learner after the reveal |
 // | [ConjugationProbe] | a verb of a conjugation idea  | the learner after the reveal        |
 // | [PairProbe]        | a pair, in either direction   | the learner after the reveal        |
 // | [TableCellProbe]   | a cell of a table row         | the learner after the reveal        |
-// | [SayItProbe]       | a grammar example (Say-it)    | `PronunciationService`              |
+// | [SayItProbe]       | one form of a grammar example (Say-it) | `PronunciationService`     |
 //
 // Every grade comes from `gradeAnswer` (attempt.dart), so the rules hold the same on every
 // screen (D17):
@@ -318,8 +318,8 @@ class TypedFillProbe extends StatefulWidget {
     required this.probe,
     required this.state,
     required this.onAnswer,
+    required this.checkItem,
     this.hint,
-    this.checkItem,
   });
 
   final ItemDef item;
@@ -329,8 +329,10 @@ class TypedFillProbe extends StatefulWidget {
   final String? hint;
 
   /// The practice item `checkTypedAnswer` judges against, with its accepted forms and ruby
-  /// twins. Null judges against the probe's own answer.
-  final Map<String, dynamic>? checkItem;
+  /// twins. Required, because a [ProbeDef] carries no accepted forms and a catalog fill item
+  /// may accept several (いったら and いけば): the runner passes the raw practice map, or
+  /// `{'answer': probe.answer}` for a particle cloze.
+  final Map<String, dynamic> checkItem;
 
   @override
   State<TypedFillProbe> createState() => _TypedFillProbeState();
@@ -356,6 +358,7 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
     setState(() {
       _grade = grade;
       _showAnswer = true;
+      _empty = false;
     });
     widget.onAnswer(_draft(widget.item, widget.probe, grade,
         hintLevel: _hintLevel, revealed: revealed));
@@ -363,8 +366,7 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 
   void _check() {
     if (_grade != null || _selfCheck) return;
-    final v = checkTypedAnswer(
-        _typed.text, widget.checkItem ?? {'answer': widget.probe.answer});
+    final v = checkTypedAnswer(_typed.text, widget.checkItem);
     switch (v) {
       case TypedVerdict.empty:
         setState(() => _empty = true);
@@ -649,7 +651,11 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
           ]),
         ],
         if (_awaiting != null) ...[
-          _quiet(t, 'Heard: ${_heard ?? ''}. This could not be checked.'),
+          _quiet(
+              t,
+              _awaiting!.template == 'typed'
+                  ? 'You typed: ${_heard ?? ''}. This could not be checked.'
+                  : 'Heard: ${_heard ?? ''}. This could not be checked.'),
           _answerLine(t, widget.probe.answer),
           _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
         ],
@@ -823,6 +829,10 @@ class TableCellProbe extends StatelessWidget {
 /// is written with `sayIt`, so it never counts toward the four clears (D4). Correct is clear,
 /// close is hinted, wrong is wrong. An unverified check asks the learner: Got it is self,
 /// Missed it is unscored, because unverified is never wrong. Skip is unscored.
+///
+/// [sentence] is the one form the learner says and the scorer hears. The catalog joins some
+/// examples with ／ (いこう／たべよう／しよう／こよう), and the scorer takes one sentence, so the
+/// caller passes one form, as the speak drill splits them. Null uses the probe's answer.
 class SayItProbe extends StatefulWidget {
   const SayItProbe({
     super.key,
@@ -831,6 +841,7 @@ class SayItProbe extends StatefulWidget {
     required this.state,
     required this.pronunciation,
     required this.onAnswer,
+    this.sentence,
   });
 
   final ItemDef item;
@@ -838,6 +849,11 @@ class SayItProbe extends StatefulWidget {
   final MasteryState state;
   final PronunciationService pronunciation;
   final ProbeAnswered onAnswer;
+
+  /// The one sentence shown and scored; null uses [ProbeDef.answer].
+  final String? sentence;
+
+  String get _sentence => sentence ?? probe.answer;
 
   @override
   State<SayItProbe> createState() => _SayItProbeState();
@@ -870,7 +886,7 @@ class _SayItProbeState extends State<SayItProbe> {
     if (_checking || _grade != null || _unverified) return;
     final token = ++_token;
     setState(() => _checking = true);
-    final r = await widget.pronunciation.check(widget.probe.answer);
+    final r = await widget.pronunciation.check(widget._sentence);
     if (!mounted || token != _token) return;
     setState(() => _checking = false);
     switch (r.verdict) {
@@ -894,7 +910,7 @@ class _SayItProbeState extends State<SayItProbe> {
     final open = _grade == null && !_unverified;
     return _ProbeFrame(state: widget.state, children: [
       _label(t, 'Say the sentence'),
-      _prompt(t, widget.probe.text),
+      _prompt(t, widget.sentence ?? widget.probe.text),
       if (open)
         Row(children: [
           Expanded(
