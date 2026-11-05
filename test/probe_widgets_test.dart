@@ -71,6 +71,9 @@ class FakeSpeech extends SpeechService {
   final List<String> expected = [];
   int cancels = 0;
 
+  /// When set, a cancel counts but leaves the listen open, so the test can end it itself.
+  bool holdOnCancel = false;
+
   @override
   Future<SpeechResult> listenOnce({
     required String expectedKana,
@@ -86,6 +89,7 @@ class FakeSpeech extends SpeechService {
   @override
   Future<void> cancel() async {
     cancels++;
+    if (holdOnCancel) return;
     for (final c in listens) {
       if (!c.isCompleted) {
         c.complete(const SpeechResult('', Judgement.unverified));
@@ -95,6 +99,9 @@ class FakeSpeech extends SpeechService {
 
   void answer(String heard, Judgement j) =>
       listens.last.complete(SpeechResult(heard, j));
+
+  /// Ends the listen the way a recogniser that throws does.
+  void fail(Object error) => listens.last.completeError(error);
 }
 
 class _NoRecorder implements PronRecorder {
@@ -723,6 +730,77 @@ void main() {
       expect(answers.list, isEmpty);
     });
 
+    testWidgets(
+        'a listen that throws frees the controls, reports the error and writes no draft',
+        (tester) async {
+      await open(tester);
+      await _tap(tester, 'Say it');
+      expect(find.text('Listening'), findsOneWidget);
+      speech.fail(StateError('recogniser gone'));
+      await tester.pump();
+      await tester.pump();
+      expect(tester.takeException(), isA<StateError>(),
+          reason: 'the failure reaches the app handler');
+      expect(answers.list, isEmpty, reason: 'a failed listen is no attempt');
+      expect(find.text('Listening'), findsNothing);
+      expect(find.text('Say it'), findsOneWidget);
+      // The controls work again: the hint ladder, then a Skip that reports.
+      await _tap(tester, 'Give me a hint');
+      expect(find.text('Meaning: bag'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
+      await _tap(tester, 'Skip');
+      _expectDraft(answers.single,
+          itemId: 'L30_02',
+          probeId: 'spoken',
+          template: 'spoken',
+          grade: Grade.unscored,
+          hintLevel: 1);
+    });
+
+    testWidgets(
+        'a listen that throws after the probe has gone touches no state',
+        (tester) async {
+      await open(tester);
+      speech.holdOnCancel = true;
+      await _tap(tester, 'Say it');
+      await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      expect(speech.cancels, 1);
+      speech.fail(StateError('recogniser gone'));
+      await tester.pump();
+      // One exception, the listen's own: a setState after dispose would be a second.
+      expect(tester.takeException(), isA<StateError>());
+      expect(answers.list, isEmpty);
+    });
+
+    testWidgets('an empty Check says so and writes no draft', (tester) async {
+      await open(tester);
+      await _tap(tester, 'Check');
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      expect(answers.list, isEmpty, reason: 'an empty Check is no attempt');
+      await _type(tester, 'かばん');
+      await _tap(tester, 'Check');
+      expect(find.text('Type an answer first.'), findsNothing,
+          reason: 'cleared by the answer');
+      _expectDraft(answers.single,
+          itemId: 'L30_02',
+          probeId: 'typed',
+          template: 'typed',
+          grade: Grade.clear);
+    });
+
+    testWidgets('the empty-Check message clears on an unverified typed answer',
+        (tester) async {
+      await open(tester);
+      await _tap(tester, 'Check');
+      expect(find.text('Type an answer first.'), findsOneWidget);
+      await _type(tester, '鞄');
+      await _tap(tester, 'Check');
+      expect(find.text('Type an answer first.'), findsNothing);
+      expect(find.textContaining('You typed: 鞄'), findsOneWidget);
+      expect(answers.list, isEmpty, reason: 'waits for the self-mark');
+    });
+
     testWidgets('typing the reading right is clear on the typed probe',
         (tester) async {
       await open(tester);
@@ -867,6 +945,75 @@ void main() {
       expect(a.single.production, isTrue);
     });
 
+    test('conjugation form labels are hiragana first, never a raw key', () {
+      expect(conjugationFormLabel('te'), 'て form');
+      expect(conjugationFormLabel('masu'), 'ます form');
+      expect(conjugationFormLabel('nai'), 'ない form');
+      expect(
+          conjugationFormLabel('causative_passive'), 'causative passive form');
+      expect(conjugationFormLabel('prohibitive'), 'do not (な) form');
+      expect(conjugationFormLabel('some_new_key'), 'some new key form',
+          reason: 'an unlisted key still reads as words');
+      for (final form in [
+        'masu',
+        'te',
+        'ta',
+        'nai',
+        'potential',
+        'volitional',
+        'conditional',
+        'imperative',
+        'prohibitive',
+        'passive',
+        'causative',
+        'causative_passive',
+      ]) {
+        expect(conjugationFormLabel(form), isNot(contains('_')));
+        expect(conjugationFormLabel(form), endsWith(' form'));
+      }
+    });
+
+    testWidgets('conjugation: the instruction names the form in hiragana',
+        (tester) async {
+      await open(
+          tester,
+          (a) => ConjugationProbe(
+              item: _conj,
+              probe: _conj.probes.single,
+              state: const MasteryState.initial('conj.te.g1'),
+              onAnswer: a.call));
+      expect(find.text('Give the て form'), findsOneWidget);
+      expect(find.textContaining('te form'), findsNothing);
+    });
+
+    testWidgets('conjugation: no instruction shows an underscore',
+        (tester) async {
+      final item = ItemDef(
+        id: conjugationItemId('causative_passive', 2),
+        kind: ItemKind.conjugation,
+        title: 'causative_passive, group 2',
+        prereqLevel: 0,
+        probes: const [
+          ProbeDef(
+              id: 'たべる',
+              template: kConjugateTemplate,
+              text: 'たべる',
+              answer: 'たべさせられる',
+              production: true,
+              selfGraded: true),
+        ],
+      );
+      await open(
+          tester,
+          (a) => ConjugationProbe(
+              item: item,
+              probe: item.probes.single,
+              state: MasteryState.initial(item.id),
+              onAnswer: a.call));
+      expect(find.text('Give the causative passive form'), findsOneWidget);
+      expect(find.textContaining('_'), findsNothing);
+    });
+
     testWidgets('conjugation: Missed it is wrong', (tester) async {
       final a = await open(
           tester,
@@ -919,7 +1066,8 @@ void main() {
               state: const MasteryState.initial('pair.aku'),
               onAnswer: a.call));
       expect(find.text('あく'), findsOneWidget);
-      expect(find.textContaining('transitive partner'), findsOneWidget);
+      expect(find.text('Give its transitive partner'), findsOneWidget);
+      expect(find.text('Give its intransitive partner'), findsNothing);
       await _tap(tester, 'Show answer');
       expect(find.text('あける'), findsOneWidget);
       await _tap(tester, 'Got it');
@@ -942,7 +1090,8 @@ void main() {
               state: const MasteryState.initial('pair.aku'),
               onAnswer: a.call));
       expect(find.text('あける'), findsOneWidget);
-      expect(find.textContaining('intransitive partner'), findsOneWidget);
+      expect(find.text('Give its intransitive partner'), findsOneWidget);
+      expect(find.text('Give its transitive partner'), findsNothing);
       await _tap(tester, 'Show answer');
       expect(find.text('あく'), findsOneWidget);
       await _tap(tester, 'Missed it');

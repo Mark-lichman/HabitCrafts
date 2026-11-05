@@ -27,9 +27,14 @@
 //     speak drill grades it (study_export.dart `sayItGrade`);
 //   * an empty Check is no attempt.
 //
-// Each widget reports one answer and then locks, so a probe is never answered twice. The
-// speech widgets carry a listen token: a listen or a check that lands after the widget has
-// gone, or after Skip, is dropped, and leaving mid-listen cancels it.
+// Each widget reports one answer and then locks, so a probe is never answered twice. A widget
+// keeps that lock when it is rebuilt in place (none implements didUpdateWidget), so the session
+// runner gives each presentation its own key, built from the entry index and the re-ask count,
+// never from the item and probe ids alone: a re-asked item (Task 18, PIN-11) shares both ids
+// with its first showing. The speech widgets carry a listen token: a listen or a check that
+// lands after the widget has gone, or after Skip, is dropped, and leaving mid-listen cancels
+// it. A listen that throws frees the controls and goes to FlutterError.reportError, the route
+// the recorder's lost write takes (S4), so the app's handler records it.
 //
 // Every widget shows the item's state pill with its n of 4 ([ProbeStatePill]).
 
@@ -487,6 +492,9 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
   bool _listening = false;
   bool _cardRevealed = false;
 
+  /// Set by an empty Check; cleared by an answer or an unverified one (as [TypedFillProbe]).
+  bool _empty = false;
+
   /// Bumped by Skip, an answer and dispose; a listen holding an older token is dropped.
   int _token = 0;
 
@@ -529,6 +537,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
       _grade = grade;
       _answeredOn = probe;
       _awaiting = null;
+      _empty = false;
     });
     widget.onAnswer(_draft(widget.item, probe, grade,
         hintLevel: _hintLevel, revealed: revealed ?? _revealedByHint));
@@ -538,23 +547,41 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
     if (_listening || _grade != null || _awaiting != null) return;
     final token = ++_token;
     setState(() => _listening = true);
-    final r = await widget.speech.listenOnce(
-        expectedKana: widget.probe.answer, kanjiForms: widget.kanjiForms);
-    if (!mounted || token != _token) return;
-    setState(() => _listening = false);
-    final spoken = _probeFor('spoken');
-    switch (r.judgement) {
-      case Judgement.correct:
-        _report(spoken, _grade0(Outcome.right));
-      case Judgement.close:
-        _report(spoken, _grade0(Outcome.close));
-      case Judgement.wrong:
-        _report(spoken, _grade0(Outcome.wrong));
-      case Judgement.unverified:
-        setState(() {
-          _awaiting = spoken;
-          _heard = r.heard;
-        });
+    try {
+      final r = await widget.speech.listenOnce(
+          expectedKana: widget.probe.answer, kanjiForms: widget.kanjiForms);
+      if (!mounted || token != _token) return;
+      setState(() => _listening = false);
+      final spoken = _probeFor('spoken');
+      switch (r.judgement) {
+        case Judgement.correct:
+          _report(spoken, _grade0(Outcome.right));
+        case Judgement.close:
+          _report(spoken, _grade0(Outcome.close));
+        case Judgement.wrong:
+          _report(spoken, _grade0(Outcome.wrong));
+        case Judgement.unverified:
+          setState(() {
+            _awaiting = spoken;
+            _heard = r.heard;
+            _empty = false;
+          });
+      }
+    } catch (e, s) {
+      // The app's handler is FlutterError.onError, which an error on a dropped future never
+      // reaches, so the listen's failure goes the recorder's way (S4). No draft is written.
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room probes',
+          context: ErrorDescription(
+              'while listening for ${widget.item.id} ${widget.probe.id}')));
+    } finally {
+      // 🚨 A throw from `listenOnce` would otherwise leave Say it, Check, Skip and the hint
+      // disabled for good: one dead card until the learner leaves the session.
+      if (mounted && token == _token && _listening) {
+        setState(() => _listening = false);
+      }
     }
   }
 
@@ -567,7 +594,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
     });
     switch (v) {
       case TypedVerdict.empty:
-        return;
+        setState(() => _empty = true);
       case TypedVerdict.right:
         _report(typedProbe, _grade0(Outcome.right));
       case TypedVerdict.wrong:
@@ -576,6 +603,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
         setState(() {
           _awaiting = typedProbe;
           _heard = _typed.text;
+          _empty = false;
         });
     }
   }
@@ -643,6 +671,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
             decoration: const InputDecoration(hintText: 'ひらがな'),
             onSubmitted: (_) => _check(),
           ),
+          if (_empty) _quiet(t, 'Type an answer first.'),
           const SizedBox(height: 8),
           Row(children: [
             Expanded(child: _button(t, 'Check', busy ? null : _check)),
@@ -731,11 +760,33 @@ class _RevealProbeState extends State<_RevealProbe> {
   }
 }
 
-/// The form of a conjugation idea, from its id `conj.<form>.g<group>`.
+/// The form key of a conjugation idea, from its id `conj.<form>.g<group>`.
 String _conjugationForm(ItemDef item) {
   final parts = item.id.split('.');
   return parts.length >= 3 ? parts[1] : item.title;
 }
+
+/// The learner-facing names of the form keys, hiragana first: the drills screen's labels
+/// (quiet_room_drills_widget.dart `_formLabels`) with "form" on each.
+const _formLabels = {
+  'masu': 'ます form',
+  'te': 'て form',
+  'ta': 'た form',
+  'nai': 'ない form',
+  'potential': 'potential form',
+  'volitional': 'volitional form',
+  'conditional': 'conditional (ば) form',
+  'imperative': 'imperative form',
+  'prohibitive': 'do not (な) form',
+  'passive': 'passive form',
+  'causative': 'causative form',
+  'causative_passive': 'causative passive form',
+};
+
+/// The label a learner reads for a conjugation form key (`te`, `causative_passive`). A key
+/// outside [_formLabels] reads as its words plus "form", never as the raw key.
+String conjugationFormLabel(String form) =>
+    _formLabels[form] ?? '${form.replaceAll('_', ' ')} form';
 
 /// One verb of a conjugation idea: say its form to yourself, reveal, grade.
 class ConjugationProbe extends StatelessWidget {
@@ -761,7 +812,7 @@ class ConjugationProbe extends StatelessWidget {
         state: state,
         onAnswer: onAnswer,
         hint: hint,
-        instruction: 'Give the ${_conjugationForm(item)} form',
+        instruction: 'Give the ${conjugationFormLabel(_conjugationForm(item))}',
       );
 }
 
