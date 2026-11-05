@@ -265,7 +265,8 @@ every section. The session shows the sections in this order:
   order.
 - **Keep-sharp**: in the first session of each week, the `kKeepSharpCount` Mastered items most at
   risk that are not already due.
-- **New**: `kNewPerDay` items a day in lesson order, prerequisites first.
+- **New**: `kNewPerDay` items a day in lesson order, prerequisites first. An introduction answer
+  is a due answer, so a clear there is the first of the clears.
 
 The budget is a target and a ceiling, `kTargetSeconds` and `kCeilingSeconds`, priced with the
 per-kind answer estimates in `kCostSeconds`. The Study record page shows the measured median
@@ -321,10 +322,13 @@ break threshold, `kReturnModeDaysMissed`, and the return-plan constants live in
 | Decision | When | Opens on |
 | --- | --- | --- |
 | firstLaunch | the seed has never run | the seed confirmation, then today's plan |
-| resume | today has a plan and its session is not finished | the Today card with Resume once an answer is saved, else Start |
+| resume | today has a plan, its session is not finished, and it is not a return plan with no answer yet | the Today card with Resume once an answer is saved, else Start |
 | done | today's session is finished | the Today card with the end state |
 | today | the last session was yesterday, or fewer than `kReturnModeDaysMissed` days were missed | today's plan on the Today card |
-| welcomeBack | `kReturnModeDaysMissed` or more days were missed | the Welcome back screen with the return plan |
+| welcomeBack | `kReturnModeDaysMissed` or more days were missed, or today's return plan has no answer yet | the Welcome back screen with the return plan |
+
+A day counts as a session day only when an answer was saved on it, so a Welcome back left
+unanswered keeps return mode on the next launch (`relaunch.dart`).
 
 The **return plan** pauses New, opens with a warm-up of items still likely recalled
 (`kWarmUpMin` to `kWarmUpMax` items between `kWarmUpLowR` and `kWarmUpHighR` retrievability), and
