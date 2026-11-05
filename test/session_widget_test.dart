@@ -11,9 +11,10 @@
 // with the rest left due (PIN-5), One more (10) inside the ceiling, the catch-up only when the
 // plan offers it and only on a tap (PIN-12), the stretch only under its conditions (PIN-6),
 // the 14 dots over the days whose session completed, the end card listing two mastered items
-// that share a title (PIN-16), and a resume (`position`) that carries the estimate (skips
-// included), the day's counts, the mastered-today list and a taken offer on instead of
-// restarting them.
+// that share a title (PIN-16), a resume (`position`) that carries the estimate (skips
+// included, a skipped re-ask among them), the day's counts, the mastered-today list and a
+// taken offer on instead of restarting them, and a double tap on a card's button that runs
+// its action once.
 
 import 'dart:convert';
 import 'dart:io';
@@ -546,6 +547,61 @@ void main() {
     expect(h.shows('Catch up: 10 more'), isFalse, reason: 'once only');
   });
 
+  group('a double tap on a card runs its action once', () {
+    testWidgets('on Catch up: 10 more, the whole block is still asked',
+        (tester) async {
+      final entries = [
+        for (final w in words.take(13)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final block = [
+        for (final w in words.skip(13).take(10)) entryOf(w, PlanSection.due)
+      ];
+      final h = await pumpSession(
+          tester, planOf(entries, catchUpOffer: true, catchUpEntries: block));
+      for (var i = 0; i < 9; i++) {
+        await h.answer(Grade.clear);
+      }
+      await h.tap('Keep going');
+      for (var i = 0; i < 3; i++) {
+        await h.answer(Grade.clear);
+      }
+      // Two taps inside the day write the first one starts: no frame between them.
+      final f = find.text('Catch up: 10 more');
+      await tester.ensureVisible(f);
+      await tester.tap(f);
+      await tester.tap(f);
+      await h.settle();
+      final asked = <String>[];
+      while (h.onScreen != null) {
+        asked.add(h.onScreen!);
+        await h.answer(Grade.clear);
+      }
+      expect(asked, [for (final e in block) e.itemId]);
+      expect(h.shows('Done for today'), isTrue);
+    });
+
+    testWidgets('on Next at the target, the soft stop still shows',
+        (tester) async {
+      final entries = [
+        for (final w in words.take(10)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final h = await pumpSession(tester, planOf(entries));
+      for (var i = 0; i < 8; i++) {
+        await h.answer(Grade.clear);
+      }
+      await h.tap('answer clear');
+      final f = find.text('Next');
+      await tester.ensureVisible(f);
+      await tester.tap(f);
+      await tester.tap(f);
+      await h.settle();
+      expect(h.onScreen, isNull, reason: 'the second tap asks no entry');
+      expect(h.shows('About 15 minutes'), isTrue);
+      await h.tap('Keep going');
+      expect(h.onScreen, entries[9].itemId);
+    });
+  });
+
   group('the stretch offer (PIN-6)', () {
     final base = [for (final w in words.take(3)) entryOf(w, PlanSection.due)];
     final stretch = [
@@ -875,6 +931,74 @@ void main() {
       expect(await h.store.attempts(itemId: block[2].itemId), isEmpty);
       expect(h.shows('One more (10)'), isTrue,
           reason: 'the re-ask is still planned and fits');
+    });
+
+    testWidgets(
+        'a skipped re-ask after the position counts toward the estimate: at 800 answered '
+        'and its skip, the soft stop shows first', (tester) async {
+      final entries = [
+        for (final w in words.take(15)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      QueueEntry reaskOf(QueueEntry e, {bool requeued = false}) => e.copyWith(
+          section: PlanSection.repair,
+          wasDue: false,
+          requeued: requeued,
+          reask: true);
+      // The plan as the live session left it: the first two entries wrong, five more
+      // answered, the first re-ask skipped (moved after the second re-ask) and the second
+      // re-ask answered: eight answers at the position and one skip past it.
+      final plan = planOf([
+        ...entries.take(7),
+        reaskOf(entries[1]),
+        reaskOf(entries[0], requeued: true),
+        ...entries.skip(7),
+      ]);
+      final h = await pumpSession(tester, plan, position: 8);
+      expect(h.onScreen, isNull, reason: '800 + the 100 skipped is the target');
+      expect(h.shows('About 15 minutes'), isTrue);
+      await h.tap('Keep going');
+      expect(h.onScreen, entries[0].itemId, reason: 'the skipped re-ask');
+      for (var i = 0; i < 3; i++) {
+        await h.answer(Grade.clear);
+      }
+      // 900 before the resume and 300 since: the next entry would pass the ceiling.
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(await h.store.attempts(), hasLength(3));
+    });
+
+    testWidgets(
+        'a skipped re-ask of a catch-up item is not counted into the spend before the tap: '
+        'the lifted ceiling is the block\'s cost over the plan\'s ceiling',
+        (tester) async {
+      final base = [
+        for (final w in words.take(12)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final block = [
+        for (final w in words.skip(12).take(10))
+          entryOf(w, PlanSection.due, cost: 100)
+      ];
+      // The plan as the tap left it at the ceiling, then a wrong on the first block entry
+      // whose re-ask landed inside the block, skipped once (it stays put as the only
+      // re-ask) and then answered: the lift is the block's 1000, so the ceiling is 2200.
+      final plan = planOf([
+        ...base,
+        ...block.take(7),
+        block[0].copyWith(
+            section: PlanSection.repair,
+            wasDue: false,
+            requeued: true,
+            reask: true),
+        ...block.skip(7),
+      ], catchUpOffer: true, catchUpEntries: block);
+      final h = await pumpSession(tester, plan, position: 20);
+      // 1200 + 700 + the skip + the answer = 2100 spent: one block entry fits, not two.
+      await h.tap('Keep going');
+      expect(h.onScreen, block[7].itemId);
+      await h.answer(Grade.clear);
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(await h.store.attempts(itemId: block[8].itemId), isEmpty);
     });
   });
 

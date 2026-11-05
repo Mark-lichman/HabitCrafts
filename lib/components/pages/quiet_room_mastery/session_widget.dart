@@ -41,6 +41,10 @@
 // mastery states dated today, so a resume shows the day, not the sitting. An offer whose
 // entries are already in the plan was taken, so it never shows twice.
 //
+// Every card button leaves its card before its action runs (`_tap`), so a double tap inside
+// one store write runs the action once: a second Catch up never ends the block unasked, and a
+// second Next at the target never skips the soft stop.
+//
 // The end card is quiet: the day's counts, the items mastered today, the 14 dots over the days
 // whose session completed (`recentDays`), and up to three offers, each only on a tap:
 //   * One more (10): the next ten planned entries, while the ceiling leaves room;
@@ -220,7 +224,8 @@ class SessionWidget extends StatefulWidget {
   final ItemCatalog catalog;
 
   /// The entry to start on: the stored `DayRecord.position` on a resume. The budget spent
-  /// before it is the cost of the plan's entries before it.
+  /// before it is rebuilt from the plan (`_spentBefore`): the entries before it plus each
+  /// entry a skip moved past it.
   final int position;
 
   /// Null loads [standardProbeBuilder] over the shipped grammar.
@@ -316,14 +321,16 @@ class _SessionWidgetState extends State<SessionWidget> {
       entries.fold(0, (sum, e) => sum + e.costSeconds);
 
   /// The estimate as the live session summed it over the entries [answered] (those before a
-  /// position): every askable one, plus the first skip of each `requeued` entry among
-  /// [candidates], which `afterUnscored` moved out of that range. A re-ask copy carries the
-  /// flag of its source and was never skipped itself, so it adds nothing; a skipped re-ask is
-  /// the one case left out, by one entry price.
+  /// position): every askable one, plus the skip of each `requeued` entry among [candidates].
+  /// `requeued` is set on the skipped entry itself and never inherited (`afterWrong` clears
+  /// it on a re-ask copy), so every requeued entry, a re-ask included, was answered one more
+  /// time than its place says: a skip that `afterUnscored` moved past the position adds its
+  /// cost once here, and one moved to a place before the position adds it twice, as the live
+  /// session did.
   int _spentBefore(
           Iterable<QueueEntry> answered, Iterable<QueueEntry> candidates) =>
       _sumCost(answered.where(_askable)) +
-      _sumCost(candidates.where((e) => e.requeued && !e.reask && _askable(e)));
+      _sumCost(candidates.where((e) => e.requeued && _askable(e)));
 
   /// The entries of [more] not already in the plan.
   List<QueueEntry> _unplanned(List<QueueEntry> more) {
@@ -340,7 +347,9 @@ class _SessionWidgetState extends State<SessionWidget> {
 
   /// A catch-up block in the stored plan was taken (PIN-12): the ceiling lift and the block's
   /// end come back as `_catchUp` set them, from the entries before the block. The block is
-  /// the entries the tap inserted: a re-ask of a block item shares its id and is not one.
+  /// the entries the tap inserted: a re-ask of a block item shares its id and is not one. The
+  /// skips counted into the spend before the tap leave out every entry with a block id: a
+  /// block item, or its re-ask, was first asked after the tap, so its skip came after it too.
   void _resumeCatchUp() {
     final ids = {for (final e in _plan.catchUpEntries) e.itemId};
     bool inBlock(QueueEntry e) => ids.contains(e.itemId) && !e.reask;
@@ -348,8 +357,8 @@ class _SessionWidgetState extends State<SessionWidget> {
     final first = entries.indexWhere(inBlock);
     if (first < 0) return;
     final block = entries.where(inBlock).toList();
-    final before =
-        _spentBefore(entries.take(first), entries.where((e) => !inBlock(e)));
+    final before = _spentBefore(
+        entries.take(first), entries.where((e) => !ids.contains(e.itemId)));
     _liftCeiling(spent: before, block: block);
     _stopAt = first + block.length;
   }
@@ -526,15 +535,19 @@ class _SessionWidgetState extends State<SessionWidget> {
     });
   }
 
-  void _keepGoing() {
+  /// Runs [go] for a tap on the card of [from], after leaving that card for loading. A tap
+  /// while the card is up but its first tap still runs (a double tap inside one store
+  /// write) finds the phase gone and does nothing, so no action runs twice. `_onAnswer`
+  /// holds the same rule for the probe (asking to saving).
+  void _tap(_Phase from, void Function() go) {
+    if (_phase != from) return;
     setState(() => _phase = _Phase.loading);
-    _next();
+    go();
   }
 
-  void _stop() {
-    setState(() => _phase = _Phase.loading);
-    _finish(SessionEnd.stopped);
-  }
+  void _keepGoing(_Phase from) => _tap(from, _next);
+
+  void _stop() => _tap(_Phase.softStop, () => _finish(SessionEnd.stopped));
 
   /// The planned entries left after the end, and whether the ceiling leaves room for one.
   bool get _oneMoreFits =>
@@ -554,13 +567,13 @@ class _SessionWidgetState extends State<SessionWidget> {
       _index >= _plan.entries.length &&
       _spent + _sumCost(_plan.stretchEntries) <= _ceiling;
 
-  void _oneMore() {
-    _stopAt = _index + kOneMoreBlock;
-    _keepGoing();
-  }
+  void _oneMore() => _tap(_Phase.end, () {
+        _stopAt = _index + kOneMoreBlock;
+        _next();
+      });
 
   /// Puts [more] next, skipping items already planned, and runs them. With [only], the
-  /// session ends again after them.
+  /// session ends again after them. Called from a `_tap`, so the phase is already loading.
   Future<void> _insert(List<QueueEntry> more, {bool only = false}) async {
     final add = _unplanned(more);
     _plan = DayPlan.fromJson({
@@ -573,19 +586,20 @@ class _SessionWidgetState extends State<SessionWidget> {
     });
     _stopAt = only ? _index + add.length : null;
     await _saveDay(_index);
-    _keepGoing();
+    if (!mounted) return;
+    await _next();
   }
 
   /// The opt-in block past the ceiling (PIN-12): the ceiling moves by the cost of the entries
   /// the block adds, from where the session stands, and the session ends again after them.
-  void _catchUp() {
-    final block = _unplanned(_plan.catchUpEntries);
-    _liftCeiling(spent: _spent, block: block);
-    _insert(block, only: true);
-  }
+  void _catchUp() => _tap(_Phase.end, () {
+        final block = _unplanned(_plan.catchUpEntries);
+        _liftCeiling(spent: _spent, block: block);
+        _insert(block, only: true);
+      });
 
   /// The "4 more new" stretch (PIN-6), inside the ceiling.
-  void _stretch() => _insert(_plan.stretchEntries);
+  void _stretch() => _tap(_Phase.end, () => _insert(_plan.stretchEntries));
 
   void _close() {
     final onClose = widget.onClose;
@@ -747,7 +761,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     }
     return _card(t, [
       ...lines,
-      _action(t, 'Next', _keepGoing, primary: true),
+      _action(t, 'Next', () => _keepGoing(_Phase.verdict), primary: true),
     ]);
   }
 
@@ -755,7 +769,8 @@ class _SessionWidgetState extends State<SessionWidget> {
         _title(t, 'About ${_plan.targetSeconds ~/ 60} minutes'),
         _line(t, 'That is today\'s target. You can stop here, or keep going.'),
         _action(t, 'Stop', _stop),
-        _action(t, 'Keep going', _keepGoing, primary: true),
+        _action(t, 'Keep going', () => _keepGoing(_Phase.softStop),
+            primary: true),
       ]);
 
   Widget _endCard(QuietRoomTokens t) {

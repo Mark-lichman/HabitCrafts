@@ -213,9 +213,7 @@ void main() {
     expect(after.daysMissed, 0);
   });
 
-  test(
-      'a plan built but never answered is no session day, a completed one is (ASK-5)',
-      () async {
+  test('a plan built but never answered is no session day (ASK-5)', () async {
     final store = await launchedStore();
     // Day0 + 1 is planned and left untouched; day0 + 2 then has one missed day, not none.
     await onLaunch(at(day0 + 1), store, catalog);

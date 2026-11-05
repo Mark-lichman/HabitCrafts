@@ -160,7 +160,8 @@ class QueueEntry {
   /// The predicted recall when the plan was built; null with no FSRS state.
   final double? retrievability;
 
-  /// Moved to the end of its section once after an unscored answer.
+  /// Moved to the end of its section once after an unscored answer. Set on the entry that was
+  /// skipped, never on a copy of it: [DayPlan.afterWrong] clears it on the re-ask.
   final bool requeued;
 
   /// A same-session re-ask of a wrong answer (PIN-11).
@@ -339,6 +340,8 @@ class DayPlan {
   /// inserted about [kRepairReaskSeconds] of estimated answers later, or at the end (PIN-11).
   /// The re-ask is not due: the wrong scheduled the item for tomorrow at the earliest, so its
   /// clear starts no run of counting clears (End state 2). A re-ask is not re-asked again.
+  /// The re-ask starts unrequeued, whatever its source: `requeued` means the entry itself was
+  /// skipped once, and the session's resume estimate counts each such entry's skip on that.
   DayPlan afterWrong(int index) {
     final entry = entries[index];
     if (entry.reask) return this;
@@ -354,7 +357,10 @@ class DayPlan {
     final next = [...entries]..insert(
         at,
         entry.copyWith(
-            section: PlanSection.repair, wasDue: false, reask: true));
+            section: PlanSection.repair,
+            wasDue: false,
+            requeued: false,
+            reask: true));
     return _withEntries(next);
   }
 
