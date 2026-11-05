@@ -286,9 +286,8 @@ opt-in offers, none of which runs on its own:
 
 - **One more** (`kOneMoreBlock` more, in `session_widget.dart`): only while the next item fits
   inside the ceiling.
-- **Catch up** (`kCatchUpBlock` more): past the ceiling, only when the day's plan was cut at the
-  ceiling, the session ran through it or reached the ceiling, and the backlog left over is still
-  above the gate, as in the first seeded weeks or after a break.
+- **Catch up** (`kCatchUpBlock` more): past the ceiling, only when the session reached the ceiling
+  with the backlog still above the gate, as in the first seeded weeks or after a break.
 - **The stretch** (`kStretchNew` more new items): only when repairs and due items are done, the
   backlog before the session was under the gate, no day was missed, and the ceiling leaves room.
   The stretch is never forced.
@@ -308,13 +307,11 @@ conjugation idea, verb pair and table row, a due day spread over `kSeedSpreadDay
 order.
 
 🚨 **A seed is not an answer.** Each seeded item gets one seed event: an item id and a due day.
-The seed event writes no attempt, no schedule and no clear, so no seeded item is Mastered until
-it earns the full rule from real answers. The first real answer on it is review one and clear
-one.
+The seed writes no attempt, no schedule and no clear, so no seeded item is Mastered until it
+earns the full rule from real answers. The first real answer on it is review one and clear one.
 
 The seed also imports the earlier study keys once (`migrateV2Keys` in `study_export.dart`): a
 grammar point marked Review is due today, and a grammar speaking score becomes a Say-it attempt.
-Those Say-it attempts never count toward mastery and never move the schedule.
 
 ### Relaunch
 
