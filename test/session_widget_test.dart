@@ -5,12 +5,15 @@
 // probe_widgets_test.dart): it shows four buttons that hand on a clear, a hinted, a wrong or an
 // unscored draft. The cases: the section order and the "Due · 1 of 2" line, the attempt written
 // at answer time with the entry's `wasDue` and source (ASK-6), the no-credit card (PIN-3), the
-// Clear and Mastered cards, the repair re-ask about 10 minutes later and not due (PIN-11), the
-// soft stop at the target with Stop and Keep going, the end at the ceiling with the rest left
-// due (PIN-5), One more (10) inside the ceiling, the catch-up only when the plan offers it and
-// only on a tap (PIN-12), the stretch only under its conditions (PIN-6), the 14 dots over
-// the days whose session completed, and a resume (`position`) that carries the estimate, the
-// day's counts, the mastered-today list and a taken offer on instead of restarting them.
+// Clear and Mastered cards (the fourth clear, and a Shaky item's regain), the repair re-ask
+// about 10 minutes later and not due (PIN-11), the skip that moves an entry to the end of its
+// section once, the soft stop at the target with Stop and Keep going, the end at the ceiling
+// with the rest left due (PIN-5), One more (10) inside the ceiling, the catch-up only when the
+// plan offers it and only on a tap (PIN-12), the stretch only under its conditions (PIN-6),
+// the 14 dots over the days whose session completed, the end card listing two mastered items
+// that share a title (PIN-16), and a resume (`position`) that carries the estimate (skips
+// included), the day's counts, the mastered-today list and a taken offer on instead of
+// restarting them.
 
 import 'dart:convert';
 import 'dart:io';
@@ -294,10 +297,69 @@ void main() {
         store: store);
     await h.tap('answer clear');
     expect(h.shows('Mastered'), isTrue);
+    expect(
+        h.shows('Four clears over time. It still comes back to keep it sharp.'),
+        isTrue);
     expect((await store.mastery(particle.id))!.status, MasteryStatus.mastered);
     await h.tap('Next');
     expect(h.shows('Mastered today'), isTrue);
     expect(h.shows(particle.title), isTrue);
+  });
+
+  testWidgets(
+      'the clear that regains a Shaky item shows Mastered without the four-clears line',
+      (tester) async {
+    final particle = catalog.ofKind(ItemKind.particle).first;
+    final probe = particle.scoredProbes.first;
+    final store = JpStoreMemory();
+    // One regain clear eight days ago: this clear is the second, past the 7-day gap.
+    await store.putMastery(MasteryState(
+      itemId: particle.id,
+      status: MasteryStatus.shaky,
+      clears: [
+        ClearRef(
+            day: today - 8,
+            template: probe.template,
+            production: probe.production,
+            probeId: probe.id)
+      ],
+      lastScoredDay: today - 8,
+      shakyOn: today - 20,
+    ));
+    final h = await pumpSession(
+        tester, planOf([entryOf(particle, PlanSection.due)]),
+        store: store);
+    await h.tap('answer clear');
+    expect(h.shows('Mastered'), isTrue);
+    expect(h.shows('Back to mastered. It still comes back to keep it sharp.'),
+        isTrue);
+    expect(
+        h.shows('Four clears over time. It still comes back to keep it sharp.'),
+        isFalse);
+    expect((await store.mastery(particle.id))!.status, MasteryStatus.mastered);
+    await h.tap('Next');
+    expect(h.shows(particle.title), isTrue);
+  });
+
+  testWidgets(
+      'the end card lists two items mastered today that share a title, one line each '
+      '(PIN-16)', (tester) async {
+    final byTitle = <String, List<ItemDef>>{};
+    for (final w in words) {
+      byTitle.putIfAbsent(w.title, () => []).add(w);
+    }
+    final twins = byTitle.values.firstWhere((v) => v.length > 1);
+    final store = JpStoreMemory();
+    for (final twin in twins.take(2)) {
+      await store.putMastery(MasteryState(
+          itemId: twin.id, status: MasteryStatus.mastered, masteredOn: today));
+    }
+    final h = await pumpSession(
+        tester, planOf([entryOf(words[0], PlanSection.due)]),
+        store: store);
+    await h.answer(Grade.clear);
+    expect(h.shows('Mastered today'), isTrue);
+    expect(find.text(twins.first.title), findsNWidgets(2));
   });
 
   testWidgets(
@@ -329,6 +391,64 @@ void main() {
     expect([for (final a in onItem) a.wasDue], [true, false]);
     // A not-due clear starts no run of counting clears.
     expect((await h.store.mastery(words[0].id))!.clearCount, 0);
+  });
+
+  group('a skip (unscored)', () {
+    testWidgets(
+        'shows Not counted, asks the item again at the end of its section, and counts '
+        'as answered', (tester) async {
+      final plan = planOf([
+        entryOf(words[0], PlanSection.due),
+        entryOf(words[1], PlanSection.due),
+        entryOf(words[2], PlanSection.due),
+        entryOf(words[3], PlanSection.keepSharp, wasDue: false),
+      ]);
+      final h = await pumpSession(tester, plan);
+      await h.tap('answer unscored');
+      expect(h.shows('Not counted'), isTrue);
+      expect(h.shows('It comes back later in this part.'), isTrue);
+      await h.tap('Next');
+      expect(h.onScreen, words[1].id);
+      expect(h.shows('Due · 1 of 3'), isTrue);
+      await h.answer(Grade.clear);
+      await h.answer(Grade.clear);
+      expect(h.onScreen, words[0].id, reason: 'the skipped item, last in Due');
+      expect(h.shows('Due · 3 of 3'), isTrue);
+      await h.answer(Grade.clear);
+      expect(h.onScreen, words[3].id);
+      await h.answer(Grade.clear);
+      expect(h.shows('Done for today'), isTrue);
+      // The skip is an answer on the end card; it is none of the three listed counts.
+      expect(h.shows('5 answered · 4 clear · 0 with help · 0 not this time'),
+          isTrue);
+      final onItem = await h.store.attempts(itemId: words[0].id);
+      expect([for (final a in onItem) a.grade], [Grade.unscored, Grade.clear]);
+      expect((await h.store.mastery(words[0].id))!.clearCount, 1);
+    });
+
+    testWidgets('a second skip on the same entry moves on', (tester) async {
+      final h = await pumpSession(
+          tester,
+          planOf([
+            entryOf(words[0], PlanSection.due),
+            entryOf(words[1], PlanSection.due),
+          ]));
+      await h.answer(Grade.unscored);
+      expect(h.onScreen, words[1].id);
+      await h.answer(Grade.unscored);
+      // Both moved once: the order is as it was.
+      expect(h.onScreen, words[0].id);
+      await h.answer(Grade.unscored);
+      expect(h.onScreen, words[1].id, reason: 'a requeued entry stays put');
+      await h.answer(Grade.unscored);
+      expect(h.shows('Done for today'), isTrue);
+      expect(h.shows('4 answered · 0 clear · 0 with help · 0 not this time'),
+          isTrue);
+      final record = await h.store.day(today);
+      expect(record!.position, 2);
+      expect(
+          DayPlan.decode(record.plan).entries.every((e) => e.requeued), isTrue);
+    });
   });
 
   testWidgets(
@@ -555,6 +675,32 @@ void main() {
     });
 
     testWidgets(
+        'a skipped entry after the position still counts toward the estimate: at 800 '
+        'answered and one skip, the soft stop shows first', (tester) async {
+      final entries = [
+        for (final w in words.take(15)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      // The plan as a skip of the first entry left it: moved to the end of Due, requeued;
+      // eight answered since.
+      final plan = planOf([
+        ...entries.skip(1),
+        entries[0].copyWith(requeued: true),
+      ]);
+      final h = await pumpSession(tester, plan, position: 8);
+      expect(h.onScreen, isNull, reason: '800 + the 100 skipped is the target');
+      expect(h.shows('About 15 minutes'), isTrue);
+      await h.tap('Keep going');
+      for (var i = 0; i < 3; i++) {
+        expect(h.onScreen, entries[9 + i].itemId);
+        await h.answer(Grade.clear);
+      }
+      // 900 before the resume and 300 since: the next entry would pass the ceiling.
+      expect(h.onScreen, isNull);
+      expect(h.shows("That is today's 20 minutes"), isTrue);
+      expect(await h.store.attempts(), hasLength(3));
+    });
+
+    testWidgets(
         'at 1200 seconds answered, the session ends on the ceiling card',
         (tester) async {
       final entries = [
@@ -700,6 +846,35 @@ void main() {
       await h.answer(Grade.clear);
       expect(h.shows('Done for today'), isTrue);
       expect(h.shows('Catch up: 10 more'), isFalse);
+    });
+
+    testWidgets(
+        'a re-ask of a catch-up item in the stored plan is not part of the block: the '
+        'block still ends after its own ten', (tester) async {
+      final base = [
+        for (final w in words.take(5)) entryOf(w, PlanSection.due, cost: 100)
+      ];
+      final block = [
+        for (final w in words.skip(5).take(10)) entryOf(w, PlanSection.due)
+      ];
+      // The plan as a wrong on the third block entry left it: its re-ask after the block.
+      final plan = planOf([
+        ...base,
+        ...block,
+        block[2]
+            .copyWith(section: PlanSection.repair, wasDue: false, reask: true),
+      ], catchUpOffer: true, catchUpEntries: block);
+      final h = await pumpSession(tester, plan, position: 8);
+      var more = 0;
+      while (h.onScreen != null) {
+        await h.answer(Grade.clear);
+        more++;
+      }
+      expect(more, 7, reason: 'the seven block entries left, not the re-ask');
+      expect(h.shows('Done for today'), isTrue);
+      expect(await h.store.attempts(itemId: block[2].itemId), isEmpty);
+      expect(h.shows('One more (10)'), isTrue,
+          reason: 'the re-ask is still planned and fits');
     });
   });
 

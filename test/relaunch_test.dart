@@ -224,6 +224,18 @@ void main() {
     expect(launch.daysMissed, 1);
   });
 
+  test('a completed day at position 0 is a session day on its own (ASK-5)',
+      () async {
+    final store = await launchedStore();
+    // Day0 + 1 is planned, then stored completed with no position moved.
+    final planned = await onLaunch(at(day0 + 1), store, catalog);
+    await store.putDay(planned.record!.copyWith(position: 0, completed: true));
+    final launch = await onLaunch(at(day0 + 3), store, catalog);
+    expect(launch.decision, LaunchDecision.today);
+    // Counted from day0 + 1: only day0 + 2 is missed, not day0 + 1 as well.
+    expect(launch.daysMissed, 1);
+  });
+
   test('a stored plan this build cannot read is built again, not shown',
       () async {
     final store = JpStoreMemory();

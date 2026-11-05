@@ -8,7 +8,7 @@
 //
 // | grade                  | card                                                   |
 // |------------------------|--------------------------------------------------------|
-// | clear, the 4th that counts | Mastered                                           |
+// | clear, the 4th that counts, or a Shaky item's regain | Mastered                 |
 // | clear                  | Clear, with the new interval                           |
 // | hinted                 | Right with a hint, no credit (PIN-3)                   |
 // | self                   | Marked as got it, no credit (PIN-3)                    |
@@ -32,13 +32,14 @@
 // makes the day a session day for the days missed (ASK-5). The end marks the record completed.
 //
 // A resume carries the budget on, never restarts it (PIN-5): the running estimate is rebuilt
-// from the stored plan's entries before the position (the same entries the live estimate
-// summed), so the soft stop and the ceiling fall where they would have without the relaunch.
-// A catch-up block found in the stored plan was taken: its ceiling lift and its end come back
-// too. The end card's counts come from the day's review-session attempts in the store, and
-// the mastered-today list from the mastery states dated today, so a resume shows the day,
-// not the sitting. An offer whose entries are already in the plan was taken, so it never
-// shows twice.
+// from the stored plan's entries before the position plus each entry skipped once, which
+// `afterUnscored` moved past the position (the same entries the live estimate summed), so the
+// soft stop and the ceiling fall where they would have without the relaunch. A catch-up block
+// found in the stored plan was taken: its ceiling lift and its end come back too, over the
+// entries the tap inserted (a re-ask of a block item is not one). The end card's counts come
+// from the day's review-session attempts in the store, and the mastered-today list from the
+// mastery states dated today, so a resume shows the day, not the sitting. An offer whose
+// entries are already in the plan was taken, so it never shows twice.
 //
 // The end card is quiet: the day's counts, the items mastered today, the 14 dots over the days
 // whose session completed (`recentDays`), and up to three offers, each only on a tap:
@@ -267,11 +268,18 @@ class _SessionWidgetState extends State<SessionWidget> {
   Grade? _grade;
   bool _lost = false;
   bool _justMastered = false;
+
+  /// The Mastered just shown is a Shaky item's regain, not the fourth clear.
+  bool _regained = false;
   bool _reasked = false;
   int? _interval;
 
   // The day's counts.
   final Map<Grade, int> _counts = {};
+
+  /// The items mastered today, by id, and their titles in the order found. Two items may
+  /// share a title (a word listed twice, PIN-16), so the end card lists each item.
+  final Set<String> _masteredIds = {};
   final List<String> _masteredToday = [];
   List<bool> _dots = const [];
 
@@ -283,7 +291,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     super.initState();
     _plan = widget.plan;
     _index = widget.position.clamp(0, _plan.entries.length);
-    _spent = _sumCost(_plan.entries.take(_index).where(_askable));
+    _spent = _spentBefore(_plan.entries.take(_index), _plan.entries);
     _resumeCatchUp();
     _sessionId = widget.sessionId ??
         '$kReviewSessionPrefix${_plan.day}-${widget.clock.now().toUtc().microsecondsSinceEpoch}';
@@ -307,6 +315,16 @@ class _SessionWidgetState extends State<SessionWidget> {
   int _sumCost(Iterable<QueueEntry> entries) =>
       entries.fold(0, (sum, e) => sum + e.costSeconds);
 
+  /// The estimate as the live session summed it over the entries [answered] (those before a
+  /// position): every askable one, plus the first skip of each `requeued` entry among
+  /// [candidates], which `afterUnscored` moved out of that range. A re-ask copy carries the
+  /// flag of its source and was never skipped itself, so it adds nothing; a skipped re-ask is
+  /// the one case left out, by one entry price.
+  int _spentBefore(
+          Iterable<QueueEntry> answered, Iterable<QueueEntry> candidates) =>
+      _sumCost(answered.where(_askable)) +
+      _sumCost(candidates.where((e) => e.requeued && !e.reask && _askable(e)));
+
   /// The entries of [more] not already in the plan.
   List<QueueEntry> _unplanned(List<QueueEntry> more) {
     final planned = {for (final e in _plan.entries) e.itemId};
@@ -321,17 +339,17 @@ class _SessionWidgetState extends State<SessionWidget> {
       more.length != _unplanned(more).length;
 
   /// A catch-up block in the stored plan was taken (PIN-12): the ceiling lift and the block's
-  /// end come back as `_catchUp` set them, from the entries before the block.
+  /// end come back as `_catchUp` set them, from the entries before the block. The block is
+  /// the entries the tap inserted: a re-ask of a block item shares its id and is not one.
   void _resumeCatchUp() {
     final ids = {for (final e in _plan.catchUpEntries) e.itemId};
+    bool inBlock(QueueEntry e) => ids.contains(e.itemId) && !e.reask;
     final entries = _plan.entries;
-    final first = entries.indexWhere((e) => ids.contains(e.itemId));
+    final first = entries.indexWhere(inBlock);
     if (first < 0) return;
-    final block = [
-      for (final e in entries)
-        if (ids.contains(e.itemId)) e
-    ];
-    final before = _sumCost(entries.take(first).where(_askable));
+    final block = entries.where(inBlock).toList();
+    final before =
+        _spentBefore(entries.take(first), entries.where((e) => !inBlock(e)));
     _liftCeiling(spent: before, block: block);
     _stopAt = first + block.length;
   }
@@ -353,11 +371,14 @@ class _SessionWidgetState extends State<SessionWidget> {
     }
     for (final m in (await widget.store.allMastery()).values) {
       if (m.masteredOn != day) continue;
-      final title = widget.catalog.byId(m.itemId)?.title;
-      if (title != null && !_masteredToday.contains(title)) {
-        _masteredToday.add(title);
-      }
+      final item = widget.catalog.byId(m.itemId);
+      if (item != null) _noteMastered(item);
     }
+  }
+
+  /// Lists [item] on the end card once, by id.
+  void _noteMastered(ItemDef item) {
+    if (_masteredIds.add(item.id)) _masteredToday.add(item.title);
   }
 
   /// Shows the entry at [_index], the soft stop, or the end.
@@ -453,9 +474,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     final justMastered = mastery != null &&
         mastery.status == MasteryStatus.mastered &&
         before.status != MasteryStatus.mastered;
-    if (justMastered && !_masteredToday.contains(item.title)) {
-      _masteredToday.add(item.title);
-    }
+    if (justMastered) _noteMastered(item);
     final srs = outcome?.srs;
     _spent += entry.costSeconds;
     _plan = next;
@@ -465,6 +484,7 @@ class _SessionWidgetState extends State<SessionWidget> {
       _grade = grade;
       _lost = outcome == null;
       _justMastered = justMastered;
+      _regained = justMastered && before.status == MasteryStatus.shaky;
       _reasked = reasked;
       _interval = srs == null ? null : srs.dueDay - localDay(now);
       _index = nextIndex;
@@ -691,7 +711,10 @@ class _SessionWidgetState extends State<SessionWidget> {
       lines = [
         _title(t, 'Mastered', color: t.sage700),
         _line(
-            t, 'Four clears over time. It still comes back to keep it sharp.'),
+            t,
+            _regained
+                ? 'Back to mastered. It still comes back to keep it sharp.'
+                : 'Four clears over time. It still comes back to keep it sharp.'),
       ];
     } else {
       lines = switch (grade) {
