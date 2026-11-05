@@ -4,6 +4,7 @@
 // Every screen reads the real assets/lessons/jp_grammar.json through JpGrammarData,
 // so the tests check the shipped data, not a fixture that can drift from it.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -35,8 +36,11 @@ Map<String, dynamic> readLessonFile() =>
 /// A screen that writes answers and has no store of its own uses the shared one, which
 /// on the phone is SQLite. A test cannot open that, so each pump shares a fresh memory
 /// store instead.
-Future<void> pumpStudyScreen(WidgetTester tester, Widget screen) async {
-  SharedPreferences.setMockInitialValues({});
+///
+/// [prefs] seeds `SharedPreferences` before the screen builds.
+Future<void> pumpStudyScreen(WidgetTester tester, Widget screen,
+    {Map<String, Object> prefs = const {}}) async {
+  SharedPreferences.setMockInitialValues(prefs);
   debugSetSharedJpStore(JpStoreMemory());
   addTearDown(() => debugSetSharedJpStore(null));
   tester.view.physicalSize = const Size(1200, 12000);
@@ -48,6 +52,29 @@ Future<void> pumpStudyScreen(WidgetTester tester, Widget screen) async {
   await tester.runAsync(() => Future<void>.delayed(Duration.zero));
   await tester.pump();
   await tester.pump();
+}
+
+/// Holds every HTTP request of this test file open forever, so a Google Fonts fetch never
+/// fails inside a test. The test binding answers every request with a 400, and google_fonts
+/// rethrows that as an uncaught error into whichever test is running when a `runAsync` lets
+/// the answer arrive. Held open, the font stays on its fallback and nothing is thrown.
+///
+/// Call it from `setUpAll`, before the first screen builds: google_fonts makes its one
+/// client on its first fetch, and that client keeps the overrides current at that time.
+void holdHttpRequests() => HttpOverrides.global = _HeldHttpOverrides();
+
+class _HeldHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) => _HeldHttpClient();
+}
+
+class _HeldHttpClient implements HttpClient {
+  @override
+  Future<HttpClientRequest> openUrl(String method, Uri url) =>
+      Completer<HttpClientRequest>().future;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
 
 /// A memory store whose attempt write throws on every call until [failures] runs out: the

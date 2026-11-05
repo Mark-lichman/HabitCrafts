@@ -6,6 +6,14 @@
 //
 // Quiet Room: one loud object. The hero is the grammar lesson to continue, because
 // grammar is where the practice is needed most. Everything else is a quiet card.
+//
+// Before it builds, the screen resolves the launch (`onLaunch`, relaunch.dart, D9, PIN-9):
+//   * firstLaunch: the seed confirmation (seed_confirm_widget.dart), then this hub;
+//   * welcomeBack: the Welcome back screen (welcome_back_widget.dart), then the session;
+//   * today, resume and done: this hub, with the Today card above the search and the hero.
+// The Today card names the plan's sections with their counts, the minutes line, and Start or
+// Resume; on a finished day it shows the end state. The old hero and rows stay below it
+// until the home becomes Today (plan 2026-11-02, Phase 7).
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,19 +21,67 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import '/components/pages/quiet_room_mastery/item_catalog.dart';
+import '/components/pages/quiet_room_mastery/jp_store.dart';
+import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show sharedJpStore;
+import '/components/pages/quiet_room_mastery/local_day.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
+import '/components/pages/quiet_room_mastery/plan_builder.dart';
+import '/components/pages/quiet_room_mastery/relaunch.dart';
+import '/components/pages/quiet_room_mastery/review_page.dart';
+import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
+import '/components/pages/quiet_room_mastery/session_widget.dart'
+    show sectionLabel;
+import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
 import 'quiet_room_grammar_widget.dart';
 
+/// The Today card's queue line: each non-empty section with its count, in session order,
+/// then the stretch when the plan offers it, "Repair 3 · Due 42 · Keep-sharp 10 · New 8 ·
+/// +4 stretch". Empty when the plan holds nothing.
+String todaySectionsLine(DayPlan plan) {
+  final counts = plan.counts;
+  return [
+    for (final s in PlanSection.values)
+      if ((counts[s] ?? 0) > 0) '${sectionLabel(s)} ${counts[s]}',
+    if (plan.stretchOffer && plan.stretchEntries.isNotEmpty)
+      '+${plan.stretchEntries.length} stretch',
+  ].join(' · ');
+}
+
+/// The Today card's minutes line: the target and the ceiling, or less when the plan is short.
+String todayMinutesLine(DayPlan plan) {
+  final target = plan.targetSeconds ~/ 60;
+  final ceiling = plan.ceilingSeconds ~/ 60;
+  if (plan.plannedSeconds >= plan.targetSeconds) {
+    return '$target to $ceiling minutes';
+  }
+  final minutes = (plan.plannedSeconds + 59) ~/ 60;
+  return 'About ${minutes < 1 ? 1 : minutes} min, under the $target-minute target';
+}
+
 class QuietRoomJapaneseWidget extends StatefulWidget {
-  const QuietRoomJapaneseWidget({super.key});
+  const QuietRoomJapaneseWidget({
+    super.key,
+    this.store,
+    this.catalog,
+    this.clock = const SystemClock(),
+  });
+
+  /// Null uses the app's one shared store (`sharedJpStore`).
+  final JpStore? store;
+
+  /// Null loads the shipped catalog.
+  final ItemCatalog? catalog;
+  final Clock clock;
 
   static String routeName = 'quietRoomJapanese';
   static String routePath = '/quietRoomJapanese';
 
   /// The lesson the hero card continues. Written by the grammar screen.
-  static const lastLessonKey = 'jp.grammar.lastLesson';
+  static const lastLessonKey = kLastGrammarLessonKey;
 
   @override
   State<QuietRoomJapaneseWidget> createState() =>
@@ -38,10 +94,48 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
   String? _use;
   final _searchBox = TextEditingController();
 
+  JpStore? _store;
+  ItemCatalog? _catalog;
+  Launch? _launch;
+  Object? _launchError;
+
+  /// "Not now" on Welcome back: the hub for the rest of this visit.
+  bool _pastWelcome = false;
+
+  /// Only the latest launch resolution lands (a return from the session can overlap one).
+  int _launchRun = 0;
+
   @override
   void initState() {
     super.initState();
     _readLast();
+    _relaunch();
+  }
+
+  /// Resolves today's launch. Writes only today's `DayRecord`, through `onLaunch`.
+  Future<void> _relaunch() async {
+    final run = ++_launchRun;
+    try {
+      final store = _store ??= widget.store ?? await sharedJpStore();
+      final catalog = _catalog ??= widget.catalog ?? await ItemCatalog.load();
+      final launch = await onLaunch(widget.clock.now(), store, catalog);
+      if (mounted && run == _launchRun) {
+        setState(() {
+          _launch = launch;
+          _launchError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted && run == _launchRun) setState(() => _launchError = e);
+    }
+  }
+
+  Future<void> _startSession() async {
+    await openReviewSession(context,
+        store: _store, catalog: _catalog, clock: widget.clock);
+    if (!mounted) return;
+    _pastWelcome = true;
+    await _relaunch();
   }
 
   @override
@@ -78,6 +172,30 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final launch = _launch;
+    if (launch == null && _launchError == null) {
+      return QrStudyScaffold(
+          showBack: false, child: qrLoadingOr(context, null, ''));
+    }
+    if (launch?.decision == LaunchDecision.firstLaunch) {
+      return SeedConfirmWidget(
+        store: _store,
+        catalog: _catalog,
+        clock: widget.clock,
+        onSeeded: _relaunch,
+      );
+    }
+    if (launch?.decision == LaunchDecision.welcomeBack && !_pastWelcome) {
+      return WelcomeBackWidget(
+        key: ValueKey('welcome-${launch!.day}'),
+        launch: launch,
+        store: _store,
+        catalog: _catalog,
+        clock: widget.clock,
+        onStart: _startSession,
+        onLater: () => setState(() => _pastWelcome = true),
+      );
+    }
     return QrStudyScaffold(
       showBack: false,
       child: QrLoad(builder: (context, doc) {
@@ -96,6 +214,8 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
             const SizedBox(height: 5),
             Text('Five minutes of grammar, then one drill.',
                 style: qrText(t, color: t.inkMuted)),
+            const SizedBox(height: 16),
+            _todayCard(t),
             const SizedBox(height: 16),
             _search(t),
             const SizedBox(height: 10),
@@ -349,6 +469,59 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  /// The Today card (Task 20): the day's queue and Start or Resume, or the end state.
+  Widget _todayCard(QuietRoomTokens t) {
+    final launch = _launch;
+    final label = Text('TODAY',
+        style: qrText(t, size: 11, weight: FontWeight.w600, color: t.sage700)
+            .copyWith(letterSpacing: 11 * 0.08));
+    if (launch == null || launch.plan == null) {
+      return QrCard(
+        key: const ValueKey('today-card'),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          label,
+          const SizedBox(height: 6),
+          Text("Could not load today's plan: $_launchError",
+              style: qrText(t, color: t.clay600)),
+        ]),
+      );
+    }
+    final plan = launch.plan!;
+    final done = launch.decision == LaunchDecision.done;
+    final position = launch.record?.position ?? 0;
+    final queue = todaySectionsLine(plan);
+    return QrCard(
+      key: const ValueKey('today-card'),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        label,
+        const SizedBox(height: 6),
+        if (done) ...[
+          Text(kDoneForToday, style: qrTitle(t, size: 22)),
+          const SizedBox(height: 4),
+          Text(kDoneComeBack, style: qrText(t, color: t.inkMuted)),
+        ] else ...[
+          Text(queue.isEmpty ? 'Nothing is due today.' : queue,
+              style: qrText(t,
+                  size: 15.5, weight: FontWeight.w600, color: t.inkStrong)),
+          if (queue.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(todayMinutesLine(plan),
+                style: qrText(t, size: 13, color: t.inkMuted)),
+            if (position > 0) ...[
+              const SizedBox(height: 2),
+              Text('$position of ${plan.entries.length} answered',
+                  style: qrText(t, size: 13, color: t.inkMuted)),
+            ],
+            const SizedBox(height: 12),
+            QrLoudButton(
+                label: position > 0 ? 'Resume' : 'Start',
+                onPressed: _startSession),
+          ],
+        ],
+      ]),
     );
   }
 

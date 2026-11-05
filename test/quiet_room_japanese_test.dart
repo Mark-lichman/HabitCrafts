@@ -1,12 +1,76 @@
-// Widget tests for the Japanese start screen: the search over the extraction catalog.
+// Widget tests for the Japanese start screen: the launch it resolves before it builds (the seed
+// confirmation on a first launch, the Today card on today, resume and done), and the search
+// over the extraction catalog.
+
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/relaunch.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart'
+    show kV2CanUseIt, kV2SelfCheckPrefix;
 
 import 'jp_screen_harness.dart';
+
+Map<String, dynamic> _read(String path) =>
+    json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
+
+final catalog = ItemCatalog.fromDocs(_read('assets/lessons/jp_grammar.json'),
+    _read('assets/lessons/jp_lessons.json'));
+
+const int day0 = 300;
+
+/// 10:00 local on [day].
+DateTime at(int day) => dayStart(day).add(const Duration(hours: 6));
+
+/// A store whose first-launch seed ran on [day0].
+Future<JpStoreMemory> seededStore() async {
+  final store = JpStoreMemory();
+  await seedFromLessons(day0, store, catalog, nowUtc: at(day0).toUtc());
+  return store;
+}
+
+/// Pumps the hub on [store] at [day], and lets the launch resolve.
+Future<void> pumpHub(WidgetTester tester, JpStore store,
+    {int day = day0, Map<String, Object> prefs = const {}}) async {
+  await pumpStudyScreen(
+      tester,
+      QuietRoomJapaneseWidget(
+          store: store, catalog: catalog, clock: FixedClock(at(day))),
+      prefs: prefs);
+  await settle(tester);
+}
+
+/// Lets the store's futures and the asset loads finish.
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 4; i++) {
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pump();
+  }
+}
+
+/// The hub on a seeded store: the Today card is up, so the search tests run over it.
+Future<void> pumpSeededHub(WidgetTester tester) async =>
+    pumpHub(tester, await seededStore());
+
+Finder seedPill(String kind, int lesson) =>
+    find.byKey(ValueKey('seed-$kind-$lesson'));
+
+bool pillOn(WidgetTester tester, String kind, int lesson) =>
+    tester.widget<QrPill>(seedPill(kind, lesson)).on;
 
 /// The catalog entries the home search should list for [query]: the same fields the
 /// screen searches (title, summary, type, search terms, source files, uses).
@@ -34,10 +98,217 @@ List<Map<String, dynamic>> expectedHits(
       .toList();
 }
 
+/// A queue entry of [section], for a hand-built plan.
+Map<String, dynamic> entryJson(String id, PlanSection section) => {
+      'itemId': id,
+      'kind': ItemKind.word.name,
+      'section': section.name,
+      'costSeconds': 15,
+      'wasDue': true,
+    };
+
+/// A plan with no entries, for the queue line's format.
+DayPlan emptyPlan() => DayPlan(
+      day: day0,
+      builtAtUtc: at(day0).toUtc(),
+      entries: const [],
+      daysMissed: 0,
+      backlogSeconds: 0,
+      targetSeconds: kTargetSeconds,
+      ceilingSeconds: kCeilingSeconds,
+      gateSeconds: 0,
+      repairSlotSeconds: kRepairSlotSeconds,
+      newSkip: NewSkip.values.first,
+      keepSharpRan: false,
+      dueLeft: 0,
+      stretchOffer: true,
+      catchUpOffer: false,
+    );
+
 void main() {
+  setUpAll(holdHttpRequests);
+
+  group('launch', () {
+    testWidgets(
+        'first launch opens the seed confirmation with the default ticks, '
+        'and nothing is written before Confirm', (tester) async {
+      final store = JpStoreMemory();
+      await pumpHub(tester, store);
+
+      expect(find.text('Which lessons have you studied?'), findsOneWidget);
+      expect(find.text('Confirm'), findsOneWidget);
+      expect(find.byKey(const ValueKey('today-card')), findsNothing);
+
+      final words = catalogLessons(catalog, ItemKind.word);
+      final grammar = catalogLessons(catalog, ItemKind.grammar);
+      expect(words, containsAll([2, 30]));
+      expect(grammar, containsAll([26, 31, 32]));
+      for (final l in words) {
+        expect(pillOn(tester, 'word', l), l >= 2 && l <= 30,
+            reason: 'word lesson $l');
+      }
+      for (final l in grammar) {
+        expect(pillOn(tester, 'grammar', l), l >= 26 && l <= 31,
+            reason: 'grammar lesson $l');
+      }
+      expect(await store.seeds(), isEmpty);
+      expect(await store.meta(kSeedFlag), isNull);
+      expect(await store.lastDay(), isNull);
+    });
+
+    testWidgets(
+        'the last grammar lesson opened past 31 extends the grammar ticks to it',
+        (tester) async {
+      await pumpHub(tester, JpStoreMemory(),
+          prefs: {kLastGrammarLessonKey: 33});
+      expect(pillOn(tester, 'grammar', 31), isTrue);
+      expect(pillOn(tester, 'grammar', 32), isTrue);
+      expect(pillOn(tester, 'grammar', 33), isTrue);
+      expect(pillOn(tester, 'grammar', 34), isFalse);
+    });
+
+    test('a last grammar lesson inside the range never unticks one', () {
+      final words = catalogLessons(catalog, ItemKind.word).toSet();
+      for (final last in [null, 20, 26, 28, 31]) {
+        final ticks = defaultSeedLessons(catalog, lastGrammarLesson: last);
+        expect(ticks.grammarLessons, {26, 27, 28, 29, 30, 31},
+            reason: 'last $last');
+        expect(ticks.wordLessons,
+            {for (var l = 2; l <= 30; l++) l}.intersection(words));
+      }
+    });
+
+    testWidgets(
+        'Confirm seeds the ticked lessons only, imports the v2 keys, writes no '
+        'attempt, and opens the hub', (tester) async {
+      final store = JpStoreMemory();
+      final skipped = catalog.items
+          .firstWhere((i) => i.kind == ItemKind.grammar && i.lesson == 27);
+      await pumpHub(tester, store,
+          prefs: {'$kV2SelfCheckPrefix${skipped.id}': kV2CanUseIt});
+
+      await tester.tap(seedPill('word', 5));
+      await tester.tap(seedPill('grammar', 27));
+      await tester.pump();
+      expect(pillOn(tester, 'word', 5), isFalse);
+      expect(pillOn(tester, 'grammar', 27), isFalse);
+
+      await tester.tap(find.text('Confirm'));
+      await settle(tester);
+
+      final seeded = {for (final e in await store.seeds()) e.itemId};
+      bool any(ItemKind kind, int lesson) => catalog.items.any(
+          (i) => i.kind == kind && i.lesson == lesson && seeded.contains(i.id));
+      expect(any(ItemKind.word, 5), isFalse,
+          reason: 'an unticked lesson stays New');
+      expect(any(ItemKind.grammar, 27), isFalse);
+      expect(any(ItemKind.word, 6), isTrue);
+      expect(any(ItemKind.grammar, 28), isTrue);
+      // The v2 keys came in through the migration: prefs and the grammar went together.
+      expect((await store.notes())[skipped.id], isNotNull);
+      // PIN-7: the seed is no answer.
+      expect(await store.attempts(), isEmpty);
+      expect(await store.allMastery(), isEmpty);
+      expect(await store.allSrs(), isEmpty);
+
+      // Then the hub, with today's plan.
+      expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
+      expect(find.text('Start'), findsOneWidget);
+      expect(find.text('START HERE'), findsOneWidget);
+    });
+  });
+
+  group('Today card', () {
+    testWidgets(
+        'names the sections and their counts, the minutes line and Start, '
+        'above the hero', (tester) async {
+      final store = await seededStore();
+      await pumpHub(tester, store);
+
+      final plan = DayPlan.decode((await store.day(day0))!.plan);
+      final line = todaySectionsLine(plan);
+      expect(line, contains('Due '));
+      expect(find.text(line), findsOneWidget);
+      expect(find.text(todayMinutesLine(plan)), findsOneWidget);
+      expect(find.text('Start'), findsOneWidget);
+      expect(find.text('Resume'), findsNothing);
+
+      final card = tester.getTopLeft(find.byKey(const ValueKey('today-card')));
+      final hero = tester.getTopLeft(find.text('START HERE'));
+      expect(card.dy, lessThan(hero.dy));
+      expect(find.text('Grammar lessons'), findsOneWidget);
+    });
+
+    test('the queue line reads as the plan sections, then the stretch', () {
+      var n = 0;
+      List<Map<String, dynamic>> many(int count, PlanSection s) =>
+          [for (var i = 0; i < count; i++) entryJson('x${n++}', s)];
+      final plan = DayPlan.fromJson({
+        ...emptyPlan().toJson(),
+        'entries': [
+          ...many(3, PlanSection.repair),
+          ...many(42, PlanSection.due),
+          ...many(10, PlanSection.keepSharp),
+          ...many(8, PlanSection.newItems),
+        ],
+        'stretchEntries': many(4, PlanSection.newItems),
+      });
+      expect(todaySectionsLine(plan),
+          'Repair 3 · Due 42 · Keep-sharp 10 · New 8 · +4 stretch');
+      expect(todayMinutesLine(plan), '15 to 20 minutes');
+
+      final noStretch =
+          DayPlan.fromJson({...plan.toJson(), 'stretchOffer': false});
+      expect(todaySectionsLine(noStretch),
+          'Repair 3 · Due 42 · Keep-sharp 10 · New 8');
+
+      final short = DayPlan.fromJson(
+          {...plan.toJson(), 'entries': many(6, PlanSection.due)});
+      expect(
+          todayMinutesLine(short), 'About 2 min, under the 15-minute target');
+    });
+
+    testWidgets('a session already under way shows Resume', (tester) async {
+      final store = await seededStore();
+      final launch = await onLaunch(at(day0), store, catalog);
+      await store.putDay(launch.record!.copyWith(position: 3));
+      await pumpHub(tester, store);
+
+      expect(find.text('Resume'), findsOneWidget);
+      expect(find.text('Start'), findsNothing);
+      expect(find.text('3 of ${launch.plan!.entries.length} answered'),
+          findsOneWidget);
+    });
+
+    testWidgets('a finished day shows the end state and no Start',
+        (tester) async {
+      final store = await seededStore();
+      final launch = await onLaunch(at(day0), store, catalog);
+      await store.putDay(launch.record!.copyWith(position: 5, completed: true));
+      await pumpHub(tester, store);
+
+      expect(find.text('Done for today'), findsOneWidget);
+      expect(find.text('Start'), findsNothing);
+      expect(find.text('Resume'), findsNothing);
+    });
+
+    testWidgets("Start opens the Review session on today's plan",
+        (tester) async {
+      final store = await seededStore();
+      await pumpHub(tester, store);
+
+      await tester.tap(find.text('Start'));
+      await settle(tester);
+
+      expect(find.byType(SessionWidget), findsOneWidget);
+      final plan = DayPlan.decode((await store.day(day0))!.plan);
+      expect(find.text(sectionPosition(plan, 0)), findsOneWidget);
+    });
+  });
+
   testWidgets('home renders the hero and the study rows with no search',
       (tester) async {
-    await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+    await pumpSeededHub(tester);
 
     expect(find.text('日本語'), findsOneWidget);
     expect(find.text('START HERE'), findsOneWidget);
@@ -53,7 +324,7 @@ void main() {
     expect(expected, isNotEmpty,
         reason: 'the lesson file should hold advice patterns');
 
-    await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+    await pumpSeededHub(tester);
     await tester.enterText(find.byType(TextField), 'advice');
     await tester.pump();
 
@@ -66,7 +337,7 @@ void main() {
   });
 
   testWidgets('home search with no match says so', (tester) async {
-    await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+    await pumpSeededHub(tester);
     await tester.enterText(find.byType(TextField), 'zzqqxx');
     await tester.pump();
 
@@ -81,7 +352,7 @@ void main() {
         .firstWhere((e) =>
             e['type'] == 'source_file' && e['title'] == 'jp_lessons.json');
 
-    await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+    await pumpSeededHub(tester);
     await tester.enterText(find.byType(TextField), 'jp_lessons.json');
     await tester.pump();
 
@@ -109,7 +380,7 @@ void main() {
     expect(expected.length, greaterThan(1),
         reason: 'the number tables came from this file');
 
-    await pumpStudyScreen(tester, const QuietRoomJapaneseWidget());
+    await pumpSeededHub(tester);
     await tester.enterText(
         find.byType(TextField), 's01_number/lesson_bundle.json');
     await tester.pump();
