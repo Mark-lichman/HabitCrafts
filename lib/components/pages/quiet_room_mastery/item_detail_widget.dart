@@ -707,6 +707,12 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             _title(t, 'Marked as got it'),
             _line(t, 'No credit this time.'),
           ],
+        // Practice now still shows a card on a wrong answer. The operator ruling of
+        // 2026-11-05 (a wrong answer shows no result card: the probe stays with the answer
+        // and one Next) names the session, session_widget.dart and probe_widgets.dart, not
+        // this widget. The task that executes that ruling decides whether this practice
+        // follows it. Until then the card stays, and the early-practice wrong test in
+        // test/item_detail_test.dart pins its title and line.
         Grade.wrong => [
             _title(t, 'Wrong'),
             _line(t, 'It comes back tomorrow.'),
