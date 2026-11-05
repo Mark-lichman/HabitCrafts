@@ -203,6 +203,13 @@ void main() {
           reason: 'the first clear was the card, which is not production');
     });
 
+    test('says how many more different sentences a grammar point still needs',
+        () {
+      final g = grammarWithSayIt();
+      final d = itemDetailOf(g, [answer(g, today - 4, Grade.clear)]);
+      expect(d.remaining, contains('clears on 2 more different sentences'));
+    });
+
     test('says what remains to regain a Shaky item, and nothing for Mastered',
         () {
       final word = firstOf(ItemKind.word);
@@ -283,6 +290,18 @@ void main() {
       await pumpItem(tester, JpStoreMemory(), row);
       expect(shows(kOneTemplateLine), isTrue);
       expect(shows(kNoProductionProbeLine), isTrue);
+    });
+
+    testWidgets(
+        'a conjugation idea says one question kind only and still lists more different verbs',
+        (tester) async {
+      final conj = catalog
+          .ofKind(ItemKind.conjugation)
+          .firstWhere((i) => i.probeCount >= 2);
+      expect(conj.templateCount, 1);
+      await pumpItem(tester, JpStoreMemory(), conj);
+      expect(shows(kOneTemplateLine), isTrue);
+      expect(showsPart('more different verb'), isTrue);
     });
 
     testWidgets('a grammar point shows its Say-it counts', (tester) async {

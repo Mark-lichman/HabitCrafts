@@ -53,9 +53,11 @@ const String kPracticeNow = 'Practice now';
 /// The line on an item with no production probe (A8).
 const String kNoProductionProbeLine = 'No production probe yet.';
 
-/// The line on an item whose scored probes share one template (PIN-15).
+/// The line on an item whose scored probes share one template (PIN-15). It drops only the
+/// second-kind clause: the transfer clause (different verbs or cells) still binds and shows
+/// under Still to do.
 const String kOneTemplateLine =
-    'One question kind only: four spaced clears are enough.';
+    'One question kind only, so no second kind is needed.';
 
 /// The next-review line of an item with no schedule and no seed.
 const String kNotQueuedLine =
