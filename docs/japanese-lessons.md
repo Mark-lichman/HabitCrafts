@@ -59,11 +59,13 @@ No login: the app opens on Japanese study when signed out (`nav.dart`). The Japa
 screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks and
 the study record (see "The study record and the daily review" below) are kept on the phone.
 
-Each word in `jp_lessons.json` carries two fields the app reads beside its reading and gloss:
+Each word in `jp_lessons.json` carries two fields the app uses beside its reading and gloss:
 
-- **`id`**: the word's image stem (`L30_02`). It is the word's mastery item id, the join key
-  between the item catalog, the attempt log and the schedule, so it never changes for the same
-  card. Identical duplicate cards keep their own ids and pictures.
+- **`id`**: the word's image stem (`L30_02`). The catalog derives the word's mastery item id
+  from the image stem (`_imageStem` in `item_catalog.dart`), and `id` holds the same stem as the
+  fallback for a word with no image. The mastery id is the join key between the item catalog,
+  the attempt log and the schedule, so it never changes for the same card. Identical duplicate
+  cards keep their own ids and pictures.
 - **`context`**: the bracketed or parenthesised part the sheet printed with the reading (`たばこを`
   for `すいます`). The reading holds only the head word, and the vocabulary cards show the context
   after it. A word without context has no such field.
@@ -182,7 +184,7 @@ of the Japanese home. That page computes them from the store each time it opens.
 
 `item_catalog.dart` builds the catalog of items from the two lesson files once per app run.
 Each item has a stable id, the join key between the catalog, the attempt log and the schedule: a
-word's id is its `id` field (the image stem), and the header of `item_catalog.dart` lists the id
+word's id is its image stem (`id` holds the same stem), and the header of `item_catalog.dart` lists the id
 shape of every kind. Each item has one or more **probes**, the question templates that can ask
 it. A grammar point's example sentences are the Say-it track: they can be practised, but they
 never count toward mastery.
@@ -294,7 +296,9 @@ opt-in offers, none of which runs on its own:
 On a first launch the **seed confirmation** (`seed_confirm_widget.dart`) asks which lessons are
 already studied: one tick per lesson, word lessons and grammar lessons apart. The default ticks
 run from `kSeedFirstWordLesson` to `kSeedLastWordLesson` for words and from
-`kSeedFirstGrammarLesson` to `kSeedLastGrammarLesson` for grammar (`seed.dart`). Any lesson can
+`kSeedFirstGrammarLesson` to `kSeedLastGrammarLesson` for grammar (`seed.dart`). The grammar
+ticks extend to the last grammar lesson opened when it is past `kSeedLastGrammarLesson`
+(`defaultSeedLessons` in `seed_confirm_widget.dart`); it never unticks one. Any lesson can
 be unticked to skip it for now: its items stay New and arrive through the daily intake.
 
 `seedFromLessons` gives every word and grammar point of the ticked lessons, and every particle,
@@ -317,7 +321,7 @@ break threshold, `kReturnModeDaysMissed`, and the return-plan constants live in
 | Decision | When | Opens on |
 | --- | --- | --- |
 | firstLaunch | the seed has never run | the seed confirmation, then today's plan |
-| resume | today has a plan and its session is not finished | the Today card with Resume |
+| resume | today has a plan and its session is not finished | the Today card with Resume once an answer is saved, else Start |
 | done | today's session is finished | the Today card with the end state |
 | today | the last session was yesterday, or fewer than `kReturnModeDaysMissed` days were missed | today's plan on the Today card |
 | welcomeBack | `kReturnModeDaysMissed` or more days were missed | the Welcome back screen with the return plan |

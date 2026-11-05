@@ -304,8 +304,9 @@ regulation.
 **Actor:** signed-out learner on the phone · **Status:** UNVERIFIED
 
 **Preconditions:** no login. For the first-launch steps, a fresh install with an empty study
-record. For the return steps, a record whose last session was `kReturnModeDaysMissed` or more
-local days ago (`plan_builder.dart`).
+record. For the return steps, a record with `kReturnModeDaysMissed` or more local days missed
+since its last session (that many days with no session between it and today,
+`plan_builder.dart`).
 
 **Steps:** launch → on a first launch, the seed confirmation (`/quietRoomSeedConfirm`): untick any
 lesson to skip it for now → Confirm → the Japanese home → the Today card's Start → the Review
@@ -320,12 +321,13 @@ today's plan. After a break: launch → Welcome back (`/quietRoomWelcomeBack`) �
    unmastered afterwards.
 2. The Today card names each non-empty section with its count, in session order (Warm-up,
    Repair, Due, Keep-sharp, New), with the minutes line and Start, or Resume after a relaunch the
-   same day.
+   same day that follows at least one answer.
 3. The session shows one item per screen under its section and position, and writes each answer
    to the study record when it is given, so a relaunch mid-session resumes at the same item with
    the budget carried on.
-4. A hinted answer shows as right with no credit and leaves the item's count unchanged. A wrong
-   answer comes back later in the same session and is due again tomorrow.
+4. A hinted answer shows as right with no credit and leaves the item's count unchanged. A second
+   hinted answer in a row (`kHintedInARowReset`) resets the count, as `mastery_rule.dart` states.
+   A wrong answer comes back later in the same session and is due again tomorrow.
 5. The soft stop appears once the running estimate reaches `kTargetSeconds`, and the session ends
    before any item that would pass `kCeilingSeconds`, leaving the rest due tomorrow
    (`plan_builder.dart`).
