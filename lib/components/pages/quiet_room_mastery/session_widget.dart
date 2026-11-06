@@ -138,7 +138,7 @@ typedef SessionProbeBuilder = Widget Function(
 
 /// The probe widgets the app uses: one per item kind, rotating through the item's scored
 /// probes. [grammar] is the decoded `jp_grammar.json`, for a grammar item's options, accepted
-/// forms and hint.
+/// forms, hint and English, and a particle's meaning and English.
 SessionProbeBuilder standardProbeBuilder(
     {required Map<String, dynamic> grammar, SpeechService? speech}) {
   final practice = <String, List<Map<String, dynamic>>>{};
@@ -151,6 +151,10 @@ SessionProbeBuilder standardProbeBuilder(
       ];
     }
   }
+  final particles = <String, Map<String, dynamic>>{
+    for (final x in (grammar['particles'] as List? ?? const []))
+      ((x as Map)['id'] as String): Map<String, dynamic>.from(x)
+  };
   return (context, r) {
     final item = r.item;
     final probes = item.scoredProbes.toList();
@@ -175,13 +179,18 @@ SessionProbeBuilder standardProbeBuilder(
             state: r.state,
             checkItem: raw ?? {'answer': probe.answer},
             hint: raw?['hint'] as String?,
+            english: raw?['en'] as String?,
             onAnswer: r.onAnswer);
       case ItemKind.particle:
+        final particle = particles[item.id];
+        final meaning = particle?['meaning'] as String?;
         return TypedFillProbe(
             item: item,
             probe: probe,
             state: r.state,
             checkItem: {'answer': probe.answer},
+            hint: meaning == null ? null : 'The missing part means: $meaning',
+            english: particle?['example_en'] as String?,
             onAnswer: r.onAnswer);
       case ItemKind.word:
         return WordRecallProbe(

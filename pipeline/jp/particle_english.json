@@ -1,0 +1,21 @@
+{
+ "about": "English for each particle's example sentence, shown behind the free \"Show English\" button on a particle cloze. AI-drafted 2026-11-05 from the Japanese examples; not yet reviewed by Mark. publish.particles() fails if a particle has no sentence here or a sentence names no particle.",
+ "reviewed": false,
+ "english": {
+  "mari.particle.1": "This temple was built by a famous carpenter.",
+  "mari.particle.2": "I work as an interpreter.",
+  "mari.particle.3": "This is something important to me.",
+  "mari.particle.4": "I am researching the history of Japan.",
+  "mari.particle.5": "I take notes so that I don't forget.",
+  "mari.particle.6": "I work for the sake of my family.",
+  "mari.particle.7": "Even though they promised, they didn't come.",
+  "mari.particle.8": "All I do is play.",
+  "mari.particle.9": "Even a child can understand it.",
+  "mari.particle.10": "I talk while walking.",
+  "mari.particle.11": "Please do it exactly as explained.",
+  "mari.particle.12": "I understand only a little.",
+  "mari.particle.13": "It's expensive, but I'll buy it.",
+  "mari.particle.14": "Because it's raining, I'm staying home.",
+  "mari.particle.15": "Please don't come in with your shoes on."
+ }
+}

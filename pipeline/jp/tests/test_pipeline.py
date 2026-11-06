@@ -321,3 +321,21 @@ def test_published_words_are_one_per_word_of_the_vocabulary():
 def test_opm_stage_graph_composes():
     import extraction_schemas
     extraction_schemas._check()
+
+
+def test_every_particle_has_its_english():
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    for p in doc["particles"]:
+        assert p["example_en"].strip(), p["id"]
+        assert p["example_en_reviewed"] is False, "flip only after Mark reviews the English"
+
+
+def test_a_particle_with_no_english_fails_the_publish(tmp_path, monkeypatch):
+    import publish
+    doc = json.loads(publish.PARTICLE_EN.read_text(encoding="utf-8"))
+    doc["english"].pop("mari.particle.1")
+    f = tmp_path / "particle_english.json"
+    f.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(publish, "PARTICLE_EN", f)
+    with pytest.raises(SystemExit, match="no English for"):
+        publish.run(tmp_path / "jp_grammar.json")
