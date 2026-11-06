@@ -451,10 +451,10 @@ List<QueueEntry> interleaveRuns(List<QueueEntry> ordered) {
   return out;
 }
 
-/// The next new items in intake order (PIN-6): up to [kFoundationNewPerDay] level-0 items
-/// first (particles, forms, pairs, table rows in catalog order), then lessons in ascending
-/// order, each lesson's words before its grammar, and each grammar point after the
-/// conjugation ideas it uses; then the rest of the level-0 items. [introduced] holds every
+/// The next new items in intake order (PIN-6): up to [kFoundationNewPerDay] foundation items
+/// first (`ItemDef.isFoundation`, in catalog order), then lessons in ascending order, each
+/// lesson's words before its grammar points and the particles it teaches, and each grammar
+/// point after the conjugation ideas it uses; then the rest of the foundation items. [introduced] holds every
 /// item with an FSRS state or a seed. Returns at most [limit] items.
 List<ItemDef> newIntakeOrder(
     ItemCatalog catalog, Set<String> introduced, int limit) {
@@ -469,7 +469,7 @@ List<ItemDef> newIntakeOrder(
 
   final foundations = [
     for (final i in catalog.items)
-      if (i.prereqLevel == 0 && !taken.contains(i.id)) i
+      if (i.isFoundation && !taken.contains(i.id)) i
   ];
   for (final f in foundations.take(kFoundationNewPerDay)) {
     add(f);
