@@ -769,7 +769,8 @@ void main() {
       expect(find.byType(WelcomeBackWidget), findsNothing);
       expect(find.byKey(const ValueKey('tab-today')), findsOneWidget,
           reason: 'the bottom nav stays under Lessons');
-      expect(path(), '/', reason: 'the tab is a query on the route the home is on');
+      expect(path(), '/',
+          reason: 'the tab is a query on the route the home is on');
       expect(store.dayReads, readsAfterNotNow,
           reason: 'a tab tap resolves no launch: the State survived the tap');
 
@@ -804,8 +805,7 @@ void main() {
       // The premise of the tab tap: `/?tab=...` is the same page as `/`, and the named
       // route is another page, so only a `go` on the current path keeps the State.
       expect(root.matches.single.pageKey, match('/').matches.single.pageKey);
-      expect(root.matches.single.pageKey,
-          isNot(named.matches.single.pageKey));
+      expect(root.matches.single.pageKey, isNot(named.matches.single.pageKey));
 
       // The page each route builds, with the splash off and nobody signed in.
       final app = AppStateNotifier.instance;

@@ -220,11 +220,13 @@ void main() {
           findsOneWidget);
     });
 
-    testWidgets('a query past kSearchMax lists the first kSearchMax and says so',
+    testWidgets(
+        'a query past kSearchMax lists the first kSearchMax and says so',
         (tester) async {
       // A single letter is a substring of many English glosses.
       const query = 'a';
-      final index = TopicIndex(catalog: catalog, grammar: grammar, today: today);
+      final index =
+          TopicIndex(catalog: catalog, grammar: grammar, today: today);
       final all = index.search(query);
       expect(all.length, greaterThan(kSearchMax),
           reason: 'the query must overflow the list');
