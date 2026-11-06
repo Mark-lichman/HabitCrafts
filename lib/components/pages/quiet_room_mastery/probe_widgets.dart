@@ -1104,7 +1104,7 @@ String reviewLessonName(ItemDef item) {
   return switch (item.kind) {
     ItemKind.conjugation => 'Conjugation',
     ItemKind.pair => 'Verb pairs',
-    ItemKind.tableRow => 'Numbers and counters',
+    ItemKind.tableRow => 'Reference tables',
     ItemKind.particle when lesson == null => 'Particles',
     _ => lesson == null ? item.title : '第$lesson課',
   };
