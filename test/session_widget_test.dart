@@ -22,7 +22,8 @@
 // link on an unanswered card pushes the item kind's lesson target, Back returns to the same
 // card unanswered and marked "Lesson reviewed", and a clear after it is written hinted at hint
 // level 1; wrong, hinted and unscored answers are untouched; the review covers that card only;
-// the link is gone once the card is answered; opening a lesson writes no attempt.
+// the link is gone once the card is answered; opening a lesson writes no attempt; every item
+// kind's link pushes its own target and query through the router and Back returns to its card.
 
 import 'dart:convert';
 import 'dart:io';
@@ -1234,6 +1235,32 @@ void main() {
       expect(h.shows('Clear'), isTrue);
       expect((await h.store.attempts(itemId: words[0].id)).single.grade,
           Grade.clear);
+    });
+
+    testWidgets(
+        'the link pushes the lesson target of every item kind through the router, '
+        'and Back returns to the same card', (tester) async {
+      for (final kind in ItemKind.values) {
+        final item = catalog.ofKind(kind).first;
+        final h = await pumpRouted(
+            tester, planOf([entryOf(item, PlanSection.due)]));
+        expect(h.onScreen, item.id, reason: kind.name);
+        expect(find.text(kLessonReviewed), findsNothing, reason: kind.name);
+
+        await tester.tap(find.text(kReviewTheLesson));
+        await tester.pumpAndSettle();
+        final target = lessonTargetOf(item);
+        expect(find.text('lesson ${target.routeName} ${target.query}'),
+            findsOneWidget,
+            reason: '${kind.name}: the route and query of ${item.id}');
+
+        await tester.tap(find.text('Back'));
+        await tester.pumpAndSettle();
+        expect(h.onScreen, item.id, reason: '${kind.name}: the same card');
+        expect(find.text(kLessonReviewed), findsOneWidget, reason: kind.name);
+        expect(await h.store.attempts(), isEmpty,
+            reason: '${kind.name}: opening a lesson writes no attempt');
+      }
     });
 
     testWidgets('wrong, hinted and unscored after a review are untouched',
