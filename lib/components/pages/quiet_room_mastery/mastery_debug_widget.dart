@@ -8,8 +8,10 @@
 //   * the median answer time per item kind, shown only once the kind has
 //     [kAnswerTimeMinSamples] timed answers (A2: the per-kind cost estimates in the plan builder
 //     are retuned by hand from these medians);
-//   * the median session length, over every session and over the first 14 days of sessions
-//     (End state 16);
+//   * the median session length, over every Review session and over the first 14 days of
+//     them (End state 16). Only Review sessions count (operator ruling ASK-10, 2026-11-05):
+//     their ids start with `kReviewSessionPrefix`, so Practice now, a topic or lesson practice
+//     and a drill sitting are left out;
 //   * Rebuild from log (JpStore.rebuild), Export and Import (study_export.dart).
 // Each item row opens the item page (item_detail_widget.dart).
 // Reached from the quiet "Study record" link at the bottom of the Japanese hub.
@@ -34,6 +36,7 @@ import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'local_day.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
+import 'session_widget.dart' show kReviewSessionPrefix;
 import 'study_export.dart';
 
 /// Timed answers a kind needs before the page shows its median (A2).
@@ -98,10 +101,12 @@ class RecordSummary {
   final int overdue;
   final int attemptCount;
   final Map<ItemKind, AnswerTime> answerTimes;
+
+  /// Review sessions only (ASK-10).
   final int sessionCount;
   final double? medianSessionMinutes;
 
-  /// Sessions that started within [kDebugWindowDays] days of the first session.
+  /// Review sessions that started within [kDebugWindowDays] days of the first session.
   final int firstDaysSessionCount;
   final double? firstDaysMedianSessionMinutes;
 }
@@ -115,10 +120,10 @@ double? _median(List<num> values) {
 
 /// Reads the page's numbers from [store] for local day [today].
 ///
-/// A session is the attempts that share a session id, the imported v2 Say-it history aside. It
-/// runs from the start of its first answer (the answer's time less its duration) to its last
-/// answer. An answer time sample is an attempt with a duration, Say-it aside (it is not a
-/// queued probe).
+/// A session is the attempts that share a Review session id (one under [kReviewSessionPrefix],
+/// ASK-10): practice, drill and the imported v2 Say-it history are no session. It runs from the
+/// start of its first answer (the answer's time less its duration) to its last answer. An answer
+/// time sample is an attempt with a duration, Say-it aside (it is not a queued probe).
 Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
     {required int today}) async {
   final mastery = await store.allMastery();
@@ -167,7 +172,7 @@ Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
     if (kind != null && a.durationMs > 0 && a.source != Source.sayIt) {
       timed[kind]!.add(a.durationMs);
     }
-    if (a.sessionId == kV2MigrationSession) continue;
+    if (!a.sessionId.startsWith(kReviewSessionPrefix)) continue;
     final start = a.atUtc.subtract(Duration(milliseconds: a.durationMs));
     final s = sessions[a.sessionId];
     sessions[a.sessionId] = s == null
@@ -462,7 +467,7 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
                     : '${(s.answerTimes[k]!.medianMs! / 1000).toStringAsFixed(1)} s '
                         'median of ${s.answerTimes[k]!.samples}'),
           _heading(t, 'Session length'),
-          _line(t, 'All sessions',
+          _line(t, 'All review sessions',
               _sessionText(s.medianSessionMinutes, s.sessionCount)),
           _line(
               t,
