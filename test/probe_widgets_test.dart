@@ -1466,6 +1466,28 @@ void main() {
       expect(d.hintLevel, 1);
     });
 
+    test('a say-it clear after a review keeps sayIt, revealed and atUtc', () {
+      final at = DateTime.utc(2026, 11, 6, 10);
+      final before = DrillAnswer(
+          itemId: _grammar.id,
+          probeId: 'ex0',
+          template: _probe(_grammar, 'ex0').template,
+          production: _probe(_grammar, 'ex0').production,
+          selfGraded: false,
+          grade: Grade.clear,
+          revealed: true,
+          sayIt: true,
+          answerShown: true,
+          atUtc: at);
+      final d = afterLessonReview(before);
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.sayIt, isTrue, reason: 'still the spoken track (Source.sayIt)');
+      expect(d.revealed, isTrue);
+      expect(d.atUtc, at);
+      expect(d.probeId, 'ex0');
+    });
+
     test('wrong, self and unscored are untouched', () {
       for (final g in [Grade.wrong, Grade.self, Grade.unscored]) {
         final before = drawn(_word, 'typed', g, revealed: g == Grade.wrong);
@@ -1496,7 +1518,7 @@ void main() {
       expect(reviewLessonDetail(untaught), 'Particles · へ');
       expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
       expect(reviewLessonDetail(_pair), 'Verb pairs · あく / あける');
-      expect(reviewLessonDetail(_row), 'Reference tables · Counters: ほん');
+      expect(reviewLessonDetail(_row), 'Numbers and counters · Counters: ほん');
     });
 
     testWidgets('the link shows its name, runs its tap, and marks a review',
