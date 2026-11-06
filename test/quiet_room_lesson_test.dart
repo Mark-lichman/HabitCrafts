@@ -1,6 +1,7 @@
 // Widget tests for the vocabulary screen: the head word's `context` line (D18), the Knew it
 // and Not yet pills after a reveal and the attempts they write (PIN-13, PIN-14), a failed
-// write that says so (S4), and the remembered lesson.
+// write that says so (S4), the remembered lesson, and the open at one word from a card with the
+// "Back to practice" bar (plan 2026-11-06, Task 1).
 
 import 'dart:convert';
 import 'dart:io';
@@ -61,11 +62,12 @@ final DateTime kNow = DateTime(2026, 11, 3, 10);
 
 /// Pumps the screen. The word file is warmed under `runAsync` first: a large `loadString`
 /// decodes on another isolate, which the fake clock never advances.
-Future<void> pumpLesson(
-    WidgetTester tester, QuietRoomLessonWidget screen) async {
+Future<void> pumpLesson(WidgetTester tester, QuietRoomLessonWidget screen,
+    {Size size = const Size(1200, 12000),
+    Map<String, Object> prefs = const {}}) async {
   await tester
       .runAsync(() => rootBundle.loadString('assets/lessons/jp_lessons.json'));
-  await pumpStudyScreen(tester, screen);
+  await pumpStudyScreen(tester, screen, size: size, prefs: prefs);
 }
 
 QuietRoomLessonWidget screen({int? lesson, JpStore? store}) =>
@@ -299,5 +301,81 @@ void main() {
     expect(find.text('第12課'), findsNothing);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 6);
+  });
+
+  group('opened at a word from a card (plan 2026-11-06, Task 1)', () {
+    /// The lesson with the most words, and its last word whose kana is unique in it: the card
+    /// furthest down.
+    ({int lesson, ItemDef word}) deepestWord() {
+      final words = catalog().ofKind(ItemKind.word);
+      final byLesson = <int, List<ItemDef>>{};
+      for (final w in words) {
+        (byLesson[w.lesson!] ??= []).add(w);
+      }
+      final lesson = byLesson.keys
+          .reduce((a, b) => byLesson[b]!.length > byLesson[a]!.length ? b : a);
+      final list = byLesson[lesson]!;
+      final word = list
+          .lastWhere((w) => list.where((o) => o.title == w.title).length == 1);
+      return (lesson: lesson, word: word);
+    }
+
+    QuietRoomLessonWidget atWord(String word, {bool fromCard = false}) =>
+        QuietRoomLessonWidget(
+          initialLesson: 6,
+          initialWord: word,
+          fromCard: fromCard,
+          store: JpStoreMemory(),
+          items: catalog().byId,
+          clock: FixedClock(kNow),
+        );
+
+    testWidgets('the word lesson opens with its card in view', (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id), size: kPhoneView);
+      await tester.pump();
+
+      // The word's lesson wins over the one named.
+      expect(
+          find.text('第${deep.lesson}課', skipOffstage: false), findsOneWidget);
+      final kana = find.text(deep.word.title);
+      expect(kana, findsOneWidget);
+      expect(inView(tester, kana), isTrue,
+          reason: 'the word card is scrolled into the view');
+      // Opened at, not answered: the meaning stays hidden.
+      expect(knewIt, findsNothing);
+    });
+
+    testWidgets('the plain entry on the same lesson starts at the top',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, screen(lesson: deep.lesson), size: kPhoneView);
+      await tester.pump();
+
+      expect(find.text('第${deep.lesson}課'), findsOneWidget);
+      final kana = find.text(deep.word.title);
+      expect(kana.evaluate().isEmpty || !inView(tester, kana), isTrue,
+          reason: 'the last word sits below a phone view at the top');
+      expect(find.text('Back to practice'), findsNothing);
+    });
+
+    testWidgets('an open at a word leaves the remembered lesson alone',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id),
+          prefs: {QuietRoomLessonWidget.lastLessonKey: 12});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 12);
+    });
+
+    testWidgets('Back to practice shows only when a card opened the screen',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id, fromCard: true));
+      expect(find.text('Back to practice'), findsOneWidget);
+
+      await pumpLesson(tester, atWord(deep.word.id));
+      expect(find.text('Back to practice'), findsNothing);
+    });
   });
 }

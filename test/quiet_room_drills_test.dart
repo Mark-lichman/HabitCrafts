@@ -5,6 +5,9 @@
 // through an injected recorder. Got it is clear and Missed it is wrong (PIN-13). The tests
 // assert the item and probe ids on the written attempts, and that each resolves in the item
 // catalog, so a drill and the catalog never name one probe two ways.
+//
+// Plan 2026-11-06, Task 1: a card opens a drill at its idea (a form, a pair's row, a table's
+// row) with the "Back to practice" bar, and the open writes nothing.
 
 import 'dart:convert';
 import 'dart:io';
@@ -483,6 +486,119 @@ void main() {
       expect(written, hasLength(1));
       expect(reports, isEmpty);
       expect(find.text(kAnswerNotSaved), findsNothing);
+    });
+  });
+
+  group('opened at an idea from a card (plan 2026-11-06, Task 1)', () {
+    /// Wide enough for the reference legend row, which overflows a 420 view (seen while
+    /// writing these tests; not this task's change), and short enough that a row far down a
+    /// table is out of view.
+    const tableView = Size(800, 900);
+
+    Future<void> open(WidgetTester tester, QuietRoomDrillsWidget screen,
+        {Size size = kPhoneView}) async {
+      await pumpStudyScreen(tester, screen, size: size);
+      await tester.pump();
+    }
+
+    testWidgets('a verb pair opens at its row, outlined and in view',
+        (tester) async {
+      final rig = DrillRig();
+      final ids = pairItemIds(readLessonFile());
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'pairs', pair: ids.last, recorder: rig.recorder));
+
+      final target = find.byKey(const ValueKey('pair-target'));
+      expect(target, findsOneWidget);
+      expect(inView(tester, target), isTrue,
+          reason: 'the last pair is scrolled into the view');
+      // Opened at, not answered: nothing is revealed and nothing is written.
+      expect(find.text('Got it'), findsNothing);
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets('the plain pairs entry starts at the top with no outline',
+        (tester) async {
+      final last = (readLessonFile()['pairs'] as List).last as Map;
+      await open(tester,
+          QuietRoomDrillsWidget(mode: 'pairs', recorder: DrillRig().recorder));
+
+      expect(find.byKey(const ValueKey('pair-target')), findsNothing);
+      final verb = find.text(last['intransitive'] as String);
+      expect(verb.evaluate().isEmpty || !inView(tester, verb.first), isTrue);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    testWidgets('a table row opens at its table and row, in view',
+        (tester) async {
+      final rig = DrillRig();
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'dates',
+              row: '31',
+              recorder: rig.recorder),
+          size: tableView);
+
+      expect(find.text('31日'), findsOneWidget);
+      expect(inView(tester, find.text('31日')), isTrue,
+          reason: 'the row is scrolled into the view');
+      expect(find.text('Missed it'), findsNothing);
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets('the plain table entry starts at the top', (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference', table: 'dates', recorder: DrillRig().recorder),
+          size: tableView);
+      final cell = find.text('31日');
+      expect(cell.evaluate().isEmpty || !inView(tester, cell), isTrue);
+    });
+
+    testWidgets('a conjugation opens at its form with Back to practice',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'conjugation',
+              form: 'nai',
+              fromCard: true,
+              recorder: DrillRig().recorder),
+          size: const Size(1200, 12000));
+      final pill =
+          tester.widget<QrPill>(find.widgetWithText(QrPill, 'ない form'));
+      expect(pill.on, isTrue);
+      expect(find.text(kBackToPractice), findsOneWidget);
+    });
+
+    testWidgets('Back to practice returns to the card', (tester) async {
+      await pumpStudyScreen(
+          tester,
+          Builder(
+              builder: (context) => Scaffold(
+                    body: TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                                builder: (_) => QuietRoomDrillsWidget(
+                                    mode: 'pairs',
+                                    pair: pairItemIds(readLessonFile()).first,
+                                    fromCard: true,
+                                    recorder: DrillRig().recorder))),
+                        child: const Text('the card')),
+                  )));
+      await tester.tap(find.text('the card'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text(kBackToPractice));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuietRoomDrillsWidget), findsNothing);
+      expect(find.text('the card'), findsOneWidget);
     });
   });
 }

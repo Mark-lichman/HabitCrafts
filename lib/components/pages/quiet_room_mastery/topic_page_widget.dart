@@ -19,6 +19,12 @@
 // [openTopicPage] and [openItemPage] are the one way the Topics screen and this page open a
 // page: by route name under the app's router, or as a plain page where no router is present
 // or the caller injected its own store (widget tests).
+//
+// A practice card's "Review the lesson" on a particle that no Mari lesson teaches opens this
+// page at the particle (plan 2026-11-06, Task 1, PIN-5): [TopicPageWidget.particleId] puts a
+// [ParticleBlock] (the particle and its meaning, never its example or its cloze sentence) at
+// the top, on the particle's first topic when no topic is named, and
+// [TopicPageWidget.fromCard] shows the "Back to practice" bar. The plain entry is unchanged.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -162,6 +168,66 @@ Future<void> openItemPage(BuildContext context, String itemId,
       store: store, catalog: catalog, clock: clock, probeBuilder: probeBuilder);
 }
 
+/// The particle [id] of the grammar file [grammar] (`grammar['particles']`), or null.
+Map<String, dynamic>? particleOf(Map<String, dynamic> grammar, String id) {
+  for (final p in (grammar['particles'] as List? ?? const [])) {
+    final m = p as Map<String, dynamic>;
+    if (m['id'] == id) return m;
+  }
+  return null;
+}
+
+/// A particle's lesson view: the particle as its form and its meaning (PIN-5). It never shows
+/// the particle's example sentence, its English or its cloze sentence, so the view gives away
+/// no answer to the particle's card.
+class ParticleBlock extends StatelessWidget {
+  const ParticleBlock({super.key, required this.particle});
+
+  /// The particle's entry in `grammar['particles']`.
+  final Map<String, dynamic> particle;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    final meaning = particle['meaning'] as String? ?? '';
+    return Container(
+      key: const ValueKey('particle-block'),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.border),
+        borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusMd),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('PARTICLE',
+              style: qrText(t,
+                      size: 11, weight: FontWeight.w600, color: t.inkSubtle)
+                  .copyWith(letterSpacing: 11 * 0.06)),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: t.surfaceTinted,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            child: Text(particle['expression'] as String? ?? '',
+                style: qrText(t,
+                    size: 16, weight: FontWeight.w600, color: t.brand700)),
+          ),
+          if (meaning.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(meaning, style: qrText(t, size: 14.5, height: 1.45)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// A topic's roll-up pill: New, Learning, Mastered or Shaky.
 class TopicPill extends StatelessWidget {
   const TopicPill({super.key, required this.status});
@@ -241,6 +307,8 @@ class TopicPageWidget extends StatefulWidget {
   const TopicPageWidget({
     super.key,
     required this.topicId,
+    this.particleId,
+    this.fromCard = false,
     this.store,
     this.catalog,
     this.grammar,
@@ -251,8 +319,15 @@ class TopicPageWidget extends StatefulWidget {
   static String routeName = 'quietRoomTopic';
   static String routePath = '/quietRoomTopic';
 
-  /// A topic id of the index (`use.reason`, `form.te`, `due`).
+  /// A topic id of the index (`use.reason`, `form.te`, `due`). Empty with [particleId] opens
+  /// the particle's first topic.
   final String topicId;
+
+  /// Opens at this particle (`mari.particle.1`): its [ParticleBlock] heads the page.
+  final String? particleId;
+
+  /// A practice card opened the page: the "Back to practice" bar shows.
+  final bool fromCard;
 
   /// Null uses the app's one shared store (`sharedJpStore`).
   final JpStore? store;
@@ -276,6 +351,7 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
   ItemCatalog? _catalog;
   TopicIndex? _index;
   Topic? _topic;
+  Map<String, dynamic>? _particle;
   List<Topic> _related = const [];
   Object? _error;
 
@@ -292,6 +368,7 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
   void didUpdateWidget(TopicPageWidget old) {
     super.didUpdateWidget(old);
     if (old.topicId != widget.topicId ||
+        old.particleId != widget.particleId ||
         old.store != widget.store ||
         old.catalog != widget.catalog) {
       _store = null;
@@ -314,7 +391,15 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
           catalog: catalog,
           grammar: grammar,
           today: widget.clock.today());
-      final topic = topicOf(index, widget.topicId);
+      final particleId = widget.particleId;
+      final particle =
+          particleId == null ? null : particleOf(grammar, particleId);
+      if (particleId != null && particle == null) {
+        throw StateError('no particle $particleId');
+      }
+      final topic = widget.topicId.isEmpty && particleId != null
+          ? index.topicsOf(particleId).firstOrNull
+          : topicOf(index, widget.topicId);
       if (topic == null) {
         throw StateError('no topic ${widget.topicId}');
       }
@@ -323,6 +408,7 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
         setState(() {
           _index = index;
           _topic = topic;
+          _particle = particle;
           _related = related;
           _error = null;
         });
@@ -377,13 +463,16 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
     final index = _index, topic = _topic;
     if (index == null || topic == null) {
       return QrStudyScaffold(
+          fromCard: widget.fromCard,
           child: qrLoadingOr(context, _error, 'Could not open the topic:'));
     }
+    final particle = _particle;
     final t = QuietRoomTokens.of(context);
     final catalog = _catalog!;
     final canPractice = topic.itemIds
         .any((id) => catalog.byId(id)?.scoredProbes.isNotEmpty ?? false);
     final rows = <Widget Function()>[
+      if (particle != null) () => ParticleBlock(particle: particle),
       () => Text(topic.title, style: qrTitle(t, size: 28)),
       if (topic.subtitle != null)
         () => Padding(
@@ -439,6 +528,7 @@ class _TopicPageWidgetState extends State<TopicPageWidget> {
             ),
     ];
     return QrStudyScaffold(
+      fromCard: widget.fromCard,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
         itemCount: rows.length,

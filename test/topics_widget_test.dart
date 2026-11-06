@@ -10,12 +10,24 @@
 // router resolves the Topics, topic page and item page routes by name with their query keys;
 // and under a router a topic row pushes the topic route with its id. A fake probe builder
 // stands in for the probe widgets, as in item_detail_test.dart.
+//
+// Plan 2026-11-06, Task 1: a particle that no Mari lesson teaches opens its topic page with
+// the particle block on top and never its example or cloze sentence (PIN-5, End state 2), and
+// the app router reads every lesson screen's new query keys.
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:habit_craft/auth/base_auth_user_provider.dart';
+import 'package:habit_craft/backend/push_notifications/push_notifications_handler.dart';
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show kBackToPractice;
+import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
@@ -24,6 +36,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/lesson_page_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
     show debugSetSharedJpStore;
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
@@ -501,4 +514,198 @@ void main() {
     expect(find.text('the topic page'), findsOneWidget);
     expect(pushed, 'use.condition');
   });
+
+  group(
+      'a particle with no lesson opened from a card (plan 2026-11-06, Task 1)',
+      () {
+    List<Map<String, dynamic>> particlesUntaught() => [
+          for (final p
+              in (grammar['particles'] as List).cast<Map<String, dynamic>>())
+            if (catalog.byId(p['id'] as String) != null &&
+                catalog.byId(p['id'] as String)!.lesson == null)
+              p
+        ];
+
+    Future<void> pumpAtParticle(WidgetTester tester, String id,
+        {bool fromCard = true}) async {
+      bigView(tester);
+      await tester.pumpWidget(MaterialApp(
+        home: TopicPageWidget(
+          topicId: '',
+          particleId: id,
+          fromCard: fromCard,
+          store: JpStoreMemory(),
+          catalog: catalog,
+          grammar: grammar,
+          clock: FixedClock(at(today)),
+          probeBuilder: fakeProbe,
+        ),
+      ));
+      await settle(tester);
+    }
+
+    test('the shipped particles include ones no Mari lesson teaches', () {
+      expect(particlesUntaught(), isNotEmpty);
+    });
+
+    testWidgets(
+        'the topic page opens on the particle with its block on top, and never '
+        'its example or cloze sentence (End state 2)', (tester) async {
+      final index = await TopicIndex.load(
+          store: JpStoreMemory(),
+          catalog: catalog,
+          grammar: grammar,
+          today: today);
+      for (final p in particlesUntaught()) {
+        final id = p['id'] as String;
+        await pumpAtParticle(tester, id);
+
+        final block = find.byKey(const ValueKey('particle-block'));
+        expect(block, findsOneWidget, reason: id);
+        expect(
+            find.descendant(
+                of: block, matching: find.text(p['expression'] as String)),
+            findsOneWidget);
+        expect(
+            find.descendant(
+                of: block, matching: find.text(p['meaning'] as String)),
+            findsOneWidget);
+        // The particle's own first topic, under the block.
+        final topic = index.topicsOf(id).first;
+        final title = find.text(topic.title);
+        expect(title, findsOneWidget, reason: id);
+        expect(
+            tester.getTopLeft(block).dy, lessThan(tester.getTopLeft(title).dy));
+        final cloze = p['cloze'] as Map<String, dynamic>;
+        for (final hidden in [
+          p['example'] as String,
+          p['example_en'] as String,
+          (cloze['prompt'] as String).split('＿＿').first,
+        ]) {
+          expect(find.textContaining(hidden), findsNothing,
+              reason: '$id shows "$hidden"');
+        }
+        expect(find.text(kBackToPractice), findsOneWidget);
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('the plain entry shows no particle block and no bar',
+        (tester) async {
+      await pumpTopic(tester, JpStoreMemory(), 'use.manner');
+      expect(find.byKey(const ValueKey('particle-block')), findsNothing);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    testWidgets('an unknown particle says so instead of an empty page',
+        (tester) async {
+      await pumpAtParticle(tester, 'mari.particle.999');
+      expect(find.textContaining('Could not open the topic'), findsOneWidget);
+    });
+  });
+
+  testWidgets(
+      'nav.dart reads each lesson screen\'s new keys: point, word, pair, row, '
+      'particle and from (plan 2026-11-06, Task 1)', (tester) async {
+    final router = createRouter(AppStateNotifier.instance);
+    addTearDown(router.dispose);
+    final app = AppStateNotifier.instance;
+    app.user = _SignedOut();
+    app.showSplashImage = false;
+    addTearDown(() {
+      app.user = null;
+      app.showSplashImage = true;
+    });
+    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+
+    /// The screen the app router builds for [location].
+    Widget built(String location) {
+      final list = router.configuration.findMatch(location);
+      expect(list.error, isNull, reason: location);
+      final m = list.matches.single;
+      final state = router.routerDelegate.builder.buildState(list, m);
+      final context = tester.element(find.byType(SizedBox));
+      final page = (m.route as GoRoute).pageBuilder!(context, state);
+      final child = page is MaterialPage
+          ? page.child
+          : (page as CustomTransitionPage).child;
+      return (child as PushNotificationsHandler).child;
+    }
+
+    final grammarAt =
+        built('${QuietRoomGrammarWidget.routePath}?point=mari.L31.3&from=card')
+            as QuietRoomGrammarWidget;
+    expect(grammarAt.initialPoint, 'mari.L31.3');
+    expect(grammarAt.fromCard, isTrue);
+    final grammarPlain = built('${QuietRoomGrammarWidget.routePath}?lesson=31')
+        as QuietRoomGrammarWidget;
+    expect(grammarPlain.initialPoint, isNull);
+    expect(grammarPlain.fromCard, isFalse);
+    expect(grammarPlain.initialLesson, 31);
+
+    final words =
+        built('${QuietRoomLessonWidget.routePath}?word=L30_02&from=card')
+            as QuietRoomLessonWidget;
+    expect(words.initialWord, 'L30_02');
+    expect(words.fromCard, isTrue);
+    expect(
+        (built(QuietRoomLessonWidget.routePath) as QuietRoomLessonWidget)
+            .fromCard,
+        isFalse);
+
+    final pairs = built(
+            '${QuietRoomDrillsWidget.routePath}?mode=pairs&pair=s02_pairs_mari.1.1&from=card')
+        as QuietRoomDrillsWidget;
+    expect(pairs.mode, 'pairs');
+    expect(pairs.pair, 's02_pairs_mari.1.1');
+    expect(pairs.fromCard, isTrue);
+    final row = built(
+            '${QuietRoomDrillsWidget.routePath}?mode=reference&table=dates&row=31')
+        as QuietRoomDrillsWidget;
+    expect(row.table, 'dates');
+    expect(row.row, '31');
+    expect(row.fromCard, isFalse);
+    final form = built(
+            '${QuietRoomDrillsWidget.routePath}?mode=conjugation&form=te&from=card')
+        as QuietRoomDrillsWidget;
+    expect(form.form, 'te');
+    expect(form.fromCard, isTrue);
+
+    final lessonPage = built(
+            '${LessonPageWidget.routePath}?lesson=39&particle=mari.particle.14&from=card')
+        as LessonPageWidget;
+    expect(lessonPage.lesson, 39);
+    expect(lessonPage.particleId, 'mari.particle.14');
+    expect(lessonPage.fromCard, isTrue);
+
+    final topic =
+        built('${TopicPageWidget.routePath}?particle=mari.particle.1&from=card')
+            as TopicPageWidget;
+    expect(topic.topicId, '');
+    expect(topic.particleId, 'mari.particle.1');
+    expect(topic.fromCard, isTrue);
+    final topicPlain =
+        built('${TopicPageWidget.routePath}?topic=form.te') as TopicPageWidget;
+    expect(topicPlain.particleId, isNull);
+    expect(topicPlain.fromCard, isFalse);
+  });
+}
+
+/// Nobody signed in, with the app's splash off: `createRouter` then builds each route's own
+/// screen instead of the splash image (as in quiet_room_japanese_test.dart).
+class _SignedOut extends BaseAuthUser {
+  @override
+  bool get loggedIn => false;
+  @override
+  bool get emailVerified => false;
+  @override
+  AuthUserInfo get authUserInfo => const AuthUserInfo();
+  @override
+  Future? delete() => null;
+  @override
+  Future? updateEmail(String email) => null;
+  @override
+  Future? updatePassword(String password) => null;
+  @override
+  Future? sendEmailVerification() => null;
 }
