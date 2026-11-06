@@ -13,7 +13,9 @@
 //   * today, resume and done: this hub, with the Today card above the search and the hero.
 // The Today card names the plan's sections with their counts, the minutes line, and Start or
 // Resume; on a finished day it shows the end state. The old hero and rows stay below it
-// until the home becomes Today (plan 2026-11-02, Phase 7).
+// until the home becomes Today (plan 2026-11-02, Phase 7). The "Grammar lessons" and
+// "Vocabulary" rows open the lesson path (lessons_path_widget.dart, Task 26), not a fixed
+// lesson.
 //
 // The hub is the app's home, so the OS keeps it warm overnight. The launch is resolved
 // again when the app resumes on a later local day than the one it resolved, and when a
@@ -33,6 +35,7 @@ import '/components/pages/quiet_room_mastery/item_catalog.dart';
 import '/components/pages/quiet_room_mastery/jp_store.dart';
 import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
     show sharedJpStore;
+import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
 import '/components/pages/quiet_room_mastery/local_day.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import '/components/pages/quiet_room_mastery/plan_builder.dart';
@@ -262,7 +265,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
               _hero(t, lesson, points),
               const SizedBox(height: 22),
               _row(t, 'Grammar lessons', 'Mari\'s checklist · 第26課 to 第50課',
-                  () => _open(QuietRoomGrammarWidget.routeName)),
+                  () => _open(LessonsPathWidget.routeName)),
               _row(
                   t,
                   'Conjugation',
@@ -282,7 +285,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
                   () => _open(
                       QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
               _row(t, 'Vocabulary', 'Minna no Nihongo · 620 words',
-                  () => _open(QuietRoomLessonWidget.routeName)),
+                  () => _open(LessonsPathWidget.routeName)),
               _studyRecordLink(t),
             ],
           ],

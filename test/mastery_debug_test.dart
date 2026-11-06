@@ -21,6 +21,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart'
+    show kReviewSessionPrefix;
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -274,19 +276,19 @@ void main() {
         () async {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
-      // Three sessions: 10, 14 and 30 minutes; a migrated Say-it history is no session.
+      // Three Review sessions: 10, 14 and 30 minutes; a migrated Say-it history is no session.
       await store.appendAttempt(answer(word, 1, Grade.clear,
-          minute: 0, durationMs: 60000, session: 'a'));
+          minute: 0, durationMs: 60000, session: '${kReviewSessionPrefix}a'));
       await store.appendAttempt(answer(word, 1, Grade.clear,
-          minute: 9, durationMs: 5000, session: 'a'));
-      await store
-          .appendAttempt(answer(word, 2, Grade.clear, minute: 0, session: 'b'));
-      await store.appendAttempt(
-          answer(word, 2, Grade.clear, minute: 14, session: 'b'));
-      await store.appendAttempt(
-          answer(word, 30, Grade.clear, minute: 0, session: 'c'));
-      await store.appendAttempt(
-          answer(word, 30, Grade.clear, minute: 30, session: 'c'));
+          minute: 9, durationMs: 5000, session: '${kReviewSessionPrefix}a'));
+      await store.appendAttempt(answer(word, 2, Grade.clear,
+          minute: 0, session: '${kReviewSessionPrefix}b'));
+      await store.appendAttempt(answer(word, 2, Grade.clear,
+          minute: 14, session: '${kReviewSessionPrefix}b'));
+      await store.appendAttempt(answer(word, 30, Grade.clear,
+          minute: 0, session: '${kReviewSessionPrefix}c'));
+      await store.appendAttempt(answer(word, 30, Grade.clear,
+          minute: 30, session: '${kReviewSessionPrefix}c'));
       await store.appendAttempt(answer(word, 3, Grade.clear,
           minute: 0, session: kV2MigrationSession, source: Source.sayIt));
       await store.appendAttempt(answer(word, 3, Grade.clear,
@@ -299,6 +301,41 @@ void main() {
       expect(s.firstDaysSessionCount, 2,
           reason: 'session c starts 29 days after the first');
       expect(s.firstDaysMedianSessionMinutes, 12);
+    });
+
+    test(
+        'session length counts only Review sessions: a practice or drill session leaves '
+        'the median unchanged (ASK-10)', () async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      // Two Review sessions of 10 and 14 minutes: the median is 12.
+      await store.appendAttempt(answer(word, 1, Grade.clear,
+          minute: 0, session: '${kReviewSessionPrefix}a'));
+      await store.appendAttempt(answer(word, 1, Grade.clear,
+          minute: 10, session: '${kReviewSessionPrefix}a'));
+      await store.appendAttempt(answer(word, 2, Grade.clear,
+          minute: 0, session: '${kReviewSessionPrefix}b'));
+      await store.appendAttempt(answer(word, 2, Grade.clear,
+          minute: 14, session: '${kReviewSessionPrefix}b'));
+      final before = await summarizeRecord(store, catalog, today: today);
+      expect(before.sessionCount, 2);
+      expect(before.medianSessionMinutes, 12);
+
+      // A long Practice now sitting and a drill sitting are no Review session.
+      await store.appendAttempt(answer(word, 3, Grade.clear,
+          minute: 0, session: 'practice-1', source: Source.early));
+      await store.appendAttempt(answer(word, 3, Grade.clear,
+          minute: 90, session: 'practice-1', source: Source.early));
+      await store.appendAttempt(
+          answer(word, 4, Grade.clear, minute: 0, session: 'drill-1'));
+      await store.appendAttempt(
+          answer(word, 4, Grade.clear, minute: 60, session: 'drill-1'));
+      final after = await summarizeRecord(store, catalog, today: today);
+      expect(after.sessionCount, 2);
+      expect(after.medianSessionMinutes, 12);
+      expect(after.firstDaysSessionCount, 2);
+      expect(after.firstDaysMedianSessionMinutes, 12);
+      expect(after.attemptCount, 8, reason: 'the answers are still counted');
     });
 
     test('an empty record has no medians', () async {

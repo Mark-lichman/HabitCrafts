@@ -30,6 +30,8 @@ import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 import '/components/pages/quiet_room_mastery/item_detail_widget.dart';
+import '/components/pages/quiet_room_mastery/lesson_page_widget.dart';
+import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import '/components/pages/quiet_room_mastery/review_page.dart';
 import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
@@ -234,6 +236,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ItemDetailWidget.routePath,
           builder: (context, params) => ItemDetailWidget(
             itemId: params.getParam('item', ParamType.String) ?? '',
+          ),
+        ),
+        // The lesson path and the lesson page (plan 2026-11-02, Task 26). Each reads the record
+        // itself, so a deep link or a refresh lands on the same list or lesson.
+        FFRoute(
+          name: LessonsPathWidget.routeName,
+          path: LessonsPathWidget.routePath,
+          builder: (context, params) => const LessonsPathWidget(),
+        ),
+        FFRoute(
+          name: LessonPageWidget.routeName,
+          path: LessonPageWidget.routePath,
+          builder: (context, params) => LessonPageWidget(
+            lesson: params.getParam('lesson', ParamType.int) ??
+                kPathFirstGrammarLesson,
           ),
         ),
         FFRoute(

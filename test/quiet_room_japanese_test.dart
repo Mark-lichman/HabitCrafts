@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart';
-import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/lessons_path_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/relaunch.dart';
@@ -417,10 +417,11 @@ void main() {
             path: '/',
             builder: (_, __) => QuietRoomJapaneseWidget(
                 store: store, catalog: catalog, clock: clock)),
+        // "Grammar lessons" opens the lesson path (Task 26).
         GoRoute(
-          name: QuietRoomGrammarWidget.routeName,
-          path: QuietRoomGrammarWidget.routePath,
-          builder: (_, __) => const Text('the grammar list'),
+          name: LessonsPathWidget.routeName,
+          path: LessonsPathWidget.routePath,
+          builder: (_, __) => const Text('the lesson path'),
         ),
       ]);
       addTearDown(router.dispose);
@@ -430,13 +431,13 @@ void main() {
 
       await tester.tap(find.text('Grammar lessons'));
       await tester.pumpAndSettle();
-      expect(find.text('the grammar list'), findsOneWidget);
+      expect(find.text('the lesson path'), findsOneWidget);
 
       clock.set(at(day0 + 1));
       router.pop();
       await tester.pumpAndSettle();
       await settle(tester);
-      expect(find.text('the grammar list'), findsNothing);
+      expect(find.text('the lesson path'), findsNothing);
       expect(find.text('Done for today'), findsNothing);
       expect(find.text('Start'), findsOneWidget);
       expect(await store.day(day0 + 1), isNotNull);

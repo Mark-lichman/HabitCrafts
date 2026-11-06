@@ -221,8 +221,8 @@ thinks of the answer, reveals it and grades it: Got it is clear and Missed it is
 **Early practice** is an answer on an item that is not due, from any screen that asks an item
 outside the day's session (a word card, a drill, the grammar screen, the vocabulary speaking
 screen, a topic page or the item page). It is recorded, but a clear, a hinted or a self answer
-changes neither the
-schedule nor mastery. A wrong counts: the item is due tomorrow and its count resets.
+changes neither the schedule nor mastery. A wrong counts: the item is due tomorrow and its
+count resets.
 
 ### The mastery rule
 
