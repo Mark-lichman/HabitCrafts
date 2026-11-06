@@ -22,10 +22,11 @@
 // was answered in, and the wrong schedules it Again for another day.
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): every unanswered card shows a quiet
-// [ReviewLessonLink] naming the lesson and the idea. It pushes the item kind's lesson target
-// ([openLessonTarget], D20); Back returns to the same card, unanswered, marked "Lesson
-// reviewed". `_onAnswer` passes the draft of a reviewed card through `afterLessonReview`, so
-// a clear is written hinted at hint level 1 or more; wrong, self and unscored are untouched.
+// [ReviewLessonLink] naming the lesson and the idea, never the card's answer. It pushes the
+// item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
+// unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
+// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more; wrong,
+// self and unscored are untouched.
 // An answered or held card has no link, so a review after the answer changes nothing.
 // Opening a lesson writes no attempt. With no router and no injected opener the card shows
 // no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
@@ -481,13 +482,16 @@ class _SessionWidgetState extends State<SessionWidget> {
   }
 
   /// Opens the lesson of the card on screen and marks the card reviewed before the push, so
-  /// the mark holds whatever the lesson screen does. The card stays mounted underneath.
+  /// the mark holds whatever the lesson screen does. The card stays mounted underneath. If
+  /// the opener fails, no lesson was seen, so the mark goes back to what it was.
   Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _Phase.asking) return;
+    final before = _reviewedPresentation;
     setState(() => _reviewedPresentation = _presentation);
     try {
       await open(context, item);
     } catch (e, s) {
+      if (mounted) setState(() => _reviewedPresentation = before);
       FlutterError.reportError(FlutterErrorDetails(
           exception: e,
           stack: s,

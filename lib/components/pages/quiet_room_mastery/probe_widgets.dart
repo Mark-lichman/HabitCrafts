@@ -47,9 +47,9 @@
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): the hosts (the Review session and
 // Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson and
-// the idea ([reviewLessonDetail]) and shows "Lesson reviewed" once opened. A probe never sees
-// the review: the host passes each draft through [afterLessonReview], which makes a clear
-// hinted. Show English stays free.
+// the idea ([reviewLessonDetail]), never a card's answer, and shows "Lesson reviewed" once
+// opened. A probe never sees the review: the host passes each draft through
+// [afterLessonReview], which makes a clear hinted. Show English stays free.
 
 import 'dart:async';
 
@@ -1097,22 +1097,36 @@ const String kReviewTheLesson = 'Review the lesson';
 /// The mark a card carries once its lesson was opened before the answer.
 const String kLessonReviewed = 'Lesson reviewed';
 
-/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the screen
-/// the kind opens on.
+/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the title of
+/// the screen the kind opens on, as the drills screen shows it; an untaught particle opens
+/// its topic page, whose title is the topic's own, so its link says Particles. The name is
+/// never the item's title, which may be the card's answer.
 String reviewLessonName(ItemDef item) {
   final lesson = item.lesson;
   return switch (item.kind) {
     ItemKind.conjugation => 'Conjugation',
     ItemKind.pair => 'Verb pairs',
-    ItemKind.tableRow => 'Reference tables',
+    ItemKind.tableRow => 'Numbers and counters',
     ItemKind.particle when lesson == null => 'Particles',
-    _ => lesson == null ? item.title : '第$lesson課',
+    ItemKind.grammar when lesson == null => 'Grammar',
+    ItemKind.word when lesson == null => 'Words',
+    _ => '第$lesson課',
   };
 }
 
-/// The line under the link: the lesson and the idea, "第26課 · 〜んです".
-String reviewLessonDetail(ItemDef item) =>
-    '${reviewLessonName(item)} · ${item.title}';
+/// Whether [item]'s title spells one of its cards' answers: a word's reading, a particle, a
+/// pair's two verbs, or a grammar pattern that holds its cloze answer. Checked against the
+/// item's own probes, so the catalog decides, not the kind.
+bool reviewLessonTitleIsAnAnswer(ItemDef item) => item.probes
+    .any((p) => p.answer.isNotEmpty && item.title.contains(p.answer));
+
+/// The line under the link: the lesson and the idea, "第26課 · 〜んです". The line is on
+/// screen before the answer and costs nothing (PIN-5 charges the review, not the link), so
+/// it drops the idea when the title spells a card's answer: "第30課" for a word.
+String reviewLessonDetail(ItemDef item) {
+  final name = reviewLessonName(item);
+  return reviewLessonTitleIsAnAnswer(item) ? name : '$name · ${item.title}';
+}
 
 /// The draft [d] after a lesson review before the answer (PIN-5): a clear becomes hinted at
 /// hint level 1 or more, so a choose card (no hint of its own) is covered and a grammar hint

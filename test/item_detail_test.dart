@@ -7,9 +7,12 @@
 // review, history rows, the "no production probe yet" line where the kind has none (A8) and the
 // "one question kind only" line on a one-template item (PIN-15), and Practice now, a one-item
 // session written as early practice when the item is not due (PIN-14: a clear changes nothing,
-// a wrong counts) and as a review when it is. A fake probe builder stands in for the probe
-// widgets, as in session_widget_test.dart. The page is reached from a list: a row of the study
-// record page opens it.
+// a wrong counts) and as a review when it is, with Review the lesson on a practice card (Back
+// returns to the same card marked reviewed and a clear after it is hinted; an opener that
+// fails leaves the card unreviewed, so a clear after it stays clear, and a failure after an
+// earlier open of the same card keeps that mark). A fake probe builder stands in for the
+// probe widgets, as in session_widget_test.dart. The page is reached from a list: a row of
+// the study record page opens it.
 
 import 'dart:convert';
 import 'dart:io';
@@ -554,6 +557,78 @@ void main() {
       await tapText(tester, 'answer clear');
       expect((await store.attempts(itemId: words[1].id)).single.grade,
           Grade.clear);
+    });
+
+    /// A one-word practice session with [openLesson] as the link's opener.
+    Future<JpStoreMemory> pumpWithOpener(
+        WidgetTester tester, ItemDef word, LessonOpener openLesson) async {
+      final store = JpStoreMemory();
+      await store.appendSeed(word.id, today, atUtc: at(today - 1).toUtc());
+      tester.view.physicalSize = const Size(1000, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PracticeSessionWidget(
+            items: [word],
+            store: store,
+            catalog: catalog,
+            clock: FixedClock(at(today)),
+            probeBuilder: fakeProbe,
+            openLesson: openLesson,
+          ),
+        ),
+      ));
+      await settle(tester);
+      expect(shows(kReviewTheLesson), isTrue);
+      return store;
+    }
+
+    testWidgets(
+        'a failed lesson open leaves the card unreviewed and a clear stays clear',
+        (tester) async {
+      final word = firstOf(ItemKind.word);
+      final store = await pumpWithOpener(
+          tester, word, (context, item) async => throw StateError('no route'));
+
+      await tester.tap(find.text(kReviewTheLesson));
+      await settle(tester);
+      expect(tester.takeException(), isA<StateError>(),
+          reason: 'the failure is reported, not swallowed');
+      expect(shows(kLessonReviewed), isFalse,
+          reason: 'no lesson opened, so no mark');
+      expect(shows(kReviewTheLesson), isTrue,
+          reason: 'the link stays for another try');
+
+      await tapText(tester, 'answer clear');
+      expect(shows('Clear'), isTrue);
+      final written = (await store.attempts(itemId: word.id)).single;
+      expect(written.grade, Grade.clear);
+      expect(written.hintLevel, 0);
+    });
+
+    testWidgets(
+        'a failed open after an earlier open of the same card keeps the mark',
+        (tester) async {
+      final word = firstOf(ItemKind.word);
+      var opens = 0;
+      final store = await pumpWithOpener(tester, word, (context, item) async {
+        if (++opens > 1) throw StateError('no route');
+      });
+
+      await tapText(tester, kReviewTheLesson);
+      expect(shows(kLessonReviewed), isTrue);
+      await tester.tap(find.text(kReviewTheLesson));
+      await settle(tester);
+      expect(tester.takeException(), isA<StateError>());
+      expect(shows(kLessonReviewed), isTrue,
+          reason: 'the lesson was seen once, so the mark stays');
+
+      await tapText(tester, 'answer clear');
+      expect(shows('Right with a hint'), isTrue);
+      final written = (await store.attempts(itemId: word.id)).single;
+      expect(written.grade, Grade.hinted);
+      expect(written.hintLevel, 1);
     });
 
     testWidgets('a hinted answer is right with no credit (PIN-3)',

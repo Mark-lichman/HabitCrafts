@@ -553,13 +553,16 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   }
 
   /// Opens the lesson of the card on screen and marks the card reviewed before the push, as
-  /// the Review session does. The card stays mounted underneath.
+  /// the Review session does. The card stays mounted underneath. If the opener fails, no
+  /// lesson was seen, so the mark goes back to what it was.
   Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _PracticePhase.asking) return;
+    final before = _reviewedPresentation;
     setState(() => _reviewedPresentation = _presentation);
     try {
       await open(context, item);
     } catch (e, s) {
+      if (mounted) setState(() => _reviewedPresentation = before);
       FlutterError.reportError(FlutterErrorDetails(
           exception: e,
           stack: s,
