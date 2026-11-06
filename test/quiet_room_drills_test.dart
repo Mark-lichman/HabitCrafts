@@ -531,7 +531,16 @@ void main() {
       expect(find.text(kBackToPractice), findsNothing);
     });
 
-    testWidgets('a table row opens at its table and row, in view',
+    /// A table cell drawn with the target outline: an AnimatedContainer whose border is 2
+    /// wide. Every other cell's border is 1 wide.
+    final outlined = find.byWidgetPredicate(
+        (w) =>
+            w is AnimatedContainer &&
+            ((w.decoration as BoxDecoration?)?.border as Border?)?.top.width ==
+                2,
+        skipOffstage: false);
+
+    testWidgets('a table row opens at its table and row, outlined and in view',
         (tester) async {
       final rig = DrillRig();
       await open(
@@ -546,11 +555,15 @@ void main() {
       expect(find.text('31日'), findsOneWidget);
       expect(inView(tester, find.text('31日')), isTrue,
           reason: 'the row is scrolled into the view');
+      expect(find.ancestor(of: find.text('31日'), matching: outlined),
+          findsOneWidget,
+          reason: 'the row\'s cell is outlined');
       expect(find.text('Missed it'), findsNothing);
       expect(await rig.attempts(tester), isEmpty);
     });
 
-    testWidgets('the plain table entry starts at the top', (tester) async {
+    testWidgets('the plain table entry starts at the top with no outline',
+        (tester) async {
       await open(
           tester,
           QuietRoomDrillsWidget(
@@ -558,6 +571,7 @@ void main() {
           size: tableView);
       final cell = find.text('31日');
       expect(cell.evaluate().isEmpty || !inView(tester, cell), isTrue);
+      expect(outlined, findsNothing, reason: 'no cell is outlined');
     });
 
     testWidgets('a conjugation opens at its form with Back to practice',

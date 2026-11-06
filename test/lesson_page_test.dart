@@ -667,5 +667,21 @@ void main() {
         expect(tables[q['table']], contains(q['row']), reason: r.id);
       }
     });
+
+    // The two receivers below read their key from the asset lists the drills screen
+    // itself reads, so an id the catalog mints that the screen cannot open fails here.
+    test('every conjugation id names a form the conjugation drill offers', () {
+      final forms = (grammar['conjugation']['forms'] as List).cast<String>();
+      for (final c in catalog.ofKind(ItemKind.conjugation)) {
+        expect(forms, contains(lessonTargetOf(c).query['form']), reason: c.id);
+      }
+    });
+
+    test('every pair id is one the pairs drill lists', () {
+      final ids = pairItemIds(grammar);
+      for (final p in catalog.ofKind(ItemKind.pair)) {
+        expect(ids, contains(lessonTargetOf(p).query['pair']), reason: p.id);
+      }
+    });
   });
 }

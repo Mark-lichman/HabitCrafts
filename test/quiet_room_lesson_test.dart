@@ -11,6 +11,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show BackToPracticeBar;
 import 'package:habit_craft/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
@@ -20,6 +22,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
+import 'package:habit_craft/flutter_flow/quiet_room.dart';
 
 import 'jp_screen_harness.dart';
 
@@ -330,7 +333,17 @@ void main() {
           clock: FixedClock(kNow),
         );
 
-    testWidgets('the word lesson opens with its card in view', (tester) async {
+    /// A word card drawn with the target outline: a Container whose border is 2 wide. Every
+    /// other card's border is 1 wide, and the card's inner Container draws no border.
+    final outlined = find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            ((w.decoration as BoxDecoration?)?.border as Border?)?.top.width ==
+                2,
+        skipOffstage: false);
+
+    testWidgets('the word lesson opens with its card in view, outlined',
+        (tester) async {
       final deep = deepestWord();
       await pumpLesson(tester, atWord(deep.word.id), size: kPhoneView);
       await tester.pump();
@@ -342,6 +355,9 @@ void main() {
       expect(kana, findsOneWidget);
       expect(inView(tester, kana), isTrue,
           reason: 'the word card is scrolled into the view');
+      expect(find.ancestor(of: kana, matching: outlined), findsOneWidget,
+          reason: 'the word card is outlined');
+      expect(outlined, findsOneWidget, reason: 'no other card is outlined');
       // Opened at, not answered: the meaning stays hidden.
       expect(knewIt, findsNothing);
     });
@@ -356,6 +372,7 @@ void main() {
       final kana = find.text(deep.word.title);
       expect(kana.evaluate().isEmpty || !inView(tester, kana), isTrue,
           reason: 'the last word sits below a phone view at the top');
+      expect(outlined, findsNothing, reason: 'no card is outlined');
       expect(find.text('Back to practice'), findsNothing);
     });
 
@@ -373,6 +390,10 @@ void main() {
       final deep = deepestWord();
       await pumpLesson(tester, atWord(deep.word.id, fromCard: true));
       expect(find.text('Back to practice'), findsOneWidget);
+      // The bar is held to the reading width, as on the screens built through
+      // QrStudyScaffold: the default view is wider than that width.
+      expect(tester.getSize(find.byType(BackToPracticeBar)).width,
+          QuietRoomMetrics.readMax);
 
       await pumpLesson(tester, atWord(deep.word.id));
       expect(find.text('Back to practice'), findsNothing);
@@ -381,7 +402,12 @@ void main() {
     testWidgets('Back to practice shows over the spinner while the words load',
         (tester) async {
       final deep = deepestWord();
-      // Pumped without the warm-up: the word file is still loading after one frame.
+      // The word file is warmed under runAsync, so the load finishes in one real turn
+      // whether or not an earlier test read it. The screen still shows the spinner after
+      // one pump: the cached future belongs to the real zone, so the screen hears it
+      // complete only after a real event-loop turn (see pumpStudyScreen).
+      await tester.runAsync(
+          () => rootBundle.loadString('assets/lessons/jp_lessons.json'));
       await tester
           .pumpWidget(MaterialApp(home: atWord(deep.word.id, fromCard: true)));
       await tester.pump();

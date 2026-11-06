@@ -645,6 +645,15 @@ void main() {
     expect(grammarPlain.initialPoint, isNull);
     expect(grammarPlain.fromCard, isFalse);
     expect(grammarPlain.initialLesson, 31);
+    // Only the value 'card' means a card: another value, or an empty one, is the plain
+    // entry, and the point still opens.
+    for (final from in ['other', '']) {
+      final grammarFrom = built(
+              '${QuietRoomGrammarWidget.routePath}?point=mari.L31.3&from=$from')
+          as QuietRoomGrammarWidget;
+      expect(grammarFrom.fromCard, isFalse, reason: 'from=$from');
+      expect(grammarFrom.initialPoint, 'mari.L31.3', reason: 'from=$from');
+    }
 
     final words =
         built('${QuietRoomLessonWidget.routePath}?word=L30_02&from=card')

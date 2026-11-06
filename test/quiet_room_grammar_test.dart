@@ -1307,15 +1307,29 @@ void main() {
       expect(find.text(kBackToPractice), findsNothing);
     });
 
+    /// A lesson number of the file that is none of [not].
+    int lessonOtherThan(Set<int> not) => (readLessonFile()['grammar'] as List)
+        .cast<Map<String, dynamic>>()
+        .map((l) => l['lesson'] as int)
+        .firstWhere((n) => !not.contains(n));
+
+    testWidgets('a plain open on a named lesson remembers it', (tester) async {
+      // The positive control for the test below: the same open without a point writes
+      // the pref, so a pref left at 50 there means the point held the write off.
+      final other = lessonOtherThan({50});
+      await pumpStudyScreen(
+          tester, QuietRoomGrammarWidget(initialLesson: other),
+          prefs: {'jp.grammar.lastLesson': 50});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('jp.grammar.lastLesson'), other);
+    });
+
     testWidgets('an open at a point leaves the remembered lesson alone',
         (tester) async {
       final deep = deepestPoint();
       // A lesson is named too, one that is neither the remembered 50 nor the point's
       // own: a plain open on it would remember it, an open at a point must not.
-      final other = (readLessonFile()['grammar'] as List)
-          .cast<Map<String, dynamic>>()
-          .map((l) => l['lesson'] as int)
-          .firstWhere((n) => n != deep.lesson && n != 50);
+      final other = lessonOtherThan({deep.lesson, 50});
       await pumpStudyScreen(
           tester,
           QuietRoomGrammarWidget(

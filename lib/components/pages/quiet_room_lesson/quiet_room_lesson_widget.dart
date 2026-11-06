@@ -284,15 +284,23 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         ),
       ),
       // Opened from a card, the bar sits over the spinner and the error text as well as
-      // the loaded body, as it does on the screens built through QrStudyScaffold.
+      // the loaded body, and the bar and the body share the reading width, as on the
+      // screens built through QrStudyScaffold.
       body: SafeArea(
         top: false,
-        child: widget.fromCard
-            ? Column(children: [
-                const BackToPracticeBar(),
-                Expanded(child: _content(t)),
-              ])
-            : _content(t),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
+            child: widget.fromCard
+                ? Column(children: [
+                    const BackToPracticeBar(),
+                    Expanded(child: _content(t)),
+                  ])
+                : _content(t),
+          ),
+        ),
       ),
     );
   }
@@ -342,71 +350,64 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         target != null && items.any((i) => _wordId(i) == target);
     if (targetShown) _scrollToWordOnce();
 
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
-        child: ListView(
-          // Opened at a word, every card is built, so the word's card has a context to
-          // scroll to however far down the lesson it sits.
-          scrollCacheExtent:
-              targetShown ? const ScrollCacheExtent.pixels(100000) : null,
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+    return ListView(
+      // Opened at a word, every card is built, so the word's card has a context to
+      // scroll to however far down the lesson it sits.
+      scrollCacheExtent:
+          targetShown ? const ScrollCacheExtent.pixels(100000) : null,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      children: [
+        Text(
+          '第${lesson['lesson']}課',
+          style: GoogleFonts.fraunces(
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 26 * -0.015,
+            height: 1.15,
+            color: t.inkStrong,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          '${_doc!['course']} · ${all.length} words',
+          style: GoogleFonts.schibstedGrotesk(fontSize: 14, color: t.inkMuted),
+        ),
+        const SizedBox(height: 16),
+        _lessonStrip(t, missing),
+        const SizedBox(height: 14),
+        _practiceButton(t, lesson['lesson'] as int),
+        const SizedBox(height: 14),
+        Row(
           children: [
-            Text(
-              '第${lesson['lesson']}課',
-              style: GoogleFonts.fraunces(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 26 * -0.015,
-                height: 1.15,
-                color: t.inkStrong,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              '${_doc!['course']} · ${all.length} words',
-              style:
-                  GoogleFonts.schibstedGrotesk(fontSize: 14, color: t.inkMuted),
-            ),
-            const SizedBox(height: 16),
-            _lessonStrip(t, missing),
-            const SizedBox(height: 14),
-            _practiceButton(t, lesson['lesson'] as int),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                if (verbs > 0 || pairs > 0) ...[
-                  _chip(t, 'All ${all.length}', 0),
-                  if (verbs > 0) ...[
-                    const SizedBox(width: 8),
-                    _chip(t, 'Verbs $verbs', 1)
-                  ],
-                  if (pairs > 0) ...[
-                    const SizedBox(width: 8),
-                    _chip(t, 'Pairs $pairs', 2)
-                  ],
-                ],
-                const Spacer(),
-                _revealAllButton(t, items.length),
+            if (verbs > 0 || pairs > 0) ...[
+              _chip(t, 'All ${all.length}', 0),
+              if (verbs > 0) ...[
+                const SizedBox(width: 8),
+                _chip(t, 'Verbs $verbs', 1)
               ],
-            ),
-            const SizedBox(height: 14),
-            ...items.asMap().entries.map((e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 9),
-                  child: _item(t, e.value, e.key),
-                )),
-            const SizedBox(height: 10),
-            Text(
-              'Hiragana, katakana and English only. The sheets’ romaji is dropped: it is '
-              'spelled inconsistently across the course, and reading the Japanese is the point.'
-              '${missing.isEmpty ? '' : ' Lessons ${missing.join(', ')} have no usable source sheet.'}',
-              style: GoogleFonts.schibstedGrotesk(
-                  fontSize: 11.5, height: 1.45, color: t.inkSubtle),
-            ),
+              if (pairs > 0) ...[
+                const SizedBox(width: 8),
+                _chip(t, 'Pairs $pairs', 2)
+              ],
+            ],
+            const Spacer(),
+            _revealAllButton(t, items.length),
           ],
         ),
-      ),
+        const SizedBox(height: 14),
+        ...items.asMap().entries.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 9),
+              child: _item(t, e.value, e.key),
+            )),
+        const SizedBox(height: 10),
+        Text(
+          'Hiragana, katakana and English only. The sheets’ romaji is dropped: it is '
+          'spelled inconsistently across the course, and reading the Japanese is the point.'
+          '${missing.isEmpty ? '' : ' Lessons ${missing.join(', ')} have no usable source sheet.'}',
+          style: GoogleFonts.schibstedGrotesk(
+              fontSize: 11.5, height: 1.45, color: t.inkSubtle),
+        ),
+      ],
     );
   }
 
