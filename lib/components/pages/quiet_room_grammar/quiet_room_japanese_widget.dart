@@ -2,35 +2,41 @@
 //
 // The start screen of this build: Japanese study, no login. Mark asked for a
 // single-user build (2026-10-24), so there is no account and nothing here reads
-// Firestore. Everything comes from the bundled lesson files.
+// Firestore. Everything comes from the bundled lesson files and the study record.
 //
-// Quiet Room: one loud object. The hero is the grammar lesson to continue, because
-// grammar is where the practice is needed most. Everything else is a quiet card.
+// The home is Today (plan 2026-11-02, Task 27, D20, End state 14). Quiet Room: one loud
+// object, and on Today it is the session card. The screen holds:
+//   * the session card: the plan's queue sections with their counts, the minutes line, and
+//     Start or Resume; on a finished day, the end state;
+//   * the mastered count, the kept rate over the last [kKeptRateDays] days, and the 14 dots
+//     over the days whose session completed;
+//   * quiet links: the conjugation, verb pair and number drills, and the study record page;
+//   * a bottom nav of Today, Lessons (lessons_path_widget.dart) and Topics (topics_widget.dart).
+// Search and the By use set live in Topics. The lesson numbers live in Lessons, so the home
+// holds no number strip.
+//
+// The tabs switch with `go` under the app's router (`?tab=lessons`, `?tab=topics`), so the
+// back stack never grows and each tab has a URL. Without a router (widget tests) the tab is
+// local state.
 //
 // Before it builds, the screen resolves the launch (`onLaunch`, relaunch.dart, D9, PIN-9):
-//   * firstLaunch: the seed confirmation (seed_confirm_widget.dart), then this hub;
+//   * firstLaunch: the seed confirmation (seed_confirm_widget.dart), then Today;
 //   * welcomeBack: the Welcome back screen (welcome_back_widget.dart), then the session;
-//   * today, resume and done: this hub, with the Today card above the search and the hero.
-// The Today card names the plan's sections with their counts, the minutes line, and Start or
-// Resume; on a finished day it shows the end state. The old hero and rows stay below it
-// until the home becomes Today (plan 2026-11-02, Phase 7). The "Grammar lessons" and
-// "Vocabulary" rows open the lesson path (lessons_path_widget.dart, Task 26), not a fixed
-// lesson.
+//   * today, resume and done: Today.
 //
-// The hub is the app's home, so the OS keeps it warm overnight. The launch is resolved
-// again when the app resumes on a later local day than the one it resolved, and when a
-// screen the hub opened returns on a later day: without that, a finished day's end card
-// would stay up the next morning with no Start, and a return after a break would skip
-// Welcome back. A resume behind a pushed screen waits for that screen to return, so a
-// session under way across the 04:00 day change keeps its plan and tomorrow's is built
-// after it.
+// The home is the app's home, so the OS keeps it warm overnight. The launch is resolved
+// again when the app resumes on a later local day than the one it resolved, when a screen
+// the home opened returns on a later day, and when the Today tab comes back on a later day:
+// without that, a finished day's end card would stay up the next morning with no Start, and
+// a return after a break would skip Welcome back. A resume behind a pushed screen waits for
+// that screen to return, so a session under way across the 04:00 day change keeps its plan
+// and tomorrow's is built after it.
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
-import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
-import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import '/components/pages/quiet_room_mastery/attempt.dart';
 import '/components/pages/quiet_room_mastery/item_catalog.dart';
 import '/components/pages/quiet_room_mastery/jp_store.dart';
 import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
@@ -38,16 +44,18 @@ import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
 import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
 import '/components/pages/quiet_room_mastery/local_day.dart';
 import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
+import '/components/pages/quiet_room_mastery/mastery_rule.dart';
 import '/components/pages/quiet_room_mastery/plan_builder.dart';
 import '/components/pages/quiet_room_mastery/relaunch.dart';
 import '/components/pages/quiet_room_mastery/review_page.dart';
 import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
 import '/components/pages/quiet_room_mastery/session_widget.dart'
     show sectionLabel;
+import '/components/pages/quiet_room_mastery/topics_widget.dart';
 import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
+import '/components/pages/quiet_room_today/streak.dart' show recentDays;
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
-import 'quiet_room_grammar_widget.dart';
 
 /// The Today card's queue line: each non-empty section with its count, in session order,
 /// then the stretch when the plan offers it, "Repair 3 · Due 42 · Keep-sharp 10 · New 8 ·
@@ -73,12 +81,117 @@ String todayMinutesLine(DayPlan plan) {
   return 'About ${minutes < 1 ? 1 : minutes} min, under the $target-minute target';
 }
 
+/// The days the kept rate looks back over, today included.
+const int kKeptRateDays = 30;
+
+/// Days of dots on Today.
+const int kHomeDots = 14;
+
+/// The kept rate (A1): of the reviews of Mastered items in the window, the clear ones.
+class KeptRate {
+  const KeptRate({required this.kept, required this.reviews});
+
+  final int kept;
+  final int reviews;
+
+  /// Null when the window holds no review of a Mastered item.
+  double? get rate => reviews == 0 ? null : kept / reviews;
+}
+
+/// The kept rate over the [days] local days ending on [today], from the attempt log
+/// [attempts] (oldest first). Pure.
+///
+/// Each item's attempts are replayed through the mastery rule (`masteryAfter`), so an attempt
+/// counts exactly as the rule counts a kept review: a scored answer, not Say it and not early
+/// practice, on an item that was Mastered before it (a maintenance or keep-sharp review). It
+/// is kept when it is clear. An item [lookup] does not know is skipped.
+KeptRate keptRateOf(List<Attempt> attempts, ItemLookup lookup, int today,
+    {int days = kKeptRateDays}) {
+  final states = <String, MasteryState>{};
+  final from = today - days + 1;
+  var kept = 0, reviews = 0;
+  for (final a in attempts) {
+    final item = lookup(a.itemId);
+    if (item == null) continue;
+    final before = states[a.itemId] ?? MasteryState.initial(a.itemId);
+    final after = masteryAfter(before, a, item);
+    states[a.itemId] = after;
+    if (a.localDay < from || a.localDay > today) continue;
+    reviews += after.keptReviews - before.keptReviews;
+    kept += after.keptClear - before.keptClear;
+  }
+  return KeptRate(kept: kept, reviews: reviews);
+}
+
+/// The kept rate line: the share as a whole percent with its counts, or a plain line when
+/// the window holds no review of a Mastered item.
+String keptRateLine(KeptRate r) {
+  final rate = r.rate;
+  if (rate == null) {
+    return 'Kept rate: no reviews of mastered items in the last $kKeptRateDays days';
+  }
+  return 'Kept rate ${(rate * 100).round()}% over $kKeptRateDays days '
+      '· ${r.kept} of ${r.reviews}';
+}
+
+/// "12 mastered".
+String masteredLine(int n) => '$n mastered';
+
+/// The dots line: "5 of 14 days".
+String dotsLine(List<bool> dots) =>
+    '${dots.where((k) => k).length} of ${dots.length} days';
+
+/// What Today shows under the session card, read from the store.
+class HomeRecord {
+  const HomeRecord(
+      {required this.mastered, required this.kept, required this.dots});
+
+  final int mastered;
+  final KeptRate kept;
+
+  /// The last [kHomeDots] days, oldest first: whether that day's session completed.
+  final List<bool> dots;
+}
+
+/// Reads [HomeRecord] for [today] from [store]. Writes nothing.
+Future<HomeRecord> loadHomeRecord(
+    JpStore store, ItemLookup lookup, int today) async {
+  final mastery = await store.allMastery();
+  final mastered =
+      mastery.values.where((m) => m.status == MasteryStatus.mastered).length;
+  final kept = keptRateOf(await store.attempts(), lookup, today);
+  final done = <DateTime>[];
+  for (var d = today - kHomeDots + 1; d <= today; d++) {
+    final record = await store.day(d);
+    if (record != null && record.completed) done.add(dateOfDay(d));
+  }
+  return HomeRecord(
+    mastered: mastered,
+    kept: kept,
+    dots: recentDays(done, today: dateOfDay(today), length: kHomeDots),
+  );
+}
+
+/// The home's three tabs.
+enum HomeTab { today, lessons, topics }
+
+/// The tab a `tab` query parameter names; Today for anything else.
+HomeTab homeTabOf(String? name) => HomeTab.values
+    .firstWhere((t) => t.name == name, orElse: () => HomeTab.today);
+
+String homeTabLabel(HomeTab tab) => switch (tab) {
+      HomeTab.today => 'Today',
+      HomeTab.lessons => 'Lessons',
+      HomeTab.topics => 'Topics',
+    };
+
 class QuietRoomJapaneseWidget extends StatefulWidget {
   const QuietRoomJapaneseWidget({
     super.key,
     this.store,
     this.catalog,
     this.clock = const SystemClock(),
+    this.tab = HomeTab.today,
   });
 
   /// Null uses the app's one shared store (`sharedJpStore`).
@@ -88,11 +201,11 @@ class QuietRoomJapaneseWidget extends StatefulWidget {
   final ItemCatalog? catalog;
   final Clock clock;
 
+  /// The tab shown. Under the router it comes from the `tab` query parameter.
+  final HomeTab tab;
+
   static String routeName = 'quietRoomJapanese';
   static String routePath = '/quietRoomJapanese';
-
-  /// The lesson the hero card continues. Written by the grammar screen.
-  static const lastLessonKey = kLastGrammarLessonKey;
 
   @override
   State<QuietRoomJapaneseWidget> createState() =>
@@ -101,17 +214,14 @@ class QuietRoomJapaneseWidget extends StatefulWidget {
 
 class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
     with WidgetsBindingObserver {
-  int? _last;
-  String _query = '';
-  String? _use;
-  final _searchBox = TextEditingController();
-
   JpStore? _store;
   ItemCatalog? _catalog;
   Launch? _launch;
   Object? _launchError;
+  HomeRecord? _record;
+  late HomeTab _tab = widget.tab;
 
-  /// "Not now" on Welcome back: the hub for the rest of this visit.
+  /// "Not now" on Welcome back: the home for the rest of this visit.
   bool _pastWelcome = false;
 
   /// Only the latest launch resolution lands (a return from the session or a resume on a
@@ -122,17 +232,26 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _readLast();
     _relaunch();
   }
 
-  /// A warm app resumed on a later local day resolves the launch again, so the hub never
+  @override
+  void didUpdateWidget(QuietRoomJapaneseWidget old) {
+    super.didUpdateWidget(old);
+    // The build that follows shows the new tab, so no setState here.
+    if (old.tab != widget.tab) {
+      _tab = widget.tab;
+      _refreshToday();
+    }
+  }
+
+  /// A warm app resumed on a later local day resolves the launch again, so the home never
   /// keeps yesterday's card. Only resumed counts: inactive and hidden come with a
   /// permission dialog or the notification shade, and paused shows nothing.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
-    // Behind a pushed screen the hub waits: `_open` and `_startSession` resolve the
+    // Behind a pushed screen the home waits: `_open` and `_startSession` resolve the
     // launch again when that screen returns, after the session's answers are in.
     if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
     _relaunchIfNewDay();
@@ -147,16 +266,19 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
     _relaunch();
   }
 
-  /// Resolves today's launch. Writes only today's `DayRecord`, through `onLaunch`.
+  /// Resolves today's launch, then reads the record Today shows. Writes only today's
+  /// `DayRecord`, through `onLaunch`.
   Future<void> _relaunch() async {
     final run = ++_launchRun;
     try {
       final store = _store ??= widget.store ?? await sharedJpStore();
       final catalog = _catalog ??= widget.catalog ?? await ItemCatalog.load();
       final launch = await onLaunch(widget.clock.now(), store, catalog);
+      final record = await loadHomeRecord(store, catalog.byId, launch.day);
       if (mounted && run == _launchRun) {
         setState(() {
           _launch = launch;
+          _record = record;
           _launchError = null;
         });
       }
@@ -176,36 +298,40 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _searchBox.dispose();
     super.dispose();
-  }
-
-  /// Puts [query] in the search box, as if typed, and clears the use filter.
-  /// The cursor goes to the end: the `text` setter alone would leave the
-  /// selection at -1, so the next typed character could land at the start.
-  void _searchFor(String query) {
-    _searchBox.value = TextEditingValue(
-      text: query,
-      selection: TextSelection.collapsed(offset: query.length),
-    );
-    setState(() {
-      _query = query.trim();
-      _use = null;
-    });
-  }
-
-  Future<void> _readLast() async {
-    final p = await SharedPreferences.getInstance();
-    if (mounted)
-      setState(() => _last = p.getInt(QuietRoomJapaneseWidget.lastLessonKey));
   }
 
   Future<void> _open(String route,
       [Map<String, dynamic> params = const {}]) async {
     await context.pushNamed(route, queryParameters: params);
     if (!mounted) return;
-    _readLast(); // the grammar screen may have moved on
-    _relaunchIfNewDay(); // and the day may have, while that screen was up
+    _relaunchIfNewDay(); // the day may have moved while that screen was up
+  }
+
+  /// A tap on a tab: `go` under the router, so the URL names the tab and the stack stays
+  /// flat; local state without one.
+  void _selectTab(HomeTab tab) {
+    if (tab == _tab) return;
+    if (GoRouter.maybeOf(context) != null) {
+      context.goNamed(QuietRoomJapaneseWidget.routeName,
+          queryParameters: {if (tab != HomeTab.today) 'tab': tab.name});
+      return;
+    }
+    setState(() => _tab = tab);
+    _refreshToday();
+  }
+
+  /// Today again: the day may have moved while another tab was up, and the record may have,
+  /// through a practice run from Lessons or Topics. `onLaunch` keeps a stored plan, so a
+  /// same-day refresh builds no second plan.
+  void _refreshToday() {
+    final launch = _launch;
+    if (_tab != HomeTab.today || launch == null) return;
+    if (localDay(widget.clock.now()) != launch.day) {
+      _relaunchIfNewDay();
+    } else {
+      _relaunch();
+    }
   }
 
   @override
@@ -234,281 +360,45 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
         onLater: () => setState(() => _pastWelcome = true),
       );
     }
-    return QrStudyScaffold(
-      showBack: false,
-      child: QrLoad(builder: (context, doc) {
-        final t = QuietRoomTokens.of(context);
-        final grammar = (doc['grammar'] as List).cast<Map<String, dynamic>>();
-        final lesson = grammar.firstWhere((g) => g['lesson'] == _last,
-            orElse: () => grammar.first);
-        final points = (lesson['points'] as List).length;
-        final verbs = (doc['conjugation']['verbs'] as List).length;
-        final pairs = (doc['pairs'] as List).length;
-
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
-          children: [
-            Text('日本語', style: qrTitle(t, size: 30)),
-            const SizedBox(height: 5),
-            Text('Five minutes of grammar, then one drill.',
-                style: qrText(t, color: t.inkMuted)),
-            const SizedBox(height: 16),
-            _todayCard(t),
-            const SizedBox(height: 16),
-            _search(t),
-            const SizedBox(height: 10),
-            _useStrip(t, doc),
-            const SizedBox(height: 16),
-            if (_query.isNotEmpty || _use != null)
-              ..._results(t, doc)
-            else ...[
-              _hero(t, lesson, points),
-              const SizedBox(height: 22),
-              _row(t, 'Grammar lessons', 'Mari\'s checklist · 第26課 to 第50課',
-                  () => _open(LessonsPathWidget.routeName)),
-              _row(
-                  t,
-                  'Conjugation',
-                  '$verbs verbs · 12 forms',
-                  () => _open(QuietRoomDrillsWidget.routeName,
-                      {'mode': 'conjugation'})),
-              _row(
-                  t,
-                  'Verb pairs',
-                  '$pairs pairs · が and を',
-                  () => _open(
-                      QuietRoomDrillsWidget.routeName, {'mode': 'pairs'})),
-              _row(
-                  t,
-                  'Numbers and counters',
-                  'Counters, dates, months, lengths of time',
-                  () => _open(
-                      QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
-              _row(t, 'Vocabulary', 'Minna no Nihongo · 620 words',
-                  () => _open(LessonsPathWidget.routeName)),
-              _studyRecordLink(t),
-            ],
-          ],
-        );
-      }),
+    final t = QuietRoomTokens.of(context);
+    final Widget body = switch (_tab) {
+      HomeTab.today => QrStudyScaffold(showBack: false, child: _today(t)),
+      HomeTab.lessons => LessonsPathWidget(
+          key: const ValueKey('home-lessons'),
+          store: widget.store,
+          catalog: widget.catalog,
+          clock: widget.clock,
+          showBack: false,
+        ),
+      HomeTab.topics => QuietRoomTopicsWidget(
+          key: const ValueKey('home-topics'),
+          store: widget.store,
+          catalog: widget.catalog,
+          clock: widget.clock,
+          showBack: false,
+        ),
+    };
+    return Scaffold(
+      backgroundColor: t.canvas,
+      body: Column(children: [
+        Expanded(child: body),
+        _bottomNav(t),
+      ]),
     );
   }
 
-  // ───────────── finding: search and sort by use, over the extraction catalog ─────────────
-  //
-  // The catalog (pipeline/jp/catalog.py) gives every item a type and its uses at
-  // extraction time, so this screen never guesses what a piece of content is. Each
-  // data file has an entry too (type source_file), and every entry lists the data
-  // files it came from (`from`), so searching a file's name finds the file and its items.
-
-  Widget _search(QuietRoomTokens t) => TextField(
-        controller: _searchBox,
-        onChanged: (v) => setState(() => _query = v.trim()),
-        style: qrText(t, size: 15),
-        cursorColor: t.brand600,
-        decoration: InputDecoration(
-          hintText: 'Search everything: advice, ので, 本, open',
-          hintStyle: qrText(t, size: 15, color: t.inkSubtle),
-          prefixIcon: Icon(Icons.search, size: 20, color: t.inkMuted),
-          filled: true,
-          fillColor: t.surface,
-          isDense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: t.border, width: 1),
-            borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: t.borderFocus, width: QuietRoomMetrics.strokeFocus),
-            borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
-          ),
-        ),
+  Widget _today(QuietRoomTokens t) => ListView(
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
+        children: [
+          Text('日本語', style: qrTitle(t, size: 30)),
+          const SizedBox(height: 16),
+          _todayCard(t),
+          const SizedBox(height: 18),
+          if (_record != null) ..._recordLines(t, _record!),
+          const SizedBox(height: 18),
+          _quietLinks(t),
+        ],
       );
-
-  /// What do you want to say? One row of uses. Tapping one sorts everything by it.
-  Widget _useStrip(QuietRoomTokens t, Map<String, dynamic> doc) {
-    final uses =
-        ((doc['uses'] as List?) ?? const []).cast<Map<String, dynamic>>();
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: uses.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 7),
-        itemBuilder: (context, i) => QrPill(
-          label: uses[i]['label'] as String,
-          on: _use == uses[i]['id'],
-          solid: false,
-          onTap: () => setState(() =>
-              _use = _use == uses[i]['id'] ? null : uses[i]['id'] as String),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _results(QuietRoomTokens t, Map<String, dynamic> doc) {
-    final entries =
-        ((doc['catalog'] as List?) ?? const []).cast<Map<String, dynamic>>();
-    final types =
-        ((doc['types'] as List?) ?? const []).cast<Map<String, dynamic>>();
-    final typeOrder = {
-      for (var i = 0; i < types.length; i++) types[i]['id']: i
-    };
-    final typeName = {for (final x in types) x['id']: x['label'] as String};
-    final useName = {
-      for (final u
-          in ((doc['uses'] as List?) ?? const []).cast<Map<String, dynamic>>())
-        u['id']: u['label'] as String
-    };
-    final q = _query.toLowerCase();
-    bool hit(Map<String, dynamic> e) {
-      if (_use != null && !(e['uses'] as List).contains(_use)) return false;
-      if (q.isEmpty) return true;
-      final hay = [
-        e['title'],
-        e['summary'],
-        typeName[e['type']],
-        ...(e['search'] as List? ?? const []),
-        ...(e['from'] as List? ?? const []),
-        for (final u in (e['uses'] as List)) useName[u],
-      ];
-      return hay.any((h) => (h ?? '').toString().toLowerCase().contains(q));
-    }
-
-    final found = entries.where(hit).toList()
-      ..sort((a, b) {
-        final byType =
-            (typeOrder[a['type']] ?? 99).compareTo(typeOrder[b['type']] ?? 99);
-        return byType != 0
-            ? byType
-            : ((a['lesson'] ?? 0) as int).compareTo((b['lesson'] ?? 0) as int);
-      });
-    if (found.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30),
-          child: Center(
-              child: Text('Nothing matches that.',
-                  style: qrText(t, color: t.inkMuted))),
-        ),
-      ];
-    }
-    return [
-      Text('${found.length} found',
-          style: qrText(t, size: 12.5, color: t.inkMuted)),
-      const SizedBox(height: 8),
-      for (final e in found)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 9),
-          child: QrCard(
-            onTap: () => _openEntry(e),
-            child: Row(children: [
-              Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        [
-                          typeName[e['type']] ?? e['type'],
-                          if (e['lesson'] != null) '第${e['lesson']}課'
-                        ].join(' · '),
-                        style: qrText(t,
-                            size: 11.5,
-                            weight: FontWeight.w600,
-                            color: t.sage700),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(e['title'] as String,
-                          style: qrText(t,
-                              size: 15.5,
-                              weight: FontWeight.w600,
-                              color: t.inkStrong)),
-                      if ((e['summary'] as String? ?? '').isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(e['summary'] as String,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: qrText(t, size: 12.5, color: t.inkMuted)),
-                      ],
-                    ]),
-              ),
-              Icon(Icons.chevron_right, size: 18, color: t.brand600),
-            ]),
-          ),
-        ),
-    ];
-  }
-
-  void _openEntry(Map<String, dynamic> e) {
-    final o = (e['open'] as Map).cast<String, dynamic>();
-    switch (o['screen']) {
-      case 'grammar':
-        _open(QuietRoomGrammarWidget.routeName, {
-          if (o['lesson'] != null)
-            'lesson': serializeParam(o['lesson'], ParamType.int),
-          if (o['query'] != null) 'query': o['query'],
-        });
-      case 'reference':
-        _open(QuietRoomDrillsWidget.routeName,
-            {'mode': 'reference', 'table': o['table']});
-      case 'pairs':
-        _open(QuietRoomDrillsWidget.routeName, {'mode': 'pairs'});
-      case 'conjugation':
-        _open(QuietRoomDrillsWidget.routeName,
-            {'mode': 'conjugation', 'form': o['form']});
-      case 'vocabulary':
-        _open(QuietRoomLessonWidget.routeName,
-            {'lesson': serializeParam(o['lesson'], ParamType.int)});
-      case 'search': // a data file: show everything that came from it
-        _searchFor(o['query'] as String);
-    }
-  }
-
-  Widget _hero(QuietRoomTokens t, Map<String, dynamic> lesson, int points) {
-    final title = lesson['title'] as String? ?? '';
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusMd),
-        onTap: () => _open(QuietRoomGrammarWidget.routeName,
-            {'lesson': serializeParam(lesson['lesson'], ParamType.int)}),
-        child: Container(
-          decoration: BoxDecoration(
-            color: t.heroFill,
-            borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusMd),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_last == null ? 'START HERE' : 'CONTINUE',
-                  style: qrText(t,
-                          size: 11,
-                          weight: FontWeight.w600,
-                          color: t.heroInkMuted)
-                      .copyWith(letterSpacing: 11 * 0.08)),
-              const SizedBox(height: 8),
-              Text('第${lesson['lesson']}課',
-                  style: qrTitle(t, size: 28).copyWith(color: t.heroInk)),
-              if (title.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(title, style: qrText(t, size: 15, color: t.heroInk)),
-              ],
-              const SizedBox(height: 14),
-              Row(children: [
-                Text('$points grammar points',
-                    style: qrText(t, size: 13, color: t.heroInkMuted)),
-                const Spacer(),
-                Icon(Icons.arrow_forward, size: 20, color: t.heroInk),
-              ]),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   /// The Today card (Task 20): the day's queue and Start or Resume, or the end state.
   Widget _todayCard(QuietRoomTokens t) {
@@ -563,40 +453,112 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
     );
   }
 
-  /// The quiet way to the study record debug page (Task 13): a plain text link, last.
-  Widget _studyRecordLink(QuietRoomTokens t) => Padding(
-        padding: const EdgeInsets.only(top: 14),
-        child: Center(
-          child: TextButton(
-            onPressed: () => _open(MasteryDebugWidget.routeName),
-            child: Text('Study record',
-                style: qrText(t, size: 12.5, color: t.inkSubtle)),
+  /// The mastered count, the kept rate and the 14 dots: quiet lines under the card.
+  List<Widget> _recordLines(QuietRoomTokens t, HomeRecord r) => [
+        Text(masteredLine(r.mastered),
+            key: const ValueKey('home-mastered'),
+            style: qrText(t,
+                size: 15, weight: FontWeight.w600, color: t.inkStrong)),
+        const SizedBox(height: 4),
+        Text(keptRateLine(r.kept),
+            key: const ValueKey('home-kept'),
+            style: qrText(t, size: 13, color: t.inkMuted)),
+        const SizedBox(height: 10),
+        // Missed days are drawn small and faint: a miss is not a verdict.
+        Row(key: const ValueKey('home-dots'), children: [
+          for (final k in r.dots)
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Container(
+                width: k ? 9 : 5,
+                height: k ? 9 : 5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: k ? t.sage600 : t.border,
+                ),
+              ),
+            ),
+          const SizedBox(width: 6),
+          Text(dotsLine(r.dots),
+              style: qrText(t, size: 12.5, color: t.inkMuted)),
+        ]),
+      ];
+
+  /// The drills and the study record debug page (Task 13): plain text links, last.
+  Widget _quietLinks(QuietRoomTokens t) {
+    Widget link(String label, VoidCallback onTap) => TextButton(
+          onPressed: onTap,
+          child: Text(label, style: qrText(t, size: 12.5, color: t.inkSubtle)),
+        );
+    return Center(
+      child: Wrap(alignment: WrapAlignment.center, spacing: 4, children: [
+        link(
+            'Conjugation',
+            () => _open(
+                QuietRoomDrillsWidget.routeName, {'mode': 'conjugation'})),
+        link('Verb pairs',
+            () => _open(QuietRoomDrillsWidget.routeName, {'mode': 'pairs'})),
+        link(
+            'Numbers and counters',
+            () =>
+                _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
+        link('Study record', () => _open(MasteryDebugWidget.routeName)),
+      ]),
+    );
+  }
+
+  Widget _bottomNav(QuietRoomTokens t) => Container(
+        decoration: BoxDecoration(
+          color: t.surface,
+          border: Border(top: BorderSide(color: t.border, width: 1)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _navItem(t, HomeTab.today, Icons.home_outlined),
+                _navItem(t, HomeTab.lessons, Icons.menu_book_outlined),
+                _navItem(t, HomeTab.topics, Icons.search),
+              ],
+            ),
           ),
         ),
       );
 
-  Widget _row(
-          QuietRoomTokens t, String title, String sub, VoidCallback onTap) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 9),
-        child: QrCard(
-          onTap: onTap,
-          child: Row(children: [
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: qrText(t,
-                            size: 15.5,
-                            weight: FontWeight.w600,
-                            color: t.inkStrong)),
-                    const SizedBox(height: 3),
-                    Text(sub, style: qrText(t, size: 12.5, color: t.inkMuted)),
-                  ]),
+  Widget _navItem(QuietRoomTokens t, HomeTab tab, IconData icon) {
+    final active = tab == _tab;
+    final c = active ? t.ink : t.inkMuted;
+    return Semantics(
+      selected: active,
+      button: true,
+      child: InkWell(
+        key: ValueKey('tab-${tab.name}'),
+        onTap: () => _selectTab(tab),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+              minWidth: QuietRoomMetrics.targetMin,
+              minHeight: QuietRoomMetrics.targetMin),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: c),
+                const SizedBox(height: 3),
+                Text(homeTabLabel(tab),
+                    style: qrText(t,
+                        size: 11,
+                        weight: active ? FontWeight.w600 : FontWeight.w500,
+                        color: c)),
+              ],
             ),
-            Icon(Icons.chevron_right, size: 18, color: t.brand600),
-          ]),
+          ),
         ),
-      );
+      ),
+    );
+  }
 }

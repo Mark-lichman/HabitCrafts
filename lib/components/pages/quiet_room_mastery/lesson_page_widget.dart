@@ -12,7 +12,10 @@
 //     only, soonest due first. Each is due, so each answer is a review under the drills' due
 //     rule (D23); it never writes the day's session record. Off when nothing is due;
 //   * Read the whole lesson: the existing grammar screen (`QuietRoomGrammarWidget`) opened on
-//     the lesson. Only where the lesson has grammar, since the grammar screen holds no words.
+//     the lesson. Only where the lesson has grammar, since the grammar screen holds no words;
+//   * Word cards: the word-card screen (`QuietRoomLessonWidget`) opened on the lesson, which
+//     leads on to the vocabulary speaking screen. Only where the lesson has words (operator
+//     ruling ASK-12, 2026-11-05), so both screens stay reachable once the home is Today.
 //
 // [lessonPageOf] is the pure read the page shows. The page reads one snapshot of the record
 // (`TopicIndex.load` plus the attempt log) and reads it again when the learner comes back from
@@ -27,6 +30,7 @@ import 'package:go_router/go_router.dart';
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
 import '../quiet_room_grammar/quiet_room_grammar_widget.dart';
+import '../quiet_room_lesson/quiet_room_lesson_widget.dart';
 import 'attempt.dart';
 import 'item_catalog.dart';
 import 'item_detail_widget.dart' show PracticeSessionWidget, kSayItNeverCounts;
@@ -45,6 +49,9 @@ const String kReviewThese = 'Review these';
 
 /// The quiet action that opens the grammar screen on the lesson.
 const String kReadWholeLesson = 'Read the whole lesson';
+
+/// The quiet action that opens the word-card screen on the lesson.
+const String kWordCards = 'Word cards';
 
 /// The heading over the lesson's grammar points.
 const String kGrammarHeading = 'Grammar';
@@ -308,6 +315,27 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
     if (mounted) await _load();
   }
 
+  /// The word-card screen on the lesson: by route name under the app's router when no store
+  /// was injected, else as a plain page over the same store and clock.
+  Future<void> _wordCards() async {
+    final lesson = widget.lesson;
+    if (widget.store == null && GoRouter.maybeOf(context) != null) {
+      await context.pushNamed(QuietRoomLessonWidget.routeName,
+          queryParameters: {'lesson': '$lesson'});
+    } else {
+      final catalog = _catalog!;
+      await Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => QuietRoomLessonWidget(
+          initialLesson: lesson,
+          store: widget.store,
+          items: catalog.byId,
+          clock: widget.clock,
+        ),
+      ));
+    }
+    if (mounted) await _load();
+  }
+
   Future<void> _openItem(String itemId) async {
     await openItemPage(context, itemId,
         store: widget.store,
@@ -335,6 +363,25 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
     Widget note(String text) => Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(text, style: qrText(t, size: 13.5, color: t.inkMuted)),
+        );
+    Widget quietAction(String label, VoidCallback onPressed) => Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SizedBox(
+            height: QuietRoomMetrics.targetMin,
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onPressed,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: t.borderControl),
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(QuietRoomMetrics.radiusSm)),
+              ),
+              child: Text(label,
+                  style: qrText(t,
+                      size: 15, weight: FontWeight.w600, color: t.ink)),
+            ),
+          ),
         );
     Widget itemRow(String id) => TopicListRow(
           key: ValueKey('item-$id'),
@@ -378,25 +425,9 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
       // Hidden on a words-only lesson (the default seed keeps 2 to 25 words-only, Task 26):
       // the grammar screen holds no words, so the button would open an empty page.
       if (page.hasGrammar)
-        () => Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: SizedBox(
-                height: QuietRoomMetrics.targetMin,
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _readWholeLesson,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: t.borderControl),
-                    shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(QuietRoomMetrics.radiusSm)),
-                  ),
-                  child: Text(kReadWholeLesson,
-                      style: qrText(t,
-                          size: 15, weight: FontWeight.w600, color: t.ink)),
-                ),
-              ),
-            ),
+        () => quietAction(kReadWholeLesson, _readWholeLesson),
+      // Hidden on a lesson with no word sheet: the word-card screen would have no cards.
+      if (page.hasWordSheet) () => quietAction(kWordCards, _wordCards),
       if (page.hasGrammar) ...[
         () => heading(kGrammarHeading),
         for (final id in page.grammarIds) () => itemRow(id),

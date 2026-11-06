@@ -106,8 +106,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       navigatorKey: appNavigatorKey,
       // Single-user Japanese build (2026-10-24): no login. Signed out, the app opens on
       // Japanese study instead of the launch screen. Signing in still reaches Today.
-      // QuietRoomJapaneseWidget runs `onLaunch` before it builds the hub: the seed confirmation
-      // on a first launch, Welcome back after a break, else the hub with its Today card.
+      // QuietRoomJapaneseWidget runs `onLaunch` before it builds the home: the seed
+      // confirmation on a first launch, Welcome back after a break, else Today.
       errorBuilder: (context, state) => appStateNotifier.loggedIn
           ? QuietRoomTodayWidget()
           : QuietRoomJapaneseWidget(),
@@ -179,7 +179,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: QuietRoomJapaneseWidget.routeName,
           path: QuietRoomJapaneseWidget.routePath,
-          builder: (context, params) => QuietRoomJapaneseWidget(),
+          // The home's tabs (Task 27): Today, `?tab=lessons` and `?tab=topics`.
+          builder: (context, params) => QuietRoomJapaneseWidget(
+            tab: homeTabOf(params.getParam('tab', ParamType.String)),
+          ),
         ),
         FFRoute(
           name: QuietRoomGrammarWidget.routeName,

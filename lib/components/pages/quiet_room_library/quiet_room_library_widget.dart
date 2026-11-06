@@ -13,7 +13,8 @@
 //
 // The bundled Japanese vocabulary is surfaced here as a first-class entry, because a
 // library that omits the only content actually shipped with the app is a library in name
-// only.
+// only. The card ([JapaneseLibraryCard]) opens the Japanese Review session
+// (`openReviewSession`, plan 2026-11-02, Task 27, D20), not a fixed vocabulary lesson.
 
 import 'dart:convert';
 
@@ -25,7 +26,8 @@ import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/library_detail_page/library_detail_page_widget.dart';
-import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import '/components/pages/quiet_room_mastery/review_page.dart'
+    show openReviewSession;
 
 class QuietRoomLibraryWidget extends StatefulWidget {
   const QuietRoomLibraryWidget({super.key});
@@ -258,49 +260,11 @@ class _QuietRoomLibraryWidgetState extends State<QuietRoomLibraryWidget> {
   }
 
   /// The vocabulary that actually ships with the app.
-  Widget _jpCard(QuietRoomTokens t) {
-    final lessons = (_jp!['lessons'] as List?) ?? const [];
-    final words = _jp!['itemCount'] ?? 0;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => context.pushNamed(QuietRoomLessonWidget.routeName),
-        child: Container(
-          decoration: BoxDecoration(
-            color: t.surfaceTinted,
-            border: Border.all(color: t.border, width: 1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Japanese vocabulary',
-                        style: GoogleFonts.schibstedGrotesk(
-                            fontSize: 15.5,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3,
-                            color: t.inkStrong)),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${_jp!['course']} · ${lessons.length} lessons · $words words',
-                      style: GoogleFonts.schibstedGrotesk(
-                          fontSize: 12.5, color: t.inkMuted),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right, size: 18, color: t.brand600),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _jpCard(QuietRoomTokens t) => JapaneseLibraryCard(
+        course: '${_jp!['course']}',
+        lessons: ((_jp!['lessons'] as List?) ?? const []).length,
+        words: (_jp!['itemCount'] as int?) ?? 0,
+      );
 
   Widget _row(
     QuietRoomTokens t, {
@@ -370,4 +334,63 @@ class _QuietRoomLibraryWidgetState extends State<QuietRoomLibraryWidget> {
                   fontSize: 14, color: t.inkMuted)),
         ),
       );
+}
+
+/// The Library's Japanese vocabulary card: opens today's Japanese Review session.
+class JapaneseLibraryCard extends StatelessWidget {
+  const JapaneseLibraryCard(
+      {super.key,
+      required this.course,
+      required this.lessons,
+      required this.words});
+
+  static const String title = 'Japanese vocabulary';
+
+  final String course;
+  final int lessons;
+  final int words;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => openReviewSession(context),
+        child: Container(
+          decoration: BoxDecoration(
+            color: t.surfaceTinted,
+            border: Border.all(color: t.border, width: 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: GoogleFonts.schibstedGrotesk(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                            color: t.inkStrong)),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$course · $lessons lessons · $words words',
+                      style: GoogleFonts.schibstedGrotesk(
+                          fontSize: 12.5, color: t.inkMuted),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, size: 18, color: t.brand600),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

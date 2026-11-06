@@ -3,10 +3,11 @@
 // The path is one vertical list read from a `TopicIndex` over the shipped catalog and a memory
 // store, with an injected clock. The cases: 第26課 to 第50課 in order, each with its title, what
 // it holds and the counts over its items (PIN-1), never a Done mark or a percentage; the current
-// lesson as the one loud row (the last lesson the grammar screen opened, else the first with an
-// item not yet Mastered); a Words-only section for 第2課 to 第25課, where a lesson with no sheet
-// says so; a row opening the lesson page, by route name under the app router; and the hub's
-// "Grammar lessons" and "Vocabulary" rows opening the path instead of a fixed lesson.
+// lesson as the one loud row (the last grammar lesson opened, else the first with an item not
+// yet Mastered); a Words-only section for 第2課 to 第25課, where a lesson with no sheet says so;
+// a row opening the lesson page, by route name under the app router; a 第26課 to 第50課 row
+// making its lesson the current one when it opens (operator ruling ASK-11); and the home's
+// Lessons tab opening the path instead of a fixed lesson.
 
 import 'dart:convert';
 import 'dart:io';
@@ -314,6 +315,37 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets(
+        'opening a grammar lesson makes it the current lesson; a words-only one '
+        'does not (ASK-11)', (tester) async {
+      await pumpPath(tester, JpStoreMemory());
+      final f = find.byKey(const ValueKey('path-41'));
+      await tester.ensureVisible(f);
+      await tester.tap(f);
+      await settle(tester);
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is LessonPageWidget && w.lesson == 41),
+          findsOneWidget);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(kLastGrammarLessonKey), 41);
+
+      Navigator.of(tester.element(find.byType(LessonPageWidget))).pop();
+      await settle(tester);
+      final loud = find.byKey(const ValueKey('path-current'));
+      expect(find.descendant(of: loud, matching: find.text('第41課')),
+          findsOneWidget,
+          reason: 'the loud row follows the learner');
+      expect(find.byKey(const ValueKey('path-26')), findsOneWidget);
+
+      final words = find.byKey(const ValueKey('path-5'));
+      await tester.ensureVisible(words);
+      await tester.tap(words);
+      await settle(tester);
+      expect(prefs.getInt(kLastGrammarLessonKey), 41,
+          reason: 'a words-only lesson is not a grammar lesson');
+    });
+
     testWidgets('the loud row opens the lesson page on the current lesson',
         (tester) async {
       await pumpPath(tester, JpStoreMemory(),
@@ -360,36 +392,21 @@ void main() {
     });
   });
 
-  group('the hub', () {
-    for (final label in ['Grammar lessons', 'Vocabulary']) {
-      testWidgets('"$label" opens the lesson path, not a fixed lesson',
-          (tester) async {
-        final store = JpStoreMemory();
-        await seedFromLessons(today, store, catalog, nowUtc: at(today).toUtc());
-        final router = GoRouter(routes: [
-          GoRoute(
-              path: '/',
-              builder: (_, __) => QuietRoomJapaneseWidget(
-                  store: store,
-                  catalog: catalog,
-                  clock: FixedClock(at(today)))),
-          GoRoute(
-            name: LessonsPathWidget.routeName,
-            path: LessonsPathWidget.routePath,
-            builder: (_, __) => const Text('the lesson path'),
-          ),
-        ]);
-        addTearDown(router.dispose);
-        await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
-        await settle(tester);
+  testWidgets('the Lessons tab of the home opens the path, not a fixed lesson',
+      (tester) async {
+    final store = JpStoreMemory();
+    await seedFromLessons(today, store, catalog, nowUtc: at(today).toUtc());
+    await pumpStudyScreen(
+        tester,
+        QuietRoomJapaneseWidget(
+            store: store, catalog: catalog, clock: FixedClock(at(today))));
+    await settle(tester);
 
-        final f = find.text(label);
-        await tester.ensureVisible(f);
-        await tester.tap(f);
-        await tester.pumpAndSettle();
-        expect(find.text('the lesson path'), findsOneWidget);
-      });
-    }
+    await tester.tap(find.byKey(const ValueKey('tab-lessons')));
+    await settle(tester);
+    expect(find.byType(LessonsPathWidget), findsOneWidget);
+    expect(find.byType(LessonPageWidget), findsNothing);
+    expect(find.byKey(const ValueKey('path-current')), findsOneWidget);
   });
 
   test('nav.dart registers the lesson path and lesson page routes', () {

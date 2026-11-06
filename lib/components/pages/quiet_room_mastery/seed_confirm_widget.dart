@@ -33,7 +33,7 @@ import 'review_page.dart' show QrLoudButton, qrLoadingOr;
 import 'seed.dart';
 
 /// The `SharedPreferences` key of the grammar lesson last opened. The grammar screen writes
-/// it; `QuietRoomJapaneseWidget.lastLessonKey` names the same key.
+/// it, and so does the lesson path when a 第26課 to 第50課 page opens (ASK-11).
 const String kLastGrammarLessonKey = 'jp.grammar.lastLesson';
 
 /// The toggle beside each section heading: Select all, or Clear all when every lesson of the
@@ -86,7 +86,7 @@ class SeedConfirmWidget extends StatefulWidget {
   final ItemCatalog? catalog;
   final Clock clock;
 
-  /// Called once the seed is written. Null goes to the hub (`/`), or pops where no router is.
+  /// Called once the seed is written. Null goes to the home (`/`), or pops where no router is.
   final VoidCallback? onSeeded;
 
   @override

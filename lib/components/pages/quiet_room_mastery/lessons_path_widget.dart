@@ -5,16 +5,18 @@
 //   * 第26課 to 第50課, each row with its title, what it holds ("4 grammar points · 48 words")
 //     and the counts over its items ([lessonCountsLabel]) where the strips showed nothing
 //     or a Done mark. Each count is of the items' own states (PIN-1), never the lesson number;
-//   * the current lesson as the one loud row: the last lesson the grammar screen opened
-//     (`kLastGrammarLessonKey`), else the first lesson on the path with an item not yet
+//   * the current lesson as the one loud row: the last grammar lesson opened, on the grammar
+//     screen or from this path (`kLastGrammarLessonKey`), else the first lesson on the path with an item not yet
 //     Mastered, else 第26課 ([currentLessonOf]);
 //   * a Words-only section for 第2課 to 第25課: word sheets and no grammar. A lesson with no
 //     sheet keeps its row and says so.
 // A tap opens the lesson page (lesson_page_widget.dart). The path reads the record again
-// when the page returns, so its counts follow the answers given there.
+// when the page returns, so its counts follow the answers given there. Opening a 第26課 to
+// 第50課 page makes it the current lesson: the tap writes `kLastGrammarLessonKey`, so the loud
+// row follows the learner (operator ruling ASK-11, 2026-11-05).
 //
-// [lessonPathOf] is the pure read the path shows. The hub's "Grammar lessons" and
-// "Vocabulary" rows open the path by route name (`nav.dart`).
+// [lessonPathOf] is the pure read the path shows. The path is the Lessons tab of the home
+// (quiet_room_japanese_widget.dart) and has its own route in `nav.dart`.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -122,8 +124,8 @@ int currentLessonOf(List<LessonPathRow> grammar, int? lastLesson) {
   return grammar.isEmpty ? kPathFirstGrammarLesson : grammar.first.lesson;
 }
 
-/// The path over [index] and the grammar file [grammar]. [lastLesson] is the last lesson the
-/// grammar screen opened. Pure.
+/// The path over [index] and the grammar file [grammar]. [lastLesson] is the last grammar
+/// lesson opened (`kLastGrammarLessonKey`). Pure.
 LessonPath lessonPathOf(TopicIndex index, Map<String, dynamic> grammar,
     {int? lastLesson}) {
   final titles = <int, String>{};
@@ -177,6 +179,7 @@ class LessonsPathWidget extends StatefulWidget {
     this.grammar,
     this.clock = const SystemClock(),
     this.probeBuilder,
+    this.showBack = true,
   });
 
   static String routeName = 'quietRoomLessons';
@@ -194,6 +197,9 @@ class LessonsPathWidget extends StatefulWidget {
 
   /// Passed to the lesson page for its review.
   final SessionProbeBuilder? probeBuilder;
+
+  /// False when the path is a tab with no page under it.
+  final bool showBack;
 
   @override
   State<LessonsPathWidget> createState() => _LessonsPathWidgetState();
@@ -242,6 +248,11 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
   /// The lesson page: by route name under the app's router when no store was injected, else
   /// as a plain page over the same store and clock.
   Future<void> _open(int lesson) async {
+    if (lesson >= kPathFirstGrammarLesson && lesson <= kPathLastGrammarLesson) {
+      await (await SharedPreferences.getInstance())
+          .setInt(kLastGrammarLessonKey, lesson);
+    }
+    if (!mounted) return;
     if (widget.store == null && GoRouter.maybeOf(context) != null) {
       await context.pushNamed(LessonPageWidget.routeName,
           queryParameters: {'lesson': '$lesson'});
@@ -261,6 +272,7 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
     final path = _path;
     if (path == null) {
       return QrStudyScaffold(
+          showBack: widget.showBack,
           child: qrLoadingOr(context, _error, 'Could not open the lessons:'));
     }
     final t = QuietRoomTokens.of(context);
@@ -284,6 +296,7 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
         () => _PathRow(row: r, onTap: () => _open(r.lesson)),
     ];
     return QrStudyScaffold(
+      showBack: widget.showBack,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
         itemCount: rows.length,

@@ -294,8 +294,8 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   late String _query = widget.initialQuery ?? '';
   late final _searchCtl = TextEditingController(text: widget.initialQuery);
 
-  /// The start screen's hero continues from here. Same key as
-  /// QuietRoomJapaneseWidget.lastLessonKey, spelled out to avoid an import cycle.
+  /// The lesson path's current lesson and the seed's default ticks follow it. Same key as
+  /// `kLastGrammarLessonKey` (seed_confirm_widget.dart), spelled out to avoid an import cycle.
   static Future<void> _remember(int lesson) async =>
       (await SharedPreferences.getInstance())
           .setInt('jp.grammar.lastLesson', lesson);
