@@ -631,9 +631,11 @@ void main() {
     // Row '1' is a row of every table, so a guard that is missing shows as an outline
     // on the table that opened instead. Row '31' is a row of dates alone and would pass
     // these tests with the guard gone.
-    testWidgets(
-        'a row with no table, or with a table not in the doc, outlines nothing',
-        (tester) async {
+    //
+    // The two arms are separate tests on purpose: a second open in the same test pumps
+    // a QuietRoomDrillsWidget of the same type with no key at the same slot, so Flutter
+    // keeps the first _ReferenceState and its initState never runs for the second arm.
+    testWidgets('a row with no table outlines nothing', (tester) async {
       await open(
           tester,
           QuietRoomDrillsWidget(
@@ -643,7 +645,10 @@ void main() {
           reason: 'the first table opened');
       expect(outlined, findsNothing,
           reason: 'a row with no table is not an open');
+    });
 
+    testWidgets('a row of a table not in the doc outlines nothing',
+        (tester) async {
       await open(
           tester,
           QuietRoomDrillsWidget(
