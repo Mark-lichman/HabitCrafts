@@ -1097,15 +1097,14 @@ const String kReviewTheLesson = 'Review the lesson';
 /// The mark a card carries once its lesson was opened before the answer.
 const String kLessonReviewed = 'Lesson reviewed';
 
-/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the title of
-/// the screen the kind opens on, as the drills screen shows it; an untaught particle opens
-/// its topic page, whose title is the topic's own, so its link says Particles.
+/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the screen
+/// the kind opens on.
 String reviewLessonName(ItemDef item) {
   final lesson = item.lesson;
   return switch (item.kind) {
     ItemKind.conjugation => 'Conjugation',
     ItemKind.pair => 'Verb pairs',
-    ItemKind.tableRow => 'Numbers and counters',
+    ItemKind.tableRow => 'Reference tables',
     ItemKind.particle when lesson == null => 'Particles',
     _ => lesson == null ? item.title : '第$lesson課',
   };

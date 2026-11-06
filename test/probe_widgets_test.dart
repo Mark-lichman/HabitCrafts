@@ -1496,7 +1496,7 @@ void main() {
       expect(reviewLessonDetail(untaught), 'Particles · へ');
       expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
       expect(reviewLessonDetail(_pair), 'Verb pairs · あく / あける');
-      expect(reviewLessonDetail(_row), 'Numbers and counters · Counters: ほん');
+      expect(reviewLessonDetail(_row), 'Reference tables · Counters: ほん');
     });
 
     testWidgets('the link shows its name, runs its tap, and marks a review',
