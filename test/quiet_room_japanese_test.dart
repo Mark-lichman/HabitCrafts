@@ -3,7 +3,9 @@
 // the session card on today, resume and done), the launch it resolves again when a warm app
 // meets a new local day, the session card's section counts read from a memory store, the
 // mastered count, the kept rate and the 14 dots, the quiet links, the bottom nav of Today,
-// Lessons and Topics, and the absence of the old hub's hero, rows, number strip, search and
+// Lessons and Topics (a tab tap under the router is a `go` on the route the home is on, so
+// the State and a dismissed Welcome back survive it, and nav.dart's `/` route reads the tab
+// like the named one), and the absence of the old hub's hero, rows, number strip, search and
 // use strip (search and By use live in Topics, topics_widget_test.dart).
 
 import 'dart:convert';
@@ -32,9 +34,31 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.d
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart'
     show kV2CanUseIt, kV2SelfCheckPrefix;
 import 'package:habit_craft/components/pages/quiet_room_mastery/topics_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/welcome_back_widget.dart';
+import 'package:habit_craft/auth/base_auth_user_provider.dart';
+import 'package:habit_craft/backend/push_notifications/push_notifications_handler.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
 
 import 'jp_screen_harness.dart';
+
+/// Nobody signed in, with the app's splash off: `createRouter` then builds the signed-out
+/// home for a route instead of the splash image.
+class _SignedOut extends BaseAuthUser {
+  @override
+  bool get loggedIn => false;
+  @override
+  bool get emailVerified => false;
+  @override
+  AuthUserInfo get authUserInfo => const AuthUserInfo();
+  @override
+  Future? delete() => null;
+  @override
+  Future? updateEmail(String email) => null;
+  @override
+  Future? updatePassword(String password) => null;
+  @override
+  Future? sendEmailVerification() => null;
+}
 
 Map<String, dynamic> _read(String path) =>
     json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -657,6 +681,115 @@ void main() {
           router.namedLocation(QuietRoomJapaneseWidget.routeName,
               queryParameters: {'tab': HomeTab.topics.name}),
           '${QuietRoomJapaneseWidget.routePath}?tab=topics');
+    });
+
+    testWidgets(
+        'from the root route, after Not now, a tab tap keeps the home: Lessons shows '
+        'and Welcome back stays dismissed (End state 6)', (tester) async {
+      // nav.dart's shape: the app starts at `/`, and the home has a named route too. A
+      // `goNamed` from `/` builds a second page and a fresh State, which asks Welcome back
+      // again; a `go` on `/` keeps the one State.
+      final store = DayReadsStore();
+      await doneStore(into: store);
+      const back = day0 + 4; // three local days missed: return mode
+      final clock = FixedClock(at(back));
+      Widget home(GoRouterState state) => QuietRoomJapaneseWidget(
+          store: store,
+          catalog: catalog,
+          clock: clock,
+          tab: homeTabOf(state.uri.queryParameters['tab']));
+      final router = GoRouter(routes: [
+        GoRoute(path: '/', builder: (_, state) => home(state)),
+        GoRoute(
+          name: QuietRoomJapaneseWidget.routeName,
+          path: QuietRoomJapaneseWidget.routePath,
+          builder: (_, state) => home(state),
+        ),
+      ]);
+      addTearDown(router.dispose);
+      await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
+      await settle(tester);
+      expect(find.byType(WelcomeBackWidget), findsOneWidget);
+      String path() => router.routeInformationProvider.value.uri.path;
+
+      await tester.tap(find.text('Not now'));
+      await settle(tester);
+      expect(find.byType(WelcomeBackWidget), findsNothing);
+      expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
+      final readsAfterNotNow = store.dayReads;
+
+      await tester.tap(find.byKey(const ValueKey('tab-lessons')));
+      await tester.pump(const Duration(milliseconds: 400));
+      await settle(tester);
+      expect(find.byType(LessonsPathWidget), findsOneWidget);
+      expect(find.byType(WelcomeBackWidget), findsNothing);
+      expect(find.byKey(const ValueKey('tab-today')), findsOneWidget,
+          reason: 'the bottom nav stays under Lessons');
+      expect(path(), '/', reason: 'the tab is a query on the route the home is on');
+      expect(store.dayReads, readsAfterNotNow,
+          reason: 'a tab tap resolves no launch: the State survived the tap');
+
+      await tester.tap(find.byKey(const ValueKey('tab-topics')));
+      await tester.pump(const Duration(milliseconds: 400));
+      await settle(tester);
+      expect(find.byType(QuietRoomTopicsWidget), findsOneWidget);
+      expect(find.byType(WelcomeBackWidget), findsNothing);
+      expect(path(), '/');
+
+      // Today again on the same day: the launch resolves to Welcome back once more, and
+      // Not now still holds.
+      await tester.tap(find.byKey(const ValueKey('tab-today')));
+      await tester.pump(const Duration(milliseconds: 400));
+      await settle(tester);
+      expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
+      expect(find.byType(WelcomeBackWidget), findsNothing);
+      expect(path(), '/');
+    });
+
+    testWidgets(
+        'nav.dart serves the signed-out home at / and by name as two pages, and '
+        'each reads the tab', (tester) async {
+      final router = createRouter(AppStateNotifier.instance);
+      addTearDown(router.dispose);
+      final config = router.configuration;
+      RouteMatchList match(String location) => config.findMatch(location);
+      final root = match('/?tab=lessons');
+      final named = match('${QuietRoomJapaneseWidget.routePath}?tab=topics');
+      expect(root.error, isNull);
+      expect(named.error, isNull);
+      // The premise of the tab tap: `/?tab=...` is the same page as `/`, and the named
+      // route is another page, so only a `go` on the current path keeps the State.
+      expect(root.matches.single.pageKey, match('/').matches.single.pageKey);
+      expect(root.matches.single.pageKey,
+          isNot(named.matches.single.pageKey));
+
+      // The page each route builds, with the splash off and nobody signed in.
+      final app = AppStateNotifier.instance;
+      app.user = _SignedOut();
+      app.showSplashImage = false;
+      addTearDown(() {
+        app.user = null;
+        app.showSplashImage = true;
+      });
+      HomeTab? built(RouteMatchList list) {
+        final m = list.matches.single;
+        final state = router.routerDelegate.builder.buildState(list, m);
+        HomeTab? tab;
+        final context = tester.element(find.byType(SizedBox));
+        final page = (m.route as GoRoute).pageBuilder!(context, state);
+        final child = page is MaterialPage
+            ? page.child
+            : (page as CustomTransitionPage).child;
+        final home = (child as PushNotificationsHandler).child;
+        if (home is QuietRoomJapaneseWidget) tab = home.tab;
+        return tab;
+      }
+
+      await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      expect(built(root), HomeTab.lessons);
+      expect(built(named), HomeTab.topics);
+      expect(built(match('/')), HomeTab.today);
+      expect(built(match(QuietRoomJapaneseWidget.routePath)), HomeTab.today);
     });
   });
 

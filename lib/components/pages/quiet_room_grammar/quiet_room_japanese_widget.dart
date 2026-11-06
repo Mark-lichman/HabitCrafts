@@ -310,11 +310,20 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
 
   /// A tap on a tab: `go` under the router, so the URL names the tab and the stack stays
   /// flat; local state without one.
+  ///
+  /// The `go` keeps the path the home is already on. nav.dart serves the signed-out home
+  /// at `/` and at [QuietRoomJapaneseWidget.routePath], and go_router keys a page by its
+  /// matched path, so the same path with a new `tab` updates this State through
+  /// `didUpdateWidget`. A `goNamed` from `/` would build a second page, drop this State
+  /// with its `_pastWelcome`, and ask Welcome back again after Not now.
   void _selectTab(HomeTab tab) {
     if (tab == _tab) return;
     if (GoRouter.maybeOf(context) != null) {
-      context.goNamed(QuietRoomJapaneseWidget.routeName,
-          queryParameters: {if (tab != HomeTab.today) 'tab': tab.name});
+      final here = GoRouterState.of(context).uri;
+      context.go(Uri(
+        path: here.path,
+        queryParameters: tab == HomeTab.today ? null : {'tab': tab.name},
+      ).toString());
       return;
     }
     setState(() => _tab = tab);

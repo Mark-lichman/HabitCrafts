@@ -108,16 +108,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       // Japanese study instead of the launch screen. Signing in still reaches Today.
       // QuietRoomJapaneseWidget runs `onLaunch` before it builds the home: the seed
       // confirmation on a first launch, Welcome back after a break, else Today.
+      // Every builder of the signed-out home reads its `tab` (Task 27: Today, `?tab=lessons`
+      // and `?tab=topics`), because a tab tap is a `go` on the path the home is on, with
+      // the tab as the query. The app starts at `/`, so that path serves the tabs too.
       errorBuilder: (context, state) => appStateNotifier.loggedIn
           ? QuietRoomTodayWidget()
-          : QuietRoomJapaneseWidget(),
+          : QuietRoomJapaneseWidget(
+              tab: homeTabOf(state.uri.queryParameters['tab'])),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.loggedIn
+          builder: (context, params) => appStateNotifier.loggedIn
               ? QuietRoomTodayWidget()
-              : QuietRoomJapaneseWidget(),
+              : QuietRoomJapaneseWidget(
+                  tab: homeTabOf(params.getParam('tab', ParamType.String))),
         ),
         FFRoute(
           name: InitialPageWidget.routeName,
@@ -179,7 +184,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: QuietRoomJapaneseWidget.routeName,
           path: QuietRoomJapaneseWidget.routePath,
-          // The home's tabs (Task 27): Today, `?tab=lessons` and `?tab=topics`.
+          // The home by name. Its tabs read like the `/` route's above.
           builder: (context, params) => QuietRoomJapaneseWidget(
             tab: homeTabOf(params.getParam('tab', ParamType.String)),
           ),
