@@ -1475,7 +1475,7 @@ void main() {
     });
 
     test(
-        'a say-it clear after a review keeps sayIt, revealed, selfGraded and atUtc',
+        'a say-it clear after a review keeps sayIt, revealed, selfGraded, answerShown and atUtc',
         () {
       final at = DateTime.utc(2026, 11, 6, 10);
       final d = afterLessonReview(drawn(_grammar, 'ex0', Grade.clear,

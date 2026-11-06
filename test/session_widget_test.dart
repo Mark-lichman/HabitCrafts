@@ -24,8 +24,9 @@
 // level 1; wrong, hinted and unscored answers are untouched; the review covers that card only;
 // the link is gone once the card is answered; opening a lesson writes no attempt; an opener
 // that fails leaves the card unreviewed, so a clear after it stays clear, and a failure after
-// an earlier open of the same card keeps that mark; every item kind's link pushes its own
-// target and query through the router and Back returns to its card.
+// an earlier open of the same card keeps that mark; every item kind's link, and both a taught
+// and an untaught particle's, pushes its own target and query through the router and Back
+// returns to its card.
 
 import 'dart:convert';
 import 'dart:io';
@@ -1243,26 +1244,32 @@ void main() {
     testWidgets(
         'the link pushes the lesson target of every item kind through the router, '
         'and Back returns to the same card', (tester) async {
-      for (final kind in ItemKind.values) {
-        final item = catalog.ofKind(kind).first;
-        final h = await pumpRouted(
-            tester, planOf([entryOf(item, PlanSection.due)]));
-        expect(h.onScreen, item.id, reason: kind.name);
-        expect(find.text(kLessonReviewed), findsNothing, reason: kind.name);
+      // The first of each kind, plus a taught particle: the first particle has no
+      // lesson, so both particle arms of lessonTargetOf go through the router.
+      final items = [
+        for (final kind in ItemKind.values) catalog.ofKind(kind).first,
+        catalog.ofKind(ItemKind.particle).firstWhere((i) => i.lesson != null),
+      ];
+      for (final item in items) {
+        final kind = item.kind.name;
+        final h =
+            await pumpRouted(tester, planOf([entryOf(item, PlanSection.due)]));
+        expect(h.onScreen, item.id, reason: kind);
+        expect(find.text(kLessonReviewed), findsNothing, reason: kind);
 
         await tester.tap(find.text(kReviewTheLesson));
         await tester.pumpAndSettle();
         final target = lessonTargetOf(item);
         expect(find.text('lesson ${target.routeName} ${target.query}'),
             findsOneWidget,
-            reason: '${kind.name}: the route and query of ${item.id}');
+            reason: '$kind: the route and query of ${item.id}');
 
         await tester.tap(find.text('Back'));
         await tester.pumpAndSettle();
-        expect(h.onScreen, item.id, reason: '${kind.name}: the same card');
-        expect(find.text(kLessonReviewed), findsOneWidget, reason: kind.name);
+        expect(h.onScreen, item.id, reason: '$kind: the same card');
+        expect(find.text(kLessonReviewed), findsOneWidget, reason: kind);
         expect(await h.store.attempts(), isEmpty,
-            reason: '${kind.name}: opening a lesson writes no attempt');
+            reason: '$kind: opening a lesson writes no attempt');
       }
     });
 
