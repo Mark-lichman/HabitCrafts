@@ -1423,4 +1423,97 @@ void main() {
     expect(a.selfGraded, isTrue);
     expect(a.revealed, isTrue);
   });
+
+  group('lesson review (plan 2026-11-06, Task 2, PIN-5)', () {
+    DrillAnswer drawn(ItemDef item, String probeId, Grade g,
+            {int hintLevel = 0, bool revealed = false, bool sayIt = false}) =>
+        DrillAnswer(
+            itemId: item.id,
+            probeId: probeId,
+            template: _probe(item, probeId).template,
+            production: _probe(item, probeId).production,
+            selfGraded: false,
+            grade: g,
+            hintLevel: hintLevel,
+            revealed: revealed,
+            sayIt: sayIt,
+            answerShown: true);
+
+    test('a clear after a review is hinted at hint level 1, the rest kept', () {
+      final d = afterLessonReview(drawn(_grammar, 'p1', Grade.clear));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.itemId, _grammar.id);
+      expect(d.probeId, 'p1');
+      expect(d.template, 'fill');
+      expect(d.production, isTrue);
+      expect(d.selfGraded, isFalse);
+      expect(d.answerShown, isTrue);
+    });
+
+    test('a choose clear after a review is hinted (a choose card has no hint)',
+        () {
+      final d = afterLessonReview(drawn(_grammar, 'p0', Grade.clear));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.template, 'choose');
+    });
+
+    test('a grammar hint plus a review is not counted twice', () {
+      final hinted = drawn(_grammar, 'p1', Grade.hinted, hintLevel: 1);
+      final d = afterLessonReview(hinted);
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+    });
+
+    test('wrong, self and unscored are untouched', () {
+      for (final g in [Grade.wrong, Grade.self, Grade.unscored]) {
+        final before = drawn(_word, 'typed', g, revealed: g == Grade.wrong);
+        final d = afterLessonReview(before);
+        expect(identical(d, before), isTrue, reason: g.name);
+        expect(d.grade, g);
+        expect(d.hintLevel, 0);
+      }
+    });
+
+    test('the link names the lesson and the idea of each kind', () {
+      final particle = ItemDef(
+          id: 'mari.particle.1',
+          kind: ItemKind.particle,
+          title: 'は',
+          prereqLevel: 0,
+          lesson: 21,
+          probes: const []);
+      final untaught = ItemDef(
+          id: 'mari.particle.2',
+          kind: ItemKind.particle,
+          title: 'へ',
+          prereqLevel: 0,
+          probes: const []);
+      expect(reviewLessonDetail(_grammar), '第26課 · 〜んです');
+      expect(reviewLessonDetail(_word), '第30課 · かばん');
+      expect(reviewLessonDetail(particle), '第21課 · は');
+      expect(reviewLessonDetail(untaught), 'Particles · へ');
+      expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
+      expect(reviewLessonDetail(_pair), 'Verb pairs · あく / あける');
+      expect(reviewLessonDetail(_row), 'Reference tables · Counters: ほん');
+    });
+
+    testWidgets('the link shows its name, runs its tap, and marks a review',
+        (tester) async {
+      var taps = 0;
+      await _pump(
+          tester, ReviewLessonLink(item: _grammar, onTap: () => taps++));
+      expect(find.text(kReviewTheLesson), findsOneWidget);
+      expect(find.text('第26課 · 〜んです'), findsOneWidget);
+      expect(find.text(kLessonReviewed), findsNothing);
+      await _tap(tester, kReviewTheLesson);
+      expect(taps, 1);
+
+      await _pump(tester,
+          ReviewLessonLink(item: _grammar, reviewed: true, onTap: () {}));
+      expect(find.text(kReviewTheLesson), findsOneWidget);
+      expect(find.text(kLessonReviewed), findsOneWidget);
+    });
+  });
 }

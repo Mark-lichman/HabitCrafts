@@ -17,18 +17,27 @@
 // included, a skipped re-ask among them), the day's counts, the mastered-today list and a
 // taken offer on instead of restarting them, and a double tap on a card's button that runs
 // its action once.
+//
+// Review the lesson (plan 2026-11-06, Task 2, End state 1, PIN-5): under the app's router the
+// link on an unanswered card pushes the item kind's lesson target, Back returns to the same
+// card unanswered and marked "Lesson reviewed", and a clear after it is written hinted at hint
+// level 1; wrong, hinted and unscored answers are untouched; the review covers that card only;
+// the link is gone once the card is answered; opening a lesson writes no attempt.
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/lesson_page_widget.dart'
+    show lessonTargetOf;
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
@@ -164,7 +173,7 @@ Attempt attemptOf(ItemDef item, int day, Grade grade,
 
 /// Pumps the session over [plan]; [position] above 0 is a resume of the stored day.
 Future<Harness> pumpSession(WidgetTester tester, DayPlan plan,
-    {JpStoreMemory? store, int position = 0}) async {
+    {JpStoreMemory? store, int position = 0, LessonOpener? openLesson}) async {
   tester.view.physicalSize = const Size(900, 2400);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -180,6 +189,7 @@ Future<Harness> pumpSession(WidgetTester tester, DayPlan plan,
         catalog: catalog,
         position: position,
         probeBuilder: fakeProbe,
+        openLesson: openLesson,
       ),
     ),
   ));
@@ -1124,5 +1134,165 @@ void main() {
     ]);
     expect(sectionPosition(plan, 0), 'Repair · 1 of 1');
     expect(sectionPosition(plan, 12), 'Due · 12 of 42');
+  });
+
+  group('Review the lesson (plan 2026-11-06, Task 2, PIN-5)', () {
+    final grammar = catalog.ofKind(ItemKind.grammar).first;
+
+    /// The session under a router that knows every lesson target's route name. Each target is
+    /// a stub page naming its route and query, with a Back that pops it.
+    Future<Harness> pumpRouted(WidgetTester tester, DayPlan plan) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = JpStoreMemory();
+      await s.putDay(DayRecord(day: today, plan: plan.encode(), position: 0));
+      final names = {
+        for (final kind in ItemKind.values)
+          for (final item in catalog.ofKind(kind).take(1))
+            lessonTargetOf(item).routeName
+      };
+      final router = GoRouter(routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, __) => Scaffold(
+            body: SessionWidget(
+              plan: plan,
+              store: s,
+              clock: FixedClock(at(today)),
+              catalog: catalog,
+              probeBuilder: fakeProbe,
+            ),
+          ),
+        ),
+        for (final name in names)
+          GoRoute(
+            path: '/stub-$name',
+            name: name,
+            builder: (context, state) => Scaffold(
+              body: Column(children: [
+                Text('lesson $name ${state.uri.queryParameters}'),
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Back')),
+              ]),
+            ),
+          ),
+      ]);
+      addTearDown(router.dispose);
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    testWidgets(
+        "the link opens the kind's target, Back returns to the same unanswered card "
+        'marked Lesson reviewed, and a clear after it is hinted (End state 1)',
+        (tester) async {
+      final plan = planOf([
+        entryOf(grammar, PlanSection.due),
+        entryOf(words[0], PlanSection.due),
+      ]);
+      final h = await pumpRouted(tester, plan);
+      expect(h.onScreen, grammar.id);
+      expect(find.text(kReviewTheLesson), findsOneWidget);
+      expect(find.text(reviewLessonDetail(grammar)), findsOneWidget);
+      expect(find.text(kLessonReviewed), findsNothing);
+
+      await tester.tap(find.text(kReviewTheLesson));
+      await tester.pumpAndSettle();
+      final target = lessonTargetOf(grammar);
+      expect(target.query['point'], grammar.id);
+      expect(find.text('lesson ${target.routeName} ${target.query}'),
+          findsOneWidget);
+      expect(await h.store.attempts(), isEmpty,
+          reason: 'opening a lesson writes no attempt');
+
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+      expect(h.onScreen, grammar.id, reason: 'the same card');
+      expect(h.shows(sectionPosition(plan, 0)), isTrue);
+      expect(find.text(kLessonReviewed), findsOneWidget);
+      expect(await h.store.attempts(), isEmpty, reason: 'still unanswered');
+
+      await h.tap('answer clear');
+      expect(h.shows('Right with a hint'), isTrue);
+      final a = (await h.store.attempts()).single;
+      expect(a.itemId, grammar.id);
+      expect(a.grade, Grade.hinted);
+      expect(a.hintLevel, 1);
+      expect(a.rating, fsrsRatingFor(Grade.hinted));
+      expect(find.text(kReviewTheLesson), findsNothing,
+          reason: 'an answered card has no link');
+
+      await h.tap('Next');
+      expect(h.onScreen, words[0].id);
+      expect(find.text(kLessonReviewed), findsNothing,
+          reason: 'a review covers its own card only');
+      await h.tap('answer clear');
+      expect(h.shows('Clear'), isTrue);
+      expect((await h.store.attempts(itemId: words[0].id)).single.grade,
+          Grade.clear);
+    });
+
+    testWidgets('wrong, hinted and unscored after a review are untouched',
+        (tester) async {
+      final opened = <String>[];
+      final h = await pumpSession(
+          tester,
+          planOf([
+            entryOf(words[0], PlanSection.due),
+            entryOf(words[1], PlanSection.due),
+            entryOf(words[2], PlanSection.due),
+          ]),
+          openLesson: (context, item) async => opened.add(item.id));
+      Future<void> review() async {
+        await h.tap(kReviewTheLesson);
+        expect(find.text(kLessonReviewed), findsOneWidget);
+      }
+
+      await review();
+      await h.tap('answer hinted');
+      await h.tap('Next');
+      await review();
+      await h.tap('answer unscored');
+      await h.tap('Next');
+      // The skip moved words[1] to the end of the section, so words[2] is next.
+      expect(h.onScreen, words[2].id);
+      await review();
+      await h.tap('answer wrong');
+      expect(find.text(kReviewTheLesson), findsNothing,
+          reason: 'a held wrong has no link');
+
+      expect(opened, [words[0].id, words[1].id, words[2].id]);
+      final byId = {for (final a in await h.store.attempts()) a.itemId: a};
+      expect(byId[words[0].id]!.grade, Grade.hinted);
+      expect(byId[words[0].id]!.hintLevel, 1,
+          reason: 'a hint and a review are not counted twice');
+      expect(byId[words[1].id]!.grade, Grade.unscored);
+      expect(byId[words[1].id]!.hintLevel, 0);
+      expect(byId[words[2].id]!.grade, Grade.wrong);
+      expect(byId[words[2].id]!.hintLevel, 0);
+    });
+
+    testWidgets('a review after the answer changes nothing', (tester) async {
+      final h = await pumpSession(
+          tester, planOf([entryOf(words[0], PlanSection.due)]),
+          openLesson: (context, item) async {});
+      await h.tap('answer clear');
+      expect(h.shows('Clear'), isTrue);
+      expect(find.text(kReviewTheLesson), findsNothing,
+          reason: 'the verdict card offers no review');
+      expect((await h.store.attempts()).single.grade, Grade.clear);
+    });
+
+    testWidgets('with no router and no opener the card shows no dead link',
+        (tester) async {
+      final h = await pumpSession(
+          tester, planOf([entryOf(words[0], PlanSection.due)]));
+      expect(h.onScreen, words[0].id);
+      expect(find.text(kReviewTheLesson), findsNothing);
+    });
   });
 }

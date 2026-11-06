@@ -44,6 +44,12 @@
 // and the learner's own answer when there is one, and the session adds one Next.
 //
 // Every widget shows the item's state pill with its n of 4 clears ([ProbeStatePill]).
+//
+// Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): the hosts (the Review session and
+// Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson and
+// the idea ([reviewLessonDetail]) and shows "Lesson reviewed" once opened. A probe never sees
+// the review: the host passes each draft through [afterLessonReview], which makes a clear
+// hinted. Show English stays free.
 
 import 'dart:async';
 
@@ -1080,5 +1086,108 @@ class _SayItProbeState extends State<SayItProbe> {
       ],
       if (_grade != null) _verdict(t, _grade!),
     ]);
+  }
+}
+
+// --- Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5) ---------------------------------
+
+/// The quiet link on every unanswered card in the Review session and in Practice now.
+const String kReviewTheLesson = 'Review the lesson';
+
+/// The mark a card carries once its lesson was opened before the answer.
+const String kLessonReviewed = 'Lesson reviewed';
+
+/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the screen
+/// the kind opens on.
+String reviewLessonName(ItemDef item) {
+  final lesson = item.lesson;
+  return switch (item.kind) {
+    ItemKind.conjugation => 'Conjugation',
+    ItemKind.pair => 'Verb pairs',
+    ItemKind.tableRow => 'Reference tables',
+    ItemKind.particle when lesson == null => 'Particles',
+    _ => lesson == null ? item.title : '第$lesson課',
+  };
+}
+
+/// The line under the link: the lesson and the idea, "第26課 · 〜んです".
+String reviewLessonDetail(ItemDef item) =>
+    '${reviewLessonName(item)} · ${item.title}';
+
+/// The draft [d] after a lesson review before the answer (PIN-5): a clear becomes hinted at
+/// hint level 1 or more, so a choose card (no hint of its own) is covered and a grammar hint
+/// taken as well is not counted twice. Wrong, hinted, self and unscored come back unchanged.
+/// The host applies it in its answer handler; a review after the answer never reaches it.
+DrillAnswer afterLessonReview(DrillAnswer d) {
+  if (d.grade != Grade.clear) return d;
+  return DrillAnswer(
+    itemId: d.itemId,
+    probeId: d.probeId,
+    template: d.template,
+    grade: Grade.hinted,
+    production: d.production,
+    selfGraded: d.selfGraded,
+    hintLevel: d.hintLevel < 1 ? 1 : d.hintLevel,
+    revealed: d.revealed,
+    sayIt: d.sayIt,
+    answerShown: d.answerShown,
+    atUtc: d.atUtc,
+  );
+}
+
+/// "Review the lesson" over the lesson and the idea, quiet under the card, and the "Lesson
+/// reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the navigation.
+class ReviewLessonLink extends StatelessWidget {
+  const ReviewLessonLink({
+    super.key,
+    required this.item,
+    required this.onTap,
+    this.reviewed = false,
+  });
+
+  final ItemDef item;
+  final VoidCallback onTap;
+  final bool reviewed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: QuietRoomMetrics.space8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(minHeight: QuietRoomMetrics.targetMin),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(kReviewTheLesson,
+                        style: qrText(t,
+                            size: 14,
+                            weight: FontWeight.w600,
+                            color: t.brand600)),
+                    Text(reviewLessonDetail(item),
+                        style: qrText(t, size: 13, color: t.inkMuted)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (reviewed)
+            Text(kLessonReviewed,
+                style: qrText(t,
+                    size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+        ],
+      ),
+    );
   }
 }

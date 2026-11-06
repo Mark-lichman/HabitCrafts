@@ -28,6 +28,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart'
+    show kLessonReviewed, kReviewTheLesson, reviewLessonDetail;
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 
 import 'jp_screen_harness.dart' show holdHttpRequests;
@@ -490,6 +492,68 @@ void main() {
       expect(written.wasDue, isTrue);
       await tapText(tester, 'Done');
       expect(shows('1 of 4 clears'), isTrue);
+    });
+
+    testWidgets(
+        'Review the lesson: Back returns to the same card marked reviewed, a clear after '
+        'it is hinted, and the next card starts fresh (plan 2026-11-06, Task 2, PIN-5)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final words = catalog.ofKind(ItemKind.word).take(2).toList();
+      for (final w in words) {
+        await store.appendSeed(w.id, today, atUtc: at(today - 1).toUtc());
+      }
+      final opened = <String>[];
+      tester.view.physicalSize = const Size(1000, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PracticeSessionWidget(
+            items: words,
+            store: store,
+            catalog: catalog,
+            clock: FixedClock(at(today)),
+            probeBuilder: fakeProbe,
+            openLesson: (context, item) {
+              opened.add(item.id);
+              return Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (c) => Scaffold(
+                        body: TextButton(
+                            onPressed: () => Navigator.of(c).pop(),
+                            child: const Text('Back')),
+                      )));
+            },
+          ),
+        ),
+      ));
+      await settle(tester);
+      expect(shows(kReviewTheLesson), isTrue);
+      expect(shows(reviewLessonDetail(words[0])), isTrue);
+
+      await tester.tap(find.text(kReviewTheLesson));
+      await tester.pumpAndSettle();
+      expect(opened, [words[0].id]);
+      expect(await store.attempts(), isEmpty,
+          reason: 'opening a lesson writes no attempt');
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+      expect(shows('probe ${words[0].id}'), isTrue);
+      expect(shows(kLessonReviewed), isTrue);
+
+      await tapText(tester, 'answer clear');
+      expect(shows('Right with a hint'), isTrue);
+      expect(shows(kReviewTheLesson), isFalse);
+      final first = (await store.attempts(itemId: words[0].id)).single;
+      expect(first.grade, Grade.hinted);
+      expect(first.hintLevel, 1);
+
+      await tapText(tester, 'Next');
+      expect(shows('probe ${words[1].id}'), isTrue);
+      expect(shows(kLessonReviewed), isFalse);
+      await tapText(tester, 'answer clear');
+      expect((await store.attempts(itemId: words[1].id)).single.grade,
+          Grade.clear);
     });
 
     testWidgets('a hinted answer is right with no credit (PIN-3)',

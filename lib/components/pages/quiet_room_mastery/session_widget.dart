@@ -21,6 +21,15 @@
 // and the session adds one Next. Either way the item is re-asked at the end of the section it
 // was answered in, and the wrong schedules it Again for another day.
 //
+// Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): every unanswered card shows a quiet
+// [ReviewLessonLink] naming the lesson and the idea. It pushes the item kind's lesson target
+// ([openLessonTarget], D20); Back returns to the same card, unanswered, marked "Lesson
+// reviewed". `_onAnswer` passes the draft of a reviewed card through `afterLessonReview`, so
+// a clear is written hinted at hint level 1 or more; wrong, self and unscored are untouched.
+// An answered or held card has no link, so a review after the answer changes nothing.
+// Opening a lesson writes no attempt. With no router and no injected opener the card shows
+// no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
+//
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
 // is the entry's (review or keep-sharp); a Say-it draft is written as `sayIt`.
@@ -62,6 +71,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
@@ -72,6 +82,7 @@ import 'drill_recorder.dart' show DrillAnswer, kAnswerNotSaved;
 import 'fsrs.dart';
 import 'item_catalog.dart';
 import 'jp_store.dart';
+import 'lesson_page_widget.dart' show lessonTargetOf;
 import 'local_day.dart';
 import 'mastery_rule.dart';
 import 'plan_builder.dart';
@@ -135,6 +146,23 @@ class SessionProbeRequest {
 /// Builds the probe for one entry. The session keys the result per presentation.
 typedef SessionProbeBuilder = Widget Function(
     BuildContext context, SessionProbeRequest request);
+
+/// Opens the lesson of [item] from a card (plan 2026-11-06, Task 2) and completes on Back.
+typedef LessonOpener = Future<void> Function(
+    BuildContext context, ItemDef item);
+
+/// The app's [LessonOpener]: pushes the item kind's lesson target (`lessonTargetOf`, D20)
+/// under the app's router. The card's route stays mounted underneath, so Back returns to the
+/// same card in the same state (A2).
+Future<void> openLessonTarget(BuildContext context, ItemDef item) async {
+  final target = lessonTargetOf(item);
+  await context.pushNamed(target.routeName, queryParameters: target.query);
+}
+
+/// The opener a card's "Review the lesson" uses: [injected], else [openLessonTarget] under
+/// the app's router, else null, and the card shows no link (never a dead one).
+LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
+    injected ?? (GoRouter.maybeOf(context) != null ? openLessonTarget : null);
 
 /// The probe widgets the app uses: one per item kind, rotating through the item's scored
 /// probes. [grammar] is the decoded `jp_grammar.json`, for a grammar item's options, accepted
@@ -233,6 +261,7 @@ class SessionWidget extends StatefulWidget {
     this.scheduler = const FsrsScheduler(),
     this.sessionId,
     this.onClose,
+    this.openLesson,
   });
 
   final DayPlan plan;
@@ -255,6 +284,9 @@ class SessionWidget extends StatefulWidget {
 
   /// Called by the end card's Done; null pops the route.
   final VoidCallback? onClose;
+
+  /// Opens a card's lesson for "Review the lesson"; null uses [lessonOpenerFor].
+  final LessonOpener? openLesson;
 
   @override
   State<SessionWidget> createState() => _SessionWidgetState();
@@ -285,6 +317,9 @@ class _SessionWidgetState extends State<SessionWidget> {
   int _answered = 0;
   int _presentation = 0;
   DateTime? _shownAt;
+
+  /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
+  int? _reviewedPresentation;
 
   // The verdict on screen.
   Grade? _grade;
@@ -445,8 +480,28 @@ class _SessionWidgetState extends State<SessionWidget> {
     });
   }
 
-  Future<void> _onAnswer(DrillAnswer d) async {
+  /// Opens the lesson of the card on screen and marks the card reviewed before the push, so
+  /// the mark holds whatever the lesson screen does. The card stays mounted underneath.
+  Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _Phase.asking) return;
+    setState(() => _reviewedPresentation = _presentation);
+    try {
+      await open(context, item);
+    } catch (e, s) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room session',
+          context: ErrorDescription('while opening the lesson of ${item.id}')));
+    }
+  }
+
+  Future<void> _onAnswer(DrillAnswer answer) async {
+    if (_phase != _Phase.asking) return;
+    // A lesson review before the answer makes a clear hinted (PIN-5).
+    final d = _reviewedPresentation == _presentation
+        ? afterLessonReview(answer)
+        : answer;
     final entry = _entry;
     final item = widget.catalog.byId(entry.itemId)!;
     final before = _state ?? MasteryState.initial(item.id);
@@ -680,6 +735,9 @@ class _SessionWidgetState extends State<SessionWidget> {
   /// Next under it.
   Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
     final item = held ? _heldItem! : widget.catalog.byId(_entry.itemId)!;
+    final open = held || _phase != _Phase.asking
+        ? null
+        : lessonOpenerFor(context, widget.openLesson);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -699,6 +757,12 @@ class _SessionWidgetState extends State<SessionWidget> {
             ),
           ),
         ),
+        if (open != null)
+          ReviewLessonLink(
+            item: item,
+            reviewed: _reviewedPresentation == _presentation,
+            onTap: () => _reviewLesson(open, item),
+          ),
         if (held)
           _action(t, 'Next', () => _keepGoing(_Phase.held), primary: true),
       ],

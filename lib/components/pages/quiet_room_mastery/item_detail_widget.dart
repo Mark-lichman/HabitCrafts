@@ -27,7 +27,9 @@
 // never moves today's session. It follows the session's wrong-answer rule (operator ruling
 // 2026-11-05, ASK-9): a wrong shows no result card. When the answer was already on screen
 // (`DrillAnswer.answerShown`), practice moves straight on; else the probe stays, showing the
-// answer, under one Next. The topic page (Task 23) runs it over a topic's items.
+// answer, under one Next. The topic page (Task 23) runs it over a topic's items. Every
+// unanswered card carries "Review the lesson" under the session's rule (plan 2026-11-06,
+// Task 2, PIN-5): a clear after a review is written hinted.
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
 // page, a lesson page).
@@ -463,6 +465,7 @@ class PracticeSessionWidget extends StatefulWidget {
     this.probeBuilder,
     this.scheduler = const FsrsScheduler(),
     this.onClose,
+    this.openLesson,
   });
 
   final List<ItemDef> items;
@@ -477,6 +480,9 @@ class PracticeSessionWidget extends StatefulWidget {
   /// Called by Done; null pops the route.
   final VoidCallback? onClose;
 
+  /// Opens a card's lesson for "Review the lesson"; null uses `lessonOpenerFor`.
+  final LessonOpener? openLesson;
+
   @override
   State<PracticeSessionWidget> createState() => _PracticeSessionWidgetState();
 }
@@ -490,6 +496,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   int _presentation = 0;
   MasteryState? _state;
   int _answered = 0;
+
+  /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
+  int? _reviewedPresentation;
 
   // The verdict on screen.
   Attempt? _written;
@@ -543,8 +552,28 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
     });
   }
 
-  Future<void> _onAnswer(DrillAnswer d) async {
+  /// Opens the lesson of the card on screen and marks the card reviewed before the push, as
+  /// the Review session does. The card stays mounted underneath.
+  Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _PracticePhase.asking) return;
+    setState(() => _reviewedPresentation = _presentation);
+    try {
+      await open(context, item);
+    } catch (e, s) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room practice',
+          context: ErrorDescription('while opening the lesson of ${item.id}')));
+    }
+  }
+
+  Future<void> _onAnswer(DrillAnswer answer) async {
+    if (_phase != _PracticePhase.asking) return;
+    // A lesson review before the answer makes a clear hinted (PIN-5).
+    final d = _reviewedPresentation == _presentation
+        ? afterLessonReview(answer)
+        : answer;
     final item = _items[_index];
     final before = _state ?? MasteryState.initial(item.id);
     setState(() => _phase = _PracticePhase.saving);
@@ -626,6 +655,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
     final item = held ? _heldItem! : _items[_index];
     final position = held ? _index : _index + 1;
+    final open = held || _phase != _PracticePhase.asking
+        ? null
+        : lessonOpenerFor(context, widget.openLesson);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -648,6 +680,12 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             ),
           ),
         ),
+        if (open != null)
+          ReviewLessonLink(
+            item: item,
+            reviewed: _reviewedPresentation == _presentation,
+            onTap: () => _reviewLesson(open, item),
+          ),
         if (held) _action(t, 'Next', _next, primary: true),
       ],
     );
