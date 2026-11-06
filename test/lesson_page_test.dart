@@ -569,6 +569,27 @@ void main() {
       expect(find.text(kBackToPractice), findsNothing);
     });
 
+    testWidgets('an unknown particle says so instead of an empty page',
+        (tester) async {
+      bigView(tester);
+      await tester.pumpWidget(MaterialApp(
+          home: LessonPageWidget(
+        lesson: 39,
+        particleId: 'mari.particle.999',
+        fromCard: true,
+        store: JpStoreMemory(),
+        catalog: catalog,
+        grammar: grammar,
+        clock: FixedClock(at(today)),
+        probeBuilder: fakeProbe,
+      )));
+      await settle(tester);
+      expect(find.textContaining('Could not open the lesson'), findsOneWidget);
+      expect(
+          find.textContaining('no particle mari.particle.999'), findsOneWidget);
+      expect(find.byKey(const ValueKey('particle-block')), findsNothing);
+    });
+
     testWidgets('Back to practice returns to the card', (tester) async {
       bigView(tester);
       final p = particlesTaught().first;

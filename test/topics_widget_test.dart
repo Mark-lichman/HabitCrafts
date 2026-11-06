@@ -601,6 +601,9 @@ void main() {
         (tester) async {
       await pumpAtParticle(tester, 'mari.particle.999');
       expect(find.textContaining('Could not open the topic'), findsOneWidget);
+      // The particle guard, not the later 'no topic' guard with the same prefix.
+      expect(
+          find.textContaining('no particle mari.particle.999'), findsOneWidget);
     });
   });
 

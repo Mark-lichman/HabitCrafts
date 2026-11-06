@@ -1310,11 +1310,42 @@ void main() {
     testWidgets('an open at a point leaves the remembered lesson alone',
         (tester) async {
       final deep = deepestPoint();
-      await pumpStudyScreen(tester,
-          QuietRoomGrammarWidget(initialPoint: deep.point['id'] as String),
+      // A lesson is named too, one that is neither the remembered 50 nor the point's
+      // own: a plain open on it would remember it, an open at a point must not.
+      final other = (readLessonFile()['grammar'] as List)
+          .cast<Map<String, dynamic>>()
+          .map((l) => l['lesson'] as int)
+          .firstWhere((n) => n != deep.lesson && n != 50);
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: other, initialPoint: deep.point['id'] as String),
           prefs: {'jp.grammar.lastLesson': 50});
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getInt('jp.grammar.lastLesson'), 50);
+    });
+
+    testWidgets('a point id in no lesson falls back to the lesson named',
+        (tester) async {
+      final deep = deepestPoint();
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: deep.lesson, initialPoint: 'mari.point.999'),
+          size: kPhoneView);
+      await tester.pump();
+      expect(find.text('第${deep.lesson}課'), findsOneWidget);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    testWidgets(
+        'a point id in no lesson, with no lesson named, opens the first',
+        (tester) async {
+      await pumpStudyScreen(
+          tester, const QuietRoomGrammarWidget(initialPoint: 'mari.point.999'),
+          size: kPhoneView);
+      await tester.pump();
+      expect(find.text('第${firstLesson()['lesson']}課'), findsOneWidget);
     });
 
     testWidgets('Back to practice shows and returns to the card',

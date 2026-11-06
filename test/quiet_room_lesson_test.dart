@@ -377,5 +377,50 @@ void main() {
       await pumpLesson(tester, atWord(deep.word.id));
       expect(find.text('Back to practice'), findsNothing);
     });
+
+    testWidgets('Back to practice shows over the spinner while the words load',
+        (tester) async {
+      final deep = deepestWord();
+      // Pumped without the warm-up: the word file is still loading after one frame.
+      await tester
+          .pumpWidget(MaterialApp(home: atWord(deep.word.id, fromCard: true)));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Back to practice'), findsOneWidget);
+
+      // Let the load finish before the test ends.
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.text('Back to practice'), findsOneWidget);
+    });
+
+    testWidgets('a word id in no lesson falls back to the lesson named',
+        (tester) async {
+      await pumpLesson(tester, atWord('L99_99'), size: kPhoneView);
+      await tester.pump();
+      // atWord names lesson 6.
+      expect(find.text('第6課'), findsOneWidget);
+      expect(find.text('Back to practice'), findsNothing);
+    });
+
+    testWidgets(
+        'a word id in no lesson, with no lesson named, opens the newest',
+        (tester) async {
+      await pumpLesson(
+          tester,
+          QuietRoomLessonWidget(
+            initialWord: 'L99_99',
+            store: JpStoreMemory(),
+            items: catalog().byId,
+            clock: FixedClock(kNow),
+          ));
+      await tester.pump();
+      final newest = catalog()
+          .ofKind(ItemKind.word)
+          .map((w) => w.lesson!)
+          .reduce((a, b) => b > a ? b : a);
+      expect(find.text('第$newest課'), findsOneWidget);
+    });
   });
 }

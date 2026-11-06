@@ -283,32 +283,40 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
           tooltip: 'Back',
         ),
       ),
+      // Opened from a card, the bar sits over the spinner and the error text as well as
+      // the loaded body, as it does on the screens built through QrStudyScaffold.
       body: SafeArea(
         top: false,
-        child: _error != null
-            ? Center(
-                child: Text(_error!,
-                    style: GoogleFonts.schibstedGrotesk(
-                        fontSize: 14, color: t.clay600)))
-            : _doc == null
-                ? Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(t.inkSubtle)),
-                    ),
-                  )
-                : widget.fromCard
-                    ? Column(children: [
-                        const BackToPracticeBar(),
-                        Expanded(child: _body(t)),
-                      ])
-                    : _body(t),
+        child: widget.fromCard
+            ? Column(children: [
+                const BackToPracticeBar(),
+                Expanded(child: _content(t)),
+              ])
+            : _content(t),
       ),
     );
+  }
+
+  /// The error text, the spinner while the word file loads, or the lesson body.
+  Widget _content(QuietRoomTokens t) {
+    if (_error != null) {
+      return Center(
+          child: Text(_error!,
+              style: GoogleFonts.schibstedGrotesk(
+                  fontSize: 14, color: t.clay600)));
+    }
+    if (_doc == null) {
+      return Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(t.inkSubtle)),
+        ),
+      );
+    }
+    return _body(t);
   }
 
   Widget _body(QuietRoomTokens t) {
