@@ -614,5 +614,103 @@ void main() {
       expect(find.byType(QuietRoomDrillsWidget), findsNothing);
       expect(find.text('the card'), findsOneWidget);
     });
+
+    /// The text [label] wherever the list is scrolled to: an open at a row scrolls the
+    /// pills above it out of the view, and a column change keeps that scroll.
+    Finder anyText(String label) => find.text(label, skipOffstage: false);
+
+    /// Taps the pill labeled [label], scrolled into the view first.
+    Future<void> tapPill(WidgetTester tester, String label) async {
+      final pill = find.widgetWithText(QrPill, label, skipOffstage: false);
+      await tester.ensureVisible(pill);
+      await tester.pumpAndSettle();
+      await tester.tap(pill);
+      await tester.pumpAndSettle();
+    }
+
+    // Row '1' is a row of every table, so a guard that is missing shows as an outline
+    // on the table that opened instead. Row '31' is a row of dates alone and would pass
+    // these tests with the guard gone.
+    testWidgets(
+        'a row with no table, or with a table not in the doc, outlines nothing',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference', row: '1', recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.text('1 つ'), findsOneWidget,
+          reason: 'the first table opened');
+      expect(outlined, findsNothing,
+          reason: 'a row with no table is not an open');
+
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'nope',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.text('1 つ'), findsOneWidget,
+          reason: 'the first table opened');
+      expect(outlined, findsNothing,
+          reason: 'a row of a table not in the doc is not an open');
+    });
+
+    testWidgets('the same table keeps the outline and a new table drops it',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'dates',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(
+          find.ancestor(of: anyText('1日'), matching: outlined), findsOneWidget);
+
+      await tapPill(tester, 'Dates');
+      expect(
+          find.ancestor(of: anyText('1日'), matching: outlined), findsOneWidget,
+          reason: 'the table that is open again keeps the row');
+
+      await tapPill(tester, 'Months');
+      expect(anyText('1 月'), findsOneWidget, reason: 'months is open');
+      expect(outlined, findsNothing,
+          reason: 'row 1 of months is not the row that was opened');
+    });
+
+    testWidgets('the outline follows the row across the columns of its table',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'months',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.ancestor(of: anyText('1 月'), matching: outlined),
+          findsOneWidget);
+
+      await tapPill(tester, '〜か月');
+      expect(anyText('1 月'), findsNothing, reason: 'the column changed');
+      expect(find.ancestor(of: anyText('1 か月'), matching: outlined),
+          findsOneWidget,
+          reason: 'the row stays outlined in the new column');
+      expect(outlined, findsOneWidget, reason: 'one cell is outlined');
+    });
+
+    testWidgets('a pair not in the doc outlines nothing', (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'pairs', pair: 'nope', recorder: DrillRig().recorder));
+      expect(find.byKey(const ValueKey('pair-target')), findsNothing);
+      expect(find.text('Verb pairs'), findsOneWidget,
+          reason: 'the drill opened');
+    });
   });
 }
