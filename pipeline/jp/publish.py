@@ -38,6 +38,7 @@ HERE = Path(__file__).parent
 ASSET = HERE.parents[1] / "assets" / "lessons" / "jp_grammar.json"
 DRAFTS = HERE / "drafts"
 CLOZES = HERE / "particle_clozes.json"
+PARTICLE_EN = HERE / "particle_english.json"
 BLANK = "＿＿"
 # Every draft carries its twins, so a missing one fails the draft (PIN-9). The twins
 # passed a judge pass whose findings are in review/judge_ruby.json.
@@ -187,6 +188,25 @@ def particle_clozes(s04: dict) -> list[dict]:
     return out
 
 
+def particles(s04: dict) -> list[dict]:
+    """The published particles: each with its cloze and the English of its example, from
+    particle_english.json. A particle with no English, or English for no particle, fails
+    the publish. `example_en_reviewed` carries the file's review flag to the app."""
+    doc = json.loads(PARTICLE_EN.read_text(encoding="utf-8"))
+    en = doc["english"]
+    ids = [pa["id"] for pa in s04["particles"]]
+    unknown = set(en) - set(ids)
+    if unknown:
+        raise SystemExit(f"particle_english.json: no such particle {sorted(unknown)}")
+    missing = [i for i in ids if not str(en.get(i, "")).strip()]
+    if missing:
+        raise SystemExit(f"particle_english.json: no English for {missing}")
+    return [{**{k: p[k] for k in ("id", "expression", "meaning", "example", "taught_in")},
+             "example_en": en[p["id"]], "example_en_reviewed": bool(doc.get("reviewed")),
+             "cloze": c}
+            for p, c in zip(s04["particles"], particle_clozes(s04))]
+
+
 def prereqs(point: dict) -> list[str]:
     """The conjugation ideas a checklist point uses, in order, from `requires_forms`."""
     out: list[str] = []
@@ -303,9 +323,7 @@ def run(out: Path = ASSET) -> tuple[dict, list[str]]:
         "catalog": catalog["entries"],
         "grammar": grammar,
         "words": catalog["words"],
-        "particles": [{**{k: p[k] for k in ("id", "expression", "meaning", "example",
-                                            "taught_in")}, "cloze": c}
-                      for p, c in zip(s04["particles"], particle_clozes(s04))],
+        "particles": particles(s04),
         "reference": reference(bundles["s01_number"]),
         "pairs": pairs(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"]),
         "conjugation": drill(bundles["s02_pairs_mari"], bundles["s03_pairs_textbook"], review),
