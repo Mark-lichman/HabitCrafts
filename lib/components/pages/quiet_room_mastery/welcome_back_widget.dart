@@ -1,7 +1,7 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
 // The Welcome back screen (plan 2026-11-02, Task 20, D9, PIN-9). After two or more missed
-// local days, `onLaunch` builds the return plan and the app opens here before the hub: the
+// local days, `onLaunch` builds the return plan and the app opens here before Today: the
 // days away, the items due, the days to catch up at the 15-minute target, New paused, the
 // items now Shaky with the rule that wins them back, and one loud Start.
 //
@@ -106,7 +106,7 @@ class WelcomeBackWidget extends StatefulWidget {
   /// Start. Null opens the Review session.
   final VoidCallback? onStart;
 
-  /// The quiet way past the screen to the hub. Null hides it.
+  /// The quiet way past the screen to Today. Null hides it.
   final VoidCallback? onLater;
 
   @override

@@ -95,7 +95,7 @@ def test_every_entry_carries_live_counts(sources):
 
 
 def test_a_count_of_one_reads_singular():
-    # The summary is prose on the search card: "1 operator addition", not "1 operator
+    # The summary is prose in the summary field: "1 operator addition", not "1 operator
     # additions". A key with no plural `s` is the same in both numbers.
     assert count_label("operator additions", 1) == "operator addition"
     assert count_label("operator additions", 2) == "operator additions"
@@ -108,14 +108,15 @@ def test_every_entry_has_role_origin_and_a_search_target(sources):
     for e in sources:
         assert e["role"] and e["origin"] and e["source"] == e["origin"], e["file"]
         name = e["file"].rsplit("/", 1)[-1]
-        # Findable by name: the home search matches the title and the search terms.
+        # Named in its own title or search terms, so `from` and the open query can name it.
+        # No app screen searches source_file entries (topic_index.dart skips them).
         assert any(name in s for s in [e["title"], *e["search"]]), e["file"]
         assert e["open"]["screen"] == "search" and e["open"]["query"], e["file"]
 
 
 def test_open_query_finds_the_file_and_what_came_from_it(sources):
-    # The home screen applies the open query to its search box, which matches an
-    # entry's `from` list. The query must at least find the file's own entry.
+    # `from` records which data files an entry came from. No app screen searches by it.
+    # The open query, matched against `from`, must at least find the file's own entry.
     entries = build_catalog()["entries"]
     for e in sources:
         q = e["open"]["query"]

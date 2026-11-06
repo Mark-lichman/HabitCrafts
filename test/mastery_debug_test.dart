@@ -1,6 +1,6 @@
 // The study record debug page (Task 13, A2): the summary it reads off the store, the page
 // itself with its Rebuild from log, Export and Import actions, the quiet "Study record" link at
-// the bottom of the Japanese hub, and the route the app registers for it.
+// the bottom of Today, the Japanese home, and the route the app registers for it.
 
 import 'dart:convert';
 import 'dart:io';
@@ -643,7 +643,7 @@ void main() {
       }
     }
 
-    testWidgets('the hub ends with a quiet Study record link that opens it',
+    testWidgets('Today ends with a quiet Study record link that opens it',
         (tester) async {
       final hub = await seededHub();
       final router = GoRouter(routes: [
@@ -660,23 +660,28 @@ void main() {
 
       final link = find.text('Study record');
       expect(link, findsOneWidget);
-      // At the bottom: below the last study row.
-      expect(tester.getTopLeft(link).dy,
-          greaterThan(tester.getTopLeft(find.text('Vocabulary')).dy));
+      // At the bottom: below the session card and the 14 dots.
+      expect(
+          tester.getTopLeft(link).dy,
+          greaterThan(
+              tester.getTopLeft(find.byKey(const ValueKey('home-dots'))).dy));
 
       await tester.tap(link);
       await tester.pumpAndSettle();
       expect(find.text('the study record page'), findsOneWidget);
     });
 
-    testWidgets('the hub hides the link while a search shows results',
+    testWidgets('the link sits on Today only, not on the Lessons tab',
         (tester) async {
       await pumpStudyScreen(tester, await seededHub());
       await settle(tester);
       expect(find.text('Study record'), findsOneWidget);
-      await tester.enterText(find.byType(TextField), 'advice');
-      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('tab-lessons')));
+      await settle(tester);
       expect(find.text('Study record'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('tab-today')));
+      await settle(tester);
+      expect(find.text('Study record'), findsOneWidget);
     });
 
     test('the app router registers the page by name', () {

@@ -4,9 +4,9 @@
 // today's launch through `onLaunch` (relaunch.dart) and opens [SessionWidget] on the stored
 // plan at the stored position, so a Start, a Resume and a deep link all land on the same
 // session. `onLaunch` is idempotent within a day: once today's plan is stored it returns that
-// plan, so opening this page from the hub never builds a second plan or takes a second intake.
+// plan, so opening this page from Today never builds a second plan or takes a second intake.
 //
-// A first launch here (the seed has never run) shows the seed confirmation first, as the hub
+// A first launch here (the seed has never run) shows the seed confirmation first, as the home
 // does. A done day never reopens the session: it shows a quiet done card, so the stored
 // position and completion stay as the session left them.
 //
@@ -26,7 +26,7 @@ import 'relaunch.dart';
 import 'seed_confirm_widget.dart';
 import 'session_widget.dart';
 
-/// The end state of a finished day, on the hub and here.
+/// The end state of a finished day, on Today and here.
 const String kDoneForToday = 'Done for today';
 const String kDoneComeBack =
     "Today's session is complete. The next one is ready tomorrow.";

@@ -7,7 +7,9 @@
 // counts over the lesson's grammar; Review these, which runs the session over the lesson's due
 // items only, as reviews, and is off when nothing is due; Read the whole lesson, which opens the
 // existing grammar screen on the lesson (by route name under the app router) and is absent
-// where the lesson has no grammar; and a row opening the item page. A fake probe builder stands
+// where the lesson has no grammar; Word cards, which opens the word-card screen on the lesson
+// (by route name under the app router) and is absent where the lesson has no words (operator
+// ruling ASK-12); and a row opening the item page. A fake probe builder stands
 // in for the probe widgets, as in topics_widget_test.dart.
 
 import 'dart:convert';
@@ -19,6 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
@@ -382,6 +385,31 @@ void main() {
       }
     });
 
+    testWidgets(
+        'a lesson with words shows Word cards, which opens the word-card screen '
+        'on the lesson (ASK-12)', (tester) async {
+      await pumpLesson(tester, JpStoreMemory(), 30);
+      expect(shows(kWordCards), isTrue);
+      await tapText(tester, kWordCards);
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is QuietRoomLessonWidget && w.initialLesson == 30,
+              skipOffstage: false),
+          findsOneWidget);
+    });
+
+    testWidgets('a words-only lesson shows Word cards too', (tester) async {
+      await pumpLesson(tester, JpStoreMemory(), 5);
+      expect(shows(kWordCards), isTrue);
+    });
+
+    testWidgets('a lesson with no words has no Word cards (ASK-12)',
+        (tester) async {
+      await pumpLesson(tester, JpStoreMemory(), 31);
+      expect(shows(kNoWordSheetLine), isTrue);
+      expect(shows(kWordCards), isFalse);
+    });
+
     testWidgets('an item row opens the item page', (tester) async {
       await pumpLesson(tester, JpStoreMemory(), 30);
       final f = find.byKey(ValueKey('item-${grammarOf(30).first.id}'));
@@ -426,6 +454,42 @@ void main() {
 
     await tapText(tester, kReadWholeLesson);
     expect(find.text('the grammar screen'), findsOneWidget);
+    expect(pushed, '30');
+  });
+
+  testWidgets(
+      'under the app router Word cards pushes the word-card route with the lesson',
+      (tester) async {
+    debugSetSharedJpStore(JpStoreMemory());
+    addTearDown(() => debugSetSharedJpStore(null));
+    bigView(tester);
+    String? pushed;
+    final router = GoRouter(routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => LessonPageWidget(
+          lesson: 30,
+          catalog: catalog,
+          grammar: grammar,
+          clock: FixedClock(at(today)),
+          probeBuilder: fakeProbe,
+        ),
+      ),
+      GoRoute(
+        name: QuietRoomLessonWidget.routeName,
+        path: QuietRoomLessonWidget.routePath,
+        builder: (_, state) {
+          pushed = state.uri.queryParameters['lesson'];
+          return const Text('the word cards');
+        },
+      ),
+    ]);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await settle(tester);
+
+    await tapText(tester, kWordCards);
+    expect(find.text('the word cards'), findsOneWidget);
     expect(pushed, '30');
   });
 }

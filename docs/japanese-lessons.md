@@ -18,9 +18,9 @@ copied number in prose goes stale without failing anything.
 The live counts are in the **catalog**: the `catalog` list in `assets/lessons/jp_grammar.json`,
 built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per data file, with
 its role, its origin (for example "Mari's N4 sheet") and counts computed from the file when the
-catalog is built. The app's home search finds each cataloged data file by name, so type a file
-name such as `jp_lessons.json` into the search box to see its counts. Tapping a data file's entry
-searches for everything that came from that file. The cataloged files are the extraction
+catalog is built. Read a file's counts in its entry there. The app does not search by file
+name: the Topics search finds ideas, and a `source_file` entry stands for no item. Every
+other entry lists the data files it came from (`from`). The cataloged files are the extraction
 bundles under `pipeline/jp/fixtures/`, each draft in `pipeline/jp/drafts/` (the `L<n>.json`
 lessons and `_points.json`), `uses.json`, `kanji_n5_n4.json`, `corrections.json`,
 `particle_clozes.json` and `jp_lessons.json`.
@@ -56,7 +56,8 @@ the source files are not in the repo.
 ## What ships in the app
 
 No login: the app opens on Japanese study when signed out (`nav.dart`). The Japanese study
-screens read no Firestore data. Signing in still reaches Today, which does. Self-check marks and
+screens read no Firestore data. Signing in still reaches the signed-in Today screen
+(`quiet_room_today/quiet_room_today_widget.dart`), which does. Self-check marks and
 the study record (see "The study record and the daily review" below) are kept on the phone.
 
 Each word in `jp_lessons.json` carries two fields the app uses beside its reading and gloss:
@@ -78,18 +79,33 @@ accepts that caller. Everywhere else an anonymous user counts as signed out: `lo
 for it, so the app still opens on Japanese study, and the Firestore and Storage rules refuse it
 through their `signedIn()` helper.
 
+The Japanese home is **Today**, with **Lessons** and **Topics** as its other two tabs. A tab tap
+is a `go` (`?tab=lessons`, `?tab=topics`), so the back stack never grows and each tab has a URL.
+The Lessons and Topics screens, the lesson page, the topic page and the item page also have
+their own routes in `nav.dart`, so a deep link or a refresh lands on the same page. The
+signed-in Today screen's daily lesson card and the Library's Japanese vocabulary card open the
+Review session.
+
+The constants named below live in the files the table names. Every count (items per state,
+items due, the coming days' load, answer times, session lengths) is on the Study record page.
+
 | Screen | File | What it does |
 | --- | --- | --- |
-| Japanese home | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the Today card (the day's review queue and Start or Resume), the grammar lesson to continue, search over the catalog, a By use view, and a quiet Study record link |
+| Today | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the session card: the plan's queue sections with their counts, the minutes line, and Start or Resume, or the end state on a finished day. Under it the mastered count, the kept rate over the last `kKeptRateDays` days and `kHomeDots` day dots. Quiet links open the conjugation, verb pair and number drills and the Study record. No number strip and no search: search and By use live in Topics |
+| Lessons | `quiet_room_mastery/lessons_path_widget.dart` | the lesson path: one row per grammar lesson with what it holds and the counts over its items, the current lesson as the one loud row, then a Words-only section for the lessons before the first grammar lesson: a lesson with a word sheet shows its words and counts, and one without says it has no word sheet. A row opens the lesson page |
+| Lesson page | `quiet_room_mastery/lesson_page_widget.dart` | one 第N課: the counts over its items, its grammar points and words each with its state and next review, the Say-it counts, and Review these over its due items. Read the whole lesson opens the Grammar screen and Word cards opens the Vocabulary screen, each only where the lesson has that content |
+| Topics | `quiet_room_mastery/topics_widget.dart` | one search box over the topic index (`topic_index.dart`): a use, a pattern, a word, an English meaning, a conjugation form or a counter. Without a query, the browse sets: By use, Verb forms, Verb groups, Counters and tables, Words by lesson, Due today, Shaky and Not yet known |
+| Topic page | `quiet_room_mastery/topic_page_widget.dart` | one topic: its counts by state and its roll-up pill, Practice this topic, its items each with its state and next review, and Related topics |
+| Item page | `quiet_room_mastery/item_detail_widget.dart` | one item: its state pill, its count of clears, its next review, what remains to Mastered (or to regain it if Shaky), the Say-it counts, its attempt history newest first, and Practice now |
 | Review session | `quiet_room_mastery/review_page.dart`, `session_widget.dart` | the day's review queue, one item per screen, then the end card (see "The study record and the daily review") |
 | Welcome back | `quiet_room_mastery/welcome_back_widget.dart` | after a break: the days away, the items due, New paused, and Start |
 | Seed confirmation | `quiet_room_mastery/seed_confirm_widget.dart` | on a first launch: one tick per lesson already studied, then Confirm |
 | Study record | `quiet_room_mastery/mastery_debug_widget.dart` | every item under its state with its next due day, the coming days' load, answer times and session lengths; rebuild, export and import |
-| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
+| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | opened from a lesson page's Read the whole lesson: Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
 | Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and get a score by sound from Azure Pronunciation Assessment. Needs the internet. Signs in anonymously in the background to score. Anything it cannot score falls back to self-check (below) |
-| Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
-| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | recall-first word cards, each word with its context; English hidden until tapped, then Knew it or Not yet; tap to hear |
-| Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | show the illustration, say the word, and see what was heard |
+| Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | opened from Today's quiet links: number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
+| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | opened from a lesson page's Word cards: recall-first word cards, each word with its context; English hidden until tapped, then Knew it or Not yet; tap to hear |
+| Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | reached from the Vocabulary screen: show the illustration, say the word, and see what was heard |
 
 Grammar drafts ship marked as drafts until a person reviews them, and the screen says so.
 
@@ -178,7 +194,7 @@ names the constant that holds its number, and each constant lives in exactly one
 `lib/components/pages/quiet_room_mastery/`. Change the constant, not this doc. The counts (items
 per state, items due, the coming days' load, answer times, session lengths) are on the **Study
 record** page, `mastery_debug_widget.dart`, reached from the quiet Study record link at the foot
-of the Japanese home. That page computes them from the store each time it opens.
+of Today. That page computes them from the store each time it opens.
 
 ### Items and the record
 
@@ -331,9 +347,9 @@ break threshold, `kReturnModeDaysMissed`, and the return-plan constants live in
 | Decision | When | Opens on |
 | --- | --- | --- |
 | firstLaunch | the seed has never run | the seed confirmation, then today's plan |
-| resume | today has a plan, its session is not finished, and it is not a return plan with no answer yet | the Today card with Resume once an answer is saved, else Start |
-| done | today's session is finished | the Today card with the end state |
-| today | the last session was yesterday, or fewer than `kReturnModeDaysMissed` days were missed | today's plan on the Today card |
+| resume | today has a plan, its session is not finished, and it is not a return plan with no answer yet | the session card on Today, with Resume once an answer is saved, else Start |
+| done | today's session is finished | the session card on Today, with the end state |
+| today | the last session was yesterday, or fewer than `kReturnModeDaysMissed` days were missed | today's plan on the session card on Today |
 | welcomeBack | `kReturnModeDaysMissed` or more days were missed, or today's return plan has no answer yet | the Welcome back screen with the return plan |
 
 A day counts as a session day only when an answer was saved on it, so a Welcome back left
@@ -588,6 +604,13 @@ been the bug twice.
   carries the item under Notes / conscious deviations.
 - **Checks that need the phone:** run them after the release install.
   `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
+- **Tune the daily review against real use:** the screens above are the shipped shape, and what
+  waits is measurement. The per-kind answer estimates in `kCostSeconds` (`plan_builder.dart`)
+  are guesses until the Study record page holds enough measured answer times to retune them by
+  hand. Whether the median session length sits inside the budget, whether the first seeded
+  weeks are bearable, and whether the kept rate on Today holds up after a month are read on the
+  phone. `docs/plans/2026-11-02-jp-mastery-queue.md` lists these checks, their thresholds and
+  their levers under Deferred validations.
 
 ## Regenerating the vocabulary file
 
@@ -599,3 +622,12 @@ keeping, `scripts/` is its home. Behaviour to preserve:
 3. Prefer the Langoal sheet when both families cover a lesson.
 4. **Exclude a lesson rather than emit a scrambled one.** A stated gap is honest. Wrong
    vocabulary teaches the wrong thing, and nothing later can catch it.
+
+🚨 **After any re-extraction, run the clean-up pass**: `python pipeline/jp/vocab_clean.py`. It is
+committed and it is the step after the extractor, because the extractor's own defects are fixed
+there, not in the extractor. It turns a hyphen in a reading into ー, moves a bracketed or
+parenthesised part of a reading into `context`, drops a leading gloss token that is the
+reading's own romaji, and gives every word its `id`. The file's header lists every fix. The pass
+is idempotent, so running it twice changes nothing, and its tests under `pipeline/jp/tests/`
+check both that and the cleaned asset. Then run `pipeline/jp/publish.py` so the catalog counts
+follow the new word list.

@@ -14,7 +14,7 @@
 //     and a drill sitting are left out;
 //   * Rebuild from log (JpStore.rebuild), Export and Import (study_export.dart).
 // Each item row opens the item page (item_detail_widget.dart).
-// Reached from the quiet "Study record" link at the bottom of the Japanese hub.
+// Reached from the quiet "Study record" link at the bottom of Today, the Japanese home.
 //
 // The counts are computed here from the store, never restated anywhere else (de-mirror).
 

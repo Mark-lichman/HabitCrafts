@@ -9,14 +9,18 @@ Output: out/catalog/catalog.json, one entry per findable thing:
   {id, type, source, lesson?, title, summary, uses[], search, from[], open: {screen, params}}
 and, beside the entries, one row per word of jp_lessons.json (`words`), for the mastery
 queue: {id (the image stem), reading, gloss, lesson, verbGroup}. The words are not
-entries: the home search lists entries, and the per-lesson `vocabulary` entry already
+entries: the per-lesson `vocabulary` entry stands for a lesson's words, and the app
 finds a word by its reading or gloss.
 
-`from` lists the data files an entry came from. Each data file has a `source_file`
-entry of its own: its role, its origin and counts computed from the file at build
-time, so the counts live here and nowhere in prose (PIN-13). Opening a `source_file`
-entry searches for its key, and the home search matches `from`, so the result is the
-file and everything that came from it.
+The Topics search (lib/components/pages/quiet_room_mastery/topic_index.dart) reads the
+rows that stand for items (grammar_point, particle, verb_pair, conjugation,
+reference_table, vocabulary) plus the words. A `source_file` entry stands for no item
+and is not searched.
+
+`from` records which data files an entry came from. test_catalog_sources.py checks it.
+No app screen searches by `from` or opens a `source_file` entry. Each data file has a
+`source_file` entry of its own: its role, its origin and counts computed from the file
+at build time, so the counts live here and nowhere in prose (PIN-13).
 """
 
 from __future__ import annotations
@@ -118,9 +122,9 @@ def _source_entry(key: str, file: str, title: str, role: str, origin: str,
     e = {"id": f"file.{key}", "type": "source_file", "source": origin}
     if lesson is not None:
         e["lesson"] = lesson
-    # Counts first: the result card clips the summary at two lines on a phone, and
-    # the live counts are the point of the entry. The key often equals the base
-    # name, so the search terms are de-duplicated in order.
+    # The counts lead the summary so the data file's live counts read first: they are
+    # the point of the entry. The key often equals the base name, so the search terms
+    # are de-duplicated in order.
     return {**e, "title": title, "summary": f"{said}. {role[0].upper()}{role[1:]}.",
             "uses": [], "search": list(dict.fromkeys([file, file.rsplit("/", 1)[-1], key, origin])),
             "file": file, "role": role, "origin": origin, "counts": counts,
