@@ -18,7 +18,8 @@
 // (`TopicIndex.load` plus the attempt log) and reads it again when the learner comes back from
 // the review, an item page or the grammar screen.
 //
-// [openLessonPage] opens the page as a plain route; the lesson path (Task 26) reaches it.
+// [openLessonPage] opens the page as a plain route. The lesson path (Task 26) reaches it by
+// its route name under the app's router (`nav.dart`), else through [openLessonPage].
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
