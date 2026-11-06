@@ -374,6 +374,8 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
       () => note(page.dueIds.isEmpty
           ? kNothingDueLine
           : dueTodayLine(page.dueIds.length)),
+      // Hidden on a words-only lesson (the default seed keeps 2 to 25 words-only, Task 26):
+      // the grammar screen holds no words, so the button would open an empty page.
       if (page.hasGrammar)
         () => Padding(
               padding: const EdgeInsets.only(top: 8),
