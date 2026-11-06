@@ -2,7 +2,9 @@
 // the typed-answer box (PIN-3), the hint behind its tap and the practice result
 // (PIN-3 of the mastery plan), the 漢字 toggle (PIN-4), the tap-a-word reading hint
 // (PIN-16), the speaking drill link (PIN-6) and the attempts the screen writes
-// through its injected JpStore (Task 9 of the mastery plan: D17, PIN-3, PIN-14).
+// through its injected JpStore (Task 9 of the mastery plan: D17, PIN-3, PIN-14), and the
+// open at one grammar point from a card, with the "Back to practice" bar (plan 2026-11-06,
+// Task 1, D20).
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,9 +13,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
-    show RubyTapText, TypedVerdict, rubyWords;
+    show RubyTapText, TypedVerdict, kBackToPractice, rubyWords;
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
@@ -1242,6 +1245,150 @@ void main() {
       expect(reported.single.library, 'quiet room grammar');
       expect(reported.single.context.toString(),
           'while logging a grammar attempt');
+      expect(await store.attempts(), isEmpty);
+    });
+  });
+
+  group('opened at a point from a card (plan 2026-11-06, Task 1, D20)', () {
+    /// The lesson with the most points, and its last point: the card furthest down.
+    ({int lesson, Map<String, dynamic> point}) deepestPoint() {
+      final lessons =
+          (readLessonFile()['grammar'] as List).cast<Map<String, dynamic>>();
+      final l = lessons.reduce((a, b) =>
+          (b['points'] as List).length > (a['points'] as List).length ? b : a);
+      return (
+        lesson: l['lesson'] as int,
+        point: (l['points'] as List).last as Map<String, dynamic>
+      );
+    }
+
+    /// A practice card that opens [target] over itself.
+    Widget card(Widget target) => Builder(
+        builder: (context) => Scaffold(
+              body: TextButton(
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute<void>(builder: (_) => target)),
+                  child: const Text('the card')),
+            ));
+
+    testWidgets('the screen opens on the point lesson with its card in view',
+        (tester) async {
+      final deep = deepestPoint();
+      final pattern = deep.point['pattern'] as String;
+      // The other lesson named too: the point wins.
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: firstLesson()['lesson'] as int,
+              initialPoint: deep.point['id'] as String),
+          size: kPhoneView);
+      await tester.pump();
+
+      expect(
+          find.text('第${deep.lesson}課', skipOffstage: false), findsOneWidget);
+      expect(find.text(pattern), findsWidgets);
+      expect(inView(tester, find.text(pattern).first), isTrue,
+          reason: 'the point card is scrolled into the view');
+    });
+
+    testWidgets('the plain entry on the same lesson starts at the top',
+        (tester) async {
+      final deep = deepestPoint();
+      final pattern = deep.point['pattern'] as String;
+      await pumpStudyScreen(
+          tester, QuietRoomGrammarWidget(initialLesson: deep.lesson),
+          size: kPhoneView);
+      await tester.pump();
+
+      expect(find.text('第${deep.lesson}課'), findsOneWidget);
+      final shown = find.text(pattern);
+      expect(shown.evaluate().isEmpty || !inView(tester, shown.first), isTrue,
+          reason: 'the last point sits below a phone view at the top');
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    /// A lesson number of the file that is none of [not].
+    int lessonOtherThan(Set<int> not) => (readLessonFile()['grammar'] as List)
+        .cast<Map<String, dynamic>>()
+        .map((l) => l['lesson'] as int)
+        .firstWhere((n) => !not.contains(n));
+
+    testWidgets('a plain open on a named lesson remembers it', (tester) async {
+      // The positive control for the test below: the same open without a point writes
+      // the pref, so a pref left at 50 there means the point held the write off.
+      final other = lessonOtherThan({50});
+      await pumpStudyScreen(
+          tester, QuietRoomGrammarWidget(initialLesson: other),
+          prefs: {'jp.grammar.lastLesson': 50});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('jp.grammar.lastLesson'), other);
+    });
+
+    testWidgets('an open at a point leaves the remembered lesson alone',
+        (tester) async {
+      final deep = deepestPoint();
+      // A lesson is named too, one that is neither the remembered 50 nor the point's
+      // own: a plain open on it would remember it, an open at a point must not.
+      final other = lessonOtherThan({deep.lesson, 50});
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: other, initialPoint: deep.point['id'] as String),
+          prefs: {'jp.grammar.lastLesson': 50});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('jp.grammar.lastLesson'), 50);
+    });
+
+    testWidgets('a point id in no lesson falls back to the lesson named',
+        (tester) async {
+      final deep = deepestPoint();
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: deep.lesson, initialPoint: 'mari.point.999'),
+          size: kPhoneView);
+      await tester.pump();
+      expect(find.text('第${deep.lesson}課'), findsOneWidget);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    testWidgets(
+        'a point id in no lesson, with no lesson named, opens the first',
+        (tester) async {
+      await pumpStudyScreen(
+          tester, const QuietRoomGrammarWidget(initialPoint: 'mari.point.999'),
+          size: kPhoneView);
+      await tester.pump();
+      expect(find.text('第${firstLesson()['lesson']}課'), findsOneWidget);
+    });
+
+    testWidgets('Back to practice shows and returns to the card',
+        (tester) async {
+      final deep = deepestPoint();
+      await pumpStudyScreen(
+          tester,
+          card(QuietRoomGrammarWidget(
+              initialPoint: deep.point['id'] as String, fromCard: true)));
+      await tester.tap(find.text('the card'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.text(kBackToPractice), findsOneWidget);
+      await tester.tap(find.text(kBackToPractice));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuietRoomGrammarWidget), findsNothing);
+      expect(find.text('the card'), findsOneWidget);
+    });
+
+    testWidgets('opening at a point writes no attempt', (tester) async {
+      final store = JpStoreMemory();
+      final deep = deepestPoint();
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              store: store,
+              initialPoint: deep.point['id'] as String,
+              fromCard: true));
       expect(await store.attempts(), isEmpty);
     });
   });

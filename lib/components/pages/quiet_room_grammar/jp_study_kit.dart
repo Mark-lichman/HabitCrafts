@@ -3,8 +3,9 @@
 // Shared pieces for the Japanese study screens: one loader for
 // assets/lessons/jp_grammar.json (written by pipeline/jp/publish.py, never by hand),
 // the few Quiet Room building blocks every study screen repeats, the kanji twin
-// helpers, the tap-a-word reading hint, and the typed-answer matcher for fill-in
-// practice.
+// helpers, the tap-a-word reading hint, the typed-answer matcher for fill-in
+// practice, and the "Back to practice" bar a lesson screen shows when a practice card
+// opened it (plan 2026-11-06, Task 1).
 
 import 'dart:convert';
 
@@ -63,12 +64,62 @@ TextStyle qrText(QuietRoomTokens t,
         height: height,
         color: color ?? t.ink);
 
-/// Canvas ground, a back arrow, and content held to the reading width.
+/// The label of the bar a lesson screen shows when a practice card opened it.
+const String kBackToPractice = 'Back to practice';
+
+/// The value of a lesson route's `from` query key when a practice card opened it. Any other
+/// value, or none, is the screen's plain entry.
+const String kFromCard = 'card';
+
+/// The bar over a lesson screen that a practice card opened (plan 2026-11-06, Task 1). One
+/// tap closes the screen, so the learner lands back on the same card.
+class BackToPracticeBar extends StatelessWidget {
+  const BackToPracticeBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      child: Material(
+        color: t.surfaceTinted,
+        borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+        child: InkWell(
+          key: const ValueKey('back-to-practice'),
+          borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+          onTap: () => Navigator.of(context).maybePop(),
+          child: Container(
+            constraints:
+                const BoxConstraints(minHeight: QuietRoomMetrics.targetMin),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(children: [
+              Icon(Icons.undo, size: 18, color: t.brand600),
+              const SizedBox(width: 8),
+              Text(kBackToPractice,
+                  style: qrText(t,
+                      size: 14, weight: FontWeight.w600, color: t.brand600)),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Canvas ground, a back arrow, and content held to the reading width. With [fromCard] the
+/// [BackToPracticeBar] sits over the content.
 class QrStudyScaffold extends StatelessWidget {
-  const QrStudyScaffold({super.key, required this.child, this.showBack = true});
+  const QrStudyScaffold(
+      {super.key,
+      required this.child,
+      this.showBack = true,
+      this.fromCard = false});
 
   final Widget child;
   final bool showBack;
+
+  /// A practice card opened the screen: show the [BackToPracticeBar].
+  final bool fromCard;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +146,12 @@ class QrStudyScaffold extends StatelessWidget {
           child: ConstrainedBox(
             constraints:
                 const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
-            child: child,
+            child: fromCard
+                ? Column(children: [
+                    const BackToPracticeBar(),
+                    Expanded(child: child),
+                  ])
+                : child,
           ),
         ),
       ),

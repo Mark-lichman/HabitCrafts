@@ -5,6 +5,9 @@
 // through an injected recorder. Got it is clear and Missed it is wrong (PIN-13). The tests
 // assert the item and probe ids on the written attempts, and that each resolves in the item
 // catalog, so a drill and the catalog never name one probe two ways.
+//
+// Plan 2026-11-06, Task 1: a card opens a drill at its idea (a form, a pair's row, a table's
+// row) with the "Back to practice" bar, and the open writes nothing.
 
 import 'dart:convert';
 import 'dart:io';
@@ -483,6 +486,236 @@ void main() {
       expect(written, hasLength(1));
       expect(reports, isEmpty);
       expect(find.text(kAnswerNotSaved), findsNothing);
+    });
+  });
+
+  group('opened at an idea from a card (plan 2026-11-06, Task 1)', () {
+    /// Wide enough for the reference legend row, which overflows a 420 view (seen while
+    /// writing these tests; not this task's change), and short enough that a row far down a
+    /// table is out of view.
+    const tableView = Size(800, 900);
+
+    Future<void> open(WidgetTester tester, QuietRoomDrillsWidget screen,
+        {Size size = kPhoneView}) async {
+      await pumpStudyScreen(tester, screen, size: size);
+      await tester.pump();
+    }
+
+    testWidgets('a verb pair opens at its row, outlined and in view',
+        (tester) async {
+      final rig = DrillRig();
+      final ids = pairItemIds(readLessonFile());
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'pairs', pair: ids.last, recorder: rig.recorder));
+
+      final target = find.byKey(const ValueKey('pair-target'));
+      expect(target, findsOneWidget);
+      expect(inView(tester, target), isTrue,
+          reason: 'the last pair is scrolled into the view');
+      // Opened at, not answered: nothing is revealed and nothing is written.
+      expect(find.text('Got it'), findsNothing);
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets('the plain pairs entry starts at the top with no outline',
+        (tester) async {
+      final last = (readLessonFile()['pairs'] as List).last as Map;
+      await open(tester,
+          QuietRoomDrillsWidget(mode: 'pairs', recorder: DrillRig().recorder));
+
+      expect(find.byKey(const ValueKey('pair-target')), findsNothing);
+      final verb = find.text(last['intransitive'] as String);
+      expect(verb.evaluate().isEmpty || !inView(tester, verb.first), isTrue);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    /// A table cell drawn with the target outline: an AnimatedContainer whose border is 2
+    /// wide. Every other cell's border is 1 wide.
+    final outlined = find.byWidgetPredicate(
+        (w) =>
+            w is AnimatedContainer &&
+            ((w.decoration as BoxDecoration?)?.border as Border?)?.top.width ==
+                2,
+        skipOffstage: false);
+
+    testWidgets('a table row opens at its table and row, outlined and in view',
+        (tester) async {
+      final rig = DrillRig();
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'dates',
+              row: '31',
+              recorder: rig.recorder),
+          size: tableView);
+
+      expect(find.text('31日'), findsOneWidget);
+      expect(inView(tester, find.text('31日')), isTrue,
+          reason: 'the row is scrolled into the view');
+      expect(find.ancestor(of: find.text('31日'), matching: outlined),
+          findsOneWidget,
+          reason: 'the row\'s cell is outlined');
+      expect(find.text('Missed it'), findsNothing);
+      expect(await rig.attempts(tester), isEmpty);
+    });
+
+    testWidgets('the plain table entry starts at the top with no outline',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference', table: 'dates', recorder: DrillRig().recorder),
+          size: tableView);
+      final cell = find.text('31日');
+      expect(cell.evaluate().isEmpty || !inView(tester, cell), isTrue);
+      expect(outlined, findsNothing, reason: 'no cell is outlined');
+    });
+
+    testWidgets('a conjugation opens at its form with Back to practice',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'conjugation',
+              form: 'nai',
+              fromCard: true,
+              recorder: DrillRig().recorder),
+          size: const Size(1200, 12000));
+      final pill =
+          tester.widget<QrPill>(find.widgetWithText(QrPill, 'ない form'));
+      expect(pill.on, isTrue);
+      expect(find.text(kBackToPractice), findsOneWidget);
+    });
+
+    testWidgets('Back to practice returns to the card', (tester) async {
+      await pumpStudyScreen(
+          tester,
+          Builder(
+              builder: (context) => Scaffold(
+                    body: TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                                builder: (_) => QuietRoomDrillsWidget(
+                                    mode: 'pairs',
+                                    pair: pairItemIds(readLessonFile()).first,
+                                    fromCard: true,
+                                    recorder: DrillRig().recorder))),
+                        child: const Text('the card')),
+                  )));
+      await tester.tap(find.text('the card'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text(kBackToPractice));
+      await tester.pumpAndSettle();
+      expect(find.byType(QuietRoomDrillsWidget), findsNothing);
+      expect(find.text('the card'), findsOneWidget);
+    });
+
+    /// The text [label] wherever the list is scrolled to: an open at a row scrolls the
+    /// pills above it out of the view, and a column change keeps that scroll.
+    Finder anyText(String label) => find.text(label, skipOffstage: false);
+
+    /// Taps the pill labeled [label], scrolled into the view first.
+    Future<void> tapPill(WidgetTester tester, String label) async {
+      final pill = find.widgetWithText(QrPill, label, skipOffstage: false);
+      await tester.ensureVisible(pill);
+      await tester.pumpAndSettle();
+      await tester.tap(pill);
+      await tester.pumpAndSettle();
+    }
+
+    // Row '1' is a row of every table, so a guard that is missing shows as an outline
+    // on the table that opened instead. Row '31' is a row of dates alone and would pass
+    // these tests with the guard gone.
+    //
+    // The two arms are separate tests on purpose: a second open in the same test pumps
+    // a QuietRoomDrillsWidget of the same type with no key at the same slot, so Flutter
+    // keeps the first _ReferenceState and its initState never runs for the second arm.
+    testWidgets('a row with no table outlines nothing', (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference', row: '1', recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.text('1 つ'), findsOneWidget,
+          reason: 'the first table opened');
+      expect(outlined, findsNothing,
+          reason: 'a row with no table is not an open');
+    });
+
+    testWidgets('a row of a table not in the doc outlines nothing',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'nope',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.text('1 つ'), findsOneWidget,
+          reason: 'the first table opened');
+      expect(outlined, findsNothing,
+          reason: 'a row of a table not in the doc is not an open');
+    });
+
+    testWidgets('the same table keeps the outline and a new table drops it',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'dates',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(
+          find.ancestor(of: anyText('1日'), matching: outlined), findsOneWidget);
+
+      await tapPill(tester, 'Dates');
+      expect(
+          find.ancestor(of: anyText('1日'), matching: outlined), findsOneWidget,
+          reason: 'the table that is open again keeps the row');
+
+      await tapPill(tester, 'Months');
+      expect(anyText('1 月'), findsOneWidget, reason: 'months is open');
+      expect(outlined, findsNothing,
+          reason: 'row 1 of months is not the row that was opened');
+    });
+
+    testWidgets('the outline follows the row across the columns of its table',
+        (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'reference',
+              table: 'months',
+              row: '1',
+              recorder: DrillRig().recorder),
+          size: tableView);
+      expect(find.ancestor(of: anyText('1 月'), matching: outlined),
+          findsOneWidget);
+
+      await tapPill(tester, '〜か月');
+      expect(anyText('1 月'), findsNothing, reason: 'the column changed');
+      expect(find.ancestor(of: anyText('1 か月'), matching: outlined),
+          findsOneWidget,
+          reason: 'the row stays outlined in the new column');
+      expect(outlined, findsOneWidget, reason: 'one cell is outlined');
+    });
+
+    testWidgets('a pair not in the doc outlines nothing', (tester) async {
+      await open(
+          tester,
+          QuietRoomDrillsWidget(
+              mode: 'pairs', pair: 'nope', recorder: DrillRig().recorder));
+      expect(find.byKey(const ValueKey('pair-target')), findsNothing);
+      expect(find.text('Verb pairs'), findsOneWidget,
+          reason: 'the drill opened');
     });
   });
 }

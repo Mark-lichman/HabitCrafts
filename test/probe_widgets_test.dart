@@ -10,8 +10,14 @@
 // reveal is clear and Missed it is wrong (PIN-13); unverified is never wrong; an empty Check
 // is no attempt; a wrong never hides the answer, and a typed one shows the learner's too
 // (operator ruling 2026-11-05); every typed answer box reads "Type in hiragana".
+//
+// Review the lesson (plan 2026-11-06, Task 2, PIN-5): a clear after a review is hinted and
+// every other field of the draft is kept, at its default and at its set value; the link
+// names the lesson of each kind and never prints a card's answer, over the whole catalog.
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -147,6 +153,13 @@ class FakePronunciation extends PronunciationService {
 }
 
 // --- items -------------------------------------------------------------------
+
+Map<String, dynamic> _read(String path) =>
+    json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
+
+/// The real catalog, the oracle for what a link line may show.
+final _catalog = ItemCatalog.fromDocs(_read('assets/lessons/jp_grammar.json'),
+    _read('assets/lessons/jp_lessons.json'));
 
 final _grammar = ItemDef(
   id: 'mari.L26.1',
@@ -1422,5 +1435,208 @@ void main() {
     expect(a.rating, kRatingGood);
     expect(a.selfGraded, isTrue);
     expect(a.revealed, isTrue);
+  });
+
+  group('lesson review (plan 2026-11-06, Task 2, PIN-5)', () {
+    DrillAnswer drawn(ItemDef item, String probeId, Grade g,
+            {int hintLevel = 0,
+            bool revealed = false,
+            bool sayIt = false,
+            bool selfGraded = false,
+            bool answerShown = true,
+            DateTime? atUtc}) =>
+        DrillAnswer(
+            itemId: item.id,
+            probeId: probeId,
+            template: _probe(item, probeId).template,
+            production: _probe(item, probeId).production,
+            selfGraded: selfGraded,
+            grade: g,
+            hintLevel: hintLevel,
+            revealed: revealed,
+            sayIt: sayIt,
+            answerShown: answerShown,
+            atUtc: atUtc);
+
+    test('a clear after a review is hinted at hint level 1, the rest kept', () {
+      final d = afterLessonReview(drawn(_grammar, 'p1', Grade.clear));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.itemId, _grammar.id);
+      expect(d.probeId, 'p1');
+      expect(d.template, 'fill');
+      expect(d.production, isTrue);
+      expect(d.selfGraded, isFalse);
+      expect(d.answerShown, isTrue);
+      expect(d.sayIt, isFalse,
+          reason: 'a typed clear stays off the spoken track');
+      expect(d.revealed, isFalse);
+      expect(d.atUtc, isNull);
+    });
+
+    test(
+        'a say-it clear after a review keeps sayIt, revealed, selfGraded, answerShown and atUtc',
+        () {
+      final at = DateTime.utc(2026, 11, 6, 10);
+      final d = afterLessonReview(drawn(_grammar, 'ex0', Grade.clear,
+          revealed: true,
+          sayIt: true,
+          selfGraded: true,
+          answerShown: false,
+          atUtc: at));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.sayIt, isTrue, reason: 'still the spoken track (Source.sayIt)');
+      expect(d.revealed, isTrue);
+      expect(d.selfGraded, isTrue);
+      expect(d.atUtc, at);
+      expect(d.answerShown, isFalse,
+          reason: 'answerShown is copied, not set to true');
+      expect(d.probeId, 'ex0');
+      expect(d.template, kSayItTemplate);
+    });
+
+    test('a choose clear after a review is hinted (a choose card has no hint)',
+        () {
+      final d = afterLessonReview(drawn(_grammar, 'p0', Grade.clear));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.template, 'choose');
+      expect(d.production, isFalse,
+          reason: 'production is copied from a non-production probe');
+    });
+
+    test('a grammar hint plus a review is not counted twice', () {
+      final hinted = drawn(_grammar, 'p1', Grade.hinted, hintLevel: 1);
+      final d = afterLessonReview(hinted);
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+    });
+
+    test('wrong, self and unscored are untouched', () {
+      for (final g in [Grade.wrong, Grade.self, Grade.unscored]) {
+        final before = drawn(_word, 'typed', g, revealed: g == Grade.wrong);
+        final d = afterLessonReview(before);
+        expect(identical(d, before), isTrue, reason: g.name);
+        expect(d.grade, g);
+        expect(d.hintLevel, 0);
+      }
+    });
+
+    test('the link names the lesson and the idea of each kind', () {
+      final particle = ItemDef(
+          id: 'mari.particle.1',
+          kind: ItemKind.particle,
+          title: 'は',
+          prereqLevel: 0,
+          lesson: 21,
+          probes: const [
+            ProbeDef(
+                id: 'cloze',
+                template: 'cloze',
+                text: 'わたし ＿ がくせいです。',
+                answer: 'は',
+                production: true)
+          ]);
+      final untaught = ItemDef(
+          id: 'mari.particle.2',
+          kind: ItemKind.particle,
+          title: 'へ',
+          prereqLevel: 0,
+          probes: const [
+            ProbeDef(
+                id: 'cloze',
+                template: 'cloze',
+                text: 'がっこう ＿ いきます。',
+                answer: 'へ',
+                production: true)
+          ]);
+      expect(reviewLessonDetail(_grammar), '第26課 · 〜んです');
+      expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
+      expect(reviewLessonDetail(_row), 'Numbers and counters · Counters: ほん');
+      // A word, a particle and a pair are titled by their answer, so the line is the lesson.
+      expect(reviewLessonDetail(_word), '第30課');
+      expect(reviewLessonDetail(particle), '第21課');
+      expect(reviewLessonDetail(untaught), 'Particles');
+      expect(reviewLessonDetail(_pair), 'Verb pairs');
+    });
+
+    test('a grammar pattern that spells its cloze answer is kept off the line',
+        () {
+      final kara = ItemDef(
+          id: 'mari.L9.1',
+          kind: ItemKind.grammar,
+          title: '〜から',
+          prereqLevel: 2,
+          lesson: 9,
+          probes: const [
+            ProbeDef(
+                id: 'p0',
+                template: 'choose',
+                text: 'さむい＿＿、まどを しめます。',
+                answer: 'から')
+          ]);
+      expect(reviewLessonTitleIsAnAnswer(kara), isTrue);
+      expect(reviewLessonTitleIsAnAnswer(_grammar), isFalse);
+      expect(reviewLessonDetail(kara), '第9課');
+    });
+
+    test('an item no lesson teaches is named by its screen, never its title',
+        () {
+      final word = ItemDef(
+          id: 'X_01',
+          kind: ItemKind.word,
+          title: 'かばん',
+          prereqLevel: 1,
+          probes: const [
+            ProbeDef(id: 'typed', template: 'typed', text: 'bag', answer: 'かばん')
+          ]);
+      final point = ItemDef(
+          id: 'mari.X.1',
+          kind: ItemKind.grammar,
+          title: '〜から',
+          prereqLevel: 2,
+          probes: const [
+            ProbeDef(id: 'p0', template: 'choose', text: 'さむい＿＿', answer: 'から')
+          ]);
+      expect(reviewLessonName(word), 'Words');
+      expect(reviewLessonName(point), 'Grammar');
+      expect(reviewLessonDetail(word), 'Words');
+      expect(reviewLessonDetail(point), 'Grammar');
+    });
+
+    test("the link line never prints a card's answer, over the whole catalog",
+        () {
+      for (final kind in ItemKind.values) {
+        expect(_catalog.ofKind(kind), isNotEmpty, reason: kind.name);
+      }
+      for (final item in _catalog.items) {
+        final line = reviewLessonDetail(item);
+        expect(line, startsWith(reviewLessonName(item)), reason: item.id);
+        for (final probe in item.probes) {
+          if (probe.answer.isEmpty) continue;
+          expect(line.contains(probe.answer), isFalse,
+              reason:
+                  '${item.id} ${probe.id}: "$line" shows "${probe.answer}"');
+        }
+      }
+    });
+
+    testWidgets('the link shows its name, runs its tap, and marks a review',
+        (tester) async {
+      var taps = 0;
+      await _pump(
+          tester, ReviewLessonLink(item: _grammar, onTap: () => taps++));
+      expect(find.text(kReviewTheLesson), findsOneWidget);
+      expect(find.text('第26課 · 〜んです'), findsOneWidget);
+      expect(find.text(kLessonReviewed), findsNothing);
+      await _tap(tester, kReviewTheLesson);
+      expect(taps, 1);
+
+      await _pump(tester,
+          ReviewLessonLink(item: _grammar, reviewed: true, onTap: () {}));
+      expect(find.text(kReviewTheLesson), findsOneWidget);
+      expect(find.text(kLessonReviewed), findsOneWidget);
+    });
   });
 }

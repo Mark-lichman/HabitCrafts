@@ -22,10 +22,19 @@
 //
 // A reveal alone writes nothing, and a cell or card hidden again before its mark writes
 // nothing.
+//
+// A practice card's "Review the lesson" opens a drill at one idea (plan 2026-11-06, Task 1):
+// a conjugation idea at its form ([QuietRoomDrillsWidget.form]), a verb pair at its row
+// ([QuietRoomDrillsWidget.pair], the pair's item id) and a table row at its table and row
+// ([QuietRoomDrillsWidget.table] and [QuietRoomDrillsWidget.row]). The pair's card and the
+// row's cell are outlined and scrolled into view, and [QuietRoomDrillsWidget.fromCard] shows
+// the "Back to practice" bar. Opening at an idea reveals nothing and writes nothing. The plain
+// entry, with none of these set, is unchanged.
 
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_mastery/attempt.dart';
@@ -42,6 +51,9 @@ class QuietRoomDrillsWidget extends StatefulWidget {
       this.mode = 'reference',
       this.table,
       this.form,
+      this.pair,
+      this.row,
+      this.fromCard = false,
       this.recorder});
 
   final String mode;
@@ -49,6 +61,15 @@ class QuietRoomDrillsWidget extends StatefulWidget {
   /// Deep links from the catalog search: which table or form to open on.
   final String? table;
   final String? form;
+
+  /// Opens the pairs drill at this pair (its item id, item_catalog.dart `pairItemIds`).
+  final String? pair;
+
+  /// Opens the reference drill at this row of [table] (`3` of `ref.counters.3`).
+  final String? row;
+
+  /// A practice card opened the screen: the "Back to practice" bar shows.
+  final bool fromCard;
 
   /// Where the self-marks go. Null writes to the app's study store, with one recorder per
   /// visit to the screen.
@@ -105,11 +126,13 @@ class _QuietRoomDrillsWidgetState extends State<QuietRoomDrillsWidget> {
     final drill = JpDrill.values.firstWhere((d) => d.name == widget.mode,
         orElse: () => JpDrill.reference);
     return QrStudyScaffold(
+      fromCard: widget.fromCard,
       child: QrLoad(
         builder: (context, doc) => switch (drill) {
-          JpDrill.reference =>
-            _Reference(doc: doc, table: widget.table, record: _record),
-          JpDrill.pairs => _Pairs(doc: doc, record: _record, lost: _notSaved),
+          JpDrill.reference => _Reference(
+              doc: doc, table: widget.table, row: widget.row, record: _record),
+          JpDrill.pairs => _Pairs(
+              doc: doc, pair: widget.pair, record: _record, lost: _notSaved),
           JpDrill.conjugation =>
             _Conjugation(doc: doc, form: widget.form, record: _record),
         },
@@ -162,6 +185,14 @@ Widget _markedLine(QuietRoomTokens t, bool gotIt) =>
             weight: FontWeight.w600,
             color: gotIt ? t.sage700 : t.inkMuted));
 
+/// Scrolls [key]'s widget into view after the frame that lays it out.
+void _scrollIntoViewAfterFrame(GlobalKey key) =>
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = key.currentContext;
+      if (target == null || !target.mounted) return;
+      Scrollable.ensureVisible(target, duration: Duration.zero);
+    });
+
 Future<void> _speak(BuildContext context, String text) async {
   final err = await SpeechService.instance.speak(text);
   if (err != null && context.mounted) {
@@ -173,10 +204,14 @@ Future<void> _speak(BuildContext context, String text) async {
 // ───────────────────────────── reference tables ─────────────────────────────
 
 class _Reference extends StatefulWidget {
-  const _Reference({required this.doc, this.table, required this.record});
+  const _Reference(
+      {required this.doc, this.table, this.row, required this.record});
 
   final Map<String, dynamic> doc;
   final String? table;
+
+  /// The row opened at, outlined in every column of [table] until the table changes.
+  final String? row;
   final _Record record;
 
   @override
@@ -191,7 +226,15 @@ class _ReferenceState extends State<_Reference> {
     super.initState();
     final ids = (widget.doc['reference'] as List).map((t) => t['id']).toList();
     _table = ids.indexOf(widget.table).clamp(0, ids.length - 1);
+    if (widget.row != null && ids[_table] == widget.table) {
+      _row = widget.row;
+      _scrollIntoViewAfterFrame(_rowKey);
+    }
   }
+
+  /// The row opened at, and its cell's key for the first scroll. Cleared with a new table.
+  String? _row;
+  final _rowKey = GlobalKey();
 
   int _col = 0;
   final Set<String> _shown = {};
@@ -252,6 +295,7 @@ class _ReferenceState extends State<_Reference> {
               on: i == _table,
               solid: false,
               onTap: () => setState(() {
+                if (i != _table) _row = null;
                 _table = i;
                 _col = 0;
                 _shown.clear();
@@ -359,12 +403,14 @@ class _ReferenceState extends State<_Reference> {
     final shown = _all || _shown.contains(key);
     final mark = c['mark'] as String;
     final alt = ((c['alt'] as List?) ?? const []).cast<String>();
+    final target = _row != null && key == _row;
     final label = table['id'] == 'dates'
         ? '${c['row']}日'
         : table['id'] == 'months'
             ? '${c['row']} ${col['written']}'.replaceAll('〜', '')
             : '${c['row']} ${col['written']}';
     return Material(
+      key: target ? _rowKey : null,
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -386,9 +432,12 @@ class _ReferenceState extends State<_Reference> {
             // would give away whether the reading is regular.
             color: shown ? ReadingMark.fill(t, mark) : t.surface,
             border: Border.all(
-                color: shown && mark != 'regular'
-                    ? ReadingMark.ink(t, mark)
-                    : t.border),
+                color: target
+                    ? t.brand600
+                    : shown && mark != 'regular'
+                        ? ReadingMark.ink(t, mark)
+                        : t.border,
+                width: target ? 2 : 1),
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.all(8),
@@ -419,9 +468,13 @@ class _ReferenceState extends State<_Reference> {
 // ───────────────────────────── verb pairs ─────────────────────────────
 
 class _Pairs extends StatefulWidget {
-  const _Pairs({required this.doc, required this.record, required this.lost});
+  const _Pairs(
+      {required this.doc, this.pair, required this.record, required this.lost});
 
   final Map<String, dynamic> doc;
+
+  /// The pair opened at (its item id), outlined.
+  final String? pair;
   final _Record record;
 
   /// Tells the learner a mark was not saved; see [_QuietRoomDrillsWidgetState._notSaved].
@@ -458,6 +511,17 @@ class _PairsState extends State<_Pairs> {
     }
   }();
 
+  /// The index of [_Pairs.pair] in the list, or -1.
+  late final int _target =
+      widget.pair == null ? -1 : (_ids?.indexOf(widget.pair!) ?? -1);
+  final _targetKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (_target >= 0) _scrollIntoViewAfterFrame(_targetKey);
+  }
+
   void _mark(int i, bool gotIt) {
     final ids = _ids;
     if (_marks.containsKey(i)) return;
@@ -481,6 +545,9 @@ class _PairsState extends State<_Pairs> {
     final t = QuietRoomTokens.of(context);
     final pairs = (widget.doc['pairs'] as List).cast<Map<String, dynamic>>();
     return ListView(
+      // Opened at a pair, every card is built, so the pair's card has a context to scroll to.
+      scrollCacheExtent:
+          _target >= 0 ? const ScrollCacheExtent.pixels(100000) : null,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
       children: [
         Text('Verb pairs', style: qrTitle(t)),
@@ -506,8 +573,19 @@ class _PairsState extends State<_Pairs> {
         const SizedBox(height: 16),
         for (var i = 0; i < pairs.length; i++)
           Padding(
+              key: i == _target ? _targetKey : null,
               padding: const EdgeInsets.only(bottom: 9),
-              child: _pair(t, i, pairs[i])),
+              child: i == _target
+                  ? DecoratedBox(
+                      key: const ValueKey('pair-target'),
+                      position: DecorationPosition.foreground,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: t.brand600, width: 2),
+                        borderRadius:
+                            BorderRadius.circular(QuietRoomMetrics.radiusMd),
+                      ),
+                      child: _pair(t, i, pairs[i]))
+                  : _pair(t, i, pairs[i])),
       ],
     );
   }
