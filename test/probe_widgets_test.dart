@@ -1443,6 +1443,7 @@ void main() {
             bool revealed = false,
             bool sayIt = false,
             bool selfGraded = false,
+            bool answerShown = true,
             DateTime? atUtc}) =>
         DrillAnswer(
             itemId: item.id,
@@ -1454,7 +1455,7 @@ void main() {
             hintLevel: hintLevel,
             revealed: revealed,
             sayIt: sayIt,
-            answerShown: true,
+            answerShown: answerShown,
             atUtc: atUtc);
 
     test('a clear after a review is hinted at hint level 1, the rest kept', () {
@@ -1478,13 +1479,19 @@ void main() {
         () {
       final at = DateTime.utc(2026, 11, 6, 10);
       final d = afterLessonReview(drawn(_grammar, 'ex0', Grade.clear,
-          revealed: true, sayIt: true, selfGraded: true, atUtc: at));
+          revealed: true,
+          sayIt: true,
+          selfGraded: true,
+          answerShown: false,
+          atUtc: at));
       expect(d.grade, Grade.hinted);
       expect(d.hintLevel, 1);
       expect(d.sayIt, isTrue, reason: 'still the spoken track (Source.sayIt)');
       expect(d.revealed, isTrue);
       expect(d.selfGraded, isTrue);
       expect(d.atUtc, at);
+      expect(d.answerShown, isFalse,
+          reason: 'answerShown is copied, not set to true');
       expect(d.probeId, 'ex0');
       expect(d.template, kSayItTemplate);
     });
@@ -1495,6 +1502,8 @@ void main() {
       expect(d.grade, Grade.hinted);
       expect(d.hintLevel, 1);
       expect(d.template, 'choose');
+      expect(d.production, isFalse,
+          reason: 'production is copied from a non-production probe');
     });
 
     test('a grammar hint plus a review is not counted twice', () {
