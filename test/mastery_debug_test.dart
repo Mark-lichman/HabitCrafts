@@ -220,6 +220,27 @@ void main() {
       expect(s.attemptCount, 1);
     });
 
+    test('Say-it attempts are counted apart for the header (#139)', () async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      await record(
+          store, answer(word, today, Grade.clear, source: Source.sayIt));
+      await record(store, answer(word, today, Grade.clear));
+
+      final s = await summarizeRecord(store, catalog, today: today);
+
+      expect(s.attemptCount, 2);
+      expect(s.sayItCount, 1);
+    });
+
+    test('the header names Say-it attempts as never counted (#139)', () {
+      expect(attemptsLine(0, 0), '0 attempts');
+      expect(attemptsLine(1, 0), '1 attempt');
+      expect(attemptsLine(4, 4), '4 attempts, all Say it (never counted)');
+      expect(
+          attemptsLine(5, 2), '5 attempts, 2 of them Say it (never counted)');
+    });
+
     test('the next 14 days of load start today and count overdue apart',
         () async {
       final store = JpStoreMemory();
