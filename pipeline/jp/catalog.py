@@ -122,9 +122,9 @@ def _source_entry(key: str, file: str, title: str, role: str, origin: str,
     e = {"id": f"file.{key}", "type": "source_file", "source": origin}
     if lesson is not None:
         e["lesson"] = lesson
-    # Counts first: the result card clips the summary at two lines on a phone, and
-    # the live counts are the point of the entry. The key often equals the base
-    # name, so the search terms are de-duplicated in order.
+    # The counts lead the summary so the data file's live counts read first: they are
+    # the point of the entry. The key often equals the base name, so the search terms
+    # are de-duplicated in order.
     return {**e, "title": title, "summary": f"{said}. {role[0].upper()}{role[1:]}.",
             "uses": [], "search": list(dict.fromkeys([file, file.rsplit("/", 1)[-1], key, origin])),
             "file": file, "role": role, "origin": origin, "counts": counts,

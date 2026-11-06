@@ -95,7 +95,7 @@ def test_every_entry_carries_live_counts(sources):
 
 
 def test_a_count_of_one_reads_singular():
-    # The summary is prose on the search card: "1 operator addition", not "1 operator
+    # The summary is prose in the summary field: "1 operator addition", not "1 operator
     # additions". A key with no plural `s` is the same in both numbers.
     assert count_label("operator additions", 1) == "operator addition"
     assert count_label("operator additions", 2) == "operator additions"

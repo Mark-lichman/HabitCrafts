@@ -1,6 +1,6 @@
 // The study record debug page (Task 13, A2): the summary it reads off the store, the page
 // itself with its Rebuild from log, Export and Import actions, the quiet "Study record" link at
-// the bottom of the Japanese hub, and the route the app registers for it.
+// the bottom of Today, the Japanese home, and the route the app registers for it.
 
 import 'dart:convert';
 import 'dart:io';
