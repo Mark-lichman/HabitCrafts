@@ -4,7 +4,9 @@
 // What it seeds:
 //   * every word of each ticked word lesson and every grammar point of each ticked grammar
 //     lesson (by default word lessons 2 to 30 and grammar lessons 26 to 31);
-//   * every level-0 item: particles, conjugation ideas, verb pairs and table rows.
+//   * every particle a ticked grammar lesson teaches (its first `taught_in` lesson);
+//   * every foundation item (`ItemDef.isFoundation`): conjugation ideas, verb pairs, table rows
+//     and the particles no Mari lesson names.
 // An unticked lesson seeds nothing: its items stay New and arrive through the daily intake in
 // lesson order (`newIntakeOrder` in plan_builder.dart takes every item with no state and no seed).
 //
@@ -14,7 +16,7 @@
 // FSRS review one and clear one of four. A rebuild from the log restores the seeded due days.
 //
 // The spread: the lesson items, in lesson order (each lesson's words before its grammar), are
-// spread evenly over [kSeedSpreadDays] days from the seed day; the level-0 items, in catalog
+// spread evenly over [kSeedSpreadDays] days from the seed day; the foundation items, in catalog
 // order, are spread over the same days beside them. An item that already has an FSRS state (from
 // practice before the seed) keeps its own schedule and gets no seed.
 //
@@ -71,14 +73,14 @@ class SeedLessons {
         grammarLessons: {...grammarLessons}..remove(grammarLesson),
       );
 
-  /// Whether [item] is seeded under this set. Level-0 items always are.
+  /// Whether [item] is seeded under this set. Foundation items always are.
   bool covers(ItemDef item) {
-    if (item.prereqLevel == 0) return true;
+    if (item.isFoundation) return true;
     final lesson = item.lesson;
     if (lesson == null) return false;
     return switch (item.kind) {
       ItemKind.word => wordLessons.contains(lesson),
-      ItemKind.grammar => grammarLessons.contains(lesson),
+      ItemKind.grammar || ItemKind.particle => grammarLessons.contains(lesson),
       _ => false,
     };
   }
@@ -107,17 +109,17 @@ class SeedReport {
 }
 
 /// The items [lessons] seeds, in seed order: the lesson items in lesson order (each lesson's
-/// words, then its grammar points, each in catalog order), then the level-0 items in catalog
+/// words, then its grammar points, each in catalog order), then the foundation items in catalog
 /// order. Pure.
 ({List<ItemDef> lessonItems, List<ItemDef> foundations}) seedOrder(
     ItemCatalog catalog, SeedLessons lessons) {
   final foundations = [
     for (final i in catalog.items)
-      if (i.prereqLevel == 0) i
+      if (i.isFoundation) i
   ];
   final covered = [
     for (final i in catalog.items)
-      if (i.prereqLevel != 0 && lessons.covers(i)) i
+      if (!i.isFoundation && lessons.covers(i)) i
   ];
   final byLesson = <int>{for (final i in covered) i.lesson!}.toList()..sort();
   final lessonItems = [
