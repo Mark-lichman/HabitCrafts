@@ -171,6 +171,7 @@ SessionProbeBuilder standardProbeBuilder(
               probe: probe,
               state: r.state,
               options: options,
+              english: raw?['en'] as String?,
               onAnswer: r.onAnswer);
         }
         return TypedFillProbe(
