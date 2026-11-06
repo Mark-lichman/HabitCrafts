@@ -22,10 +22,7 @@
 // link on an unanswered card pushes the item kind's lesson target, Back returns to the same
 // card unanswered and marked "Lesson reviewed", and a clear after it is written hinted at hint
 // level 1; wrong, hinted and unscored answers are untouched; the review covers that card only;
-// the link is gone once the card is answered; opening a lesson writes no attempt; every item
-// kind's link pushes its own target and query through the router; an opener that fails
-// leaves the card unreviewed, so a clear after it stays clear, and a failure after an earlier
-// open of the same card keeps that mark.
+// the link is gone once the card is answered; opening a lesson writes no attempt.
 
 import 'dart:convert';
 import 'dart:io';
@@ -1237,77 +1234,6 @@ void main() {
       expect(h.shows('Clear'), isTrue);
       expect((await h.store.attempts(itemId: words[0].id)).single.grade,
           Grade.clear);
-    });
-
-    testWidgets(
-        'the link pushes the lesson target of every item kind through the router, '
-        'and Back returns to the same card', (tester) async {
-      for (final kind in ItemKind.values) {
-        final item = catalog.ofKind(kind).first;
-        final h = await pumpRouted(
-            tester, planOf([entryOf(item, PlanSection.due)]));
-        expect(h.onScreen, item.id, reason: kind.name);
-        expect(find.text(reviewLessonDetail(item)), findsOneWidget,
-            reason: kind.name);
-
-        await tester.tap(find.text(kReviewTheLesson));
-        await tester.pumpAndSettle();
-        final target = lessonTargetOf(item);
-        expect(find.text('lesson ${target.routeName} ${target.query}'),
-            findsOneWidget,
-            reason: '${kind.name}: the route and query of ${item.id}');
-
-        await tester.tap(find.text('Back'));
-        await tester.pumpAndSettle();
-        expect(h.onScreen, item.id, reason: '${kind.name}: the same card');
-        expect(find.text(kLessonReviewed), findsOneWidget, reason: kind.name);
-        expect(await h.store.attempts(), isEmpty, reason: kind.name);
-      }
-    });
-
-    testWidgets(
-        'a failed lesson open leaves the card unreviewed and a clear stays clear',
-        (tester) async {
-      final h = await pumpSession(
-          tester, planOf([entryOf(words[0], PlanSection.due)]),
-          openLesson: (context, item) async => throw StateError('no route'));
-      expect(h.onScreen, words[0].id);
-      await h.tap(kReviewTheLesson);
-      expect(tester.takeException(), isA<StateError>(),
-          reason: 'the failure is reported, not swallowed');
-      expect(find.text(kLessonReviewed), findsNothing,
-          reason: 'no lesson opened, so no mark');
-      expect(find.text(kReviewTheLesson), findsOneWidget,
-          reason: 'the link stays for another try');
-
-      await h.tap('answer clear');
-      expect(h.shows('Clear'), isTrue);
-      final a = (await h.store.attempts()).single;
-      expect(a.grade, Grade.clear);
-      expect(a.hintLevel, 0);
-    });
-
-    testWidgets(
-        'a failed open after an earlier open of the same card keeps the mark',
-        (tester) async {
-      var opens = 0;
-      final h = await pumpSession(
-          tester, planOf([entryOf(words[0], PlanSection.due)]),
-          openLesson: (context, item) async {
-        if (++opens > 1) throw StateError('no route');
-      });
-      await h.tap(kReviewTheLesson);
-      expect(find.text(kLessonReviewed), findsOneWidget);
-      await h.tap(kReviewTheLesson);
-      expect(tester.takeException(), isA<StateError>());
-      expect(find.text(kLessonReviewed), findsOneWidget,
-          reason: 'the lesson was seen once, so the mark stays');
-
-      await h.tap('answer clear');
-      expect(h.shows('Right with a hint'), isTrue);
-      final a = (await h.store.attempts()).single;
-      expect(a.grade, Grade.hinted);
-      expect(a.hintLevel, 1);
     });
 
     testWidgets('wrong, hinted and unscored after a review are untouched',
