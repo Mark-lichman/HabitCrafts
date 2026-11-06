@@ -316,12 +316,20 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
   /// matched path, so the same path with a new `tab` updates this State through
   /// `didUpdateWidget`. A `goNamed` from `/` would build a second page, drop this State
   /// with its `_pastWelcome`, and ask Welcome back again after Not now.
+  ///
+  /// The location comes from the router, not `GoRouterState.of`: nav.dart's `errorBuilder`
+  /// serves this home too, for an unmatched URL, and go_router builds that error page
+  /// outside its State registry, so `GoRouterState.of` would throw there. On the error
+  /// page the `go` lands on `/`, a real route, and the tab shows from there.
   void _selectTab(HomeTab tab) {
     if (tab == _tab) return;
-    if (GoRouter.maybeOf(context) != null) {
-      final here = GoRouterState.of(context).uri;
+    final router = GoRouter.maybeOf(context);
+    if (router != null) {
+      final here = router.routeInformationProvider.value.uri;
+      final path =
+          here.path == QuietRoomJapaneseWidget.routePath ? here.path : '/';
       context.go(Uri(
-        path: here.path,
+        path: path,
         queryParameters: tab == HomeTab.today ? null : {'tab': tab.name},
       ).toString());
       return;

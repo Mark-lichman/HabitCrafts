@@ -4,9 +4,10 @@
 // meets a new local day, the session card's section counts read from a memory store, the
 // mastered count, the kept rate and the 14 dots, the quiet links, the bottom nav of Today,
 // Lessons and Topics (a tab tap under the router is a `go` on the route the home is on, so
-// the State and a dismissed Welcome back survive it, and nav.dart's `/` route reads the tab
-// like the named one), and the absence of the old hub's hero, rows, number strip, search and
-// use strip (search and By use live in Topics, topics_widget_test.dart).
+// the State and a dismissed Welcome back survive it, a tap on the errorBuilder home lands on
+// `/`, and nav.dart's `/` route reads the tab like the named one), and the absence of the
+// old hub's hero, rows, number strip, search and use strip (search and By use live in
+// Topics, topics_widget_test.dart).
 
 import 'dart:convert';
 import 'dart:io';
@@ -665,6 +666,49 @@ void main() {
       expect(tabInUrl(), isNull);
       expect(find.byKey(const ValueKey('today-card')), findsOneWidget);
       expect(router.canPop(), isFalse);
+    });
+
+    testWidgets(
+        'on the errorBuilder home a tab tap lands on /: Lessons shows on a real route',
+        (tester) async {
+      // nav.dart's errorBuilder serves the signed-out home for an unmatched URL. go_router
+      // builds that page outside its State registry, so `GoRouterState.of` throws there,
+      // and a `go` on the bogus path would build a new State on every tap.
+      final store = await seededStore();
+      Widget home(GoRouterState state) => QuietRoomJapaneseWidget(
+          store: store,
+          catalog: catalog,
+          clock: FixedClock(at(day0)),
+          tab: homeTabOf(state.uri.queryParameters['tab']));
+      final router = GoRouter(
+        routes: [GoRoute(path: '/', builder: (_, state) => home(state))],
+        errorBuilder: (_, state) => home(state),
+      );
+      addTearDown(router.dispose);
+      await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
+      await settle(tester);
+      Uri location() => router.routeInformationProvider.value.uri;
+      // Each step here crosses page keys, so a page transition runs, and the finders
+      // wait for it to end.
+      Future<void> transition() async {
+        await settle(tester);
+        await tester.pumpAndSettle();
+        await settle(tester);
+      }
+
+      router.go('/nowhere');
+      await transition();
+      expect(location().path, '/nowhere');
+      expect(find.byKey(const ValueKey('today-card')), findsOneWidget,
+          reason: 'the errorBuilder serves the home');
+
+      await tester.tap(find.byKey(const ValueKey('tab-lessons')));
+      await transition();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(LessonsPathWidget), findsOneWidget);
+      expect(location().path, '/',
+          reason: 'the tap lands on a real route, not the bogus path');
+      expect(location().queryParameters['tab'], 'lessons');
     });
 
     test('a tab parameter names its tab, and anything else is Today', () {
