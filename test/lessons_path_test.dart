@@ -32,6 +32,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/seed_confirm_widget.dart'
     show kLastGrammarLessonKey;
 import 'package:habit_craft/components/pages/quiet_room_mastery/topic_index.dart';
+import 'package:habit_craft/flutter_flow/nav/nav.dart';
 
 import 'jp_screen_harness.dart' show holdHttpRequests, pumpStudyScreen;
 
@@ -389,5 +390,16 @@ void main() {
         expect(find.text('the lesson path'), findsOneWidget);
       });
     }
+  });
+
+  test('nav.dart registers the lesson path and lesson page routes', () {
+    final router = createRouter(AppStateNotifier.instance);
+    addTearDown(router.dispose);
+    expect(router.namedLocation(LessonsPathWidget.routeName),
+        LessonsPathWidget.routePath);
+    expect(
+        router.namedLocation(LessonPageWidget.routeName,
+            queryParameters: {'lesson': '30'}),
+        '${LessonPageWidget.routePath}?lesson=30');
   });
 }

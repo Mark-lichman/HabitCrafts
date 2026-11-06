@@ -421,7 +421,7 @@ void main() {
         GoRoute(
           name: LessonsPathWidget.routeName,
           path: LessonsPathWidget.routePath,
-          builder: (_, __) => const Text('the grammar list'),
+          builder: (_, __) => const Text('the lesson path'),
         ),
       ]);
       addTearDown(router.dispose);
@@ -431,13 +431,13 @@ void main() {
 
       await tester.tap(find.text('Grammar lessons'));
       await tester.pumpAndSettle();
-      expect(find.text('the grammar list'), findsOneWidget);
+      expect(find.text('the lesson path'), findsOneWidget);
 
       clock.set(at(day0 + 1));
       router.pop();
       await tester.pumpAndSettle();
       await settle(tester);
-      expect(find.text('the grammar list'), findsNothing);
+      expect(find.text('the lesson path'), findsNothing);
       expect(find.text('Done for today'), findsNothing);
       expect(find.text('Start'), findsOneWidget);
       expect(await store.day(day0 + 1), isNotNull);
