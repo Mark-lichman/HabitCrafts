@@ -293,7 +293,8 @@ Widget _ladder(
 
 /// A choice item: tap one of [options]. The right option is clear, any other is wrong. A
 /// choice item has no hint before the pick (the grammar screen's rule), so a pick is never
-/// hinted.
+/// hinted. The [english] sentence sits behind a free "Show English" tap, as on a fill-in card:
+/// a right pick after it is still a clear (operator ruling, 2026-11-06).
 class ChooseProbe extends StatefulWidget {
   const ChooseProbe({
     super.key,
@@ -302,6 +303,7 @@ class ChooseProbe extends StatefulWidget {
     required this.state,
     required this.options,
     required this.onAnswer,
+    this.english,
   });
 
   final ItemDef item;
@@ -310,6 +312,9 @@ class ChooseProbe extends StatefulWidget {
   final List<String> options;
   final ProbeAnswered onAnswer;
 
+  /// The whole sentence in English. Seeing it changes no grade.
+  final String? english;
+
   @override
   State<ChooseProbe> createState() => _ChooseProbeState();
 }
@@ -317,6 +322,7 @@ class ChooseProbe extends StatefulWidget {
 class _ChooseProbeState extends State<ChooseProbe> {
   String? _picked;
   Grade? _grade;
+  bool _englishShown = false;
 
   void _pick(String option) {
     if (_picked != null) return;
@@ -341,6 +347,10 @@ class _ChooseProbeState extends State<ChooseProbe> {
           _button(t, o, _picked == null ? () => _pick(o) : null,
               primary: _picked != null && o == widget.probe.answer),
       ]),
+      if (widget.english != null && _picked == null && !_englishShown)
+        _quietButton(
+            t, 'Show English', () => setState(() => _englishShown = true)),
+      if (widget.english != null && _englishShown) _quiet(t, widget.english!),
       if (_grade != null) _verdict(t, _grade!),
       // A wrong pick: the answer was not on screen, so the full sentence shows.
       if (_grade == Grade.wrong) ...[

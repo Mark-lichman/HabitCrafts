@@ -123,6 +123,7 @@ spacing and punctuation and folds katakana to hiragana:
   English): the screen shows the answer and asks "Got it" or "Missed it". The phone has no
   reading dictionary, so it cannot call that spelling wrong.
 
+A multiple-choice card offers "Show English" before the pick, and it is free too.
 In a Review session, a fill-in card offers two taps under Check. "Show English" shows the whole
 sentence in English and is free: a right answer after it is still a clear. "Show grammar hint"
 shows the rule without the answer, and a right answer after it is hinted. A particle card's
