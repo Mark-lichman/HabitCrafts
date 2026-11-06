@@ -69,12 +69,20 @@ particle can reach Mastered on one memorized sentence (verified: `jp_grammar.jso
 | D11 | When a sentence moves aside | once it has clears on 2 different days; the next review prefers a sentence with no clear yet | [assumed: 2 days — if wrong: variety comes too early or too late] · confirmed (user) | slice (T9) |
 | D12 | Existing Mastered badges | none exist; the record restarts (PIN-9) | (user) | context |
 | D13 | Test records | synthetic fixtures only; Mark's export stays out of the repo | (user) | guardrail |
+| D14 | A spoken close | graded hinted (no credit) but neutral for the two-hinted reset, like a self-mark | PIN-10 · operator-ratified (2026-11-06, red-team) | PIN-10→slice (T5, T7) |
+| D15 | Azure allowance | the Azure Speech resource moves to the paid tier, so scoring never runs out; offline stays unscored | PIN-11 · operator-ratified (2026-11-06, red-team) | PIN-11→backstop |
+| D16 | What a say card shows | the prompt only, never the answer: the full sentence with the blank read as the sentence for grammar and particles, the picture and meaning for a word, the verb and form name for a conjugation, the other side for a pair, the number and counter for a table row | PIN-12 · operator-ratified (2026-11-06, red-team) | PIN-12→slice (T6) |
+| D17 | The spoken requirement before a phone test | required from the start; the record restarts fresh (PIN-9), so nothing reaches Mastered for at least 3 weeks, and the phone test runs early in that window; short answers get their own cutoff if they score poorly | PIN-13 · operator-ratified (2026-11-06, red-team) | PIN-13→backstop |
+| D18 | Template to mode | typed: `fill`, `cloze`, `typed`, `conjugate` · recognition: `choose`, `card`, `transitive`, `intransitive`, `cell` · spoken: `spoken` and the new scored say template. The new scored say template is a new name, distinct from the unscored Say-it template `kSayItTemplate`, and its attempts carry the session's source (review, early or keep-sharp), never `Source.sayIt` | Lead-patched (red-team 2026-11-06) | slice (T6, T7) |
+| D19 | Which card the session shows next | the first scored probe whose mode has no counting clear yet, then the first sentence with no clear (D11), then rotation; this replaces `answered % length` | Lead-patched (red-team 2026-11-06) | slice (T6, T9) |
+| D20 | Where Review the lesson goes for a grammar point | the grammar screen (`QuietRoomGrammarWidget`), opened at the point, because the lesson page is an index of rows, not the explanation; the concept's content is unchanged | Lead-patched (red-team 2026-11-06) | slice (T1) |
+| D21 | Which cards carry the lesson link | every card in the Review session and in Practice now (item, lesson and topic practice) | Lead-patched (red-team 2026-11-06) | slice (T2) |
 
 ## Assumptions ledger
 
 | ID | Assumption | Basis | Blast radius if wrong | Check |
 |----|-----------|-------|----------------------|-------|
-| A1 | Azure scores a single word, a conjugated form and a table reading as well as a sentence | it already scores sentences (`score.js` tests) | short say cards score poorly and block Mastered | backstop row 1 |
+| A1 | Azure scores a single word, a conjugated form and a table reading as well as a sentence | `PronunciationService.check` takes any hiragana as the reference text and `score.js` accepts any 1 to 200 characters; only sentences have been scored on a device | short say cards score poorly and block Mastered | backstop row 1, run early (PIN-13) |
 | A2 | The session route stays mounted under a pushed lesson route, so Back returns to the same card state | recon: `SessionWidget` lives in its own pushed route with default `maintainState` | the card resets on Back | End state 1's test |
 | A3 | 30 AI-drafted particle sentences pass the publish validator and the judge with few fixes | the earlier particle English (15) and the grammar drafts passed | Phase 6 runs long | Task 8's `Done when:` |
 | A4 | A multiple-choice particle card with the other 14 particles as wrong options has one right answer per sentence | particles differ in meaning | an ambiguous card | Task 6's validator test |
@@ -98,7 +106,8 @@ particle can reach Mastered on one memorized sentence (verified: `jp_grammar.jso
 - **Method:** link every card to its core lesson and back; keep a private Discuss list; score spoken answers through Azure; add a say card to every kind and a multiple-choice card to particles; require all three modes where the kind has them; give particles three sentences and rotate off a sentence once it is cleared on two days; then bring the lesson doc and the OPM up to date.
 - **Mechanism latitude:** where the Discuss button and list sit; how the Discuss mark is stored; how a screen scrolls or opens at an idea; the exact next-sentence picking rule within D11; the say-card widget's layout. Substituting any of these mechanisms while the End states and binding guardrails hold is not a plan deviation and warrants no issue.
 - **Binding guardrails:** a lesson review before the answer makes a right answer hinted, and Show
-  English stays free (PIN-5) · only Azure scoring counts a spoken clear toward Mastered (PIN-2) ·
+  English stays free (PIN-5) · only Azure scoring counts a spoken clear toward Mastered (PIN-2) · a
+  spoken close earns no credit and never counts toward the two-hinted reset (PIN-10) ·
   Mari never needs the app, and a Discuss mark changes no grade and no schedule (PIN-6) · existing
   records and exports still load, and no attempt is rewritten · unreviewed sentences stay marked
   unreviewed until Mark reviews them (PIN-4).
@@ -108,11 +117,13 @@ particle can reach Mastered on one memorized sentence (verified: `jp_grammar.jso
   3. A Discuss mark appears in the list on Today, survives export and import, and changes no grade and no schedule · check: `/c/src/flutter/bin/flutter test test/discuss_test.dart test/jp_store_test.dart` (prints `All tests passed!`).
   4. A spoken answer counts as a clear only from Azure scoring; with no connection it is unscored · check: `/c/src/flutter/bin/flutter test test/probe_widgets_test.dart test/pronunciation_service_test.dart` (prints `All tests passed!`).
   5. Every item kind has a scored say card, and particles have a multiple-choice card · check: `/c/src/flutter/bin/flutter test test/item_catalog_test.dart` (prints `All tests passed!`).
-  6. Mastered needs a typed, a recognition and a spoken clear wherever the kind has that card · check: `/c/src/flutter/bin/flutter test test/mastery_rule_test.dart` (prints `All tests passed!`).
-  7. Every particle has 3 sentences marked unreviewed, needs 2 for transfer, and the session moves off a sentence cleared on 2 days · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q && /c/src/flutter/bin/flutter test test/item_catalog_test.dart test/session_widget_test.dart` (prints `passed` and `All tests passed!`).
+  6. Mastered needs a typed, a recognition and a spoken clear wherever the kind has that card, and a grammar point or particle needs clears on more than one sentence (grammar 3, particle 2) · check: `/c/src/flutter/bin/flutter test test/mastery_rule_test.dart --plain-name "three modes"` (prints `All tests passed!`; the named group is new in Task 7, so the check fails if it is absent).
+  7. Every particle has 3 sentences marked unreviewed · check: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q -k particle_sentences` (prints `passed`; the selected tests are new in Task 8).
+  11. The session shows a needed mode before the 4th clear and moves off a sentence cleared on 2 days · check: `/c/src/flutter/bin/flutter test test/session_widget_test.dart --plain-name "next card"` (prints `All tests passed!`; the named group is new in Tasks 6 and 9).
   8. An export written before this plan imports unchanged · check: `/c/src/flutter/bin/flutter test test/jp_store_test.dart` (prints `All tests passed!`).
-  9. The whole app, pipeline and speech-function suites stay green · gate: the run's resolved gate (`overrides.gate` in `.claude/war/config.json`).
+  9. The whole app, pipeline and speech-function suites stay green · gate: the run's resolved gate (`overrides.gate` in the run config `.claude/war/config.json` of the WAR launch checkout, outside this repo).
   10. Azure scores spoken answers on Mark's phone, and Mark reviews the 30 sentences · backstop: rows 1 and 2.
+  12. The lesson doc and SD5/SD6 describe the lesson link, the Discuss list, the say cards and the three modes · check: `grep -inc "discuss with mari\|review the lesson\|say it" docs/japanese-lessons.md` (prints a count of 3 or more) and `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q -k opm` (prints `passed`).
 
 ## Build order (for /war)
 
@@ -121,17 +132,17 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 ## Phase 1 — The lesson link
 
 ### Task 1: Screens open at an idea
-- Files: `lib/components/pages/quiet_room_mastery/lesson_page_widget.dart`, `lib/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart`, `lib/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart`, `lib/components/pages/quiet_room_mastery/topic_page_widget.dart`, `test/lesson_page_test.dart`, `test/quiet_room_lesson_test.dart`, `test/quiet_room_drills_test.dart`, `test/topics_widget_test.dart`
-- Plan slice: the lesson page opens scrolled to a given point id and shows a "Back to practice" bar when opened from a card; the word cards open at a given word; the Conjugation, Verb pairs and Numbers screens open at a given form or row; a particle with no Mari lesson opens its topic page with the example sentence hidden; a lesson particle opens its lesson page with the particle's meaning at the top and its example hidden (PIN-5). Each screen keeps its plain entry unchanged.
-- Done when: `/c/src/flutter/bin/flutter test test/lesson_page_test.dart test/quiet_room_lesson_test.dart test/quiet_room_drills_test.dart test/topics_widget_test.dart`
+- Files: `lib/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart`, `lib/components/pages/quiet_room_mastery/lesson_page_widget.dart`, `lib/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart`, `lib/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart`, `lib/components/pages/quiet_room_mastery/topic_page_widget.dart`, `lib/flutter_flow/nav/nav.dart`, `test/quiet_room_grammar_test.dart`, `test/lesson_page_test.dart`, `test/quiet_room_lesson_test.dart`, `test/quiet_room_drills_test.dart`, `test/topics_widget_test.dart`
+- Plan slice: a "Back to practice" bar shows on each target when it is opened from a card. Targets (D20): a grammar point opens the grammar screen at that point (a new point param, scrolled by index); a word opens the word cards at that word; a conjugation opens the drills at its form, a verb pair at its pair row and a table row at its table and row (new pair and row params beside the existing table and form params); a particle with a Mari lesson opens a particle block (meaning, form, no example sentence) at the top of its lesson page, and a particle with no lesson opens its topic page with that block and no example sentence (PIN-5). Add each new param to its route in `nav.dart`. Each screen keeps its plain entry unchanged.
+- Done when: `/c/src/flutter/bin/flutter test test/quiet_room_grammar_test.dart test/lesson_page_test.dart test/quiet_room_lesson_test.dart test/quiet_room_drills_test.dart test/topics_widget_test.dart`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
 - target repo: superproject
 
 ### Task 2: Review the lesson from a card
-- Files: `lib/components/pages/quiet_room_mastery/session_widget.dart`, `lib/components/pages/quiet_room_mastery/probe_widgets.dart`, `test/session_widget_test.dart`, `test/probe_widgets_test.dart`
-- Plan slice: every unanswered card shows a quiet "Review the lesson" link naming the lesson and idea; it pushes Task 1's target for the item's kind; Back returns to the same card, unanswered, marked "Lesson reviewed"; a right answer after a review is graded hinted (hint level 1) and a review after the answer changes nothing; opening a lesson writes no attempt (PIN-5).
+- Files: `lib/components/pages/quiet_room_mastery/session_widget.dart`, `lib/components/pages/quiet_room_mastery/item_detail_widget.dart`, `lib/components/pages/quiet_room_mastery/probe_widgets.dart`, `test/session_widget_test.dart`, `test/item_detail_test.dart`, `test/probe_widgets_test.dart`
+- Plan slice: every unanswered card in the Review session (`SessionWidget`) and in Practice now (`PracticeSessionWidget`) shows a quiet "Review the lesson" link naming the lesson and idea (D21); it pushes Task 1's target for the item's kind; Back returns to the same card, unanswered, marked "Lesson reviewed". The host applies the downgrade in its answer handler: a clear after a review becomes hinted with hint level at least 1, so choose cards are covered and a grammar hint is not counted twice; wrong, self and unscored are untouched; a review after the answer changes nothing; opening a lesson writes no attempt (PIN-5).
 - Done when: `/c/src/flutter/bin/flutter test test/session_widget_test.dart test/probe_widgets_test.dart`
 - requiresTest: true
 - requiresPackaging: false
@@ -161,9 +172,9 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 ## Phase 3 — Spoken answers through Azure
 
 ### Task 5: Spoken cards score through Azure
-- Files: `lib/components/pages/quiet_room_mastery/probe_widgets.dart`, `lib/components/pages/quiet_room_practice/pronunciation_service.dart`, `test/probe_widgets_test.dart`, `test/pronunciation_service_test.dart`
-- Plan slice: the word card's spoken answer, and every scored spoken card after Phase 4, scores through `PronunciationService` against the hiragana; correct is clear, close is hinted, wrong is wrong; unverified or no connection is unscored, never wrong (PIN-2, D10). The on-device transcript path stays only for practice that does not count. This closes #88 for the counting path.
-- Done when: `/c/src/flutter/bin/flutter test test/probe_widgets_test.dart test/pronunciation_service_test.dart`
+- Files: `lib/components/pages/quiet_room_mastery/probe_widgets.dart`, `lib/components/pages/quiet_room_mastery/session_widget.dart`, `lib/components/pages/quiet_room_mastery/item_detail_widget.dart`, `lib/components/pages/quiet_room_practice/pronunciation_service.dart`, `lib/components/pages/quiet_room_practice/anon_caller.dart`, `test/probe_widgets_test.dart`, `test/session_widget_test.dart`, `test/pronunciation_service_test.dart`
+- Plan slice: plumb a `PronunciationService` (built with `signIn: ensureCaller`, a fake in tests) through `standardProbeBuilder`, `SessionWidget` and `PracticeSessionWidget` into the word card; its spoken answer, and every scored spoken card after Phase 4, scores through it against the hiragana, and the on-device `listenOnce` path is removed from the counting `spoken` template. Correct is clear; close is hinted but marked so the mastery rule keeps it out of the two-hinted streak (PIN-10); wrong is wrong; unverified or no connection writes an unscored draft with no Got it / Missed it self-mark, so it can never clear the spoken mode (PIN-2, D10). The on-device transcript stays only for practice that does not count. This closes #88 for the counting path.
+- Done when: `/c/src/flutter/bin/flutter test test/probe_widgets_test.dart test/session_widget_test.dart test/pronunciation_service_test.dart`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
@@ -173,19 +184,21 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 
 ### Task 6: A say card for every kind, and a multiple-choice card for particles
 - Files: `lib/components/pages/quiet_room_mastery/item_catalog.dart`, `lib/components/pages/quiet_room_mastery/probe_widgets.dart`, `lib/components/pages/quiet_room_mastery/session_widget.dart`, `test/item_catalog_test.dart`, `test/probe_widgets_test.dart`, `test/session_widget_test.dart`
-- Plan slice: each of the 6 kinds gets a scored say probe (grammar and particle: the full sentence; word, conjugation, pair, table row: the answer's hiragana), scored through Task 5's path; particles get a choose probe whose wrong options are other particles, with exactly one option that completes the sentence (PIN-3, PIN-7).
+- Plan slice: each of the 6 kinds gets a scored say probe under a new template name (D18), scored through Task 5's path. The card shows the prompt only, never the answer (PIN-12): grammar and particle say the whole sentence from its prompt and English; a word from its picture and meaning; a conjugation from the verb and form name; a pair from the other side; a table row from the number and counter. Its draft carries the session's source, never `Source.sayIt`. Particles get a choose probe whose wrong options are other particles, with exactly one option that completes the sentence (PIN-3, PIN-7). The session's next-card pick becomes mode-aware (D19): the first scored probe whose mode has no counting clear, then rotation; new test group "next card".
 - Done when: `/c/src/flutter/bin/flutter test test/item_catalog_test.dart test/probe_widgets_test.dart test/session_widget_test.dart`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
 - target repo: superproject
 
+Phase 4 follows Phase 3, so Task 6 rebases onto Task 5's scoring path.
+
 ## Phase 5 — The mastery rule
 
 ### Task 7: Type it, see it and say it
-- Files: `lib/components/pages/quiet_room_mastery/mastery_rule.dart`, `test/mastery_rule_test.dart`, `test/srs_simulation_test.dart`
-- Plan slice: each template maps to one mode (typed, recognition, spoken); Mastered needs a counting clear in every mode the item has a scored card for, beside the existing four-clear, 21-day and no-wrong rules (PIN-7). Re-measure the simulator's Mastered-by-day expectations at the rebased base.
-- Done when: `/c/src/flutter/bin/flutter test test/mastery_rule_test.dart test/srs_simulation_test.dart`
+- Files: `lib/components/pages/quiet_room_mastery/mastery_rule.dart`, `lib/components/pages/quiet_room_mastery/item_catalog.dart`, `lib/components/pages/quiet_room_mastery/item_detail_widget.dart`, `test/mastery_rule_test.dart`, `test/item_catalog_test.dart`, `test/item_detail_test.dart`, `test/srs_simulation_test.dart`
+- Plan slice: map each template to one mode by D18's table (in `mastery_rule.dart`, keyed on template names); `ItemDefLike` gains the set of modes the item has a scored card for, implemented by `ItemDef`; Mastered needs a counting clear in every one of those modes, beside the existing four-clear, 21-day, no-wrong and transfer rules (PIN-7). A spoken close is neutral for the two-hinted reset (PIN-10). The item page's "still to do" names a missing mode. New test group "three modes", including hinted-spoken then hinted-typed. Re-measure the simulator's Mastered-by-day expectations at the rebased base.
+- Done when: `/c/src/flutter/bin/flutter test test/mastery_rule_test.dart test/item_catalog_test.dart test/item_detail_test.dart test/srs_simulation_test.dart`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
@@ -194,9 +207,9 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 ## Phase 6 — Sentence variety
 
 ### Task 8: Draft and publish 30 particle sentences
-- Files: `pipeline/jp/particle_sentences.json`, `pipeline/jp/publish.py`, `pipeline/jp/tests/test_pipeline.py`, `assets/lessons/jp_grammar.json`
-- Plan slice: 2 more sentences per particle, each a cloze with its answer, accepted forms and English, in hiragana within the N4 kanji limit, AI-drafted and checked by an independent judge pass; `publish.py` adds them to each particle with a `reviewed: false` flag and fails on a stale or leaking cloze; republish `jp_grammar.json` (PIN-4).
-- Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q`
+- Files: `pipeline/jp/particle_sentences.json`, `pipeline/jp/publish.py`, `pipeline/jp/catalog.py`, `pipeline/jp/tests/test_pipeline.py`, `pipeline/jp/tests/test_catalog_sources.py`, `assets/lessons/jp_grammar.json`
+- Plan slice: 2 more sentences per particle, each a cloze with its answer, accepted forms and English, in hiragana within the N4 kanji limit, AI-drafted and checked by an independent judge pass; `publish.py` adds them to each particle with a `reviewed: false` flag and fails on a stale or leaking cloze; `particle_sentences.json` gets a source_file catalog entry; tests named `particle_sentences`; republish `jp_grammar.json` (PIN-4).
+- Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q -k particle_sentences`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
@@ -204,7 +217,7 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 
 ### Task 9: Rotate across sentences
 - Files: `lib/components/pages/quiet_room_mastery/item_catalog.dart`, `lib/components/pages/quiet_room_mastery/mastery_rule.dart`, `lib/components/pages/quiet_room_mastery/session_widget.dart`, `test/item_catalog_test.dart`, `test/mastery_rule_test.dart`, `test/session_widget_test.dart`
-- Plan slice: a particle carries one cloze probe per sentence; `kTransferProbes` gives particles 2; the session's probe pick prefers a sentence with no clear yet, and moves off a sentence once it has clears on 2 different days (D11, PIN-4).
+- Plan slice: a particle carries one cloze probe per sentence; `kTransferProbes` gives particles 2; within the mode D19 picks, the session prefers a sentence with no clear yet and moves off a sentence once it has clears on 2 different days (D11, PIN-4); extend the "next card" group.
 - Done when: `/c/src/flutter/bin/flutter test test/item_catalog_test.dart test/mastery_rule_test.dart test/session_widget_test.dart`
 - requiresTest: true
 - requiresPackaging: false
@@ -215,8 +228,8 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 
 ### Task 10: Bring the docs up to date
 - Files: `docs/japanese-lessons.md`, `docs/opm-lesson-extraction.gen.js`, `docs/opm-lesson-extraction.drawio`, `docs/opm-lesson-extraction.md`, `pipeline/extraction_schemas.py`
-- Plan slice: the lesson doc describes the lesson link, the Discuss list, the say cards, the three modes and sentence rotation, naming no bare counts (de-mirror: point at the data files); SD5 and SD6 turn the planned gap boxes for the lesson link, #145 and #146 into built processes and rules, and add the Discuss mark; regenerate the `.drawio` from the generator (PIN-8).
-- Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q`
+- Plan slice: the lesson doc describes the lesson link, the Discuss list, the say cards, the three modes and sentence rotation, naming no bare counts (de-mirror: point at the data files and `mastery_rule.dart`); SD5 and SD6 turn the planned gap boxes for the lesson link, #145 and #146 into built processes and rules, add the Discuss mark, and record PIN-10 (close is neutral) and D18 (template to mode); regenerate the `.drawio` from the generator (PIN-8).
+- Done when: `pipeline/.venv/Scripts/python -m pytest pipeline/jp/tests -q -k opm && grep -inc "discuss with mari" docs/japanese-lessons.md`
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
@@ -224,11 +237,14 @@ Phase 1 (lesson link) → Phase 2 (Discuss with Mari) → Phase 3 (spoken answer
 
 ## Deferred validations (backstops)
 
-- Azure scores a spoken sentence, word, form and table reading on Mark's phone, and a spoken clear counts toward Mastered · why deferred: needs the device, the microphone and the deployed function · runner: Mark on the phone after the PR CI is green (A1).
+- Azure scores a spoken sentence, word, form and table reading on Mark's phone and on the web, and a spoken clear counts toward Mastered · why deferred: needs the device, the microphone and the deployed function · runner: Mark, after the PR CI is green, early in the 3-week window before anything can reach Mastered (A1, PIN-13).
+- The Azure Speech resource runs on the paid tier · why deferred: an Azure portal change outside the repo · runner: Mark, before Phase 3's build reaches the phone (PIN-11).
 - Mark reviews the 30 particle sentences and the 15 particle English lines, then flips their `reviewed` flags · why deferred: a human review (the judge misses homophone kanji slips) · runner: Mark, after Phase 6 lands.
 - Mark's phone record starts fresh: export a backup, clear the record, seed with no lesson ticked (PIN-9) · why deferred: an action on the phone, not code · runner: Mark with Claude, after the plan lands and before daily use.
 
 ## Notes / conscious deviations
+
+- Red-team (2026-11-06) rulings PIN-10 to PIN-13 and Lead patches D18 to D21 are recorded in the design tree.
 
 - Phases are sequential because `session_widget.dart` and `probe_widgets.dart` are shared across Tasks 2, 4, 5, 6 and 9; each phase rebases onto the last.
 - #88's on-device transcript fix (a speech-only kanji form per sentence) is not built; the counting path moves to Azure instead (PIN-2).
