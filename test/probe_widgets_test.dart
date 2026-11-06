@@ -1426,7 +1426,10 @@ void main() {
 
   group('lesson review (plan 2026-11-06, Task 2, PIN-5)', () {
     DrillAnswer drawn(ItemDef item, String probeId, Grade g,
-            {int hintLevel = 0, bool revealed = false, bool sayIt = false}) =>
+            {int hintLevel = 0,
+            bool revealed = false,
+            bool sayIt = false,
+            DateTime? atUtc}) =>
         DrillAnswer(
             itemId: item.id,
             probeId: probeId,
@@ -1437,7 +1440,8 @@ void main() {
             hintLevel: hintLevel,
             revealed: revealed,
             sayIt: sayIt,
-            answerShown: true);
+            answerShown: true,
+            atUtc: atUtc);
 
     test('a clear after a review is hinted at hint level 1, the rest kept', () {
       final d = afterLessonReview(drawn(_grammar, 'p1', Grade.clear));
@@ -1449,6 +1453,22 @@ void main() {
       expect(d.production, isTrue);
       expect(d.selfGraded, isFalse);
       expect(d.answerShown, isTrue);
+      expect(d.revealed, isFalse);
+      expect(d.sayIt, isFalse);
+      expect(d.atUtc, isNull);
+    });
+
+    test('a say-it clear after a review keeps sayIt, revealed and atUtc', () {
+      final at = DateTime.utc(2026, 11, 6, 10);
+      final d = afterLessonReview(drawn(_grammar, 'ex0', Grade.clear,
+          revealed: true, sayIt: true, atUtc: at));
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.sayIt, isTrue, reason: 'still the spoken track (Source.sayIt)');
+      expect(d.revealed, isTrue);
+      expect(d.atUtc, at);
+      expect(d.probeId, 'ex0');
+      expect(d.template, kSayItTemplate);
     });
 
     test('a choose clear after a review is hinted (a choose card has no hint)',
