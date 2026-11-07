@@ -23,7 +23,11 @@
 // hinted, a hint is hinted, the whole answer showing writes one wrong per word, and later
 // listens and the mark are unscored (ASK-4), unverified is unscored, a Got it over it is self
 // and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
-// An answer on a word that is not due is early (PIN-14).
+// A self-mark on a word that is not due is early (PIN-14).
+//
+// The transcript's verdict never counts (plan 2026-11-06, Task 5, PIN-2): an attempt graded
+// from a correct, close or wrong listen is on the Say-it track and moves no schedule and no
+// mastery, even on a due word; a self-mark, a skip and the reveal wrong still count (ASK-4).
 
 import 'dart:async';
 import 'dart:convert';
@@ -603,6 +607,23 @@ void main() {
           Grade.wrong);
     });
 
+    test(
+        "the transcript's own verdict never counts; the learner's mark and the "
+        'reveal wrong do (plan 2026-11-06, Task 5, PIN-2, ASK-4)', () {
+      bool fromTranscript(PracticeResult x) =>
+          practiceVerdictFromTranscript(x, practiceGrade(x));
+      expect(fromTranscript(r(Judgement.correct)), isTrue);
+      expect(fromTranscript(r(Judgement.close)), isTrue);
+      expect(fromTranscript(r(Judgement.wrong)), isTrue);
+      expect(fromTranscript(r(Judgement.correct, hint: 1)), isTrue,
+          reason: 'a hinted grade from the transcript is still its verdict');
+      expect(fromTranscript(r(Judgement.correct, hint: top)), isFalse,
+          reason: 'the wrong the whole answer showing earns still counts');
+      expect(fromTranscript(r(Judgement.unverified, heard: '')), isFalse);
+      expect(fromTranscript(r(Judgement.unverified, mark: true)), isFalse);
+      expect(fromTranscript(r(Judgement.unverified, mark: false)), isFalse);
+    });
+
     test('a skip is unscored unless the answer showed', () {
       expect(practiceSkipGrade(word, 0), Grade.unscored);
       expect(practiceSkipGrade(word, 1), Grade.unscored);
@@ -660,25 +681,56 @@ void main() {
       expect(a.hintLevel, 0);
       expect(a.revealed, isFalse);
       expect(a.localDay, localDay(_now));
-      // Not due: practice ahead of the queue is early (PIN-14) and moves no schedule.
+      // The on-device transcript never counts (plan 2026-11-06, Task 5, PIN-2): the answer is
+      // on the Say-it track and moves no schedule.
       expect(a.wasDue, isFalse);
-      expect(a.source, Source.early);
+      expect(a.source, Source.sayIt);
       expect(await rig.store.srs(id), isNull);
     });
 
-    testWidgets('an answer on a due word is a review and moves its schedule',
-        (tester) async {
+    testWidgets(
+        'an answer on a due word never counts: the Say-it track, no schedule and no '
+        'mastery (PIN-2)', (tester) async {
       final rig = Rig();
       await rig.open(tester);
       final id = rig.shownId(tester);
       await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
       await rig.say(tester, rig.shownKana(tester));
       final a = (await rig.attempts(tester)).single;
+      expect(a.wasDue, isTrue, reason: 'the due state is still logged');
+      expect(a.source, Source.sayIt);
+      expect(a.grade, Grade.clear);
+      expect(await rig.store.srs(id), isNull,
+          reason: 'only Azure scoring counts a spoken answer');
+      final m = await rig.store.mastery(id);
+      expect(m == null || m.clearCount == 0, isTrue,
+          reason: 'an on-device clear never counts toward Mastered');
+    });
+
+    testWidgets('a self-mark on a not-due word writes early', (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final a = (await rig.attempts(tester)).last;
+      expect(a.grade, Grade.self);
+      expect(a.wasDue, isFalse);
+      expect(a.source, Source.early);
+    });
+
+    testWidgets('a self-mark on a due word writes review', (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final a = (await rig.attempts(tester)).last;
+      expect(a.grade, Grade.self);
       expect(a.wasDue, isTrue);
       expect(a.source, Source.review);
-      expect(a.grade, Grade.clear);
-      expect(await rig.store.srs(id), isNotNull);
-      expect((await rig.store.mastery(id))!.status, MasteryStatus.learning);
     });
 
     testWidgets(
@@ -702,6 +754,8 @@ void main() {
       expect(a.grade, Grade.hinted);
       expect(a.rating, kRatingHard);
       expect(a.hintLevel, 0);
+      expect(a.source, Source.sayIt,
+          reason: 'a transcript close never counts toward the hinted row (#88)');
     });
 
     testWidgets('a hint writes hinted, the whole answer showing writes wrong',

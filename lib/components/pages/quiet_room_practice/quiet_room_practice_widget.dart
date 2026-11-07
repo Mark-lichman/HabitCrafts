@@ -30,7 +30,17 @@
 //   * `unverified` writes unscored; the learner's Got it then writes self (no mastery credit,
 //     PIN-3) and Missed it writes wrong;
 //   * Next on a word with no kept listen is a skip: unscored, or wrong when the answer showed.
-// An answer on a word that is not due is `source: early` (PIN-14); the store applies the rule.
+//
+// 🚨 THE TRANSCRIPT'S VERDICT NEVER COUNTS (plan 2026-11-06, Task 5, PIN-2, D2). The on-device
+// transcript cannot judge a spoken answer reliably (#88: a right answer comes back in kanji
+// and reads close), so an attempt graded from its correct, close or wrong verdict is written on
+// the Say-it track (`source: sayIt`), which never moves the schedule or the mastery state (D4)
+// ([practiceVerdictFromTranscript]). Only Azure scoring counts a spoken answer: the word's
+// spoken card in the Review session and Practice now (probe_widgets.dart `WordRecallProbe`).
+// What the learner decides still counts as before: a self-mark, a skip, and the one wrong the
+// whole answer showing earns (ASK-4). The due state is logged in `wasDue` either way.
+// An attempt that counts on a word that is not due is `source: early` (PIN-14); the store
+// applies the rule.
 //
 // THE TALLY COUNTS EACH WORD ONCE (operator ruling ASK-1, 2026-11-03): only the first checked
 // or marked result on a word adds to it, so the counts sum to at most the deck size. The log
@@ -122,6 +132,15 @@ Grade practiceGrade(PracticeResult r, {bool secondTry = false}) {
     selfOverride: mark == true,
   );
 }
+
+/// Whether [grade], written for [r], is the on-device transcript's own verdict, which never
+/// counts (plan 2026-11-06, Task 5, PIN-2): a correct, close or wrong listen with no self-mark.
+/// The wrong the whole answer showing earns is the reveal's, not the transcript's, so it still
+/// counts (ASK-4); a self-mark is the learner's.
+bool practiceVerdictFromTranscript(PracticeResult r, Grade grade) =>
+    r.selfMark == null &&
+    r.speech.judgement != Judgement.unverified &&
+    !(r.revealed && grade == Grade.wrong);
 
 /// The grade a skip writes: unscored, or wrong when the hints had shown the answer.
 Grade practiceSkipGrade(Map<String, dynamic> word, int hintLevel) =>
@@ -404,16 +423,24 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
         _count(t);
       }
     });
-    _write(r.word, grade: grade, hintLevel: r.hintLevel, revealed: r.revealed);
+    _write(r.word,
+        grade: grade,
+        hintLevel: r.hintLevel,
+        revealed: r.revealed,
+        transcript: practiceVerdictFromTranscript(r, grade));
     widget.onResult?.call(r);
   }
 
-  /// Logs one attempt on [word]'s spoken probe. The time is read now; the write runs after
-  /// the screen's earlier writes. A write that fails goes to [FlutterError.reportError], so
+  /// Logs one attempt on [word]'s spoken probe; a [transcript] verdict goes on the Say-it
+  /// track, so it never counts (PIN-2). The time is read now; the write runs after the
+  /// screen's earlier writes. A write that fails goes to [FlutterError.reportError], so
   /// the app's error handler records it (S4); the verdict still shows, and the lost attempt
   /// earns no credit.
   void _write(Map<String, dynamic> word,
-      {required Grade grade, required int hintLevel, required bool revealed}) {
+      {required Grade grade,
+      required int hintLevel,
+      required bool revealed,
+      bool transcript = false}) {
     final now = _clock.now();
     final day = localDay(now);
     final shown = _shownAt;
@@ -440,7 +467,12 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget>
             hintLevel: hintLevel,
             revealed: revealed,
             wasDue: wasDue,
-            source: wasDue ? Source.review : Source.early,
+            // The on-device transcript's verdict never counts (PIN-2): only Azure scoring does.
+            source: transcript
+                ? Source.sayIt
+                : wasDue
+                    ? Source.review
+                    : Source.early,
             durationMs: duration < 0 ? 0 : duration,
             sessionId: _sessionId,
           ),

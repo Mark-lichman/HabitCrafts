@@ -33,15 +33,21 @@
 // unanswered card carries "Review the lesson" under the session's rule (plan 2026-11-06,
 // Task 2, PIN-5): a clear after a review is written hinted. Every card also carries the
 // Discuss toggle, as the Review session's cards do; a mark leaves the grade as it was (PIN-6).
+// A spoken answer scores through Azure as in the Review session (plan 2026-11-06, Task 5,
+// PIN-2): practice hands one [PronunciationService] to the probe builder, built with
+// `PronunciationService.counting()` and disposed with it when none is injected.
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
 // page, a lesson page, the Discuss with Mari list).
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
+import '../quiet_room_practice/pronunciation_service.dart';
 import 'attempt.dart';
 import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart';
@@ -433,7 +439,9 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
   Widget _historyRow(QuietRoomTokens t, ItemDef item, HistoryRow r) {
     final a = r.attempt;
     final what = [
-      gradeLabel(a.grade),
+      // A spoken close is hinted with no hint taken (PIN-10), so it reads Close, as on its
+      // verdict card.
+      a.spokenClose ? 'Close' : gradeLabel(a.grade),
       if (a.hintLevel > 0) 'hint ${a.hintLevel}',
       if (a.source == Source.early) 'early',
       if (a.source == Source.sayIt) 'say it',
@@ -476,6 +484,7 @@ class PracticeSessionWidget extends StatefulWidget {
     this.scheduler = const FsrsScheduler(),
     this.onClose,
     this.openLesson,
+    this.pronunciation,
   });
 
   final List<ItemDef> items;
@@ -493,6 +502,11 @@ class PracticeSessionWidget extends StatefulWidget {
   /// Opens a card's lesson for "Review the lesson"; null uses `lessonOpenerFor`.
   final LessonOpener? openLesson;
 
+  /// Scores the spoken answers of [standardProbeBuilder] (PIN-2). The caller owns an injected
+  /// one. Null builds `PronunciationService.counting()` when practice loads its own builder,
+  /// and practice disposes it.
+  final PronunciationService? pronunciation;
+
   @override
   State<PracticeSessionWidget> createState() => _PracticeSessionWidgetState();
 }
@@ -501,6 +515,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   late final AttemptRecorder _recorder;
   late final List<ItemDef> _items;
   SessionProbeBuilder? _builder;
+
+  /// The service this practice built for itself, disposed with it; null when injected.
+  PronunciationService? _ownPronunciation;
   _PracticePhase _phase = _PracticePhase.loading;
   int _index = 0;
   int _presentation = 0;
@@ -510,7 +527,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
   int? _reviewedPresentation;
 
-  // The verdict on screen.
+  // The verdict on screen. A spoken close is `_written.spokenClose` (PIN-10).
   Attempt? _written;
   bool _lost = false;
   bool _justMastered = false;
@@ -538,10 +555,24 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   }
 
   Future<void> _start() async {
-    _builder = widget.probeBuilder ??
-        standardProbeBuilder(grammar: await JpGrammarData.load());
+    final grammar =
+        widget.probeBuilder == null ? await JpGrammarData.load() : null;
     if (!mounted) return;
+    _builder = widget.probeBuilder ??
+        standardProbeBuilder(
+            grammar: grammar!,
+            pronunciation: widget.pronunciation ??
+                (_ownPronunciation = PronunciationService.counting()));
     await _show();
+  }
+
+  @override
+  void dispose() {
+    // Only a service this practice built is its to free; its dispose cancels a check still
+    // running and releases the recorder.
+    final own = _ownPronunciation;
+    if (own != null) unawaited(own.dispose());
+    super.dispose();
   }
 
   Future<void> _show() async {
@@ -786,7 +817,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
                   'Next review in ${_interval == 1 ? '1 day' : '$_interval days'}.'),
           ],
         Grade.hinted => [
-            _title(t, 'Right with a hint'),
+            _title(t, w.spokenClose ? 'Close' : 'Right with a hint'),
             _line(t, 'No credit this time.'),
           ],
         Grade.self => [

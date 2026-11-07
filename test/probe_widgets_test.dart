@@ -1,7 +1,7 @@
 // Widget tests for the probe widgets (plan 2026-11-02, Task 19).
 //
-// Each probe kind is driven to each grade it can report, with fake speech and pronunciation
-// services, and the test reads the `DrillAnswer` draft the widget hands on: the grade, the
+// Each probe kind is driven to each grade it can report, with a fake pronunciation service,
+// and the test reads the `DrillAnswer` draft the widget hands on: the grade, the
 // template, the hint level, the revealed flag, the Say-it flag and whether the answer was
 // already on screen. Every widget shows the item's state pill as "n of 4 clears".
 //
@@ -14,11 +14,15 @@
 // Review the lesson (plan 2026-11-06, Task 2, PIN-5): a clear after a review is hinted and
 // every other field of the draft is kept, at its default and at its set value; the link
 // names the lesson of each kind and never prints a card's answer, over the whole catalog.
+//
+// Spoken answers through Azure (plan 2026-11-06, Task 5, PIN-2, PIN-10, D10): a word's spoken
+// answer is scored by a fake PronunciationService (test/support/fake_pronunciation.dart)
+// against its hiragana; correct is clear, close is hinted and marked `spokenClose` (unless a
+// hint was taken), wrong is wrong, and unverified writes an unscored draft at once with no Got
+// it or Missed it. A lesson review drops the close mark. The mark reaches the attempt log.
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,127 +34,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart';
-import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.dart';
 
-// --- fakes -------------------------------------------------------------------
-
-class _NoStt implements SttEngine {
-  @override
-  Future<bool> initialize(
-          {required void Function(String code) onError}) async =>
-      true;
-  @override
-  Future<void> listen({
-    required Duration listenFor,
-    required void Function(List<String> alternates) onFinal,
-    required void Function(double raw) onLevel,
-  }) async {}
-  @override
-  Future<void> stop() async {}
-  @override
-  Future<void> cancel() async {}
-  @override
-  bool get isListening => false;
-}
-
-class _NoTts implements TtsEngine {
-  @override
-  set onDone(void Function()? f) {}
-  @override
-  Future<void> configure() async {}
-  @override
-  Future<List<Map<String, String>>> voices() async => const [];
-  @override
-  Future<List<String>> languages() async => const [];
-  @override
-  Future<void> use(Map<String, String> voice) async {}
-  @override
-  Future<void> speak(String text) async {}
-  @override
-  Future<void> stop() async {}
-}
-
-/// A speech service whose every listen waits until the test answers it.
-class FakeSpeech extends SpeechService {
-  FakeSpeech() : super.withEngines(stt: _NoStt(), tts: _NoTts());
-
-  final List<Completer<SpeechResult>> listens = [];
-  final List<String> expected = [];
-  int cancels = 0;
-
-  /// When set, a cancel counts but leaves the listen open, so the test can end it itself.
-  bool holdOnCancel = false;
-
-  @override
-  Future<SpeechResult> listenOnce({
-    required String expectedKana,
-    List<String> kanjiForms = const [],
-    Duration limit = const Duration(seconds: 6),
-  }) {
-    expected.add(expectedKana);
-    final c = Completer<SpeechResult>();
-    listens.add(c);
-    return c.future;
-  }
-
-  @override
-  Future<void> cancel() async {
-    cancels++;
-    if (holdOnCancel) return;
-    for (final c in listens) {
-      if (!c.isCompleted) {
-        c.complete(const SpeechResult('', Judgement.unverified));
-      }
-    }
-  }
-
-  void answer(String heard, Judgement j) =>
-      listens.last.complete(SpeechResult(heard, j));
-
-  /// Ends the listen the way a recogniser that throws does.
-  void fail(Object error) => listens.last.completeError(error);
-}
-
-class _NoRecorder implements PronRecorder {
-  @override
-  Future<Stream<Uint8List>?> start(int sampleRate) async => null;
-  @override
-  Future<void> stop() async {}
-  @override
-  Future<void> dispose() async {}
-}
-
-/// A pronunciation service whose every check waits until the test answers it.
-class FakePronunciation extends PronunciationService {
-  FakePronunciation()
-      : super(
-            recorder: _NoRecorder(),
-            signIn: () async {},
-            score: (_) async => null);
-
-  final List<Completer<PronunciationResult>> checks = [];
-  final List<String> referenceTexts = [];
-  int cancels = 0;
-
-  @override
-  Future<PronunciationResult> check(String hiragana) {
-    referenceTexts.add(hiragana);
-    final c = Completer<PronunciationResult>();
-    checks.add(c);
-    return c.future;
-  }
-
-  @override
-  Future<void> cancel() async {
-    cancels++;
-    for (final c in checks) {
-      if (!c.isCompleted) c.complete(const PronunciationResult.unverified());
-    }
-  }
-
-  void answer(Judgement j) => checks.last.complete(PronunciationResult(
-      verdict: j, overall: j == Judgement.unverified ? null : 70));
-}
+import 'support/fake_pronunciation.dart';
 
 // --- items -------------------------------------------------------------------
 
@@ -360,7 +245,6 @@ void main() {
 
     testWidgets('every probe widget shows the pill', (tester) async {
       final state = _learning('any', 3);
-      final speech = FakeSpeech();
       final pron = FakePronunciation();
       final widgets = <Widget>[
         ChooseProbe(
@@ -379,7 +263,7 @@ void main() {
             item: _word,
             probe: _probe(_word, 'spoken'),
             state: state,
-            speech: speech,
+            pronunciation: pron,
             onAnswer: (_) {}),
         ConjugationProbe(
             item: _conj,
@@ -439,7 +323,7 @@ void main() {
             item: _word,
             probe: _probe(_word, 'spoken'),
             state: const MasteryState.initial('L30_02'),
-            speech: FakeSpeech(),
+            pronunciation: FakePronunciation(),
             onAnswer: (_) {}),
       ]) {
         await _pump(tester, w);
@@ -705,11 +589,11 @@ void main() {
   });
 
   group('word recall', () {
-    late FakeSpeech speech;
+    late FakePronunciation pron;
     late Answers answers;
 
     Future<void> open(WidgetTester tester, {String probe = 'spoken'}) async {
-      speech = FakeSpeech();
+      pron = FakePronunciation();
       answers = Answers();
       await _pump(
           tester,
@@ -717,15 +601,17 @@ void main() {
               item: _word,
               probe: _probe(_word, probe),
               state: _learning('L30_02', 1),
-              speech: speech,
+              pronunciation: pron,
               hintSteps: const ['Meaning: bag', 'Starts with 「か」', 'かばん'],
               onAnswer: answers.call));
     }
 
-    Future<void> say(WidgetTester tester, String heard, Judgement j) async {
+    /// Says the word: the check is scored by sound against the word's hiragana (PIN-2).
+    Future<void> say(WidgetTester tester, Judgement j) async {
       await _tap(tester, 'Say it');
-      expect(speech.expected.last, 'かばん');
-      speech.answer(heard, j);
+      expect(pron.referenceTexts.last, 'かばん',
+          reason: 'Azure scores the spoken answer against the hiragana');
+      pron.answer(j);
       await tester.pump();
       await tester.pump();
     }
@@ -746,41 +632,71 @@ void main() {
               item: _word,
               probe: _probe(_word, 'spoken'),
               state: _learning('L30_02', 1),
-              speech: speech,
+              pronunciation: pron,
               imageAsset: wordImageAsset('L30_02'),
               onAnswer: answers.call));
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('said right with no hint is clear', (tester) async {
+    testWidgets('a correct Azure score with no hint is clear', (tester) async {
       await open(tester);
-      await say(tester, 'かばん', Judgement.correct);
+      await say(tester, Judgement.correct);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
           template: 'spoken',
           grade: Grade.clear,
           selfGraded: false);
+      expect(answers.single.spokenClose, isFalse);
+      expect(pron.checks, hasLength(1), reason: 'one check per answer');
     });
 
-    testWidgets('a speech close is hinted', (tester) async {
+    testWidgets(
+        'a close Azure score is hinted and marked close, so it never counts toward '
+        'the two-hinted reset (PIN-10)', (tester) async {
       await open(tester);
-      await say(tester, 'かば', Judgement.close);
+      await say(tester, Judgement.close);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
           template: 'spoken',
-          grade: Grade.hinted);
+          grade: Grade.hinted,
+          selfGraded: false);
+      expect(answers.single.spokenClose, isTrue);
+      expect(find.text(kSpokenCloseVerdict), findsOneWidget);
+      expect(find.text('かばん'), findsOneWidget, reason: 'the answer shows');
     });
 
-    testWidgets('said wrong is wrong', (tester) async {
+    testWidgets('a close after a hint is an ordinary hinted answer, unmarked',
+        (tester) async {
       await open(tester);
-      await say(tester, 'かさ', Judgement.wrong);
+      await _tap(tester, 'Give me a hint');
+      await say(tester, Judgement.close);
+      _expectDraft(answers.single,
+          itemId: 'L30_02',
+          probeId: 'spoken',
+          template: 'spoken',
+          grade: Grade.hinted,
+          hintLevel: 1);
+      expect(answers.single.spokenClose, isFalse,
+          reason: 'the hint made it hinted, so it counts toward the reset');
+    });
+
+    testWidgets('a wrong Azure score is wrong, and the answer shows',
+        (tester) async {
+      await open(tester);
+      await say(tester, Judgement.wrong);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
           template: 'spoken',
           grade: Grade.wrong);
+      expect(answers.single.spokenClose, isFalse);
+      expect(answers.single.answerShown, isFalse,
+          reason: 'the session holds the card with the answer under one Next');
+      expect(find.text('かばん'), findsOneWidget, reason: 'the answer shows');
+      expect(find.textContaining('Heard:'), findsNothing,
+          reason: 'Azure scores by sound; there is no transcript to show');
     });
 
     testWidgets('right after one hint is hinted, with the level carried',
@@ -788,7 +704,7 @@ void main() {
       await open(tester);
       await _tap(tester, 'Give me a hint');
       expect(find.text('Meaning: bag'), findsOneWidget);
-      await say(tester, 'かばん', Judgement.correct);
+      await say(tester, Judgement.correct);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
@@ -804,7 +720,7 @@ void main() {
       await _tap(tester, 'More');
       await _tap(tester, 'More');
       expect(find.text('More'), findsNothing, reason: 'the ladder has ended');
-      await say(tester, 'かばん', Judgement.correct);
+      await say(tester, Judgement.correct);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
@@ -814,70 +730,75 @@ void main() {
           revealed: true);
     });
 
-    testWidgets('an unverified listen is never wrong: Got it is self',
-        (tester) async {
+    testWidgets(
+        'an unverified check (no connection) writes an unscored draft at once, '
+        'with no Got it or Missed it (PIN-2, D10)', (tester) async {
       await open(tester);
-      await say(tester, '鞄', Judgement.unverified);
-      expect(answers.list, isEmpty, reason: 'waits for the self-mark');
-      expect(find.textContaining('鞄'), findsOneWidget,
-          reason: 'what was heard shows');
-      await _tap(tester, 'Got it');
+      await say(tester, Judgement.unverified);
       _expectDraft(answers.single,
           itemId: 'L30_02',
           probeId: 'spoken',
           template: 'spoken',
-          grade: Grade.self);
+          grade: Grade.unscored,
+          selfGraded: false);
+      expect(answers.single.spokenClose, isFalse);
+      expect(find.text('Got it'), findsNothing,
+          reason: 'no self-mark can clear the spoken mode');
+      expect(find.text('Missed it'), findsNothing);
+      expect(find.text(kSpokenUnscoredLine), findsOneWidget);
+      expect(find.text('Say it'), findsNothing, reason: 'the card is answered');
     });
 
-    testWidgets('an unverified listen marked Missed it is wrong',
+    testWidgets('an unverified check after the revealing hint is still unscored',
         (tester) async {
       await open(tester);
-      await say(tester, '鞄', Judgement.unverified);
-      await _tap(tester, 'Missed it');
-      _expectDraft(answers.single,
-          itemId: 'L30_02',
-          probeId: 'spoken',
-          template: 'spoken',
-          grade: Grade.wrong);
+      await _tap(tester, 'Give me a hint');
+      await _tap(tester, 'More');
+      await _tap(tester, 'More');
+      await say(tester, Judgement.unverified);
+      expect(answers.single.grade, Grade.unscored,
+          reason: 'unverified is never wrong (D10)');
+      expect(answers.single.hintLevel, 3);
     });
 
-    testWidgets('the controls are disabled while listening', (tester) async {
+    testWidgets('the controls are disabled while the check runs',
+        (tester) async {
       await open(tester);
       await _tap(tester, 'Say it');
       expect(find.text('Say it'), findsNothing);
       await tester.tap(find.text('Listening'), warnIfMissed: false);
       await tester.pump();
-      expect(speech.listens, hasLength(1), reason: 'one listen at a time');
+      expect(pron.checks, hasLength(1), reason: 'one check at a time');
       await tester.tap(find.text('Skip'), warnIfMissed: false);
       await tester.pump();
-      expect(answers.list, isEmpty, reason: 'no answer while listening');
-      speech.answer('かばん', Judgement.correct);
+      expect(answers.list, isEmpty, reason: 'no answer while checking');
+      pron.answer(Judgement.correct);
       await tester.pump();
       expect(answers.list, hasLength(1));
     });
 
-    testWidgets('leaving the probe mid-listen cancels it and drops the result',
+    testWidgets('leaving the probe mid-check cancels it and drops the result',
         (tester) async {
       await open(tester);
       await _tap(tester, 'Say it');
       await tester.pumpWidget(const MaterialApp(home: SizedBox()));
-      expect(speech.cancels, 1);
+      expect(pron.cancels, 1);
       await tester.pump();
       expect(answers.list, isEmpty);
     });
 
     testWidgets(
-        'a listen that throws frees the controls, reports the error and writes no draft',
+        'a check that throws frees the controls, reports the error and writes no draft',
         (tester) async {
       await open(tester);
       await _tap(tester, 'Say it');
       expect(find.text('Listening'), findsOneWidget);
-      speech.fail(StateError('recogniser gone'));
+      pron.fail(StateError('recorder gone'));
       await tester.pump();
       await tester.pump();
       expect(tester.takeException(), isA<StateError>(),
           reason: 'the failure reaches the app handler');
-      expect(answers.list, isEmpty, reason: 'a failed listen is no attempt');
+      expect(answers.list, isEmpty, reason: 'a failed check is no attempt');
       expect(find.text('Listening'), findsNothing);
       expect(find.text('Say it'), findsOneWidget);
       // The controls work again: the hint ladder, then a Skip that reports.
@@ -894,17 +815,16 @@ void main() {
           hintLevel: 1);
     });
 
-    testWidgets(
-        'a listen that throws after the probe has gone touches no state',
+    testWidgets('a check that throws after the probe has gone touches no state',
         (tester) async {
       await open(tester);
-      speech.holdOnCancel = true;
+      pron.holdOnCancel = true;
       await _tap(tester, 'Say it');
       await tester.pumpWidget(const MaterialApp(home: SizedBox()));
-      expect(speech.cancels, 1);
-      speech.fail(StateError('recogniser gone'));
+      expect(pron.cancels, 1);
+      pron.fail(StateError('recorder gone'));
       await tester.pump();
-      // One exception, the listen's own: a setState after dispose would be a second.
+      // One exception, the check's own: a setState after dispose would be a second.
       expect(tester.takeException(), isA<StateError>());
       expect(answers.list, isEmpty);
     });
@@ -923,6 +843,7 @@ void main() {
           probeId: 'typed',
           template: 'typed',
           grade: Grade.clear);
+      expect(pron.checks, isEmpty, reason: 'a typed answer never calls Azure');
     });
 
     testWidgets('the empty-Check message clears on an unverified typed answer',
@@ -988,6 +909,9 @@ void main() {
           probeId: 'spoken',
           template: 'spoken',
           grade: Grade.unscored);
+      expect(find.text(kSpokenUnscoredLine), findsNothing,
+          reason: 'a skip was never sent to Azure');
+      expect(pron.checks, isEmpty);
     });
 
     testWidgets('Skip after the revealing hint is wrong', (tester) async {
@@ -1435,6 +1359,35 @@ void main() {
     expect(a.rating, kRatingGood);
     expect(a.selfGraded, isTrue);
     expect(a.revealed, isTrue);
+    expect(a.spokenClose, isFalse);
+  });
+
+  testWidgets(
+      'a spoken close writes through the recorder with its close mark (PIN-10)',
+      (tester) async {
+    final store = JpStoreMemory();
+    final recorder = AttemptRecorder.on(store,
+        lookup: (id) => id == _word.id ? _word : null);
+    final pron = FakePronunciation();
+    await _pump(
+        tester,
+        WordRecallProbe(
+            item: _word,
+            probe: _probe(_word, 'spoken'),
+            state: const MasteryState.initial('L30_02'),
+            pronunciation: pron,
+            onAnswer: (d) => recorder.record(d)));
+    await _tap(tester, 'Say it');
+    pron.answer(Judgement.close);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump();
+    }
+    await recorder.idle;
+    final a = (await store.attempts()).single;
+    expect(a.template, 'spoken');
+    expect(a.grade, Grade.hinted);
+    expect(a.spokenClose, isTrue);
+    expect(a.selfGraded, isFalse);
   });
 
   group('lesson review (plan 2026-11-06, Task 2, PIN-5)', () {
@@ -1511,6 +1464,30 @@ void main() {
       final d = afterLessonReview(hinted);
       expect(d.grade, Grade.hinted);
       expect(d.hintLevel, 1);
+    });
+
+    test(
+        'a spoken close after a review loses its close mark: the review is a hint '
+        '(PIN-5, PIN-10)', () {
+      final close = DrillAnswer(
+          itemId: _word.id,
+          probeId: 'spoken',
+          template: 'spoken',
+          production: true,
+          selfGraded: false,
+          grade: Grade.hinted,
+          spokenClose: true);
+      final d = afterLessonReview(close);
+      expect(d.grade, Grade.hinted);
+      expect(d.hintLevel, 1);
+      expect(d.spokenClose, isFalse,
+          reason: 'a close with the lesson open counts like any hinted answer');
+      expect(d.probeId, 'spoken');
+      expect(d.selfGraded, isFalse);
+      // A clear keeps no close mark either way.
+      expect(
+          afterLessonReview(drawn(_word, 'spoken', Grade.clear)).spokenClose,
+          isFalse);
     });
 
     test('wrong, self and unscored are untouched', () {

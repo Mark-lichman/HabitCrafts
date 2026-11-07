@@ -10,7 +10,7 @@
 // |------------------------|--------------------------------------------------------|
 // | clear, the 4th that counts, or a Shaky item's regain | Mastered                 |
 // | clear                  | Clear, with the new interval                           |
-// | hinted                 | Right with a hint, no credit (PIN-3)                   |
+// | hinted                 | Right with a hint, no credit (PIN-3); a spoken close shows Close, no credit (PIN-10) |
 // | self                   | Marked as got it, no credit (PIN-3)                    |
 // | wrong                  | no card (operator ruling 2026-11-05), see below        |
 // | unscored               | Not counted; the entry moves to the end of its section |
@@ -25,8 +25,9 @@
 // [ReviewLessonLink] naming the lesson ([reviewLessonDetail]), never the card's answer. It
 // pushes the item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
 // unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
-// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more; wrong,
-// self and unscored are untouched.
+// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more, and a
+// spoken close loses its close mark the same way (it is written as a plain hinted answer);
+// wrong, other hinted, self and unscored are untouched.
 // An answered or held card has no link, so a review after the answer changes nothing.
 // Opening a lesson writes no attempt. With no router and no injected opener the card shows
 // no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
@@ -34,6 +35,13 @@
 // Discuss with Mari (plan 2026-11-06, Task 4, PIN-6): every card, asked or held, carries a
 // quiet [DiscussToggle] (discuss_list_widget.dart) that sets or clears the item's Discuss
 // mark. A mark is no answer: it writes no attempt and leaves the card's grade as it was.
+//
+// Spoken answers (plan 2026-11-06, Task 5, PIN-2): the session hands one [PronunciationService]
+// to [standardProbeBuilder], so a word's spoken answer is scored by Azure against its
+// hiragana, never by the on-device recognizer. With none injected the session builds
+// `PronunciationService.counting()` (sign-in through `ensureCaller`) and disposes it. A spoken
+// close is written hinted with `Attempt.spokenClose`, neutral for the two-hinted reset
+// (PIN-10); an unverified check is written unscored, with no self-mark (D10).
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
@@ -80,7 +88,7 @@ import 'package:go_router/go_router.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
-import '../quiet_room_practice/speech_service.dart';
+import '../quiet_room_practice/pronunciation_service.dart';
 import '../quiet_room_today/streak.dart';
 import 'attempt.dart';
 import 'discuss_list_widget.dart' show DiscussToggle;
@@ -172,9 +180,12 @@ LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
 
 /// The probe widgets the app uses: one per item kind, rotating through the item's scored
 /// probes. [grammar] is the decoded `jp_grammar.json`, for a grammar item's options, accepted
-/// forms, hint and English, and a particle's meaning and English.
-SessionProbeBuilder standardProbeBuilder(
-    {required Map<String, dynamic> grammar, SpeechService? speech}) {
+/// forms, hint and English, and a particle's meaning and English. [pronunciation] scores every
+/// counting spoken answer by sound (Azure, PIN-2); the host owns it and disposes it.
+SessionProbeBuilder standardProbeBuilder({
+  required Map<String, dynamic> grammar,
+  required PronunciationService pronunciation,
+}) {
   final practice = <String, List<Map<String, dynamic>>>{};
   for (final lesson in (grammar['grammar'] as List? ?? const [])) {
     for (final point in ((lesson as Map)['points'] as List? ?? const [])) {
@@ -232,7 +243,7 @@ SessionProbeBuilder standardProbeBuilder(
             item: item,
             probe: probe,
             state: r.state,
-            speech: speech ?? SpeechService.instance,
+            pronunciation: pronunciation,
             imageAsset: wordImageAsset(item.id),
             onAnswer: r.onAnswer);
       case ItemKind.conjugation:
@@ -268,6 +279,7 @@ class SessionWidget extends StatefulWidget {
     this.sessionId,
     this.onClose,
     this.openLesson,
+    this.pronunciation,
   });
 
   final DayPlan plan;
@@ -294,6 +306,11 @@ class SessionWidget extends StatefulWidget {
   /// Opens a card's lesson for "Review the lesson"; null uses [lessonOpenerFor].
   final LessonOpener? openLesson;
 
+  /// Scores the spoken answers of [standardProbeBuilder] (PIN-2). The caller owns an injected
+  /// one. Null builds `PronunciationService.counting()` when the session loads its own
+  /// builder, and the session disposes it.
+  final PronunciationService? pronunciation;
+
   @override
   State<SessionWidget> createState() => _SessionWidgetState();
 }
@@ -303,6 +320,9 @@ class _SessionWidgetState extends State<SessionWidget> {
   late int _index;
   late final String _sessionId;
   SessionProbeBuilder? _builder;
+
+  /// The service this session built for itself, disposed with it; null when injected.
+  PronunciationService? _ownPronunciation;
 
   _Phase _phase = _Phase.loading;
 
@@ -329,6 +349,9 @@ class _SessionWidgetState extends State<SessionWidget> {
 
   // The verdict on screen.
   Grade? _grade;
+
+  /// The answer on screen was a spoken close (PIN-10).
+  bool _spokenClose = false;
   bool _lost = false;
   bool _justMastered = false;
 
@@ -349,6 +372,15 @@ class _SessionWidgetState extends State<SessionWidget> {
   final List<String> _masteredToday = [];
   List<bool> _dots = const [];
 
+  @override
+  void dispose() {
+    // Only a service this session built is its to free; its dispose cancels a check still
+    // running and releases the recorder.
+    final own = _ownPronunciation;
+    if (own != null) unawaited(own.dispose());
+    super.dispose();
+  }
+
   QueueEntry get _entry => _plan.entries[_index];
   int get _ceiling => _plan.ceilingSeconds + _lift;
 
@@ -365,8 +397,14 @@ class _SessionWidgetState extends State<SessionWidget> {
   }
 
   Future<void> _start() async {
+    final grammar =
+        widget.probeBuilder == null ? await JpGrammarData.load() : null;
+    if (!mounted) return;
     _builder = widget.probeBuilder ??
-        standardProbeBuilder(grammar: await JpGrammarData.load());
+        standardProbeBuilder(
+            grammar: grammar!,
+            pronunciation: widget.pronunciation ??
+                (_ownPronunciation = PronunciationService.counting()));
     await _loadDayTally();
     if (!mounted) return;
     await _next();
@@ -536,6 +574,7 @@ class _SessionWidgetState extends State<SessionWidget> {
           source: d.sayIt ? Source.sayIt : entry.source,
           durationMs: now.difference(shown).inMilliseconds.clamp(0, 1 << 31),
           sessionId: _sessionId,
+          spokenClose: d.spokenClose,
         ),
         item: item,
         scheduler: widget.scheduler,
@@ -579,6 +618,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     final hold = wrong && !d.answerShown;
     setState(() {
       _grade = grade;
+      _spokenClose = d.spokenClose;
       _lost = outcome == null;
       _justMastered = justMastered;
       _regained = justMastered && before.status == MasteryStatus.shaky;
@@ -860,7 +900,7 @@ class _SessionWidgetState extends State<SessionWidget> {
               _line(t, 'Next review in ${_days(_interval!)}.'),
           ],
         Grade.hinted => [
-            _title(t, 'Right with a hint'),
+            _title(t, _spokenClose ? 'Close' : 'Right with a hint'),
             _line(t, 'No credit this time.'),
           ],
         Grade.self => [

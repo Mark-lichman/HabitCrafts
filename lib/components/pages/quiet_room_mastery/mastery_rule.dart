@@ -6,7 +6,8 @@
 //   2. the fourth (the clear that completes the rule) at least 21 days after the previous scored
 //      review of the item;
 //   3. no wrong since the first of them; a hinted answer earns no credit and two hinted in a row
-//      reset the count (PIN-3);
+//      reset the count (PIN-3); a spoken close (`Attempt.spokenClose`) is neutral for that row
+//      (PIN-10);
 //   4. where the item has two or more templates: two different templates among the clears and,
 //      where it has a production probe, one production clear; a one-template item needs only
 //      the spaced clears (PIN-15);
@@ -304,6 +305,9 @@ MasteryState masteryAfter(
       return base;
 
     case Grade.hinted:
+      // A spoken close (Azure scored it close, no hint taken) earns no credit and is neutral
+      // for the hinted row, like a self answer (PIN-10, D14).
+      if (attempt.spokenClose) return base;
       // No credit (PIN-3). Two in a row: the hint is carrying the item.
       final streak = state.hintStreak + 1;
       if (streak < kHintedInARowReset) return base.copyWith(hintStreak: streak);
