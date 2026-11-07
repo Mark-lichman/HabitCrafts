@@ -27,6 +27,14 @@
 // an earlier open of the same card keeps that mark; every item kind's link, and both a taught
 // and an untaught particle's, pushes its own target and query through the router and Back
 // returns to its card.
+//
+// Spoken answers through Azure (plan 2026-11-06, Task 5, End state 4, PIN-2, PIN-10, D10):
+// with the real probes and a fake PronunciationService, a word's spoken card is scored against
+// its hiragana; a correct score writes a spoken clear, a close writes hinted with
+// `spokenClose` and leaves the hinted row as it was, an unverified score writes unscored with
+// no self-mark and moves the entry back, a wrong holds the card under one Next, a close after
+// Review the lesson loses its mark, Practice now scores through the same service, and an
+// injected service is left to its owner.
 
 import 'dart:convert';
 import 'dart:io';
@@ -36,6 +44,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widget.dart'
+    show PracticeSessionWidget;
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
@@ -47,6 +57,10 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart'
+    show Judgement;
+
+import 'support/fake_pronunciation.dart';
 
 Map<String, dynamic> _read(String path) =>
     json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -444,7 +458,8 @@ void main() {
             store: s,
             clock: FixedClock(at(today)),
             catalog: catalog,
-            probeBuilder: standardProbeBuilder(grammar: grammar),
+            probeBuilder: standardProbeBuilder(
+                grammar: grammar, pronunciation: FakePronunciation()),
           ),
         ),
       ));
@@ -524,6 +539,199 @@ void main() {
       expect(h.shows('Your answer: を'), isTrue);
       expect(h.shows('$before$filled$after'), isTrue);
       expect(h.shows('Next'), isTrue);
+    });
+  });
+
+  group('spoken answers through Azure (plan 2026-11-06, Task 5, PIN-2)', () {
+    final grammar = _read('assets/lessons/jp_grammar.json');
+    final word = words[0];
+    final spoken = word.probes.firstWhere((p) => p.template == 'spoken');
+
+    /// One earlier unscored answer, so the word's probe rotation lands on `spoken`.
+    Future<JpStoreMemory> storeOnSpoken() async {
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.unscored));
+      expect(
+          word.scoredProbes.toList()[1 % word.scoredProbes.length].template,
+          'spoken',
+          reason: 'the second showing of a word is its spoken card');
+      return s;
+    }
+
+    Future<(Harness, FakePronunciation)> pumpSpoken(WidgetTester tester,
+        {LessonOpener? openLesson}) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = await storeOnSpoken();
+      final pron = FakePronunciation();
+      final plan = planOf([
+        entryOf(word, PlanSection.due),
+        entryOf(words[1], PlanSection.due),
+      ]);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: plan,
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            probeBuilder:
+                standardProbeBuilder(grammar: grammar, pronunciation: pron),
+            openLesson: openLesson,
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      return (h, pron);
+    }
+
+    /// Says the word and lets Azure's verdict [j] land.
+    Future<void> say(Harness h, FakePronunciation pron, Judgement j) async {
+      await h.tap('Say it');
+      expect(pron.referenceTexts.single, spoken.answer,
+          reason: "scored against the word's hiragana");
+      pron.answer(j);
+      await h.settle();
+    }
+
+    Future<Attempt> written(Harness h) async =>
+        (await h.store.attempts(itemId: word.id)).last;
+
+    testWidgets('a correct score writes a spoken clear', (tester) async {
+      final (h, pron) = await pumpSpoken(tester);
+      await say(h, pron, Judgement.correct);
+      final a = await written(h);
+      expect(a.template, 'spoken');
+      expect(a.probeId, 'spoken');
+      expect(a.grade, Grade.clear);
+      expect(a.selfGraded, isFalse);
+      expect(a.spokenClose, isFalse);
+      expect(a.source, Source.review);
+      expect(h.shows('Clear'), isTrue);
+    });
+
+    testWidgets(
+        'a close score writes hinted with the close mark, and leaves the hinted row '
+        'as it was (PIN-10)', (tester) async {
+      final (h, pron) = await pumpSpoken(tester);
+      final before = await h.store.mastery(word.id);
+      await say(h, pron, Judgement.close);
+      final a = await written(h);
+      expect(a.grade, Grade.hinted);
+      expect(a.spokenClose, isTrue);
+      expect(a.rating, kRatingHard);
+      expect(h.shows('Close'), isTrue);
+      expect(h.shows('No credit this time.'), isTrue);
+      final after = (await h.store.mastery(word.id))!;
+      expect(after.hintStreak, before?.hintStreak ?? 0,
+          reason: 'a spoken close never counts toward the two-hinted reset');
+      expect(after.clearCount, 0, reason: 'and earns no credit');
+    });
+
+    testWidgets(
+        'an unverified score (no connection) writes unscored, with no self-mark, and '
+        'the entry comes back later (D10)', (tester) async {
+      final (h, pron) = await pumpSpoken(tester);
+      await say(h, pron, Judgement.unverified);
+      expect(h.shows('Got it'), isFalse);
+      expect(h.shows('Missed it'), isFalse);
+      final a = await written(h);
+      expect(a.grade, Grade.unscored);
+      expect(a.rating, isNull);
+      expect(a.spokenClose, isFalse);
+      expect(h.shows('Not counted'), isTrue);
+      final stored = DayPlan.decode((await h.store.day(today))!.plan);
+      expect(stored.section(PlanSection.due).last.itemId, word.id,
+          reason: 'unscored moves the entry to the end of its section');
+    });
+
+    testWidgets('a wrong score holds the card with the answer under one Next',
+        (tester) async {
+      final (h, pron) = await pumpSpoken(tester);
+      await say(h, pron, Judgement.wrong);
+      final a = await written(h);
+      expect(a.grade, Grade.wrong);
+      expect(h.shows(spoken.answer), isTrue);
+      expect(h.shows('Next'), isTrue);
+    });
+
+    testWidgets(
+        'a close after Review the lesson is an ordinary hinted answer, without the '
+        'close mark (PIN-5, PIN-10)', (tester) async {
+      final (h, pron) =
+          await pumpSpoken(tester, openLesson: (context, item) async {});
+      await h.tap(kReviewTheLesson);
+      expect(h.shows(kLessonReviewed), isTrue);
+      await say(h, pron, Judgement.close);
+      final a = await written(h);
+      expect(a.grade, Grade.hinted);
+      expect(a.hintLevel, 1);
+      expect(a.spokenClose, isFalse);
+    });
+
+    testWidgets('Practice now scores a spoken answer through the same service',
+        (tester) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = await storeOnSpoken();
+      final pron = FakePronunciation();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PracticeSessionWidget(
+            items: [word],
+            store: s,
+            catalog: catalog,
+            clock: FixedClock(at(today)),
+            probeBuilder:
+                standardProbeBuilder(grammar: grammar, pronunciation: pron),
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      await say(h, pron, Judgement.close);
+      final a = await written(h);
+      expect(a.template, 'spoken');
+      expect(a.grade, Grade.hinted);
+      expect(a.spokenClose, isTrue);
+      expect(h.shows('Close'), isTrue);
+    });
+
+    testWidgets(
+        'an injected service reaches the probe, and the session leaves it to its owner',
+        (tester) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = await storeOnSpoken();
+      final pron = FakePronunciation();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: planOf([entryOf(word, PlanSection.due)]),
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            pronunciation: pron,
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      // The session loads the shipped grammar for its own builder.
+      await tester.runAsync(() async {
+        for (var i = 0; i < 20 && !h.shows('Say it'); i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          await tester.pump();
+        }
+      });
+      await h.settle();
+      await say(h, pron, Judgement.correct);
+      expect((await written(h)).grade, Grade.clear);
+      await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      expect(pron.disposes, 0, reason: 'the caller owns an injected service');
     });
   });
 

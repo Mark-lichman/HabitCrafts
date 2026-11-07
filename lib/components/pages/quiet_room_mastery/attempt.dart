@@ -9,7 +9,8 @@
 // | clear    | right, no hint, nothing revealed (machine-checked), or Got it  | Good        |
 // |          | after the reveal on a self-graded probe                        |             |
 // | hinted   | right after a hint below the revealing level, a second try, a | Hard        |
-// |          | speech `close`                                                 |             |
+// |          | speech `close` (marked [Attempt.spokenClose] when no hint was  |             |
+// |          | taken: neutral for the two-hinted reset, PIN-10)               |             |
 // | wrong    | wrong, Missed it, a hint at or above the revealing level, a   | Again       |
 // |          | reveal on a machine-checked probe                              |             |
 // | unscored | nothing heard, an error, a cancel                              | none        |
@@ -123,8 +124,11 @@ class Attempt {
     this.sAfter,
     this.durationMs = 0,
     required this.sessionId,
-  }) : assert(grade != Grade.clear || hintLevel == 0,
-            'a clear never carries a hint (PIN-3); grade it through gradeAnswer');
+    this.spokenClose = false,
+  })  : assert(grade != Grade.clear || hintLevel == 0,
+            'a clear never carries a hint (PIN-3); grade it through gradeAnswer'),
+        assert(!spokenClose || grade == Grade.hinted,
+            'only a hinted answer can be a spoken close (PIN-10)');
 
   /// The log's row id, assigned by the store; null before it is written.
   final int? id;
@@ -163,6 +167,12 @@ class Attempt {
   final int durationMs;
   final String sessionId;
 
+  /// A hinted answer whose only help was an Azure `close` score on a spoken card, with no
+  /// hint and no lesson review (PIN-10, D14). It earns no credit, like any hinted answer, and
+  /// is neutral for the two-hinted reset, like a self answer (mastery_rule.dart). Written to
+  /// the log only when true, so a record from before the mark exports byte for byte as it was.
+  final bool spokenClose;
+
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         'itemId': itemId,
@@ -185,6 +195,7 @@ class Attempt {
         'sAfter': sAfter,
         'durationMs': durationMs,
         'sessionId': sessionId,
+        if (spokenClose) 'spokenClose': true,
       };
 
   factory Attempt.fromJson(Map<String, dynamic> j) => Attempt(
@@ -209,6 +220,8 @@ class Attempt {
         sAfter: (j['sAfter'] as num?)?.toDouble(),
         durationMs: (j['durationMs'] as int?) ?? 0,
         sessionId: j['sessionId'] as String,
+        // Read only on a hinted row, so a hand-edited import cannot trip the assert.
+        spokenClose: j['spokenClose'] == true && j['grade'] == Grade.hinted.name,
       );
 
   List<Object?> get _fields => [
@@ -233,6 +246,7 @@ class Attempt {
         sAfter,
         durationMs,
         sessionId,
+        spokenClose,
       ];
 
   @override

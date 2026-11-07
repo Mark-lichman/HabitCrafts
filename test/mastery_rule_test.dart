@@ -54,6 +54,7 @@ Attempt att(
   Source source = Source.review,
   int hint = 0,
   bool revealed = false,
+  bool spokenClose = false,
 }) {
   _seq++;
   return Attempt(
@@ -72,6 +73,7 @@ Attempt att(
     source: source,
     durationMs: 8000,
     sessionId: 's$_seq',
+    spokenClose: spokenClose,
   );
 }
 
@@ -404,6 +406,40 @@ void main() {
       expect(afterSelf.status, MasteryStatus.mastered);
       expect(afterSelf.hintStreak, 1,
           reason: 'a hinted after a self starts at 1');
+    });
+
+    test(
+        'a spoken close earns no credit and is neutral for the hinted row '
+        '(PIN-10, plan 2026-11-06 Task 5)', () {
+      Attempt close(int day, {ItemDefLike item = word}) => att(day, Grade.hinted,
+          item: item, template: 'spoken', production: true, spokenClose: true);
+      final learning = replay([
+        att(0, Grade.clear, item: word),
+        close(2),
+        close(3),
+      ], word);
+      expect(learning.clearCount, 1, reason: 'no credit, and no reset');
+      expect(learning.hintStreak, 0);
+      expect(learning.lastScoredDay, 3, reason: 'the review is recorded');
+
+      // A one-template item, so four clears master it before the closes.
+      final mastered = replay([
+        ...fourClears(29),
+        close(40, item: particle),
+        close(42, item: particle),
+      ]);
+      expect(mastered.status, MasteryStatus.mastered,
+          reason: 'two closes in a row never make it Shaky');
+      expect(mastered.hintStreak, 0);
+
+      // An ordinary hinted answer still counts toward the reset around a close.
+      final mixed = replay([
+        att(0, Grade.clear, item: word),
+        att(2, Grade.hinted, item: word, hint: 1),
+        close(3),
+        att(4, Grade.hinted, item: word, hint: 1),
+      ], word);
+      expect(mixed.clearCount, 0, reason: 'two hinted around a close reset it');
     });
 
     test('a first self answer moves New to Learning at 0 of 4', () {
@@ -908,6 +944,21 @@ void main() {
       expect(uDecoded, u);
       expect(uDecoded.rating, isNull);
       expect(uDecoded.grade, Grade.unscored);
+      // The spoken close mark (PIN-10) round-trips, and an attempt without it writes no key,
+      // so a record from before the mark exports byte for byte as it was (End state 8).
+      final c = att(5, Grade.hinted, spokenClose: true);
+      final cDecoded = Attempt.fromJson(
+          jsonDecode(jsonEncode(c.toJson())) as Map<String, dynamic>);
+      expect(cDecoded, c);
+      expect(cDecoded.spokenClose, isTrue);
+      expect(c.toJson()['spokenClose'], isTrue);
+      expect(a.toJson().containsKey('spokenClose'), isFalse);
+      expect(Attempt.fromJson(a.toJson()).spokenClose, isFalse,
+          reason: 'an old row reads as no close');
+      expect(
+          Attempt.fromJson({...u.toJson(), 'spokenClose': true}).spokenClose,
+          isFalse,
+          reason: 'only a hinted row can carry the mark');
       final s = replay(
           [...fourClears(29), att(60, Grade.wrong), att(61, Grade.clear)]);
       expect(MasteryState.fromJson(s.toJson()), s);
