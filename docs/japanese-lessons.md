@@ -23,7 +23,7 @@ name: the Topics search finds ideas, and a `source_file` entry stands for no ite
 other entry lists the data files it came from (`from`). The cataloged files are the extraction
 bundles under `pipeline/jp/fixtures/`, each draft in `pipeline/jp/drafts/` (the `L<n>.json`
 lessons and `_points.json`), `uses.json`, `kanji_n5_n4.json`, `corrections.json`,
-`particle_clozes.json` and `jp_lessons.json`.
+`particle_clozes.json`, `particle_sentences.json` and `jp_lessons.json`.
 `jp_grammar.json` holds the catalog and has no entry of its own. `assets/lessons/img/`, the
 judge files under `pipeline/jp/review/` and the archived Tanos pages under `pipeline/jp/tanos/`
 have no entry.
@@ -47,6 +47,7 @@ fails if this doc restates one.
 | `pipeline/jp/kanji_n5_n4.json` | the only kanji a kanji version may use; the file records its source URLs, its archived snapshots and each level's count and its operator additions, each with its reason | the Tanos JLPT N5 and N4 kanji pages, archived byte for byte under `pipeline/jp/tanos/`, plus the operator additions it records | fetched once, then by hand: `test_kanji_list.py` checks the file against the archived pages and every twin against the file |
 | `pipeline/jp/corrections.json` | approved sources and reviewed corrections | Mark's review | by hand |
 | `pipeline/jp/particle_clozes.json` | a cloze for each particle whose example does not hold it verbatim | hand-written from Mari's particle examples | by hand; `publish.py` blanks the rest itself |
+| `pipeline/jp/particle_sentences.json` | more cloze sentences for each particle, with English, beside its lesson example; published in each particle's `sentences` with the file's `reviewed` flag | LM Drafting, checked by `publish.particle_sentences()` and a judge pass recorded in the file | an LM, then Mark's review |
 | `assets/lessons/img/` | illustrations for the speaking drill | embedded images in the Langoal sheets | the vocabulary extractor |
 
 Each extractor writes `out/<source>/lesson_bundle.json`, which git ignores, and the fixture

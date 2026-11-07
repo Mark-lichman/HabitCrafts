@@ -176,6 +176,14 @@ def source_files(uses: dict, corrections: dict, points_file: list, vocab: dict) 
         "particle_clozes.json", "pipeline/jp/particle_clozes.json", "particle_clozes.json",
         "a cloze for each particle whose example does not hold it verbatim",
         "hand-written from Mari's particle examples", {"clozes": len(clozes["clozes"])}))
+    sentences = json.loads((HERE / "particle_sentences.json").read_text(encoding="utf-8"))
+    out.append(_source_entry(
+        "particle_sentences.json", "pipeline/jp/particle_sentences.json",
+        "particle_sentences.json",
+        "more cloze sentences for each particle, with English, beside its lesson example",
+        "LM Drafting, checked by publish.particle_sentences() and a judge pass",
+        {"particles": len(sentences["sentences"]),
+         "sentences": sum(len(v) for v in sentences["sentences"].values())}))
     out.append(_source_entry(
         "jp_lessons.json", "assets/lessons/jp_lessons.json", "jp_lessons.json",
         "vocabulary, lesson by lesson", "Langoal word-list PDFs",

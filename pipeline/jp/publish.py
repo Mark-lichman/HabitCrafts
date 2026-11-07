@@ -21,6 +21,10 @@ For the mastery queue, each particle gets one cloze probe (its `expression` blan
 its example, or a hand-written one from particle_clozes.json where the example does not
 hold the expression verbatim), and each grammar point carries `prereqs`: the conjugation
 ideas (`conj.<form>`) its pattern uses, from the checklist's `requires_forms`.
+
+Each particle also carries `sentences`: that cloze first, then two AI-drafted sentences
+from particle_sentences.json, each with its English and a `reviewed` flag. The drafted
+ones carry that file's flag, false until Mark reviews them (PIN-4).
 """
 
 from __future__ import annotations
@@ -39,6 +43,9 @@ ASSET = HERE.parents[1] / "assets" / "lessons" / "jp_grammar.json"
 DRAFTS = HERE / "drafts"
 CLOZES = HERE / "particle_clozes.json"
 PARTICLE_EN = HERE / "particle_english.json"
+PARTICLE_SENTENCES = HERE / "particle_sentences.json"
+# The drafted sentences per particle, beside its lesson example (plan D4).
+EXTRA_SENTENCES = 2
 BLANK = "＿＿"
 # Every draft carries its twins, so a missing one fails the draft (PIN-9). The twins
 # passed a judge pass whose findings are in review/judge_ruby.json.
@@ -188,10 +195,63 @@ def particle_clozes(s04: dict) -> list[dict]:
     return out
 
 
+def particle_sentences(s04: dict, clozes: list[dict]) -> tuple[dict[str, list[dict]], bool]:
+    """The drafted sentences of each particle, from particle_sentences.json, and the file's
+    review flag (false when absent). Each particle needs exactly EXTRA_SENTENCES. A
+    sentence is stale when it names no particle, blanks another answer than its
+    particle's cloze, drops a spelling that cloze accepts, or repeats the lesson example.
+    It leaks when it has other than one blank or shows its answer or an accepted
+    spelling. A stale or leaking sentence, one not in kana, or one with no English fails
+    the publish."""
+    doc = json.loads(PARTICLE_SENTENCES.read_text(encoding="utf-8"))
+    drafted = doc["sentences"]
+    by_id = {pa["id"]: c for pa, c in zip(s04["particles"], clozes)}
+    unknown = set(drafted) - set(by_id)
+    if unknown:
+        raise SystemExit(f"particle_sentences.json: no such particle {sorted(unknown)}")
+    out: dict[str, list[dict]] = {}
+    for pid, cloze in by_id.items():
+        ss = drafted.get(pid, [])
+        if len(ss) != EXTRA_SENTENCES:
+            raise SystemExit(f"particle_sentences.json: {pid} needs {EXTRA_SENTENCES} "
+                             f"sentences, has {len(ss)}")
+        for i, s in enumerate(ss):
+            where = f"particle_sentences.json: {pid} sentence {i + 1}"
+            prompt, ans, acc = s.get("prompt", ""), s.get("answer", ""), s.get("accepted", [])
+            if ans != cloze["answer"]:
+                raise SystemExit(f"{where} is stale: it blanks {ans!r}, the particle's "
+                                 f"cloze blanks {cloze['answer']!r}")
+            if not set(cloze["accepted"]) <= set(acc):
+                raise SystemExit(f"{where} is stale: it does not accept "
+                                 f"{sorted(set(cloze['accepted']) - set(acc))}")
+            if prompt == cloze["prompt"]:
+                raise SystemExit(f"{where} repeats the lesson example")
+            if prompt.count(BLANK) != 1 or any(a in prompt for a in [ans, *acc]):
+                raise SystemExit(f"{where}: cloze needs one blank and must not show its "
+                                 "answer")
+            if not all(kana_ok(x) for x in [prompt, ans, *acc]):
+                raise SystemExit(f"{where}: not kana")
+            if not str(s.get("english", "")).strip():
+                raise SystemExit(f"{where}: no English")
+            # A kanji twin is optional here, as on every particle cloze; one that is
+            # present must keep to the N4 kanji list and spell the same reading.
+            errs = [e for f in ("prompt", "answer", "accepted") if f"{f}_ruby" in s
+                    for e in check_twin(where, s, f)]
+            if errs:
+                raise SystemExit("; ".join(errs))
+        out[pid] = ss
+    prompts = [c["prompt"] for c in clozes] + [s["prompt"] for ss in out.values() for s in ss]
+    if len(prompts) != len(set(prompts)):
+        raise SystemExit("particle_sentences.json: two particle sentences share a prompt")
+    return out, bool(doc.get("reviewed", False))
+
+
 def particles(s04: dict) -> list[dict]:
     """The published particles: each with its cloze and the English of its example, from
     particle_english.json. A particle with no English, or English for no particle, fails
-    the publish. `example_en_reviewed` carries the file's review flag to the app."""
+    the publish. `example_en_reviewed` carries the file's review flag to the app.
+    `sentences` holds the cloze (with that English and flag) and then the particle's
+    drafted sentences from particle_sentences.json, with that file's flag (PIN-4)."""
     doc = json.loads(PARTICLE_EN.read_text(encoding="utf-8"))
     en = doc["english"]
     ids = [pa["id"] for pa in s04["particles"]]
@@ -201,10 +261,18 @@ def particles(s04: dict) -> list[dict]:
     missing = [i for i in ids if not str(en.get(i, "")).strip()]
     if missing:
         raise SystemExit(f"particle_english.json: no English for {missing}")
+    en_reviewed = bool(doc.get("reviewed"))
+    clozes = particle_clozes(s04)
+    drafted, drafted_reviewed = particle_sentences(s04, clozes)
+    keep = ("prompt", "answer", "accepted")
     return [{**{k: p[k] for k in ("id", "expression", "meaning", "example", "taught_in")},
-             "example_en": en[p["id"]], "example_en_reviewed": bool(doc.get("reviewed")),
-             "cloze": c}
-            for p, c in zip(s04["particles"], particle_clozes(s04))]
+             "example_en": en[p["id"]], "example_en_reviewed": en_reviewed,
+             "cloze": c,
+             "sentences": [{**c, "english": en[p["id"]], "reviewed": en_reviewed},
+                           *({**{k: s[k] for k in keep}, "from": "particle_sentences.json",
+                              "english": s["english"], "reviewed": drafted_reviewed}
+                             for s in drafted[p["id"]])]}
+            for p, c in zip(s04["particles"], clozes)]
 
 
 def prereqs(point: dict) -> list[str]:
