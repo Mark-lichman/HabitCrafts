@@ -48,7 +48,8 @@
 // the same service, and its draft is written with the entry's source, never `Source.sayIt`; a
 // particle's choose card offers the options the catalog built. The next card is mode-aware
 // ([nextProbe], D19): the first scored probe whose mode has no counting clear yet, then the
-// scored probes in turn.
+// scored probes in turn. A same-session re-ask after a wrong rotates through the scored
+// probes by attempts so far instead (operator ruling ASK-5), so it shows another card.
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
@@ -151,6 +152,7 @@ class SessionProbeRequest {
     required this.state,
     required this.answered,
     required this.onAnswer,
+    this.rotate = false,
   });
 
   final ItemDef item;
@@ -160,6 +162,10 @@ class SessionProbeRequest {
 
   /// The item's attempts so far, so a builder can rotate its probes.
   final int answered;
+
+  /// Early practice or a same-day re-ask after a wrong (operator ruling ASK-5): the next card
+  /// rotates through the item's scored probes by [answered] ([nextProbe]).
+  final bool rotate;
 
   final ProbeAnswered onAnswer;
 }
@@ -189,12 +195,17 @@ LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
 /// mode (`modeOfTemplate`, D18) has no counting clear in [state] yet, so a needed mode shows
 /// before the clears run out; once every mode has one, the scored probes in turn by
 /// [answered], the item's attempts so far. A probe whose template has no mode is left to the
-/// rotation. Throws a [StateError] for an item with no scored probe, which a host never asks.
-ProbeDef nextProbe(ItemDef item, MasteryState state, int answered) {
+/// rotation. With [rotate] (early practice, or a same-day re-ask after a wrong: operator
+/// ruling ASK-5, which supersedes D19 for those two cases) the pick is the rotation alone, so
+/// an early clear or a wrong never asks the same card again. Throws a [StateError] for an
+/// item with no scored probe, which a host never asks.
+ProbeDef nextProbe(ItemDef item, MasteryState state, int answered,
+    {bool rotate = false}) {
   final probes = item.scoredProbes.toList();
   if (probes.isEmpty) {
     throw StateError('${item.id} has no scored probe to ask');
   }
+  if (rotate) return probes[answered % probes.length];
   final cleared = {for (final c in state.clears) modeOfTemplate(c.template)};
   for (final p in probes) {
     final mode = modeOfTemplate(p.template);
@@ -238,7 +249,7 @@ SessionProbeBuilder standardProbeBuilder({
 
   return (context, r) {
     final item = r.item;
-    final probe = nextProbe(item, r.state, r.answered);
+    final probe = nextProbe(item, r.state, r.answered, rotate: r.rotate);
     if (probe.template == kSayCardTemplate) {
       return SayCardProbe(
           item: item,
@@ -859,6 +870,7 @@ class _SessionWidgetState extends State<SessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _entry.reask,
               onAnswer: _onAnswer,
             ),
           ),

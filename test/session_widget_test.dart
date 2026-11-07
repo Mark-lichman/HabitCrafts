@@ -41,7 +41,10 @@
 //
 // Next card (plan 2026-11-06, Task 6, End state 11, D19): `nextProbe` asks the first scored
 // probe whose mode has no counting clear, so a needed mode shows before the 4th clear, and
-// the scored probes take turns once every mode has one. Through the real builder, a particle
+// the scored probes take turns once every mode has one. Early practice and a same-day re-ask
+// after a wrong rotate by attempts so far instead (operator ruling ASK-5): two early answers
+// in Practice now show two cards, a re-ask shows another card, and a due entry, in the
+// session or in Practice now, still shows the first needed mode. Through the real builder, a particle
 // whose cloze is cleared shows its choose card, and one with the cloze and the choose cleared
 // shows its say card, scored through the service and written with the entry's source, never
 // Say-it.
@@ -67,6 +70,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/lesson_page_widg
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart'
+    show SrsState;
 import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart'
@@ -1796,6 +1801,163 @@ void main() {
         expect(nextProbe(word, all, answered).id,
             scored[answered % scored.length].id);
       }
+    });
+
+    test('rotate asks the scored probes in turn by attempts so far (ASK-5)',
+        () {
+      // Card and spoken cleared: the mode-first pick is typed at every count, but the rotation
+      // follows the attempts so far.
+      final two = learning(
+          word, [clearOn(word, 'card', 1), clearOn(word, 'spoken', 2)]);
+      final scored = word.scoredProbes.toList();
+      for (var answered = 0; answered < scored.length * 2; answered++) {
+        expect(nextProbe(word, two, answered, rotate: true).id,
+            scored[answered % scored.length].id);
+      }
+      expect(nextProbe(word, two, 0).template, 'typed',
+          reason: 'without rotate the needed mode still wins (D19)');
+    });
+
+    // ASK-5 plumbing: a builder that shows the card `nextProbe` picks for the request and
+    // writes the answer on that card.
+    final picked = <String>[];
+    Widget pickedProbe(BuildContext context, SessionProbeRequest r) {
+      final probe = nextProbe(r.item, r.state, r.answered, rotate: r.rotate);
+      picked.add(probe.id);
+      DrillAnswer draft(Grade g) => DrillAnswer(
+          itemId: r.item.id,
+          probeId: probe.id,
+          template: probe.template,
+          production: probe.production,
+          selfGraded: probe.selfGraded,
+          grade: g);
+      return Column(children: [
+        Text('probe ${r.item.id}'),
+        Text('card ${probe.id}'),
+        for (final g in [Grade.clear, Grade.wrong])
+          TextButton(
+              onPressed: () => r.onAnswer(draft(g)),
+              child: Text('answer ${g.name}')),
+      ]);
+    }
+
+    /// The card on screen.
+    String cardOnScreen() {
+      final f = find.textContaining('card ');
+      expect(f, findsOneWidget);
+      return (f.evaluate().single.widget as Text).data!.substring(5);
+    }
+
+    Future<Harness> pumpPickedSession(
+        WidgetTester tester, JpStoreMemory s, QueueEntry entry) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final plan = planOf([entry]);
+      await s.putDay(DayRecord(day: today, plan: plan.encode()));
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: plan,
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            probeBuilder: pickedProbe,
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    Future<Harness> pumpPickedPractice(
+        WidgetTester tester, JpStoreMemory s) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      // A fresh key per pump: each one is a new Practice now.
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PracticeSessionWidget(
+            key: UniqueKey(),
+            items: [word],
+            store: s,
+            catalog: catalog,
+            clock: FixedClock(at(today)),
+            probeBuilder: pickedProbe,
+            onClose: () {},
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    testWidgets('two early answers in Practice now show two different cards',
+        (tester) async {
+      final s = JpStoreMemory();
+      var h = await pumpPickedPractice(tester, s);
+      final first = cardOnScreen();
+      await h.tap('answer clear');
+      expect((await s.attempts()).single.source, Source.early);
+      h = await pumpPickedPractice(tester, s);
+      final second = cardOnScreen();
+      expect(second, isNot(first),
+          reason:
+              'an early clear changes no state, so only the rotation moves the card');
+      expect([first, second],
+          [word.scoredProbes.first.id, word.scoredProbes.elementAt(1).id]);
+    });
+
+    testWidgets('Practice now on a due item still shows the first needed mode',
+        (tester) async {
+      final s = JpStoreMemory();
+      await s.putMastery(learning(word, [
+        clearOn(word, 'card', today - 2),
+        clearOn(word, 'spoken', today - 1)
+      ]));
+      await s.putSrs(
+          word.id,
+          const SrsState(
+              stability: 2,
+              difficulty: 5,
+              lastReviewDay: today - 1,
+              dueDay: today,
+              interval: 1));
+      await pumpPickedPractice(tester, s);
+      expect(cardOnScreen(), 'typed',
+          reason:
+              'the rotation at 0 would give the card (D19 keeps due items)');
+    });
+
+    testWidgets('a same-day re-ask after a wrong shows a different card',
+        (tester) async {
+      final s = JpStoreMemory();
+      final h =
+          await pumpPickedSession(tester, s, entryOf(word, PlanSection.due));
+      final first = cardOnScreen();
+      await h.tap('answer wrong');
+      await h.tap('Next');
+      expect(h.onScreen, word.id, reason: 'the wrong is re-asked');
+      final again = cardOnScreen();
+      expect(again, isNot(first),
+          reason:
+              'a wrong empties the clears, so only the rotation moves the card');
+      expect(again, word.scoredProbes.elementAt(1).id);
+    });
+
+    testWidgets('a due entry still shows the first needed mode',
+        (tester) async {
+      final s = JpStoreMemory();
+      await s.putMastery(learning(word, [
+        clearOn(word, 'card', today - 2),
+        clearOn(word, 'spoken', today - 1)
+      ]));
+      await pumpPickedSession(tester, s, entryOf(word, PlanSection.due));
+      expect(cardOnScreen(), 'typed',
+          reason: 'the rotation at 0 would give the card');
     });
 
     test('an item with no scored probe is never asked', () {

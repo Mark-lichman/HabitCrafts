@@ -28,7 +28,10 @@
 // writes the answers through an [AttemptRecorder], so the due rule is the drills' (D23, PIN-14):
 // an item whose due day has arrived is answered as a `review`; any other item, a New one
 // included, as `early`, where a clear, a hinted or a self answer changes nothing and a wrong
-// counts (due tomorrow, the count reset). It never writes the day's `DayRecord`, so practice
+// counts (due tomorrow, the count reset). Early practice rotates through the item's scored
+// probes by attempts so far (`nextProbe` with `rotate`, operator ruling ASK-5), so two early
+// answers show two cards; a due item keeps the mode-first pick (D19). It never writes the
+// day's `DayRecord`, so practice
 // never moves today's session. It follows the session's wrong-answer rule (operator ruling
 // 2026-11-05, ASK-9): a wrong shows no result card. When the answer was already on screen
 // (`DrillAnswer.answerShown`), practice moves straight on; else the probe stays, showing the
@@ -565,6 +568,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   MasteryState? _state;
   int _answered = 0;
 
+  /// The item on screen is not due, so this is early practice: its card rotates (ASK-5).
+  bool _early = false;
+
   /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
   int? _reviewedPresentation;
 
@@ -625,10 +631,15 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
     final state =
         await widget.store.mastery(item.id) ?? MasteryState.initial(item.id);
     final answered = (await widget.store.attempts(itemId: item.id)).length;
+    // The recorder's due rule (drill_recorder.dart): not due is early practice.
+    final due = (await widget.store.srs(item.id))?.dueDay ??
+        (await widget.store.item(item.id))?.seedDueDay;
+    final early = due == null || due > localDay(widget.clock.now());
     if (!mounted) return;
     setState(() {
       _state = state;
       _answered = answered;
+      _early = early;
       _presentation++;
       _phase = _PracticePhase.asking;
     });
@@ -761,6 +772,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _early,
               onAnswer: _onAnswer,
             ),
           ),

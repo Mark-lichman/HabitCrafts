@@ -2,7 +2,8 @@
 //
 // The learner answers the real catalog's items through their real probes and templates, on the
 // probe the Review session would ask (`nextProbe`, plan 2026-11-06, D19): a mode with no
-// counting clear first, then the probes in turn. Its
+// counting clear first, then the probes in turn, and on a re-ask the probes in turn alone
+// (ASK-5). Its
 // chance of a clear is 85% while the item is retrievable (FSRS retrievability at or above
 // 0.85); below that the chance is the retrievability itself. An item with no FSRS state (New,
 // or seeded and not yet answered) is cleared 68% of the time, the Python reference's
@@ -82,9 +83,12 @@ class SyntheticLearner {
 /// The scored probe asked of [item] in [state] after [n] answers on it: the Review session's
 /// own pick, `nextProbe` (plan 2026-11-06, D19), so a needed mode shows before the clears run
 /// out and the probes then take turns by the item's answers so far, as the session counts
-/// them (every attempt on the item, early practice included; the simulator writes none).
-ProbeDef probeFor(ItemDef item, MasteryState state, int n) =>
-    nextProbe(item, state, n);
+/// them (every attempt on the item, early practice included; the simulator writes none). A
+/// same-day re-ask ([reask]) rotates by [n] alone, as the session's re-ask does (operator
+/// ruling ASK-5), so the simulator's re-asks never diverge from the session's.
+ProbeDef probeFor(ItemDef item, MasteryState state, int n,
+        {bool reask = false}) =>
+    nextProbe(item, state, n, rotate: reask);
 
 /// The grade of [answer] on [probe], through the app's own `gradeAnswer` (D17, PIN-13): a
 /// hinted answer is right after a hint below the revealing level.
@@ -324,7 +328,7 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
       final n = scoredAnswers[item.id] ?? 0;
       final mastery =
           await store.mastery(item.id) ?? MasteryState.initial(item.id);
-      final probe = probeFor(item, mastery, n);
+      final probe = probeFor(item, mastery, n, reask: entry.reask);
       final grade = gradeOf(learner.answer(r), probe);
       final attempt = Attempt(
         itemId: item.id,

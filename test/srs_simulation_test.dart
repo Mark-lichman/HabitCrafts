@@ -9,7 +9,9 @@
 // the same numbers with or without the mode clause, because the pick asks a missing mode
 // before the clears run out. Under the same rule, the old rotation by answer count gave run A
 // 352 and 5 conjugation ideas, not 24: its first four cards on an idea are all typed, so the
-// run A conjugation floor (`kScratchConjugationFloor`) guards the pick. Four runs:
+// run A conjugation floor (`kScratchConjugationFloor`) guards the pick. Re-measured again on
+// 2026-11-07 with the re-ask rotation (operator ruling ASK-5, `probeFor(reask:)`): run A and
+// run C give the same numbers, because a re-ask is not due and its clear never counts. Four runs:
 // from scratch (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C),
 // and with the stretch taken whenever the end card offers it (D). The test prints each run's summary and a
 // 10-day table, so the simulator numbers in the plan's Context can be re-measured here. The
