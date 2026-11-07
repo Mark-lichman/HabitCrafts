@@ -215,6 +215,7 @@ def particle_sentences(s04: dict, clozes: list[dict]) -> tuple[dict[str, list[di
         if len(ss) != EXTRA_SENTENCES:
             raise SystemExit(f"particle_sentences.json: {pid} needs {EXTRA_SENTENCES} "
                              f"sentences, has {len(ss)}")
+        out[pid] = []
         for i, s in enumerate(ss):
             where = f"particle_sentences.json: {pid} sentence {i + 1}"
             prompt, ans, acc = s.get("prompt", ""), s.get("answer", ""), s.get("accepted", [])
@@ -233,13 +234,10 @@ def particle_sentences(s04: dict, clozes: list[dict]) -> tuple[dict[str, list[di
                 raise SystemExit(f"{where}: not kana")
             if not str(s.get("english", "")).strip():
                 raise SystemExit(f"{where}: no English")
-            # A kanji twin is optional here, as on every particle cloze; one that is
-            # present must keep to the N4 kanji list and spell the same reading.
-            errs = [e for f in ("prompt", "answer", "accepted") if f"{f}_ruby" in s
-                    for e in check_twin(where, s, f)]
-            if errs:
-                raise SystemExit("; ".join(errs))
-        out[pid] = ss
+            # Publish exactly the values checked above, so a sentence with no `accepted`
+            # key cannot pass here and fail later.
+            out[pid].append({"prompt": prompt, "answer": ans, "accepted": acc,
+                             "english": s["english"]})
     prompts = [c["prompt"] for c in clozes] + [s["prompt"] for ss in out.values() for s in ss]
     if len(prompts) != len(set(prompts)):
         raise SystemExit("particle_sentences.json: two particle sentences share a prompt")

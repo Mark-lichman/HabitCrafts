@@ -433,6 +433,12 @@ def test_stale_particle_sentences_fail_the_publish(tmp_path, monkeypatch):
                         lambda ss: ss["mari.particle.2"][0].update(prompt=ex["prompt"]))
     with pytest.raises(SystemExit, match="repeats"):
         publish.particles(s04)
+    # Two drafted sentences with one prompt add no variety either.
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(
+                            prompt=ss["mari.particle.2"][1]["prompt"]))
+    with pytest.raises(SystemExit, match="share a prompt"):
+        publish.particles(s04)
 
 
 def test_leaking_particle_sentences_fail_the_publish(tmp_path, monkeypatch):
