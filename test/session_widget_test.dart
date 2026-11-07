@@ -1779,9 +1779,31 @@ void main() {
                 answer: 'a',
                 scored: false)
           ]);
-      expect(() => nextProbe(none, const MasteryState.initial('none'), 0),
-          throwsStateError);
+      expect(
+          () => nextProbe(none, const MasteryState.initial('none'), 0),
+          throwsA(isA<StateError>().having((e) => e.message, 'message',
+              contains('has no scored probe to ask'))));
     });
+
+    final grammarDoc = _read('assets/lessons/jp_grammar.json');
+
+    /// The shipped `jp_grammar.json` practice rows of the grammar point [id].
+    List<Map<String, dynamic>> practiceRowsOf(String id) {
+      for (final lesson in (grammarDoc['grammar'] as List).cast<Map>()) {
+        for (final point in (lesson['points'] as List).cast<Map>()) {
+          if (point['id'] == id) {
+            return (point['practice'] as List).cast<Map<String, dynamic>>();
+          }
+        }
+      }
+      throw StateError('no grammar point $id in jp_grammar.json');
+    }
+
+    /// The shipped `jp_grammar.json` row of the particle [id].
+    Map<String, dynamic> particleRowOf(String id) =>
+        (grammarDoc['particles'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['id'] == id);
 
     Future<Harness> pumpPicked(WidgetTester tester, ItemDef item,
         MasteryState state, FakePronunciation pron) async {
@@ -1841,6 +1863,9 @@ void main() {
       final say = probeOf(particle, kSayCardTemplate);
       expect(h.shows('Say the whole sentence'), isTrue);
       expect(h.shows(say.text), isTrue);
+      expect(
+          h.shows(particleRowOf(particle.id)['example_en'] as String), isTrue,
+          reason: "the builder passes the particle's English");
       expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
       await h.tap('Say it');
       expect(pron.referenceTexts.single, say.answer);
@@ -1856,6 +1881,30 @@ void main() {
       expect(m!.clears.map((c) => c.template).toList(),
           ['cloze', 'choose', kSayCardTemplate],
           reason: 'a say card clear counts toward Mastered');
+    });
+
+    testWidgets(
+        "a grammar say card shows the English of the practice row it twins",
+        (tester) async {
+      // A typed and a recognition clear: the first say card (`say.p0`) is the pick, and
+      // its English is practice row 0's, read through `transferKeyOf` in the real builder.
+      final grammar = catalog.ofKind(ItemKind.grammar).first;
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          grammar,
+          learning(grammar, [
+            clearOn(grammar, 'fill', today - 2),
+            clearOn(grammar, 'choose', today - 1),
+          ]),
+          pron);
+      final say = grammar.probes.firstWhere((p) => p.id == sayCardId('p0'));
+      final rows = practiceRowsOf(grammar.id);
+      expect(h.shows('Say the whole sentence'), isTrue);
+      expect(h.shows(say.text), isTrue);
+      expect(h.shows(rows[0]['en'] as String), isTrue,
+          reason: 'row 0 English, through the twin id');
+      expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
     });
 
     testWidgets('a word with a see-it clear asks its spoken card next',

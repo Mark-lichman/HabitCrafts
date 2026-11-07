@@ -236,6 +236,8 @@ String probeLabel(ItemDef item, String probeId) {
     kSayCardTemplate => 'Say it: ${probe.text}',
     kPairToTransitive => '${probe.text} → ${probe.answer}',
     kPairToIntransitive => '${probe.text} → ${probe.answer}',
+    // A particle's choose card shares its cloze's text, so it names its kind.
+    'choose' when probe.id == kParticleChooseId => 'Choose: ${probe.text}',
     _ => probe.text.isEmpty ? probe.id : probe.text,
   };
 }

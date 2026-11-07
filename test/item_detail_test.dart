@@ -239,7 +239,43 @@ void main() {
     });
   });
 
+  group('probeLabel (Task 6)', () {
+    test('a word say card is said from the picture', () {
+      final word = firstOf(ItemKind.word);
+      expect(probeLabel(word, kWordSayCardId), 'Say it from the picture');
+    });
+
+    test('a grammar say card names its sentence', () {
+      final g = firstOf(ItemKind.grammar);
+      final p0 = g.probes.firstWhere((p) => p.id == 'p0');
+      expect(probeLabel(g, sayCardId('p0')), 'Say it: ${p0.text}');
+    });
+
+    test("a particle's choose card reads apart from its cloze", () {
+      final particle = firstOf(ItemKind.particle);
+      final cloze = probeLabel(particle, 'cloze');
+      final choose = probeLabel(particle, kParticleChooseId);
+      expect(choose, isNot(cloze));
+      expect(choose, 'Choose: $cloze');
+    });
+  });
+
   group('the item page', () {
+    testWidgets(
+        'a word say card clear is listed as seen clear and in the history (Task 6)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      final say = word.probes.firstWhere((p) => p.id == kWordSayCardId);
+      await record(store, answer(word, today - 1, Grade.clear, probe: say));
+      await pumpItem(tester, store, word);
+
+      expect(showsPart('Clear · Say it from the picture'), isTrue);
+      expect(shows('✓ Say it from the picture'), isTrue);
+      expect(shows('· Say the word'), isTrue,
+          reason: 'the spoken card is still unseen');
+    });
+
     testWidgets(
         'shows the pill with n of 4, the next review, the probes seen clear and the history',
         (tester) async {
@@ -271,7 +307,8 @@ void main() {
       expect(shows(kOneTemplateLine), isFalse);
     });
 
-    testWidgets('the history labels a spoken close Close, not With a hint (PIN-10)',
+    testWidgets(
+        'the history labels a spoken close Close, not With a hint (PIN-10)',
         (tester) async {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
