@@ -4,8 +4,11 @@
 // injected clock. The cases: the pure `itemDetailOf` (the state from the item's own attempts,
 // PIN-1; the probes seen clear; what remains to Mastered or to regain; the Say-it counts; the
 // history newest first with whether each answer counted), the page's pill and n of 4, next
-// review, history rows, the "no production probe yet" line where the kind has none (A8) and the
-// "one question kind only" line on a one-template item (PIN-15), and Practice now, a one-item
+// review, history rows, a word's practice listens under their own heading and a grammar
+// point's Say-it counts with the never-counts line (plan 2026-11-06, ASK-4), the two notes
+// from `itemNotesOf` on synthetic items, neither the "no production probe yet" line (A8) nor
+// the "one question kind only" line (PIN-15) on a shipped item since every kind has a say card
+// (plan 2026-11-06, Task 6), and Practice now, a one-item
 // session written as early practice when the item is not due (PIN-14: a clear changes nothing,
 // a wrong counts) and as a review when it is, with Review the lesson on a practice card (Back
 // returns to the same card marked reviewed and a clear after it is hinted; an opener that
@@ -238,7 +241,95 @@ void main() {
     });
   });
 
+  group('probeLabel (Task 6)', () {
+    test('a word say card is said from the picture', () {
+      final word = firstOf(ItemKind.word);
+      expect(probeLabel(word, kWordSayCardId), 'Say it from the picture');
+    });
+
+    test('a grammar say card names its sentence', () {
+      final g = firstOf(ItemKind.grammar);
+      final p0 = g.probes.firstWhere((p) => p.id == 'p0');
+      expect(probeLabel(g, sayCardId('p0')), 'Say it: ${p0.text}');
+    });
+
+    test("a particle's choose card reads apart from its cloze", () {
+      final particle = firstOf(ItemKind.particle);
+      final cloze = probeLabel(particle, 'cloze');
+      final choose = probeLabel(particle, kParticleChooseId);
+      expect(choose, isNot(cloze));
+      expect(choose, 'Choose: $cloze');
+    });
+  });
+
+  // The two notes stay live code for an item with no production probe or one template, which
+  // no shipped kind is (plan 2026-11-06, Task 6), so a synthetic item shows each one.
+  group('itemNotesOf (A8, PIN-15)', () {
+    ItemDef synthetic(List<ProbeDef> probes) => ItemDef(
+        id: 'test.notes',
+        kind: ItemKind.pair,
+        title: 'test',
+        prereqLevel: 0,
+        probes: probes);
+
+    test('one recognition template gives both notes', () {
+      final item = synthetic(const [
+        ProbeDef(id: 'a', template: 'choose', text: 'a', answer: 'a'),
+        ProbeDef(id: 'b', template: 'choose', text: 'b', answer: 'b'),
+      ]);
+      expect(itemNotesOf(item), [kNoProductionProbeLine, kOneTemplateLine]);
+    });
+
+    test('one production template gives only the one-template note', () {
+      final item = synthetic(const [
+        ProbeDef(
+            id: 'a',
+            template: 'typed',
+            text: 'a',
+            answer: 'a',
+            production: true),
+      ]);
+      expect(itemNotesOf(item), [kOneTemplateLine]);
+    });
+
+    test('two templates with a production probe give no note', () {
+      final item = synthetic(const [
+        ProbeDef(id: 'a', template: 'choose', text: 'a', answer: 'a'),
+        ProbeDef(
+            id: 'b',
+            template: 'typed',
+            text: 'b',
+            answer: 'b',
+            production: true),
+      ]);
+      expect(itemNotesOf(item), isEmpty);
+    });
+
+    test('no shipped kind gets a note', () {
+      for (final kind in ItemKind.values) {
+        for (final item in catalog.ofKind(kind)) {
+          expect(itemNotesOf(item), isEmpty, reason: item.id);
+        }
+      }
+    });
+  });
+
   group('the item page', () {
+    testWidgets(
+        'a word say card clear is listed as seen clear and in the history (Task 6)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      final say = word.probes.firstWhere((p) => p.id == kWordSayCardId);
+      await record(store, answer(word, today - 1, Grade.clear, probe: say));
+      await pumpItem(tester, store, word);
+
+      expect(showsPart('Clear · Say it from the picture'), isTrue);
+      expect(shows('✓ Say it from the picture'), isTrue);
+      expect(shows('· Say the word'), isTrue,
+          reason: 'the spoken card is still unseen');
+    });
+
     testWidgets(
         'shows the pill with n of 4, the next review, the probes seen clear and the history',
         (tester) async {
@@ -270,7 +361,8 @@ void main() {
       expect(shows(kOneTemplateLine), isFalse);
     });
 
-    testWidgets('the history labels a spoken close Close, not With a hint (PIN-10)',
+    testWidgets(
+        'the history labels a spoken close Close, not With a hint (PIN-10)',
         (tester) async {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
@@ -303,39 +395,45 @@ void main() {
       expect(shows('Next review: ${dueLabel(today + 2, today)}'), isTrue);
     });
 
-    testWidgets('a pair has no production probe yet (A8)', (tester) async {
+    // Since every kind has a say card (plan 2026-11-06, Task 6), a pair and a table row have
+    // a production probe and no item has one template, so neither line shows on the shipped
+    // catalog.
+    testWidgets('a pair has a production probe, its say card (A8, Task 6)',
+        (tester) async {
       final pair = firstOf(ItemKind.pair);
-      expect(pair.hasProductionProbe, isFalse);
-      expect(pair.templateCount, 2);
+      expect(pair.hasProductionProbe, isTrue);
+      expect(pair.templateCount, 3);
       await pumpItem(tester, JpStoreMemory(), pair);
-      expect(shows(kNoProductionProbeLine), isTrue);
+      expect(shows(kNoProductionProbeLine), isFalse);
       expect(shows(kOneTemplateLine), isFalse);
     });
 
     testWidgets(
-        'a one-template item says one question kind only (PIN-15); a table row also has '
-        'no production probe', (tester) async {
+        'a particle and a table row have a second question kind and a production probe '
+        '(PIN-15, Task 6)', (tester) async {
       final particle = firstOf(ItemKind.particle);
-      expect(particle.templateCount, 1);
+      expect(particle.templateCount, greaterThan(1));
       await pumpItem(tester, JpStoreMemory(), particle);
-      expect(shows(kOneTemplateLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
       expect(shows(kNoProductionProbeLine), isFalse);
 
       final row = firstOf(ItemKind.tableRow);
+      expect(row.templateCount, greaterThan(1));
+      expect(row.hasProductionProbe, isTrue);
       await pumpItem(tester, JpStoreMemory(), row);
-      expect(shows(kOneTemplateLine), isTrue);
-      expect(shows(kNoProductionProbeLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
+      expect(shows(kNoProductionProbeLine), isFalse);
     });
 
     testWidgets(
-        'a conjugation idea says one question kind only and still lists more different verbs',
-        (tester) async {
+        'a conjugation idea has its say card as a second kind and still lists more '
+        'different verbs', (tester) async {
       final conj = catalog
           .ofKind(ItemKind.conjugation)
           .firstWhere((i) => i.probeCount >= 2);
-      expect(conj.templateCount, 1);
+      expect(conj.templateCount, 2);
       await pumpItem(tester, JpStoreMemory(), conj);
-      expect(shows(kOneTemplateLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
       expect(showsPart('more different verb'), isTrue);
     });
 
@@ -354,6 +452,27 @@ void main() {
       await pumpItem(tester, store, g);
       expect(shows('Say it: 2 tries · 1 clear'), isTrue);
       expect(shows(kSayItNeverCounts), isTrue);
+      expect(shows(kPracticeListensHeading), isFalse,
+          reason:
+              'the practice heading is for a word only (plan 2026-11-06, ASK-4)');
+    });
+
+    testWidgets(
+        "a word's practice listens show under their own heading, never Say it "
+        '(plan 2026-11-06, ASK-4)', (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      final spoken = word.probes.firstWhere((p) => p.template == 'spoken');
+      await record(
+          store,
+          answer(word, today - 2, Grade.clear,
+              probe: spoken, source: Source.sayIt));
+      await pumpItem(tester, store, word);
+      expect(shows(kPracticeListensHeading), isTrue);
+      expect(shows('1 try · 1 clear'), isTrue);
+      expect(shows(kSayItNeverCounts), isFalse,
+          reason: 'the word has a counting Say the word card');
+      expect(find.textContaining('Say it: '), findsNothing);
     });
   });
 

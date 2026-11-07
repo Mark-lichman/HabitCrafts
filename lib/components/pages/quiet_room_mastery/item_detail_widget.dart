@@ -9,9 +9,11 @@
 //   * what remains to Mastered (the four clears, the 21-day final gap, the second question kind,
 //     the production clear and the transfer clause, as mastery_rule.dart counts them), or to
 //     regain a Shaky item;
-//   * the Say-it counts, which never count toward Mastered (D4);
+//   * the Say-it counts on a grammar point, which never count toward Mastered (D4); on a word,
+//     the practice screen's listens sit under their own heading, "Practice listens, not
+//     counted", so they never read as the counting Say the word card (plan 2026-11-06, ASK-4);
 //   * "no production probe yet" where the item has no production probe (A8), and "one question
-//     kind only" where its scored probes share one template (PIN-15);
+//     kind only" where its scored probes share one template (PIN-15), from [itemNotesOf];
 //   * the attempt history, newest first: date, grade (a wrong reads Missed, ASK-9), hint level,
 //     probe, and whether the answer counted toward the four clears (or the regain);
 //   * the "Discuss with Mari" toggle (discuss_list_widget.dart, PIN-6), which sets or clears
@@ -91,8 +93,12 @@ const String kNeedSecondKindLine = 'a clear on a second question kind';
 const String kNeedProductionLine =
     'a clear where you produce the answer (typed or spoken)';
 
-/// Under the Say-it counts.
+/// Under the Say-it counts, on a grammar point only.
 const String kSayItNeverCounts = 'Saying it never counts toward mastered.';
+
+/// The heading over a word's practice-screen listens (`Source.sayIt`), which never count
+/// (ASK-4, operator ruling 2026-11-06).
+const String kPracticeListensHeading = 'Practice listens, not counted';
 
 /// The practice verdict on an early clear, hinted or self answer (PIN-14).
 const String kEarlyNoChange = 'Not due yet, so this practice changes nothing.';
@@ -177,7 +183,7 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
         }
       }
       final need = transferProbesNeeded(item);
-      final have = {for (final c in clears) c.probeId}.length;
+      final have = {for (final c in clears) transferKeyOf(c.probeId)}.length;
       if (have < need) {
         out.add(
             'clears on ${_n(need - have, 'more different ${_probeWord(item.kind)}')}');
@@ -185,6 +191,15 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
       return out;
   }
 }
+
+/// The notes under the next-review line: [kNoProductionProbeLine] where [item] has no
+/// production probe (A8) and [kOneTemplateLine] where its scored probes share one template
+/// (PIN-15). Every shipped kind has a say card (plan 2026-11-06, Task 6), so neither shows on
+/// the shipped catalog today. Pure.
+List<String> itemNotesOf(ItemDefLike item) => [
+      if (!item.hasProductionProbe) kNoProductionProbeLine,
+      if (item.templateCount == 1) kOneTemplateLine,
+    ];
 
 /// The item page's read of [item] from its [attempts], oldest first (PIN-1). Pure.
 ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
@@ -220,7 +235,9 @@ ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
   );
 }
 
-/// The learner-facing name of a probe: the question kind for a word, else its text.
+/// The learner-facing name of a probe: the question kind for a word; for another kind its
+/// text, prefixed 'Say it: ' on a say card or 'Choose: ' on a particle's choose card, and
+/// joined to the answer by an arrow on a pair direction.
 String probeLabel(ItemDef item, String probeId) {
   ProbeDef? probe;
   for (final p in item.probes) {
@@ -231,8 +248,13 @@ String probeLabel(ItemDef item, String probeId) {
     'card' => 'Recall card',
     'spoken' => 'Say the word',
     'typed' => 'Type the reading',
+    kSayCardTemplate when item.kind == ItemKind.word =>
+      'Say it from the picture',
+    kSayCardTemplate => 'Say it: ${probe.text}',
     kPairToTransitive => '${probe.text} → ${probe.answer}',
     kPairToIntransitive => '${probe.text} → ${probe.answer}',
+    // A particle's choose card shares its cloze's text, so it names its kind.
+    'choose' when probe.id == kParticleChooseId => 'Choose: ${probe.text}',
     _ => probe.text.isEmpty ? probe.id : probe.text,
   };
 }
@@ -390,8 +412,7 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
                   ? kNotQueuedLine
                   : 'Next review: ${dueLabel(d.dueDay!, today)}',
               style: qrText(t, size: 14, color: t.ink)),
-          if (!item.hasProductionProbe) _note(t, kNoProductionProbeLine),
-          if (item.templateCount == 1) _note(t, kOneTemplateLine),
+          for (final note in itemNotesOf(item)) _note(t, note),
           // Keyed per load, so a return from practice reads a mark changed there.
           DiscussToggle(
               key: ValueKey('discuss-${item.id}-$_loads'),
@@ -406,7 +427,15 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
           for (final p in scored)
             _line(t,
                 '${d.seenClear.contains(p.id) ? '✓' : '·'} ${probeLabel(item, p.id)}'),
-          if (hasSayIt || d.sayItTries > 0) ...[
+          // A word's practice listens never read as its counting Say the word card (plan
+          // 2026-11-06, ASK-4).
+          if (item.kind == ItemKind.word && d.sayItTries > 0) ...[
+            _heading(t, kPracticeListensHeading),
+            _line(t,
+                '${_n(d.sayItTries, 'try', 'tries')} · ${d.sayItClear} clear'),
+          ],
+          if (item.kind == ItemKind.grammar &&
+              (hasSayIt || d.sayItTries > 0)) ...[
             _heading(t,
                 'Say it: ${_n(d.sayItTries, 'try', 'tries')} · ${d.sayItClear} clear'),
             _line(t, kSayItNeverCounts),

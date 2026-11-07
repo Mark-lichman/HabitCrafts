@@ -13,7 +13,9 @@
 //      the spaced clears (PIN-15);
 //   5. transfer per kind: three sentences for a grammar point, three verbs for a conjugation
 //      idea, both directions for a pair, two different cells for a table row (every cell where
-//      the row has fewer than two).
+//      the row has fewer than two). A probe that asks the same sentence, verb, direction or cell
+//      in another mode (`say.p0` beside `p0`, plan 2026-11-06 Task 6) counts as that one: see
+//      [transferKeyOf].
 // A wrong, or two hinted in a row, on a Mastered item makes it Shaky; two clears on two days,
 // the second 7 or more days after the first, regain it (PIN-4).
 //
@@ -50,6 +52,46 @@ const Map<ItemKind, int> kTransferProbes = {
   ItemKind.tableRow: 2,
 };
 
+/// The three ways a card asks for an item (plan 2026-11-06, D18): type it, see it, say it.
+enum ProbeMode { typed, recognition, spoken }
+
+/// The mode of each scored template (D18), keyed on the template name. The Say-it template
+/// (`say`) has none: it never counts. `sayCard` is the scored say card of every kind
+/// (`kSayCardTemplate` in item_catalog.dart).
+const Map<String, ProbeMode> kTemplateModes = {
+  'fill': ProbeMode.typed,
+  'cloze': ProbeMode.typed,
+  'typed': ProbeMode.typed,
+  'conjugate': ProbeMode.typed,
+  'choose': ProbeMode.recognition,
+  'card': ProbeMode.recognition,
+  'transitive': ProbeMode.recognition,
+  'intransitive': ProbeMode.recognition,
+  'cell': ProbeMode.recognition,
+  'spoken': ProbeMode.spoken,
+  'sayCard': ProbeMode.spoken,
+};
+
+/// The mode of [template], or null for a template with none (D18).
+ProbeMode? modeOfTemplate(String template) => kTemplateModes[template];
+
+/// The prefixes of a probe that asks another probe's sentence, verb, direction or cell in a
+/// different mode: `say.p0` says the sentence of `p0`, `choose.cloze` picks the particle of
+/// `cloze` (plan 2026-11-06, Task 6).
+const List<String> kTwinProbePrefixes = ['say.', 'choose.'];
+
+/// What the transfer clause counts a probe as: its sentence, verb, direction or cell. A twin
+/// (`say.p0`) is the probe it twins (`p0`), so one sentence asked two ways is still one
+/// sentence (D4 clause 5). Any other id is itself.
+String transferKeyOf(String probeId) {
+  for (final prefix in kTwinProbePrefixes) {
+    if (probeId.startsWith(prefix) && probeId.length > prefix.length) {
+      return probeId.substring(prefix.length);
+    }
+  }
+  return probeId;
+}
+
 /// What the rule needs to know about an item. Task 5's `ItemDef` implements it.
 abstract class ItemDefLike {
   String get id;
@@ -61,7 +103,8 @@ abstract class ItemDefLike {
   /// Whether the item has a scorable production probe (typed, spoken, conjugate, build).
   bool get hasProductionProbe;
 
-  /// The number of different probes: sentences, verbs, directions or cells.
+  /// The number of different probes: sentences, verbs, directions or cells, each counted once
+  /// however many modes ask it ([transferKeyOf]).
   int get probeCount;
 }
 
@@ -253,7 +296,7 @@ bool _meetsRule(
       return false;
     }
   }
-  final probes = {for (final c in clears) c.probeId};
+  final probes = {for (final c in clears) transferKeyOf(c.probeId)};
   return probes.length >= transferProbesNeeded(item);
 }
 

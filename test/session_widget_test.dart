@@ -35,9 +35,16 @@
 // no self-mark and moves the entry back, a wrong holds the card under one Next, a close after
 // Review the lesson loses its mark, and Practice now scores through the same service. The
 // grade cases build the spoken card directly, so they do not pin which probe the session
-// picks next (Task 6 makes the pick mode-aware, D19). Two plumbing cases go through each
+// picks next (the "next card" group tests the pick). Two plumbing cases go through each
 // widget's own standardProbeBuilder: an injected service reaches the probe in the session
 // and in Practice now, and both leave it to its owner.
+//
+// Next card (plan 2026-11-06, Task 6, End state 11, D19): `nextProbe` asks the first scored
+// probe whose mode has no counting clear, so a needed mode shows before the 4th clear, and
+// the scored probes take turns once every mode has one. Through the real builder, a particle
+// whose cloze is cleared shows its choose card, and one with the cloze and the choose cleared
+// shows its say card, scored through the service and written with the entry's source, never
+// Say-it.
 
 import 'dart:convert';
 import 'dart:io';
@@ -319,19 +326,22 @@ void main() {
   testWidgets(
       'the fourth clear that completes the rule shows Mastered and the end card lists it',
       (tester) async {
-    // A particle has one template and one probe, so only the spaced clears count.
+    // A particle has one sentence, so no transfer clause; since its choose and say cards
+    // (plan 2026-11-06, Task 6) it needs two templates and a production clear, so the seeded
+    // clears hold a choose clear beside the cloze ones.
     final particle = catalog.ofKind(ItemKind.particle).first;
     final probe = particle.scoredProbes.first;
-    ClearRef c(int day) => ClearRef(
+    final choose = particle.probes.firstWhere((p) => p.id == kParticleChooseId);
+    ClearRef c(int day, [ProbeDef? on]) => ClearRef(
         day: day,
-        template: probe.template,
-        production: probe.production,
-        probeId: probe.id);
+        template: (on ?? probe).template,
+        production: (on ?? probe).production,
+        probeId: (on ?? probe).id);
     final store = JpStoreMemory();
     await store.putMastery(MasteryState(
       itemId: particle.id,
       status: MasteryStatus.learning,
-      clears: [c(today - 70), c(today - 50), c(today - 30)],
+      clears: [c(today - 70), c(today - 50, choose), c(today - 30)],
       lastScoredDay: today - 30,
     ));
     final h = await pumpSession(
@@ -566,11 +576,10 @@ void main() {
             onAnswer: r.onAnswer);
 
     /// One counting clear on the word's card, in the log and in the mastery state, so a
-    /// widget's own standardProbeBuilder lands on `spoken` under the answered-modulo-length
-    /// rotation (which counts attempts) and under a mode-aware pick alike (D19: the first
-    /// scored probe whose mode has no counting clear, which reads MasteryState.clears). Both
-    /// rules read only the first two scored probes, so the list may grow past them (Task 6's
-    /// say probe).
+    /// widget's own standardProbeBuilder lands on `spoken` under the mode-aware pick
+    /// (`nextProbe`, D19: the first scored probe whose mode has no counting clear, which reads
+    /// MasteryState.clears). The pick reads the probes in order, so the say card after them
+    /// (Task 6) never comes first.
     Future<JpStoreMemory> storeWithCardClear() async {
       final s = JpStoreMemory();
       final seed = attemptOf(word, today - 1, Grade.clear);
@@ -1655,6 +1664,288 @@ void main() {
           tester, planOf([entryOf(words[0], PlanSection.due)]));
       expect(h.onScreen, words[0].id);
       expect(find.text(kReviewTheLesson), findsNothing);
+    });
+  });
+
+  group('next card (plan 2026-11-06, Task 6, D19)', () {
+    final word = words[0];
+    final particle = catalog.ofKind(ItemKind.particle).first;
+    ProbeDef probeOf(ItemDef item, String template) =>
+        item.probes.firstWhere((p) => p.template == template);
+
+    /// A counting clear on [probe] of [item] on [day].
+    ClearRef clearOn(ItemDef item, String template, int day) {
+      final p = probeOf(item, template);
+      return ClearRef(
+          day: day,
+          template: p.template,
+          production: p.production,
+          probeId: p.id);
+    }
+
+    MasteryState learning(ItemDef item, List<ClearRef> clears) => MasteryState(
+        itemId: item.id, status: MasteryStatus.learning, clears: clears);
+
+    test('a new item asks its first scored probe', () {
+      expect(nextProbe(word, MasteryState.initial(word.id), 0).id,
+          word.scoredProbes.first.id);
+      expect(nextProbe(word, MasteryState.initial(word.id), 5).id,
+          word.scoredProbes.first.id,
+          reason: 'no mode has a clear, so the first probe of the first mode');
+    });
+
+    test('the first probe whose mode has no counting clear comes next', () {
+      // The card (see it) is cleared: the spoken probe is the first spoken one.
+      expect(
+          nextProbe(word, learning(word, [clearOn(word, 'card', 1)]), 1)
+              .template,
+          'spoken');
+      // See it and say it cleared: type it.
+      expect(
+          nextProbe(
+                  word,
+                  learning(word,
+                      [clearOn(word, 'card', 1), clearOn(word, 'spoken', 2)]),
+                  2)
+              .template,
+          'typed');
+      // A say card clear counts as say it too (D18).
+      expect(
+          nextProbe(
+                  word,
+                  learning(word, [
+                    clearOn(word, 'card', 1),
+                    clearOn(word, kSayCardTemplate, 2)
+                  ]),
+                  2)
+              .template,
+          'typed');
+      // A particle: type it, then see it (the choose card), then say it.
+      expect(
+          nextProbe(particle,
+                  learning(particle, [clearOn(particle, 'cloze', 1)]), 1)
+              .id,
+          kParticleChooseId);
+      expect(
+          nextProbe(
+                  particle,
+                  learning(particle, [
+                    clearOn(particle, 'cloze', 1),
+                    clearOn(particle, 'choose', 2)
+                  ]),
+                  2)
+              .id,
+          sayCardId('cloze'));
+    });
+
+    test('the needed mode wins over the rotation when the two disagree', () {
+      // See it and say it cleared at answered 0: the rotation would give the card again
+      // (the first probe), so only the mode-aware pick lands on type it.
+      final typed = nextProbe(
+          word,
+          learning(
+              word, [clearOn(word, 'card', 1), clearOn(word, 'spoken', 2)]),
+          0);
+      expect(typed.id, 'typed');
+      expect(word.scoredProbes.first.id, isNot('typed'),
+          reason: 'the rotation at 0 gives a different probe');
+      // A particle at answered 0: type it cleared gives the choose card, then both
+      // cleared gives the say card, where the rotation would give the cloze each time.
+      expect(
+          nextProbe(particle,
+                  learning(particle, [clearOn(particle, 'cloze', 1)]), 0)
+              .id,
+          kParticleChooseId);
+      expect(
+          nextProbe(
+                  particle,
+                  learning(particle, [
+                    clearOn(particle, 'cloze', 1),
+                    clearOn(particle, 'choose', 2)
+                  ]),
+                  0)
+              .id,
+          sayCardId('cloze'));
+      expect(particle.scoredProbes.first.id, 'cloze');
+    });
+
+    test('a needed mode shows before the 4th clear', () {
+      // Three see-it clears: the fourth card is never another see-it card.
+      final three = learning(word, [
+        clearOn(word, 'card', 1),
+        clearOn(word, 'card', 2),
+        clearOn(word, 'card', 3),
+      ]);
+      for (var answered = 0; answered < 12; answered++) {
+        final p = nextProbe(word, three, answered);
+        expect(modeOfTemplate(p.template), isNot(ProbeMode.recognition),
+            reason: 'after $answered attempts');
+      }
+    });
+
+    test('once every mode has a clear, the scored probes take turns', () {
+      final all = learning(word, [
+        clearOn(word, 'card', 1),
+        clearOn(word, 'spoken', 2),
+        clearOn(word, 'typed', 3),
+      ]);
+      final scored = word.scoredProbes.toList();
+      for (var answered = 0; answered < scored.length * 2; answered++) {
+        expect(nextProbe(word, all, answered).id,
+            scored[answered % scored.length].id);
+      }
+    });
+
+    test('an item with no scored probe is never asked', () {
+      final none = ItemDef(
+          id: 'none',
+          kind: ItemKind.grammar,
+          title: 'none',
+          prereqLevel: 2,
+          probes: const [
+            ProbeDef(
+                id: 'ex0',
+                template: kSayItTemplate,
+                text: 'a',
+                answer: 'a',
+                scored: false)
+          ]);
+      expect(
+          () => nextProbe(none, const MasteryState.initial('none'), 0),
+          throwsA(isA<StateError>().having((e) => e.message, 'message',
+              contains('has no scored probe to ask'))));
+    });
+
+    final grammarDoc = _read('assets/lessons/jp_grammar.json');
+
+    /// The shipped `jp_grammar.json` practice rows of the grammar point [id].
+    List<Map<String, dynamic>> practiceRowsOf(String id) {
+      for (final lesson in (grammarDoc['grammar'] as List).cast<Map>()) {
+        for (final point in (lesson['points'] as List).cast<Map>()) {
+          if (point['id'] == id) {
+            return (point['practice'] as List).cast<Map<String, dynamic>>();
+          }
+        }
+      }
+      throw StateError('no grammar point $id in jp_grammar.json');
+    }
+
+    /// The shipped `jp_grammar.json` row of the particle [id].
+    Map<String, dynamic> particleRowOf(String id) =>
+        (grammarDoc['particles'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['id'] == id);
+
+    Future<Harness> pumpPicked(WidgetTester tester, ItemDef item,
+        MasteryState state, FakePronunciation pron) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = JpStoreMemory();
+      await s.putMastery(state);
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: planOf([entryOf(item, PlanSection.due)]),
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            probeBuilder: standardProbeBuilder(
+                grammar: _read('assets/lessons/jp_grammar.json'),
+                pronunciation: pron),
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    testWidgets(
+        "the session shows a particle's choose card once its cloze is cleared",
+        (tester) async {
+      final pron = FakePronunciation();
+      final h = await pumpPicked(tester, particle,
+          learning(particle, [clearOn(particle, 'cloze', today - 1)]), pron);
+      final choose = probeOf(particle, 'choose');
+      expect(h.shows('Choose the missing part'), isTrue);
+      for (final o in choose.options) {
+        expect(h.shows(o), isTrue, reason: 'the option $o');
+      }
+      await h.tap(choose.answer);
+      final a = (await h.store.attempts(itemId: particle.id)).single;
+      expect(a.probeId, kParticleChooseId);
+      expect(a.template, 'choose');
+      expect(a.grade, Grade.clear);
+    });
+
+    testWidgets(
+        'a say card scores through the service and writes the entry source, never Say-it',
+        (tester) async {
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          particle,
+          learning(particle, [
+            clearOn(particle, 'cloze', today - 2),
+            clearOn(particle, 'choose', today - 1),
+          ]),
+          pron);
+      final say = probeOf(particle, kSayCardTemplate);
+      expect(h.shows('Say the whole sentence'), isTrue);
+      expect(h.shows(say.text), isTrue);
+      expect(
+          h.shows(particleRowOf(particle.id)['example_en'] as String), isTrue,
+          reason: "the builder passes the particle's English");
+      expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
+      await h.tap('Say it');
+      expect(pron.referenceTexts.single, say.answer);
+      pron.answer(Judgement.correct);
+      await h.settle();
+      final a = (await h.store.attempts(itemId: particle.id)).single;
+      expect(a.probeId, sayCardId('cloze'));
+      expect(a.template, kSayCardTemplate);
+      expect(a.grade, Grade.clear);
+      expect(a.source, Source.review, reason: "the entry's source (D18)");
+      expect(a.production, isTrue);
+      final m = await h.store.mastery(particle.id);
+      expect(m!.clears.map((c) => c.template).toList(),
+          ['cloze', 'choose', kSayCardTemplate],
+          reason: 'a say card clear counts toward Mastered');
+    });
+
+    testWidgets(
+        "a grammar say card shows the English of the practice row it twins",
+        (tester) async {
+      // A typed and a recognition clear: the first say card (`say.p0`) is the pick, and
+      // its English is practice row 0's, read through `transferKeyOf` in the real builder.
+      final grammar = catalog.ofKind(ItemKind.grammar).first;
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          grammar,
+          learning(grammar, [
+            clearOn(grammar, 'fill', today - 2),
+            clearOn(grammar, 'choose', today - 1),
+          ]),
+          pron);
+      final say = grammar.probes.firstWhere((p) => p.id == sayCardId('p0'));
+      final rows = practiceRowsOf(grammar.id);
+      expect(h.shows('Say the whole sentence'), isTrue);
+      expect(h.shows(say.text), isTrue);
+      expect(h.shows(rows[0]['en'] as String), isTrue,
+          reason: 'row 0 English, through the twin id');
+      expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
+    });
+
+    testWidgets('a word with a see-it clear asks its spoken card next',
+        (tester) async {
+      final pron = FakePronunciation();
+      final h = await pumpPicked(tester, word,
+          learning(word, [clearOn(word, 'card', today - 1)]), pron);
+      expect(h.shows('Say or type the word'), isTrue,
+          reason: 'the spoken card, not the card recall again');
+      expect(h.shows('Show me'), isFalse);
     });
   });
 }

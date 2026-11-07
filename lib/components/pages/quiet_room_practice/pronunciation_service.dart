@@ -16,7 +16,8 @@
 //     a recorder that throws, no speech, a failed sign-in, a network or function error, or a
 //     reply we cannot read. The speak drill (practice, not counted) sends unverified to
 //     self-check; a counting spoken card writes it unscored, with no self-mark (plan
-//     2026-11-06, Task 5, D10).
+//     2026-11-06, Task 5, D10), or wrong after the revealing hint rung (plan 2026-11-06,
+//     ASK-3).
 //
 // The counting spoken cards of the Review session and Practice now score only through this
 // service (plan 2026-11-06, Task 5, PIN-2). Their hosts build it with
@@ -179,7 +180,8 @@ class PronunciationResult {
   });
 
   /// Nothing could be scored. The speak drill sends this to self-check (PIN-3); a counting
-  /// spoken card writes it unscored, with no self-mark (D10).
+  /// spoken card writes it unscored, with no self-mark (D10), or wrong after the revealing hint
+  /// rung (plan 2026-11-06, ASK-3).
   const PronunciationResult.unverified() : this(verdict: Judgement.unverified);
 
   final Judgement verdict;
