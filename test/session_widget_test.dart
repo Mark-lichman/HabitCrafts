@@ -567,14 +567,15 @@ void main() {
 
     /// One counting clear on the word's card, so a widget's own standardProbeBuilder lands on
     /// `spoken` under the answered-modulo-length rotation and under a mode-aware pick alike
-    /// (D19: the first scored probe whose mode has no counting clear).
+    /// (D19: the first scored probe whose mode has no counting clear). Both rules read only
+    /// the first two scored probes, so the list may grow past them (Task 6's say probe).
     Future<JpStoreMemory> storeWithCardClear() async {
       final s = JpStoreMemory();
       final seed = attemptOf(word, today - 1, Grade.clear);
       expect(seed.template, 'card', reason: 'the seed is on the card');
-      expect(word.scoredProbes.map((p) => p.template).toList(),
-          ['card', 'spoken', 'typed'],
-          reason: 'spoken is the one scored probe after the card');
+      expect(word.scoredProbes.map((p) => p.template).take(2).toList(),
+          ['card', 'spoken'],
+          reason: 'both pick rules read the first two scored probes');
       await s.appendAttempt(seed);
       return s;
     }
@@ -640,8 +641,13 @@ void main() {
       await h.settle();
     }
 
-    Future<Attempt> written(Harness h) async =>
-        (await h.store.attempts(itemId: word.id)).last;
+    /// The attempt the spoken answer wrote. A store seeded by [storeWithCardClear] holds a
+    /// `card` clear before it, so the template check is what tells a missing write apart.
+    Future<Attempt> written(Harness h) async {
+      final a = (await h.store.attempts(itemId: word.id)).last;
+      expect(a.template, 'spoken', reason: 'the spoken answer wrote an attempt');
+      return a;
+    }
 
     testWidgets('a correct score writes a spoken clear', (tester) async {
       final (h, pron) = await pumpSpoken(tester);
