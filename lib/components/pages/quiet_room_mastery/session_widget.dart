@@ -22,14 +22,18 @@
 // was answered in, and the wrong schedules it Again for another day.
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): every unanswered card shows a quiet
-// [ReviewLessonLink] naming the lesson and the idea, never the card's answer. It pushes the
-// item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
+// [ReviewLessonLink] naming the lesson ([reviewLessonDetail]), never the card's answer. It
+// pushes the item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
 // unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
 // through `afterLessonReview`, so a clear is written hinted at hint level 1 or more; wrong,
 // self and unscored are untouched.
 // An answered or held card has no link, so a review after the answer changes nothing.
 // Opening a lesson writes no attempt. With no router and no injected opener the card shows
 // no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
+//
+// Discuss with Mari (plan 2026-11-06, Task 4, PIN-6): every card, asked or held, carries a
+// quiet [DiscussToggle] (discuss_list_widget.dart) that sets or clears the item's Discuss
+// mark. A mark is no answer: it writes no attempt and leaves the card's grade as it was.
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
@@ -79,6 +83,7 @@ import '../quiet_room_grammar/jp_study_kit.dart';
 import '../quiet_room_practice/speech_service.dart';
 import '../quiet_room_today/streak.dart';
 import 'attempt.dart';
+import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart' show DrillAnswer, kAnswerNotSaved;
 import 'fsrs.dart';
 import 'item_catalog.dart';
@@ -767,6 +772,13 @@ class _SessionWidgetState extends State<SessionWidget> {
             reviewed: _reviewedPresentation == _presentation,
             onTap: () => _reviewLesson(open, item),
           ),
+        // Keyed: the lesson link above leaves the card on the held phase, and an unkeyed
+        // toggle would be rebuilt by position and read the store again.
+        DiscussToggle(
+            key: ValueKey('discuss-${item.id}'),
+            itemId: item.id,
+            store: widget.store,
+            clock: widget.clock),
         if (held)
           _action(t, 'Next', () => _keepGoing(_Phase.held), primary: true),
       ],

@@ -30,6 +30,7 @@ import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import '/components/pages/quiet_room_mastery/discuss_list_widget.dart';
 import '/components/pages/quiet_room_mastery/item_detail_widget.dart';
 import '/components/pages/quiet_room_mastery/lesson_page_widget.dart';
 import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
@@ -255,6 +256,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ItemDetailWidget(
             itemId: params.getParam('item', ParamType.String) ?? '',
           ),
+        ),
+        // The Discuss with Mari list (plan 2026-11-06, Task 4), from Today's quiet links. It
+        // reads the marks itself, so a refresh lands on the same list.
+        FFRoute(
+          name: DiscussListWidget.routeName,
+          path: DiscussListWidget.routePath,
+          builder: (context, params) => const DiscussListWidget(),
         ),
         // The lesson path and the lesson page (plan 2026-11-02, Task 26). Each reads the record
         // itself, so a deep link or a refresh lands on the same list or lesson.
