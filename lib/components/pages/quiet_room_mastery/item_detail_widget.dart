@@ -177,7 +177,7 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
         }
       }
       final need = transferProbesNeeded(item);
-      final have = {for (final c in clears) c.probeId}.length;
+      final have = {for (final c in clears) transferKeyOf(c.probeId)}.length;
       if (have < need) {
         out.add(
             'clears on ${_n(need - have, 'more different ${_probeWord(item.kind)}')}');
@@ -231,6 +231,9 @@ String probeLabel(ItemDef item, String probeId) {
     'card' => 'Recall card',
     'spoken' => 'Say the word',
     'typed' => 'Type the reading',
+    kSayCardTemplate when item.kind == ItemKind.word =>
+      'Say it from the picture',
+    kSayCardTemplate => 'Say it: ${probe.text}',
     kPairToTransitive => '${probe.text} → ${probe.answer}',
     kPairToIntransitive => '${probe.text} → ${probe.answer}',
     _ => probe.text.isEmpty ? probe.id : probe.text,

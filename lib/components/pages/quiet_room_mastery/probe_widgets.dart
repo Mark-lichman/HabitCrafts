@@ -7,12 +7,13 @@
 //
 // | widget             | probe                         | check                               |
 // |--------------------|-------------------------------|-------------------------------------|
-// | [ChooseProbe]      | a grammar `choose` item       | the picked option                   |
+// | [ChooseProbe]      | a grammar `choose` item, a particle's choose card | the picked option |
 // | [TypedFillProbe]   | a `fill` item, a particle cloze | `checkTypedAnswer` on the caller's item map (accepted forms), hint behind a tap |
 // | [WordRecallProbe]  | a word: spoken, typed or card | `PronunciationService` (Azure, by sound), `checkTypedAnswer`, or the learner after the reveal |
 // | [ConjugationProbe] | a verb of a conjugation idea  | the learner after the reveal        |
 // | [PairProbe]        | a pair, in either direction   | the learner after the reveal        |
 // | [TableCellProbe]   | a cell of a table row         | the learner after the reveal        |
+// | [SayCardProbe]     | the say card of any kind (`sayCard`) | `PronunciationService` (Azure), counted |
 // | [SayItProbe]       | one form of a grammar example (Say-it) | `PronunciationService`     |
 //
 // Every grade comes from `gradeAnswer` (attempt.dart), so the rules hold the same on every
@@ -70,6 +71,9 @@ import 'attempt.dart';
 import 'drill_recorder.dart' show DrillAnswer;
 import 'item_catalog.dart';
 import 'mastery_rule.dart';
+
+// `fillBlank` lives with the catalog, which builds a say card's whole sentence with it.
+export 'item_catalog.dart' show fillBlank;
 
 /// Receives the one graded draft a probe widget hands on.
 typedef ProbeAnswered = void Function(DrillAnswer answer);
@@ -210,14 +214,6 @@ String _verdictText(Grade g) => switch (g) {
       Grade.unscored => 'Not counted.',
       Grade.self => 'Marked as got it. No credit this time.',
     };
-
-/// The prompt with its blank (a run of ＿ or _) filled by [answer], as the text before, the
-/// answer and the text after. A prompt with no blank reads as the answer alone.
-(String, String, String) fillBlank(String prompt, String answer) {
-  final m = RegExp(r'[＿_]+').firstMatch(prompt);
-  if (m == null) return ('', answer, '');
-  return (prompt.substring(0, m.start), answer, prompt.substring(m.end));
-}
 
 // --- shared pieces -------------------------------------------------------------
 
@@ -1042,6 +1038,144 @@ class TableCellProbe extends StatelessWidget {
         hint: hint,
         instruction: 'Read it',
       );
+}
+
+// --- the say card (plan 2026-11-06, Task 6) -------------------------------------
+
+/// The line a say card asks with (PIN-12): what to say, never the answer.
+String sayCardInstruction(ItemDef item, ProbeDef probe) => switch (item.kind) {
+      ItemKind.grammar || ItemKind.particle => 'Say the whole sentence',
+      ItemKind.word => 'Say the word',
+      ItemKind.conjugation =>
+        'Say the ${conjugationFormLabel(_conjugationForm(item))}',
+      ItemKind.pair => probe.id == sayCardId(kPairToIntransitive)
+          ? 'Say its intransitive partner'
+          : 'Say its transitive partner',
+      ItemKind.tableRow => 'Say the reading',
+    };
+
+/// The scored say card every kind has ([kSayCardTemplate], D3, D18). The card shows the prompt
+/// only, never the answer (PIN-12): a sentence's prompt and its [english], a word's picture
+/// and meaning, a verb under the form's name, the other side of a pair, or a table cell's
+/// number and counter. The learner says the answer, and [PronunciationService] scores it by
+/// sound against the probe's hiragana (PIN-2). The grade comes from [gradeSpokenAnswer]:
+/// correct is clear, close is hinted and marked `spokenClose` (PIN-10), wrong is wrong, and an
+/// unverified check is unscored at once, with no Got it or Missed it (D10). Skip is unscored.
+/// The answer shows only after a scored answer, so an unscored card that comes back later in
+/// the section still hides it. The draft is never on the Say-it track: the host writes the
+/// session's source.
+class SayCardProbe extends StatefulWidget {
+  const SayCardProbe({
+    super.key,
+    required this.item,
+    required this.probe,
+    required this.state,
+    required this.pronunciation,
+    required this.onAnswer,
+    this.english,
+    this.imageAsset,
+  });
+
+  final ItemDef item;
+  final ProbeDef probe;
+  final MasteryState state;
+
+  /// Scores the answer by sound (Azure). The host owns it and disposes it.
+  final PronunciationService pronunciation;
+  final ProbeAnswered onAnswer;
+
+  /// The sentence's English, shown with its prompt; null shows none.
+  final String? english;
+
+  /// A word's picture; null shows none. See [wordImageAsset].
+  final String? imageAsset;
+
+  @override
+  State<SayCardProbe> createState() => _SayCardProbeState();
+}
+
+class _SayCardProbeState extends State<SayCardProbe> {
+  bool _checking = false;
+  int _token = 0;
+  Grade? _grade;
+  bool _spokenClose = false;
+  bool _notScored = false;
+
+  @override
+  void dispose() {
+    _token++;
+    if (_checking) unawaited(widget.pronunciation.cancel());
+    super.dispose();
+  }
+
+  void _report(Grade grade, {bool spokenClose = false}) {
+    _token++;
+    setState(() {
+      _grade = grade;
+      _spokenClose = spokenClose;
+    });
+    widget.onAnswer(_draft(widget.item, widget.probe, grade,
+        selfGraded: false, spokenClose: spokenClose));
+  }
+
+  Future<void> _say() async {
+    if (_checking || _grade != null) return;
+    final token = ++_token;
+    setState(() => _checking = true);
+    try {
+      final r = await widget.pronunciation.check(widget.probe.answer);
+      if (!mounted || token != _token) return;
+      setState(() => _checking = false);
+      final g = gradeSpokenAnswer(r.verdict);
+      _notScored = r.verdict == Judgement.unverified;
+      _report(g.grade, spokenClose: g.spokenClose);
+    } catch (e, s) {
+      // As the word card: the failure goes the recorder's way (S4), and no draft is written.
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room probes',
+          context: ErrorDescription(
+              'while scoring ${widget.item.id} ${widget.probe.id}')));
+    } finally {
+      if (mounted && token == _token && _checking) {
+        setState(() => _checking = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    final g = _grade;
+    final scored = g != null && g != Grade.unscored;
+    return _ProbeFrame(state: widget.state, children: [
+      if (widget.imageAsset != null)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Image.asset(widget.imageAsset!,
+              height: 160,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+        ),
+      _label(t, sayCardInstruction(widget.item, widget.probe)),
+      _prompt(t, widget.probe.text),
+      if (widget.english != null) _quiet(t, widget.english!),
+      if (g == null)
+        Row(children: [
+          Expanded(
+              child: _button(t, _checking ? 'Listening' : 'Say it',
+                  _checking ? null : _say,
+                  primary: true)),
+          const SizedBox(width: 10),
+          Expanded(
+              child: _button(
+                  t, 'Skip', _checking ? null : () => _report(Grade.unscored))),
+        ]),
+      if (_notScored) _quiet(t, kSpokenUnscoredLine),
+      if (scored) _answerLine(t, widget.probe.answer),
+      if (g != null) _verdict(t, g, spokenClose: _spokenClose),
+    ]);
+  }
 }
 
 // --- the spoken sentence (Say-it) ----------------------------------------------

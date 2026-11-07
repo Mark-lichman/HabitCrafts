@@ -6,12 +6,22 @@
 //
 // | kind        | id                         | probes                                       |
 // |-------------|----------------------------|----------------------------------------------|
-// | grammar     | `mari.L31.3`               | its practice items, then its examples (Say-it) |
-// | particle    | `mari.particle.14`         | its cloze                                    |
-// | word        | image stem, `L30_02`       | card recall, spoken recall, reading typed    |
-// | conjugation | `conj.<form>.g<group>`     | the verbs of that group that have the form   |
-// | pair        | the catalog id             | both directions                              |
-// | tableRow    | `ref.<table>.<row>`        | the cells of the row, irregular ones flagged |
+// | grammar     | `mari.L31.3`               | its practice items, a say card per item, then its examples (Say-it) |
+// | particle    | `mari.particle.14`         | its cloze, a choose card over it, a say card over it |
+// | word        | image stem, `L30_02`       | card recall, spoken recall, reading typed, a say card |
+// | conjugation | `conj.<form>.g<group>`     | the verbs of that group that have the form, a say card per verb |
+// | pair        | the catalog id             | both directions, a say card per direction    |
+// | tableRow    | `ref.<table>.<row>`        | the cells of the row, irregular ones flagged, a say card per cell |
+//
+// The say card (plan 2026-11-06, Task 6, D3, D18, PIN-12) is scored by Azure against its
+// answer's hiragana, under [kSayCardTemplate], and shows the prompt only, never the answer: a
+// grammar point or a particle says the whole sentence from its prompt and English; a word from
+// its picture and meaning; a conjugation from the verb and the form name; a pair from the other
+// side; a table row from the number and the counter. A say card twins the probe whose sentence,
+// verb, direction or cell it asks, `say.<id>` (a word's is `say`), so the transfer clause counts
+// the two as one (`transferKeyOf`, mastery_rule.dart). A particle's choose card (`choose.cloze`)
+// offers its cloze answer among other particles that cannot complete the sentence
+// ([particleChooseOptions], PIN-3, PIN-7).
 //
 // Prerequisite level orders introductions: 0 for particles, conjugation ideas, pairs and table
 // rows; 1 for the words of a lesson; 2 for the grammar of a lesson. A grammar point's `prereqs`
@@ -32,6 +42,94 @@ import 'mastery_rule.dart';
 
 /// The template of a grammar point's example sentence: the Say-it track, never scored (D4).
 const String kSayItTemplate = 'say';
+
+/// The template of the scored say card every kind has (plan 2026-11-06, Task 6, D18): a
+/// spoken answer scored by Azure that counts, unlike [kSayItTemplate]. Its attempts carry the
+/// session's source, never `Source.sayIt`.
+const String kSayCardTemplate = 'sayCard';
+
+/// The id of the say card that twins the probe [probeId] (`say.p0`); see `transferKeyOf`.
+String sayCardId(String probeId) => 'say.$probeId';
+
+/// The id of a word's one say card.
+const String kWordSayCardId = 'say';
+
+/// The id of a particle's choose card, which twins its cloze.
+const String kParticleChooseId = 'choose.cloze';
+
+/// The options a particle's choose card offers: 3, the answer once among them.
+const int kParticleChooseOptions = 3;
+
+/// The prompt with its blank (a run of ＿ or _) filled by [answer], as the text before, the
+/// answer and the text after. A prompt with no blank reads as the answer alone.
+(String, String, String) fillBlank(String prompt, String answer) {
+  final m = RegExp(r'[＿_]+').firstMatch(prompt);
+  if (m == null) return ('', answer, '');
+  return (prompt.substring(0, m.start), answer, prompt.substring(m.end));
+}
+
+/// The whole sentence of a fill-in [prompt] with [answer] in its blank: what a say card hears.
+String wholeSentence(String prompt, String answer) {
+  final (before, filled, after) = fillBlank(prompt, answer);
+  return '$before$filled$after';
+}
+
+/// The particles that complete a bare noun or a phrase ending in one (にとって after わたし),
+/// and the ones that join a clause or follow の or な (のに after やくそくした). A particle's
+/// choose card takes its wrong options from the other list only, so a wrong option cannot
+/// complete the sentence (PIN-3, A4). A particle that fits both kinds of slot is in neither
+/// list: として (〜たとして, "supposing"), でも, ながら (こどもながら) and ばかり (〜たばかり) are
+/// never wrong options, though each still gets a choose card of its own.
+const List<String> kNounSlotParticles = ['によって', 'にとって', 'について', 'しか'];
+const List<String> kClauseSlotParticles = [
+  'のに',
+  'ので',
+  'けれど',
+  'ように',
+  'ために',
+  'とおりに',
+  'まま',
+];
+
+/// The wrong-option list of each particle, by its cloze answer: the list of the other slot.
+/// A particle missing here gets no choose card: the catalog never builds a card it cannot
+/// show has one right option.
+const Map<String, List<String>> kParticleWrongOptions = {
+  'によって': kClauseSlotParticles,
+  'として': kClauseSlotParticles,
+  'にとって': kClauseSlotParticles,
+  'について': kClauseSlotParticles,
+  'でも': kClauseSlotParticles,
+  'しか': kClauseSlotParticles,
+  'ながら': kClauseSlotParticles,
+  'ように': kNounSlotParticles,
+  'ために': kNounSlotParticles,
+  'のに': kNounSlotParticles,
+  'ので': kNounSlotParticles,
+  'けれど': kNounSlotParticles,
+  'とおりに': kNounSlotParticles,
+  'まま': kNounSlotParticles,
+  'ばかり': kNounSlotParticles,
+};
+
+/// The options of the choose card for the particle at [index] whose cloze answer is [answer]
+/// with [accepted] forms, or null when [kParticleWrongOptions] has no list for it. The wrong
+/// options come from that list, never the answer or an accepted form, picked and placed by
+/// [index], so the same data always builds the same card and the answer moves between places.
+List<String>? particleChooseOptions(
+    int index, String answer, List<String> accepted) {
+  final pool = [
+    for (final p in kParticleWrongOptions[answer] ?? const <String>[])
+      if (p != answer && !accepted.contains(p)) p
+  ];
+  if (pool.length < kParticleChooseOptions - 1) return null;
+  final wrong = [
+    for (var i = 0; i < kParticleChooseOptions - 1; i++)
+      pool[(index + i) % pool.length]
+  ];
+  final at = index % kParticleChooseOptions;
+  return [...wrong.take(at), answer, ...wrong.skip(at)];
+}
 
 /// The templates of the self-graded drill probes. The drills screen writes its attempts with
 /// these, so a drill and the catalog never name one template two ways.
@@ -89,13 +187,14 @@ class ProbeDef {
     this.selfGraded = false,
     this.scored = true,
     this.irregular = false,
+    this.options = const [],
   });
 
   /// Unique within its item; the `probe` of an attempt.
   final String id;
 
   /// The question kind: choose, fill, say, cloze, card, spoken, typed, conjugate, a pair
-  /// direction (`transitive`, `intransitive`) or cell.
+  /// direction (`transitive`, `intransitive`), cell or the say card ([kSayCardTemplate]).
   final String template;
 
   /// What the learner sees: the sentence, the reading, the verb or the cell's column.
@@ -116,7 +215,21 @@ class ProbeDef {
 
   /// A table cell whose reading is not the regular one (a sound change or a special reading).
   final bool irregular;
+
+  /// The options of a choose card the catalog builds itself (a particle's); empty otherwise,
+  /// where the host reads them from the lesson data.
+  final List<String> options;
 }
+
+/// The say card that twins [base]: it shows [base]'s text, never the answer (PIN-12), and
+/// Azure hears [answer], else [base]'s answer.
+ProbeDef _sayCard(ProbeDef base, {String? answer}) => ProbeDef(
+      id: sayCardId(base.id),
+      template: kSayCardTemplate,
+      text: base.text,
+      answer: answer ?? base.answer,
+      production: true,
+    );
 
 /// One mastery item.
 class ItemDef implements ItemDefLike {
@@ -164,8 +277,11 @@ class ItemDef implements ItemDefLike {
   @override
   bool get hasProductionProbe => scoredProbes.any((p) => p.production);
 
+  /// Different sentences, verbs, directions or cells: a say card or a choose card counts as
+  /// the probe it twins (`transferKeyOf`).
   @override
-  int get probeCount => scoredProbes.length;
+  int get probeCount =>
+      scoredProbes.map((p) => transferKeyOf(p.id)).toSet().length;
 }
 
 /// Every mastery item, in a stable order: grammar, particles, words, conjugation ideas, pairs,
@@ -227,7 +343,7 @@ List<ItemDef> _grammarPoints(
     for (final point in _maps(lesson['points'])) {
       final practice = _maps(point['practice']);
       final examples = _maps(point['examples']);
-      final probes = [
+      final asked = [
         for (var i = 0; i < practice.length; i++)
           ProbeDef(
             id: 'p$i',
@@ -236,6 +352,12 @@ List<ItemDef> _grammarPoints(
             answer: _str(practice[i]['answer']),
             production: practice[i]['kind'] == 'fill',
           ),
+      ];
+      final probes = [
+        ...asked,
+        // Say the whole sentence from its prompt (and its English, which the host shows).
+        for (final p in asked)
+          _sayCard(p, answer: wholeSentence(p.text, p.answer)),
         for (var i = 0; i < examples.length; i++)
           ProbeDef(
             id: 'ex$i',
@@ -268,26 +390,44 @@ List<ItemDef> _grammarPoints(
   return out;
 }
 
-List<ItemDef> _particles(Map<String, dynamic> grammar) => [
-      for (final p in _maps(grammar['particles']))
-        if (p['cloze'] is Map<String, dynamic>)
-          ItemDef(
-            id: p['id'] as String,
-            kind: ItemKind.particle,
-            title: _str(p['expression']),
-            lesson: _firstLesson(p['taught_in']),
-            prereqLevel: 0,
-            probes: [
-              ProbeDef(
-                id: 'cloze',
-                template: 'cloze',
-                text: _str(p['cloze']['prompt']),
-                answer: _str(p['cloze']['answer']),
-                production: true,
-              ),
-            ],
+List<ItemDef> _particles(Map<String, dynamic> grammar) {
+  final out = <ItemDef>[];
+  final all = _maps(grammar['particles']);
+  for (var i = 0; i < all.length; i++) {
+    final p = all[i];
+    final cloze = p['cloze'];
+    if (cloze is! Map<String, dynamic>) continue;
+    final asked = ProbeDef(
+      id: 'cloze',
+      template: 'cloze',
+      text: _str(cloze['prompt']),
+      answer: _str(cloze['answer']),
+      production: true,
+    );
+    final options = particleChooseOptions(i, asked.answer,
+        (cloze['accepted'] as List? ?? const []).cast<String>());
+    out.add(ItemDef(
+      id: p['id'] as String,
+      kind: ItemKind.particle,
+      title: _str(p['expression']),
+      lesson: _firstLesson(p['taught_in']),
+      prereqLevel: 0,
+      probes: [
+        asked,
+        if (options != null)
+          ProbeDef(
+            id: kParticleChooseId,
+            template: 'choose',
+            text: asked.text,
+            answer: asked.answer,
+            options: options,
           ),
-    ];
+        _sayCard(asked, answer: wholeSentence(asked.text, asked.answer)),
+      ],
+    ));
+  }
+  return out;
+}
 
 /// The lowest lesson number in a particle's `taught_in`, or null when it names none.
 int? _firstLesson(Object? taughtIn) {
@@ -328,6 +468,13 @@ List<ItemDef> _words(Map<String, dynamic> lessons) => [
                   text: _str(w['gloss']),
                   answer: _str(w['kana']),
                   production: true),
+              // Say the word from its picture and meaning.
+              ProbeDef(
+                  id: kWordSayCardId,
+                  template: kSayCardTemplate,
+                  text: _str(w['gloss']),
+                  answer: _str(w['kana']),
+                  production: true),
             ],
           ),
     ];
@@ -346,7 +493,7 @@ List<ItemDef> _conjugationIdeas(
   final out = <ItemDef>[];
   for (final form in forms) {
     for (final group in const [1, 2, 3]) {
-      final probes = [
+      final asked = [
         for (final v in verbs)
           if (v['group'] == group && _str(v[form]).isNotEmpty)
             ProbeDef(
@@ -358,6 +505,8 @@ List<ItemDef> _conjugationIdeas(
               selfGraded: true,
             ),
       ];
+      // Say the form from the verb; the card names the form.
+      final probes = [...asked, for (final p in asked) _sayCard(p)];
       if (probes.isEmpty) continue;
       out.add(ItemDef(
         id: conjugationItemId(form, group),
@@ -378,26 +527,28 @@ List<ItemDef> _pairs(Map<String, dynamic> grammar) {
   final out = <ItemDef>[];
   for (var i = 0; i < pairs.length; i++) {
     final p = pairs[i];
+    // Shown the intransitive verb, give the transitive one, and the reverse.
+    final asked = [
+      ProbeDef(
+          id: kPairToTransitive,
+          template: kPairToTransitive,
+          text: _str(p['intransitive']),
+          answer: _str(p['transitive']),
+          selfGraded: true),
+      ProbeDef(
+          id: kPairToIntransitive,
+          template: kPairToIntransitive,
+          text: _str(p['transitive']),
+          answer: _str(p['intransitive']),
+          selfGraded: true),
+    ];
     out.add(ItemDef(
       id: ids[i],
       kind: ItemKind.pair,
       title: _pairTitle(p),
       prereqLevel: 0,
-      probes: [
-        // Shown the intransitive verb, give the transitive one, and the reverse.
-        ProbeDef(
-            id: kPairToTransitive,
-            template: kPairToTransitive,
-            text: _str(p['intransitive']),
-            answer: _str(p['transitive']),
-            selfGraded: true),
-        ProbeDef(
-            id: kPairToIntransitive,
-            template: kPairToIntransitive,
-            text: _str(p['transitive']),
-            answer: _str(p['intransitive']),
-            selfGraded: true),
-      ],
+      // Say the partner from the other side.
+      probes: [...asked, for (final a in asked) _sayCard(a)],
     ));
   }
   return out;
@@ -408,7 +559,7 @@ List<ItemDef> _tableRows(Map<String, dynamic> grammar) {
   for (final table in _maps(grammar['reference'])) {
     final cells = _maps(table['cells']);
     for (final row in (table['rows'] as List).cast<String>()) {
-      final probes = [
+      final asked = [
         for (final c in cells)
           if (c['row'] == row)
             ProbeDef(
@@ -420,6 +571,8 @@ List<ItemDef> _tableRows(Map<String, dynamic> grammar) {
               irregular: c['mark'] != 'regular',
             ),
       ];
+      // Say the reading from the number and the counter.
+      final probes = [...asked, for (final p in asked) _sayCard(p)];
       if (probes.isEmpty) continue;
       out.add(ItemDef(
         id: tableRowItemId(table['id'] as String, row),

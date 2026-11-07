@@ -2,6 +2,11 @@
 // shipped assets on each run, never hard-coded, so a regenerated asset moves the snapshot and
 // the catalog together. What stays fixed is the shape: stable unique ids, at least one probe
 // per item, at least three sentence probes per grammar point, and prerequisites that resolve.
+//
+// New cards (plan 2026-11-06, Task 6, End state 5): every kind has a scored say card that
+// shows the prompt only (PIN-12) and twins the probe it asks, and every particle has a choose
+// card whose wrong options are other particles of the other slot, so exactly one option
+// completes the sentence (PIN-7, A4).
 
 import 'dart:convert';
 import 'dart:io';
@@ -139,7 +144,8 @@ void main() {
     final item = catalog.byId(point['id'] as String)!;
     final practice = point['practice'] as List;
     final examples = point['examples'] as List;
-    expect(item.probes.length, practice.length + examples.length);
+    // Each practice item, its say card, and each example (plan 2026-11-06, Task 6).
+    expect(item.probes.length, 2 * practice.length + examples.length);
     expect(item.lesson, (grammarDoc['grammar'] as List).first['lesson']);
     expect(item.prereqLevel, 2);
     final fill = item.probes.where((p) => p.template == 'fill');
@@ -156,22 +162,28 @@ void main() {
     for (final item in catalog.items) {
       final scored = item.probes.where((p) => p.scored);
       expect(item.templateCount, scored.map((p) => p.template).toSet().length);
-      expect(item.probeCount, scored.length);
+      // A say or choose card asks the sentence, verb, direction or cell of the probe it
+      // twins, so the probe count counts each one once (D4 clause 5).
+      expect(item.probeCount,
+          scored.map((p) => transferKeyOf(p.id)).toSet().length);
       expect(item.hasProductionProbe, scored.any((p) => p.production));
     }
     final word = catalog.ofKind(ItemKind.word).first;
     expect(word.probes.map((p) => p.template).toList(),
-        ['card', 'spoken', 'typed']);
+        ['card', 'spoken', 'typed', kSayCardTemplate]);
     expect(word.hasProductionProbe, isTrue);
     expect(
         word.probes.firstWhere((p) => p.template == 'card').selfGraded, isTrue);
     for (final p in catalog.ofKind(ItemKind.particle)) {
-      expect(p.templateCount, 1, reason: 'one cloze per particle (PIN-15)');
+      // The cloze, the choose card and the say card (Task 6, PIN-7), over one sentence.
+      expect(p.templateCount, 3, reason: 'cloze, choose and say card');
+      expect(p.probeCount, 1, reason: 'one sentence per particle');
     }
     for (final p in catalog.ofKind(ItemKind.pair)) {
-      expect(p.templateCount, 2, reason: 'both directions (D4)');
+      expect(p.templateCount, 3,
+          reason: 'both directions (D4) and the say card');
       expect(p.probeCount, 2);
-      expect(p.hasProductionProbe, isFalse);
+      expect(p.hasProductionProbe, isTrue, reason: 'the say card');
     }
   });
 
@@ -262,8 +274,12 @@ void main() {
         if (v['group'] == 2 && (v['te'] as String? ?? '').isNotEmpty)
           v['dictionary'] as String
     ];
-    expect(item.probes.map((p) => p.id).toList(), expected);
-    expect(item.probes.every((p) => p.selfGraded), isTrue);
+    expect(item.probes.map((p) => p.id).toList(),
+        [...expected, for (final v in expected) sayCardId(v)]);
+    final conjugate =
+        item.probes.where((p) => p.template == kConjugateTemplate).toList();
+    expect(conjugate.map((p) => p.id).toList(), expected);
+    expect(conjugate.every((p) => p.selfGraded), isTrue);
   });
 
   test('table rows take their cells as probes and flag irregular readings', () {
@@ -275,10 +291,12 @@ void main() {
       for (final c in (table['cells'] as List).cast<Map<String, dynamic>>())
         if (c['row'] == row) c
     ];
-    expect(item.probes.length, cells.length);
+    // Each cell, then a say card per cell (Task 6).
+    expect(item.probes.length, 2 * cells.length);
     for (var i = 0; i < cells.length; i++) {
       expect(item.probes[i].answer, cells[i]['reading']);
       expect(item.probes[i].irregular, cells[i]['mark'] != 'regular');
+      expect(item.probes[cells.length + i].answer, cells[i]['reading']);
     }
     final allIrregular = catalog
         .ofKind(ItemKind.tableRow)
@@ -292,8 +310,9 @@ void main() {
         in (grammarDoc['particles'] as List).cast<Map<String, dynamic>>()) {
       final item = catalog.byId(raw['id'] as String)!;
       final cloze = raw['cloze'] as Map<String, dynamic>;
-      expect(item.probes.single.text, cloze['prompt']);
-      expect(item.probes.single.answer, cloze['answer']);
+      final probe = item.probes.firstWhere((p) => p.template == 'cloze');
+      expect(probe.text, cloze['prompt']);
+      expect(probe.answer, cloze['answer']);
     }
   });
 
@@ -302,6 +321,171 @@ void main() {
     expect(transferProbesNeeded(item), 0);
     final grammar = catalog.ofKind(ItemKind.grammar).first;
     expect(transferProbesNeeded(grammar), 3);
+  });
+
+  group('say cards and the particle choose card (plan 2026-11-06, Task 6)', () {
+    Iterable<ProbeDef> sayCards(ItemDef item) =>
+        item.probes.where((p) => p.template == kSayCardTemplate);
+
+    test('every kind has a scored say card, every item at least one (D3)', () {
+      for (final kind in ItemKind.values) {
+        expect(catalog.ofKind(kind).expand(sayCards), isNotEmpty,
+            reason: 'no $kind say card');
+      }
+      for (final item in catalog.items) {
+        final says = sayCards(item).toList();
+        expect(says, isNotEmpty, reason: '${item.id} has no say card');
+        for (final p in says) {
+          expect(p.scored, isTrue, reason: '${item.id} ${p.id} must count');
+          expect(p.production, isTrue);
+          expect(p.selfGraded, isFalse, reason: 'Azure scores it (PIN-2)');
+          expect(p.answer, isNotEmpty);
+        }
+      }
+    });
+
+    test(
+        'the say card is spoken, under a new name beside the Say-it template (D18)',
+        () {
+      expect(kSayCardTemplate, isNot(kSayItTemplate));
+      expect(modeOfTemplate(kSayCardTemplate), ProbeMode.spoken);
+      expect(modeOfTemplate(kSayItTemplate), isNull,
+          reason: 'the Say-it track never counts');
+    });
+
+    test('a say card shows the prompt only, never the answer (PIN-12)', () {
+      for (final item in catalog.items) {
+        for (final p in sayCards(item)) {
+          expect(p.text.contains(p.answer), isFalse,
+              reason: '${item.id} ${p.id} shows its answer ${p.answer}');
+        }
+      }
+    });
+
+    test('a grammar point says the whole sentence of each practice item', () {
+      for (final item in catalog.ofKind(ItemKind.grammar)) {
+        final asked = item.probes
+            .where((p) => p.scored && p.template != kSayCardTemplate)
+            .toList();
+        expect(sayCards(item).map((p) => p.id).toList(),
+            [for (final p in asked) sayCardId(p.id)]);
+        for (final p in asked) {
+          final say = item.probes.firstWhere((s) => s.id == sayCardId(p.id));
+          expect(say.text, p.text, reason: 'the prompt, with its blank');
+          expect(say.answer, wholeSentence(p.text, p.answer));
+          expect(say.answer.contains(RegExp(r'[＿_]')), isFalse,
+              reason: '${item.id} ${say.id} hears a blank');
+        }
+      }
+    });
+
+    test('a particle says its whole cloze sentence', () {
+      for (final item in catalog.ofKind(ItemKind.particle)) {
+        final cloze = item.probes.firstWhere((p) => p.template == 'cloze');
+        final say = sayCards(item).single;
+        expect(say.id, sayCardId('cloze'));
+        expect(say.text, cloze.text);
+        expect(say.answer, wholeSentence(cloze.text, cloze.answer));
+      }
+    });
+
+    test('a word says its reading from its meaning', () {
+      for (final item in catalog.ofKind(ItemKind.word)) {
+        final card = item.probes.firstWhere((p) => p.template == 'card');
+        final say = sayCards(item).single;
+        expect(say.id, kWordSayCardId);
+        expect(say.text, card.text, reason: 'the meaning, beside the picture');
+        expect(say.answer, card.answer, reason: 'the hiragana');
+      }
+    });
+
+    test('a conjugation, a pair and a table row twin each asked probe', () {
+      for (final kind in [
+        ItemKind.conjugation,
+        ItemKind.pair,
+        ItemKind.tableRow
+      ]) {
+        for (final item in catalog.ofKind(kind)) {
+          final asked =
+              item.probes.where((p) => p.template != kSayCardTemplate).toList();
+          final says = sayCards(item).toList();
+          expect(says.length, asked.length, reason: item.id);
+          for (var i = 0; i < asked.length; i++) {
+            expect(says[i].id, sayCardId(asked[i].id));
+            expect(says[i].text, asked[i].text,
+                reason: 'the verb, the other side, or the number and counter');
+            expect(says[i].answer, asked[i].answer);
+            expect(transferKeyOf(says[i].id), asked[i].id);
+          }
+        }
+      }
+    });
+
+    test(
+        'every particle has a choose card with exactly one right option (PIN-7, A4)',
+        () {
+      final particles = catalog.ofKind(ItemKind.particle);
+      final answers = {
+        for (final p in particles)
+          p.probes.firstWhere((q) => q.template == 'cloze').answer
+      };
+      final places = <int>{};
+      for (final item in particles) {
+        final cloze = item.probes.firstWhere((p) => p.template == 'cloze');
+        final raw = (grammarDoc['particles'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['id'] == item.id);
+        final accepted =
+            ((raw['cloze'] as Map)['accepted'] as List).cast<String>();
+        final choose = item.probes.where((p) => p.template == 'choose');
+        expect(choose, hasLength(1), reason: '${item.id} has no choose card');
+        final c = choose.single;
+        expect(c.id, kParticleChooseId);
+        expect(transferKeyOf(c.id), cloze.id, reason: 'the same sentence');
+        expect(c.scored, isTrue);
+        expect(c.production, isFalse, reason: 'a recognition card');
+        expect(modeOfTemplate(c.template), ProbeMode.recognition);
+        expect(c.text, cloze.text);
+        expect(c.answer, cloze.answer);
+        expect(c.options, hasLength(kParticleChooseOptions));
+        expect(c.options.toSet().length, c.options.length,
+            reason: '${item.id} repeats an option');
+        expect(c.options.where((o) => o == c.answer), hasLength(1));
+        places.add(c.options.indexOf(c.answer));
+        final slot = kParticleWrongOptions[c.answer]!;
+        for (final o in c.options.where((o) => o != c.answer)) {
+          expect(answers.contains(o), isTrue,
+              reason: '${item.id}: $o is not another particle');
+          expect(accepted.contains(o), isFalse,
+              reason: '${item.id}: $o is an accepted form');
+          // The wrong options fill the other kind of slot, so none completes the sentence.
+          expect(slot.contains(o), isTrue,
+              reason: '${item.id}: $o is not in the other slot list');
+          expect(identical(kParticleWrongOptions[o], slot), isFalse,
+              reason: '${item.id}: $o fills the same slot as ${c.answer}');
+        }
+      }
+      expect(places.length, greaterThan(1),
+          reason: 'the right option does not always sit in one place');
+    });
+
+    test('a particle with no slot gets no choose card, never a guessed one',
+        () {
+      expect(particleChooseOptions(0, 'は', const []), isNull);
+      final options = particleChooseOptions(4, 'のに', const ['によって']);
+      expect(options, isNotNull);
+      expect(options!.contains('によって'), isFalse,
+          reason: 'an accepted form is never a wrong option');
+    });
+
+    test('a twin counts as the probe it twins for transfer (D4 clause 5)', () {
+      expect(transferKeyOf('say.p0'), 'p0');
+      expect(transferKeyOf('choose.cloze'), 'cloze');
+      expect(transferKeyOf('p0'), 'p0');
+      expect(transferKeyOf(kWordSayCardId), kWordSayCardId);
+      final pair = catalog.ofKind(ItemKind.pair).first;
+      expect(transferProbesNeeded(pair), 2, reason: 'both directions, still');
+    });
   });
 
   testWidgets('load() reads the bundled assets and caches one catalog',

@@ -43,6 +43,12 @@
 // close is written hinted with `Attempt.spokenClose`, neutral for the two-hinted reset
 // (PIN-10); an unverified check is written unscored, with no self-mark (D10).
 //
+// New cards (plan 2026-11-06, Task 6): every kind's say card ([SayCardProbe]) scores through
+// the same service, and its draft is written with the entry's source, never `Source.sayIt`; a
+// particle's choose card offers the options the catalog built. The next card is mode-aware
+// ([nextProbe], D19): the first scored probe whose mode has no counting clear yet, then the
+// scored probes in turn.
+//
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
 // is the entry's (review or keep-sharp); a Say-it draft is written as `sayIt`.
@@ -178,10 +184,29 @@ Future<void> openLessonTarget(BuildContext context, ItemDef item) async {
 LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
     injected ?? (GoRouter.maybeOf(context) != null ? openLessonTarget : null);
 
-/// The probe widgets the app uses: one per item kind, rotating through the item's scored
-/// probes. [grammar] is the decoded `jp_grammar.json`, for a grammar item's options, accepted
-/// forms, hint and English, and a particle's meaning and English. [pronunciation] scores every
-/// counting spoken answer by sound (Azure, PIN-2); the host owns it and disposes it.
+/// The probe the next card asks of [item] (plan 2026-11-06, D19): the first scored probe whose
+/// mode (`modeOfTemplate`, D18) has no counting clear in [state] yet, so a needed mode shows
+/// before the clears run out; once every mode has one, the scored probes in turn by
+/// [answered], the item's attempts so far. A probe whose template has no mode is left to the
+/// rotation. Throws a [StateError] for an item with no scored probe, which a host never asks.
+ProbeDef nextProbe(ItemDef item, MasteryState state, int answered) {
+  final probes = item.scoredProbes.toList();
+  if (probes.isEmpty) {
+    throw StateError('${item.id} has no scored probe to ask');
+  }
+  final cleared = {for (final c in state.clears) modeOfTemplate(c.template)};
+  for (final p in probes) {
+    final mode = modeOfTemplate(p.template);
+    if (mode != null && !cleared.contains(mode)) return p;
+  }
+  return probes[answered % probes.length];
+}
+
+/// The probe widgets the app uses: one per item kind, on the probe [nextProbe] picks, and the
+/// say card ([SayCardProbe]) for any kind's `sayCard` probe. [grammar] is the decoded
+/// `jp_grammar.json`, for a grammar item's options, accepted forms, hint and English, and a
+/// particle's meaning and English. [pronunciation] scores every counting spoken answer by
+/// sound (Azure, PIN-2); the host owns it and disposes it.
 SessionProbeBuilder standardProbeBuilder({
   required Map<String, dynamic> grammar,
   required PronunciationService pronunciation,
@@ -200,15 +225,37 @@ SessionProbeBuilder standardProbeBuilder({
     for (final x in (grammar['particles'] as List? ?? const []))
       ((x as Map)['id'] as String): Map<String, dynamic>.from(x)
   };
+
+  /// The practice row of a grammar probe, or of the probe a say card twins (`say.p2` reads
+  /// row 2).
+  Map<String, dynamic>? practiceRow(ItemDef item, ProbeDef probe) {
+    final id = transferKeyOf(probe.id);
+    final at = id.startsWith('p') ? int.tryParse(id.substring(1)) : null;
+    final rows = practice[item.id] ?? const [];
+    return at != null && at < rows.length ? rows[at] : null;
+  }
+
   return (context, r) {
     final item = r.item;
-    final probes = item.scoredProbes.toList();
-    final probe = probes[r.answered % probes.length];
+    final probe = nextProbe(item, r.state, r.answered);
+    if (probe.template == kSayCardTemplate) {
+      return SayCardProbe(
+          item: item,
+          probe: probe,
+          state: r.state,
+          pronunciation: pronunciation,
+          english: switch (item.kind) {
+            ItemKind.grammar => practiceRow(item, probe)?['en'] as String?,
+            ItemKind.particle => particles[item.id]?['example_en'] as String?,
+            _ => null,
+          },
+          imageAsset:
+              item.kind == ItemKind.word ? wordImageAsset(item.id) : null,
+          onAnswer: r.onAnswer);
+    }
     switch (item.kind) {
       case ItemKind.grammar:
-        final at = int.tryParse(probe.id.substring(1));
-        final rows = practice[item.id] ?? const [];
-        final raw = at != null && at < rows.length ? rows[at] : null;
+        final raw = practiceRow(item, probe);
         final options = (raw?['options'] as List?)?.cast<String>();
         if (probe.template == 'choose' && options != null) {
           return ChooseProbe(
@@ -230,6 +277,15 @@ SessionProbeBuilder standardProbeBuilder({
       case ItemKind.particle:
         final particle = particles[item.id];
         final meaning = particle?['meaning'] as String?;
+        if (probe.template == 'choose' && probe.options.isNotEmpty) {
+          return ChooseProbe(
+              item: item,
+              probe: probe,
+              state: r.state,
+              options: probe.options,
+              english: particle?['example_en'] as String?,
+              onAnswer: r.onAnswer);
+        }
         return TypedFillProbe(
             item: item,
             probe: probe,

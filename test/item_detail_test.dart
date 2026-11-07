@@ -4,8 +4,9 @@
 // injected clock. The cases: the pure `itemDetailOf` (the state from the item's own attempts,
 // PIN-1; the probes seen clear; what remains to Mastered or to regain; the Say-it counts; the
 // history newest first with whether each answer counted), the page's pill and n of 4, next
-// review, history rows, the "no production probe yet" line where the kind has none (A8) and the
-// "one question kind only" line on a one-template item (PIN-15), and Practice now, a one-item
+// review, history rows, neither the "no production probe yet" line (A8) nor the "one question
+// kind only" line (PIN-15) on a shipped item since every kind has a say card (plan 2026-11-06,
+// Task 6), and Practice now, a one-item
 // session written as early practice when the item is not due (PIN-14: a clear changes nothing,
 // a wrong counts) and as a review when it is, with Review the lesson on a practice card (Back
 // returns to the same card marked reviewed and a clear after it is hinted; an opener that
@@ -303,39 +304,45 @@ void main() {
       expect(shows('Next review: ${dueLabel(today + 2, today)}'), isTrue);
     });
 
-    testWidgets('a pair has no production probe yet (A8)', (tester) async {
+    // Since every kind has a say card (plan 2026-11-06, Task 6), a pair and a table row have
+    // a production probe and no item has one template, so neither line shows on the shipped
+    // catalog.
+    testWidgets('a pair has a production probe, its say card (A8, Task 6)',
+        (tester) async {
       final pair = firstOf(ItemKind.pair);
-      expect(pair.hasProductionProbe, isFalse);
-      expect(pair.templateCount, 2);
+      expect(pair.hasProductionProbe, isTrue);
+      expect(pair.templateCount, 3);
       await pumpItem(tester, JpStoreMemory(), pair);
-      expect(shows(kNoProductionProbeLine), isTrue);
+      expect(shows(kNoProductionProbeLine), isFalse);
       expect(shows(kOneTemplateLine), isFalse);
     });
 
     testWidgets(
-        'a one-template item says one question kind only (PIN-15); a table row also has '
-        'no production probe', (tester) async {
+        'a particle and a table row have a second question kind and a production probe '
+        '(PIN-15, Task 6)', (tester) async {
       final particle = firstOf(ItemKind.particle);
-      expect(particle.templateCount, 1);
+      expect(particle.templateCount, greaterThan(1));
       await pumpItem(tester, JpStoreMemory(), particle);
-      expect(shows(kOneTemplateLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
       expect(shows(kNoProductionProbeLine), isFalse);
 
       final row = firstOf(ItemKind.tableRow);
+      expect(row.templateCount, greaterThan(1));
+      expect(row.hasProductionProbe, isTrue);
       await pumpItem(tester, JpStoreMemory(), row);
-      expect(shows(kOneTemplateLine), isTrue);
-      expect(shows(kNoProductionProbeLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
+      expect(shows(kNoProductionProbeLine), isFalse);
     });
 
     testWidgets(
-        'a conjugation idea says one question kind only and still lists more different verbs',
-        (tester) async {
+        'a conjugation idea has its say card as a second kind and still lists more '
+        'different verbs', (tester) async {
       final conj = catalog
           .ofKind(ItemKind.conjugation)
           .firstWhere((i) => i.probeCount >= 2);
-      expect(conj.templateCount, 1);
+      expect(conj.templateCount, 2);
       await pumpItem(tester, JpStoreMemory(), conj);
-      expect(shows(kOneTemplateLine), isTrue);
+      expect(shows(kOneTemplateLine), isFalse);
       expect(showsPart('more different verb'), isTrue);
     });
 

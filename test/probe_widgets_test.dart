@@ -20,6 +20,11 @@
 // against its hiragana; correct is clear, close is hinted and marked `spokenClose` (unless a
 // hint was taken), wrong is wrong, and unverified writes an unscored draft at once with no Got
 // it or Missed it. A lesson review drops the close mark. The mark reaches the attempt log.
+//
+// The say card (plan 2026-11-06, Task 6, PIN-12): it shows the prompt only until a scored
+// answer, is scored through the same fake against its hiragana with the same grades, never
+// writes on the Say-it track, and names what to say for each kind; a particle's choose card
+// grades its one right option clear and the others wrong.
 
 import 'dart:convert';
 import 'dart:io';
@@ -156,6 +161,14 @@ final _row = ItemDef(
 ProbeDef _probe(ItemDef item, String id) =>
     item.probes.firstWhere((p) => p.id == id);
 
+/// The word's say card, as the catalog builds it (plan 2026-11-06, Task 6).
+const _sayWord = ProbeDef(
+    id: kWordSayCardId,
+    template: kSayCardTemplate,
+    text: 'bag',
+    answer: 'かばん',
+    production: true);
+
 MasteryState _learning(String id, int n) => MasteryState(
       itemId: id,
       status: MasteryStatus.learning,
@@ -283,6 +296,12 @@ void main() {
         SayItProbe(
             item: _grammar,
             probe: _probe(_grammar, 'ex0'),
+            state: state,
+            pronunciation: pron,
+            onAnswer: (_) {}),
+        SayCardProbe(
+            item: _word,
+            probe: _sayWord,
             state: state,
             pronunciation: pron,
             onAnswer: (_) {}),
@@ -1329,6 +1348,216 @@ void main() {
       expect(pron.cancels, 1);
       await tester.pump();
       expect(answers.list, isEmpty);
+    });
+  });
+
+  group('say card (plan 2026-11-06, Task 6, PIN-2, PIN-12)', () {
+    late FakePronunciation pron;
+    late Answers answers;
+
+    // A real grammar point's first say card: its prompt has a blank, its answer is the whole
+    // sentence.
+    final grammar = _catalog.ofKind(ItemKind.grammar).first;
+    final sayGrammar =
+        grammar.probes.firstWhere((p) => p.template == kSayCardTemplate);
+
+    Future<void> open(WidgetTester tester,
+        {ItemDef? item, ProbeDef? probe, String? english}) async {
+      pron = FakePronunciation();
+      answers = Answers();
+      await _pump(
+          tester,
+          SayCardProbe(
+              item: item ?? grammar,
+              probe: probe ?? sayGrammar,
+              state: _learning(grammar.id, 1),
+              pronunciation: pron,
+              english: english,
+              onAnswer: answers.call));
+    }
+
+    Future<void> say(WidgetTester tester, Judgement j, {String? hears}) async {
+      await _tap(tester, 'Say it');
+      expect(pron.referenceTexts.last, hears ?? sayGrammar.answer,
+          reason: "Azure scores the answer's hiragana");
+      pron.answer(j);
+      await tester.pump();
+      await tester.pump();
+    }
+
+    void expectSay(Grade grade, {bool spokenClose = false}) {
+      _expectDraft(answers.single,
+          itemId: grammar.id,
+          probeId: sayGrammar.id,
+          template: kSayCardTemplate,
+          grade: grade,
+          selfGraded: false);
+      // 🚨 Never the Say-it track: the host writes the session's source (D18).
+      expect(answers.single.sayIt, isFalse);
+      expect(answers.single.production, isTrue);
+      expect(answers.single.spokenClose, spokenClose);
+    }
+
+    testWidgets(
+        'the card shows the prompt and the English, never the answer, before it is said',
+        (tester) async {
+      await open(tester, english: 'I have a test tomorrow, you see.');
+      expect(find.text('Say the whole sentence'), findsOneWidget);
+      expect(find.text(sayGrammar.text), findsOneWidget);
+      expect(find.text('I have a test tomorrow, you see.'), findsOneWidget);
+      expect(find.text(sayGrammar.answer), findsNothing);
+    });
+
+    testWidgets('a correct score is a counting clear, then the answer shows',
+        (tester) async {
+      await open(tester);
+      await say(tester, Judgement.correct);
+      expectSay(Grade.clear);
+      expect(find.text(sayGrammar.answer), findsOneWidget);
+      expect(find.text('Clear.'), findsOneWidget);
+    });
+
+    testWidgets('a close score is hinted and marked close (PIN-10)',
+        (tester) async {
+      await open(tester);
+      await say(tester, Judgement.close);
+      expectSay(Grade.hinted, spokenClose: true);
+      expect(find.text(kSpokenCloseVerdict), findsOneWidget);
+    });
+
+    testWidgets('a wrong score is wrong, and the answer shows', (tester) async {
+      await open(tester);
+      await say(tester, Judgement.wrong);
+      expectSay(Grade.wrong);
+      expect(answers.single.answerShown, isFalse,
+          reason: 'the answer was not on screen, so the host holds the card');
+      expect(find.text(sayGrammar.answer), findsOneWidget);
+    });
+
+    testWidgets(
+        'unverified is unscored at once, with no self-mark and no answer (D10)',
+        (tester) async {
+      await open(tester);
+      await say(tester, Judgement.unverified);
+      expectSay(Grade.unscored);
+      expect(find.text('Got it'), findsNothing);
+      expect(find.text('Missed it'), findsNothing);
+      expect(find.text(kSpokenUnscoredLine), findsOneWidget);
+      expect(find.text(sayGrammar.answer), findsNothing,
+          reason: 'the card comes back later in the section');
+    });
+
+    testWidgets('Skip is unscored and shows no answer', (tester) async {
+      await open(tester);
+      await _tap(tester, 'Skip');
+      expectSay(Grade.unscored);
+      expect(pron.checks, isEmpty);
+      expect(find.text(sayGrammar.answer), findsNothing);
+    });
+
+    testWidgets('the controls are disabled while the check runs',
+        (tester) async {
+      await open(tester);
+      await _tap(tester, 'Say it');
+      expect(find.text('Listening'), findsOneWidget);
+      await tester.tap(find.text('Skip'));
+      await tester.pump();
+      expect(answers.list, isEmpty, reason: 'Skip waits for the check');
+      pron.answer(Judgement.correct);
+      await tester.pump();
+      await tester.pump();
+      expectSay(Grade.clear);
+    });
+
+    testWidgets('leaving mid-check cancels it and drops the result',
+        (tester) async {
+      await open(tester);
+      await _tap(tester, 'Say it');
+      await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      expect(pron.cancels, 1);
+      await tester.pump();
+      expect(answers.list, isEmpty);
+    });
+
+    testWidgets('a word says its reading from the picture and meaning',
+        (tester) async {
+      pron = FakePronunciation();
+      answers = Answers();
+      await _pump(
+          tester,
+          SayCardProbe(
+              item: _word,
+              probe: _sayWord,
+              state: _learning(_word.id, 0),
+              pronunciation: pron,
+              imageAsset: wordImageAsset(_word.id),
+              onAnswer: answers.call));
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('Say the word'), findsOneWidget);
+      expect(find.text('bag'), findsOneWidget);
+      expect(find.text('かばん'), findsNothing);
+      await _tap(tester, 'Say it');
+      expect(pron.referenceTexts.single, 'かばん');
+    });
+
+    test('each kind asks for what it hears, never naming the answer (PIN-12)',
+        () {
+      String line(ItemKind kind) {
+        final item = _catalog.ofKind(kind).first;
+        final probe =
+            item.probes.firstWhere((p) => p.template == kSayCardTemplate);
+        final text = sayCardInstruction(item, probe);
+        expect(text.contains(probe.answer), isFalse, reason: '$kind: $text');
+        return text;
+      }
+
+      expect(line(ItemKind.grammar), 'Say the whole sentence');
+      expect(line(ItemKind.particle), 'Say the whole sentence');
+      expect(line(ItemKind.word), 'Say the word');
+      expect(line(ItemKind.tableRow), 'Say the reading');
+      final conj = _catalog.byId(conjugationItemId('te', 1))!;
+      expect(
+          sayCardInstruction(conj,
+              conj.probes.firstWhere((p) => p.template == kSayCardTemplate)),
+          'Say the て form');
+      final pair = _catalog.ofKind(ItemKind.pair).first;
+      expect(
+          sayCardInstruction(pair,
+              pair.probes.firstWhere((p) => p.id == sayCardId(kPairToTransitive))),
+          'Say its transitive partner');
+      expect(
+          sayCardInstruction(
+              pair,
+              pair.probes
+                  .firstWhere((p) => p.id == sayCardId(kPairToIntransitive))),
+          'Say its intransitive partner');
+    });
+
+    testWidgets(
+        'a particle choose card: one right option is clear, another particle is wrong',
+        (tester) async {
+      final particle = _catalog.ofKind(ItemKind.particle).first;
+      final choose =
+          particle.probes.firstWhere((p) => p.id == kParticleChooseId);
+      for (final pick in choose.options) {
+        answers = Answers();
+        await _pump(
+            tester,
+            ChooseProbe(
+                key: ValueKey(pick),
+                item: particle,
+                probe: choose,
+                state: _learning(particle.id, 0),
+                options: choose.options,
+                onAnswer: answers.call));
+        await _tap(tester, pick);
+        _expectDraft(answers.single,
+            itemId: particle.id,
+            probeId: kParticleChooseId,
+            template: 'choose',
+            grade: pick == choose.answer ? Grade.clear : Grade.wrong,
+            selfGraded: false);
+      }
     });
   });
 
