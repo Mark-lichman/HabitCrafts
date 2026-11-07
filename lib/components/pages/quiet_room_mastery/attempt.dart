@@ -29,7 +29,8 @@ enum Grade { clear, hinted, wrong, unscored, self }
 ///
 /// [review] is a queued review (due, repair or new), [keepSharp] the weekly set of Mastered items
 /// (D10), [early] an answer on an item that is not due (D23, PIN-14), and [sayIt] the spoken
-/// sentence track, which never counts toward mastery (D4).
+/// sentence track and a vocabulary practice listen's on-device transcript verdict (plan
+/// 2026-11-06, Task 5, PIN-2), which never counts toward mastery (D4).
 enum Source { review, keepSharp, early, sayIt }
 
 /// What the check (or the learner, on a self-graded probe) said about the answer itself.

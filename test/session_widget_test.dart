@@ -29,12 +29,15 @@
 // returns to its card.
 //
 // Spoken answers through Azure (plan 2026-11-06, Task 5, End state 4, PIN-2, PIN-10, D10):
-// with the real probes and a fake PronunciationService, a word's spoken card is scored against
-// its hiragana; a correct score writes a spoken clear, a close writes hinted with
+// with the real spoken probe and a fake PronunciationService, a word's spoken card is scored
+// against its hiragana; a correct score writes a spoken clear, a close writes hinted with
 // `spokenClose` and leaves the hinted row as it was, an unverified score writes unscored with
 // no self-mark and moves the entry back, a wrong holds the card under one Next, a close after
-// Review the lesson loses its mark, Practice now scores through the same service, and an
-// injected service is left to its owner.
+// Review the lesson loses its mark, and Practice now scores through the same service. The
+// grade cases build the spoken card directly, so they do not pin which probe the session
+// picks next (Task 6 makes the pick mode-aware, D19). Two plumbing cases go through each
+// widget's own standardProbeBuilder: an injected service reaches the probe in the session
+// and in Practice now, and both leave it to its owner.
 
 import 'dart:convert';
 import 'dart:io';
@@ -46,6 +49,8 @@ import 'package:go_router/go_router.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widget.dart'
     show PracticeSessionWidget;
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show JpGrammarData;
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
@@ -60,6 +65,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.d
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart'
     show Judgement;
 
+import 'jp_screen_harness.dart' show holdHttpRequests;
 import 'support/fake_pronunciation.dart';
 
 Map<String, dynamic> _read(String path) =>
@@ -217,6 +223,10 @@ Future<Harness> pumpSession(WidgetTester tester, DayPlan plan,
 }
 
 void main() {
+  // The plumbing cases run under `runAsync`, where a Google Fonts fetch would otherwise land
+  // its failure in whichever test is running then.
+  setUpAll(holdHttpRequests);
+
   testWidgets(
       'walks the sections in plan order with the section line, and writes each answer '
       'with the entry wasDue and source (ASK-6)', (tester) async {
@@ -543,27 +553,42 @@ void main() {
   });
 
   group('spoken answers through Azure (plan 2026-11-06, Task 5, PIN-2)', () {
-    final grammar = _read('assets/lessons/jp_grammar.json');
     final word = words[0];
     final spoken = word.probes.firstWhere((p) => p.template == 'spoken');
 
-    /// One earlier unscored answer, so the word's probe rotation lands on `spoken`.
-    Future<JpStoreMemory> storeOnSpoken() async {
+    /// The real spoken card, whatever probe the session would pick (the pick is Task 6's).
+    SessionProbeBuilder spokenProbe(FakePronunciation pron) =>
+        (context, r) => WordRecallProbe(
+            item: r.item,
+            probe: spoken,
+            state: r.state,
+            pronunciation: pron,
+            onAnswer: r.onAnswer);
+
+    /// One counting clear on the word's card, so a widget's own standardProbeBuilder lands on
+    /// `spoken` under the answered-modulo-length rotation and under a mode-aware pick alike
+    /// (D19: the first scored probe whose mode has no counting clear).
+    Future<JpStoreMemory> storeWithCardClear() async {
       final s = JpStoreMemory();
-      await s.appendAttempt(attemptOf(word, today - 1, Grade.unscored));
-      expect(
-          word.scoredProbes.toList()[1 % word.scoredProbes.length].template,
-          'spoken',
-          reason: 'the second showing of a word is its spoken card');
+      final seed = attemptOf(word, today - 1, Grade.clear);
+      expect(seed.template, 'card', reason: 'the seed is on the card');
+      expect(word.scoredProbes.map((p) => p.template).toList(),
+          ['card', 'spoken', 'typed'],
+          reason: 'spoken is the one scored probe after the card');
+      await s.appendAttempt(seed);
       return s;
+    }
+
+    void bigView(WidgetTester tester) {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
     }
 
     Future<(Harness, FakePronunciation)> pumpSpoken(WidgetTester tester,
         {LessonOpener? openLesson}) async {
-      tester.view.physicalSize = const Size(900, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.reset);
-      final s = await storeOnSpoken();
+      bigView(tester);
+      final s = JpStoreMemory();
       final pron = FakePronunciation();
       final plan = planOf([
         entryOf(word, PlanSection.due),
@@ -576,8 +601,7 @@ void main() {
             store: s,
             clock: FixedClock(at(today)),
             catalog: catalog,
-            probeBuilder:
-                standardProbeBuilder(grammar: grammar, pronunciation: pron),
+            probeBuilder: spokenProbe(pron),
             openLesson: openLesson,
           ),
         ),
@@ -585,6 +609,26 @@ void main() {
       final h = Harness(tester, s);
       await h.settle();
       return (h, pron);
+    }
+
+    /// Loads the shipped grammar in the real zone before a widget builds its own
+    /// standardProbeBuilder. The load is cached for the whole run: a copy made under the
+    /// test's fake clock would belong to that test's zone, and the next test that awaits it
+    /// would never hear it complete (see jp_screen_harness.dart `pumpStudyScreen`).
+    Future<void> loadGrammarInRealZone(WidgetTester tester) =>
+        tester.runAsync(JpGrammarData.load);
+
+    /// Waits for the spoken card of a widget that loads the shipped grammar for its own
+    /// builder.
+    Future<void> waitForSayIt(WidgetTester tester, Harness h) async {
+      await tester.runAsync(() async {
+        for (var i = 0; i < 20 && !h.shows('Say it'); i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          await tester.pump();
+        }
+      });
+      await h.settle();
+      expect(h.shows('Say it'), isTrue, reason: 'the spoken card');
     }
 
     /// Says the word and lets Azure's verdict [j] land.
@@ -673,10 +717,8 @@ void main() {
 
     testWidgets('Practice now scores a spoken answer through the same service',
         (tester) async {
-      tester.view.physicalSize = const Size(900, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.reset);
-      final s = await storeOnSpoken();
+      bigView(tester);
+      final s = JpStoreMemory();
       final pron = FakePronunciation();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -685,8 +727,7 @@ void main() {
             store: s,
             catalog: catalog,
             clock: FixedClock(at(today)),
-            probeBuilder:
-                standardProbeBuilder(grammar: grammar, pronunciation: pron),
+            probeBuilder: spokenProbe(pron),
           ),
         ),
       ));
@@ -703,10 +744,9 @@ void main() {
     testWidgets(
         'an injected service reaches the probe, and the session leaves it to its owner',
         (tester) async {
-      tester.view.physicalSize = const Size(900, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.reset);
-      final s = await storeOnSpoken();
+      bigView(tester);
+      await loadGrammarInRealZone(tester);
+      final s = await storeWithCardClear();
       final pron = FakePronunciation();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -720,14 +760,33 @@ void main() {
         ),
       ));
       final h = Harness(tester, s);
-      // The session loads the shipped grammar for its own builder.
-      await tester.runAsync(() async {
-        for (var i = 0; i < 20 && !h.shows('Say it'); i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-          await tester.pump();
-        }
-      });
-      await h.settle();
+      await waitForSayIt(tester, h);
+      await say(h, pron, Judgement.correct);
+      expect((await written(h)).grade, Grade.clear);
+      await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      expect(pron.disposes, 0, reason: 'the caller owns an injected service');
+    });
+
+    testWidgets(
+        'an injected service reaches the probe in Practice now, and practice leaves it '
+        'to its owner', (tester) async {
+      bigView(tester);
+      await loadGrammarInRealZone(tester);
+      final s = await storeWithCardClear();
+      final pron = FakePronunciation();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PracticeSessionWidget(
+            items: [word],
+            store: s,
+            catalog: catalog,
+            clock: FixedClock(at(today)),
+            pronunciation: pron,
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await waitForSayIt(tester, h);
       await say(h, pron, Judgement.correct);
       expect((await written(h)).grade, Grade.clear);
       await tester.pumpWidget(const MaterialApp(home: SizedBox()));

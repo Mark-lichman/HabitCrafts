@@ -23,7 +23,7 @@
 // hinted, a hint is hinted, the whole answer showing writes one wrong per word, and later
 // listens and the mark are unscored (ASK-4), unverified is unscored, a Got it over it is self
 // and a Missed it is wrong, a skip is unscored, and a second listen is hinted.
-// An answer on a word that is not due is early (PIN-14).
+// A self-mark on a word that is not due is early (PIN-14).
 //
 // The transcript's verdict never counts (plan 2026-11-06, Task 5, PIN-2): an attempt graded
 // from a correct, close or wrong listen is on the Say-it track and moves no schedule and no
