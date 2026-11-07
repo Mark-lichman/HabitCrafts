@@ -14,6 +14,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widget.dart'
+    show remainingFor;
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 
 Map<String, dynamic> _read(String path) =>
@@ -485,6 +487,119 @@ void main() {
       expect(transferKeyOf(kWordSayCardId), kWordSayCardId);
       final pair = catalog.ofKind(ItemKind.pair).first;
       expect(transferProbesNeeded(pair), 2, reason: 'both directions, still');
+    });
+  });
+
+  // The rule that consumes transferKeyOf, replayed over real grammar points: a say card
+  // beside the practice item it twins is one sentence, so no point reaches Mastered on two
+  // sentences however many cards asked them (D4 clause 5, plan 2026-11-06 Task 6).
+  group('the mastery rule counts a say card as the sentence it twins', () {
+    final grammar = catalog.ofKind(ItemKind.grammar).toList();
+    // Four due clears on four days, the last 21 days after the third (D4 clauses 1 and 2).
+    const days = [0, 2, 8, 29];
+
+    ProbeDef probe(ItemDef item, String id) =>
+        item.probes.firstWhere((p) => p.id == id);
+
+    /// A due, review-sourced clear on [probe], with the template and production flag the
+    /// catalog gives that card, so the template and production clauses read the real card.
+    Attempt clear(ItemDef item, ProbeDef probe, int day) => Attempt(
+          itemId: item.id,
+          probeId: probe.id,
+          template: probe.template,
+          production: probe.production,
+          selfGraded: probe.selfGraded,
+          atUtc: DateTime.utc(2026, 1, 1, 12).add(Duration(days: day)),
+          localDay: day,
+          grade: Grade.clear,
+          rating: kRatingGood,
+          wasDue: true,
+          source: Source.review,
+          sessionId: 'twin-$day',
+        );
+
+    MasteryState replay(ItemDef item, List<String> probeIds) =>
+        masteryFromAttempts(item, [
+          for (var i = 0; i < probeIds.length; i++)
+            clear(item, probe(item, probeIds[i]), days[i]),
+        ]);
+
+    test('every grammar point has the three practice items the fixtures use',
+        () {
+      expect(grammar, isNotEmpty);
+      for (final item in grammar) {
+        for (final id in ['p0', 'p1', 'p2']) {
+          expect(item.probes.any((p) => p.id == id), isTrue,
+              reason: '${item.id} has no $id');
+          expect(item.probes.any((p) => p.id == sayCardId(id)), isTrue,
+              reason: '${item.id} has no ${sayCardId(id)}');
+        }
+        // The say card is the second template and the production clear, so only the
+        // transfer clause decides the fixtures below.
+        expect(probe(item, 'p0').template, isNot(kSayCardTemplate));
+        expect(probe(item, sayCardId('p0')).production, isTrue);
+      }
+    });
+
+    test('one sentence asked both ways stays Learning', () {
+      for (final item in grammar) {
+        final s = replay(item, ['p0', 'say.p0', 'p0', 'say.p0']);
+        expect(s.status, MasteryStatus.learning, reason: item.id);
+        expect(s.clears.length, 4, reason: '${item.id}: all four clears count');
+      }
+    });
+
+    test('two sentences asked both ways stay Learning, four ids or not', () {
+      // Four different probe ids over two sentences: a rule that counted raw ids would
+      // see four probes and master the point here.
+      for (final item in grammar) {
+        final s = replay(item, ['p0', 'say.p0', 'p1', 'say.p1']);
+        expect(s.status, MasteryStatus.learning, reason: item.id);
+        expect(s.clears.length, 4, reason: '${item.id}: all four clears count');
+      }
+    });
+
+    test('a third sentence, with one of them a say card, is Mastered', () {
+      for (final item in grammar) {
+        expect(replay(item, ['p0', 'say.p0', 'p1', 'p2']).status,
+            MasteryStatus.mastered,
+            reason: item.id);
+        // The say card alone as the third sentence counts as that sentence too.
+        expect(replay(item, ['p0', 'p1', 'say.p2', 'p0']).status,
+            MasteryStatus.mastered,
+            reason: item.id);
+      }
+    });
+
+    test('what remains after a say card on the same sentence does not move',
+        () {
+      final item = grammar.first;
+      ClearRef ref(String id, int day) {
+        final p = probe(item, id);
+        return ClearRef(
+            day: day,
+            template: p.template,
+            production: p.production,
+            probeId: p.id);
+      }
+
+      MasteryState learning(List<ClearRef> clears) =>
+          MasteryState.initial(item.id).copyWith(
+              status: MasteryStatus.learning,
+              clears: clears,
+              lastScoredDay: clears.last.day);
+
+      const twoMore = 'clears on 2 more different sentences';
+      final afterP0 = remainingFor(item, learning([ref('p0', 0)]));
+      expect(afterP0, contains(twoMore));
+      final afterTwin =
+          remainingFor(item, learning([ref('p0', 0), ref('say.p0', 2)]));
+      expect(afterTwin, contains(twoMore),
+          reason: 'say.p0 is the sentence p0 already cleared');
+      final afterSecond =
+          remainingFor(item, learning([ref('p0', 0), ref('p1', 2)]));
+      expect(afterSecond, contains('clears on 1 more different sentence'));
+      expect(afterSecond, isNot(contains(twoMore)));
     });
   });
 
