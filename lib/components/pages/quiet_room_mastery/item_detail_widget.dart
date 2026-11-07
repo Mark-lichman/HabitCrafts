@@ -14,6 +14,8 @@
 //     kind only" where its scored probes share one template (PIN-15);
 //   * the attempt history, newest first: date, grade (a wrong reads Missed, ASK-9), hint level,
 //     probe, and whether the answer counted toward the four clears (or the regain);
+//   * the "Discuss with Mari" toggle (discuss_list_widget.dart, PIN-6), which sets or clears
+//     the item's Discuss mark and writes nothing else;
 //   * Practice now, a one-item [PracticeSessionWidget].
 //
 // [itemDetailOf] is the pure read the page shows; the state is `masteryFromAttempts` over the
@@ -29,10 +31,11 @@
 // (`DrillAnswer.answerShown`), practice moves straight on; else the probe stays, showing the
 // answer, under one Next. The topic page (Task 23) runs it over a topic's items. Every
 // unanswered card carries "Review the lesson" under the session's rule (plan 2026-11-06,
-// Task 2, PIN-5): a clear after a review is written hinted.
+// Task 2, PIN-5): a clear after a review is written hinted. Every card also carries the
+// Discuss toggle, as the Review session's cards do; a mark leaves the grade as it was (PIN-6).
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
-// page, a lesson page).
+// page, a lesson page, the Discuss with Mari list).
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +43,7 @@ import 'package:intl/intl.dart';
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
 import 'attempt.dart';
+import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart';
 import 'fsrs.dart';
 import 'item_catalog.dart';
@@ -382,7 +386,13 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
               style: qrText(t, size: 14, color: t.ink)),
           if (!item.hasProductionProbe) _note(t, kNoProductionProbeLine),
           if (item.templateCount == 1) _note(t, kOneTemplateLine),
-          const SizedBox(height: 18),
+          // Keyed per load, so a return from practice reads a mark changed there.
+          DiscussToggle(
+              key: ValueKey('discuss-${item.id}-$_loads'),
+              itemId: item.id,
+              store: _store,
+              clock: widget.clock),
+          const SizedBox(height: 12),
           QrLoudButton(label: kPracticeNow, onPressed: _practice),
           _heading(t, 'Still to do'),
           for (final line in d.remaining) _line(t, line),
@@ -689,6 +699,8 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             reviewed: _reviewedPresentation == _presentation,
             onTap: () => _reviewLesson(open, item),
           ),
+        DiscussToggle(
+            itemId: item.id, store: widget.store, clock: widget.clock),
         if (held) _action(t, 'Next', _next, primary: true),
       ],
     );

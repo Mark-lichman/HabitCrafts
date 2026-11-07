@@ -10,7 +10,9 @@
 //     Start or Resume; on a finished day, the end state;
 //   * the mastered count, the kept rate over the last [kKeptRateDays] days, and the 14 dots
 //     over the days whose session completed;
-//   * quiet links: the conjugation, verb pair and number drills, and the study record page;
+//   * quiet links: the conjugation, verb pair and number drills, the Discuss with Mari list
+//     (discuss_list_widget.dart, plan 2026-11-06, Task 4, PIN-6) with its count, and the
+//     study record page;
 //   * a bottom nav of Today, Lessons (lessons_path_widget.dart) and Topics (topics_widget.dart).
 // Search and the By use set live in Topics. The lesson numbers live in Lessons, so the home
 // holds no number strip.
@@ -37,6 +39,7 @@ import 'package:go_router/go_router.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/quiet_room_mastery/attempt.dart';
+import '/components/pages/quiet_room_mastery/discuss_list_widget.dart';
 import '/components/pages/quiet_room_mastery/item_catalog.dart';
 import '/components/pages/quiet_room_mastery/jp_store.dart';
 import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
@@ -144,10 +147,16 @@ String dotsLine(List<bool> dots) =>
 /// What Today shows under the session card, read from the store.
 class HomeRecord {
   const HomeRecord(
-      {required this.mastered, required this.kept, required this.dots});
+      {required this.mastered,
+      required this.kept,
+      required this.dots,
+      this.discuss = 0});
 
   final int mastered;
   final KeptRate kept;
+
+  /// The Discuss marks on the list (PIN-6).
+  final int discuss;
 
   /// The last [kHomeDots] days, oldest first: whether that day's session completed.
   final List<bool> dots;
@@ -169,6 +178,7 @@ Future<HomeRecord> loadHomeRecord(
     mastered: mastered,
     kept: kept,
     dots: recentDays(done, today: dateOfDay(today), length: kHomeDots),
+    discuss: (await store.discussMarks()).length,
   );
 }
 
@@ -306,6 +316,14 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
     await context.pushNamed(route, queryParameters: params);
     if (!mounted) return;
     _relaunchIfNewDay(); // the day may have moved while that screen was up
+  }
+
+  /// Opens the Discuss with Mari list, then reads Today again, so the link's count shows
+  /// the marks cleared or set while the list was up.
+  Future<void> _openDiscuss() async {
+    await context.pushNamed(DiscussListWidget.routeName);
+    if (!mounted) return;
+    _refreshToday();
   }
 
   /// A tap on a tab: `go` under the router, so the URL names the tab and the stack stays
@@ -501,7 +519,8 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
         ]),
       ];
 
-  /// The drills and the study record debug page (Task 13): plain text links, last.
+  /// The drills, the Discuss with Mari list and the study record debug page (Task 13): plain
+  /// text links, last.
   Widget _quietLinks(QuietRoomTokens t) {
     Widget link(String label, VoidCallback onTap) => TextButton(
           onPressed: onTap,
@@ -519,6 +538,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
             'Numbers and counters',
             () =>
                 _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
+        link(discussLinkLabel(_record?.discuss ?? 0), _openDiscuss),
         link('Study record', () => _open(MasteryDebugWidget.routeName)),
       ]),
     );

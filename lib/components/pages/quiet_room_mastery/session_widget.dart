@@ -31,6 +31,10 @@
 // Opening a lesson writes no attempt. With no router and no injected opener the card shows
 // no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
 //
+// Discuss with Mari (plan 2026-11-06, Task 4, PIN-6): every card, asked or held, carries a
+// quiet [DiscussToggle] (discuss_list_widget.dart) that sets or clears the item's Discuss
+// mark. A mark is no answer: it writes no attempt and leaves the card's grade as it was.
+//
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
 // is the entry's (review or keep-sharp); a Say-it draft is written as `sayIt`.
@@ -79,6 +83,7 @@ import '../quiet_room_grammar/jp_study_kit.dart';
 import '../quiet_room_practice/speech_service.dart';
 import '../quiet_room_today/streak.dart';
 import 'attempt.dart';
+import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart' show DrillAnswer, kAnswerNotSaved;
 import 'fsrs.dart';
 import 'item_catalog.dart';
@@ -767,6 +772,8 @@ class _SessionWidgetState extends State<SessionWidget> {
             reviewed: _reviewedPresentation == _presentation,
             onTap: () => _reviewLesson(open, item),
           ),
+        DiscussToggle(
+            itemId: item.id, store: widget.store, clock: widget.clock),
         if (held)
           _action(t, 'Next', () => _keepGoing(_Phase.held), primary: true),
       ],
