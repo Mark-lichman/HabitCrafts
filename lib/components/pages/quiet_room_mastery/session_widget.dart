@@ -41,7 +41,8 @@
 // hiragana, never by the on-device recognizer. With none injected the session builds
 // `PronunciationService.counting()` (sign-in through `ensureCaller`) and disposes it. A spoken
 // close is written hinted with `Attempt.spokenClose`, neutral for the two-hinted reset
-// (PIN-10); an unverified check is written unscored, with no self-mark (D10).
+// (PIN-10); an unverified check is written unscored, with no self-mark (D10), or wrong after
+// the revealing hint rung (plan 2026-11-06, ASK-3).
 //
 // New cards (plan 2026-11-06, Task 6): every kind's say card ([SayCardProbe]) scores through
 // the same service, and its draft is written with the entry's source, never `Source.sayIt`; a

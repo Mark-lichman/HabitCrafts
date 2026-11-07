@@ -11,7 +11,7 @@
 //     regain a Shaky item;
 //   * the Say-it counts on a grammar point, which never count toward Mastered (D4); on a word,
 //     the practice screen's listens sit under their own heading, "Practice listens, not
-//     counted", so they never read as the counting Say the word card (ASK-4);
+//     counted", so they never read as the counting Say the word card (plan 2026-11-06, ASK-4);
 //   * "no production probe yet" where the item has no production probe (A8), and "one question
 //     kind only" where its scored probes share one template (PIN-15), from [itemNotesOf];
 //   * the attempt history, newest first: date, grade (a wrong reads Missed, ASK-9), hint level,
@@ -235,7 +235,9 @@ ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
   );
 }
 
-/// The learner-facing name of a probe: the question kind for a word, else its text.
+/// The learner-facing name of a probe: the question kind for a word; for another kind its
+/// text, prefixed 'Say it: ' on a say card or 'Choose: ' on a particle's choose card, and
+/// joined to the answer by an arrow on a pair direction.
 String probeLabel(ItemDef item, String probeId) {
   ProbeDef? probe;
   for (final p in item.probes) {
@@ -425,7 +427,8 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
           for (final p in scored)
             _line(t,
                 '${d.seenClear.contains(p.id) ? '✓' : '·'} ${probeLabel(item, p.id)}'),
-          // A word's practice listens never read as its counting Say the word card (ASK-4).
+          // A word's practice listens never read as its counting Say the word card (plan
+          // 2026-11-06, ASK-4).
           if (item.kind == ItemKind.word && d.sayItTries > 0) ...[
             _heading(t, kPracticeListensHeading),
             _line(t,

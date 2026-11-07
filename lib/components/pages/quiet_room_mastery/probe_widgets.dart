@@ -31,9 +31,9 @@
 //     `spokenClose` so it stays out of the two-hinted reset (PIN-10), wrong is wrong, and an
 //     unverified check (no connection, no microphone) is unscored at once, with no Got it or
 //     Missed it, so it can never clear the spoken mode (D10). After the revealing rung an
-//     unverified check is wrong, like Skip and a typed answer (ASK-3). See [gradeSpokenAnswer]. The
-//     on-device transcript (`SpeechService.listenOnce`) stays on the vocabulary practice
-//     screen, where its verdict never counts;
+//     unverified check is wrong, like Skip and a typed answer (plan 2026-11-06, ASK-3). See
+//     [gradeSpokenAnswer]. The on-device transcript (`SpeechService.listenOnce`) stays on the
+//     vocabulary practice screen, where its verdict never counts;
 //   * an empty Check is no attempt.
 //
 // Each widget reports one answer and then locks, so a probe is never answered twice. A widget
@@ -179,21 +179,15 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
   int? revealingHintLevel,
   bool revealed = false,
 }) {
-  // The reveal rule comes first (ASK-3, operator ruling 2026-11-06, supersedes D10 for the
-  // revealed case): after the revealing rung or a reveal, any answer is wrong, unverified too.
-  if ((revealingHintLevel != null && hintLevel >= revealingHintLevel) ||
-      revealed) {
-    return (grade: Grade.wrong, spokenClose: false);
-  }
   final outcome = switch (verdict) {
     Judgement.correct => Outcome.right,
     Judgement.close => Outcome.close,
     Judgement.wrong => Outcome.wrong,
     Judgement.unverified => Outcome.none,
   };
-  if (outcome == Outcome.none) {
-    return (grade: Grade.unscored, spokenClose: false);
-  }
+  // Every verdict goes through gradeAnswer (D17). It applies the reveal rule before the
+  // unverified rule, so an unverified check is unscored before the revealing rung and wrong
+  // after it or after a reveal (plan 2026-11-06, ASK-3, supersedes D10 for the revealed case).
   final grade = gradeAnswer(
     outcome: outcome,
     selfGraded: false,
@@ -602,11 +596,11 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 /// A spoken answer is written on the item's `spoken` probe and a typed one on its `typed`
 /// probe. The spoken grade comes from [gradeSpokenAnswer] (PIN-2, PIN-10): a close is hinted
 /// and marked, and an unverified check is unscored at once, with no self-mark (D10), or wrong
-/// after the revealing rung (ASK-3). The
-/// on-device recognizer is never used here: this card counts. A typed answer the matcher
-/// cannot judge shows what was typed and asks the learner: Got it is self, Missed it is wrong.
-/// Skip is unscored, or wrong after the revealing rung. The controls are disabled while the
-/// check runs, and one check runs at a time.
+/// after the revealing rung (plan 2026-11-06, ASK-3). The on-device recognizer is never used
+/// here: this card counts. A typed answer the matcher cannot judge shows what was typed and
+/// asks the learner: Got it is self, Missed it is wrong. Skip is unscored, or wrong after the
+/// revealing rung. The controls are disabled while the check runs, and one check runs at a
+/// time.
 ///
 /// Given the `card` probe, the widget asks card recall instead: think of the word, "Show me",
 /// then Knew it (clear) or Not yet (wrong), self-graded (PIN-13); a hint before the reveal

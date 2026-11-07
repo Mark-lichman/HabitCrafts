@@ -5,10 +5,10 @@
 // PIN-1; the probes seen clear; what remains to Mastered or to regain; the Say-it counts; the
 // history newest first with whether each answer counted), the page's pill and n of 4, next
 // review, history rows, a word's practice listens under their own heading and a grammar
-// point's Say-it counts with the never-counts line (ASK-4), the two notes from `itemNotesOf`
-// on synthetic items, neither the "no production probe yet" line (A8) nor the "one question
-// kind only" line (PIN-15) on a shipped item since every kind has a say card (plan 2026-11-06,
-// Task 6), and Practice now, a one-item
+// point's Say-it counts with the never-counts line (plan 2026-11-06, ASK-4), the two notes
+// from `itemNotesOf` on synthetic items, neither the "no production probe yet" line (A8) nor
+// the "one question kind only" line (PIN-15) on a shipped item since every kind has a say card
+// (plan 2026-11-06, Task 6), and Practice now, a one-item
 // session written as early practice when the item is not due (PIN-14: a clear changes nothing,
 // a wrong counts) and as a review when it is, with Review the lesson on a practice card (Back
 // returns to the same card marked reviewed and a clear after it is hinted; an opener that
@@ -453,12 +453,13 @@ void main() {
       expect(shows('Say it: 2 tries · 1 clear'), isTrue);
       expect(shows(kSayItNeverCounts), isTrue);
       expect(shows(kPracticeListensHeading), isFalse,
-          reason: 'the practice heading is for a word only (ASK-4)');
+          reason:
+              'the practice heading is for a word only (plan 2026-11-06, ASK-4)');
     });
 
     testWidgets(
-        "a word's practice listens show under their own heading, never Say it (ASK-4)",
-        (tester) async {
+        "a word's practice listens show under their own heading, never Say it "
+        '(plan 2026-11-06, ASK-4)', (tester) async {
       final store = JpStoreMemory();
       final word = firstOf(ItemKind.word);
       final spoken = word.probes.firstWhere((p) => p.template == 'spoken');

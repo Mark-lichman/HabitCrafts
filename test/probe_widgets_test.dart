@@ -8,7 +8,7 @@
 // The rules under test: a hinted answer is hinted, never clear (PIN-3); a hint ladder's
 // revealing rung grades any answer wrong (D17); on a self-graded probe Got it after the
 // reveal is clear and Missed it is wrong (PIN-13); unverified is never wrong before the
-// revealing rung (after it, a spoken unverified is wrong, ASK-3); an empty Check
+// revealing rung (after it, a spoken unverified is wrong, plan 2026-11-06, ASK-3); an empty Check
 // is no attempt; a wrong never hides the answer, and a typed one shows the learner's too
 // (operator ruling 2026-11-05); every typed answer box reads "Type in hiragana".
 //
@@ -20,8 +20,8 @@
 // answer is scored by a fake PronunciationService (test/support/fake_pronunciation.dart)
 // against its hiragana; correct is clear, close is hinted and marked `spokenClose` (unless a
 // hint was taken), wrong is wrong, and unverified writes an unscored draft at once with no Got
-// it or Missed it, or a wrong one after the revealing rung (ASK-3). A lesson review drops
-// the close mark. The mark reaches the attempt log.
+// it or Missed it, or a wrong one after the revealing rung (plan 2026-11-06, ASK-3). A lesson
+// review drops the close mark. The mark reaches the attempt log.
 //
 // The say card (plan 2026-11-06, Task 6, PIN-12): it shows the prompt only until a scored
 // answer, is scored through the same fake against its hiragana with the same grades, never
@@ -770,7 +770,8 @@ void main() {
       expect(find.text('Say it'), findsNothing, reason: 'the card is answered');
     });
 
-    testWidgets('an unverified check after the revealing hint is wrong (ASK-3)',
+    testWidgets(
+        'an unverified check after the revealing hint is wrong (plan 2026-11-06, ASK-3)',
         (tester) async {
       await open(tester);
       await _tap(tester, 'Give me a hint');
