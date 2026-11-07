@@ -1,7 +1,7 @@
 // The study store on the phone: SQLite through `sqflite` (D14). Tests open it through the ffi
 // factory of `sqflite_common_ffi` (A5), so the same suite runs here and on `JpStoreMemory`.
 //
-// Tables (schema version 1):
+// Tables (schema version 2; version 1 had all but `discuss`):
 //   attempts  the append-only answer log: one row per attempt, its JSON plus indexed columns
 //   seeds     the append-only seed events (D26): item, due day, time; never an attempt
 //   items     per item: the earliest seeded due day and a note
@@ -9,8 +9,9 @@
 //   mastery   per item: the mastery state
 //   days      per local day: the plan JSON, the position and whether it is done
 //   meta      store-level flags, such as the one-time v2 migration
-// Indexes on `srs.dueDay` and `attempts.itemId`. `attempts`, `seeds` and `items.note` are the
-// record; `srs`, `mastery` and `items.seedDueDay` are rebuilt from it (JpStore.rebuild).
+//   discuss   per item: the Discuss mark (PIN-6), its optional note and when it was set
+// Indexes on `srs.dueDay` and `attempts.itemId`. `attempts`, `seeds`, `items.note` and `discuss`
+// are the record; `srs`, `mastery` and `items.seedDueDay` are rebuilt from it (JpStore.rebuild).
 //
 // One transaction per answer: `appendAttempt` writes the attempt, the schedule and the mastery
 // state together. A later schema adds a step to [_upgrades]; `onUpgrade` runs the steps after
@@ -29,13 +30,22 @@ import 'mastery_rule.dart';
 import 'scheduler.dart';
 
 /// The schema version this build writes.
-const int kJpStoreSchemaVersion = 1;
+const int kJpStoreSchemaVersion = 2;
 
 /// The database file's name in the app's databases directory.
 const String kJpStoreFileName = 'jp_study.db';
 
-/// The schema steps after version 1, keyed by the version they produce. Empty at version 1.
-final Map<int, Future<void> Function(Database db)> _upgrades = {};
+/// The schema steps after version 1, keyed by the version they produce.
+final Map<int, Future<void> Function(Database db)> _upgrades = {
+  2: _createV2Discuss,
+};
+
+/// Version 2: the Discuss marks (PIN-6), one row per marked item. Every version 1 row stays.
+Future<void> _createV2Discuss(Database db) =>
+    db.execute('CREATE TABLE discuss ('
+        'itemId TEXT PRIMARY KEY, '
+        'note TEXT, '
+        'atUtc TEXT NOT NULL)');
 
 Future<void> _createV1(Database db) async {
   final batch = db.batch()
@@ -332,6 +342,43 @@ class JpStoreSqlite extends JpStore {
     return {for (final r in rows) r['itemId'] as String: r['note'] as String};
   }
 
+  @override
+  Future<void> putDiscuss(DiscussMark mark) =>
+      _insertDiscuss(_db, mark, conflictAlgorithm: ConflictAlgorithm.replace);
+
+  Future<void> _insertDiscuss(DatabaseExecutor db, DiscussMark mark,
+          {ConflictAlgorithm? conflictAlgorithm}) =>
+      db.insert(
+          'discuss',
+          {
+            'itemId': mark.itemId,
+            'note': mark.note,
+            'atUtc': mark.atUtc.toUtc().toIso8601String(),
+          },
+          conflictAlgorithm: conflictAlgorithm);
+
+  @override
+  Future<void> clearDiscuss(String itemId) =>
+      _db.delete('discuss', where: 'itemId = ?', whereArgs: [itemId]);
+
+  DiscussMark _discussOf(Map<String, Object?> r) => DiscussMark(
+      itemId: r['itemId'] as String,
+      note: r['note'] as String?,
+      atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
+
+  @override
+  Future<DiscussMark?> discuss(String itemId) async {
+    final rows =
+        await _db.query('discuss', where: 'itemId = ?', whereArgs: [itemId]);
+    return rows.isEmpty ? null : _discussOf(rows.first);
+  }
+
+  @override
+  Future<Map<String, DiscussMark>> discussMarks() async {
+    final rows = await _db.query('discuss', orderBy: 'itemId');
+    return {for (final r in rows) r['itemId'] as String: _discussOf(r)};
+  }
+
   /// Stateful items by their FSRS due day, seeded items without a state by the seed's.
   static const String _dueSql = 'SELECT itemId, dueDay, 0 AS seeded FROM srs '
       'UNION ALL '
@@ -423,7 +470,7 @@ class JpStoreSqlite extends JpStore {
   }
 
   Future<void> _writeLog(Transaction txn, StudyLog log) async {
-    for (final t in const ['attempts', 'seeds', 'items']) {
+    for (final t in const ['attempts', 'seeds', 'items', 'discuss']) {
       await txn.delete(t);
     }
     // Restart the row ids, so an imported log keeps its numbering.
@@ -441,6 +488,9 @@ class JpStoreSqlite extends JpStore {
     }
     for (final e in log.notes.entries) {
       await txn.insert('items', {'itemId': e.key, 'note': e.value});
+    }
+    for (final m in log.discuss.values) {
+      await _insertDiscuss(txn, m);
     }
   }
 
