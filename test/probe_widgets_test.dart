@@ -1553,7 +1553,8 @@ void main() {
                 answer: 'へ',
                 production: true)
           ]);
-      // A grammar point shows its lesson alone (ASK-1): a pattern can hold a fill answer.
+      // A grammar point shows its lesson alone (ASK-1, plan 2026-11-06): a pattern can hold
+      // a fill answer.
       expect(reviewLessonDetail(_grammar), '第26課');
       expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
       expect(reviewLessonDetail(_row), 'Numbers and counters · Counters: ほん');
@@ -1616,7 +1617,8 @@ void main() {
       for (final item in _catalog.items) {
         final line = reviewLessonDetail(item);
         expect(line, startsWith(reviewLessonName(item)), reason: item.id);
-        // Every grammar point shows its lesson name alone, with no pattern residue (ASK-1).
+        // Every grammar point shows its lesson name alone, with no pattern residue (ASK-1,
+        // plan 2026-11-06).
         if (item.kind == ItemKind.grammar) {
           expect(line, reviewLessonName(item), reason: item.id);
         }

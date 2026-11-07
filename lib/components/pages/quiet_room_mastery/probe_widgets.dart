@@ -47,9 +47,10 @@
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): the hosts (the Review session and
 // Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson, and
-// the idea only for a conjugation or a table row ([reviewLessonDetail]), never a card's answer, and shows "Lesson reviewed" once
-// opened. A probe never sees the review: the host passes each draft through
-// [afterLessonReview], which makes a clear hinted. Show English stays free.
+// the idea only where the title is not a card's answer, a conjugation or a table row in the
+// catalog ([reviewLessonDetail]), and shows "Lesson reviewed" once opened. A probe never sees
+// the review: the host passes each draft through [afterLessonReview], which makes a clear
+// hinted. Show English stays free.
 
 import 'dart:async';
 
@@ -1154,7 +1155,8 @@ DrillAnswer afterLessonReview(DrillAnswer d) {
 }
 
 /// "Review the lesson" over the lesson name ([reviewLessonDetail]), quiet under the card, and
-/// the "Lesson reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the navigation.
+/// the "Lesson reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the
+/// navigation.
 class ReviewLessonLink extends StatelessWidget {
   const ReviewLessonLink({
     super.key,
