@@ -8,7 +8,8 @@
 // mastered 397 items by day 120 (first on day 41), run C 687 (first on day 37, every kind);
 // the same numbers with or without the mode clause, because the pick asks a missing mode
 // before the clears run out. Under the same rule, the old rotation by answer count gave run A
-// 352 and 5 conjugation ideas, not 24: its first four cards on an idea are all typed. Four runs:
+// 352 and 5 conjugation ideas, not 24: its first four cards on an idea are all typed, so the
+// run A conjugation floor (`kScratchConjugationFloor`) guards the pick. Four runs:
 // from scratch (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C),
 // and with the stretch taken whenever the end card offers it (D). The test prints each run's summary and a
 // 10-day table, so the simulator numbers in the plan's Context can be re-measured here. The
@@ -34,6 +35,10 @@ final catalog = ItemCatalog.fromDocs(_read('assets/lessons/jp_grammar.json'),
 
 /// The days of run B's break.
 final Set<int> breakDays = {for (var d = 50; d < 60; d++) d};
+
+/// The fewest conjugation ideas run A must master by day 120: between the old rotation's 5
+/// and the session pick's 24, so a return to the old rotation fails the test.
+const int kScratchConjugationFloor = 12;
 
 void main() {
   late SimRun scratch, withBreak, seeded, stretch;
@@ -91,6 +96,17 @@ void main() {
     expect(scratch.firstMasteredDay, isNotNull, reason: scratch.summary());
     expect(scratch.firstMasteredDay!, lessThan(70), reason: scratch.summary());
     expect(scratch.masteredEnd, greaterThanOrEqualTo(200),
+        reason: scratch.summary());
+  });
+
+  test(
+      'from scratch, the session pick masters at least $kScratchConjugationFloor '
+      'conjugation ideas by day 120 (D19)', () {
+    // The floor the old rotation by answer count misses: measured on 2026-11-07, `nextProbe`
+    // gives 24 and the old `n % length` pick gives 5, because its first four cards on an idea
+    // are all typed and the spoken clear never arrives before the clears run out.
+    expect(scratch.masteredByKind[ItemKind.conjugation],
+        greaterThanOrEqualTo(kScratchConjugationFloor),
         reason: scratch.summary());
   });
 

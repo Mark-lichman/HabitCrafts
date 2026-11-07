@@ -227,6 +227,13 @@ void main() {
       ProbeDef of(String template) =>
           word.scoredProbes.firstWhere((p) => p.template == template);
       expect(kModeLines.keys.toSet(), ProbeMode.values.toSet());
+      // The literal oracle: a swap of two lines in the widget would otherwise pass every
+      // assertion below, since they all read the wording through kModeLines.
+      expect(kModeLines, {
+        ProbeMode.typed: 'a clear where you type it',
+        ProbeMode.recognition: 'a clear where you see it and pick or recall it',
+        ProbeMode.spoken: 'a clear where you say it',
+      });
       // Nothing yet: all three, in the order type it, see it, say it.
       final none = itemDetailOf(word, const []);
       expect(
