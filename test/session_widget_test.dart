@@ -1858,9 +1858,7 @@ void main() {
 
     test('within the needed mode, a sentence with no clear comes first', () {
       // See it and say it cleared on the first sentence on two days: type it is needed, and
-      // sentence 1 has no clear, so the session asks it. The pick is the same whether the
-      // first sentence's clears fall on two days or one, so the 2-day move-on decides
-      // nothing here; the D11 test below covers that at both boundaries.
+      // the first sentence has moved aside, so the session asks sentence 1.
       final moved = learning(particle, [
         clearOn(particle, 'choose', 1),
         clearOn(particle, kSayCardTemplate, 2),
