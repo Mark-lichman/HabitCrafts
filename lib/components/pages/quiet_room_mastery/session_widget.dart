@@ -22,8 +22,8 @@
 // was answered in, and the wrong schedules it Again for another day.
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): every unanswered card shows a quiet
-// [ReviewLessonLink] naming the lesson and the idea, never the card's answer. It pushes the
-// item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
+// [ReviewLessonLink] naming the lesson ([reviewLessonDetail]), never the card's answer. It
+// pushes the item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
 // unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
 // through `afterLessonReview`, so a clear is written hinted at hint level 1 or more; wrong,
 // self and unscored are untouched.

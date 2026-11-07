@@ -1523,7 +1523,9 @@ void main() {
       }
     });
 
-    test('the link names the lesson and the idea of each kind', () {
+    test(
+        'the link names the lesson of each kind, and the idea only where it is safe',
+        () {
       final particle = ItemDef(
           id: 'mari.particle.1',
           kind: ItemKind.particle,
@@ -1551,7 +1553,8 @@ void main() {
                 answer: 'へ',
                 production: true)
           ]);
-      expect(reviewLessonDetail(_grammar), '第26課 · 〜んです');
+      // A grammar point shows its lesson alone (ASK-1): a pattern can hold a fill answer.
+      expect(reviewLessonDetail(_grammar), '第26課');
       expect(reviewLessonDetail(_conj), 'Conjugation · te, group 1');
       expect(reviewLessonDetail(_row), 'Numbers and counters · Counters: ほん');
       // A word, a particle and a pair are titled by their answer, so the line is the lesson.
@@ -1613,6 +1616,10 @@ void main() {
       for (final item in _catalog.items) {
         final line = reviewLessonDetail(item);
         expect(line, startsWith(reviewLessonName(item)), reason: item.id);
+        // Every grammar point shows its lesson name alone, with no pattern residue (ASK-1).
+        if (item.kind == ItemKind.grammar) {
+          expect(line, reviewLessonName(item), reason: item.id);
+        }
         for (final probe in item.probes) {
           if (probe.answer.isEmpty) continue;
           expect(line.contains(probe.answer), isFalse,
@@ -1628,7 +1635,7 @@ void main() {
       await _pump(
           tester, ReviewLessonLink(item: _grammar, onTap: () => taps++));
       expect(find.text(kReviewTheLesson), findsOneWidget);
-      expect(find.text('第26課 · 〜んです'), findsOneWidget);
+      expect(find.text('第26課'), findsOneWidget);
       expect(find.text(kLessonReviewed), findsNothing);
       await _tap(tester, kReviewTheLesson);
       expect(taps, 1);

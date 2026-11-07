@@ -46,8 +46,8 @@
 // Every widget shows the item's state pill with its n of 4 clears ([ProbeStatePill]).
 //
 // Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): the hosts (the Review session and
-// Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson and
-// the idea ([reviewLessonDetail]), never a card's answer, and shows "Lesson reviewed" once
+// Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson, and
+// the idea only for a conjugation or a table row ([reviewLessonDetail]), never a card's answer, and shows "Lesson reviewed" once
 // opened. A probe never sees the review: the host passes each draft through
 // [afterLessonReview], which makes a clear hinted. Show English stays free.
 
@@ -1114,17 +1114,21 @@ String reviewLessonName(ItemDef item) {
   };
 }
 
-/// Whether [item]'s title spells one of its cards' answers: a word's reading, a particle, a
-/// pair's two verbs, or a grammar pattern that holds its cloze answer. Checked against the
-/// item's own probes, so the catalog decides, not the kind.
+/// Whether [item]'s title spells one of its cards' answers: a word's reading, a particle or a
+/// pair's two verbs. Checked against the item's own probes, so the catalog decides, not the
+/// kind. A grammar point never reaches this check: [reviewLessonDetail] names its lesson alone.
 bool reviewLessonTitleIsAnAnswer(ItemDef item) => item.probes
     .any((p) => p.answer.isNotEmpty && item.title.contains(p.answer));
 
-/// The line under the link: the lesson and the idea, "第26課 · 〜んです". The line is on
-/// screen before the answer and costs nothing (PIN-5 charges the review, not the link), so
-/// it drops the idea when the title spells a card's answer: "第30課" for a word.
+/// The line under the link: the lesson, and the idea for a conjugation or a table row,
+/// "Conjugation · te, group 1". The line is on screen before the answer and costs nothing
+/// (PIN-5 charges the review, not the link), so it drops the idea when the title spells a
+/// card's answer: "第30課" for a word. A grammar point shows its lesson alone, "第27課",
+/// because many patterns hold a practice answer in a form no substring check catches
+/// (ASK-1, operator-ruled 2026-11-06).
 String reviewLessonDetail(ItemDef item) {
   final name = reviewLessonName(item);
+  if (item.kind == ItemKind.grammar) return name;
   return reviewLessonTitleIsAnAnswer(item) ? name : '$name · ${item.title}';
 }
 
@@ -1149,8 +1153,8 @@ DrillAnswer afterLessonReview(DrillAnswer d) {
   );
 }
 
-/// "Review the lesson" over the lesson and the idea, quiet under the card, and the "Lesson
-/// reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the navigation.
+/// "Review the lesson" over the lesson name ([reviewLessonDetail]), quiet under the card, and
+/// the "Lesson reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the navigation.
 class ReviewLessonLink extends StatelessWidget {
   const ReviewLessonLink({
     super.key,
