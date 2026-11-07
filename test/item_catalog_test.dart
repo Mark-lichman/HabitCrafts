@@ -4,8 +4,9 @@
 // per item, at least three sentence probes per grammar point, and prerequisites that resolve.
 //
 // New cards (plan 2026-11-06, Task 6, End state 5): every kind has a scored say card that
-// shows the prompt only (PIN-12) and twins the probe it asks, and every particle has a choose
-// card whose wrong options are other particles of the other slot, so exactly one option
+// shows the prompt only (PIN-12), twins the probe it asks and hears the prompt with its blank
+// filled (checked against a literal fill, not against wholeSentence), and every particle has a
+// choose card whose wrong options are other particles of the other slot, so exactly one option
 // completes the sentence (PIN-7, A4). The template-to-mode table is pinned entry by entry to
 // the plan's D18 row, and every scored probe the catalog builds has a mode (D19). A particle
 // whose wrong-option pool runs short gets no choose card, at and under the boundary.
@@ -408,10 +409,23 @@ void main() {
           final say = item.probes.firstWhere((s) => s.id == sayCardId(p.id));
           expect(say.text, p.text, reason: 'the prompt, with its blank');
           expect(say.answer, wholeSentence(p.text, p.answer));
+          // An oracle that does not call wholeSentence: the blank, and only the blank,
+          // replaced by the answer, the text on both sides of it kept.
+          expect(say.answer, p.text.replaceAll(RegExp(r'[＿_]+'), p.answer),
+              reason: '${item.id} ${say.id} is not the prompt with its blank filled');
           expect(say.answer.contains(RegExp(r'[＿_]')), isFalse,
               reason: '${item.id} ${say.id} hears a blank');
         }
       }
+    });
+
+    test('wholeSentence fills the blank and keeps the text around it', () {
+      expect(wholeSentence('きょうは しごとが やすみ＿＿。', 'なんです'),
+          'きょうは しごとが やすみなんです。');
+      expect(wholeSentence('＿＿は がくせいです。', 'わたし'), 'わたしは がくせいです。',
+          reason: 'a blank at the start keeps the text after it');
+      expect(wholeSentence('no blank', 'x'), 'x',
+          reason: 'a prompt with no blank is heard as the answer alone');
     });
 
     test('a particle says its whole cloze sentence', () {
@@ -421,6 +435,8 @@ void main() {
         expect(say.id, sayCardId('cloze'));
         expect(say.text, cloze.text);
         expect(say.answer, wholeSentence(cloze.text, cloze.answer));
+        expect(say.answer, cloze.text.replaceAll(RegExp(r'[＿_]+'), cloze.answer),
+            reason: '${item.id} ${say.id} is not the cloze with its blank filled');
       }
     });
 
