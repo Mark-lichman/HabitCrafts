@@ -367,21 +367,34 @@ void main() {
       sawAll = sawAll || item.modes.length == 3;
     }
     expect(sawAll, isTrue, reason: 'some grammar point has all three modes');
-    // The Say-it template has no mode, so an item of Say-it probes alone needs none.
+    // The Say-it template has no mode, so an item of Say-it probes alone needs none. The
+    // probe is scored here, unlike the catalog's, so the no-mode branch of modes runs: an
+    // unscored probe is skipped before its template is read and would prove nothing.
+    const sayIt =
+        ProbeDef(id: 'ex0', template: kSayItTemplate, text: 'あ', answer: 'あ');
     final sayItOnly = ItemDef(
         id: 'x',
         kind: ItemKind.grammar,
         title: 'x',
         prereqLevel: 2,
+        probes: const [sayIt]);
+    expect(sayItOnly.modes, isEmpty);
+    // Beside a say card, the no-mode probe drops only itself, not the set.
+    final sayItAndCard = ItemDef(
+        id: 'y',
+        kind: ItemKind.grammar,
+        title: 'y',
+        prereqLevel: 2,
         probes: const [
+          sayIt,
           ProbeDef(
-              id: 'ex0',
-              template: kSayItTemplate,
+              id: 'say.p0',
+              template: kSayCardTemplate,
               text: 'あ',
               answer: 'あ',
-              scored: false),
+              production: true),
         ]);
-    expect(sayItOnly.modes, isEmpty);
+    expect(sayItAndCard.modes, {ProbeMode.spoken});
   });
 
   group('say cards and the particle choose card (plan 2026-11-06, Task 6)', () {
@@ -642,6 +655,12 @@ void main() {
             clear(item, probe(item, probeIds[i]), days[i]),
         ]);
 
+    /// The id of [item]'s first scored choose card other than [not]: a sentence that clears
+    /// the recognition mode, where p0 is a fill and clears only the typed mode.
+    String chooseOtherThan(ItemDef item, String not) => item.scoredProbes
+        .firstWhere((p) => p.template == 'choose' && p.id != not)
+        .id;
+
     test('every grammar point has the three practice items the fixtures use',
         () {
       expect(grammar, isNotEmpty);
@@ -652,9 +671,11 @@ void main() {
           expect(item.probes.any((p) => p.id == sayCardId(id)), isTrue,
               reason: '${item.id} has no ${sayCardId(id)}');
         }
-        // The say card is the second template, the production clear and the spoken mode,
-        // and the fixtures that master a point also clear its typed (fill) and recognition
-        // (choose) modes (PIN-7), so only the transfer clause decides the fixtures below.
+        // The say card is the second template, the production clear and the spoken mode.
+        // The two-sentence fixture and the mastering fixtures below also clear the typed
+        // (fill) and recognition (choose) modes (PIN-7), so only the transfer clause decides
+        // them. The one-sentence fixture has no choose card to replay, since p0 is a fill
+        // and no choose card twins it, so the mode clause blocks it as well.
         expect(probe(item, 'p0').template, isNot(kSayCardTemplate));
         expect(probe(item, sayCardId('p0')).production, isTrue);
       }
@@ -670,9 +691,15 @@ void main() {
 
     test('two sentences asked both ways stay Learning, four ids or not', () {
       // Four different probe ids over two sentences: a rule that counted raw ids would
-      // see four probes and master the point here.
+      // see four probes and master the point here. The second sentence is a choose card,
+      // so all three modes are cleared and the mode clause cannot be what keeps the point
+      // Learning: a point whose p0 and p1 are both fills would otherwise pass for the
+      // wrong reason.
       for (final item in grammar) {
-        final s = replay(item, ['p0', 'say.p0', 'p1', 'say.p1']);
+        final see = chooseOtherThan(item, 'p0');
+        final s = replay(item, ['p0', 'say.p0', see, sayCardId(see)]);
+        expect(missingModes(item, s.clears), isEmpty,
+            reason: '${item.id}: only the transfer clause may block');
         expect(s.status, MasteryStatus.learning, reason: item.id);
         expect(s.clears.length, 4, reason: '${item.id}: all four clears count');
       }
@@ -691,9 +718,7 @@ void main() {
         // The say card alone as the third sentence counts as that sentence too. The second
         // clear is a choose card other than p2 (p1, else p3 where p1 is a fill), so the
         // recognition mode is cleared on a sentence the say card does not ask.
-        final see = item.scoredProbes
-            .firstWhere((p) => p.template == 'choose' && p.id != 'p2')
-            .id;
+        final see = chooseOtherThan(item, 'p2');
         expect(replay(item, ['p0', see, 'say.p2', 'p0']).status,
             MasteryStatus.mastered,
             reason: item.id);
