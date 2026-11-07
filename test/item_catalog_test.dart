@@ -6,7 +6,9 @@
 // New cards (plan 2026-11-06, Task 6, End state 5): every kind has a scored say card that
 // shows the prompt only (PIN-12) and twins the probe it asks, and every particle has a choose
 // card whose wrong options are other particles of the other slot, so exactly one option
-// completes the sentence (PIN-7, A4).
+// completes the sentence (PIN-7, A4). The template-to-mode table is pinned entry by entry to
+// the plan's D18 row, and every scored probe the catalog builds has a mode (D19). A particle
+// whose wrong-option pool runs short gets no choose card, at and under the boundary.
 
 import 'dart:convert';
 import 'dart:io';
@@ -355,6 +357,37 @@ void main() {
           reason: 'the Say-it track never counts');
     });
 
+    test(
+        'the template-to-mode table is the D18 row, and every scored probe has a mode',
+        () {
+      // The plan's D18 row, entry by entry: a dropped or remapped entry fails here.
+      const d18 = <String, ProbeMode>{
+        'fill': ProbeMode.typed,
+        'cloze': ProbeMode.typed,
+        'typed': ProbeMode.typed,
+        'conjugate': ProbeMode.typed,
+        'choose': ProbeMode.recognition,
+        'card': ProbeMode.recognition,
+        kPairToTransitive: ProbeMode.recognition,
+        kPairToIntransitive: ProbeMode.recognition,
+        kCellTemplate: ProbeMode.recognition,
+        'spoken': ProbeMode.spoken,
+        kSayCardTemplate: ProbeMode.spoken,
+      };
+      expect(kTemplateModes, d18);
+      for (final e in d18.entries) {
+        expect(modeOfTemplate(e.key), e.value, reason: e.key);
+      }
+      // Every scored probe the catalog builds lands in a mode, so the session's pick never
+      // leaves a counting card to the rotation fallback (D19).
+      for (final item in catalog.items) {
+        for (final p in item.scoredProbes) {
+          expect(modeOfTemplate(p.template), isNotNull,
+              reason: '${item.id} ${p.id} (${p.template}) has no mode');
+        }
+      }
+    });
+
     test('a say card shows the prompt only, never the answer (PIN-12)', () {
       for (final item in catalog.items) {
         for (final p in sayCards(item)) {
@@ -478,6 +511,17 @@ void main() {
       expect(options, isNotNull);
       expect(options!.contains('によって'), isFalse,
           reason: 'an accepted form is never a wrong option');
+      // A short pool: のに draws on the noun-slot list, and with three of its entries
+      // accepted one wrong option is left, under the two a card needs, so no card.
+      expect(particleChooseOptions(0, 'のに', const ['によって', 'にとって', 'について']),
+          isNull);
+      // The boundary: two left is exactly the wrong options a card needs, so a card.
+      final twoLeft = particleChooseOptions(0, 'のに', const ['によって', 'にとって']);
+      expect(twoLeft, isNotNull);
+      expect(twoLeft, hasLength(kParticleChooseOptions));
+      expect(twoLeft!.where((o) => o == 'のに'), hasLength(1));
+      expect(twoLeft.toSet(), {'のに', 'について', 'しか'},
+          reason: 'no option repeats');
     });
 
     test('a twin counts as the probe it twins for transfer (D4 clause 5)', () {

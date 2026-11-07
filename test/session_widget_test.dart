@@ -1738,6 +1738,37 @@ void main() {
           sayCardId('cloze'));
     });
 
+    test('the needed mode wins over the rotation when the two disagree', () {
+      // See it and say it cleared at answered 0: the rotation would give the card again
+      // (the first probe), so only the mode-aware pick lands on type it.
+      final typed = nextProbe(
+          word,
+          learning(
+              word, [clearOn(word, 'card', 1), clearOn(word, 'spoken', 2)]),
+          0);
+      expect(typed.id, 'typed');
+      expect(word.scoredProbes.first.id, isNot('typed'),
+          reason: 'the rotation at 0 gives a different probe');
+      // A particle at answered 0: type it cleared gives the choose card, then both
+      // cleared gives the say card, where the rotation would give the cloze each time.
+      expect(
+          nextProbe(particle,
+                  learning(particle, [clearOn(particle, 'cloze', 1)]), 0)
+              .id,
+          kParticleChooseId);
+      expect(
+          nextProbe(
+                  particle,
+                  learning(particle, [
+                    clearOn(particle, 'cloze', 1),
+                    clearOn(particle, 'choose', 2)
+                  ]),
+                  0)
+              .id,
+          sayCardId('cloze'));
+      expect(particle.scoredProbes.first.id, 'cloze');
+    });
+
     test('a needed mode shows before the 4th clear', () {
       // Three see-it clears: the fourth card is never another see-it card.
       final three = learning(word, [
