@@ -1,8 +1,9 @@
 // The study store (Task 8, D14, D26, A4, A5). One suite runs against both implementations:
 // `JpStoreMemory` (the web store) and `JpStoreSqlite` through the ffi factory. The SQLite-only
 // group covers the schema version, the indexes, a reopen of the file, the upgrade steps (the
-// version 1 file gaining the Discuss table among them) and the rollback of an answer that fails inside its transaction. The gated memory store holds a
-// rebuild or an import open so an answer can try to land inside it.
+// version 1 file gaining the Discuss table among them) and the rollback of an answer that fails
+// inside its transaction. The gated memory store holds a rebuild or an import open so an answer
+// can try to land inside it.
 
 import 'dart:async';
 import 'dart:convert';
@@ -576,6 +577,7 @@ void main() {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
         await store.setNote('keep', 'note');
+        await store.setDiscuss('keep', note: 'mark', atUtc: at(0));
         final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
             item: g, scheduler: scheduler);
         final good = encodeStudyExport(const StudyLog(), exportedAt: at(0));
@@ -610,6 +612,8 @@ void main() {
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
         expect(await store.notes(), {'keep': 'note'});
+        expect(await store.discussMarks(),
+            {'keep': DiscussMark(itemId: 'keep', note: 'mark', atUtc: at(0))});
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
       });
@@ -617,6 +621,7 @@ void main() {
       test('a log the replay rejects is not imported', () async {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
+        await store.setDiscuss('keep', note: 'mark', atUtc: at(0));
         final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
             item: g, scheduler: scheduler);
         final log = StudyLog(
@@ -626,6 +631,8 @@ void main() {
             store.importLog(log, catalog.byId, scheduler), throwsBadRating);
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
+        expect(await store.discussMarks(),
+            {'keep': DiscussMark(itemId: 'keep', note: 'mark', atUtc: at(0))});
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
         expect((await store.item('keep'))!.seedDueDay, 1);

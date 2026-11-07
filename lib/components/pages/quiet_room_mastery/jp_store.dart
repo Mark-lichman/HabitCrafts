@@ -445,8 +445,8 @@ abstract class JpStore {
 
   /// Replaces the log, the notes and the Discuss marks with [log] and the derived states with
   /// [result], in one transaction: a write that fails leaves the old log, caches, notes and
-  /// marks in place. The days
-  /// and the flags stay. [importLog] is its caller; [result] is [log]'s replay.
+  /// marks in place. The days and the flags stay. [importLog] is its caller; [result] is
+  /// [log]'s replay.
   Future<void> replaceAll(StudyLog log, ReplayResult result);
 
   Future<void> close();
