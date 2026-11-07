@@ -707,6 +707,32 @@ void main() {
           reason: 'an on-device clear never counts toward Mastered');
     });
 
+    testWidgets('a self-mark on a not-due word writes early', (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final a = (await rig.attempts(tester)).last;
+      expect(a.grade, Grade.self);
+      expect(a.wasDue, isFalse);
+      expect(a.source, Source.early);
+    });
+
+    testWidgets('a self-mark on a due word writes review', (tester) async {
+      final rig = Rig(mic: false);
+      await rig.open(tester);
+      final id = rig.shownId(tester);
+      await rig.store.appendSeed(id, localDay(_now), atUtc: _now.toUtc());
+      await rig.tapSpeak(tester);
+      await tester.tap(find.text('Got it'));
+      await rig.settle(tester);
+      final a = (await rig.attempts(tester)).last;
+      expect(a.grade, Grade.self);
+      expect(a.wasDue, isTrue);
+      expect(a.source, Source.review);
+    });
+
     testWidgets(
         'a failed write reaches the error handler, the verdict still shows (S4)',
         (tester) async {

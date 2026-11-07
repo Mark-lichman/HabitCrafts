@@ -1,7 +1,7 @@
 // Widget tests for the probe widgets (plan 2026-11-02, Task 19).
 //
-// Each probe kind is driven to each grade it can report, with fake speech and pronunciation
-// services, and the test reads the `DrillAnswer` draft the widget hands on: the grade, the
+// Each probe kind is driven to each grade it can report, with a fake pronunciation service,
+// and the test reads the `DrillAnswer` draft the widget hands on: the grade, the
 // template, the hint level, the revealed flag, the Say-it flag and whether the answer was
 // already on screen. Every widget shows the item's state pill as "n of 4 clears".
 //

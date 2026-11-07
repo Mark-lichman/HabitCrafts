@@ -59,7 +59,8 @@ Attempt answer(ItemDef item, int day, Grade grade,
     {ProbeDef? probe,
     Source source = Source.review,
     bool wasDue = true,
-    int? hintLevel}) {
+    int? hintLevel,
+    bool spokenClose = false}) {
   final p = probe ?? item.scoredProbes.first;
   return Attempt(
     itemId: item.id,
@@ -75,6 +76,7 @@ Attempt answer(ItemDef item, int day, Grade grade,
     wasDue: wasDue,
     source: source,
     sessionId: 'test',
+    spokenClose: spokenClose,
   );
 }
 
@@ -266,6 +268,21 @@ void main() {
       expect(shows(kPracticeNow), isTrue);
       expect(shows(kNoProductionProbeLine), isFalse);
       expect(shows(kOneTemplateLine), isFalse);
+    });
+
+    testWidgets('the history labels a spoken close Close, not With a hint (PIN-10)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      final spoken = word.probes.firstWhere((p) => p.template == 'spoken');
+      await record(
+          store,
+          answer(word, today - 2, Grade.hinted,
+              probe: spoken, hintLevel: 0, spokenClose: true));
+      await pumpItem(tester, store, word);
+
+      expect(showsPart('Close · Say the word'), isTrue);
+      expect(find.textContaining('With a hint'), findsNothing);
     });
 
     testWidgets('a New item with no schedule says it is not in the queue yet',

@@ -10,7 +10,7 @@
 // |------------------------|--------------------------------------------------------|
 // | clear, the 4th that counts, or a Shaky item's regain | Mastered                 |
 // | clear                  | Clear, with the new interval                           |
-// | hinted                 | Right with a hint, no credit (PIN-3)                   |
+// | hinted                 | Right with a hint, no credit (PIN-3); a spoken close shows Close, no credit (PIN-10) |
 // | self                   | Marked as got it, no credit (PIN-3)                    |
 // | wrong                  | no card (operator ruling 2026-11-05), see below        |
 // | unscored               | Not counted; the entry moves to the end of its section |
@@ -25,8 +25,9 @@
 // [ReviewLessonLink] naming the lesson ([reviewLessonDetail]), never the card's answer. It
 // pushes the item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
 // unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
-// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more; wrong,
-// self and unscored are untouched.
+// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more, and a
+// spoken close loses its close mark the same way (it is written as a plain hinted answer);
+// wrong, other hinted, self and unscored are untouched.
 // An answered or held card has no link, so a review after the answer changes nothing.
 // Opening a lesson writes no attempt. With no router and no injected opener the card shows
 // no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.

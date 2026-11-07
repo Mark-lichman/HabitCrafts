@@ -439,7 +439,9 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
   Widget _historyRow(QuietRoomTokens t, ItemDef item, HistoryRow r) {
     final a = r.attempt;
     final what = [
-      gradeLabel(a.grade),
+      // A spoken close is hinted with no hint taken (PIN-10), so it reads Close, as on its
+      // verdict card.
+      a.spokenClose ? 'Close' : gradeLabel(a.grade),
       if (a.hintLevel > 0) 'hint ${a.hintLevel}',
       if (a.source == Source.early) 'early',
       if (a.source == Source.sayIt) 'say it',

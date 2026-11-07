@@ -185,6 +185,9 @@ void main() {
     test('an Attempt refuses a clear that carries a hint level (PIN-3)', () {
       expect(() => att(0, Grade.clear, hint: 1), throwsAssertionError);
       expect(att(0, Grade.hinted, hint: 1).grade, Grade.hinted);
+      // A spoken close is always hinted (PIN-10).
+      expect(() => att(0, Grade.clear, spokenClose: true), throwsAssertionError);
+      expect(() => att(0, Grade.wrong, spokenClose: true), throwsAssertionError);
     });
 
     test('self-graded: Got it after the reveal is clear, Missed it is wrong',
