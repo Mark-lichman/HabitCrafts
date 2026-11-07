@@ -674,16 +674,29 @@ void main() {
         // The say card is the second template, the production clear and the spoken mode.
         // The two-sentence fixture and the mastering fixtures below also clear the typed
         // (fill) and recognition (choose) modes (PIN-7), so only the transfer clause decides
-        // them. The one-sentence fixture has no choose card to replay, since p0 is a fill
-        // and no choose card twins it, so the mode clause blocks it as well.
+        // them. The one-sentence fixture is blocked by the mode clause as well, and that
+        // test pins why.
         expect(probe(item, 'p0').template, isNot(kSayCardTemplate));
         expect(probe(item, sayCardId('p0')).production, isTrue);
       }
     });
 
     test('one sentence asked both ways stays Learning', () {
+      // The cards that count as sentence p0 are the fill and its say card, so no replay
+      // of one sentence clears the recognition mode: the mode clause blocks here as well
+      // as the transfer clause. The two-sentence fixture below is the one the transfer
+      // clause alone decides.
       for (final item in grammar) {
+        expect(
+            [
+              for (final p in item.probes)
+                if (transferKeyOf(p.id) == 'p0') p.template
+            ],
+            unorderedEquals(['fill', kSayCardTemplate]),
+            reason: '${item.id}: no choose card twins p0');
         final s = replay(item, ['p0', 'say.p0', 'p0', 'say.p0']);
+        expect(missingModes(item, s.clears), [ProbeMode.recognition],
+            reason: '${item.id}: one sentence clears typed and spoken only');
         expect(s.status, MasteryStatus.learning, reason: item.id);
         expect(s.clears.length, 4, reason: '${item.id}: all four clears count');
       }
