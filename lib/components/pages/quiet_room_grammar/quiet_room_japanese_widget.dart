@@ -326,6 +326,14 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
     _refreshToday();
   }
 
+  /// Opens the study record page, then reads Today again: its item pages set and clear
+  /// Discuss marks, and its Import replaces them, so the link's count would lag otherwise.
+  Future<void> _openRecord() async {
+    await _open(MasteryDebugWidget.routeName);
+    if (!mounted) return;
+    _refreshToday();
+  }
+
   /// A tap on a tab: `go` under the router, so the URL names the tab and the stack stays
   /// flat; local state without one.
   ///
@@ -539,7 +547,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
             () =>
                 _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
         link(discussLinkLabel(_record?.discuss ?? 0), _openDiscuss),
-        link('Study record', () => _open(MasteryDebugWidget.routeName)),
+        link('Study record', _openRecord),
       ]),
     );
   }

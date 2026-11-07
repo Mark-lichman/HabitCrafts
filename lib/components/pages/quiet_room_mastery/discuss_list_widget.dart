@@ -225,8 +225,19 @@ class _DiscussListWidgetState extends State<DiscussListWidget> {
     if (mounted) await _load();
   }
 
+  /// Clears the mark; a refused write goes to [FlutterError.reportError], as the toggle's
+  /// does, and the row stays, since the store still holds the mark.
   Future<void> _discussed(String itemId) async {
-    await _store!.clearDiscuss(itemId);
+    try {
+      await _store!.clearDiscuss(itemId);
+    } catch (e, s) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room discuss',
+          context:
+              ErrorDescription('while clearing the Discuss mark of $itemId')));
+    }
     if (mounted) await _load();
   }
 

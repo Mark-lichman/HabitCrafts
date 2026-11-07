@@ -403,5 +403,34 @@ void main() {
       expect(await target.srs(item.id), await source.srs(item.id));
       expect(await target.mastery(item.id), await source.mastery(item.id));
     });
+
+    testWidgets('a refused Discussed write is reported and the row stays',
+        (tester) async {
+      final store = await seeded(_ClearRefusedStore());
+      final item = words[6];
+      await store.setDiscuss(item.id, atUtc: at(today));
+      await pumpToday(tester, store);
+      await tapText(tester, discussLinkLabel(1));
+      await tester.pumpAndSettle();
+
+      final capture = ReportCapture();
+      await tester.tap(find.byKey(ValueKey('discussed-${item.id}')));
+      await settle(tester);
+      final reports = capture.stop();
+
+      expect(reports, hasLength(1));
+      expect(reports.single.library, 'quiet room discuss');
+      expect(reports.single.exception, isA<StateError>());
+      expect(find.byKey(ValueKey('discuss-row-${item.id}')), findsOneWidget,
+          reason: 'the store still holds the mark');
+      expect(await store.discuss(item.id), isNotNull);
+    });
   });
+}
+
+/// A memory store whose Discuss clear is refused: the seam for the reported-failure test.
+class _ClearRefusedStore extends JpStoreMemory {
+  @override
+  Future<void> clearDiscuss(String itemId) async =>
+      throw StateError('jp store: disk full');
 }

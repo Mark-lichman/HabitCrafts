@@ -699,8 +699,13 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
             reviewed: _reviewedPresentation == _presentation,
             onTap: () => _reviewLesson(open, item),
           ),
+        // Keyed: the lesson link above leaves the card on the held phase, and an unkeyed
+        // toggle would be rebuilt by position and read the store again.
         DiscussToggle(
-            itemId: item.id, store: widget.store, clock: widget.clock),
+            key: ValueKey('discuss-${item.id}'),
+            itemId: item.id,
+            store: widget.store,
+            clock: widget.clock),
         if (held) _action(t, 'Next', _next, primary: true),
       ],
     );
