@@ -261,8 +261,9 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
-    // Behind a pushed screen the home waits: `_open` and `_startSession` resolve the
-    // launch again when that screen returns, after the session's answers are in.
+    // Behind a pushed screen the home waits: `_open`, `_openDiscuss`, `_openRecord` and
+    // `_startSession` resolve the launch again when that screen returns, after the
+    // session's answers are in.
     if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
     _relaunchIfNewDay();
   }
@@ -328,8 +329,10 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
 
   /// Opens the study record page, then reads Today again: its item pages set and clear
   /// Discuss marks, and its Import replaces them, so the link's count would lag otherwise.
+  /// Not through `_open`: `_refreshToday` already resolves a moved day, and a second
+  /// resolution behind it would run `onLaunch` twice for the new day.
   Future<void> _openRecord() async {
-    await _open(MasteryDebugWidget.routeName);
+    await context.pushNamed(MasteryDebugWidget.routeName);
     if (!mounted) return;
     _refreshToday();
   }

@@ -24,10 +24,12 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/item_detail_widg
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
+import 'package:habit_craft/flutter_flow/nav/nav.dart';
 
 import 'jp_screen_harness.dart';
 
@@ -302,23 +304,32 @@ void main() {
       return store;
     }
 
-    Future<void> pumpToday(WidgetTester tester, JpStore store) async {
-      final clock = FixedClock(at(today));
+    /// Today under a router with the Discuss list and a stand-in study record page. A test
+    /// that moves the day under Today passes its own [clock] and sets it later.
+    Future<GoRouter> pumpToday(WidgetTester tester, JpStore store,
+        {FixedClock? clock}) async {
+      final Clock clock0 = clock ?? FixedClock(at(today));
       final router = GoRouter(routes: [
         GoRoute(
             path: '/',
             builder: (_, __) => QuietRoomJapaneseWidget(
-                store: store, catalog: catalog, clock: clock)),
+                store: store, catalog: catalog, clock: clock0)),
         GoRoute(
           name: DiscussListWidget.routeName,
           path: DiscussListWidget.routePath,
           builder: (_, __) =>
-              DiscussListWidget(store: store, catalog: catalog, clock: clock),
+              DiscussListWidget(store: store, catalog: catalog, clock: clock0),
+        ),
+        GoRoute(
+          name: MasteryDebugWidget.routeName,
+          path: MasteryDebugWidget.routePath,
+          builder: (_, __) => const Text('the record'),
         ),
       ]);
       addTearDown(router.dispose);
       await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
       await settle(tester);
+      return router;
     }
 
     testWidgets(
@@ -425,7 +436,47 @@ void main() {
           reason: 'the store still holds the mark');
       expect(await store.discuss(item.id), isNotNull);
     });
+
+    testWidgets(
+        'back from the study record on a new day resolves the launch once',
+        (tester) async {
+      final store = _DayWritesStore();
+      await seeded(store);
+      final clock = FixedClock(at(today));
+      final router = await pumpToday(tester, store, clock: clock);
+      await tapText(tester, 'Study record');
+      await tester.pumpAndSettle();
+      expect(find.text('the record'), findsOneWidget);
+
+      clock.set(at(today + 1));
+      router.pop();
+      await tester.pumpAndSettle();
+      await settle(tester);
+      expect(find.text('the record'), findsNothing);
+      expect(store.dayWrites[today + 1], 1,
+          reason: 'one onLaunch run writes the new day, not one per caller');
+    });
+
+    test('the app router registers the list by name', () {
+      final router = createRouter(AppStateNotifier.instance);
+      addTearDown(router.dispose);
+      expect(router.namedLocation(DiscussListWidget.routeName),
+          DiscussListWidget.routePath);
+      expect(DiscussListWidget.routePath, '/quietRoomDiscuss');
+    });
   });
+}
+
+/// A memory store that counts the day records written per day: `onLaunch` writes the day's
+/// record once per run, so the count tells how many runs resolved that day.
+class _DayWritesStore extends JpStoreMemory {
+  final Map<int, int> dayWrites = {};
+
+  @override
+  Future<void> putDay(DayRecord record) {
+    dayWrites[record.day] = (dayWrites[record.day] ?? 0) + 1;
+    return super.putDay(record);
+  }
 }
 
 /// A memory store whose Discuss clear is refused: the seam for the reported-failure test.
