@@ -15,7 +15,10 @@
 //      idea, both directions for a pair, two different cells for a table row (every cell where
 //      the row has fewer than two). A probe that asks the same sentence, verb, direction or cell
 //      in another mode (`say.p0` beside `p0`, plan 2026-11-06 Task 6) counts as that one: see
-//      [transferKeyOf].
+//      [transferKeyOf];
+//   6. a clear in every mode the item has a scored card for (PIN-7, D18): type it, see it, say
+//      it, by [kTemplateModes]. A word needs all three; a conjugation idea, a pair or a table
+//      row has no card in one of them and needs the other two. See [missingModes].
 // A wrong, or two hinted in a row, on a Mastered item makes it Shaky; two clears on two days,
 // the second 7 or more days after the first, regain it (PIN-4).
 //
@@ -106,6 +109,20 @@ abstract class ItemDefLike {
   /// The number of different probes: sentences, verbs, directions or cells, each counted once
   /// however many modes ask it ([transferKeyOf]).
   int get probeCount;
+
+  /// The modes the item has a scored card for (D18, PIN-7): Mastered needs a counting clear in
+  /// each. An item with none needs no mode.
+  Set<ProbeMode> get modes;
+}
+
+/// The modes of [item] with no counting clear among [clears], in [ProbeMode] order (PIN-7). A
+/// clear on a template with no mode ([modeOfTemplate]) fills none.
+List<ProbeMode> missingModes(ItemDefLike item, Iterable<ClearRef> clears) {
+  final cleared = {for (final c in clears) modeOfTemplate(c.template)};
+  return [
+    for (final m in ProbeMode.values)
+      if (item.modes.contains(m) && !cleared.contains(m)) m
+  ];
 }
 
 /// The different probes an item needs among its clears (D4 clause 5).
@@ -296,6 +313,7 @@ bool _meetsRule(
       return false;
     }
   }
+  if (missingModes(item, clears).isNotEmpty) return false;
   final probes = {for (final c in clears) transferKeyOf(c.probeId)};
   return probes.length >= transferProbesNeeded(item);
 }

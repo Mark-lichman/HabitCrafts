@@ -1,6 +1,8 @@
 // The synthetic learner and the day loop behind test/srs_simulation_test.dart (Task 16).
 //
-// The learner answers the real catalog's items through their real probes and templates. Its
+// The learner answers the real catalog's items through their real probes and templates, on the
+// probe the Review session would ask (`nextProbe`, plan 2026-11-06, D19): a mode with no
+// counting clear first, then the probes in turn. Its
 // chance of a clear is 85% while the item is retrievable (FSRS retrievability at or above
 // 0.85); below that the chance is the retrievability itself. An item with no FSRS state (New,
 // or seeded and not yet answered) is cleared 68% of the time, the Python reference's
@@ -37,6 +39,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/seed.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart'
+    show nextProbe;
 
 /// The learner's clear rate while an item is retrievable.
 const double kLearnerClear = 0.85;
@@ -75,12 +79,12 @@ class SyntheticLearner {
   }
 }
 
-/// The scored probe asked on an item's [n]th scored answer: the probes in turn, so an item
-/// meets its templates and its transfer probes the way a session that rotates them would.
-ProbeDef probeFor(ItemDef item, int n) {
-  final probes = item.scoredProbes.toList();
-  return probes[n % probes.length];
-}
+/// The scored probe asked of [item] in [state] after [n] answers on it: the Review session's
+/// own pick, `nextProbe` (plan 2026-11-06, D19), so a needed mode shows before the clears run
+/// out and the probes then take turns by the item's answers so far, as the session counts
+/// them (every attempt on the item, early practice included; the simulator writes none).
+ProbeDef probeFor(ItemDef item, MasteryState state, int n) =>
+    nextProbe(item, state, n);
 
 /// The grade of [answer] on [probe], through the app's own `gradeAnswer` (D17, PIN-13): a
 /// hinted answer is right after a hint below the revealing level.
@@ -318,7 +322,9 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
       final state = await store.srs(item.id);
       final r = state == null ? null : scheduler.retrievability(state, today);
       final n = scoredAnswers[item.id] ?? 0;
-      final probe = probeFor(item, n);
+      final mastery =
+          await store.mastery(item.id) ?? MasteryState.initial(item.id);
+      final probe = probeFor(item, mastery, n);
       final grade = gradeOf(learner.answer(r), probe);
       final attempt = Attempt(
         itemId: item.id,

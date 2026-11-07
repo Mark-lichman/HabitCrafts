@@ -327,11 +327,13 @@ void main() {
       'the fourth clear that completes the rule shows Mastered and the end card lists it',
       (tester) async {
     // A particle has one sentence, so no transfer clause; since its choose and say cards
-    // (plan 2026-11-06, Task 6) it needs two templates and a production clear, so the seeded
-    // clears hold a choose clear beside the cloze ones.
+    // (plan 2026-11-06, Task 6) it needs two templates and a production clear, and a clear in
+    // each of its three modes (Task 7, PIN-7), so the seeded clears hold a choose clear (see
+    // it) and a say card clear (say it) beside the cloze (type it) that completes the rule.
     final particle = catalog.ofKind(ItemKind.particle).first;
     final probe = particle.scoredProbes.first;
     final choose = particle.probes.firstWhere((p) => p.id == kParticleChooseId);
+    final say = particle.probes.firstWhere((p) => p.id == sayCardId('cloze'));
     ClearRef c(int day, [ProbeDef? on]) => ClearRef(
         day: day,
         template: (on ?? probe).template,
@@ -341,7 +343,7 @@ void main() {
     await store.putMastery(MasteryState(
       itemId: particle.id,
       status: MasteryStatus.learning,
-      clears: [c(today - 70), c(today - 50, choose), c(today - 30)],
+      clears: [c(today - 70), c(today - 50, choose), c(today - 30, say)],
       lastScoredDay: today - 30,
     ));
     final h = await pumpSession(

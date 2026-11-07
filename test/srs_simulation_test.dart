@@ -2,9 +2,15 @@
 // (test/support/synthetic_learner.dart: 85% clear while retrievable, otherwise the chance
 // tracks retrievability, the rest 45% hinted and 55% wrong) answers the shipped catalog's items
 // through their real probes and templates for 120 days, through `buildPlan`, the FSRS scheduler
-// and the mastery rule, with a memory store and an injected clock. Four runs: from scratch
-// (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C), and with the
-// stretch taken whenever the end card offers it (D). The test prints each run's summary and a
+// and the mastery rule, with a memory store and an injected clock. Each card is the session's
+// own pick (`nextProbe`, D19), and the rule needs a clear in every mode the item has a card for
+// (plan 2026-11-06, Task 7, PIN-7). Re-measured on 2026-11-07 at the phase 5 base: run A
+// mastered 397 items by day 120 (first on day 41), run C 687 (first on day 37, every kind);
+// the same numbers with or without the mode clause, because the pick asks a missing mode
+// before the clears run out. Under the same rule, the old rotation by answer count gave run A
+// 352 and 5 conjugation ideas, not 24: its first four cards on an idea are all typed. Four runs:
+// from scratch (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C),
+// and with the stretch taken whenever the end card offers it (D). The test prints each run's summary and a
 // 10-day table, so the simulator numbers in the plan's Context can be re-measured here. The
 // last test holds the plan's two `wasDue` stamps the harness and the session copy (ASK-6).
 
