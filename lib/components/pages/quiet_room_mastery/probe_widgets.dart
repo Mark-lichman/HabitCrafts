@@ -457,7 +457,7 @@ class TypedFillProbe extends StatefulWidget {
   /// The practice item `checkTypedAnswer` judges against, with its accepted forms and ruby
   /// twins. Required, because a [ProbeDef] carries no accepted forms and a catalog fill item
   /// may accept several (いったら and いけば): the runner passes the raw practice map, or
-  /// the answer with the sentence's accepted forms for a particle cloze.
+  /// `{'answer': probe.answer}` for a particle cloze.
   final Map<String, dynamic> checkItem;
 
   @override
