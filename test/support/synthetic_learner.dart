@@ -3,11 +3,12 @@
 // The learner answers the real catalog's items through their real probes and templates, on the
 // probe the Review session would ask (`nextProbe`, plan 2026-11-06, D19, D11): a mode with no
 // counting clear first, then a sentence with no clear, then the probes in turn; a re-ask
-// after a wrong rotates by answers so far, as the session's marker does (ASK-5). Its
-// chance of a clear is 85% while the item is retrievable (FSRS retrievability at or above
-// 0.85); below that the chance is the retrievability itself. An item with no FSRS state (New,
-// or seeded and not yet answered) is cleared 68% of the time, the Python reference's
-// first-sight rate (sim_queue.py, 0.85 x 0.8). A miss is hinted 45% of the time and wrong 55%.
+// after a wrong rotates by answers so far, as the session's marker does (plan 2026-11-06,
+// ASK-5). Its chance of a clear is 85% while the item is retrievable (FSRS retrievability at
+// or above 0.85); below that the chance is the retrievability itself. An item with no FSRS
+// state (New, or seeded and not yet answered) is cleared 68% of the time, the Python
+// reference's first-sight rate (sim_queue.py, 0.85 x 0.8). A miss is hinted 45% of the time
+// and wrong 55%.
 //
 // The day loop is the app's, with nothing stubbed: `buildPlan` builds the day's plan from a
 // `JpStoreMemory`; the plan is stored as the day's `DayRecord` (keep-sharp reads the week's

@@ -13,9 +13,9 @@
 //      the spaced clears (PIN-15);
 //   5. transfer per kind: three sentences for a grammar point, two for a particle (plan
 //      2026-11-06, Task 9, D4), three verbs for a conjugation idea, both directions for a pair,
-//      two different cells for a table row (every probe where the item has fewer). A probe that asks the same sentence, verb, direction or cell
-//      in another mode (`say.p0` beside `p0`, plan 2026-11-06 Task 6) counts as that one: see
-//      [transferKeyOf];
+//      two different cells for a table row (every probe where the item has fewer). A probe
+//      that asks the same sentence, verb, direction or cell in another mode (`say.p0` beside
+//      `p0`, plan 2026-11-06 Task 6) counts as that one: see [transferKeyOf];
 //   6. a clear in every mode the item has a scored card for (PIN-7, D18): type it, see it, say
 //      it, by [kTemplateModes]. A word needs all three; a conjugation idea, a pair or a table
 //      row has no card in one of them and needs the other two. See [missingModes].

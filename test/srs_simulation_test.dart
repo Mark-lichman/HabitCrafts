@@ -6,11 +6,11 @@
 // own pick (`nextProbe`, D19), and the rule needs a clear in every mode the item has a card for
 // (plan 2026-11-06, Task 7, PIN-7). Since Task 9 a particle asks three sentences and needs
 // clears on two, the pick moves off a sentence cleared on 2 days (D11), and a re-ask after a
-// wrong rotates (ASK-5). Re-measured on 2026-11-07 at the phase 6 base: run A mastered 397
-// items by day 120 (first on day 41, 27 conjugation ideas), run C 709 (first on day 37, every
-// kind). At the phase 5 base, before Task 9, run C was 687 and run A had 24 conjugation
-// ideas; the mode clause alone moved neither run, because the pick asks a missing mode
-// before the clears run out. Under the phase 5 rule, the old rotation by answer count gave
+// wrong rotates (plan 2026-11-06, ASK-5). Re-measured on 2026-11-07 at the phase 6 base: run
+// A mastered 397 items by day 120 (first on day 41, 27 conjugation ideas), run C 709 (first
+// on day 37, every kind). At the phase 5 base, before Task 9, run C was 687 and run A had 24
+// conjugation ideas; the mode clause alone moved neither run, because the pick asks a missing
+// mode before the clears run out. Under the phase 5 rule, the old rotation by answer count gave
 // run A 352 and 5 conjugation ideas: its first four cards on an idea are all typed, so the
 // run A conjugation floor (`kScratchConjugationFloor`) guards the pick. Four runs:
 // from scratch (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C),
@@ -107,8 +107,9 @@ void main() {
       'from scratch, the session pick masters at least $kScratchConjugationFloor '
       'conjugation ideas by day 120 (D19)', () {
     // The floor the old rotation by answer count misses: measured on 2026-11-07, `nextProbe`
-    // gives 27 (24 before Task 9) and the old `n % length` pick gave 5, because its first four cards on an idea
-    // are all typed and the spoken clear never arrives before the clears run out.
+    // gives 27 (24 before Task 9) and the old `n % length` pick gave 5, because its first
+    // four cards on an idea are all typed and the spoken clear never arrives before the
+    // clears run out.
     expect(scratch.masteredByKind[ItemKind.conjugation],
         greaterThanOrEqualTo(kScratchConjugationFloor),
         reason: scratch.summary());

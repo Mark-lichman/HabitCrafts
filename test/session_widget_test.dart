@@ -50,7 +50,8 @@
 // carries one cloze per sentence; within the needed mode a sentence with no clear comes
 // first, and a sentence cleared on 2 different days moves aside. A rotate marker takes the
 // scored probes in turn by attempts so far: Practice now on an item that is not due shows two
-// different cards on two early answers, and a re-ask after a wrong shows a different card,
+// different cards on two early answers, and a re-ask after a wrong rotates (here to a
+// different card; the rotation is by attempts so far, not away from the card just missed),
 // while the held card keeps the probe it was answered on. A due entry, in the session or in
 // Practice now, keeps the first needed mode.
 
@@ -2072,6 +2073,32 @@ void main() {
       expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
     });
 
+    testWidgets(
+        "a particle's second cloze shows that sentence's English, not the example",
+        (tester) async {
+      // A recognition and a spoken clear: type it is needed, and the say clear counts for
+      // sentence 0 through `transferKeyOf`, so the pick is `cloze.1` (D11, Task 9). Its
+      // English is the drafted sentence's own, read by `particleEnglish` in the real builder.
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          particle,
+          learning(particle, [
+            clearOn(particle, 'choose', today - 2),
+            clearOn(particle, kSayCardTemplate, today - 1),
+          ]),
+          pron);
+      final row = particleRowOf(particle.id);
+      final sentences = (row['sentences'] as List).cast<Map>();
+      final english = sentences[1]['english'] as String;
+      expect(english, isNot(row['example_en']),
+          reason: 'the check needs two different translations');
+      await h.tap('Show English');
+      expect(h.shows(english), isTrue, reason: "sentence 1's own English");
+      expect(h.shows(row['example_en'] as String), isFalse,
+          reason: 'not the example sentence the fallback would show');
+    });
+
     testWidgets('a word with a see-it clear asks its spoken card next',
         (tester) async {
       final pron = FakePronunciation();
@@ -2175,6 +2202,29 @@ void main() {
           reason: 'a due review keeps the D19 pick, not the rotation');
     });
 
+    testWidgets(
+        'a seeded item due today in Practice now keeps the first needed mode',
+        (tester) async {
+      // A seed and no FSRS row (the state after `seedFromLessons`, PIN-9): the due day comes
+      // from `seedDueDay`, so the item is due and the D19 pick holds (plan 2026-11-06, ASK-5).
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      await s.appendSeeds([
+        SeedEvent(itemId: word.id, dueDay: today, atUtc: at(today).toUtc())
+      ]);
+      await pumpWithPick(
+          tester,
+          s,
+          (s) => PracticeSessionWidget(
+              items: [word],
+              store: s,
+              catalog: catalog,
+              clock: FixedClock(at(today)),
+              probeBuilder: pickedProbe));
+      expect(asked(), word.scoredProbes.first.id,
+          reason: 'a seeded due item keeps the D19 pick, not the rotation');
+    });
+
     testWidgets('a due entry in the session still shows the first needed mode',
         (tester) async {
       final s = JpStoreMemory();
@@ -2195,8 +2245,11 @@ void main() {
     });
 
     testWidgets(
-        'a re-ask after a wrong shows a different card, and the held card stays',
+        'a re-ask after a wrong rotates to a different card here, and the held card stays',
         (tester) async {
+      // The rotation is by attempts so far (plan 2026-11-06, ASK-5), not away from the card
+      // just missed: with other prior attempts the rotated card can coincide with the D19
+      // pick. This seeding (one prior attempt, the first card asked) keeps them apart.
       final s = JpStoreMemory();
       await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
       final h = await pumpWithPick(
@@ -2218,7 +2271,8 @@ void main() {
       await h.tap('Next');
       final again = asked();
       expect(again, isNotNull, reason: 'the re-ask is on screen');
-      expect(again, isNot(first), reason: 'a re-ask rotates (ASK-5)');
+      expect(again, isNot(first),
+          reason: 'a re-ask rotates (plan 2026-11-06, ASK-5)');
       await h.tap('answer clear');
       final probes =
           (await s.attempts(itemId: word.id)).skip(1).map((a) => a.probeId);
