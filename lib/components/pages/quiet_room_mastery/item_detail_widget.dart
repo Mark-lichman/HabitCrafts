@@ -7,8 +7,9 @@
 //     the queue yet);
 //   * the probes seen clear: the scored probes with at least one clear answer;
 //   * what remains to Mastered (the four clears, the 21-day final gap, the second question kind,
-//     the production clear and the transfer clause, as mastery_rule.dart counts them), or to
-//     regain a Shaky item;
+//     the production clear, each mode still missing a clear ([kModeLines], plan 2026-11-06,
+//     Task 7, PIN-7) and the transfer clause, as mastery_rule.dart counts them), or to regain a
+//     Shaky item;
 //   * the Say-it counts on a grammar point, which never count toward Mastered (D4); on a word,
 //     the practice screen's listens sit under their own heading, "Practice listens, not
 //     counted", so they never read as the counting Say the word card (plan 2026-11-06, ASK-4);
@@ -92,6 +93,14 @@ const String kMasteredRemains =
 const String kNeedSecondKindLine = 'a clear on a second question kind';
 const String kNeedProductionLine =
     'a clear where you produce the answer (typed or spoken)';
+
+/// The line for each mode the item still needs a clear in (plan 2026-11-06, Task 7, PIN-7,
+/// D18), named the way the cards ask: type it, see it, say it.
+const Map<ProbeMode, String> kModeLines = {
+  ProbeMode.typed: 'a clear where you type it',
+  ProbeMode.recognition: 'a clear where you see it and pick or recall it',
+  ProbeMode.spoken: 'a clear where you say it',
+};
 
 /// Under the Say-it counts, on a grammar point only.
 const String kSayItNeverCounts = 'Saying it never counts toward mastered.';
@@ -181,6 +190,9 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
         if (item.hasProductionProbe && !clears.any((c) => c.production)) {
           out.add(kNeedProductionLine);
         }
+      }
+      for (final mode in missingModes(item, clears)) {
+        out.add(kModeLines[mode]!);
       }
       final need = transferProbesNeeded(item);
       final have = {for (final c in clears) transferKeyOf(c.probeId)}.length;

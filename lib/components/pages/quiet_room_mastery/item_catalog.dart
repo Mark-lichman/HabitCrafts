@@ -29,8 +29,8 @@
 //
 // A probe is `scored` when an answer on it can count toward the four clears. A grammar
 // point's examples are the Say-it sentences, which never count (D4), so they are probes for
-// lookup and practice but not scored; `templateCount`, `probeCount` and `hasProductionProbe`
-// cover scored probes only.
+// lookup and practice but not scored; `templateCount`, `probeCount`, `hasProductionProbe` and
+// `modes` (type it, see it, say it: PIN-7) cover scored probes only.
 
 import 'dart:convert';
 
@@ -282,6 +282,14 @@ class ItemDef implements ItemDefLike {
   @override
   int get probeCount =>
       scoredProbes.map((p) => transferKeyOf(p.id)).toSet().length;
+
+  /// The modes of the scored probes (D18): type it, see it, say it. A template with no mode
+  /// adds none.
+  @override
+  Set<ProbeMode> get modes => {
+        for (final p in scoredProbes)
+          if (modeOfTemplate(p.template) case final m?) m
+      };
 }
 
 /// Every mastery item, in a stable order: grammar, particles, words, conjugation ideas, pairs,

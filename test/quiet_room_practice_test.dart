@@ -80,6 +80,10 @@ class _Word implements ItemDefLike {
   bool get hasProductionProbe => true;
   @override
   int get probeCount => 3;
+
+  // No moded card, so the three-mode clause (plan 2026-11-06, Task 7, PIN-7) never binds here.
+  @override
+  Set<ProbeMode> get modes => const {};
 }
 
 /// A store whose attempt write always fails, as a disk I/O error would.
@@ -755,7 +759,8 @@ void main() {
       expect(a.rating, kRatingHard);
       expect(a.hintLevel, 0);
       expect(a.source, Source.sayIt,
-          reason: 'a transcript close never counts toward the hinted row (#88)');
+          reason:
+              'a transcript close never counts toward the hinted row (#88)');
     });
 
     testWidgets('a hint writes hinted, the whole answer showing writes wrong',

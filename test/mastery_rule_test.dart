@@ -1,6 +1,8 @@
 // Tests for the grades (D17, D22) and the mastery rule (D4, D16, PIN-3, PIN-4, PIN-13, PIN-14,
-// PIN-15). Every case is an attempt list replayed through `masteryAfter`, so each clause of the
-// rule is pinned by history alone (PIN-1), in the style of streak_test.dart.
+// PIN-15), the three modes (PIN-7, D18) and the spoken close (PIN-10). Every case is an attempt
+// list replayed through `masteryAfter`, so each clause of the rule is pinned by history alone
+// (PIN-1), in the style of streak_test.dart. The synthetic items name no mode unless a case
+// gives them one, so the cases before "three modes" hold the older clauses alone.
 
 import 'dart:convert';
 
@@ -12,7 +14,8 @@ class _Item implements ItemDefLike {
   const _Item(this.id, this.kind,
       {this.templateCount = 1,
       this.hasProductionProbe = false,
-      this.probeCount = 1});
+      this.probeCount = 1,
+      this.modes = const {}});
   @override
   final String id;
   @override
@@ -23,6 +26,8 @@ class _Item implements ItemDefLike {
   final bool hasProductionProbe;
   @override
   final int probeCount;
+  @override
+  final Set<ProbeMode> modes;
 }
 
 // One template, one probe: each particle's one cloze (PIN-15).
@@ -186,8 +191,10 @@ void main() {
       expect(() => att(0, Grade.clear, hint: 1), throwsAssertionError);
       expect(att(0, Grade.hinted, hint: 1).grade, Grade.hinted);
       // A spoken close is always hinted (PIN-10).
-      expect(() => att(0, Grade.clear, spokenClose: true), throwsAssertionError);
-      expect(() => att(0, Grade.wrong, spokenClose: true), throwsAssertionError);
+      expect(
+          () => att(0, Grade.clear, spokenClose: true), throwsAssertionError);
+      expect(
+          () => att(0, Grade.wrong, spokenClose: true), throwsAssertionError);
     });
 
     test('self-graded: Got it after the reveal is clear, Missed it is wrong',
@@ -414,8 +421,12 @@ void main() {
     test(
         'a spoken close earns no credit and is neutral for the hinted row '
         '(PIN-10, plan 2026-11-06 Task 5)', () {
-      Attempt close(int day, {ItemDefLike item = word}) => att(day, Grade.hinted,
-          item: item, template: 'spoken', production: true, spokenClose: true);
+      Attempt close(int day, {ItemDefLike item = word}) =>
+          att(day, Grade.hinted,
+              item: item,
+              template: 'spoken',
+              production: true,
+              spokenClose: true);
       final learning = replay([
         att(0, Grade.clear, item: word),
         close(2),
@@ -820,6 +831,208 @@ void main() {
     });
   });
 
+  group('three modes (PIN-7, D18)', () {
+    // A word: card (see it), spoken and say card (say it), typed (type it). Four templates,
+    // so the second-kind and production clauses hold on any card and typed pair.
+    const tri = _Item('L30_02', ItemKind.word,
+        templateCount: 4,
+        hasProductionProbe: true,
+        probeCount: 4,
+        modes: {ProbeMode.typed, ProbeMode.recognition, ProbeMode.spoken});
+    // A conjugation idea: conjugate (type it) and its say cards (say it), no recognition card.
+    const two = _Item('conj.te.g2', ItemKind.conjugation,
+        templateCount: 2,
+        hasProductionProbe: true,
+        probeCount: 3,
+        modes: {ProbeMode.typed, ProbeMode.spoken});
+
+    Attempt on(int day, String template,
+            {ItemDefLike item = tri,
+            String? probe,
+            Grade grade = Grade.clear,
+            int hint = 0,
+            bool spokenClose = false}) =>
+        att(day, grade,
+            item: item,
+            template: template,
+            probe: probe ?? template,
+            production: modeOfTemplate(template) != ProbeMode.recognition,
+            hint: hint,
+            spokenClose: spokenClose);
+
+    test('ItemDefLike names the modes the item has a scored card for', () {
+      expect(tri.modes,
+          {ProbeMode.typed, ProbeMode.recognition, ProbeMode.spoken});
+      expect(particle.modes, isEmpty);
+      expect(missingModes(particle, const []), isEmpty,
+          reason: 'an item with no moded card needs no mode');
+      expect(missingModes(tri, const []),
+          [ProbeMode.typed, ProbeMode.recognition, ProbeMode.spoken],
+          reason: 'in ProbeMode order');
+    });
+
+    test('four clears in two modes, every other clause met, is not Mastered',
+        () {
+      // Two templates, a production clear, four days, a 21-day final gap: the rule before
+      // PIN-7 masters this. No spoken clear, so the rule now does not.
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(8, 'card'),
+        on(29, 'typed'),
+      ], tri);
+      expect(s.status, MasteryStatus.learning);
+      expect(s.clearCount, 4);
+      expect(missingModes(tri, s.clears), [ProbeMode.spoken]);
+    });
+
+    test('a clear in each of the three modes masters it', () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(8, 'spoken'),
+        on(29, 'typed'),
+      ], tri);
+      expect(s.status, MasteryStatus.mastered);
+      expect(missingModes(tri, s.clears), isEmpty);
+    });
+
+    test('a say card clear is a spoken clear (D18)', () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(8, 'card'),
+        on(29, 'sayCard', probe: 'say'),
+      ], tri);
+      expect(s.status, MasteryStatus.mastered);
+    });
+
+    test('the missing mode on a later clear completes the rule', () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(8, 'card'),
+        on(29, 'typed'),
+        on(50, 'spoken'),
+      ], tri);
+      expect(s.status, MasteryStatus.mastered);
+      expect(s.masteredOn, 50);
+    });
+
+    test('a kind with no recognition card needs only type it and say it', () {
+      final typedOnly = replay([
+        on(0, 'conjugate', item: two, probe: 'v1'),
+        on(2, 'conjugate', item: two, probe: 'v2'),
+        on(8, 'conjugate', item: two, probe: 'v3'),
+        on(29, 'conjugate', item: two, probe: 'v1'),
+      ], two);
+      expect(typedOnly.status, MasteryStatus.learning);
+      expect(missingModes(two, typedOnly.clears), [ProbeMode.spoken]);
+      final s = replay([
+        on(0, 'conjugate', item: two, probe: 'v1'),
+        on(2, 'conjugate', item: two, probe: 'v2'),
+        on(8, 'sayCard', item: two, probe: 'say.v3'),
+        on(29, 'conjugate', item: two, probe: 'v1'),
+      ], two);
+      expect(s.status, MasteryStatus.mastered);
+    });
+
+    test('a spoken answer that is not a clear never fills the spoken mode', () {
+      // An unscored spoken answer (offline, D10) and a close (PIN-10) earn nothing.
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(3, 'spoken', grade: Grade.unscored),
+        on(4, 'spoken', grade: Grade.hinted, spokenClose: true),
+        on(8, 'card'),
+        on(29, 'typed'),
+      ], tri);
+      expect(s.status, MasteryStatus.learning);
+      expect(missingModes(tri, s.clears), [ProbeMode.spoken]);
+    });
+
+    test('a template with no mode fills none (the Say-it track, unknown names)',
+        () {
+      expect(
+          missingModes(tri, const [
+            ClearRef(day: 1, template: 'say', production: true, probeId: 'ex0'),
+            ClearRef(day: 2, template: 't1', production: false, probeId: 'p1'),
+          ]),
+          [ProbeMode.typed, ProbeMode.recognition, ProbeMode.spoken]);
+    });
+
+    test(
+        'a hinted spoken close then a hinted typed answer does not reset (PIN-10)',
+        () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(5, 'spoken', grade: Grade.hinted, spokenClose: true),
+        on(6, 'typed', grade: Grade.hinted, hint: 1),
+      ], tri);
+      expect(s.clearCount, 2, reason: 'the close is neutral for the row');
+      expect(s.hintStreak, 1);
+    });
+
+    test(
+        'a hinted spoken answer with a hint taken then a hinted typed one resets',
+        () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(5, 'spoken', grade: Grade.hinted, hint: 1),
+        on(6, 'typed', grade: Grade.hinted, hint: 1),
+      ], tri);
+      expect(s.clearCount, 0);
+      expect(s.hintStreak, 2);
+    });
+
+    test('a grammar point needs its three modes and three sentences', () {
+      const g = _Item('mari.L31.3', ItemKind.grammar,
+          templateCount: 3,
+          hasProductionProbe: true,
+          probeCount: 6,
+          modes: {ProbeMode.typed, ProbeMode.recognition, ProbeMode.spoken});
+      // Three modes but two sentences: say.p0 is the sentence of p0.
+      final twoSentences = replay([
+        on(0, 'fill', item: g, probe: 'p0'),
+        on(2, 'choose', item: g, probe: 'p1'),
+        on(8, 'sayCard', item: g, probe: 'say.p0'),
+        on(29, 'fill', item: g, probe: 'p1'),
+      ], g);
+      expect(twoSentences.status, MasteryStatus.learning);
+      // Three sentences but no spoken clear.
+      final twoModes = replay([
+        on(0, 'fill', item: g, probe: 'p0'),
+        on(2, 'choose', item: g, probe: 'p1'),
+        on(8, 'fill', item: g, probe: 'p2'),
+        on(29, 'fill', item: g, probe: 'p1'),
+      ], g);
+      expect(twoModes.status, MasteryStatus.learning);
+      final s = replay([
+        on(0, 'fill', item: g, probe: 'p0'),
+        on(2, 'choose', item: g, probe: 'p1'),
+        on(8, 'sayCard', item: g, probe: 'say.p2'),
+        on(29, 'fill', item: g, probe: 'p1'),
+      ], g);
+      expect(s.status, MasteryStatus.mastered);
+    });
+
+    test('the regain of a Shaky item needs no particular mode', () {
+      final s = replay([
+        on(0, 'card'),
+        on(2, 'typed'),
+        on(8, 'spoken'),
+        on(29, 'typed'),
+        on(40, 'typed', grade: Grade.wrong),
+        on(41, 'typed'),
+        on(48, 'typed'),
+      ], tri);
+      expect(s.status, MasteryStatus.mastered);
+      expect(s.masteredOn, 48);
+    });
+  });
+
   group('purity (PIN-1)', () {
     test('the state is the fold of the item\'s own attempts', () {
       final history = [
@@ -958,8 +1171,7 @@ void main() {
       expect(a.toJson().containsKey('spokenClose'), isFalse);
       expect(Attempt.fromJson(a.toJson()).spokenClose, isFalse,
           reason: 'an old row reads as no close');
-      expect(
-          Attempt.fromJson({...u.toJson(), 'spokenClose': true}).spokenClose,
+      expect(Attempt.fromJson({...u.toJson(), 'spokenClose': true}).spokenClose,
           isFalse,
           reason: 'only a hinted row can carry the mark');
       final s = replay(

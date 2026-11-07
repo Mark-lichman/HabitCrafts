@@ -2,7 +2,8 @@
 //
 // The page reads one item's own attempts from a memory store over the shipped catalog, with an
 // injected clock. The cases: the pure `itemDetailOf` (the state from the item's own attempts,
-// PIN-1; the probes seen clear; what remains to Mastered or to regain; the Say-it counts; the
+// PIN-1; the probes seen clear; what remains to Mastered or to regain, a missing mode named
+// (plan 2026-11-06, Task 7, PIN-7); the Say-it counts; the
 // history newest first with whether each answer counted), the page's pill and n of 4, next
 // review, history rows, a word's practice listens under their own heading and a grammar
 // point's Say-it counts with the never-counts line (plan 2026-11-06, ASK-4), the two notes
@@ -219,6 +220,53 @@ void main() {
           reason: 'the first clear was the card, which is not production');
     });
 
+    test(
+        'names each mode still missing a clear (plan 2026-11-06, Task 7, PIN-7)',
+        () {
+      final word = firstOf(ItemKind.word);
+      ProbeDef of(String template) =>
+          word.scoredProbes.firstWhere((p) => p.template == template);
+      expect(kModeLines.keys.toSet(), ProbeMode.values.toSet());
+      // The literal oracle: a swap of two lines in the widget would otherwise pass every
+      // assertion below, since they all read the wording through kModeLines.
+      expect(kModeLines, {
+        ProbeMode.typed: 'a clear where you type it',
+        ProbeMode.recognition: 'a clear where you see it and pick or recall it',
+        ProbeMode.spoken: 'a clear where you say it',
+      });
+      // Nothing yet: all three, in the order type it, see it, say it.
+      final none = itemDetailOf(word, const []);
+      expect(
+          none.remaining.where((l) => kModeLines.values.contains(l)).toList(), [
+        kModeLines[ProbeMode.typed],
+        kModeLines[ProbeMode.recognition],
+        kModeLines[ProbeMode.spoken],
+      ]);
+      // The card (see it) and the typed reading (type it): say it is left.
+      final d = itemDetailOf(word, [
+        answer(word, today - 9, Grade.clear, probe: of('card')),
+        answer(word, today - 6, Grade.clear, probe: of('typed')),
+      ]);
+      expect(d.remaining, contains(kModeLines[ProbeMode.spoken]));
+      expect(d.remaining, isNot(contains(kModeLines[ProbeMode.typed])));
+      expect(d.remaining, isNot(contains(kModeLines[ProbeMode.recognition])));
+      // A say card clear fills say it.
+      final all = itemDetailOf(word, [
+        answer(word, today - 9, Grade.clear, probe: of('card')),
+        answer(word, today - 6, Grade.clear, probe: of('typed')),
+        answer(word, today - 3, Grade.clear, probe: of(kSayCardTemplate)),
+      ]);
+      for (final line in kModeLines.values) {
+        expect(all.remaining, isNot(contains(line)));
+      }
+      // A conjugation idea has no recognition card, so the page never asks for one.
+      final conj = firstOf(ItemKind.conjugation);
+      final c = itemDetailOf(conj, const []);
+      expect(c.remaining, contains(kModeLines[ProbeMode.typed]));
+      expect(c.remaining, contains(kModeLines[ProbeMode.spoken]));
+      expect(c.remaining, isNot(contains(kModeLines[ProbeMode.recognition])));
+    });
+
     test('says how many more different sentences a grammar point still needs',
         () {
       final g = grammarWithSayIt();
@@ -328,6 +376,24 @@ void main() {
       expect(shows('✓ Say it from the picture'), isTrue);
       expect(shows('· Say the word'), isTrue,
           reason: 'the spoken card is still unseen');
+    });
+
+    testWidgets('Still to do names the mode still missing a clear (Task 7)',
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      ProbeDef of(String template) =>
+          word.scoredProbes.firstWhere((p) => p.template == template);
+      await record(
+          store, answer(word, today - 9, Grade.clear, probe: of('card')));
+      await record(
+          store, answer(word, today - 6, Grade.clear, probe: of('typed')));
+      await pumpItem(tester, store, word);
+
+      expect(shows('Still to do'), isTrue);
+      expect(shows(kModeLines[ProbeMode.spoken]!), isTrue);
+      expect(shows(kModeLines[ProbeMode.typed]!), isFalse);
+      expect(shows(kModeLines[ProbeMode.recognition]!), isFalse);
     });
 
     testWidgets(
