@@ -50,6 +50,14 @@
 // ([nextProbe], D19): the first scored probe whose mode has no counting clear yet, then the
 // scored probes in turn.
 //
+// Sentence rotation (plan 2026-11-06, Task 9, D11, PIN-4): within the mode [nextProbe] picks,
+// a grammar point, a particle and every other kind with a transfer clause takes a sentence
+// with no clear yet first, and moves off a sentence once its clears fall on
+// [kMoveOnClearDays] different days. A re-ask after a wrong is asked with the rotate marker
+// (plan 2026-11-06, ASK-5): the scored probes in turn by attempts so far, so it shows another
+// card. The marker is captured in `_next` beside the attempt count, never read from `_entry`
+// on the held card, because `_onAnswer` has already moved `_index` to the next entry.
+//
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
 // is the entry's (review or keep-sharp); a Say-it draft is written as `sayIt`.
@@ -151,6 +159,7 @@ class SessionProbeRequest {
     required this.state,
     required this.answered,
     required this.onAnswer,
+    this.rotate = false,
   });
 
   final ItemDef item;
@@ -160,6 +169,11 @@ class SessionProbeRequest {
 
   /// The item's attempts so far, so a builder can rotate its probes.
   final int answered;
+
+  /// Whether the card rotates through the item's scored probes by [answered] instead of the
+  /// D19 pick ([nextProbe], plan 2026-11-06, ASK-5): early practice, and a same-day re-ask
+  /// after a wrong. A due review leaves it false.
+  final bool rotate;
 
   final ProbeAnswered onAnswer;
 }
@@ -185,22 +199,62 @@ Future<void> openLessonTarget(BuildContext context, ItemDef item) async {
 LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
     injected ?? (GoRouter.maybeOf(context) != null ? openLessonTarget : null);
 
-/// The probe the next card asks of [item] (plan 2026-11-06, D19): the first scored probe whose
-/// mode (`modeOfTemplate`, D18) has no counting clear in [state] yet, so a needed mode shows
-/// before the clears run out; once every mode has one, the scored probes in turn by
-/// [answered], the item's attempts so far. A probe whose template has no mode is left to the
-/// rotation. Throws a [StateError] for an item with no scored probe, which a host never asks.
-ProbeDef nextProbe(ItemDef item, MasteryState state, int answered) {
+/// The different days a sentence's clears fall on before the session moves off it (plan
+/// 2026-11-06, D11).
+const int kMoveOnClearDays = 2;
+
+/// The probe the next card asks of [item] (plan 2026-11-06, D19, D11).
+///
+/// With [rotate] (early practice, or a same-day re-ask after a wrong: plan 2026-11-06,
+/// ASK-5), the scored probes in turn by [answered], the item's attempts so far.
+///
+/// Otherwise the mode comes first: the probes of the first mode (`modeOfTemplate`, D18) with
+/// no counting clear in [state] yet, so a needed mode shows before the clears run out; once
+/// every mode has one, all the scored probes. Then, for a kind with a transfer clause
+/// (`transferProbesNeeded`), the sentence rule (D11): the first of those probes whose
+/// sentence (`transferKeyOf`) has no clear yet; else the ones whose sentence has clears on
+/// fewer than [kMoveOnClearDays] days, in turn by [answered]; else all of them in turn. A kind
+/// with no transfer clause takes the first probe of the needed mode, else the scored probes in
+/// turn. A probe whose template has no mode is left to the turns. Throws a [StateError] for an
+/// item with no scored probe, which a host never asks.
+ProbeDef nextProbe(ItemDef item, MasteryState state, int answered,
+    {bool rotate = false}) {
   final probes = item.scoredProbes.toList();
   if (probes.isEmpty) {
     throw StateError('${item.id} has no scored probe to ask');
   }
+  if (rotate) return probes[answered % probes.length];
   final cleared = {for (final c in state.clears) modeOfTemplate(c.template)};
+  ProbeMode? needed;
   for (final p in probes) {
     final mode = modeOfTemplate(p.template);
-    if (mode != null && !cleared.contains(mode)) return p;
+    if (mode != null && !cleared.contains(mode)) {
+      needed = mode;
+      break;
+    }
   }
-  return probes[answered % probes.length];
+  final pool = needed == null
+      ? probes
+      : [
+          for (final p in probes)
+            if (modeOfTemplate(p.template) == needed) p
+        ];
+  if (transferProbesNeeded(item) == 0) {
+    return needed == null ? probes[answered % probes.length] : pool.first;
+  }
+  final days = <String, Set<int>>{};
+  for (final c in state.clears) {
+    (days[transferKeyOf(c.probeId)] ??= {}).add(c.day);
+  }
+  for (final p in pool) {
+    if (!days.containsKey(transferKeyOf(p.id))) return p;
+  }
+  final open = [
+    for (final p in pool)
+      if ((days[transferKeyOf(p.id)]?.length ?? 0) < kMoveOnClearDays) p
+  ];
+  final from = open.isEmpty ? pool : open;
+  return from[answered % from.length];
 }
 
 /// The probe widgets the app uses: one per item kind, on the probe [nextProbe] picks, and the
@@ -227,6 +281,23 @@ SessionProbeBuilder standardProbeBuilder({
       ((x as Map)['id'] as String): Map<String, dynamic>.from(x)
   };
 
+  /// The English of the particle sentence a probe asks: a drafted sentence's own
+  /// (`cloze.1` reads sentence 1, plan 2026-11-06 Task 9), else the particle's example.
+  String? particleEnglish(ItemDef item, ProbeDef probe) {
+    final particle = particles[item.id];
+    final id = transferKeyOf(probe.id);
+    const prefix = '$kParticleClozeId.';
+    final at = id.startsWith(prefix)
+        ? int.tryParse(id.substring(prefix.length))
+        : null;
+    final sentences = particle?['sentences'] as List? ?? const [];
+    if (at != null && at < sentences.length) {
+      final english = (sentences[at] as Map)['english'] as String?;
+      if (english != null) return english;
+    }
+    return particle?['example_en'] as String?;
+  }
+
   /// The practice row of a grammar probe, or of the probe a say card twins (`say.p2` reads
   /// row 2).
   Map<String, dynamic>? practiceRow(ItemDef item, ProbeDef probe) {
@@ -238,7 +309,7 @@ SessionProbeBuilder standardProbeBuilder({
 
   return (context, r) {
     final item = r.item;
-    final probe = nextProbe(item, r.state, r.answered);
+    final probe = nextProbe(item, r.state, r.answered, rotate: r.rotate);
     if (probe.template == kSayCardTemplate) {
       return SayCardProbe(
           item: item,
@@ -247,7 +318,7 @@ SessionProbeBuilder standardProbeBuilder({
           pronunciation: pronunciation,
           english: switch (item.kind) {
             ItemKind.grammar => practiceRow(item, probe)?['en'] as String?,
-            ItemKind.particle => particles[item.id]?['example_en'] as String?,
+            ItemKind.particle => particleEnglish(item, probe),
             _ => null,
           },
           imageAsset:
@@ -293,7 +364,7 @@ SessionProbeBuilder standardProbeBuilder({
             state: r.state,
             checkItem: {'answer': probe.answer},
             hint: meaning == null ? null : 'The missing part means: $meaning',
-            english: particle?['example_en'] as String?,
+            english: particleEnglish(item, probe),
             onAnswer: r.onAnswer);
       case ItemKind.word:
         return WordRecallProbe(
@@ -398,6 +469,10 @@ class _SessionWidgetState extends State<SessionWidget> {
   // The entry on screen.
   MasteryState? _state;
   int _answered = 0;
+
+  /// The rotate marker of the card on screen (plan 2026-11-06, ASK-5): a re-ask after a
+  /// wrong. Set in `_next` with `_answered`, so a held card keeps the marker it was asked with.
+  bool _rotate = false;
   int _presentation = 0;
   DateTime? _shownAt;
 
@@ -574,6 +649,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     setState(() {
       _state = state;
       _answered = answered;
+      _rotate = _entry.reask;
       _presentation++;
       _shownAt = widget.clock.now();
       _grade = null;
@@ -859,6 +935,7 @@ class _SessionWidgetState extends State<SessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _rotate,
               onAnswer: _onAnswer,
             ),
           ),

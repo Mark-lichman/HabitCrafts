@@ -39,6 +39,10 @@
 // A spoken answer scores through Azure as in the Review session (plan 2026-11-06, Task 5,
 // PIN-2): practice hands one [PronunciationService] to the probe builder, built with
 // `PronunciationService.counting()` and disposed with it when none is injected.
+// An item that is not due is asked with the rotate marker (plan 2026-11-06, Task 9, ASK-5):
+// its scored cards in turn by attempts so far, so two early answers show two different cards.
+// A due item keeps the session's pick (`nextProbe`, D19, D11). The marker is set in `_show`
+// with the attempt count, so a held card keeps the marker it was asked with.
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
 // page, a lesson page, the Discuss with Mari list).
@@ -156,7 +160,7 @@ String _n(int n, String one, [String? many]) =>
 
 /// The probe word of [kind] for the transfer clause.
 String _probeWord(ItemKind kind) => switch (kind) {
-      ItemKind.grammar => 'sentence',
+      ItemKind.grammar || ItemKind.particle => 'sentence',
       ItemKind.conjugation => 'verb',
       ItemKind.pair => 'direction',
       ItemKind.tableRow => 'cell',
@@ -565,6 +569,10 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   MasteryState? _state;
   int _answered = 0;
 
+  /// The rotate marker of the card on screen: the item is not due, so this is early practice
+  /// (plan 2026-11-06, ASK-5). The due rule is the recorder's (D23).
+  bool _rotate = false;
+
   /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
   int? _reviewedPresentation;
 
@@ -625,10 +633,15 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
     final state =
         await widget.store.mastery(item.id) ?? MasteryState.initial(item.id);
     final answered = (await widget.store.attempts(itemId: item.id)).length;
+    // The recorder's due rule (D23): the schedule's due day, else the seed's.
+    final due = (await widget.store.srs(item.id))?.dueDay ??
+        (await widget.store.item(item.id))?.seedDueDay;
+    final early = due == null || due > localDay(widget.clock.now());
     if (!mounted) return;
     setState(() {
       _state = state;
       _answered = answered;
+      _rotate = early;
       _presentation++;
       _phase = _PracticePhase.asking;
     });
@@ -761,6 +774,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _rotate,
               onAnswer: _onAnswer,
             ),
           ),
