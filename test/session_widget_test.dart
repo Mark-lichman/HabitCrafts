@@ -565,10 +565,12 @@ void main() {
             pronunciation: pron,
             onAnswer: r.onAnswer);
 
-    /// One counting clear on the word's card, so a widget's own standardProbeBuilder lands on
-    /// `spoken` under the answered-modulo-length rotation and under a mode-aware pick alike
-    /// (D19: the first scored probe whose mode has no counting clear). Both rules read only
-    /// the first two scored probes, so the list may grow past them (Task 6's say probe).
+    /// One counting clear on the word's card, in the log and in the mastery state, so a
+    /// widget's own standardProbeBuilder lands on `spoken` under the answered-modulo-length
+    /// rotation (which counts attempts) and under a mode-aware pick alike (D19: the first
+    /// scored probe whose mode has no counting clear, which reads MasteryState.clears). Both
+    /// rules read only the first two scored probes, so the list may grow past them (Task 6's
+    /// say probe).
     Future<JpStoreMemory> storeWithCardClear() async {
       final s = JpStoreMemory();
       final seed = attemptOf(word, today - 1, Grade.clear);
@@ -576,7 +578,11 @@ void main() {
       expect(word.scoredProbes.map((p) => p.template).take(2).toList(),
           ['card', 'spoken'],
           reason: 'both pick rules read the first two scored probes');
-      await s.appendAttempt(seed);
+      await s.appendAttempt(seed,
+          mastery: masteryAfter(MasteryState.initial(word.id), seed, word));
+      final stored = await s.mastery(word.id);
+      expect(stored?.clears.map((c) => c.template).toList(), ['card'],
+          reason: 'the store holds the seed as a counting card clear');
       return s;
     }
 
@@ -645,7 +651,8 @@ void main() {
     /// `card` clear before it, so the template check is what tells a missing write apart.
     Future<Attempt> written(Harness h) async {
       final a = (await h.store.attempts(itemId: word.id)).last;
-      expect(a.template, 'spoken', reason: 'the spoken answer wrote an attempt');
+      expect(a.template, 'spoken',
+          reason: 'the spoken answer wrote an attempt');
       return a;
     }
 
