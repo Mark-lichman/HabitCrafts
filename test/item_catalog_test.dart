@@ -412,7 +412,8 @@ void main() {
           // An oracle that does not call wholeSentence: the blank, and only the blank,
           // replaced by the answer, the text on both sides of it kept.
           expect(say.answer, p.text.replaceAll(RegExp(r'[＿_]+'), p.answer),
-              reason: '${item.id} ${say.id} is not the prompt with its blank filled');
+              reason:
+                  '${item.id} ${say.id} is not the prompt with its blank filled');
           expect(say.answer.contains(RegExp(r'[＿_]')), isFalse,
               reason: '${item.id} ${say.id} hears a blank');
         }
@@ -420,8 +421,7 @@ void main() {
     });
 
     test('wholeSentence fills the blank and keeps the text around it', () {
-      expect(wholeSentence('きょうは しごとが やすみ＿＿。', 'なんです'),
-          'きょうは しごとが やすみなんです。');
+      expect(wholeSentence('きょうは しごとが やすみ＿＿。', 'なんです'), 'きょうは しごとが やすみなんです。');
       expect(wholeSentence('＿＿は がくせいです。', 'わたし'), 'わたしは がくせいです。',
           reason: 'a blank at the start keeps the text after it');
       expect(wholeSentence('no blank', 'x'), 'x',
@@ -435,8 +435,10 @@ void main() {
         expect(say.id, sayCardId('cloze'));
         expect(say.text, cloze.text);
         expect(say.answer, wholeSentence(cloze.text, cloze.answer));
-        expect(say.answer, cloze.text.replaceAll(RegExp(r'[＿_]+'), cloze.answer),
-            reason: '${item.id} ${say.id} is not the cloze with its blank filled');
+        expect(
+            say.answer, cloze.text.replaceAll(RegExp(r'[＿_]+'), cloze.answer),
+            reason:
+                '${item.id} ${say.id} is not the cloze with its blank filled');
       }
     });
 

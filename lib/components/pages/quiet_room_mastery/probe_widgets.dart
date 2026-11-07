@@ -30,7 +30,8 @@
 //     hiragana, plan 2026-11-06 Task 5, PIN-2): correct is clear, close is hinted and marked
 //     `spokenClose` so it stays out of the two-hinted reset (PIN-10), wrong is wrong, and an
 //     unverified check (no connection, no microphone) is unscored at once, with no Got it or
-//     Missed it, so it can never clear the spoken mode (D10). See [gradeSpokenAnswer]. The
+//     Missed it, so it can never clear the spoken mode (D10). After the revealing rung an
+//     unverified check is wrong, like Skip and a typed answer (ASK-3). See [gradeSpokenAnswer]. The
 //     on-device transcript (`SpeechService.listenOnce`) stays on the vocabulary practice
 //     screen, where its verdict never counts;
 //   * an empty Check is no attempt.
@@ -165,17 +166,25 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
 ///   mastery rule keeps it out of the two-hinted reset (PIN-10). A close after a hint is an
 ///   ordinary hinted answer;
 /// * wrong is wrong;
-/// * 🚨 unverified (no connection, no microphone, a failed sign-in) is unscored, always: never
-///   wrong, and never a self-mark that could clear the spoken mode (PIN-2, D10).
+/// * 🚨 unverified (no connection, no microphone, a failed sign-in) is unscored, never a
+///   self-mark that could clear the spoken mode (PIN-2, D10);
+/// * after the revealing rung or a reveal, every answer is wrong, unverified too: the reveal
+///   rule runs before the unverified rule, as for Skip and a typed answer (ASK-3, operator
+///   ruling 2026-11-06).
 ///
-/// [hintLevel], [revealingHintLevel] and [revealed] are as `gradeAnswer` takes them, so a
-/// verified answer after the revealing rung is wrong.
+/// [hintLevel], [revealingHintLevel] and [revealed] are as `gradeAnswer` takes them.
 ({Grade grade, bool spokenClose}) gradeSpokenAnswer(
   Judgement verdict, {
   int hintLevel = 0,
   int? revealingHintLevel,
   bool revealed = false,
 }) {
+  // The reveal rule comes first (ASK-3, operator ruling 2026-11-06, supersedes D10 for the
+  // revealed case): after the revealing rung or a reveal, any answer is wrong, unverified too.
+  if ((revealingHintLevel != null && hintLevel >= revealingHintLevel) ||
+      revealed) {
+    return (grade: Grade.wrong, spokenClose: false);
+  }
   final outcome = switch (verdict) {
     Judgement.correct => Outcome.right,
     Judgement.close => Outcome.close,
@@ -592,7 +601,8 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 ///
 /// A spoken answer is written on the item's `spoken` probe and a typed one on its `typed`
 /// probe. The spoken grade comes from [gradeSpokenAnswer] (PIN-2, PIN-10): a close is hinted
-/// and marked, and an unverified check is unscored at once, with no self-mark (D10). The
+/// and marked, and an unverified check is unscored at once, with no self-mark (D10), or wrong
+/// after the revealing rung (ASK-3). The
 /// on-device recognizer is never used here: this card counts. A typed answer the matcher
 /// cannot judge shows what was typed and asks the learner: Got it is self, Missed it is wrong.
 /// Skip is unscored, or wrong after the revealing rung. The controls are disabled while the
@@ -727,7 +737,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
           hintLevel: _hintLevel,
           revealingHintLevel: _steps.length,
           revealed: _revealedByHint);
-      _notScored = r.verdict == Judgement.unverified;
+      _notScored = g.grade == Grade.unscored;
       _report(spoken, g.grade, spokenClose: g.spokenClose);
     } catch (e, s) {
       // The app's handler is FlutterError.onError, which an error on a dropped future never
@@ -1127,7 +1137,7 @@ class _SayCardProbeState extends State<SayCardProbe> {
       if (!mounted || token != _token) return;
       setState(() => _checking = false);
       final g = gradeSpokenAnswer(r.verdict);
-      _notScored = r.verdict == Judgement.unverified;
+      _notScored = g.grade == Grade.unscored;
       _report(g.grade, spokenClose: g.spokenClose);
     } catch (e, s) {
       // As the word card: the failure goes the recorder's way (S4), and no draft is written.

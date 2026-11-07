@@ -4,7 +4,9 @@
 // injected clock. The cases: the pure `itemDetailOf` (the state from the item's own attempts,
 // PIN-1; the probes seen clear; what remains to Mastered or to regain; the Say-it counts; the
 // history newest first with whether each answer counted), the page's pill and n of 4, next
-// review, history rows, neither the "no production probe yet" line (A8) nor the "one question
+// review, history rows, a word's practice listens under their own heading and a grammar
+// point's Say-it counts with the never-counts line (ASK-4), the two notes from `itemNotesOf`
+// on synthetic items, neither the "no production probe yet" line (A8) nor the "one question
 // kind only" line (PIN-15) on a shipped item since every kind has a say card (plan 2026-11-06,
 // Task 6), and Practice now, a one-item
 // session written as early practice when the item is not due (PIN-14: a clear changes nothing,
@@ -260,6 +262,58 @@ void main() {
     });
   });
 
+  // The two notes stay live code for an item with no production probe or one template, which
+  // no shipped kind is (plan 2026-11-06, Task 6), so a synthetic item shows each one.
+  group('itemNotesOf (A8, PIN-15)', () {
+    ItemDef synthetic(List<ProbeDef> probes) => ItemDef(
+        id: 'test.notes',
+        kind: ItemKind.pair,
+        title: 'test',
+        prereqLevel: 0,
+        probes: probes);
+
+    test('one recognition template gives both notes', () {
+      final item = synthetic(const [
+        ProbeDef(id: 'a', template: 'choose', text: 'a', answer: 'a'),
+        ProbeDef(id: 'b', template: 'choose', text: 'b', answer: 'b'),
+      ]);
+      expect(itemNotesOf(item), [kNoProductionProbeLine, kOneTemplateLine]);
+    });
+
+    test('one production template gives only the one-template note', () {
+      final item = synthetic(const [
+        ProbeDef(
+            id: 'a',
+            template: 'typed',
+            text: 'a',
+            answer: 'a',
+            production: true),
+      ]);
+      expect(itemNotesOf(item), [kOneTemplateLine]);
+    });
+
+    test('two templates with a production probe give no note', () {
+      final item = synthetic(const [
+        ProbeDef(id: 'a', template: 'choose', text: 'a', answer: 'a'),
+        ProbeDef(
+            id: 'b',
+            template: 'typed',
+            text: 'b',
+            answer: 'b',
+            production: true),
+      ]);
+      expect(itemNotesOf(item), isEmpty);
+    });
+
+    test('no shipped kind gets a note', () {
+      for (final kind in ItemKind.values) {
+        for (final item in catalog.ofKind(kind)) {
+          expect(itemNotesOf(item), isEmpty, reason: item.id);
+        }
+      }
+    });
+  });
+
   group('the item page', () {
     testWidgets(
         'a word say card clear is listed as seen clear and in the history (Task 6)',
@@ -398,6 +452,26 @@ void main() {
       await pumpItem(tester, store, g);
       expect(shows('Say it: 2 tries · 1 clear'), isTrue);
       expect(shows(kSayItNeverCounts), isTrue);
+      expect(shows(kPracticeListensHeading), isFalse,
+          reason: 'the practice heading is for a word only (ASK-4)');
+    });
+
+    testWidgets(
+        "a word's practice listens show under their own heading, never Say it (ASK-4)",
+        (tester) async {
+      final store = JpStoreMemory();
+      final word = firstOf(ItemKind.word);
+      final spoken = word.probes.firstWhere((p) => p.template == 'spoken');
+      await record(
+          store,
+          answer(word, today - 2, Grade.clear,
+              probe: spoken, source: Source.sayIt));
+      await pumpItem(tester, store, word);
+      expect(shows(kPracticeListensHeading), isTrue);
+      expect(shows('1 try · 1 clear'), isTrue);
+      expect(shows(kSayItNeverCounts), isFalse,
+          reason: 'the word has a counting Say the word card');
+      expect(find.textContaining('Say it: '), findsNothing);
     });
   });
 
