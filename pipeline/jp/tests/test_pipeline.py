@@ -185,6 +185,9 @@ def hiragana_strings(doc: dict):
         c = pa["cloze"]
         for s in [pa["expression"], pa["example"], c["prompt"], c["answer"], *c["accepted"]]:
             yield pa["id"], s
+        for i, x in enumerate(pa.get("sentences", [])):
+            for s in [x["prompt"], x["answer"], *x["accepted"]]:
+                yield f"{pa['id']} sentence {i}", s
     for i, pr in enumerate(doc["pairs"]):
         yield f"pair {i}", pr["ex_transitive"]
         yield f"pair {i}", pr["ex_intransitive"]
@@ -339,3 +342,144 @@ def test_a_particle_with_no_english_fails_the_publish(tmp_path, monkeypatch):
     monkeypatch.setattr(publish, "PARTICLE_EN", f)
     with pytest.raises(SystemExit, match="no English for"):
         publish.run(tmp_path / "jp_grammar.json")
+
+
+# ───────────── particle sentences (plan Task 8, PIN-4) ─────────────
+
+def _particle_sentences(tmp_path, monkeypatch, edit) -> None:
+    """Point publish.PARTICLE_SENTENCES at a copy of the committed particle_sentences.json
+    after `edit` changed its `sentences` map. Each call starts from the committed file, so
+    one test's edits never stack."""
+    import publish
+    doc = json.loads((JP / "particle_sentences.json").read_text(encoding="utf-8"))
+    edit(doc["sentences"])
+    path = tmp_path / "particle_sentences.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(publish, "PARTICLE_SENTENCES", path)
+
+
+def test_every_particle_has_three_particle_sentences():
+    # End state 7: the lesson example's cloze first, then the two drafted sentences.
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    src = json.loads((JP / "particle_sentences.json").read_text(encoding="utf-8"))
+    prompts = []
+    for pa in doc["particles"]:
+        ss = pa["sentences"]
+        assert len(ss) == 3, pa["id"]
+        first = ss[0]
+        assert {k: first[k] for k in ("prompt", "answer", "accepted", "from")} == pa["cloze"]
+        assert first["english"] == pa["example_en"], pa["id"]
+        assert [s["from"] for s in ss[1:]] == ["particle_sentences.json"] * 2, pa["id"]
+        assert [{k: s[k] for k in ("prompt", "answer", "accepted", "english")}
+                for s in ss[1:]] == src["sentences"][pa["id"]], pa["id"]
+        for s in ss:
+            assert s["prompt"].count("＿＿") == 1 and s["answer"] == pa["cloze"]["answer"]
+            assert s["english"].strip(), pa["id"]
+            assert not KANJI.search(s["prompt"] + s["answer"] + "".join(s["accepted"]))
+        prompts += [s["prompt"] for s in ss]
+    assert len(prompts) == len(set(prompts)), "two particle sentences share a prompt"
+
+
+def test_particle_sentences_are_marked_unreviewed():
+    # PIN-4: each sentence carries the review flag of the file its English came from,
+    # and the drafted ones ship unreviewed.
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    en = json.loads((JP / "particle_english.json").read_text(encoding="utf-8"))
+    for pa in doc["particles"]:
+        first, *drafted = pa["sentences"]
+        assert first["reviewed"] is bool(en.get("reviewed")), pa["id"]
+        for s in drafted:
+            assert s["reviewed"] is False, "flip only after Mark reviews the sentences"
+
+
+def test_particle_sentences_with_no_review_flag_publish_unreviewed(tmp_path, monkeypatch):
+    import publish
+    doc = json.loads(publish.PARTICLE_SENTENCES.read_text(encoding="utf-8"))
+    doc.pop("reviewed", None)
+    path = tmp_path / "particle_sentences.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(publish, "PARTICLE_SENTENCES", path)
+    out = publish.particles(bundle("s04_mari_checklist"))
+    assert all(s["reviewed"] is False for p in out for s in p["sentences"][1:])
+
+
+def test_stale_particle_sentences_fail_the_publish(tmp_path, monkeypatch):
+    import publish
+    s04 = bundle("s04_mari_checklist")
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss.update({"mari.particle.99": ss["mari.particle.2"]}))
+    with pytest.raises(SystemExit, match="no such particle"):
+        publish.particles(s04)
+    _particle_sentences(tmp_path, monkeypatch, lambda ss: ss.pop("mari.particle.2"))
+    with pytest.raises(SystemExit, match="needs 2 sentences"):
+        publish.particles(s04)
+    _particle_sentences(tmp_path, monkeypatch, lambda ss: ss["mari.particle.2"].pop())
+    with pytest.raises(SystemExit, match="needs 2 sentences"):
+        publish.particles(s04)
+    # A sentence written for another answer than the particle's cloze is stale.
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(answer="について"))
+    with pytest.raises(SystemExit, match="stale"):
+        publish.particles(s04)
+    # A sentence that drops a spelling the particle's cloze accepts is stale too.
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.13"][0].update(accepted=[]))
+    with pytest.raises(SystemExit, match="stale"):
+        publish.particles(s04)
+    # A drafted sentence that repeats the lesson example adds no variety.
+    ex = next(c for p, c in zip(s04["particles"], publish.particle_clozes(s04))
+              if p["id"] == "mari.particle.2")
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(prompt=ex["prompt"]))
+    with pytest.raises(SystemExit, match="repeats"):
+        publish.particles(s04)
+    # Two drafted sentences with one prompt add no variety either.
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(
+                            prompt=ss["mari.particle.2"][1]["prompt"]))
+    with pytest.raises(SystemExit, match="share a prompt"):
+        publish.particles(s04)
+
+
+def test_leaking_particle_sentences_fail_the_publish(tmp_path, monkeypatch):
+    import publish
+    s04 = bundle("s04_mari_checklist")
+    for edit in ({"prompt": "つうやくとして ＿＿ はたらいて います。"},  # shows its answer
+                 {"prompt": "つうやく はたらいて います。"},           # no blank
+                 {"prompt": "つうやく＿＿ ＿＿ はたらいて います。"}):  # two blanks
+        _particle_sentences(tmp_path, monkeypatch,
+                            lambda ss, e=edit: ss["mari.particle.2"][0].update(e))
+        with pytest.raises(SystemExit, match="one blank and must not show its answer"):
+            publish.particles(s04)
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.1"][0].update(
+                            prompt="この ほんは に よって＿＿ かかれました。"))
+    with pytest.raises(SystemExit, match="one blank and must not show its answer"):
+        publish.particles(s04)
+
+
+def test_particle_sentences_that_are_not_kana_or_lack_english_fail(tmp_path, monkeypatch):
+    import publish
+    s04 = bundle("s04_mari_checklist")
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(prompt="通訳＿＿ はたらいて います。"))
+    with pytest.raises(SystemExit, match="not kana"):
+        publish.particles(s04)
+    _particle_sentences(tmp_path, monkeypatch,
+                        lambda ss: ss["mari.particle.2"][0].update(english=" "))
+    with pytest.raises(SystemExit, match="no English"):
+        publish.particles(s04)
+
+
+def test_particle_sentences_carry_their_judge_pass():
+    # Plan Task 8: the drafts were checked by an independent judge pass, recorded in the
+    # file. Its last round read every sentence and left no finding open.
+    src = json.loads((JP / "particle_sentences.json").read_text(encoding="utf-8"))
+    judge = src["judge"]
+    assert judge["judge"] == "independent-lm"
+    total = sum(len(v) for v in src["sentences"].values())
+    last = judge["rounds"][-1]
+    assert last["checked"] == total and last["findings"] == []
+    for r in judge["rounds"]:
+        for f in r["findings"]:
+            assert f["particle"] in src["sentences"] and f["applied"], f

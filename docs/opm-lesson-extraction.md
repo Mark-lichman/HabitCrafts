@@ -10,14 +10,17 @@ Seven OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io
 - **SD4 — Kanji Versions and Answer Checking**: a kanji twin for every Japanese field, the
   independent judge pass, and the checks the app runs on typed and spoken answers. Added 2026-10-25.
 - **SD5 — Studying**: the app side. Lessons enter a daily review queue, the learner answers one
-  card at a time, and every answer is graded, scheduled and judged for mastery.
+  card at a time, and every answer is graded, scheduled and judged for mastery. A card links to
+  its lesson, a spoken answer is scored by Azure, and a Discuss mark keeps an item for the tutor.
 - **SD6 — Mastery Judging**: the in-zoom of the mastery rule: four states, what counts toward
-  Mastered, what counts for nothing, and the planned changes.
+  Mastered, what counts for nothing, the modes (type it, see it, say it) and the sentence
+  rotation. Updated 2026-11-07 (plan 2026-11-06, PIN-8).
 
 The OPL sentences below are the spec — edit these. The diagram is generated from
 `opm-lesson-extraction.gen.js`; regenerate rather than hand-editing coordinates if the model changes.
-`pipeline/jp/tests/test_opm_sync.py` keeps the three in step (PIN-12): every `STAGE_IO` stage has a
-process box and an OPL sentence below, and every process box names a `STAGE_IO` stage.
+`pipeline/jp/tests/test_opm_sync.py` keeps the three in step (plan 2026-10-24, PIN-12): every
+`STAGE_IO` stage has a process box and an OPL sentence below, and every process box names a
+`STAGE_IO` stage.
 
 ## The asynchrony rule
 
@@ -205,7 +208,9 @@ OPL sentences:
    Answer**, and yields **Answer Verdict**. The answer is accepted in hiragana, in any accepted form,
    or as its kanji surface. It runs in the app and needs no LM.
 7. **Speech Checking** consumes **App Lesson File** and **Transcript**, and yields **Speech Verdict**.
-   It runs in the app and needs no LM.
+   It runs in the app and needs no LM. Its verdict is practice only and never counts toward
+   mastery: a counting spoken answer goes to **Pronunciation Scoring** (SD5; plan 2026-11-06,
+   PIN-2).
 8. **Speech Verdict** can be **correct**, **close**, or **self-check**. **Close** shows in amber with the
    matching part of the heard text highlighted, then asks for a self-check. A transcript that cannot
    be compared goes to **self-check**, never to wrong.
@@ -228,21 +233,47 @@ OPL sentences:
    items arrive 8 a day in lesson order.
 4. **Day Plan** can be **repair**, **due**, **keep-sharp**, or **new**, one section per entry.
 5. **Answering** requires **Learner** as its agent, consumes **Day Plan**, and yields **Typed Answer**,
-   **Transcript**, and **Hint Use**. Answer Checking and Speech Checking (SD4) judge the answers.
+   **Spoken Answer**, and **Hint Use**. Answer Checking (SD4) judges a typed answer, and
+   **Pronunciation Scoring** a spoken one. For a due review, the card shown first is the first one
+   whose mode has no counting clear yet (plan 2026-11-06, D19, `nextProbe` in
+   `session_widget.dart`). Practice now and a same-day re-ask rotate through the scored cards
+   (plan 2026-11-06, ASK-5).
 6. **Hint Use** exhibits *English shown* and *hint level*. The English is free. A grammar hint makes
    a right answer hinted.
-7. **Lesson Reviewing** requires **Learner** as its agent, consumes **Day Plan** and **Study Item**,
-   and yields **Lesson Review**. It opens the core lesson at the card's idea, and Back returns to
-   the same card, unanswered. It is planned, not built.
-8. **Grading** consumes **Answer Verdict**, **Speech Verdict**, **Hint Use**, and **Lesson Review**,
-   and yields **Study Attempt**. A grammar hint or a lesson review before the answer makes a right
-   answer **hinted**. Show answer makes it **wrong**.
-9. **Study Attempt** can be **clear**, **hinted**, **wrong**, or **unscored**. Every attempt is
-   appended to **Study Record**, the source of truth.
-10. **Scheduling** consumes **Study Attempt** and the last **SRS State**, and yields **SRS State**. It
+7. **Pronunciation Scoring** consumes **Spoken Answer** and **Study Item**, and yields
+   **Pronunciation Verdict**. Azure Pronunciation Assessment scores the recording by sound against
+   the answer's hiragana, through the `scorePronunciation` Cloud Function. It needs the internet.
+   The on-device transcript (Speech Checking, SD4) stays on practice that never counts (plan
+   2026-11-06, PIN-2).
+8. **Pronunciation Verdict** can be **correct**, **close**, **wrong**, or **unverified**. No
+   connection, no microphone, or a failed sign-in or call is **unverified**.
+9. **Lesson Reviewing** requires **Learner** as its agent, consumes **Day Plan** and **Study Item**,
+   and yields **Lesson Review**. "Review the lesson" sits under every unanswered card in the Review
+   session and in Practice now (plan 2026-11-06, D21). It opens the target screen for the item's
+   kind at the idea (plan 2026-11-06, D20), and Back returns to the same card, unanswered, marked
+   "Lesson reviewed". A grammar card's link names the lesson alone (plan 2026-11-06, ASK-1). A
+   particle's lesson view never shows its example sentence. Opening a lesson writes no attempt.
+10. **Grading** consumes **Answer Verdict**, **Speech Verdict**, **Pronunciation Verdict**, **Hint
+    Use**, and **Lesson Review**, and yields **Study Attempt**. A grammar hint or a lesson review
+    before the answer makes a right answer **hinted**; a review after the answer changes nothing.
+    Show answer makes it **wrong**. A spoken **correct** is **clear** and a spoken **close** is
+    **hinted**. A spoken **unverified** is **unscored**, with no self-mark (plan 2026-11-06, D10),
+    and **wrong** after the reveal (plan 2026-11-06, ASK-3). A **Speech Verdict** from the practice
+    screen is graded as Say-it.
+11. **Study Attempt** can be **clear**, **hinted**, **wrong**, or **unscored**, and exhibits
+    *spoken close*: set on a spoken close with no hint and no lesson review first (PIN-10; plan
+    2026-11-06, ASK-2). Every attempt is appended to **Study Record**, the source of truth.
+12. **Scheduling** consumes **Study Attempt** and the last **SRS State**, and yields **SRS State**. It
     runs FSRS-6 at retention 0.90 with a 90-day cap: clear is Good, hinted is Hard, wrong is Again.
-11. **Mastery Judging** requires **Study Item**, consumes **Study Attempt** and the last **Mastery
+13. **Mastery Judging** requires **Study Item**, consumes **Study Attempt** and the last **Mastery
     State**, and yields **Mastery State**. It is in-zoomed in SD6.
+14. **Discuss Marking** requires **Learner** as its agent, consumes **Study Item**, and yields
+    **Discuss Mark**. The "Discuss with Mari" toggle sits on every session card and on the item
+    page. The list opens from Today, and each row opens its item.
+15. **Discuss Mark** exhibits *item* and *note*. It is kept beside the attempt log and carried by
+    export and import. No **Grading**, **Scheduling**, **Planning**, or **Mastery Judging** reads
+    it, so a mark changes no grade and no schedule. The tutor never needs the app (plan
+    2026-11-06, PIN-6).
 
 ## SD6 — Mastery Judging
 
@@ -256,15 +287,27 @@ OPL sentences:
 2. **Mastery State** can be **new**, **learning**, **mastered**, or **shaky**.
 3. **Mastery State** changes from **learning** to **mastered** on the fourth counting clear: four
    clears on four days while due, the fourth at least 21 days after the review before it, no wrong
-   since the first, two templates with one production where the item has them, and the per-kind
-   transfer count.
+   since the first, two templates with one production where the item has them, the per-kind
+   transfer count (`kTransferProbes`), and a counting clear in every mode the item has a card for.
 4. **Mastery State** changes from **mastered** to **shaky** on a wrong, or on two hinted answers in
    a row, and back to **mastered** after two clears, the second at least 7 days later.
 5. A hinted answer, an early-practice clear, a Say-it attempt, an unscored attempt, and a seed
    count for nothing. Showing the English changes nothing: the answer is still a clear.
-6. Planned (#145): **mastered** needs a clear in each of type it, see it, and say it.
-7. Planned (#146): after one sentence earns clears on more than one day, the next review uses
-   another sentence on the same idea.
+6. A spoken close earns no credit. It is neutral for the two-hinted reset only when no hint and no
+   lesson review came first; after either it is an ordinary hinted answer (PIN-10; plan
+   2026-11-06, ASK-2).
+7. **Study Item** exhibits *modes*: type it, see it, and say it, the modes it has a scored card
+   for (#145; plan 2026-11-06, PIN-7). Each scored template has one mode (plan 2026-11-06, D18,
+   `kTemplateModes` in `mastery_rule.dart`): typed is `fill`, `cloze`, `typed`, and `conjugate`;
+   recognition is `choose`, `card`, `transitive`, `intransitive`, and `cell`; spoken is `spoken`
+   and the say card, `sayCard`. Only Azure scoring clears a spoken mode (plan 2026-11-06, PIN-2).
+   The Say-it template, `say`, has no mode.
+8. A sentence rotates (#146; plan 2026-11-06, D11): the next review takes a sentence with no clear
+   yet, and moves off a sentence once its clears fall on `kMoveOnClearDays` different days.
+   Practice now and a same-day re-ask rotate through the scored cards; a due review takes the
+   mode-first pick (plan 2026-11-06, ASK-5). A particle's drafted sentences ship marked unreviewed
+   (plan
+   2026-11-06, PIN-4).
 
 ## Open questions
 

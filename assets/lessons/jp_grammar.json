@@ -6526,6 +6526,33 @@
    }
   },
   {
+   "id": "file.particle_sentences.json",
+   "type": "source_file",
+   "source": "LM Drafting, checked by publish.particle_sentences() and a judge pass",
+   "title": "particle_sentences.json",
+   "summary": "15 particles, 30 sentences. More cloze sentences for each particle, with English, beside its lesson example.",
+   "uses": [],
+   "search": [
+    "pipeline/jp/particle_sentences.json",
+    "particle_sentences.json",
+    "LM Drafting, checked by publish.particle_sentences() and a judge pass"
+   ],
+   "file": "pipeline/jp/particle_sentences.json",
+   "role": "more cloze sentences for each particle, with English, beside its lesson example",
+   "origin": "LM Drafting, checked by publish.particle_sentences() and a judge pass",
+   "counts": {
+    "particles": 15,
+    "sentences": 30
+   },
+   "from": [
+    "particle_sentences.json"
+   ],
+   "open": {
+    "screen": "search",
+    "query": "particle_sentences.json"
+   }
+  },
+  {
    "id": "file.jp_lessons.json",
    "type": "source_file",
    "source": "Langoal word-list PDFs",
@@ -20984,7 +21011,39 @@
      "に よって"
     ],
     "from": "particle_clozes.json"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "この おてらは ゆうめいな だいく＿＿ たてられました。",
+     "answer": "によって",
+     "accepted": [
+      "に よって"
+     ],
+     "from": "particle_clozes.json",
+     "english": "This temple was built by a famous carpenter.",
+     "reviewed": false
+    },
+    {
+     "prompt": "この かいしゃは わたしの そふ＿＿ つくられました。",
+     "answer": "によって",
+     "accepted": [
+      "に よって"
+     ],
+     "from": "particle_sentences.json",
+     "english": "This company was founded by my grandfather.",
+     "reviewed": false
+    },
+    {
+     "prompt": "ひと＿＿ かんがえかたが ちがいます。",
+     "answer": "によって",
+     "accepted": [
+      "に よって"
+     ],
+     "from": "particle_sentences.json",
+     "english": "The way of thinking differs from person to person.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.2",
@@ -20999,7 +21058,33 @@
     "answer": "として",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "つうやく＿＿ はたらいて います。",
+     "answer": "として",
+     "accepted": [],
+     "from": "example",
+     "english": "I work as an interpreter.",
+     "reviewed": false
+    },
+    {
+     "prompt": "かれは せんせい＿＿ この がっこうで はたらいて います。",
+     "answer": "として",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "He works at this school as a teacher.",
+     "reviewed": false
+    },
+    {
+     "prompt": "わたしは りゅうがくせい＿＿ にほんに きました。",
+     "answer": "として",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I came to Japan as an exchange student.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.3",
@@ -21016,7 +21101,39 @@
      "に とって"
     ],
     "from": "particle_clozes.json"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "これは わたし＿＿ たいせつな ものです。",
+     "answer": "にとって",
+     "accepted": [
+      "に とって"
+     ],
+     "from": "particle_clozes.json",
+     "english": "This is something important to me.",
+     "reviewed": false
+    },
+    {
+     "prompt": "こども＿＿ この ほんは すこし むずかしいです。",
+     "answer": "にとって",
+     "accepted": [
+      "に とって"
+     ],
+     "from": "particle_sentences.json",
+     "english": "For children, this book is a little difficult.",
+     "reviewed": false
+    },
+    {
+     "prompt": "わたし＿＿ かぞくは いちばん たいせつです。",
+     "answer": "にとって",
+     "accepted": [
+      "に とって"
+     ],
+     "from": "particle_sentences.json",
+     "english": "To me, my family is the most important thing.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.4",
@@ -21033,7 +21150,39 @@
      "に ついて"
     ],
     "from": "particle_clozes.json"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "にほんの れきし＿＿ しらべて います。",
+     "answer": "について",
+     "accepted": [
+      "に ついて"
+     ],
+     "from": "particle_clozes.json",
+     "english": "I am researching the history of Japan.",
+     "reviewed": false
+    },
+    {
+     "prompt": "あした、しごと＿＿ はなしましょう。",
+     "answer": "について",
+     "accepted": [
+      "に ついて"
+     ],
+     "from": "particle_sentences.json",
+     "english": "Let's talk about work tomorrow.",
+     "reviewed": false
+    },
+    {
+     "prompt": "にほんの まつり＿＿ レポートを かきました。",
+     "answer": "について",
+     "accepted": [
+      "に ついて"
+     ],
+     "from": "particle_sentences.json",
+     "english": "I wrote a report about Japanese festivals.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.5",
@@ -21050,7 +21199,33 @@
     "answer": "ように",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "わすれない＿＿、メモを します。",
+     "answer": "ように",
+     "accepted": [],
+     "from": "example",
+     "english": "I take notes so that I don't forget.",
+     "reviewed": false
+    },
+    {
+     "prompt": "かぜを ひかない＿＿、あたたかい ふくを きます。",
+     "answer": "ように",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I wear warm clothes so that I don't catch a cold.",
+     "reviewed": false
+    },
+    {
+     "prompt": "みんなに きこえる＿＿、おおきい こえで はなして ください。",
+     "answer": "ように",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Please speak loudly so that everyone can hear.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.6",
@@ -21067,7 +21242,33 @@
     "answer": "ために",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "かぞくの ＿＿、はたらいて います。",
+     "answer": "ために",
+     "accepted": [],
+     "from": "example",
+     "english": "I work for the sake of my family.",
+     "reviewed": false
+    },
+    {
+     "prompt": "にほんで はたらく＿＿、にほんごを べんきょうして います。",
+     "answer": "ために",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I am studying Japanese in order to work in Japan.",
+     "reviewed": false
+    },
+    {
+     "prompt": "こどもの ＿＿、おもちゃを かいました。",
+     "answer": "ために",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I bought a toy for my child.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.7",
@@ -21085,7 +21286,33 @@
     "answer": "のに",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "やくそくした＿＿、きませんでした。",
+     "answer": "のに",
+     "accepted": [],
+     "from": "example",
+     "english": "Even though they promised, they didn't come.",
+     "reviewed": false
+    },
+    {
+     "prompt": "たくさん べんきょうした＿＿、しけんに おちました。",
+     "answer": "のに",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Even though I studied a lot, I failed the exam.",
+     "reviewed": false
+    },
+    {
+     "prompt": "まだ はやい＿＿、みせが しまって いました。",
+     "answer": "のに",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Even though it was still early, the shop was closed.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.8",
@@ -21102,7 +21329,33 @@
     "answer": "ばかり",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "あそんで ＿＿ います。",
+     "answer": "ばかり",
+     "accepted": [],
+     "from": "example",
+     "english": "All I do is play.",
+     "reviewed": false
+    },
+    {
+     "prompt": "おとうとは まんがを よんで ＿＿ います。",
+     "answer": "ばかり",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "My little brother does nothing but read manga.",
+     "reviewed": false
+    },
+    {
+     "prompt": "この みせは たかい もの＿＿ うって います。",
+     "answer": "ばかり",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "This shop sells nothing but expensive things.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.9",
@@ -21117,7 +21370,33 @@
     "answer": "でも",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "こども＿＿ わかります。",
+     "answer": "でも",
+     "accepted": [],
+     "from": "example",
+     "english": "Even a child can understand it.",
+     "reviewed": false
+    },
+    {
+     "prompt": "この かんじは しょうがくせい＿＿ よめます。",
+     "answer": "でも",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Even an elementary school student can read this kanji.",
+     "reviewed": false
+    },
+    {
+     "prompt": "せんせい＿＿ わからない もんだいが あります。",
+     "answer": "でも",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "There are questions that even the teacher does not know the answer to.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.10",
@@ -21134,7 +21413,33 @@
     "answer": "ながら",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "あるき＿＿、はなします。",
+     "answer": "ながら",
+     "accepted": [],
+     "from": "example",
+     "english": "I talk while walking.",
+     "reviewed": false
+    },
+    {
+     "prompt": "おんがくを きき＿＿、べんきょうします。",
+     "answer": "ながら",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I study while listening to music.",
+     "reviewed": false
+    },
+    {
+     "prompt": "テレビを み＿＿ ごはんを たべないで ください。",
+     "answer": "ながら",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Please don't eat while watching TV.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.11",
@@ -21151,7 +21456,33 @@
     "answer": "とおりに",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "せつめいの ＿＿ やって ください。",
+     "answer": "とおりに",
+     "accepted": [],
+     "from": "example",
+     "english": "Please do it exactly as explained.",
+     "reviewed": false
+    },
+    {
+     "prompt": "せんせいが いった ＿＿ かいて ください。",
+     "answer": "とおりに",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Please write it exactly as the teacher said.",
+     "reviewed": false
+    },
+    {
+     "prompt": "ちずの ＿＿ いったら、えきに つきました。",
+     "answer": "とおりに",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I went just as the map showed and got to the station.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.12",
@@ -21168,7 +21499,33 @@
     "answer": "しか",
     "accepted": [],
     "from": "particle_clozes.json"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "すこし＿＿ わかりません。",
+     "answer": "しか",
+     "accepted": [],
+     "from": "particle_clozes.json",
+     "english": "I understand only a little.",
+     "reviewed": false
+    },
+    {
+     "prompt": "さいふに ひゃくえん＿＿ ありません。",
+     "answer": "しか",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I have only a hundred yen in my wallet.",
+     "reviewed": false
+    },
+    {
+     "prompt": "この みせは どようび＿＿ あいて いません。",
+     "answer": "しか",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "This shop is open only on Saturdays.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.13",
@@ -21182,10 +21539,46 @@
     "prompt": "たかい＿＿、かいます。",
     "answer": "けれど",
     "accepted": [
-     "けれども"
+     "けれども",
+     "けど"
     ],
     "from": "particle_clozes.json"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "たかい＿＿、かいます。",
+     "answer": "けれど",
+     "accepted": [
+      "けれども",
+      "けど"
+     ],
+     "from": "particle_clozes.json",
+     "english": "It's expensive, but I'll buy it.",
+     "reviewed": false
+    },
+    {
+     "prompt": "この へやは せまい＿＿、えきに ちかいです。",
+     "answer": "けれど",
+     "accepted": [
+      "けれども",
+      "けど"
+     ],
+     "from": "particle_sentences.json",
+     "english": "This room is small, but it is close to the station.",
+     "reviewed": false
+    },
+    {
+     "prompt": "にほんごは むずかしい＿＿、おもしろいです。",
+     "answer": "けれど",
+     "accepted": [
+      "けれども",
+      "けど"
+     ],
+     "from": "particle_sentences.json",
+     "english": "Japanese is difficult, but it is interesting.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.14",
@@ -21202,7 +21595,33 @@
     "answer": "ので",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "あめな＿＿、いえに います。",
+     "answer": "ので",
+     "accepted": [],
+     "from": "example",
+     "english": "Because it's raining, I'm staying home.",
+     "reviewed": false
+    },
+    {
+     "prompt": "あたまが いたい＿＿、きょうは やすみます。",
+     "answer": "ので",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Because I have a headache, I am taking today off.",
+     "reviewed": false
+    },
+    {
+     "prompt": "あしたは やすみな＿＿、ゆっくり ねます。",
+     "answer": "ので",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Because tomorrow is a day off, I will sleep in.",
+     "reviewed": false
+    }
+   ]
   },
   {
    "id": "mari.particle.15",
@@ -21217,7 +21636,33 @@
     "answer": "まま",
     "accepted": [],
     "from": "example"
-   }
+   },
+   "sentences": [
+    {
+     "prompt": "くつを はいた ＿＿、はいらないで ください。",
+     "answer": "まま",
+     "accepted": [],
+     "from": "example",
+     "english": "Please don't come in with your shoes on.",
+     "reviewed": false
+    },
+    {
+     "prompt": "まどを あけた ＿＿ ねて しまいました。",
+     "answer": "まま",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "I fell asleep with the window open.",
+     "reviewed": false
+    },
+    {
+     "prompt": "でんきを つけた ＿＿ でかけないで ください。",
+     "answer": "まま",
+     "accepted": [],
+     "from": "particle_sentences.json",
+     "english": "Please don't go out with the lights left on.",
+     "reviewed": false
+    }
+   ]
   }
  ],
  "reference": [

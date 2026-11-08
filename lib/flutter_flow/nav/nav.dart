@@ -25,10 +25,12 @@ import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
 import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import '/components/pages/quiet_room_practice/quiet_room_practice_widget.dart';
+import '/components/pages/quiet_room_grammar/jp_study_kit.dart' show kFromCard;
 import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import '/components/pages/quiet_room_mastery/discuss_list_widget.dart';
 import '/components/pages/quiet_room_mastery/item_detail_widget.dart';
 import '/components/pages/quiet_room_mastery/lesson_page_widget.dart';
 import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
@@ -179,6 +181,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: QuietRoomLessonWidget.routePath,
           builder: (context, params) => QuietRoomLessonWidget(
             initialLesson: params.getParam('lesson', ParamType.int),
+            initialWord: params.getParam('word', ParamType.String),
+            fromCard: _fromCard(params),
           ),
         ),
         FFRoute(
@@ -195,6 +199,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => QuietRoomGrammarWidget(
             initialLesson: params.getParam('lesson', ParamType.int),
             initialQuery: params.getParam('query', ParamType.String),
+            initialPoint: params.getParam('point', ParamType.String),
+            fromCard: _fromCard(params),
           ),
         ),
         FFRoute(
@@ -204,6 +210,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             mode: params.getParam('mode', ParamType.String) ?? 'reference',
             table: params.getParam('table', ParamType.String),
             form: params.getParam('form', ParamType.String),
+            pair: params.getParam('pair', ParamType.String),
+            row: params.getParam('row', ParamType.String),
+            fromCard: _fromCard(params),
           ),
         ),
         FFRoute(
@@ -237,6 +246,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: TopicPageWidget.routePath,
           builder: (context, params) => TopicPageWidget(
             topicId: params.getParam('topic', ParamType.String) ?? '',
+            particleId: params.getParam('particle', ParamType.String),
+            fromCard: _fromCard(params),
           ),
         ),
         FFRoute(
@@ -245,6 +256,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ItemDetailWidget(
             itemId: params.getParam('item', ParamType.String) ?? '',
           ),
+        ),
+        // The Discuss with Mari list (plan 2026-11-06, Task 4), from Today's quiet links. It
+        // reads the marks itself, so a refresh lands on the same list.
+        FFRoute(
+          name: DiscussListWidget.routeName,
+          path: DiscussListWidget.routePath,
+          builder: (context, params) => const DiscussListWidget(),
         ),
         // The lesson path and the lesson page (plan 2026-11-02, Task 26). Each reads the record
         // itself, so a deep link or a refresh lands on the same list or lesson.
@@ -259,6 +277,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => LessonPageWidget(
             lesson: params.getParam('lesson', ParamType.int) ??
                 kPathFirstGrammarLesson,
+            particleId: params.getParam('particle', ParamType.String),
+            fromCard: _fromCard(params),
           ),
         ),
         FFRoute(
@@ -681,3 +701,8 @@ extension GoRouterLocationExtension on GoRouter {
     return matchList.uri.toString();
   }
 }
+
+/// Whether a practice card opened the route (`from=card`, plan 2026-11-06, Task 1): the lesson
+/// screens then show the "Back to practice" bar. Any other value, or none, is the plain entry.
+bool _fromCard(FFParameters params) =>
+    params.getParam('from', ParamType.String) == kFromCard;

@@ -24,7 +24,7 @@
   "mari.particle.13": {
    "prompt": "たかい＿＿、かいます。",
    "answer": "けれど",
-   "accepted": ["けれども"]
+   "accepted": ["けれども", "けど"]
   }
  }
 }

@@ -7,12 +7,13 @@
 //
 // | widget             | probe                         | check                               |
 // |--------------------|-------------------------------|-------------------------------------|
-// | [ChooseProbe]      | a grammar `choose` item       | the picked option                   |
+// | [ChooseProbe]      | a grammar `choose` item, a particle's choose card | the picked option |
 // | [TypedFillProbe]   | a `fill` item, a particle cloze | `checkTypedAnswer` on the caller's item map (accepted forms), hint behind a tap |
-// | [WordRecallProbe]  | a word: spoken, typed or card | `SpeechService`, `checkTypedAnswer`, or the learner after the reveal |
+// | [WordRecallProbe]  | a word: spoken, typed or card | `PronunciationService` (Azure, by sound), `checkTypedAnswer`, or the learner after the reveal |
 // | [ConjugationProbe] | a verb of a conjugation idea  | the learner after the reveal        |
 // | [PairProbe]        | a pair, in either direction   | the learner after the reveal        |
 // | [TableCellProbe]   | a cell of a table row         | the learner after the reveal        |
+// | [SayCardProbe]     | the say card of any kind (`sayCard`) | `PronunciationService` (Azure), counted |
 // | [SayItProbe]       | one form of a grammar example (Say-it) | `PronunciationService`     |
 //
 // Every grade comes from `gradeAnswer` (attempt.dart), so the rules hold the same on every
@@ -22,9 +23,19 @@
 //   * on a self-graded probe (conjugation, pair, table cell, word card) Got it or Knew it
 //     after the reveal is clear and Missed it or Not yet is wrong (PIN-13); a hint taken
 //     before the reveal makes Got it hinted;
-//   * unverified is never wrong: a check that could not score asks the learner, Got it is
-//     `self`; on the Say-it track Missed it after an unverified check is unscored, as the
-//     speak drill grades it (study_export.dart `sayItGrade`);
+//   * unverified is never wrong before the revealing rung (after it, wrong, plan 2026-11-06,
+//     ASK-3): a typed check that could not judge asks the learner, Got it is `self`; on the
+//     Say-it track Missed it after an unverified check is unscored, as the speak drill grades
+//     it (study_export.dart `sayItGrade`);
+//   * 🚨 a counting spoken answer is scored only by Azure (`PronunciationService`, against the
+//     hiragana, plan 2026-11-06 Task 5, PIN-2): correct is clear, close is hinted, and marked
+//     `spokenClose` (neutral for the two-hinted reset, PIN-10) only when no hint and no lesson
+//     review came first (plan 2026-11-06, ASK-2), wrong is wrong, and an unverified check (no
+//     connection, no microphone) is unscored at once, with no Got it or Missed it, so it can
+//     never clear the spoken mode (D10). After the revealing rung an
+//     unverified check is wrong, like Skip and a typed answer (plan 2026-11-06, ASK-3). See
+//     [gradeSpokenAnswer]. The on-device transcript (`SpeechService.listenOnce`) stays on the
+//     vocabulary practice screen, where its verdict never counts;
 //   * an empty Check is no attempt.
 //
 // Each widget reports one answer and then locks, so a probe is never answered twice. A widget
@@ -44,6 +55,13 @@
 // and the learner's own answer when there is one, and the session adds one Next.
 //
 // Every widget shows the item's state pill with its n of 4 clears ([ProbeStatePill]).
+//
+// Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): the hosts (the Review session and
+// Practice now) put a [ReviewLessonLink] under every unanswered card. It names the lesson, and
+// the idea only where the title is not a card's answer, a conjugation or a table row in the
+// catalog ([reviewLessonDetail]), and shows "Lesson reviewed" once opened. A probe never sees
+// the review: the host passes each draft through [afterLessonReview], which makes a clear
+// hinted. Show English stays free.
 
 import 'dart:async';
 
@@ -52,11 +70,13 @@ import 'package:flutter/material.dart';
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
 import '../quiet_room_practice/pronunciation_service.dart';
-import '../quiet_room_practice/speech_service.dart';
 import 'attempt.dart';
 import 'drill_recorder.dart' show DrillAnswer;
 import 'item_catalog.dart';
 import 'mastery_rule.dart';
+
+// `fillBlank` lives with the catalog, which builds a say card's whole sentence with it.
+export 'item_catalog.dart' show fillBlank;
 
 /// Receives the one graded draft a probe widget hands on.
 typedef ProbeAnswered = void Function(DrillAnswer answer);
@@ -125,6 +145,7 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
         bool revealed = false,
         bool sayIt = false,
         bool answerShown = false,
+        bool spokenClose = false,
         bool? selfGraded}) =>
     DrillAnswer(
       itemId: item.id,
@@ -137,7 +158,58 @@ DrillAnswer _draft(ItemDef item, ProbeDef probe, Grade grade,
       revealed: revealed,
       sayIt: sayIt,
       answerShown: answerShown,
+      spokenClose: spokenClose,
     );
+
+/// The grade of one counting spoken answer, from Azure's verdict (plan 2026-11-06, Task 5).
+///
+/// * correct is clear, or hinted after a hint (PIN-3);
+/// * close is hinted, and [spokenClose] marks it when the close was the only help, so the
+///   mastery rule keeps it out of the two-hinted reset (PIN-10). A close after a hint is an
+///   ordinary hinted answer;
+/// * wrong is wrong;
+/// * 🚨 unverified (no connection, no microphone, a failed sign-in) is unscored, never a
+///   self-mark that could clear the spoken mode (PIN-2, D10);
+/// * after the revealing rung or a reveal, every answer is wrong, unverified too: the reveal
+///   rule runs before the unverified rule, as for Skip and a typed answer (ASK-3, operator
+///   ruling 2026-11-06).
+///
+/// [hintLevel], [revealingHintLevel] and [revealed] are as `gradeAnswer` takes them.
+({Grade grade, bool spokenClose}) gradeSpokenAnswer(
+  Judgement verdict, {
+  int hintLevel = 0,
+  int? revealingHintLevel,
+  bool revealed = false,
+}) {
+  final outcome = switch (verdict) {
+    Judgement.correct => Outcome.right,
+    Judgement.close => Outcome.close,
+    Judgement.wrong => Outcome.wrong,
+    Judgement.unverified => Outcome.none,
+  };
+  // Every verdict goes through gradeAnswer (D17). It applies the reveal rule before the
+  // unverified rule, so an unverified check is unscored before the revealing rung and wrong
+  // after it or after a reveal (plan 2026-11-06, ASK-3, supersedes D10 for the revealed case).
+  final grade = gradeAnswer(
+    outcome: outcome,
+    selfGraded: false,
+    hintLevel: hintLevel,
+    revealingHintLevel: revealingHintLevel,
+    revealed: revealed,
+  );
+  return (
+    grade: grade,
+    spokenClose:
+        outcome == Outcome.close && grade == Grade.hinted && hintLevel == 0,
+  );
+}
+
+/// The verdict line of a spoken close (PIN-10).
+const String kSpokenCloseVerdict = 'Close. No credit this time.';
+
+/// The line under a counting spoken answer Azure could not score (D10).
+const String kSpokenUnscoredLine =
+    'This could not be scored, so it does not count.';
 
 /// The line an answered probe leaves behind.
 String _verdictText(Grade g) => switch (g) {
@@ -147,14 +219,6 @@ String _verdictText(Grade g) => switch (g) {
       Grade.unscored => 'Not counted.',
       Grade.self => 'Marked as got it. No credit this time.',
     };
-
-/// The prompt with its blank (a run of ＿ or _) filled by [answer], as the text before, the
-/// answer and the text after. A prompt with no blank reads as the answer alone.
-(String, String, String) fillBlank(String prompt, String answer) {
-  final m = RegExp(r'[＿_]+').firstMatch(prompt);
-  if (m == null) return ('', answer, '');
-  return (prompt.substring(0, m.start), answer, prompt.substring(m.end));
-}
 
 // --- shared pieces -------------------------------------------------------------
 
@@ -228,9 +292,10 @@ Widget _quiet(QuietRoomTokens t, String text) => Padding(
       child: Text(text, style: qrText(t, size: 13.5, color: t.inkMuted)),
     );
 
-Widget _verdict(QuietRoomTokens t, Grade g) => Padding(
+Widget _verdict(QuietRoomTokens t, Grade g, {bool spokenClose = false}) =>
+    Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: Text(_verdictText(g),
+      child: Text(spokenClose ? kSpokenCloseVerdict : _verdictText(g),
           style: qrText(t,
               size: 14,
               weight: FontWeight.w600,
@@ -394,7 +459,7 @@ class TypedFillProbe extends StatefulWidget {
   /// The practice item `checkTypedAnswer` judges against, with its accepted forms and ruby
   /// twins. Required, because a [ProbeDef] carries no accepted forms and a catalog fill item
   /// may accept several (いったら and いけば): the runner passes the raw practice map, or
-  /// `{'answer': probe.answer}` for a particle cloze.
+  /// the answer with the sentence's accepted forms for a particle cloze.
   final Map<String, dynamic> checkItem;
 
   @override
@@ -525,14 +590,19 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 
 // --- word recall ---------------------------------------------------------------
 
-/// A word: the picture and the meaning, then the learner says the word through
-/// [SpeechService] or types its reading. The hint ladder runs least revealing first; its last
-/// rung is the answer, so any answer after it is wrong (D17).
+/// A word: the picture and the meaning, then the learner says the word, scored by sound
+/// through [PronunciationService] against its hiragana, or types its reading. The hint ladder
+/// runs least revealing first; its last rung is the answer, so any answer after it is wrong
+/// (D17).
 ///
 /// A spoken answer is written on the item's `spoken` probe and a typed one on its `typed`
-/// probe. A speech close is hinted. An unverified listen shows what was heard and asks the
-/// learner: Got it is self, Missed it is wrong. Skip is unscored, or wrong after the revealing
-/// rung. The controls are disabled while listening.
+/// probe. The spoken grade comes from [gradeSpokenAnswer] (PIN-2, PIN-10): a close is hinted
+/// and marked, and an unverified check is unscored at once, with no self-mark (D10), or wrong
+/// after the revealing rung (plan 2026-11-06, ASK-3). The on-device recognizer is never used
+/// here: this card counts. A typed answer the matcher cannot judge shows what was typed and
+/// asks the learner: Got it is self, Missed it is wrong. Skip is unscored, or wrong after the
+/// revealing rung. The controls are disabled while the check runs, and one check runs at a
+/// time.
 ///
 /// Given the `card` probe, the widget asks card recall instead: think of the word, "Show me",
 /// then Knew it (clear) or Not yet (wrong), self-graded (PIN-13); a hint before the reveal
@@ -543,7 +613,7 @@ class WordRecallProbe extends StatefulWidget {
     required this.item,
     required this.probe,
     required this.state,
-    required this.speech,
+    required this.pronunciation,
     required this.onAnswer,
     this.hintSteps,
     this.kanjiForms = const [],
@@ -553,13 +623,15 @@ class WordRecallProbe extends StatefulWidget {
   final ItemDef item;
   final ProbeDef probe;
   final MasteryState state;
-  final SpeechService speech;
+
+  /// Scores the spoken answer by sound (Azure). The host owns it and disposes it.
+  final PronunciationService pronunciation;
   final ProbeAnswered onAnswer;
 
   /// The ladder, least revealing first, the answer last. Null uses [wordHintSteps].
   final List<String>? hintSteps;
 
-  /// The word's kanji spellings, for the speech judge and the typed check.
+  /// The word's kanji spellings, for the typed check.
   final List<String> kanjiForms;
 
   /// The picture; null shows none. See [wordImageAsset].
@@ -578,16 +650,23 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
   /// Set by an empty Check; cleared by an answer or an unverified one (as [TypedFillProbe]).
   bool _empty = false;
 
-  /// Bumped by Skip, an answer and dispose; a listen holding an older token is dropped.
+  /// Bumped by Skip, an answer and dispose; a check holding an older token is dropped.
   int _token = 0;
 
-  /// The unverified listen or typed answer waiting for the learner's mark, and its probe.
+  /// The typed answer the matcher could not judge, waiting for the learner's mark, and its
+  /// probe. A spoken answer never waits: Azure scores it or it is unscored (D10).
   ProbeDef? _awaiting;
-  String? _heard;
+  String? _typedUnjudged;
   Grade? _grade;
   ProbeDef? _answeredOn;
 
-  /// The learner's own answer on a wrong, typed or heard; null on any other grade.
+  /// The answered spoken draft was a close (PIN-10).
+  bool _spokenClose = false;
+
+  /// The check ran and Azure could not score it, so the spoken draft went unscored (D10).
+  bool _notScored = false;
+
+  /// The learner's own typed answer on a wrong; null on any other grade.
   String? _given;
 
   bool get _card => widget.probe.template == 'card';
@@ -603,7 +682,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
   @override
   void dispose() {
     _token++;
-    if (_listening) unawaited(widget.speech.cancel());
+    if (_listening) unawaited(widget.pronunciation.cancel());
     _typed.dispose();
     super.dispose();
   }
@@ -617,60 +696,56 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
         selfOverride: selfOverride,
       );
 
-  /// [given] is what the learner typed or was heard to say, shown beside the answer after a
-  /// wrong. The answer was on screen before the answer when the card was revealed, a compare
-  /// was waiting, or the ladder reached its last rung.
-  void _report(ProbeDef probe, Grade grade, {bool? revealed, String? given}) {
+  /// [given] is what the learner typed, shown beside the answer after a wrong. The answer was
+  /// on screen before the answer when the card was revealed, a compare was waiting, or the
+  /// ladder reached its last rung.
+  void _report(ProbeDef probe, Grade grade,
+      {bool? revealed, String? given, bool spokenClose = false}) {
     _token++;
     final answerShown = _cardRevealed || _awaiting != null || _revealedByHint;
     setState(() {
       _grade = grade;
       _answeredOn = probe;
       _given = given;
+      _spokenClose = spokenClose;
       _awaiting = null;
       _empty = false;
     });
     widget.onAnswer(_draft(widget.item, probe, grade,
         hintLevel: _hintLevel,
         revealed: revealed ?? _revealedByHint,
-        answerShown: answerShown));
+        answerShown: answerShown,
+        spokenClose: spokenClose));
   }
 
+  /// Records the word and scores it by sound against its hiragana (PIN-2). Sign-in runs inside
+  /// the service, after a recording, through the host's `ensureCaller` seam.
   Future<void> _say() async {
     if (_listening || _grade != null || _awaiting != null) return;
     final token = ++_token;
     setState(() => _listening = true);
     try {
-      final r = await widget.speech.listenOnce(
-          expectedKana: widget.probe.answer, kanjiForms: widget.kanjiForms);
+      final spoken = _probeFor('spoken');
+      final r = await widget.pronunciation.check(spoken.answer);
       if (!mounted || token != _token) return;
       setState(() => _listening = false);
-      final spoken = _probeFor('spoken');
-      switch (r.judgement) {
-        case Judgement.correct:
-          _report(spoken, _grade0(Outcome.right));
-        case Judgement.close:
-          _report(spoken, _grade0(Outcome.close));
-        case Judgement.wrong:
-          _report(spoken, _grade0(Outcome.wrong), given: r.heard);
-        case Judgement.unverified:
-          setState(() {
-            _awaiting = spoken;
-            _heard = r.heard;
-            _empty = false;
-          });
-      }
+      final g = gradeSpokenAnswer(r.verdict,
+          hintLevel: _hintLevel,
+          revealingHintLevel: _steps.length,
+          revealed: _revealedByHint);
+      _notScored = g.grade == Grade.unscored;
+      _report(spoken, g.grade, spokenClose: g.spokenClose);
     } catch (e, s) {
       // The app's handler is FlutterError.onError, which an error on a dropped future never
-      // reaches, so the listen's failure goes the recorder's way (S4). No draft is written.
+      // reaches, so the check's failure goes the recorder's way (S4). No draft is written.
       FlutterError.reportError(FlutterErrorDetails(
           exception: e,
           stack: s,
           library: 'quiet room probes',
           context: ErrorDescription(
-              'while listening for ${widget.item.id} ${widget.probe.id}')));
+              'while scoring ${widget.item.id} ${widget.probe.id}')));
     } finally {
-      // 🚨 A throw from `listenOnce` would otherwise leave Say it, Check, Skip and the hint
+      // 🚨 A throw from the check would otherwise leave Say it, Check, Skip and the hint
       // disabled for good: one dead card until the learner leaves the session.
       if (mounted && token == _token && _listening) {
         setState(() => _listening = false);
@@ -695,7 +770,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
       case TypedVerdict.selfCheck:
         setState(() {
           _awaiting = typedProbe;
-          _heard = _typed.text;
+          _typedUnjudged = _typed.text;
           _empty = false;
         });
     }
@@ -772,26 +847,23 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
             Expanded(child: _button(t, 'Skip', busy ? null : _skip)),
           ]),
         ],
+        // Only a typed answer waits for a mark; a spoken one never does (D10).
         if (_awaiting != null) ...[
-          _quiet(
-              t,
-              _awaiting!.template == 'typed'
-                  ? 'You typed: ${_heard ?? ''}. This could not be checked.'
-                  : 'Heard: ${_heard ?? ''}. This could not be checked.'),
+          _quiet(t,
+              'You typed: ${_typedUnjudged ?? ''}. This could not be checked.'),
           _answerLine(t, widget.probe.answer),
           _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
         ],
         if (_grade == Grade.wrong && (_given ?? '').isNotEmpty)
-          _quiet(
-              t,
-              _answeredOn?.template == 'typed'
-                  ? 'Your answer: ${_given!}'
-                  : 'Heard: ${_given!}'),
+          _quiet(t, 'Your answer: ${_given!}'),
+        if (_notScored) _quiet(t, kSpokenUnscoredLine),
         if (_grade != null && _answeredOn != null)
           _answerLine(t, widget.probe.answer),
       ]);
     }
-    if (_grade != null) children.add(_verdict(t, _grade!));
+    if (_grade != null) {
+      children.add(_verdict(t, _grade!, spokenClose: _spokenClose));
+    }
     return _ProbeFrame(state: widget.state, children: children);
   }
 }
@@ -974,6 +1046,144 @@ class TableCellProbe extends StatelessWidget {
       );
 }
 
+// --- the say card (plan 2026-11-06, Task 6) -------------------------------------
+
+/// The line a say card asks with (PIN-12): what to say, never the answer.
+String sayCardInstruction(ItemDef item, ProbeDef probe) => switch (item.kind) {
+      ItemKind.grammar || ItemKind.particle => 'Say the whole sentence',
+      ItemKind.word => 'Say the word',
+      ItemKind.conjugation =>
+        'Say the ${conjugationFormLabel(_conjugationForm(item))}',
+      ItemKind.pair => probe.id == sayCardId(kPairToIntransitive)
+          ? 'Say its intransitive partner'
+          : 'Say its transitive partner',
+      ItemKind.tableRow => 'Say the reading',
+    };
+
+/// The scored say card every kind has ([kSayCardTemplate], D3, D18). The card shows the prompt
+/// only, never the answer (PIN-12): a sentence's prompt and its [english], a word's picture
+/// and meaning, a verb under the form's name, the other side of a pair, or a table cell's
+/// number and counter. The learner says the answer, and [PronunciationService] scores it by
+/// sound against the probe's hiragana (PIN-2). The grade comes from [gradeSpokenAnswer]:
+/// correct is clear, close is hinted and marked `spokenClose` (PIN-10), wrong is wrong, and an
+/// unverified check is unscored at once, with no Got it or Missed it (D10). Skip is unscored.
+/// The answer shows only after a scored answer, so an unscored card that comes back later in
+/// the section still hides it. The draft is never on the Say-it track: the host writes the
+/// session's source.
+class SayCardProbe extends StatefulWidget {
+  const SayCardProbe({
+    super.key,
+    required this.item,
+    required this.probe,
+    required this.state,
+    required this.pronunciation,
+    required this.onAnswer,
+    this.english,
+    this.imageAsset,
+  });
+
+  final ItemDef item;
+  final ProbeDef probe;
+  final MasteryState state;
+
+  /// Scores the answer by sound (Azure). The host owns it and disposes it.
+  final PronunciationService pronunciation;
+  final ProbeAnswered onAnswer;
+
+  /// The sentence's English, shown with its prompt; null shows none.
+  final String? english;
+
+  /// A word's picture; null shows none. See [wordImageAsset].
+  final String? imageAsset;
+
+  @override
+  State<SayCardProbe> createState() => _SayCardProbeState();
+}
+
+class _SayCardProbeState extends State<SayCardProbe> {
+  bool _checking = false;
+  int _token = 0;
+  Grade? _grade;
+  bool _spokenClose = false;
+  bool _notScored = false;
+
+  @override
+  void dispose() {
+    _token++;
+    if (_checking) unawaited(widget.pronunciation.cancel());
+    super.dispose();
+  }
+
+  void _report(Grade grade, {bool spokenClose = false}) {
+    _token++;
+    setState(() {
+      _grade = grade;
+      _spokenClose = spokenClose;
+    });
+    widget.onAnswer(_draft(widget.item, widget.probe, grade,
+        selfGraded: false, spokenClose: spokenClose));
+  }
+
+  Future<void> _say() async {
+    if (_checking || _grade != null) return;
+    final token = ++_token;
+    setState(() => _checking = true);
+    try {
+      final r = await widget.pronunciation.check(widget.probe.answer);
+      if (!mounted || token != _token) return;
+      setState(() => _checking = false);
+      final g = gradeSpokenAnswer(r.verdict);
+      _notScored = g.grade == Grade.unscored;
+      _report(g.grade, spokenClose: g.spokenClose);
+    } catch (e, s) {
+      // As the word card: the failure goes the recorder's way (S4), and no draft is written.
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room probes',
+          context: ErrorDescription(
+              'while scoring ${widget.item.id} ${widget.probe.id}')));
+    } finally {
+      if (mounted && token == _token && _checking) {
+        setState(() => _checking = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    final g = _grade;
+    final scored = g != null && g != Grade.unscored;
+    return _ProbeFrame(state: widget.state, children: [
+      if (widget.imageAsset != null)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Image.asset(widget.imageAsset!,
+              height: 160,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+        ),
+      _label(t, sayCardInstruction(widget.item, widget.probe)),
+      _prompt(t, widget.probe.text),
+      if (widget.english != null) _quiet(t, widget.english!),
+      if (g == null)
+        Row(children: [
+          Expanded(
+              child: _button(t, _checking ? 'Listening' : 'Say it',
+                  _checking ? null : _say,
+                  primary: true)),
+          const SizedBox(width: 10),
+          Expanded(
+              child: _button(
+                  t, 'Skip', _checking ? null : () => _report(Grade.unscored))),
+        ]),
+      if (_notScored) _quiet(t, kSpokenUnscoredLine),
+      if (scored) _answerLine(t, widget.probe.answer),
+      if (g != null) _verdict(t, g, spokenClose: _spokenClose),
+    ]);
+  }
+}
+
 // --- the spoken sentence (Say-it) ----------------------------------------------
 
 /// A grammar example said aloud and scored by [PronunciationService], on the Say-it track: it
@@ -1080,5 +1290,129 @@ class _SayItProbeState extends State<SayItProbe> {
       ],
       if (_grade != null) _verdict(t, _grade!),
     ]);
+  }
+}
+
+// --- Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5) ---------------------------------
+
+/// The quiet link on every unanswered card in the Review session and in Practice now.
+const String kReviewTheLesson = 'Review the lesson';
+
+/// The mark a card carries once its lesson was opened before the answer.
+const String kLessonReviewed = 'Lesson reviewed';
+
+/// The lesson a card's link names: 第N課 for an item a Mari lesson teaches, else the title of
+/// the screen the kind opens on, as the drills screen shows it; an untaught particle opens
+/// its topic page, whose title is the topic's own, so its link says Particles. The name is
+/// never the item's title, which may be the card's answer.
+String reviewLessonName(ItemDef item) {
+  final lesson = item.lesson;
+  return switch (item.kind) {
+    ItemKind.conjugation => 'Conjugation',
+    ItemKind.pair => 'Verb pairs',
+    ItemKind.tableRow => 'Numbers and counters',
+    ItemKind.particle when lesson == null => 'Particles',
+    ItemKind.grammar when lesson == null => 'Grammar',
+    ItemKind.word when lesson == null => 'Words',
+    _ => '第$lesson課',
+  };
+}
+
+/// Whether [item]'s title spells one of its cards' answers: a word's reading, a particle or a
+/// pair's two verbs. Checked against the item's own probes, so the catalog decides, not the
+/// kind. A grammar point never reaches this check: [reviewLessonDetail] names its lesson alone.
+bool reviewLessonTitleIsAnAnswer(ItemDef item) => item.probes
+    .any((p) => p.answer.isNotEmpty && item.title.contains(p.answer));
+
+/// The line under the link: the lesson, and the idea for a conjugation or a table row,
+/// "Conjugation · te, group 1". The line is on screen before the answer and costs nothing
+/// (PIN-5 charges the review, not the link), so it drops the idea when the title spells a
+/// card's answer: "第30課" for a word. A grammar point shows its lesson alone, "第27課",
+/// because many patterns hold a practice answer in a form no substring check catches
+/// (ASK-1, operator-ruled 2026-11-06).
+String reviewLessonDetail(ItemDef item) {
+  final name = reviewLessonName(item);
+  if (item.kind == ItemKind.grammar) return name;
+  return reviewLessonTitleIsAnAnswer(item) ? name : '$name · ${item.title}';
+}
+
+/// The draft [d] after a lesson review before the answer (PIN-5): a clear becomes hinted at
+/// hint level 1 or more, so a choose card (no hint of its own) is covered and a grammar hint
+/// taken as well is not counted twice. A spoken close loses its close mark the same way: the
+/// review was a hint, so it counts toward the two-hinted reset like any hinted answer
+/// (PIN-10). Wrong, other hinted, self and unscored come back unchanged. The host applies it
+/// in its answer handler; a review after the answer never reaches it.
+DrillAnswer afterLessonReview(DrillAnswer d) {
+  if (d.grade != Grade.clear && !d.spokenClose) return d;
+  return DrillAnswer(
+    itemId: d.itemId,
+    probeId: d.probeId,
+    template: d.template,
+    grade: Grade.hinted,
+    production: d.production,
+    selfGraded: d.selfGraded,
+    hintLevel: d.hintLevel < 1 ? 1 : d.hintLevel,
+    revealed: d.revealed,
+    sayIt: d.sayIt,
+    answerShown: d.answerShown,
+    atUtc: d.atUtc,
+  );
+}
+
+/// "Review the lesson" over the lesson name ([reviewLessonDetail]), quiet under the card, and
+/// the "Lesson reviewed" mark once [reviewed]. The tap opens the lesson; the host owns the
+/// navigation.
+class ReviewLessonLink extends StatelessWidget {
+  const ReviewLessonLink({
+    super.key,
+    required this.item,
+    required this.onTap,
+    this.reviewed = false,
+  });
+
+  final ItemDef item;
+  final VoidCallback onTap;
+  final bool reviewed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: QuietRoomMetrics.space8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm),
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(minHeight: QuietRoomMetrics.targetMin),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(kReviewTheLesson,
+                        style: qrText(t,
+                            size: 14,
+                            weight: FontWeight.w600,
+                            color: t.brand600)),
+                    Text(reviewLessonDetail(item),
+                        style: qrText(t, size: 13, color: t.inkMuted)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (reviewed)
+            Text(kLessonReviewed,
+                style: qrText(t,
+                    size: 13, weight: FontWeight.w600, color: t.inkMuted)),
+        ],
+      ),
+    );
   }
 }

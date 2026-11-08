@@ -8,12 +8,16 @@
 // |----------|----------------------------------------------------------------|-------------|
 // | clear    | right, no hint, nothing revealed (machine-checked), or Got it  | Good        |
 // |          | after the reveal on a self-graded probe                        |             |
-// | hinted   | right after a hint below the revealing level, a second try, a | Hard        |
-// |          | speech `close`                                                 |             |
-// | wrong    | wrong, Missed it, a hint at or above the revealing level, a   | Again       |
-// |          | reveal on a machine-checked probe                              |             |
-// | unscored | nothing heard, an error, a cancel                              | none        |
-// | self     | the learner overrides a machine check (Got it on unverified)  | Hard        |
+// | hinted   | right after a hint below the revealing level, a second try, a  | Hard        |
+// |          | right answer after a lesson review (PIN-5), a speech `close`   |             |
+// |          | (marked [Attempt.spokenClose] when no hint and no lesson       |             |
+// |          | review came first: neutral for the two-hinted reset, PIN-10;   |             |
+// |          | plan 2026-11-06, ASK-2)                                        |             |
+// | wrong    | wrong, Missed it, a hint at or above the revealing level, a    | Again       |
+// |          | reveal on a machine-checked probe, including a check that      |             |
+// |          | could not score after that reveal (plan 2026-11-06, ASK-3)     |             |
+// | unscored | nothing heard, an error, a cancel, before any reveal           | none        |
+// | self     | the learner overrides a machine check (Got it on unverified)   | Hard        |
 //
 // 🚨 A HINTED ANSWER EARNS ZERO MASTERY CREDIT (PIN-3). Only `clear` counts toward the four
 // clears; see [earnsMasteryCredit] and mastery_rule.dart.
@@ -28,12 +32,15 @@ enum Grade { clear, hinted, wrong, unscored, self }
 ///
 /// [review] is a queued review (due, repair or new), [keepSharp] the weekly set of Mastered items
 /// (D10), [early] an answer on an item that is not due (D23, PIN-14), and [sayIt] the spoken
-/// sentence track, which never counts toward mastery (D4).
+/// sentence track and a vocabulary practice listen's on-device transcript verdict (plan
+/// 2026-11-06, Task 5, PIN-2), which never counts toward mastery (D4).
 enum Source { review, keepSharp, early, sayIt }
 
 /// What the check (or the learner, on a self-graded probe) said about the answer itself.
 ///
-/// [none] means nothing could be scored: nothing heard, an error, a cancel. It is never wrong.
+/// [none] means nothing could be scored: nothing heard, an error, a cancel. It is unscored, and
+/// wrong only when the answer was already revealed or the revealing hint rung was taken (plan
+/// 2026-11-06, ASK-3).
 enum Outcome { right, close, wrong, none }
 
 /// FSRS ratings (D12). Easy is never used.
@@ -123,8 +130,11 @@ class Attempt {
     this.sAfter,
     this.durationMs = 0,
     required this.sessionId,
-  }) : assert(grade != Grade.clear || hintLevel == 0,
-            'a clear never carries a hint (PIN-3); grade it through gradeAnswer');
+    this.spokenClose = false,
+  })  : assert(grade != Grade.clear || hintLevel == 0,
+            'a clear never carries a hint (PIN-3); grade it through gradeAnswer'),
+        assert(!spokenClose || grade == Grade.hinted,
+            'only a hinted answer can be a spoken close (PIN-10)');
 
   /// The log's row id, assigned by the store; null before it is written.
   final int? id;
@@ -163,6 +173,12 @@ class Attempt {
   final int durationMs;
   final String sessionId;
 
+  /// A hinted answer whose only help was an Azure `close` score on a spoken card, with no
+  /// hint and no lesson review (PIN-10, D14). It earns no credit, like any hinted answer, and
+  /// is neutral for the two-hinted reset, like a self answer (mastery_rule.dart). Written to
+  /// the log only when true, so a record from before the mark exports byte for byte as it was.
+  final bool spokenClose;
+
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         'itemId': itemId,
@@ -185,6 +201,7 @@ class Attempt {
         'sAfter': sAfter,
         'durationMs': durationMs,
         'sessionId': sessionId,
+        if (spokenClose) 'spokenClose': true,
       };
 
   factory Attempt.fromJson(Map<String, dynamic> j) => Attempt(
@@ -209,6 +226,9 @@ class Attempt {
         sAfter: (j['sAfter'] as num?)?.toDouble(),
         durationMs: (j['durationMs'] as int?) ?? 0,
         sessionId: j['sessionId'] as String,
+        // Read only on a hinted row, so a hand-edited import cannot trip the assert.
+        spokenClose:
+            j['spokenClose'] == true && j['grade'] == Grade.hinted.name,
       );
 
   List<Object?> get _fields => [
@@ -233,6 +253,7 @@ class Attempt {
         sAfter,
         durationMs,
         sessionId,
+        spokenClose,
       ];
 
   @override

@@ -7,13 +7,18 @@
 //     the queue yet);
 //   * the probes seen clear: the scored probes with at least one clear answer;
 //   * what remains to Mastered (the four clears, the 21-day final gap, the second question kind,
-//     the production clear and the transfer clause, as mastery_rule.dart counts them), or to
-//     regain a Shaky item;
-//   * the Say-it counts, which never count toward Mastered (D4);
+//     the production clear, each mode still missing a clear ([kModeLines], plan 2026-11-06,
+//     Task 7, PIN-7) and the transfer clause, as mastery_rule.dart counts them), or to regain a
+//     Shaky item;
+//   * the Say-it counts on a grammar point, which never count toward Mastered (D4); on a word,
+//     the practice screen's listens sit under their own heading, "Practice listens, not
+//     counted", so they never read as the counting Say the word card (plan 2026-11-06, ASK-4);
 //   * "no production probe yet" where the item has no production probe (A8), and "one question
-//     kind only" where its scored probes share one template (PIN-15);
+//     kind only" where its scored probes share one template (PIN-15), from [itemNotesOf];
 //   * the attempt history, newest first: date, grade (a wrong reads Missed, ASK-9), hint level,
 //     probe, and whether the answer counted toward the four clears (or the regain);
+//   * the "Discuss with Mari" toggle (discuss_list_widget.dart, PIN-6), which sets or clears
+//     the item's Discuss mark and writes nothing else;
 //   * Practice now, a one-item [PracticeSessionWidget].
 //
 // [itemDetailOf] is the pure read the page shows; the state is `masteryFromAttempts` over the
@@ -27,17 +32,31 @@
 // never moves today's session. It follows the session's wrong-answer rule (operator ruling
 // 2026-11-05, ASK-9): a wrong shows no result card. When the answer was already on screen
 // (`DrillAnswer.answerShown`), practice moves straight on; else the probe stays, showing the
-// answer, under one Next. The topic page (Task 23) runs it over a topic's items.
+// answer, under one Next. The topic page (Task 23) runs it over a topic's items. Every
+// unanswered card carries "Review the lesson" under the session's rule (plan 2026-11-06,
+// Task 2, PIN-5): a clear after a review is written hinted. Every card also carries the
+// Discuss toggle, as the Review session's cards do; a mark leaves the grade as it was (PIN-6).
+// A spoken answer scores through Azure as in the Review session (plan 2026-11-06, Task 5,
+// PIN-2): practice hands one [PronunciationService] to the probe builder, built with
+// `PronunciationService.counting()` and disposed with it when none is injected.
+// An item that is not due is asked with the rotate marker (plan 2026-11-06, Task 9, ASK-5):
+// its scored cards in turn by attempts so far, so two early answers show two different cards.
+// A due item keeps the session's pick (`nextProbe`, D19, D11). The marker is set in `_show`
+// with the attempt count, so a held card keeps the marker it was asked with.
 //
 // [openItemDetail] opens the page from any list (the study record page's rows, Topics, a topic
-// page, a lesson page).
+// page, a lesson page, the Discuss with Mari list).
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
+import '../quiet_room_practice/pronunciation_service.dart';
 import 'attempt.dart';
+import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart';
 import 'fsrs.dart';
 import 'item_catalog.dart';
@@ -79,8 +98,20 @@ const String kNeedSecondKindLine = 'a clear on a second question kind';
 const String kNeedProductionLine =
     'a clear where you produce the answer (typed or spoken)';
 
-/// Under the Say-it counts.
+/// The line for each mode the item still needs a clear in (plan 2026-11-06, Task 7, PIN-7,
+/// D18), named the way the cards ask: type it, see it, say it.
+const Map<ProbeMode, String> kModeLines = {
+  ProbeMode.typed: 'a clear where you type it',
+  ProbeMode.recognition: 'a clear where you see it and pick or recall it',
+  ProbeMode.spoken: 'a clear where you say it',
+};
+
+/// Under the Say-it counts, on a grammar point only.
 const String kSayItNeverCounts = 'Saying it never counts toward mastered.';
+
+/// The heading over a word's practice-screen listens (`Source.sayIt`), which never count
+/// (ASK-4, operator ruling 2026-11-06).
+const String kPracticeListensHeading = 'Practice listens, not counted';
 
 /// The practice verdict on an early clear, hinted or self answer (PIN-14).
 const String kEarlyNoChange = 'Not due yet, so this practice changes nothing.';
@@ -129,7 +160,7 @@ String _n(int n, String one, [String? many]) =>
 
 /// The probe word of [kind] for the transfer clause.
 String _probeWord(ItemKind kind) => switch (kind) {
-      ItemKind.grammar => 'sentence',
+      ItemKind.grammar || ItemKind.particle => 'sentence',
       ItemKind.conjugation => 'verb',
       ItemKind.pair => 'direction',
       ItemKind.tableRow => 'cell',
@@ -164,8 +195,11 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
           out.add(kNeedProductionLine);
         }
       }
+      for (final mode in missingModes(item, clears)) {
+        out.add(kModeLines[mode]!);
+      }
       final need = transferProbesNeeded(item);
-      final have = {for (final c in clears) c.probeId}.length;
+      final have = {for (final c in clears) transferKeyOf(c.probeId)}.length;
       if (have < need) {
         out.add(
             'clears on ${_n(need - have, 'more different ${_probeWord(item.kind)}')}');
@@ -173,6 +207,15 @@ List<String> remainingFor(ItemDef item, MasteryState state) {
       return out;
   }
 }
+
+/// The notes under the next-review line: [kNoProductionProbeLine] where [item] has no
+/// production probe (A8) and [kOneTemplateLine] where its scored probes share one template
+/// (PIN-15). Every shipped kind has a say card (plan 2026-11-06, Task 6), so neither shows on
+/// the shipped catalog today. Pure.
+List<String> itemNotesOf(ItemDefLike item) => [
+      if (!item.hasProductionProbe) kNoProductionProbeLine,
+      if (item.templateCount == 1) kOneTemplateLine,
+    ];
 
 /// The item page's read of [item] from its [attempts], oldest first (PIN-1). Pure.
 ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
@@ -208,7 +251,9 @@ ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
   );
 }
 
-/// The learner-facing name of a probe: the question kind for a word, else its text.
+/// The learner-facing name of a probe: the question kind for a word; for another kind its
+/// text, prefixed 'Say it: ' on a say card or 'Choose: ' on a particle's choose card, and
+/// joined to the answer by an arrow on a pair direction.
 String probeLabel(ItemDef item, String probeId) {
   ProbeDef? probe;
   for (final p in item.probes) {
@@ -219,8 +264,13 @@ String probeLabel(ItemDef item, String probeId) {
     'card' => 'Recall card',
     'spoken' => 'Say the word',
     'typed' => 'Type the reading',
+    kSayCardTemplate when item.kind == ItemKind.word =>
+      'Say it from the picture',
+    kSayCardTemplate => 'Say it: ${probe.text}',
     kPairToTransitive => '${probe.text} → ${probe.answer}',
     kPairToIntransitive => '${probe.text} → ${probe.answer}',
+    // A particle's choose card shares its cloze's text, so it names its kind.
+    'choose' when probe.id == kParticleChooseId => 'Choose: ${probe.text}',
     _ => probe.text.isEmpty ? probe.id : probe.text,
   };
 }
@@ -378,9 +428,14 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
                   ? kNotQueuedLine
                   : 'Next review: ${dueLabel(d.dueDay!, today)}',
               style: qrText(t, size: 14, color: t.ink)),
-          if (!item.hasProductionProbe) _note(t, kNoProductionProbeLine),
-          if (item.templateCount == 1) _note(t, kOneTemplateLine),
-          const SizedBox(height: 18),
+          for (final note in itemNotesOf(item)) _note(t, note),
+          // Keyed per load, so a return from practice reads a mark changed there.
+          DiscussToggle(
+              key: ValueKey('discuss-${item.id}-$_loads'),
+              itemId: item.id,
+              store: _store,
+              clock: widget.clock),
+          const SizedBox(height: 12),
           QrLoudButton(label: kPracticeNow, onPressed: _practice),
           _heading(t, 'Still to do'),
           for (final line in d.remaining) _line(t, line),
@@ -388,7 +443,15 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
           for (final p in scored)
             _line(t,
                 '${d.seenClear.contains(p.id) ? '✓' : '·'} ${probeLabel(item, p.id)}'),
-          if (hasSayIt || d.sayItTries > 0) ...[
+          // A word's practice listens never read as its counting Say the word card (plan
+          // 2026-11-06, ASK-4).
+          if (item.kind == ItemKind.word && d.sayItTries > 0) ...[
+            _heading(t, kPracticeListensHeading),
+            _line(t,
+                '${_n(d.sayItTries, 'try', 'tries')} · ${d.sayItClear} clear'),
+          ],
+          if (item.kind == ItemKind.grammar &&
+              (hasSayIt || d.sayItTries > 0)) ...[
             _heading(t,
                 'Say it: ${_n(d.sayItTries, 'try', 'tries')} · ${d.sayItClear} clear'),
             _line(t, kSayItNeverCounts),
@@ -421,7 +484,9 @@ class _ItemDetailWidgetState extends State<ItemDetailWidget> {
   Widget _historyRow(QuietRoomTokens t, ItemDef item, HistoryRow r) {
     final a = r.attempt;
     final what = [
-      gradeLabel(a.grade),
+      // A spoken close is hinted with no hint taken (PIN-10), so it reads Close, as on its
+      // verdict card.
+      a.spokenClose ? 'Close' : gradeLabel(a.grade),
       if (a.hintLevel > 0) 'hint ${a.hintLevel}',
       if (a.source == Source.early) 'early',
       if (a.source == Source.sayIt) 'say it',
@@ -463,6 +528,8 @@ class PracticeSessionWidget extends StatefulWidget {
     this.probeBuilder,
     this.scheduler = const FsrsScheduler(),
     this.onClose,
+    this.openLesson,
+    this.pronunciation,
   });
 
   final List<ItemDef> items;
@@ -477,6 +544,14 @@ class PracticeSessionWidget extends StatefulWidget {
   /// Called by Done; null pops the route.
   final VoidCallback? onClose;
 
+  /// Opens a card's lesson for "Review the lesson"; null uses `lessonOpenerFor`.
+  final LessonOpener? openLesson;
+
+  /// Scores the spoken answers of [standardProbeBuilder] (PIN-2). The caller owns an injected
+  /// one. Null builds `PronunciationService.counting()` when practice loads its own builder,
+  /// and practice disposes it.
+  final PronunciationService? pronunciation;
+
   @override
   State<PracticeSessionWidget> createState() => _PracticeSessionWidgetState();
 }
@@ -485,13 +560,23 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   late final AttemptRecorder _recorder;
   late final List<ItemDef> _items;
   SessionProbeBuilder? _builder;
+
+  /// The service this practice built for itself, disposed with it; null when injected.
+  PronunciationService? _ownPronunciation;
   _PracticePhase _phase = _PracticePhase.loading;
   int _index = 0;
   int _presentation = 0;
   MasteryState? _state;
   int _answered = 0;
 
-  // The verdict on screen.
+  /// The rotate marker of the card on screen: the item is not due, so this is early practice
+  /// (plan 2026-11-06, ASK-5). The due rule is the recorder's (D23).
+  bool _rotate = false;
+
+  /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
+  int? _reviewedPresentation;
+
+  // The verdict on screen. A spoken close is `_written.spokenClose` (PIN-10).
   Attempt? _written;
   bool _lost = false;
   bool _justMastered = false;
@@ -519,10 +604,24 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   }
 
   Future<void> _start() async {
-    _builder = widget.probeBuilder ??
-        standardProbeBuilder(grammar: await JpGrammarData.load());
+    final grammar =
+        widget.probeBuilder == null ? await JpGrammarData.load() : null;
     if (!mounted) return;
+    _builder = widget.probeBuilder ??
+        standardProbeBuilder(
+            grammar: grammar!,
+            pronunciation: widget.pronunciation ??
+                (_ownPronunciation = PronunciationService.counting()));
     await _show();
+  }
+
+  @override
+  void dispose() {
+    // Only a service this practice built is its to free; its dispose cancels a check still
+    // running and releases the recorder.
+    final own = _ownPronunciation;
+    if (own != null) unawaited(own.dispose());
+    super.dispose();
   }
 
   Future<void> _show() async {
@@ -534,17 +633,45 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
     final state =
         await widget.store.mastery(item.id) ?? MasteryState.initial(item.id);
     final answered = (await widget.store.attempts(itemId: item.id)).length;
+    // The recorder's due rule (D23): the schedule's due day, else the seed's.
+    final due = (await widget.store.srs(item.id))?.dueDay ??
+        (await widget.store.item(item.id))?.seedDueDay;
+    final early = due == null || due > localDay(widget.clock.now());
     if (!mounted) return;
     setState(() {
       _state = state;
       _answered = answered;
+      _rotate = early;
       _presentation++;
       _phase = _PracticePhase.asking;
     });
   }
 
-  Future<void> _onAnswer(DrillAnswer d) async {
+  /// Opens the lesson of the card on screen and marks the card reviewed before the push, as
+  /// the Review session does. The card stays mounted underneath. If the opener fails, no
+  /// lesson was seen, so the mark goes back to what it was.
+  Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _PracticePhase.asking) return;
+    final before = _reviewedPresentation;
+    setState(() => _reviewedPresentation = _presentation);
+    try {
+      await open(context, item);
+    } catch (e, s) {
+      if (mounted) setState(() => _reviewedPresentation = before);
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room practice',
+          context: ErrorDescription('while opening the lesson of ${item.id}')));
+    }
+  }
+
+  Future<void> _onAnswer(DrillAnswer answer) async {
+    if (_phase != _PracticePhase.asking) return;
+    // A lesson review before the answer makes a clear hinted (PIN-5).
+    final d = _reviewedPresentation == _presentation
+        ? afterLessonReview(answer)
+        : answer;
     final item = _items[_index];
     final before = _state ?? MasteryState.initial(item.id);
     setState(() => _phase = _PracticePhase.saving);
@@ -626,6 +753,9 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
   Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
     final item = held ? _heldItem! : _items[_index];
     final position = held ? _index : _index + 1;
+    final open = held || _phase != _PracticePhase.asking
+        ? null
+        : lessonOpenerFor(context, widget.openLesson);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -644,10 +774,24 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _rotate,
               onAnswer: _onAnswer,
             ),
           ),
         ),
+        if (open != null)
+          ReviewLessonLink(
+            item: item,
+            reviewed: _reviewedPresentation == _presentation,
+            onTap: () => _reviewLesson(open, item),
+          ),
+        // Keyed: the lesson link above leaves the card on the held phase, and an unkeyed
+        // toggle would be rebuilt by position and read the store again.
+        DiscussToggle(
+            key: ValueKey('discuss-${item.id}'),
+            itemId: item.id,
+            store: widget.store,
+            clock: widget.clock),
         if (held) _action(t, 'Next', _next, primary: true),
       ],
     );
@@ -728,7 +872,7 @@ class _PracticeSessionWidgetState extends State<PracticeSessionWidget> {
                   'Next review in ${_interval == 1 ? '1 day' : '$_interval days'}.'),
           ],
         Grade.hinted => [
-            _title(t, 'Right with a hint'),
+            _title(t, w.spokenClose ? 'Close' : 'Right with a hint'),
             _line(t, 'No credit this time.'),
           ],
         Grade.self => [

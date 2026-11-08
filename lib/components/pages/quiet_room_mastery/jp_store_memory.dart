@@ -17,6 +17,7 @@ class JpStoreMemory extends JpStore {
   final Map<String, MasteryState> _mastery = {};
   final Map<String, int> _seedDue = {};
   final Map<String, String> _notes = {};
+  final Map<String, DiscussMark> _discuss = {};
   final Map<int, DayRecord> _days = {};
   final Map<String, String> _meta = {};
   int _attemptSeq = 0;
@@ -91,6 +92,19 @@ class JpStoreMemory extends JpStore {
   @override
   Future<Map<String, String>> notes() async => {..._notes};
 
+  @override
+  Future<void> putDiscuss(DiscussMark mark) async =>
+      _discuss[mark.itemId] = mark;
+
+  @override
+  Future<void> clearDiscuss(String itemId) async => _discuss.remove(itemId);
+
+  @override
+  Future<DiscussMark?> discuss(String itemId) async => _discuss[itemId];
+
+  @override
+  Future<Map<String, DiscussMark>> discussMarks() async => {..._discuss};
+
   Iterable<DueItem> get _allDue sync* {
     for (final e in _srs.entries) {
       yield DueItem(itemId: e.key, dueDay: e.value.dueDay, seeded: false);
@@ -157,6 +171,9 @@ class JpStoreMemory extends JpStore {
     _notes
       ..clear()
       ..addAll(log.notes);
+    _discuss
+      ..clear()
+      ..addAll(log.discuss);
   }
 
   @override
