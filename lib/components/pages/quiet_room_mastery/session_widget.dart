@@ -260,8 +260,8 @@ ProbeDef nextProbe(ItemDef item, MasteryState state, int answered,
 /// The probe widgets the app uses: one per item kind, on the probe [nextProbe] picks, and the
 /// say card ([SayCardProbe]) for any kind's `sayCard` probe. [grammar] is the decoded
 /// `jp_grammar.json`, for a grammar item's options, accepted forms, hint and English, and a
-/// particle's meaning and English. [pronunciation] scores every counting spoken answer by
-/// sound (Azure, PIN-2); the host owns it and disposes it.
+/// particle's meaning, accepted forms and English. [pronunciation] scores every counting
+/// spoken answer by sound (Azure, PIN-2); the host owns it and disposes it.
 SessionProbeBuilder standardProbeBuilder({
   required Map<String, dynamic> grammar,
   required PronunciationService pronunciation,
@@ -281,21 +281,32 @@ SessionProbeBuilder standardProbeBuilder({
       ((x as Map)['id'] as String): Map<String, dynamic>.from(x)
   };
 
-  /// The English of the particle sentence a probe asks: a drafted sentence's own
-  /// (`cloze.1` reads sentence 1, plan 2026-11-06 Task 9), else the particle's example.
-  String? particleEnglish(ItemDef item, ProbeDef probe) {
-    final particle = particles[item.id];
+  /// The drafted `sentences` row a particle probe asks (`cloze.1` reads sentence 1, plan
+  /// 2026-11-06 Task 9), or null for the first cloze and its twins, whose row is the
+  /// particle's `cloze`.
+  Map? particleSentence(ItemDef item, ProbeDef probe) {
     final id = transferKeyOf(probe.id);
     const prefix = '$kParticleClozeId.';
     final at = id.startsWith(prefix)
         ? int.tryParse(id.substring(prefix.length))
         : null;
-    final sentences = particle?['sentences'] as List? ?? const [];
-    if (at != null && at < sentences.length) {
-      final english = (sentences[at] as Map)['english'] as String?;
-      if (english != null) return english;
-    }
-    return particle?['example_en'] as String?;
+    final sentences = particles[item.id]?['sentences'] as List? ?? const [];
+    return at != null && at < sentences.length ? sentences[at] as Map : null;
+  }
+
+  /// The English of the particle sentence a probe asks: a drafted sentence's own, else the
+  /// particle's example.
+  String? particleEnglish(ItemDef item, ProbeDef probe) =>
+      particleSentence(item, probe)?['english'] as String? ??
+      particles[item.id]?['example_en'] as String?;
+
+  /// The accepted forms of the particle sentence a probe asks (けれども and けど beside
+  /// けれど): a drafted sentence's own, else the particle's `cloze` ones. A typed accepted
+  /// form is right, never a wrong that wipes the clears (jp_study_kit rule).
+  List<String> particleAccepted(ItemDef item, ProbeDef probe) {
+    final row =
+        particleSentence(item, probe) ?? particles[item.id]?['cloze'] as Map?;
+    return (row?['accepted'] as List? ?? const []).cast<String>();
   }
 
   /// The practice row of a grammar probe, or of the probe a say card twins (`say.p2` reads
@@ -362,7 +373,10 @@ SessionProbeBuilder standardProbeBuilder({
             item: item,
             probe: probe,
             state: r.state,
-            checkItem: {'answer': probe.answer},
+            checkItem: {
+              'answer': probe.answer,
+              'accepted': particleAccepted(item, probe),
+            },
             hint: meaning == null ? null : 'The missing part means: $meaning',
             english: particleEnglish(item, probe),
             onAnswer: r.onAnswer);

@@ -2099,6 +2099,59 @@ void main() {
           reason: 'not the example sentence the fallback would show');
     });
 
+    // Accepted forms reach the typed check through the real builder, so a right answer in
+    // another form is never marked wrong (jp_study_kit rule). けれど（も） answers けれど and
+    // accepts けれども and けど on its first cloze and on each drafted sentence: the drafted
+    // row is read for `cloze.N`, the particle's `cloze` for the first.
+    final keredo = catalog.byId('mari.particle.13')!;
+
+    testWidgets(
+        "a typed accepted form clears a particle's drafted sentence, not the answer alone",
+        (tester) async {
+      // A recognition and a spoken clear: type it is needed, and the pick is `cloze.1`.
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          keredo,
+          learning(keredo, [
+            clearOn(keredo, 'choose', today - 2),
+            clearOn(keredo, kSayCardTemplate, today - 1),
+          ]),
+          pron);
+      final row = particleRowOf(keredo.id);
+      final sentence = (row['sentences'] as List).cast<Map>()[1];
+      expect(h.shows(sentence['prompt'] as String), isTrue,
+          reason: 'the card asks sentence 1');
+      const typed = 'けど';
+      expect(sentence['accepted'], contains(typed));
+      expect(sentence['answer'], isNot(typed));
+      await tester.enterText(find.byType(TextField), typed);
+      await h.tap('Check');
+      final a = (await h.store.attempts(itemId: keredo.id)).single;
+      expect(a.probeId, particleClozeId(1));
+      expect(a.grade, Grade.clear);
+      expect(h.shows('Your answer: $typed'), isFalse,
+          reason: 'no wrong verdict for an accepted form');
+    });
+
+    testWidgets("a typed accepted form clears a particle's first cloze",
+        (tester) async {
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester, keredo, MasteryState.initial(keredo.id), pron);
+      final row = particleRowOf(keredo.id);
+      final cloze = row['cloze'] as Map;
+      expect(h.shows(cloze['prompt'] as String), isTrue);
+      const typed = 'けれども';
+      expect(cloze['accepted'], contains(typed));
+      expect(cloze['answer'], isNot(typed));
+      await tester.enterText(find.byType(TextField), typed);
+      await h.tap('Check');
+      final a = (await h.store.attempts(itemId: keredo.id)).single;
+      expect(a.probeId, kParticleClozeId);
+      expect(a.grade, Grade.clear);
+    });
+
     testWidgets('a word with a see-it clear asks its spoken card next',
         (tester) async {
       final pron = FakePronunciation();
