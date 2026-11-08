@@ -304,3 +304,33 @@ def test_opm_lesson_doc_describes_the_tutor_loop():
     assert "never wrong" not in row, f"the grades table still says: {row}"
     for ask in ("ASK-1", "ASK-2", "ASK-3", "ASK-4", "ASK-5"):
         assert f"plan 2026-11-06, {ask})" in doc, f"the lesson doc does not cite {ask}"
+
+
+def _bare_plan_labels(text: str) -> list[str]:
+    """Every `PIN-n` or `Dn` label in [text] whose enclosing parenthesis names no plan date.
+
+    Each plan numbers its own pins and decisions from 1, so a bare label is ambiguous; the
+    doc writes `(plan 2026-11-06, PIN-2)`, and this returns the labels that do not."""
+    bare = []
+    for m in re.finditer(r"PIN-\d+|\bD\d+\b", text):
+        start = text.rfind("(", 0, m.start())
+        end = text.find(")", m.end())
+        group = text[start:end] if start != -1 and end != -1 else ""
+        if not re.search(r"plan \d{4}-\d{2}-\d{2}", group):
+            bare.append(m.group())
+    return bare
+
+
+def test_opm_lesson_doc_labels_name_their_plan():
+    doc = LESSON_DOC.read_text(encoding="utf-8")
+    assert _bare_plan_labels(doc) == [], "a PIN or D label in the lesson doc names no plan"
+
+
+def test_opm_label_scan_catches_a_bare_label():
+    # The scan must be able to fail: a label with no date in its parenthesis, a label in no
+    # parenthesis, and a label whose only date sits in a different parenthesis are all caught.
+    assert _bare_plan_labels("hinted (PIN-5): the host") == ["PIN-5"]
+    assert _bare_plan_labels("Mode first D19 picks") == ["D19"]
+    assert _bare_plan_labels("(plan 2026-11-06, ASK-1) then (D11)") == ["D11"]
+    assert _bare_plan_labels("no count (plan 2026-10-24, PIN-13) and (PIN-10, plan "
+                             "2026-11-06, ASK-2) and SD5 and D-day") == []
