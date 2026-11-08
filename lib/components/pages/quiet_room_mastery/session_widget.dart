@@ -51,12 +51,13 @@
 // scored probes in turn.
 //
 // Sentence rotation (plan 2026-11-06, Task 9, D11, PIN-4): within the mode [nextProbe] picks,
-// a grammar point, a particle and every other kind with a transfer clause takes a sentence
-// with no clear yet first, and moves off a sentence once its clears fall on
-// [kMoveOnClearDays] different days. A re-ask after a wrong is asked with the rotate marker
-// (plan 2026-11-06, ASK-5): the scored probes in turn by attempts so far, so it shows another
-// card. The marker is captured in `_next` beside the attempt count, never read from `_entry`
-// on the held card, because `_onAnswer` has already moved `_index` to the next entry.
+// or across all the scored probes once every mode has a clear, a grammar point, a particle
+// and every other kind with a transfer clause takes a sentence with no clear yet first, and
+// moves off a sentence once its clears fall on [kMoveOnClearDays] different days. A re-ask
+// after a wrong is asked with the rotate marker (plan 2026-11-06, ASK-5): the scored probes
+// in turn by attempts so far, so it shows another card. The marker is captured in `_next`
+// beside the attempt count, never read from `_entry` on the held card, because `_onAnswer`
+// has already moved `_index` to the next entry.
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source

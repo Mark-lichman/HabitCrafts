@@ -368,7 +368,7 @@ def test_opm_mode_table_sees_a_moved_or_dropped_template():
     assert "spoken" not in _mode_table(gone)
 
 
-def test_opm_sd5_and_sd6_labels_name_their_plan(drawio_text):
+def test_opm_every_page_labels_name_their_plan(drawio_text):
     # Each plan numbers its own pins and decisions from 1 (see _bare_plan_labels), and the
     # drawing cites several plans, so every drawn label on every page carries its plan date.
     pages = re.findall(r'<diagram name="([^"]*)"', drawio_text)

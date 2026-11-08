@@ -8,10 +8,11 @@
 // |----------|----------------------------------------------------------------|-------------|
 // | clear    | right, no hint, nothing revealed (machine-checked), or Got it  | Good        |
 // |          | after the reveal on a self-graded probe                        |             |
-// | hinted   | right after a hint below the revealing level, a second try, a | Hard        |
+// | hinted   | right after a hint below the revealing level, a second try, a  | Hard        |
 // |          | right answer after a lesson review (PIN-5), a speech `close`   |             |
-// |          | (marked [Attempt.spokenClose] when no hint was taken: neutral  |             |
-// |          | for the two-hinted reset, PIN-10)                              |             |
+// |          | (marked [Attempt.spokenClose] when no hint and no lesson       |             |
+// |          | review came first: neutral for the two-hinted reset, PIN-10;   |             |
+// |          | plan 2026-11-06, ASK-2)                                        |             |
 // | wrong    | wrong, Missed it, a hint at or above the revealing level, a   | Again       |
 // |          | reveal on a machine-checked probe, including a check that     |             |
 // |          | could not score after that reveal (plan 2026-11-06, ASK-3)     |             |
