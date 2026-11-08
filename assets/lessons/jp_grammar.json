@@ -21539,7 +21539,8 @@
     "prompt": "たかい＿＿、かいます。",
     "answer": "けれど",
     "accepted": [
-     "けれども"
+     "けれども",
+     "けど"
     ],
     "from": "particle_clozes.json"
    },
@@ -21548,7 +21549,8 @@
      "prompt": "たかい＿＿、かいます。",
      "answer": "けれど",
      "accepted": [
-      "けれども"
+      "けれども",
+      "けど"
      ],
      "from": "particle_clozes.json",
      "english": "It's expensive, but I'll buy it.",
