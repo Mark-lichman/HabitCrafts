@@ -13,6 +13,7 @@ committed .drawio, after proving the .drawio equals a fresh run of the generator
 
 from __future__ import annotations
 
+import html
 import re
 import shutil
 import subprocess
@@ -216,6 +217,12 @@ def _diagram(drawio_text: str, prefix: str) -> str:
     return found[0]
 
 
+def _cell_values(page_xml: str) -> list[str]:
+    """The unescaped `value` (the drawn label) of every cell on one diagram page."""
+    return [html.unescape(cell.get("value", ""))
+            for cell in ET.fromstring(page_xml).iter("mxCell")]
+
+
 def _opl_section(md: str, heading: str) -> str:
     """The text of the '## <heading>' section, up to the next '## '."""
     m = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## )", md, flags=re.S | re.M)
@@ -272,10 +279,13 @@ def test_opm_sd5_and_sd6_opl_name_nothing_planned():
 def test_opm_sd6_records_the_close_rule_and_the_mode_table(drawio_text):
     sd6 = _opl_section(OPL.read_text(encoding="utf-8"), "SD6 — Mastery Judging")
     assert "PIN-10" in sd6 and "D18" in sd6
-    page = _diagram(drawio_text, "SD6")
+    # The cell values, not the raw page: a bare substring search would find `fill` in every
+    # cell style's fillColor.
+    labels = "\n".join(_cell_values(_diagram(drawio_text, "SD6")))
     for template in _template_modes():
         assert f"`{template}`" in sd6, f"SD6's OPL does not name the template {template}"
-        assert template in page, f"SD6's diagram does not name the template {template}"
+        assert re.search(rf"\b{re.escape(template)}\b", labels), \
+            f"SD6's diagram does not name the template {template}"
 
 
 def test_opm_lesson_doc_describes_the_tutor_loop():

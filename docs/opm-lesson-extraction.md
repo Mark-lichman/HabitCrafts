@@ -208,7 +208,8 @@ OPL sentences:
    or as its kanji surface. It runs in the app and needs no LM.
 7. **Speech Checking** consumes **App Lesson File** and **Transcript**, and yields **Speech Verdict**.
    It runs in the app and needs no LM. Its verdict is practice only and never counts toward
-   mastery: a counting spoken answer goes to **Pronunciation Scoring** (SD5, PIN-2).
+   mastery: a counting spoken answer goes to **Pronunciation Scoring** (SD5; plan 2026-11-06,
+   PIN-2).
 8. **Speech Verdict** can be **correct**, **close**, or **self-check**. **Close** shows in amber with the
    matching part of the heard text highlighted, then asks for a self-check. A transcript that cannot
    be compared goes to **self-check**, never to wrong.
@@ -239,24 +240,26 @@ OPL sentences:
 7. **Pronunciation Scoring** consumes **Spoken Answer** and **Study Item**, and yields
    **Pronunciation Verdict**. Azure Pronunciation Assessment scores the recording by sound against
    the answer's hiragana, through the `scorePronunciation` Cloud Function. It needs the internet.
-   The on-device transcript (Speech Checking, SD4) stays on practice that never counts (PIN-2).
+   The on-device transcript (Speech Checking, SD4) stays on practice that never counts (plan
+   2026-11-06, PIN-2).
 8. **Pronunciation Verdict** can be **correct**, **close**, **wrong**, or **unverified**. No
    connection, no microphone, or a failed sign-in or call is **unverified**.
 9. **Lesson Reviewing** requires **Learner** as its agent, consumes **Day Plan** and **Study Item**,
    and yields **Lesson Review**. "Review the lesson" sits under every unanswered card in the Review
    session and in Practice now (D21). It opens the target screen for the item's kind at the idea
    (D20), and Back returns to the same card, unanswered, marked "Lesson reviewed". A grammar card's
-   link names the lesson alone (ASK-1). A particle's lesson view never shows its example sentence.
-   Opening a lesson writes no attempt.
+   link names the lesson alone (plan 2026-11-06, ASK-1). A particle's lesson view never shows its
+   example sentence. Opening a lesson writes no attempt.
 10. **Grading** consumes **Answer Verdict**, **Speech Verdict**, **Pronunciation Verdict**, **Hint
     Use**, and **Lesson Review**, and yields **Study Attempt**. A grammar hint or a lesson review
     before the answer makes a right answer **hinted**; a review after the answer changes nothing.
     Show answer makes it **wrong**. A spoken **correct** is **clear** and a spoken **close** is
     **hinted**. A spoken **unverified** is **unscored**, with no self-mark (D10), and **wrong**
-    after the reveal (ASK-3). A **Speech Verdict** from the practice screen is graded as Say-it.
+    after the reveal (plan 2026-11-06, ASK-3). A **Speech Verdict** from the practice screen is
+    graded as Say-it.
 11. **Study Attempt** can be **clear**, **hinted**, **wrong**, or **unscored**, and exhibits
-    *spoken close*: set on a spoken close with no hint and no lesson review first (PIN-10, ASK-2).
-    Every attempt is appended to **Study Record**, the source of truth.
+    *spoken close*: set on a spoken close with no hint and no lesson review first (PIN-10; plan
+    2026-11-06, ASK-2). Every attempt is appended to **Study Record**, the source of truth.
 12. **Scheduling** consumes **Study Attempt** and the last **SRS State**, and yields **SRS State**. It
     runs FSRS-6 at retention 0.90 with a 90-day cap: clear is Good, hinted is Hard, wrong is Again.
 13. **Mastery Judging** requires **Study Item**, consumes **Study Attempt** and the last **Mastery
@@ -266,7 +269,8 @@ OPL sentences:
     page. The list opens from Today, and each row opens its item.
 15. **Discuss Mark** exhibits *item* and *note*. It is kept beside the attempt log and carried by
     export and import. No **Grading**, **Scheduling**, **Planning**, or **Mastery Judging** reads
-    it, so a mark changes no grade and no schedule. The tutor never needs the app (PIN-6).
+    it, so a mark changes no grade and no schedule. The tutor never needs the app (plan
+    2026-11-06, PIN-6).
 
 ## SD6 — Mastery Judging
 
@@ -287,17 +291,19 @@ OPL sentences:
 5. A hinted answer, an early-practice clear, a Say-it attempt, an unscored attempt, and a seed
    count for nothing. Showing the English changes nothing: the answer is still a clear.
 6. A spoken close earns no credit. It is neutral for the two-hinted reset only when no hint and no
-   lesson review came first; after either it is an ordinary hinted answer (PIN-10, plan
-   2026-11-06 ASK-2).
+   lesson review came first; after either it is an ordinary hinted answer (PIN-10; plan
+   2026-11-06, ASK-2).
 7. **Study Item** exhibits *modes*: type it, see it, and say it, the modes it has a scored card
-   for (#145, PIN-7). Each template has one mode (D18, `kTemplateModes` in `mastery_rule.dart`):
-   typed is `fill`, `cloze`, `typed`, and `conjugate`; recognition is `choose`, `card`,
-   `transitive`, `intransitive`, and `cell`; spoken is `spoken` and the say card, `sayCard`.
-   Only Azure scoring clears a spoken mode (PIN-2). The Say-it template, `say`, has no mode.
+   for (#145; plan 2026-11-06, PIN-7). Each scored template has one mode (D18, `kTemplateModes`
+   in `mastery_rule.dart`): typed is `fill`, `cloze`, `typed`, and `conjugate`; recognition is
+   `choose`, `card`, `transitive`, `intransitive`, and `cell`; spoken is `spoken` and the say
+   card, `sayCard`. Only Azure scoring clears a spoken mode (plan 2026-11-06, PIN-2). The Say-it
+   template, `say`, has no mode.
 8. A sentence rotates (#146, D11): the next review takes a sentence with no clear yet, and moves
    off a sentence once its clears fall on `kMoveOnClearDays` different days. Practice now and a
    same-day re-ask rotate through the scored cards; a due review takes the mode-first pick
-   (plan 2026-11-06, ASK-5). A particle's drafted sentences ship marked unreviewed (PIN-4).
+   (plan 2026-11-06, ASK-5). A particle's drafted sentences ship marked unreviewed (plan
+   2026-11-06, PIN-4).
 
 ## Open questions
 

@@ -509,7 +509,7 @@ class PronunciationResult(str, Enum):
     CLOSE = "close"
     WRONG = "wrong"
     # No connection, no microphone, a failed sign-in or call: unscored, never a self-mark
-    # (D10); wrong after the reveal (ASK-3, plan 2026-11-06).
+    # (D10); wrong after the reveal (plan 2026-11-06, ASK-3).
     UNVERIFIED = "unverified"
 
 
@@ -546,13 +546,14 @@ class StudyAttempt(BaseModel):
     template: str
     grade: Grade
     rating: int | None = Field(description="FSRS rating: Good, Hard or Again; none if unscored.")
+    # A lesson review before the answer is not stored on its own: afterLessonReview
+    # (probe_widgets.dart) writes the clear as hinted at hint level 1 or more.
     hint_level: int
     revealed: bool
-    lesson_reviewed: bool = False
     spoken_close: bool = Field(
         default=False,
         description="A hinted spoken close with no hint and no lesson review first: neutral "
-                    "for the two-hinted reset (PIN-10, ASK-2).")
+                    "for the two-hinted reset (PIN-10; plan 2026-11-06, ASK-2).")
     was_due: bool
     local_day: int
 

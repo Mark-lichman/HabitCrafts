@@ -514,12 +514,12 @@ node('HINT', S.obj, 580, 810, 190, 60, 'Hint Use', 'English shown|hint level');
 node('TR5', S.obj, 800, 810, 160, 60, 'Spoken Answer', 'a recording|say card ' + dot + 'word spoken card');
 node('LREV', S.obj, 1010, 810, 290, 60, 'Lesson Review', 'item ' + dot + 'lesson|before the answer: a clear is hinted|after the answer: free');
 node('DMK', S.obj, 1320, 810, 260, 70, 'Discuss Mark', 'item ' + dot + 'note|kept beside the log, exported|the list opens from Today');
-node('R5D', S.metric, 1320, 910, 260, 90, 'RULE &#8212; a mark is not an answer', 'It changes no grade and no schedule, and no stage reads it (PIN-6). Mari never needs the app.');
+node('R5D', S.metric, 1320, 910, 260, 90, 'RULE &#8212; a mark is not an answer', 'It changes no grade and no schedule, and no stage reads it (plan 2026-11-06, PIN-6). Mari never needs the app.');
 
 proc('PSC', 'PronunciationScoring', S.det, 740, 900, 280, 75, 'Pronunciation Scoring', 'Azure, by sound, against the hiragana|no connection or microphone: unverified');
-node('VER5', S.obj, 540, 1025, 420, 60, 'Answer Verdict ' + dot + ' Pronunciation Verdict', 'typed: Answer Checking (SD4)|spoken: correct ' + dot + ' close ' + dot + ' wrong ' + dot + ' unverified');
+node('VER5', S.obj, 540, 1025, 420, 70, 'Answer Verdict ' + dot + ' Pronunciation Verdict', 'typed: Answer Checking (SD4)|spoken: correct ' + dot + ' close ' + dot + ' wrong ' + dot + ' unverified|practice listens: Speech Verdict (SD4), graded as Say-it');
 
-proc('GRADE', 'Grading', S.det, 590, 1120, 320, 80, 'Grading', 'grammar hint or lesson review: hinted|spoken close: hinted ' + dot + ' unverified: unscored|English: no change ' + dot + ' Show answer: wrong');
+proc('GRADE', 'Grading', S.det, 590, 1120, 320, 80, 'Grading', 'grammar hint or lesson review: hinted|English: no change ' + dot + ' Show answer: wrong|spoken close: hinted|unverified: unscored, wrong after the reveal');
 node('ATT', S.objTop, 540, 1240, 420, 105, 'Study Attempt', 'item ' + dot + 'probe ' + dot + 'template ' + dot + 'rating ' + dot + 'was due ' + dot + 'spoken close');
 node('AT1', S.state, 555, 1300, 80, 30, 'clear', '');
 node('AT2', S.state, 645, 1300, 85, 30, 'hinted', '');
@@ -556,8 +556,9 @@ edge('result', 'ANS', 'TA5', { exit: [0.15, 1], entry: [0.5, 0], pts: [[638, 790
 edge('result', 'ANS', 'HINT', { exit: [0.5, 1], entry: [0.5, 0], pts: [[750, 790], [675, 790]] });
 edge('result', 'ANS', 'TR5', { exit: [0.85, 1], entry: [0.5, 0], pts: [[862, 790], [880, 790]] });
 edge('result', 'LREVP', 'LREV', { exit: [0.5, 1], entry: [0.5, 0] });
-edge('consume', 'TA5', 'VER5', { exit: [0.5, 1], entry: [0, 0.5], pts: [[455, 1055]], label: 'checked in SD4' });
+edge('consume', 'TA5', 'VER5', { exit: [0.5, 1], entry: [0, 0.5], pts: [[455, 1060]], label: 'checked in SD4' });
 edge('consume', 'TR5', 'PSC', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'CAT5', 'PSC', { exit: [0, 0.8], entry: [0.82, 0], pts: [[970, 168], [970, 900]], label: 'the answer&#39;s|hiragana' });
 edge('result', 'PSC', 'VER5', { exit: [0.5, 1], entry: [0.75, 0], pts: [[880, 1000], [855, 1000]] });
 edge('consume', 'VER5', 'GRADE', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('consume', 'HINT', 'GRADE', { exit: [0, 0.5], entry: [0, 0.5], pts: [[350, 840], [350, 1160]] });
@@ -570,7 +571,8 @@ edge('result', 'SCH', 'SRS', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('result', 'MJ', 'MST', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('consume', 'SRS', 'SCH', { exit: [0, 0.5], entry: [0, 0.5], pts: [[350, 1567], [350, 1447]], label: 'last state' });
 edge('consume', 'MST', 'MJ', { exit: [1, 0.5], entry: [1, 0.5], pts: [[1170, 1570], [1170, 1447]], label: 'last state' });
-edge('instr', 'CAT5', 'MJ', { exit: [1, 0.5], entry: [1, 0.2], pts: [[1400, 135], [1400, 1425]], label: 'templates, modes,|transfer' });
+// Routed outside the Discuss column (DISC, DMK, R5D span x 1320 to 1580) and past LRN5b (to 1730).
+edge('instr', 'CAT5', 'MJ', { exit: [1, 0.5], entry: [1, 0.2], pts: [[1740, 135], [1740, 1425]], label: 'templates, modes,|transfer' });
 
 raw('LEG5', S.note, 40, 1550, 300, 170, LEGEND('<b>SD5 rule:</b> a seed is not an answer; only real answers move an item toward Mastered.'));
 
@@ -599,11 +601,11 @@ edge('result', 'M6', 'K6', { exit: [0.7, 1], entry: [0.7, 0], label: 'a wrong, o
 edge('result', 'K6', 'M6', { exit: [0.3, 0], entry: [0.3, 1], label: '2 clears, the 2nd|7+ days later' });
 edge('result', 'K6', 'L6', { exit: [0, 0.5], entry: [0.5, 1], pts: [[750, 730]], label: 'wrong again: count 0' });
 
-node('R6', S.metric, 410, 500, 420, 195, 'Counts toward Mastered (D4)', '1. a clear while the item is due, at most one a day|2. four clears on four different days|3. the 4th at least 21 days after the review before it|4. no wrong since the first of the four|5. two templates, one of them production, where the item has them|6. transfer: 3 sentences (grammar), 2 (particle), 3 verbs|   (conjugation), 2 directions (pair), 2 cells (table row)|7. a clear in every mode the item has a card for (D18)');
-node('R6b', S.metric, 410, 715, 420, 140, 'Counts for nothing', 'hinted: grammar hint, a lesson review before the answer|a spoken close: no credit; neutral for the 2-hinted reset|   only with no hint and no lesson review first (PIN-10, ASK-2)|early practice clear, Say-it, unscored (Azure unverified)|English shown changes nothing: still a clear|seeded due days: never a clear (PIN-7)');
+node('R6', S.metric, 410, 500, 420, 195, 'Counts toward Mastered (D4)', '1. a clear while the item is due, at most one a day|2. four clears on four different days|3. the 4th at least 21 days after the review before it|4. no wrong since the first of the four|5. two templates, one of them production, where the item has them|6. transfer per kind (kTransferProbes): sentences (grammar, particle),|   verbs (conjugation), directions (pair), cells (table row)|7. a clear in every mode the item has a card for (D18)');
+node('R6b', S.metric, 410, 715, 420, 140, 'Counts for nothing', 'hinted: grammar hint, a lesson review before the answer|a spoken close: no credit; neutral for the 2-hinted reset only|   with no hint and no lesson review first (PIN-10; plan 2026-11-06, ASK-2)|early practice clear, Say-it, unscored (Azure unverified)|English shown changes nothing: still a clear|seeded due days: never a clear (plan 2026-11-02, PIN-7)');
 
-node('M61', S.metric, 380, 920, 340, 130, 'Type it, see it, say it (D18, PIN-7)', 'Mastered needs a counting clear in every mode the item has a card for.|typed: fill ' + dot + 'cloze ' + dot + 'typed ' + dot + 'conjugate|recognition: choose ' + dot + 'card ' + dot + 'transitive ' + dot + 'intransitive ' + dot + 'cell|spoken: spoken ' + dot + 'sayCard (Azure only, PIN-2)');
-node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (D11, D19)', 'The next card: the first mode with no counting clear, then a sentence with no clear yet. A sentence with clears on 2 days rotates off. Practice now and a same-day re-ask rotate (ASK-5). Particles: 3 sentences, transfer 2.');
+node('M61', S.metric, 380, 920, 340, 130, 'Type it, see it, say it (D18; plan 2026-11-06, PIN-7)', 'Mastered needs a counting clear in every mode the item has a card for.|typed: fill ' + dot + 'cloze ' + dot + 'typed ' + dot + 'conjugate|recognition: choose ' + dot + 'card ' + dot + 'transitive ' + dot + 'intransitive ' + dot + 'cell|spoken: spoken ' + dot + 'sayCard (Azure only; plan 2026-11-06, PIN-2)');
+node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (D11, D19)', 'The next card: the first mode with no counting clear, then a sentence with no clear yet. A sentence with clears on kMoveOnClearDays different days rotates off. Practice now and a same-day re-ask rotate (plan 2026-11-06, ASK-5). A particle&#39;s sentences: particle_sentences.json; its transfer count: kTransferProbes.');
 
 edge('consume', 'ATT6', 'MJ6', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('instr', 'CAT6', 'MJ6', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1150, 232]] });

@@ -75,10 +75,10 @@ Each word in `jp_lessons.json` carries two fields the app uses beside its readin
 `pipeline/jp/vocab_clean.py` writes both fields.
 
 The grammar speaking drill and the scored spoken cards (see "Say cards and spoken answers") sign
-in anonymously in the background, and only when a recording is ready to score (`ensureCaller()` in `quiet_room_practice/anon_caller.dart`). The scoring function
-accepts that caller. Everywhere else an anonymous user counts as signed out: `loggedIn` is false
-for it, so the app still opens on Japanese study, and the Firestore and Storage rules refuse it
-through their `signedIn()` helper.
+in anonymously in the background, and only when a recording is ready to score (`ensureCaller()` in
+`quiet_room_practice/anon_caller.dart`). The scoring function accepts that caller. Everywhere else
+an anonymous user counts as signed out: `loggedIn` is false for it, so the app still opens on
+Japanese study, and the Firestore and Storage rules refuse it through their `signedIn()` helper.
 
 The Japanese home is **Today**, with **Lessons** and **Topics** as its other two tabs. A tab tap
 is a `go` (`?tab=lessons`, `?tab=topics`), so the back stack never grows and each tab has a URL.
@@ -103,10 +103,10 @@ items due, the coming days' load, answer times, session lengths) is on the Study
 | Welcome back | `quiet_room_mastery/welcome_back_widget.dart` | after a break: the days away, the items due, New paused, and Start |
 | Seed confirmation | `quiet_room_mastery/seed_confirm_widget.dart` | on a first launch: one tick per lesson already studied, then Confirm |
 | Study record | `quiet_room_mastery/mastery_debug_widget.dart` | every item under its state with its next due day, the coming days' load, answer times and session lengths; rebuild, export and import |
-| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | opened from a lesson page's Read the whole lesson: Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
+| Grammar | `quiet_room_grammar/quiet_room_grammar_widget.dart` | opened from a lesson page's Read the whole lesson and from a card's Review the lesson, at the idea: Mari's pattern, goal and example, then the drafted lesson: tap-to-choose practice, typed answers on each fill-in item, show-answer, and two self-check marks from Mari's tracking columns (Can use it, Review), kept on the phone. A 漢字 toggle swaps every sentence, option and answer to its kanji version, with the tap-a-word reading hint. "Speak this lesson" opens the grammar speaking drill |
 | Grammar speaking drill | `quiet_room_grammar/quiet_room_speak_widget.dart` | one grammar lesson's sentences, point by point, each point's examples then its practice items with the answer filled in: play the sentence, speak it once, and get a score by sound from Azure Pronunciation Assessment. Needs the internet. Signs in anonymously in the background to score. Anything it cannot score falls back to self-check (below) |
-| Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | opened from Today's quiet links: number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
-| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | opened from a lesson page's Word cards: recall-first word cards, each word with its context; English hidden until tapped, then Knew it or Not yet; tap to hear |
+| Drills | `quiet_room_grammar/quiet_room_drills_widget.dart` | opened from Today's quiet links and from a card's Review the lesson, at the idea: number tables (sound-change cells in amber, special readings in blue), verb pairs, conjugation |
+| Vocabulary | `quiet_room_lesson/quiet_room_lesson_widget.dart` | opened from a lesson page's Word cards and from a card's Review the lesson, at the idea: recall-first word cards, each word with its context; English hidden until tapped, then Knew it or Not yet; tap to hear |
 | Vocabulary speaking | `quiet_room_practice/quiet_room_practice_widget.dart` | reached from the Vocabulary screen: show the illustration, say the word, and see what was heard |
 
 Grammar drafts ship marked as drafts until a person reviews them, and the screen says so.
@@ -275,8 +275,8 @@ full. In outline, an item is Mastered when all of these hold:
    direction or cell counts as that one (`transferKeyOf`).
 6. A counting clear in every **mode** the item has a scored card for: **type it** (a typed
    answer), **see it** (a recognition answer) and **say it** (an answer scored by Azure). Each
-   template has one mode, listed in `kTemplateModes`, and `missingModes` names the modes still
-   missing. A kind with no card in a mode does not need that mode.
+   scored template has one mode, listed in `kTemplateModes`, and `missingModes` names the modes
+   still missing. A kind with no card in a mode does not need that mode.
 
 A wrong, or `kHintedInARowReset` hinted in a row, on a Mastered item makes it Shaky.
 `kRegainClears` clears on different days, the last at least `kRegainGapDays` after the first,
@@ -333,7 +333,7 @@ attempt.
 Mark keeps his own list of items to raise with his tutor, Mari. Every session card and the
 item page carry a **Discuss with Mari** toggle, and the list opens from Today's quiet links
 (`discuss_list_widget.dart`). Each row opens its item, and **Discussed** clears the mark once
-the item was raised. A mark may hold a short note, and the list shows it.
+the item was raised. A mark has an optional note, which the list shows. No screen writes one yet.
 
 🚨 **A Discuss mark is not an answer** (PIN-6). It writes no attempt and changes no grade and no
 schedule. The store keeps the marks beside the log (`DiscussMark` in `jp_store.dart`), and the
@@ -695,10 +695,7 @@ been the bug twice.
 - **Tune the pronunciation cutoffs:** `correctCutoff` and `closeCutoff` are first guesses. Read the
   drill's Recent scores after real attempts and adjust them. The first live Azure call, on the
   phone and on the web, also waits on the operator setup in
-  `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations). Whether Azure
-  scores a single word, a conjugated form and a table reading as well as a sentence is
-  unchecked on the phone. `docs/plans/2026-11-06-jp-tutor-loop.md` lists that check under
-  Deferred validations.
+  `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations).
 - **Review the drafted particle sentences:** the sentences in
   `pipeline/jp/particle_sentences.json` are AI-drafted and judge-checked, and they stay marked
   `reviewed: false` until Mark reviews them (PIN-4).
@@ -709,7 +706,8 @@ been the bug twice.
   the app does not score how well you said it. `docs/plans/2026-10-27-azure-pronunciation-check.md`
   carries the item under Notes / conscious deviations.
 - **Checks that need the phone:** run them after the release install.
-  `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` lists them under Deferred validations.
+  `docs/plans/2026-10-24-japanese-typing-kanji-speaking.md` and
+  `docs/plans/2026-11-06-jp-tutor-loop.md` list them under Deferred validations.
 - **Tune the daily review against real use:** the screens above are the shipped shape, and what
   waits is measurement. The per-kind answer estimates in `kCostSeconds` (`plan_builder.dart`)
   are guesses until the Study record page holds enough measured answer times to retune them by
