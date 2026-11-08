@@ -13,11 +13,11 @@
 // |          | (marked [Attempt.spokenClose] when no hint and no lesson       |             |
 // |          | review came first: neutral for the two-hinted reset, PIN-10;   |             |
 // |          | plan 2026-11-06, ASK-2)                                        |             |
-// | wrong    | wrong, Missed it, a hint at or above the revealing level, a   | Again       |
-// |          | reveal on a machine-checked probe, including a check that     |             |
+// | wrong    | wrong, Missed it, a hint at or above the revealing level, a    | Again       |
+// |          | reveal on a machine-checked probe, including a check that      |             |
 // |          | could not score after that reveal (plan 2026-11-06, ASK-3)     |             |
 // | unscored | nothing heard, an error, a cancel, before any reveal           | none        |
-// | self     | the learner overrides a machine check (Got it on unverified)  | Hard        |
+// | self     | the learner overrides a machine check (Got it on unverified)   | Hard        |
 //
 // 🚨 A HINTED ANSWER EARNS ZERO MASTERY CREDIT (PIN-3). Only `clear` counts toward the four
 // clears; see [earnsMasteryCredit] and mastery_rule.dart.
@@ -227,7 +227,8 @@ class Attempt {
         durationMs: (j['durationMs'] as int?) ?? 0,
         sessionId: j['sessionId'] as String,
         // Read only on a hinted row, so a hand-edited import cannot trip the assert.
-        spokenClose: j['spokenClose'] == true && j['grade'] == Grade.hinted.name,
+        spokenClose:
+            j['spokenClose'] == true && j['grade'] == Grade.hinted.name,
       );
 
   List<Object?> get _fields => [

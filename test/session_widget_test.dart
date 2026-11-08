@@ -2144,14 +2144,17 @@ void main() {
       // its particle's `cloze` row lacks. Only a read of the drafted row accepts it: the
       // fallback to the `cloze` row would mark it wrong.
       const onlyOnSentence = 'けども';
-      final grammar = json.decode(
-              File('assets/lessons/jp_grammar.json').readAsStringSync())
-          as Map<String, dynamic>;
+      final grammar =
+          json.decode(File('assets/lessons/jp_grammar.json').readAsStringSync())
+              as Map<String, dynamic>;
       final row = (grammar['particles'] as List)
           .cast<Map<String, dynamic>>()
           .firstWhere((p) => p['id'] == keredo.id);
       final sentence = (row['sentences'] as List).cast<Map>()[1];
-      sentence['accepted'] = [...(sentence['accepted'] as List), onlyOnSentence];
+      sentence['accepted'] = [
+        ...(sentence['accepted'] as List),
+        onlyOnSentence
+      ];
       expect((row['cloze'] as Map)['accepted'], isNot(contains(onlyOnSentence)),
           reason: 'the form must be missing from the fallback row');
       tester.view.physicalSize = const Size(900, 2400);
@@ -2439,7 +2442,8 @@ void main() {
       final again = realCard(h);
       expect(again, isNot('none'), reason: 'the re-ask is on screen');
       expect(again, isNot(first),
-          reason: 'the builder passes rotate on a re-ask (plan 2026-11-06, ASK-5)');
+          reason:
+              'the builder passes rotate on a re-ask (plan 2026-11-06, ASK-5)');
     });
 
     testWidgets(
@@ -2471,7 +2475,8 @@ void main() {
             reason: 'practice answer $i is written');
       }
       expect(shown[1], isNot(shown[0]),
-          reason: 'the builder passes rotate on early practice (plan 2026-11-06, ASK-5)');
+          reason:
+              'the builder passes rotate on early practice (plan 2026-11-06, ASK-5)');
       final written = (await s.attempts(itemId: particle.id)).skip(1);
       expect(written.every((a) => a.source == Source.early), isTrue);
     });

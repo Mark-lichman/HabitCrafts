@@ -28,10 +28,11 @@
 //     Say-it track Missed it after an unverified check is unscored, as the speak drill grades
 //     it (study_export.dart `sayItGrade`);
 //   * 🚨 a counting spoken answer is scored only by Azure (`PronunciationService`, against the
-//     hiragana, plan 2026-11-06 Task 5, PIN-2): correct is clear, close is hinted and marked
-//     `spokenClose` so it stays out of the two-hinted reset (PIN-10), wrong is wrong, and an
-//     unverified check (no connection, no microphone) is unscored at once, with no Got it or
-//     Missed it, so it can never clear the spoken mode (D10). After the revealing rung an
+//     hiragana, plan 2026-11-06 Task 5, PIN-2): correct is clear, close is hinted, and marked
+//     `spokenClose` (neutral for the two-hinted reset, PIN-10) only when no hint and no lesson
+//     review came first (plan 2026-11-06, ASK-2), wrong is wrong, and an unverified check (no
+//     connection, no microphone) is unscored at once, with no Got it or Missed it, so it can
+//     never clear the spoken mode (D10). After the revealing rung an
 //     unverified check is wrong, like Skip and a typed answer (plan 2026-11-06, ASK-3). See
 //     [gradeSpokenAnswer]. The on-device transcript (`SpeechService.listenOnce`) stays on the
 //     vocabulary practice screen, where its verdict never counts;
