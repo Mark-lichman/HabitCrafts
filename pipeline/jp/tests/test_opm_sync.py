@@ -190,3 +190,107 @@ def test_guard_catches_an_unregistered_process(procs):
     assert bad_procs == [("X", "P", "", xs.DET)]
     assert _unnamed(bad_procs) == ["X / P"], "the guard must flag a box with no opmStage"
     assert _unnamed(procs) == [], "the committed diagram must pass the same guard"
+
+
+# ───────────── plan 2026-11-06 (jp-tutor-loop), Task 10, PIN-8 ─────────────
+# SD5 and SD6 draw the built tutor loop: the lesson link, the Discuss mark, the say cards
+# scored by Azure and the modes. The lesson doc describes the same, and both point at the
+# code for the numbers.
+
+LESSON_DOC = DOCS / "japanese-lessons.md"
+MASTERY_RULE = REPO / "lib/components/pages/quiet_room_mastery/mastery_rule.dart"
+
+TUTOR_LOOP_STAGES = {
+    "LessonReviewing": xs.HUMAN,
+    "DiscussMarking": xs.HUMAN,
+    "PronunciationScoring": xs.DET,
+}
+
+
+def _diagram(drawio_text: str, prefix: str) -> str:
+    """The XML of the one diagram page whose name starts with [prefix]."""
+    pages = re.findall(r'<diagram name="([^"]*)".*?</diagram>', drawio_text, flags=re.S)
+    bodies = re.findall(r'<diagram name="[^"]*".*?</diagram>', drawio_text, flags=re.S)
+    found = [b for n, b in zip(pages, bodies) if n.startswith(prefix)]
+    assert len(found) == 1, f"expected one page named {prefix}..., got {pages}"
+    return found[0]
+
+
+def _opl_section(md: str, heading: str) -> str:
+    """The text of the '## <heading>' section, up to the next '## '."""
+    m = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## )", md, flags=re.S | re.M)
+    assert m, f"no '## {heading}' section"
+    return m.group(1)
+
+
+def _template_modes() -> dict[str, str]:
+    """`kTemplateModes` in mastery_rule.dart: template name to mode (D18)."""
+    body = re.search(r"kTemplateModes = \{(.*?)\};", MASTERY_RULE.read_text(encoding="utf-8"),
+                     flags=re.S)
+    assert body, "kTemplateModes not found in mastery_rule.dart"
+    pairs = dict(re.findall(r"'(\w+)': ProbeMode\.(\w+)", body.group(1)))
+    assert pairs, "kTemplateModes holds no entry"
+    return pairs
+
+
+def test_opm_tutor_loop_stages_are_in_stage_io():
+    for stage, kind in TUTOR_LOOP_STAGES.items():
+        assert stage in xs.STAGE_IO, f"{stage} missing from STAGE_IO"
+        assert xs.STAGE_IO[stage][0] == kind, f"{stage}: kind should be {kind}"
+
+
+def test_opm_discuss_mark_moves_no_grade_and_no_schedule():
+    # PIN-6: a Discuss mark is read by no stage that grades, schedules, plans or judges.
+    for stage in ("Grading", "Scheduling", "Planning", "MasteryJudging"):
+        assert xs.DiscussMark not in xs.STAGE_IO[stage][1], f"{stage} reads the Discuss mark"
+    assert xs.STAGE_IO["DiscussMarking"][2] == (xs.DiscussMark,)
+
+
+def test_opm_counting_speech_is_scored_by_azure():
+    # PIN-2: Grading reads the Azure verdict; the session's answers carry a recording.
+    assert xs.PronunciationVerdict in xs.STAGE_IO["Grading"][1]
+    assert xs.SpokenAnswer in xs.STAGE_IO["Answering"][2]
+    assert {r.value for r in xs.PronunciationResult} == {"correct", "close", "wrong",
+                                                         "unverified"}
+    assert "spoken_close" in xs.StudyAttempt.model_fields
+
+
+def test_opm_sd5_and_sd6_draw_nothing_planned(drawio_text):
+    for prefix in ("SD5", "SD6"):
+        page = _diagram(drawio_text, prefix)
+        assert "PLANNED" not in page, f"{prefix} still draws a planned gap box"
+        assert "strokeColor=#b85450" not in page, f"{prefix} still draws a red gap box"
+
+
+def test_opm_sd5_and_sd6_opl_name_nothing_planned():
+    md = OPL.read_text(encoding="utf-8")
+    for heading in ("SD5 — Studying", "SD6 — Mastery Judging"):
+        text = _opl_section(md, heading)
+        assert not re.search(r"\bplanned\b", text, flags=re.I), f"{heading} still says planned"
+
+
+def test_opm_sd6_records_the_close_rule_and_the_mode_table(drawio_text):
+    sd6 = _opl_section(OPL.read_text(encoding="utf-8"), "SD6 — Mastery Judging")
+    assert "PIN-10" in sd6 and "D18" in sd6
+    page = _diagram(drawio_text, "SD6")
+    for template in _template_modes():
+        assert f"`{template}`" in sd6, f"SD6's OPL does not name the template {template}"
+        assert template in page, f"SD6's diagram does not name the template {template}"
+
+
+def test_opm_lesson_doc_describes_the_tutor_loop():
+    doc = LESSON_DOC.read_text(encoding="utf-8")
+    low = doc.lower()
+    for phrase in ("discuss with mari", "review the lesson", "say card", "type it", "see it",
+                   "say it", "lesson reviewed", "practice listens, not counted"):
+        assert phrase in low, f"the lesson doc does not describe: {phrase}"
+    # De-mirror: the numbers stay in the code and the data files.
+    for pointer in ("mastery_rule.dart", "kTemplateModes", "kTransferProbes", "kMoveOnClearDays",
+                    "particle_sentences.json", "discuss_list_widget.dart"):
+        assert pointer in doc, f"the lesson doc does not point at {pointer}"
+    # ASK-3: an unverified spoken check after the reveal is wrong, so no grade row says
+    # unscored is never wrong without saying so.
+    row = next(line for line in doc.splitlines() if line.startswith("| unscored |"))
+    assert "never wrong" not in row, f"the grades table still says: {row}"
+    for ask in ("ASK-1", "ASK-2", "ASK-3", "ASK-4", "ASK-5"):
+        assert f"plan 2026-11-06, {ask})" in doc, f"the lesson doc does not cite {ask}"

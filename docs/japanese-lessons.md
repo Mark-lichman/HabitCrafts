@@ -74,8 +74,8 @@ Each word in `jp_lessons.json` carries two fields the app uses beside its readin
 
 `pipeline/jp/vocab_clean.py` writes both fields.
 
-The grammar speaking drill signs in anonymously in the background, and only when a recording is
-ready to score (`ensureCaller()` in `quiet_room_practice/anon_caller.dart`). The scoring function
+The grammar speaking drill and the scored spoken cards (see "Say cards and spoken answers") sign
+in anonymously in the background, and only when a recording is ready to score (`ensureCaller()` in `quiet_room_practice/anon_caller.dart`). The scoring function
 accepts that caller. Everywhere else an anonymous user counts as signed out: `loggedIn` is false
 for it, so the app still opens on Japanese study, and the Firestore and Storage rules refuse it
 through their `signedIn()` helper.
@@ -92,13 +92,14 @@ items due, the coming days' load, answer times, session lengths) is on the Study
 
 | Screen | File | What it does |
 | --- | --- | --- |
-| Today | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the session card: the plan's queue sections with their counts, the minutes line, and Start or Resume, or the end state on a finished day. Under it the mastered count, the kept rate over the last `kKeptRateDays` days and `kHomeDots` day dots. Quiet links open the conjugation, verb pair and number drills and the Study record. No number strip and no search: search and By use live in Topics |
+| Today | `quiet_room_grammar/quiet_room_japanese_widget.dart` | the session card: the plan's queue sections with their counts, the minutes line, and Start or Resume, or the end state on a finished day. Under it the mastered count, the kept rate over the last `kKeptRateDays` days and `kHomeDots` day dots. Quiet links open the conjugation, verb pair and number drills, the Discuss with Mari list and the Study record. No number strip and no search: search and By use live in Topics |
 | Lessons | `quiet_room_mastery/lessons_path_widget.dart` | the lesson path: one row per grammar lesson with what it holds and the counts over its items, the current lesson as the one loud row, then a Words-only section for the lessons before the first grammar lesson: a lesson with a word sheet shows its words and counts, and one without says it has no word sheet. A row opens the lesson page |
 | Lesson page | `quiet_room_mastery/lesson_page_widget.dart` | one 第N課: the counts over its items, its grammar points and words each with its state and next review, the Say-it counts, and Review these over its due items. Read the whole lesson opens the Grammar screen and Word cards opens the Vocabulary screen, each only where the lesson has that content |
 | Topics | `quiet_room_mastery/topics_widget.dart` | one search box over the topic index (`topic_index.dart`): a use, a pattern, a word, an English meaning, a conjugation form or a counter. Without a query, the browse sets: By use, Verb forms, Verb groups, Counters and tables, Words by lesson, Due today, Shaky and Not yet known |
 | Topic page | `quiet_room_mastery/topic_page_widget.dart` | one topic: its counts by state and its roll-up pill, Practice this topic, its items each with its state and next review, and Related topics |
-| Item page | `quiet_room_mastery/item_detail_widget.dart` | one item: its state pill, its count of clears, its next review, what remains to Mastered (or to regain it if Shaky), the Say-it counts, its attempt history newest first, and Practice now |
-| Review session | `quiet_room_mastery/review_page.dart`, `session_widget.dart` | the day's review queue, one item per screen, then the end card (see "The study record and the daily review") |
+| Item page | `quiet_room_mastery/item_detail_widget.dart` | one item: its state pill, its count of clears, its next review, what remains to Mastered (or to regain it if Shaky), including each mode still missing a clear, the Say-it counts, its attempt history newest first, the Discuss with Mari toggle, and Practice now. On a word, the vocabulary speaking screen's listens sit under their own heading, "Practice listens, not counted", so they never read as the counting Say the word card (plan 2026-11-06, ASK-4) |
+| Review session | `quiet_room_mastery/review_page.dart`, `session_widget.dart` | the day's review queue, one item per screen, then the end card (see "The study record and the daily review"). Every unanswered card shows Review the lesson, and every card shows the Discuss with Mari toggle |
+| Discuss with Mari | `quiet_room_mastery/discuss_list_widget.dart` | opened from Today's quiet links: the items marked to raise with Mari, each row opening its item page, each cleared with Discussed |
 | Welcome back | `quiet_room_mastery/welcome_back_widget.dart` | after a break: the days away, the items due, New paused, and Start |
 | Seed confirmation | `quiet_room_mastery/seed_confirm_widget.dart` | on a first launch: one tick per lesson already studied, then Confirm |
 | Study record | `quiet_room_mastery/mastery_debug_widget.dart` | every item under its state with its next due day, the coming days' load, answer times and session lengths; rebuild, export and import |
@@ -210,8 +211,9 @@ of Today. That page computes them from the store each time it opens.
 Each item has a stable id, the join key between the catalog, the attempt log and the schedule: a
 word's id is its image stem (`id` holds the same stem), and the header of `item_catalog.dart` lists the id
 shape of every kind. Each item has one or more **probes**, the question templates that can ask
-it. A grammar point's example sentences are the Say-it track: they can be practised, but they
-never count toward mastery.
+it, and the same header lists the probes of every kind. A grammar point's example sentences are
+the Say-it track: they can be practised, but they never count toward mastery. The **say card**
+is a different card, and it counts (see "Say cards and spoken answers" below).
 
 The record is an append-only log of attempts and seed events, and it is the source of truth.
 The schedule and the mastery state are caches that `JpStore.rebuild` replays from the log
@@ -232,12 +234,17 @@ Every answer gets one grade, and the grades are the same on every screen (`Grade
 | Grade | When | Counts toward mastery |
 | --- | --- | --- |
 | clear | right with no hint and nothing revealed, or Got it (Knew it) after the reveal on a probe with no machine check | yes |
-| hinted | right after a hint short of the answer, a second try, or a speech "close" | **never** |
-| wrong | wrong, Missed it (Not yet), a hint that reveals the answer, or a reveal on a machine-checked probe | resets the count |
-| unscored | nothing heard, an error, a cancel | no, and never wrong |
+| hinted | right after a hint short of the answer, a second try, a right answer after Review the lesson, or a spoken close | **never** |
+| wrong | wrong, Missed it (Not yet), a hint that reveals the answer, a reveal on a machine-checked probe, or a spoken check Azure could not score given after the reveal | resets the count |
+| unscored | nothing heard, an error, a cancel, or a spoken check Azure could not score given before the reveal | no. It is wrong only after the reveal (plan 2026-11-06, ASK-3) |
 | self | the learner overrides a check that could not score (Got it on unverified) | no |
 
 🚨 **A hinted answer earns zero credit toward mastery**, on every screen. Hints stay available.
+
+A **spoken close** is hinted and earns no credit. It is neutral for the hinted-in-a-row reset,
+like a self answer, only when no hint and no lesson review came before it. After either, it is
+an ordinary hinted answer (PIN-10, plan 2026-11-06, ASK-2). `Attempt.spokenClose` in
+`attempt.dart` marks it.
 
 A conjugation, a verb pair, a table cell and a word card have no machine check. The learner
 thinks of the answer, reveals it and grades it: Got it is clear and Missed it is wrong.
@@ -264,11 +271,91 @@ full. In outline, an item is Mastered when all of these hold:
    production clear where the item has a production probe. An item with one template needs only
    the spaced clears.
 5. Transfer per kind (`kTransferProbes`): different sentences, verbs, directions or cells, capped
-   at the probes the item has.
+   at the probes the item has. A say card or a choose card that asks the same sentence, verb,
+   direction or cell counts as that one (`transferKeyOf`).
+6. A counting clear in every **mode** the item has a scored card for: **type it** (a typed
+   answer), **see it** (a recognition answer) and **say it** (an answer scored by Azure). Each
+   template has one mode, listed in `kTemplateModes`, and `missingModes` names the modes still
+   missing. A kind with no card in a mode does not need that mode.
 
 A wrong, or `kHintedInARowReset` hinted in a row, on a Mastered item makes it Shaky.
 `kRegainClears` clears on different days, the last at least `kRegainGapDays` after the first,
 win it back. A Mastered item never leaves the queue: it keeps a due date forever.
+
+### Say cards and spoken answers
+
+Every item kind has a scored **say card** (`kSayCardTemplate` in `item_catalog.dart`). It shows
+the prompt only, never the answer (PIN-12): a grammar point or a particle says the whole
+sentence from its prompt and English, a word from its picture and meaning, a conjugation from
+the verb and the form name, a pair from the other side, and a table row from the number and the
+counter. A particle also has a multiple-choice card, which offers its answer among other
+particles that cannot complete the sentence.
+
+🚨 **Only Azure scoring counts a spoken answer** (PIN-2). A say card and a word's spoken card
+send the recording to Azure Pronunciation Assessment, against the answer's hiragana, the same
+path as the grammar speaking drill (`PronunciationService`, see above). Azure's verdict sets the
+grade:
+
+| Azure says | Grade |
+| --- | --- |
+| correct | clear, or hinted after a hint or a lesson review |
+| close | hinted, no credit (see the spoken close above) |
+| wrong | wrong |
+| could not score (no connection, no microphone, a failed sign-in or call) | unscored at once, with no Got it or Missed it, so it never clears say it. After the reveal it is wrong (plan 2026-11-06, ASK-3) |
+
+`gradeSpokenAnswer` in `probe_widgets.dart` holds the rule. The on-device transcript stays on
+the vocabulary speaking screen, where its verdict is written on the Say-it track and never
+counts. A say card's attempt carries the session's source, never Say-it.
+
+### Review the lesson
+
+Every unanswered card in the Review session and in Practice now shows a quiet **Review the
+lesson** link (`ReviewLessonLink` in `probe_widgets.dart`). It names the lesson, and the idea
+where naming it would not show a card's answer. A grammar card's link names the lesson alone
+(plan 2026-11-06, ASK-1). A tap opens the screen for the item's kind at the idea, under a "Back
+to practice" bar (`lessonTargetOf` in `lesson_page_widget.dart`, which holds the table of
+targets):
+
+- a grammar point opens the Grammar screen at that point;
+- a word opens the Vocabulary screen at that word;
+- a conjugation, a verb pair or a table row opens the Drills at its form, pair or row;
+- a particle opens a block for it (meaning and form) at the top of its Mari lesson's page, or
+  on its topic page when no Mari lesson teaches it. The block never shows the particle's
+  example sentence, because that sentence is a card's answer.
+
+Back returns to the same card, unanswered, marked **Lesson reviewed**. 🚨 **A right answer after
+a lesson review is hinted** (PIN-5): the host passes the answer through `afterLessonReview`. A
+review after the answer changes nothing, and Show English stays free. Opening a lesson writes no
+attempt.
+
+### Discuss with Mari
+
+Mark keeps his own list of items to raise with his tutor, Mari. Every session card and the
+item page carry a **Discuss with Mari** toggle, and the list opens from Today's quiet links
+(`discuss_list_widget.dart`). Each row opens its item, and **Discussed** clears the mark once
+the item was raised. A mark may hold a short note, and the list shows it.
+
+🚨 **A Discuss mark is not an answer** (PIN-6). It writes no attempt and changes no grade and no
+schedule. The store keeps the marks beside the log (`DiscussMark` in `jp_store.dart`), and the
+Study record's export and import carry them. Mari never needs the app.
+
+### Which card comes next
+
+`nextProbe` in `session_widget.dart` picks the card a Review session asks of an item:
+
+1. **Mode first** (D19): a card of the first mode with no counting clear yet, so a needed mode
+   shows up before the clears run out.
+2. **Sentence rotation** (D11): within that mode, a sentence with no clear yet comes first, and
+   the session moves off a sentence once its clears fall on `kMoveOnClearDays` different days.
+3. Then the scored cards in turn.
+
+Practice now on an item that is not due, and a same-day re-ask after a wrong, take the scored
+cards in turn instead, so two answers show two different cards. A due review keeps the
+mode-first pick (plan 2026-11-06, ASK-5).
+
+A particle's sentences are its lesson example plus the drafted ones in
+`pipeline/jp/particle_sentences.json`. The drafted ones ship marked `reviewed: false`, and stay
+so until Mark reviews them (PIN-4).
 
 ### The scheduler
 
@@ -520,7 +607,10 @@ turn an exact match into a partial one.
 An exact match with the hiragana or a kanji form is `correct`, a partial match is `close`, and a
 transcript it cannot compare is `unverified`. The UI shows what was heard and lets the learner
 decide. **Being unable to check is not the same as being wrong**, so no correct answer is ever
-marked wrong.
+marked wrong. The screen writes an attempt graded from the transcript's verdict on the Say-it
+track, so it never counts toward mastery (PIN-2). The learner's own Got it, Missed it or skip
+counts as before. Only Azure scoring counts a spoken answer (see "Say cards and spoken
+answers").
 
 ### 🚨 flutter_tts: bind a VOICE, not a language
 
@@ -605,7 +695,13 @@ been the bug twice.
 - **Tune the pronunciation cutoffs:** `correctCutoff` and `closeCutoff` are first guesses. Read the
   drill's Recent scores after real attempts and adjust them. The first live Azure call, on the
   phone and on the web, also waits on the operator setup in
-  `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations).
+  `docs/plans/2026-10-27-azure-pronunciation-check.md` (Deferred validations). Whether Azure
+  scores a single word, a conjugated form and a table reading as well as a sentence is
+  unchecked on the phone. `docs/plans/2026-11-06-jp-tutor-loop.md` lists that check under
+  Deferred validations.
+- **Review the drafted particle sentences:** the sentences in
+  `pipeline/jp/particle_sentences.json` are AI-drafted and judge-checked, and they stay marked
+  `reviewed: false` until Mark reviews them (PIN-4).
 - **Privacy statements for the Azure check:** before the release build, update the privacy policy,
   the store data declarations and the `NSMicrophoneUsageDescription` and
   `NSSpeechRecognitionUsageDescription` strings in `ios/Runner/Info.plist` to say a recording goes

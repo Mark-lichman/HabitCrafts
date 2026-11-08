@@ -445,7 +445,9 @@ class SpeechVerdict(BaseModel):
 # ───────────────────────────── studying (SD5, SD6) ─────────────────────────────
 # The app side: the published items enter a review queue, and mastery is judged from the
 # attempt log. Code: lib/components/pages/quiet_room_mastery/ (seed.dart, plan_builder.dart,
-# session_widget.dart, probe_widgets.dart, attempt.dart, fsrs.dart, mastery_rule.dart).
+# session_widget.dart, probe_widgets.dart, attempt.dart, fsrs.dart, mastery_rule.dart,
+# discuss_list_widget.dart). The tutor loop (plan 2026-11-06) added the lesson link, the
+# Discuss mark and the say cards scored by Azure.
 
 
 class SeedTicks(BaseModel):
@@ -485,11 +487,48 @@ class HintUse(BaseModel):
 
 
 class LessonReview(BaseModel):
-    """The core lesson opened from a card before the answer. Planned (lesson link).
-    A right answer after it is hinted (operator ruling, 2026-11-06)."""
+    """The core lesson opened from a card before the answer ("Review the lesson", PIN-5).
+    A right answer after it is hinted; a review after the answer is free; opening the
+    lesson writes no attempt (session_widget.dart, probe_widgets.dart afterLessonReview)."""
 
     item_id: str
     lesson: int | None
+
+
+class SpokenAnswer(BaseModel):
+    """A recording of a spoken answer on a counting card (a say card, a word's spoken card).
+    Scored by sound against the hiragana, never by an on-device transcript (PIN-2)."""
+
+    item_id: str
+    probe_id: str
+    reference_hiragana: str
+
+
+class PronunciationResult(str, Enum):
+    CORRECT = "correct"
+    CLOSE = "close"
+    WRONG = "wrong"
+    # No connection, no microphone, a failed sign-in or call: unscored, never a self-mark
+    # (D10); wrong after the reveal (ASK-3, plan 2026-11-06).
+    UNVERIFIED = "unverified"
+
+
+class PronunciationVerdict(BaseModel):
+    """Azure Pronunciation Assessment's verdict on one SpokenAnswer (pronunciation_service.dart,
+    through the scorePronunciation Cloud Function)."""
+
+    item_id: str
+    result: PronunciationResult
+    pron_score: float | None = Field(default=None, description="None when unverified.")
+
+
+class DiscussMark(BaseModel):
+    """Mark's reminder to raise an item with his tutor (jp_store.dart DiscussMark, PIN-6).
+    Kept beside the attempt log and carried by export and import; no stage that grades,
+    schedules or judges mastery reads it, and the tutor never needs the app."""
+
+    item_id: str
+    note: str | None = None
 
 
 class Grade(str, Enum):
@@ -510,6 +549,10 @@ class StudyAttempt(BaseModel):
     hint_level: int
     revealed: bool
     lesson_reviewed: bool = False
+    spoken_close: bool = Field(
+        default=False,
+        description="A hinted spoken close with no hint and no lesson review first: neutral "
+                    "for the two-hinted reset (PIN-10, ASK-2).")
     was_due: bool
     local_day: int
 
@@ -777,10 +820,16 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     # ── Studying (SD5, SD6). All run in the app, on the published file and the study record.
     "Seeding": (DET, (CatalogEntry, SeedTicks), (SeedEvent,)),
     "Planning": (DET, (CatalogEntry, SeedEvent, StudyAttempt, SrsState, MasteryState), (DayPlan,)),
-    # The learner answers; Answer Checking and Speech Checking (SD4) judge what they give.
-    "Answering": (HUMAN, (DayPlan,), (TypedAnswer, Transcript, HintUse)),
+    # The learner answers; Answer Checking (SD4) judges a typed answer and Pronunciation
+    # Scoring (Azure) a spoken one. Speech Checking's on-device verdicts are practice only:
+    # they are graded as Say-it and never count (PIN-2).
+    "Answering": (HUMAN, (DayPlan,), (TypedAnswer, SpokenAnswer, HintUse)),
+    "PronunciationScoring": (DET, (SpokenAnswer, CatalogEntry), (PronunciationVerdict,)),
     "LessonReviewing": (HUMAN, (DayPlan, CatalogEntry), (LessonReview,)),
-    "Grading": (DET, (AnswerVerdict, SpeechVerdict, HintUse, LessonReview), (StudyAttempt,)),
+    "Grading": (DET, (AnswerVerdict, SpeechVerdict, PronunciationVerdict, HintUse, LessonReview),
+                (StudyAttempt,)),
+    # The Discuss mark (PIN-6): no stage below reads it.
+    "DiscussMarking": (HUMAN, (CatalogEntry,), (DiscussMark,)),
     "Scheduling": (DET, (StudyAttempt, SrsState), (SrsState,)),
     "MasteryJudging": (DET, (StudyAttempt, MasteryState, CatalogEntry), (MasteryState,)),
     # ── Composite processes on SD: each zooms into stages (Language Lesson Extracting
@@ -826,8 +875,10 @@ OPM_NAMES: dict[str, str] = {
     "Seeding": "Seeding",
     "Planning": "Planning",
     "Answering": "Answering",
+    "PronunciationScoring": "Pronunciation Scoring",
     "LessonReviewing": "Lesson Reviewing",
     "Grading": "Grading",
+    "DiscussMarking": "Discuss Marking",
     "Scheduling": "Scheduling",
     "MasteryJudging": "Mastery Judging",
     "HabitLessonExtracting": "Habit Lesson Extracting",
@@ -848,9 +899,10 @@ OPM_NAMES: dict[str, str] = {
 _ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query,
           TypedAnswer, Transcript, SeedTicks, SrsState, MasteryState}
 
-# Produced but deliberately consumed by nothing — the pipeline's end products.
+# Produced but deliberately consumed by nothing — the pipeline's end products. A Discuss
+# mark is one on purpose: Mark reads the list with his tutor, and no stage grades from it (PIN-6).
 _TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList,
-             AnswerVerdict, SpeechVerdict}
+             AnswerVerdict, SpeechVerdict, DiscussMark}
 
 
 def _check() -> None:
