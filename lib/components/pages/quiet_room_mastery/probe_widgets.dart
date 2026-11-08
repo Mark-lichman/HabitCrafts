@@ -23,9 +23,10 @@
 //   * on a self-graded probe (conjugation, pair, table cell, word card) Got it or Knew it
 //     after the reveal is clear and Missed it or Not yet is wrong (PIN-13); a hint taken
 //     before the reveal makes Got it hinted;
-//   * unverified is never wrong: a typed check that could not judge asks the learner, Got it
-//     is `self`; on the Say-it track Missed it after an unverified check is unscored, as the
-//     speak drill grades it (study_export.dart `sayItGrade`);
+//   * unverified is never wrong before the revealing rung (after it, wrong, plan 2026-11-06,
+//     ASK-3): a typed check that could not judge asks the learner, Got it is `self`; on the
+//     Say-it track Missed it after an unverified check is unscored, as the speak drill grades
+//     it (study_export.dart `sayItGrade`);
 //   * 🚨 a counting spoken answer is scored only by Azure (`PronunciationService`, against the
 //     hiragana, plan 2026-11-06 Task 5, PIN-2): correct is clear, close is hinted and marked
 //     `spokenClose` so it stays out of the two-hinted reset (PIN-10), wrong is wrong, and an
