@@ -452,7 +452,7 @@ node('SV', S.objTop, 780, 1120, 380, 140, 'Speech Verdict', 'heard text ' + dot 
 node('SVa', S.state, 795, 1200, 100, 30, 'correct', '');
 node('SVb', S.state + 'fillColor=#ffe599;', 905, 1200, 100, 30, 'close', '');
 node('SVc', S.state, 1015, 1200, 130, 30, 'self-check', '');
-node('G9', S.gap, 1460, 1120, 260, 130, 'RULE &#8212; never marked wrong', 'Close shows in amber with the matching part of the heard text highlighted, then self-check (PIN-10). A transcript that cannot be compared goes to self-check (PIN-2).');
+node('G9', S.gap, 1460, 1120, 260, 130, 'RULE &#8212; never marked wrong', 'Close shows in amber with the matching part of the heard text highlighted, then self-check (plan 2026-10-24, PIN-10). A transcript that cannot be compared goes to self-check (plan 2026-10-24, PIN-2).');
 
 edge('consume', 'GD', 'KD', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('result', 'KD', 'KV', { exit: [0.5, 1], entry: [0.5, 0] });
@@ -605,7 +605,7 @@ node('R6', S.metric, 410, 500, 420, 195, 'Counts toward Mastered (plan 2026-11-0
 node('R6b', S.metric, 410, 715, 420, 140, 'Counts for nothing', 'hinted: grammar hint, a lesson review before the answer|a spoken close: no credit; neutral for the 2-hinted reset only|   with no hint and no lesson review first (PIN-10; plan 2026-11-06, ASK-2)|early practice clear, Say-it, unscored (Azure unverified)|English shown changes nothing: still a clear|seeded due days: never a clear (plan 2026-11-02, PIN-7)');
 
 node('M61', S.metric, 380, 920, 340, 130, 'Type it, see it, say it (D18; plan 2026-11-06, PIN-7)', 'Mastered needs a counting clear in every mode the item has a card for.|typed: fill ' + dot + 'cloze ' + dot + 'typed ' + dot + 'conjugate|recognition: choose ' + dot + 'card ' + dot + 'transitive ' + dot + 'intransitive ' + dot + 'cell|spoken: spoken ' + dot + 'sayCard (Azure only; plan 2026-11-06, PIN-2)');
-node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (plan 2026-11-06, D11, D19)', 'The next card: the first mode with no counting clear, then a sentence with no clear yet. A sentence with clears on kMoveOnClearDays different days rotates off. Practice now and a same-day re-ask rotate (plan 2026-11-06, ASK-5). A particle&#39;s sentences: particle_sentences.json; its transfer count: kTransferProbes.');
+node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (plan 2026-11-06, D11, D19)', 'The next card: the first scored card, in the item&#39;s own card order, whose mode has no counting clear, then a sentence with no clear yet. A sentence with clears on kMoveOnClearDays different days rotates off. Practice now and a same-day re-ask rotate (plan 2026-11-06, ASK-5). A particle&#39;s sentences: particle_sentences.json; its transfer count: kTransferProbes.');
 
 edge('consume', 'ATT6', 'MJ6', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('instr', 'CAT6', 'MJ6', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1150, 232]] });

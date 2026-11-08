@@ -369,11 +369,14 @@ def test_opm_mode_table_sees_a_moved_or_dropped_template():
 
 
 def test_opm_sd5_and_sd6_labels_name_their_plan(drawio_text):
-    # Each plan numbers its own pins and decisions from 1 (see _bare_plan_labels), and SD5 and
-    # SD6 cite three plans, so every drawn label carries its plan date.
-    for prefix in ("SD5", "SD6"):
-        for value in _cell_values(_diagram(drawio_text, prefix)):
-            assert _bare_plan_labels(value) == [], f"{prefix} draws a bare label in: {value}"
+    # Each plan numbers its own pins and decisions from 1 (see _bare_plan_labels), and the
+    # drawing cites several plans, so every drawn label on every page carries its plan date.
+    pages = re.findall(r'<diagram name="([^"]*)"', drawio_text)
+    assert any(name.startswith("SD5") for name in pages)
+    assert any(name.startswith("SD6") for name in pages)
+    for name in pages:
+        for value in _cell_values(_diagram(drawio_text, name)):
+            assert _bare_plan_labels(value) == [], f"{name} draws a bare label in: {value}"
 
 
 def test_opm_lesson_doc_describes_the_tutor_loop():

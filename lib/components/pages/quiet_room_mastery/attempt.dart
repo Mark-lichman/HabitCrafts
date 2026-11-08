@@ -9,11 +9,13 @@
 // | clear    | right, no hint, nothing revealed (machine-checked), or Got it  | Good        |
 // |          | after the reveal on a self-graded probe                        |             |
 // | hinted   | right after a hint below the revealing level, a second try, a | Hard        |
-// |          | speech `close` (marked [Attempt.spokenClose] when no hint was  |             |
-// |          | taken: neutral for the two-hinted reset, PIN-10)               |             |
+// |          | right answer after a lesson review (PIN-5), a speech `close`   |             |
+// |          | (marked [Attempt.spokenClose] when no hint was taken: neutral  |             |
+// |          | for the two-hinted reset, PIN-10)                              |             |
 // | wrong    | wrong, Missed it, a hint at or above the revealing level, a   | Again       |
-// |          | reveal on a machine-checked probe                              |             |
-// | unscored | nothing heard, an error, a cancel                              | none        |
+// |          | reveal on a machine-checked probe, including a check that     |             |
+// |          | could not score after that reveal (plan 2026-11-06, ASK-3)     |             |
+// | unscored | nothing heard, an error, a cancel, before any reveal           | none        |
 // | self     | the learner overrides a machine check (Got it on unverified)  | Hard        |
 //
 // 🚨 A HINTED ANSWER EARNS ZERO MASTERY CREDIT (PIN-3). Only `clear` counts toward the four
@@ -35,7 +37,9 @@ enum Source { review, keepSharp, early, sayIt }
 
 /// What the check (or the learner, on a self-graded probe) said about the answer itself.
 ///
-/// [none] means nothing could be scored: nothing heard, an error, a cancel. It is never wrong.
+/// [none] means nothing could be scored: nothing heard, an error, a cancel. It is unscored, and
+/// wrong only when the answer was already revealed or the revealing hint rung was taken (plan
+/// 2026-11-06, ASK-3).
 enum Outcome { right, close, wrong, none }
 
 /// FSRS ratings (D12). Easy is never used.

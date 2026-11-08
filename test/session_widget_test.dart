@@ -1858,7 +1858,8 @@ void main() {
 
     test('within the needed mode, a sentence with no clear comes first', () {
       // See it and say it cleared on the first sentence on two days: type it is needed, and
-      // the first sentence has moved aside, so the session asks sentence 1.
+      // the session asks sentence 1 because it has no clear. The first sentence's clears
+      // falling on two days or one does not decide this (see the one-day case below).
       final moved = learning(particle, [
         clearOn(particle, 'choose', 1),
         clearOn(particle, kSayCardTemplate, 2),
@@ -1882,14 +1883,16 @@ void main() {
         on(particle, kParticleChooseId, 1),
         on(particle, sayCardId(kParticleClozeId), 1),
       ];
-      expect(nextProbe(particle, learning(particle, modes), 3).id,
+      // Attempt 0: the plain rotation would give the first cloze, so only the sentence
+      // rule gives sentence 1 here and sentence 2 below.
+      expect(nextProbe(particle, learning(particle, modes), 0).id,
           particleClozeId(1));
       expect(
           nextProbe(
                   particle,
                   learning(particle,
                       [...modes, on(particle, particleClozeId(1), 2)]),
-                  4)
+                  0)
               .id,
           particleClozeId(2));
     });
@@ -2134,6 +2137,55 @@ void main() {
           reason: 'no wrong verdict for an accepted form');
     });
 
+    testWidgets(
+        "a drafted sentence's own accepted form clears it, read from that row alone",
+        (tester) async {
+      // The shipped rows carry the same accepted forms, so this copy gives sentence 1 a form
+      // its particle's `cloze` row lacks. Only a read of the drafted row accepts it: the
+      // fallback to the `cloze` row would mark it wrong.
+      const onlyOnSentence = 'けども';
+      final grammar = json.decode(
+              File('assets/lessons/jp_grammar.json').readAsStringSync())
+          as Map<String, dynamic>;
+      final row = (grammar['particles'] as List)
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['id'] == keredo.id);
+      final sentence = (row['sentences'] as List).cast<Map>()[1];
+      sentence['accepted'] = [...(sentence['accepted'] as List), onlyOnSentence];
+      expect((row['cloze'] as Map)['accepted'], isNot(contains(onlyOnSentence)),
+          reason: 'the form must be missing from the fallback row');
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final s = JpStoreMemory();
+      await s.putMastery(learning(keredo, [
+        clearOn(keredo, 'choose', today - 2),
+        clearOn(keredo, kSayCardTemplate, today - 1),
+      ]));
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SessionWidget(
+            plan: planOf([entryOf(keredo, PlanSection.due)]),
+            store: s,
+            clock: FixedClock(at(today)),
+            catalog: catalog,
+            probeBuilder: standardProbeBuilder(
+                grammar: grammar, pronunciation: FakePronunciation()),
+          ),
+        ),
+      ));
+      final h = Harness(tester, s);
+      await h.settle();
+      expect(h.shows(sentence['prompt'] as String), isTrue,
+          reason: 'the card asks sentence 1');
+      await tester.enterText(find.byType(TextField), onlyOnSentence);
+      await h.tap('Check');
+      final a = (await h.store.attempts(itemId: keredo.id)).single;
+      expect(a.probeId, particleClozeId(1));
+      expect(a.grade, Grade.clear,
+          reason: "the drafted row's accepted forms reach the typed check");
+    });
+
     testWidgets("a typed accepted form clears a particle's first cloze",
         (tester) async {
       final pron = FakePronunciation();
@@ -2330,6 +2382,98 @@ void main() {
       final probes =
           (await s.attempts(itemId: word.id)).skip(1).map((a) => a.probeId);
       expect(probes.toList(), [first, again]);
+    });
+
+    // The real builder passes the rotate marker to `nextProbe` (plan 2026-11-06, ASK-5).
+    // The fake [pickedProbe] calls `nextProbe` itself, so these cases guard the builder's
+    // own call. A prior attempt makes the rotation and the D19 pick differ.
+
+    /// Which real particle card is on screen.
+    String realCard(Harness h) {
+      if (h.shows('Choose the missing part')) return 'choose';
+      if (h.shows('Say the whole sentence')) return 'say';
+      if (find.byType(TextField).evaluate().isNotEmpty) return 'typed';
+      return 'none';
+    }
+
+    /// Answers the real particle card on screen; a typed card gets a wrong answer.
+    Future<void> answerReal(
+        Harness h, String card, FakePronunciation pron) async {
+      switch (card) {
+        case 'choose':
+          await h.tap(probeOf(particle, 'choose').answer);
+        case 'say':
+          await h.tap('Say it');
+          pron.answer(Judgement.correct);
+          await h.settle();
+        case 'typed':
+          await h.tester.enterText(find.byType(TextField), 'ん');
+          await h.tap('Check');
+        default:
+          fail('no particle card on screen');
+      }
+    }
+
+    testWidgets(
+        'with the real builder, a re-ask after a wrong shows a different card',
+        (tester) async {
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(particle, today - 1, Grade.hinted));
+      final pron = FakePronunciation();
+      final h = await pumpWithPick(
+          tester,
+          s,
+          (s) => SessionWidget(
+              plan: planOf([entryOf(particle, PlanSection.due)]),
+              store: s,
+              clock: FixedClock(at(today)),
+              catalog: catalog,
+              probeBuilder: standardProbeBuilder(
+                  grammar: _read('assets/lessons/jp_grammar.json'),
+                  pronunciation: pron)));
+      final first = realCard(h);
+      expect(first, 'typed', reason: 'a due review takes the D19 pick');
+      await answerReal(h, first, pron);
+      expect((await s.attempts(itemId: particle.id)).last.grade, Grade.wrong);
+      await h.tap('Next');
+      final again = realCard(h);
+      expect(again, isNot('none'), reason: 'the re-ask is on screen');
+      expect(again, isNot(first),
+          reason: 'the builder passes rotate on a re-ask (plan 2026-11-06, ASK-5)');
+    });
+
+    testWidgets(
+        'with the real builder, two early answers in Practice now show two different cards',
+        (tester) async {
+      final s = JpStoreMemory();
+      // A prior attempt and no schedule: the particle is not due, so practice is early.
+      await s.appendAttempt(attemptOf(particle, today - 1, Grade.hinted));
+      final pron = FakePronunciation();
+      final shown = <String>[];
+      for (var i = 0; i < 2; i++) {
+        final h = await pumpWithPick(
+            tester,
+            s,
+            (s) => PracticeSessionWidget(
+                key: ValueKey('real-practice-$i'),
+                items: [particle],
+                store: s,
+                catalog: catalog,
+                clock: FixedClock(at(today)),
+                probeBuilder: standardProbeBuilder(
+                    grammar: _read('assets/lessons/jp_grammar.json'),
+                    pronunciation: pron)));
+        final card = realCard(h);
+        expect(card, isNot('none'), reason: 'practice card $i');
+        shown.add(card);
+        await answerReal(h, card, pron);
+        expect(await s.attempts(itemId: particle.id), hasLength(i + 2),
+            reason: 'practice answer $i is written');
+      }
+      expect(shown[1], isNot(shown[0]),
+          reason: 'the builder passes rotate on early practice (plan 2026-11-06, ASK-5)');
+      final written = (await s.attempts(itemId: particle.id)).skip(1);
+      expect(written.every((a) => a.source == Source.early), isTrue);
     });
   });
 }

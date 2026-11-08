@@ -346,9 +346,9 @@ no grade and no schedule. The store keeps the marks beside the log (`DiscussMark
 
 1. **Mode first** (plan 2026-11-06, D19): the first scored card, in the item's own card order,
    whose mode has no counting clear yet, so a needed mode shows up before the clears run out.
-2. **Sentence rotation** (plan 2026-11-06, D11): within that mode, a sentence with no clear yet
-   comes first, and the session moves off a sentence once its clears fall on `kMoveOnClearDays`
-   different days.
+2. **Sentence rotation** (plan 2026-11-06, D11): within the cards of that mode, or across all the
+   scored cards once every mode has a clear, a sentence with no clear yet comes first, and the
+   session moves off a sentence once its clears fall on `kMoveOnClearDays` different days.
 3. Then the scored cards in turn.
 
 Practice now on an item that is not due, and a same-day re-ask after a wrong, take the scored
