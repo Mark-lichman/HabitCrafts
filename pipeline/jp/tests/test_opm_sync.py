@@ -416,6 +416,28 @@ def test_opm_lesson_doc_labels_name_their_plan():
     assert _bare_plan_labels(doc) == [], "a PIN or D label in the lesson doc names no plan"
 
 
+def _one_line(text: str) -> str:
+    """[text] with every whitespace run collapsed to one space, so a dated parenthesis that
+    wraps across a line break still reads `plan 2026-11-06`."""
+    return re.sub(r"\s+", " ", text)
+
+
+def test_opm_opl_labels_name_their_plan():
+    # The OPL md cites plan 2026-10-24 in its header and plan 2026-11-06 in SD5 and SD6, and
+    # each plan numbers its own labels from 1, so the whole md is scanned, not SD5 and SD6 alone.
+    md = OPL.read_text(encoding="utf-8")
+    assert _bare_plan_labels(_one_line(md)) == [], "a PIN or D label in the OPL md names no plan"
+
+
+def test_opm_opl_label_scan_reads_a_wrapped_date():
+    # The collapse is load-bearing: the scan reads `plan ` then the date, and a hard wrap
+    # between them would report a dated label as bare.
+    wrapped = "no self-mark (plan\n    2026-11-06, D10), and"
+    assert _bare_plan_labels(wrapped) == ["D10"]
+    assert _bare_plan_labels(_one_line(wrapped)) == []
+    assert _bare_plan_labels(_one_line("in step (PIN-12): every\n`STAGE_IO`")) == ["PIN-12"]
+
+
 def test_opm_label_scan_catches_a_bare_label():
     # The scan must be able to fail: a label with no date in its parenthesis, a label in no
     # parenthesis, and a label whose only date sits in a different parenthesis are all caught.

@@ -18,8 +18,9 @@ Seven OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io
 
 The OPL sentences below are the spec — edit these. The diagram is generated from
 `opm-lesson-extraction.gen.js`; regenerate rather than hand-editing coordinates if the model changes.
-`pipeline/jp/tests/test_opm_sync.py` keeps the three in step (PIN-12): every `STAGE_IO` stage has a
-process box and an OPL sentence below, and every process box names a `STAGE_IO` stage.
+`pipeline/jp/tests/test_opm_sync.py` keeps the three in step (plan 2026-10-24, PIN-12): every
+`STAGE_IO` stage has a process box and an OPL sentence below, and every process box names a
+`STAGE_IO` stage.
 
 ## The asynchrony rule
 
@@ -248,17 +249,17 @@ OPL sentences:
    connection, no microphone, or a failed sign-in or call is **unverified**.
 9. **Lesson Reviewing** requires **Learner** as its agent, consumes **Day Plan** and **Study Item**,
    and yields **Lesson Review**. "Review the lesson" sits under every unanswered card in the Review
-   session and in Practice now (D21). It opens the target screen for the item's kind at the idea
-   (D20), and Back returns to the same card, unanswered, marked "Lesson reviewed". A grammar card's
-   link names the lesson alone (plan 2026-11-06, ASK-1). A particle's lesson view never shows its
-   example sentence. Opening a lesson writes no attempt.
+   session and in Practice now (plan 2026-11-06, D21). It opens the target screen for the item's
+   kind at the idea (plan 2026-11-06, D20), and Back returns to the same card, unanswered, marked
+   "Lesson reviewed". A grammar card's link names the lesson alone (plan 2026-11-06, ASK-1). A
+   particle's lesson view never shows its example sentence. Opening a lesson writes no attempt.
 10. **Grading** consumes **Answer Verdict**, **Speech Verdict**, **Pronunciation Verdict**, **Hint
     Use**, and **Lesson Review**, and yields **Study Attempt**. A grammar hint or a lesson review
     before the answer makes a right answer **hinted**; a review after the answer changes nothing.
     Show answer makes it **wrong**. A spoken **correct** is **clear** and a spoken **close** is
-    **hinted**. A spoken **unverified** is **unscored**, with no self-mark (D10), and **wrong**
-    after the reveal (plan 2026-11-06, ASK-3). A **Speech Verdict** from the practice screen is
-    graded as Say-it.
+    **hinted**. A spoken **unverified** is **unscored**, with no self-mark (plan 2026-11-06, D10),
+    and **wrong** after the reveal (plan 2026-11-06, ASK-3). A **Speech Verdict** from the practice
+    screen is graded as Say-it.
 11. **Study Attempt** can be **clear**, **hinted**, **wrong**, or **unscored**, and exhibits
     *spoken close*: set on a spoken close with no hint and no lesson review first (PIN-10; plan
     2026-11-06, ASK-2). Every attempt is appended to **Study Record**, the source of truth.
@@ -296,15 +297,16 @@ OPL sentences:
    lesson review came first; after either it is an ordinary hinted answer (PIN-10; plan
    2026-11-06, ASK-2).
 7. **Study Item** exhibits *modes*: type it, see it, and say it, the modes it has a scored card
-   for (#145; plan 2026-11-06, PIN-7). Each scored template has one mode (D18, `kTemplateModes`
-   in `mastery_rule.dart`): typed is `fill`, `cloze`, `typed`, and `conjugate`; recognition is
-   `choose`, `card`, `transitive`, `intransitive`, and `cell`; spoken is `spoken` and the say
-   card, `sayCard`. Only Azure scoring clears a spoken mode (plan 2026-11-06, PIN-2). The Say-it
-   template, `say`, has no mode.
-8. A sentence rotates (#146, D11): the next review takes a sentence with no clear yet, and moves
-   off a sentence once its clears fall on `kMoveOnClearDays` different days. Practice now and a
-   same-day re-ask rotate through the scored cards; a due review takes the mode-first pick
-   (plan 2026-11-06, ASK-5). A particle's drafted sentences ship marked unreviewed (plan
+   for (#145; plan 2026-11-06, PIN-7). Each scored template has one mode (plan 2026-11-06, D18,
+   `kTemplateModes` in `mastery_rule.dart`): typed is `fill`, `cloze`, `typed`, and `conjugate`;
+   recognition is `choose`, `card`, `transitive`, `intransitive`, and `cell`; spoken is `spoken`
+   and the say card, `sayCard`. Only Azure scoring clears a spoken mode (plan 2026-11-06, PIN-2).
+   The Say-it template, `say`, has no mode.
+8. A sentence rotates (#146; plan 2026-11-06, D11): the next review takes a sentence with no clear
+   yet, and moves off a sentence once its clears fall on `kMoveOnClearDays` different days.
+   Practice now and a same-day re-ask rotate through the scored cards; a due review takes the
+   mode-first pick (plan 2026-11-06, ASK-5). A particle's drafted sentences ship marked unreviewed
+   (plan
    2026-11-06, PIN-4).
 
 ## Open questions
