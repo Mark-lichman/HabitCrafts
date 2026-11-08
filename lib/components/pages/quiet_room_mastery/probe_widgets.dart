@@ -69,6 +69,7 @@ import 'package:flutter/material.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
+import '../quiet_room_practice/listening_bars.dart';
 import '../quiet_room_practice/pronunciation_service.dart';
 import 'attempt.dart';
 import 'drill_recorder.dart' show DrillAnswer;
@@ -832,6 +833,7 @@ class _WordRecallProbeState extends State<WordRecallProbe> {
         if (open) ...[
           _button(t, _listening ? 'Listening' : 'Say it', busy ? null : _say,
               primary: true),
+          if (_listening) _bars(widget.pronunciation),
           const SizedBox(height: 12),
           TextField(
             controller: _typed,
@@ -1177,6 +1179,7 @@ class _SayCardProbeState extends State<SayCardProbe> {
               child: _button(
                   t, 'Skip', _checking ? null : () => _report(Grade.unscored))),
         ]),
+      if (_checking) _bars(widget.pronunciation),
       if (_notScored) _quiet(t, kSpokenUnscoredLine),
       if (scored) _answerLine(t, widget.probe.answer),
       if (g != null) _verdict(t, g, spokenClose: _spokenClose),
@@ -1284,6 +1287,7 @@ class _SayItProbeState extends State<SayItProbe> {
               child: _button(
                   t, 'Skip', _checking ? null : () => _report(Grade.unscored))),
         ]),
+      if (_checking) _bars(widget.pronunciation),
       if (_unverified) ...[
         _quiet(t, 'This could not be scored. How did it go?'),
         _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
@@ -1416,3 +1420,10 @@ class ReviewLessonLink extends StatelessWidget {
     );
   }
 }
+
+/// The listening animation while a spoken card listens (#180): the speaking drill's
+/// [ListeningBars], fed by the service's live sound level. It stays flat while Azure scores.
+Widget _bars(PronunciationService pronunciation) => Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: ListeningBars(level: pronunciation.level),
+    );
