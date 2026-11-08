@@ -233,8 +233,10 @@ OPL sentences:
 4. **Day Plan** can be **repair**, **due**, **keep-sharp**, or **new**, one section per entry.
 5. **Answering** requires **Learner** as its agent, consumes **Day Plan**, and yields **Typed Answer**,
    **Spoken Answer**, and **Hint Use**. Answer Checking (SD4) judges a typed answer, and
-   **Pronunciation Scoring** a spoken one. The card shown first is the first one whose mode has no
-   counting clear yet (plan 2026-11-06, D19, `nextProbe` in `session_widget.dart`).
+   **Pronunciation Scoring** a spoken one. For a due review, the card shown first is the first one
+   whose mode has no counting clear yet (plan 2026-11-06, D19, `nextProbe` in
+   `session_widget.dart`). Practice now and a same-day re-ask rotate through the scored cards
+   (plan 2026-11-06, ASK-5).
 6. **Hint Use** exhibits *English shown* and *hint level*. The English is free. A grammar hint makes
    a right answer hinted.
 7. **Pronunciation Scoring** consumes **Spoken Answer** and **Study Item**, and yields

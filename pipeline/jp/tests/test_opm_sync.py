@@ -312,6 +312,23 @@ def test_opm_sd5_and_sd6_opl_name_nothing_planned():
         assert not re.search(r"\bplanned\b", text, flags=re.I), f"{heading} still says planned"
 
 
+SESSION_WIDGET = REPO / "lib/components/pages/quiet_room_mastery/session_widget.dart"
+
+
+def test_opm_sd5_opl_states_the_rotate_exception():
+    # `nextProbe` takes a `rotate` marker (plan 2026-11-06, ASK-5) that skips the D19 pick for
+    # Practice now and a same-day re-ask. While the code has it, SD5's Answering sentence, the
+    # one place the OPL reads D19 on its own, names the exception beside the pick. The oracle
+    # is the Dart signature, not the doc.
+    dart = SESSION_WIDGET.read_text(encoding="utf-8")
+    assert re.search(r"nextProbe\([^)]*\{bool rotate", dart, flags=re.S), \
+        "nextProbe has no rotate marker: retire this guard with it"
+    sd5 = _opl_section(OPL.read_text(encoding="utf-8"), "SD5 — Studying")
+    answering = next(s for s in re.split(r"\n(?=\d+\. )", sd5) if "**Answering**" in s)
+    assert "D19" in answering and "ASK-5" in answering, \
+        "SD5's Answering sentence reads D19 without the ASK-5 exception"
+
+
 def test_opm_sd6_records_the_close_rule_and_the_mode_table(drawio_text):
     sd6 = _opl_section(OPL.read_text(encoding="utf-8"), "SD6 — Mastery Judging")
     assert "PIN-10" in sd6 and "D18" in sd6
