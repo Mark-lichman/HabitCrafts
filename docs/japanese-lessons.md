@@ -11,9 +11,9 @@ models the pipeline stage by stage. This file says how the lesson data got here.
 
 ## Where the counts are
 
-🚨 **This doc restates no count that a data file defines** (plan 2026-10-24, PIN-13). Word counts, lesson lists,
-missing lessons, grammar point counts and item counts all drift when a file is regenerated, and a
-copied number in prose goes stale without failing anything.
+🚨 **This doc restates no count that a data file defines** (plan 2026-10-24, PIN-13). Word counts,
+lesson lists, missing lessons, grammar point counts and item counts all drift when a file is
+regenerated, and a copied number in prose goes stale without failing anything.
 
 The live counts are in the **catalog**: the `catalog` list in `assets/lessons/jp_grammar.json`,
 built by `pipeline/jp/catalog.py`. The catalog holds one `source_file` entry per data file, with
@@ -285,16 +285,16 @@ win it back. A Mastered item never leaves the queue: it keeps a due date forever
 ### Say cards and spoken answers
 
 Every item kind has a scored **say card** (`kSayCardTemplate` in `item_catalog.dart`). It shows
-the prompt only, never the answer (plan 2026-11-06, PIN-12): a grammar point or a particle says the whole
-sentence from its prompt and English, a word from its picture and meaning, a conjugation from
-the verb and the form name, a pair from the other side, and a table row from the number and the
-counter. A particle also has a multiple-choice card, which offers its answer among other
-particles that cannot complete the sentence.
+the prompt only, never the answer (plan 2026-11-06, PIN-12): a grammar point or a particle says
+the whole sentence from its prompt and English, a word from its picture and meaning, a
+conjugation from the verb and the form name, a pair from the other side, and a table row from the
+number and the counter. A particle also has a multiple-choice card, which offers its answer among
+other particles that cannot complete the sentence.
 
-🚨 **Only Azure scoring counts a spoken answer** (plan 2026-11-06, PIN-2). A say card and a word's spoken card
-send the recording to Azure Pronunciation Assessment, against the answer's hiragana, the same
-path as the grammar speaking drill (`PronunciationService`, see above). Azure's verdict sets the
-grade:
+🚨 **Only Azure scoring counts a spoken answer** (plan 2026-11-06, PIN-2). A say card and a word's
+spoken card send the recording to Azure Pronunciation Assessment, against the answer's hiragana,
+the same path as the grammar speaking drill (`PronunciationService`, see above). Azure's verdict
+sets the grade:
 
 | Azure says | Grade |
 | --- | --- |
@@ -324,9 +324,9 @@ targets):
   example sentence, because that sentence is a card's answer.
 
 Back returns to the same card, unanswered, marked **Lesson reviewed**. 🚨 **A right answer after
-a lesson review is hinted** (plan 2026-11-06, PIN-5): the host passes the answer through `afterLessonReview`. A
-review after the answer changes nothing, and Show English stays free. Opening a lesson writes no
-attempt.
+a lesson review is hinted** (plan 2026-11-06, PIN-5): the host passes the answer through
+`afterLessonReview`. A review after the answer changes nothing, and Show English stays free.
+Opening a lesson writes no attempt.
 
 ### Discuss with Mari
 
@@ -336,18 +336,19 @@ item page carry a **Discuss with Mari** toggle, and the list opens from Today's 
 the item was raised. A mark has an optional note, which the list shows. A note is set through
 `JpStore.setDiscuss`, which trims it and stores a blank as none.
 
-🚨 **A Discuss mark is not an answer** (plan 2026-11-06, PIN-6). It writes no attempt and changes no grade and no
-schedule. The store keeps the marks beside the log (`DiscussMark` in `jp_store.dart`), and the
-Study record's export and import carry them. Mari never needs the app.
+🚨 **A Discuss mark is not an answer** (plan 2026-11-06, PIN-6). It writes no attempt and changes
+no grade and no schedule. The store keeps the marks beside the log (`DiscussMark` in
+`jp_store.dart`), and the Study record's export and import carry them. Mari never needs the app.
 
 ### Which card comes next
 
 `nextProbe` in `session_widget.dart` picks the card a Review session asks of an item:
 
-1. **Mode first** (plan 2026-11-06, D19): a card of the first mode with no counting clear yet, so a needed mode
-   shows up before the clears run out.
-2. **Sentence rotation** (plan 2026-11-06, D11): within that mode, a sentence with no clear yet comes first, and
-   the session moves off a sentence once its clears fall on `kMoveOnClearDays` different days.
+1. **Mode first** (plan 2026-11-06, D19): a card of the first mode with no counting clear yet, so a
+   needed mode shows up before the clears run out.
+2. **Sentence rotation** (plan 2026-11-06, D11): within that mode, a sentence with no clear yet
+   comes first, and the session moves off a sentence once its clears fall on `kMoveOnClearDays`
+   different days.
 3. Then the scored cards in turn.
 
 Practice now on an item that is not due, and a same-day re-ask after a wrong, take the scored
@@ -609,9 +610,9 @@ An exact match with the hiragana or a kanji form is `correct`, a partial match i
 transcript it cannot compare is `unverified`. The UI shows what was heard and lets the learner
 decide. **Being unable to check is not the same as being wrong**, so no correct answer is ever
 marked wrong. The screen writes an attempt graded from the transcript's verdict on the Say-it
-track, so it never counts toward mastery (plan 2026-11-06, PIN-2). The learner's own Got it, Missed it or skip
-counts as before. Only Azure scoring counts a spoken answer (see "Say cards and spoken
-answers").
+track, so it never counts toward mastery (plan 2026-11-06, PIN-2). The learner's own Got it,
+Missed it or skip counts as before. Only Azure scoring counts a spoken answer (see "Say cards and
+spoken answers").
 
 ### 🚨 flutter_tts: bind a VOICE, not a language
 

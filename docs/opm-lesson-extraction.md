@@ -234,7 +234,7 @@ OPL sentences:
 5. **Answering** requires **Learner** as its agent, consumes **Day Plan**, and yields **Typed Answer**,
    **Spoken Answer**, and **Hint Use**. Answer Checking (SD4) judges a typed answer, and
    **Pronunciation Scoring** a spoken one. The card shown first is the first one whose mode has no
-   counting clear yet (D19, `nextProbe` in `session_widget.dart`).
+   counting clear yet (plan 2026-11-06, D19, `nextProbe` in `session_widget.dart`).
 6. **Hint Use** exhibits *English shown* and *hint level*. The English is free. A grammar hint makes
    a right answer hinted.
 7. **Pronunciation Scoring** consumes **Spoken Answer** and **Study Item**, and yields

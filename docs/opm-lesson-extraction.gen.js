@@ -504,8 +504,8 @@ node('PL2', S.state, 655, 605, 80, 30, 'due', '');
 node('PL3', S.state, 745, 605, 105, 30, 'keep-sharp', '');
 node('PL4', S.state, 860, 605, 85, 30, 'new', '');
 
-proc('ANS', 'Answering', S.human, 590, 690, 320, 80, 'Answering', 'one card at a time, the needed mode first (D19)|Show English: free|Show grammar hint: hinted');
-proc('LREVP', 'LessonReviewing', S.human, 1010, 690, 290, 80, 'Lesson Reviewing', 'Review the lesson, under every unanswered card|opens the lesson at the idea (D20)|Back: the same card, Lesson reviewed');
+proc('ANS', 'Answering', S.human, 590, 690, 320, 80, 'Answering', 'one card at a time, the needed mode first (plan 2026-11-06, D19)|Show English: free|Show grammar hint: hinted');
+proc('LREVP', 'LessonReviewing', S.human, 1010, 690, 290, 80, 'Lesson Reviewing', 'Review the lesson, under every unanswered card|opens the lesson at the idea (plan 2026-11-06, D20)|Back: the same card, Lesson reviewed');
 proc('DISC', 'DiscussMarking', S.human, 1320, 690, 260, 80, 'Discuss Marking', 'Discuss with Mari, on a card|or on the item page|a tap sets or clears the mark');
 node('LRN5b', S.ctrl, 1610, 705, 120, 50, 'Learner', 'Mark');
 
