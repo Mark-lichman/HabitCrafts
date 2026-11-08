@@ -494,7 +494,7 @@ node('LRN5', S.ctrl, 40, 210, 240, 50, 'Learner', 'Mark');
 node('TICK', S.obj, 40, 300, 240, 90, 'Seed Ticks', 'word lessons 2 to 30|grammar lessons 26 to 31|any lesson can be unticked');
 
 proc('SEED', 'Seeding', S.det, 590, 210, 320, 75, 'Seeding', 'once per store|ticked lessons + foundation items|spread over 20 days');
-node('SEV', S.obj, 590, 320, 320, 60, 'Seed Event', 'item ' + dot + 'due day|not an answer: no attempt, no clear (PIN-7)');
+node('SEV', S.obj, 590, 320, 320, 60, 'Seed Event', 'item ' + dot + 'due day|not an answer: no attempt, no clear|(plan 2026-11-02, PIN-7)');
 node('REC', S.store, 980, 300, 300, 110, 'Study Record', 'SQLite: append-only attempt log|seeds ' + dot + 'srs ' + dot + 'mastery ' + dot + 'days|export and import');
 
 proc('PLANP', 'Planning', S.det, 590, 425, 320, 80, 'Planning', 'target 15 min ' + dot + 'ceiling 20 min|New: 8 a day in lesson order|a particle arrives with its lesson');
@@ -601,11 +601,11 @@ edge('result', 'M6', 'K6', { exit: [0.7, 1], entry: [0.7, 0], label: 'a wrong, o
 edge('result', 'K6', 'M6', { exit: [0.3, 0], entry: [0.3, 1], label: '2 clears, the 2nd|7+ days later' });
 edge('result', 'K6', 'L6', { exit: [0, 0.5], entry: [0.5, 1], pts: [[750, 730]], label: 'wrong again: count 0' });
 
-node('R6', S.metric, 410, 500, 420, 195, 'Counts toward Mastered (D4)', '1. a clear while the item is due, at most one a day|2. four clears on four different days|3. the 4th at least 21 days after the review before it|4. no wrong since the first of the four|5. two templates, one of them production, where the item has them|6. transfer per kind (kTransferProbes): sentences (grammar, particle),|   verbs (conjugation), directions (pair), cells (table row)|7. a clear in every mode the item has a card for (D18)');
+node('R6', S.metric, 410, 500, 420, 195, 'Counts toward Mastered (plan 2026-11-02, D4)', '1. a clear while the item is due, at most one a day|2. four clears on four different days|3. the 4th at least 21 days after the review before it|4. no wrong since the first of the four|5. two templates, one of them production, where the item has them|6. transfer per kind (kTransferProbes): sentences (grammar, particle),|   verbs (conjugation), directions (pair), cells (table row)|7. a clear in every mode the item has a card for (plan 2026-11-06, D18)');
 node('R6b', S.metric, 410, 715, 420, 140, 'Counts for nothing', 'hinted: grammar hint, a lesson review before the answer|a spoken close: no credit; neutral for the 2-hinted reset only|   with no hint and no lesson review first (PIN-10; plan 2026-11-06, ASK-2)|early practice clear, Say-it, unscored (Azure unverified)|English shown changes nothing: still a clear|seeded due days: never a clear (plan 2026-11-02, PIN-7)');
 
 node('M61', S.metric, 380, 920, 340, 130, 'Type it, see it, say it (D18; plan 2026-11-06, PIN-7)', 'Mastered needs a counting clear in every mode the item has a card for.|typed: fill ' + dot + 'cloze ' + dot + 'typed ' + dot + 'conjugate|recognition: choose ' + dot + 'card ' + dot + 'transitive ' + dot + 'intransitive ' + dot + 'cell|spoken: spoken ' + dot + 'sayCard (Azure only; plan 2026-11-06, PIN-2)');
-node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (D11, D19)', 'The next card: the first mode with no counting clear, then a sentence with no clear yet. A sentence with clears on kMoveOnClearDays different days rotates off. Practice now and a same-day re-ask rotate (plan 2026-11-06, ASK-5). A particle&#39;s sentences: particle_sentences.json; its transfer count: kTransferProbes.');
+node('M62', S.metric, 750, 920, 340, 130, 'Sentence rotation (plan 2026-11-06, D11, D19)', 'The next card: the first mode with no counting clear, then a sentence with no clear yet. A sentence with clears on kMoveOnClearDays different days rotates off. Practice now and a same-day re-ask rotate (plan 2026-11-06, ASK-5). A particle&#39;s sentences: particle_sentences.json; its transfer count: kTransferProbes.');
 
 edge('consume', 'ATT6', 'MJ6', { exit: [0.5, 1], entry: [0.5, 0] });
 edge('instr', 'CAT6', 'MJ6', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1150, 232]] });

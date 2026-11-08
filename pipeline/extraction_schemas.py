@@ -364,7 +364,7 @@ class CatalogEntry(BaseModel):
     from_: list[str] = Field(default_factory=list, alias="from",
                              description="The data files the entry came from.")
     # A source_file entry describes one data file. Its counts are computed from the
-    # file at catalog build time, so no prose restates them (PIN-13).
+    # file at catalog build time, so no prose restates them (plan 2026-10-24, PIN-13).
     file: str | None = Field(default=None, description="source_file: repo path of the file.")
     role: str | None = Field(default=None, description="source_file: what the file is for.")
     origin: str | None = Field(default=None, description="source_file: where it came from.")
@@ -389,7 +389,7 @@ class ResultList(BaseModel):
 class KanjiVersion(BaseModel):
     """The `_ruby` twin of one Japanese field: kanji written `漢字{かんじ}`, one bracket
     per kanji word, okurigana outside (`買{か}い物{もの}`). Replacing every bracket
-    with its reading must give the hiragana text exactly (PIN-5, PIN-11)."""
+    with its reading must give the hiragana text exactly (plan 2026-10-24, PIN-5, PIN-11)."""
 
     owner_id: str = Field(description="Grammar point id, plus the item index for practice.")
     field: str = Field(description="jp_ruby, prompt_ruby, answer_ruby, accepted_ruby, ...")
@@ -409,7 +409,7 @@ class JudgeFinding(BaseModel):
 
 
 class TypedAnswer(BaseModel):
-    """What the learner typed into a fill-in box (Japanese keyboard, PIN-3)."""
+    """What the learner typed into a fill-in box (Japanese keyboard; plan 2026-10-24, PIN-3)."""
 
     item_id: str
     text: str
@@ -431,8 +431,8 @@ class Transcript(BaseModel):
 
 class SpeechResult(str, Enum):
     CORRECT = "correct"
-    CLOSE = "close"  # amber, matching part highlighted, then self-check (PIN-10)
-    SELF_CHECK = "self_check"  # uncomparable: never marked wrong (PIN-2)
+    CLOSE = "close"  # amber, matching part highlighted, then self-check (plan 2026-10-24, PIN-10)
+    SELF_CHECK = "self_check"  # uncomparable: never marked wrong (plan 2026-10-24, PIN-2)
 
 
 class SpeechVerdict(BaseModel):
@@ -458,7 +458,8 @@ class SeedTicks(BaseModel):
 
 
 class SeedEvent(BaseModel):
-    """A seeded item and its due day. Not an answer: no attempt, no clear (PIN-7)."""
+    """A seeded item and its due day. Not an answer: no attempt, no clear
+    (plan 2026-11-02, PIN-7)."""
 
     item_id: str
     due_day: int
@@ -487,9 +488,10 @@ class HintUse(BaseModel):
 
 
 class LessonReview(BaseModel):
-    """The core lesson opened from a card before the answer ("Review the lesson", PIN-5).
-    A right answer after it is hinted; a review after the answer is free; opening the
-    lesson writes no attempt (session_widget.dart, probe_widgets.dart afterLessonReview)."""
+    """The core lesson opened from a card before the answer ("Review the lesson";
+    plan 2026-11-06, PIN-5). A right answer after it is hinted; a review after the answer is
+    free; opening the lesson writes no attempt (session_widget.dart, probe_widgets.dart
+    afterLessonReview)."""
 
     item_id: str
     lesson: int | None
@@ -497,7 +499,8 @@ class LessonReview(BaseModel):
 
 class SpokenAnswer(BaseModel):
     """A recording of a spoken answer on a counting card (a say card, a word's spoken card).
-    Scored by sound against the hiragana, never by an on-device transcript (PIN-2)."""
+    Scored by sound against the hiragana, never by an on-device transcript
+    (plan 2026-11-06, PIN-2)."""
 
     item_id: str
     probe_id: str
@@ -509,7 +512,7 @@ class PronunciationResult(str, Enum):
     CLOSE = "close"
     WRONG = "wrong"
     # No connection, no microphone, a failed sign-in or call: unscored, never a self-mark
-    # (D10); wrong after the reveal (plan 2026-11-06, ASK-3).
+    # (plan 2026-11-06, D10); wrong after the reveal (plan 2026-11-06, ASK-3).
     UNVERIFIED = "unverified"
 
 
@@ -523,9 +526,10 @@ class PronunciationVerdict(BaseModel):
 
 
 class DiscussMark(BaseModel):
-    """Mark's reminder to raise an item with his tutor (jp_store.dart DiscussMark, PIN-6).
-    Kept beside the attempt log and carried by export and import; no stage that grades,
-    schedules or judges mastery reads it, and the tutor never needs the app."""
+    """Mark's reminder to raise an item with his tutor (jp_store.dart DiscussMark;
+    plan 2026-11-06, PIN-6). Kept beside the attempt log and carried by export and import;
+    no stage that grades, schedules or judges mastery reads it, and the tutor never needs
+    the app."""
 
     item_id: str
     note: str | None = None
@@ -823,13 +827,13 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     "Planning": (DET, (CatalogEntry, SeedEvent, StudyAttempt, SrsState, MasteryState), (DayPlan,)),
     # The learner answers; Answer Checking (SD4) judges a typed answer and Pronunciation
     # Scoring (Azure) a spoken one. Speech Checking's on-device verdicts are practice only:
-    # they are graded as Say-it and never count (PIN-2).
+    # they are graded as Say-it and never count (plan 2026-11-06, PIN-2).
     "Answering": (HUMAN, (DayPlan,), (TypedAnswer, SpokenAnswer, HintUse)),
     "PronunciationScoring": (DET, (SpokenAnswer, CatalogEntry), (PronunciationVerdict,)),
     "LessonReviewing": (HUMAN, (DayPlan, CatalogEntry), (LessonReview,)),
     "Grading": (DET, (AnswerVerdict, SpeechVerdict, PronunciationVerdict, HintUse, LessonReview),
                 (StudyAttempt,)),
-    # The Discuss mark (PIN-6): no stage below reads it.
+    # The Discuss mark (plan 2026-11-06, PIN-6): no stage below reads it.
     "DiscussMarking": (HUMAN, (CatalogEntry,), (DiscussMark,)),
     "Scheduling": (DET, (StudyAttempt, SrsState), (SrsState,)),
     "MasteryJudging": (DET, (StudyAttempt, MasteryState, CatalogEntry), (MasteryState,)),
@@ -901,7 +905,8 @@ _ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExa
           TypedAnswer, Transcript, SeedTicks, SrsState, MasteryState}
 
 # Produced but deliberately consumed by nothing — the pipeline's end products. A Discuss
-# mark is one on purpose: Mark reads the list with his tutor, and no stage grades from it (PIN-6).
+# mark is one on purpose: Mark reads the list with his tutor, and no stage grades from it
+# (plan 2026-11-06, PIN-6).
 _TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList,
              AnswerVerdict, SpeechVerdict, DiscussMark}
 
