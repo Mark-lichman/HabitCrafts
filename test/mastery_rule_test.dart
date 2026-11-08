@@ -30,7 +30,8 @@ class _Item implements ItemDefLike {
   final Set<ProbeMode> modes;
 }
 
-// One template, one probe: each particle's one cloze (PIN-15).
+// One template, one probe: a particle with one cloze (PIN-15), as before its drafted
+// sentences (plan 2026-11-06, Task 9), so the transfer clause caps at that one.
 const particle = _Item('mari.particle.14', ItemKind.particle);
 // Card recall, spoken recall, reading typed: three templates, two of them production.
 const word = _Item('L30_02', ItemKind.word,
@@ -698,7 +699,41 @@ void main() {
           MasteryStatus.mastered);
     });
 
-    test('a particle and a word carry no sentence transfer clause', () {
+    test('a particle needs two different sentences (plan 2026-11-06, Task 9)',
+        () {
+      const threeSentences = _Item('mari.particle.1', ItemKind.particle,
+          templateCount: 2, hasProductionProbe: true, probeCount: 3);
+      expect(transferProbesNeeded(threeSentences), 2);
+      Attempt c(int d, String sentence, {String template = 'cloze'}) =>
+          att(d, Grade.clear,
+              item: threeSentences,
+              probe: sentence,
+              template: template,
+              production: template == 'cloze');
+      // One sentence asked two ways (its choose card twins it) is one sentence.
+      expect(
+          replay([
+            c(0, 'cloze'),
+            c(2, 'choose.cloze', template: 'choose'),
+            c(8, 'cloze'),
+            c(29, 'cloze'),
+          ], threeSentences)
+              .status,
+          MasteryStatus.learning);
+      expect(
+          replay([
+            c(0, 'cloze'),
+            c(2, 'choose.cloze', template: 'choose'),
+            c(8, 'cloze.1'),
+            c(29, 'cloze'),
+          ], threeSentences)
+              .status,
+          MasteryStatus.mastered);
+    });
+
+    test('a one-sentence particle needs only that sentence, a word none', () {
+      // The cap at the probe count: a particle whose asset has one sentence.
+      expect(transferProbesNeeded(particle), 1);
       expect(replay(fourClears(29)).status, MasteryStatus.mastered);
       final w = replay([
         att(0, Grade.clear, item: word, template: 'card', probe: 'w1'),

@@ -7,7 +7,7 @@
 // | kind        | id                         | probes                                       |
 // |-------------|----------------------------|----------------------------------------------|
 // | grammar     | `mari.L31.3`               | its practice items, a say card per item, then its examples (Say-it) |
-// | particle    | `mari.particle.14`         | its cloze, a choose card over it, a say card over it |
+// | particle    | `mari.particle.14`         | its cloze, a choose card over it, a say card over it, then a cloze per drafted sentence |
 // | word        | image stem, `L30_02`       | card recall, spoken recall, reading typed, a say card |
 // | conjugation | `conj.<form>.g<group>`     | the verbs of that group that have the form, a say card per verb |
 // | pair        | the catalog id             | both directions, a say card per direction    |
@@ -22,6 +22,12 @@
 // the two as one (`transferKeyOf`, mastery_rule.dart). A particle's choose card (`choose.cloze`)
 // offers its cloze answer among other particles that cannot complete the sentence
 // ([particleChooseOptions], PIN-3, PIN-7).
+//
+// A particle asks each of its `sentences` as a cloze (plan 2026-11-06, Task 9, D4, PIN-4): the
+// first is its `cloze`, under the id it always had ([kParticleClozeId]); the drafted ones are
+// `cloze.1` and `cloze.2` ([particleClozeId]), typed only. Each is its own sentence for the
+// transfer clause, and the session moves between them (`nextProbe`, D11). A particle whose
+// asset has no `sentences` keeps its one cloze.
 //
 // Prerequisite level orders introductions: 0 for particles, conjugation ideas, pairs and table
 // rows; 1 for the words of a lesson; 2 for the grammar of a lesson. A grammar point's `prereqs`
@@ -53,6 +59,15 @@ String sayCardId(String probeId) => 'say.$probeId';
 
 /// The id of a word's one say card.
 const String kWordSayCardId = 'say';
+
+/// The id of a particle's first cloze, the sentence of its `cloze` (plan 2026-11-02). The
+/// record already holds attempts under it, so it never changes.
+const String kParticleClozeId = 'cloze';
+
+/// The id of the cloze over a particle's sentence [index] in its `sentences` (plan 2026-11-06,
+/// Task 9): `cloze` for the first, `cloze.1` and `cloze.2` for the drafted ones.
+String particleClozeId(int index) =>
+    index == 0 ? kParticleClozeId : '$kParticleClozeId.$index';
 
 /// The id of a particle's choose card, which twins its cloze.
 const String kParticleChooseId = 'choose.cloze';
@@ -406,12 +421,25 @@ List<ItemDef> _particles(Map<String, dynamic> grammar) {
     final cloze = p['cloze'];
     if (cloze is! Map<String, dynamic>) continue;
     final asked = ProbeDef(
-      id: 'cloze',
+      id: kParticleClozeId,
       template: 'cloze',
       text: _str(cloze['prompt']),
       answer: _str(cloze['answer']),
       production: true,
     );
+    // One cloze per drafted sentence (Task 9, D4). Sentence 0 is the cloze above, so it keeps
+    // its id; the rest take their place in `sentences`.
+    final sentences = _maps(p['sentences']);
+    final more = [
+      for (var s = 1; s < sentences.length; s++)
+        ProbeDef(
+          id: particleClozeId(s),
+          template: 'cloze',
+          text: _str(sentences[s]['prompt']),
+          answer: _str(sentences[s]['answer']),
+          production: true,
+        ),
+    ];
     final options = particleChooseOptions(i, asked.answer,
         (cloze['accepted'] as List? ?? const []).cast<String>());
     out.add(ItemDef(
@@ -431,6 +459,7 @@ List<ItemDef> _particles(Map<String, dynamic> grammar) {
             options: options,
           ),
         _sayCard(asked, answer: wholeSentence(asked.text, asked.answer)),
+        ...more,
       ],
     ));
   }

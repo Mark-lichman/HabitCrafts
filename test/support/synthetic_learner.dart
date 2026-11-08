@@ -1,12 +1,14 @@
 // The synthetic learner and the day loop behind test/srs_simulation_test.dart (Task 16).
 //
 // The learner answers the real catalog's items through their real probes and templates, on the
-// probe the Review session would ask (`nextProbe`, plan 2026-11-06, D19): a mode with no
-// counting clear first, then the probes in turn. Its
-// chance of a clear is 85% while the item is retrievable (FSRS retrievability at or above
-// 0.85); below that the chance is the retrievability itself. An item with no FSRS state (New,
-// or seeded and not yet answered) is cleared 68% of the time, the Python reference's
-// first-sight rate (sim_queue.py, 0.85 x 0.8). A miss is hinted 45% of the time and wrong 55%.
+// probe the Review session would ask (`nextProbe`, plan 2026-11-06, D19, D11): a mode with no
+// counting clear first, then a sentence with no clear, then the probes in turn; a re-ask
+// after a wrong rotates by answers so far, as the session's marker does (plan 2026-11-06,
+// ASK-5). Its chance of a clear is 85% while the item is retrievable (FSRS retrievability at
+// or above 0.85); below that the chance is the retrievability itself. An item with no FSRS
+// state (New, or seeded and not yet answered) is cleared 68% of the time, the Python
+// reference's first-sight rate (sim_queue.py, 0.85 x 0.8). A miss is hinted 45% of the time
+// and wrong 55%.
 //
 // The day loop is the app's, with nothing stubbed: `buildPlan` builds the day's plan from a
 // `JpStoreMemory`; the plan is stored as the day's `DayRecord` (keep-sharp reads the week's
@@ -80,11 +82,14 @@ class SyntheticLearner {
 }
 
 /// The scored probe asked of [item] in [state] after [n] answers on it: the Review session's
-/// own pick, `nextProbe` (plan 2026-11-06, D19), so a needed mode shows before the clears run
-/// out and the probes then take turns by the item's answers so far, as the session counts
-/// them (every attempt on the item, early practice included; the simulator writes none).
-ProbeDef probeFor(ItemDef item, MasteryState state, int n) =>
-    nextProbe(item, state, n);
+/// own pick, `nextProbe` (plan 2026-11-06, D19, D11), so a needed mode shows before the clears
+/// run out, a sentence with no clear comes next, and a sentence cleared on 2 days moves aside.
+/// [rotate] is the session's marker for a same-day re-ask after a wrong (plan 2026-11-06,
+/// ASK-5): the probes in turn by the item's answers so far, as the session counts them (every
+/// attempt on the item, early practice included; the simulator writes none).
+ProbeDef probeFor(ItemDef item, MasteryState state, int n,
+        {bool rotate = false}) =>
+    nextProbe(item, state, n, rotate: rotate);
 
 /// The grade of [answer] on [probe], through the app's own `gradeAnswer` (D17, PIN-13): a
 /// hinted answer is right after a hint below the revealing level.
@@ -324,7 +329,7 @@ Future<SimRun> simulate(SimConfig config, ItemCatalog catalog,
       final n = scoredAnswers[item.id] ?? 0;
       final mastery =
           await store.mastery(item.id) ?? MasteryState.initial(item.id);
-      final probe = probeFor(item, mastery, n);
+      final probe = probeFor(item, mastery, n, rotate: entry.reask);
       final grade = gradeOf(learner.answer(r), probe);
       final attempt = Attempt(
         itemId: item.id,

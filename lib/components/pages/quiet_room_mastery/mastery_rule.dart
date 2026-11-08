@@ -11,11 +11,11 @@
 //   4. where the item has two or more templates: two different templates among the clears and,
 //      where it has a production probe, one production clear; a one-template item needs only
 //      the spaced clears (PIN-15);
-//   5. transfer per kind: three sentences for a grammar point, three verbs for a conjugation
-//      idea, both directions for a pair, two different cells for a table row (every cell where
-//      the row has fewer than two). A probe that asks the same sentence, verb, direction or cell
-//      in another mode (`say.p0` beside `p0`, plan 2026-11-06 Task 6) counts as that one: see
-//      [transferKeyOf];
+//   5. transfer per kind: three sentences for a grammar point, two for a particle (plan
+//      2026-11-06, Task 9, D4), three verbs for a conjugation idea, both directions for a pair,
+//      two different cells for a table row (every probe where the item has fewer). A probe
+//      that asks the same sentence, verb, direction or cell in another mode (`say.p0` beside
+//      `p0`, plan 2026-11-06 Task 6) counts as that one: see [transferKeyOf];
 //   6. a clear in every mode the item has a scored card for (PIN-7, D18): type it, see it, say
 //      it, by [kTemplateModes]. A word needs all three; a conjugation idea, a pair or a table
 //      row has no card in one of them and needs the other two. See [missingModes].
@@ -50,6 +50,7 @@ const int kRegainGapDays = 7;
 /// Different probes needed per kind (D4 clause 5), before the cap at the item's probe count.
 const Map<ItemKind, int> kTransferProbes = {
   ItemKind.grammar: 3,
+  ItemKind.particle: 2,
   ItemKind.conjugation: 3,
   ItemKind.pair: 2,
   ItemKind.tableRow: 2,

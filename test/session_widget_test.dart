@@ -41,10 +41,19 @@
 //
 // Next card (plan 2026-11-06, Task 6, End state 11, D19): `nextProbe` asks the first scored
 // probe whose mode has no counting clear, so a needed mode shows before the 4th clear, and
-// the scored probes take turns once every mode has one. Through the real builder, a particle
+// a word's scored probes take turns once every mode has one. Through the real builder, a particle
 // whose cloze is cleared shows its choose card, and one with the cloze and the choose cleared
 // shows its say card, scored through the service and written with the entry's source, never
 // Say-it.
+//
+// Sentence rotation (plan 2026-11-06, Task 9, End state 11, D11, PIN-4, ASK-5): a particle
+// carries one cloze per sentence; within the needed mode a sentence with no clear comes
+// first, and a sentence cleared on 2 different days moves aside. A rotate marker takes the
+// scored probes in turn by attempts so far: Practice now on an item that is not due shows two
+// different cards on two early answers, and a re-ask after a wrong rotates (here to a
+// different card; the rotation is by attempts so far, not away from the card just missed),
+// while the held card keeps the probe it was answered on. A due entry, in the session or in
+// Practice now, keeps the first needed mode.
 
 import 'dart:convert';
 import 'dart:io';
@@ -68,6 +77,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/plan_builder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart'
+    show SrsState;
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart'
     show Judgement;
@@ -326,12 +337,15 @@ void main() {
   testWidgets(
       'the fourth clear that completes the rule shows Mastered and the end card lists it',
       (tester) async {
-    // A particle has one sentence, so no transfer clause; since its choose and say cards
-    // (plan 2026-11-06, Task 6) it needs two templates and a production clear, and a clear in
-    // each of its three modes (Task 7, PIN-7), so the seeded clears hold a choose clear (see
-    // it) and a say card clear (say it) beside the cloze (type it) that completes the rule.
+    // Since its choose and say cards (plan 2026-11-06, Task 6) a particle needs two templates
+    // and a production clear, and a clear in each of its three modes (Task 7, PIN-7), so the
+    // seeded clears hold a choose clear (see it) and a say card clear (say it) beside the
+    // cloze (type it) that completes the rule. Since Task 9 it needs two sentences, so the
+    // first seeded clear is on its second sentence (`cloze.1`).
     final particle = catalog.ofKind(ItemKind.particle).first;
     final probe = particle.scoredProbes.first;
+    final second =
+        particle.probes.firstWhere((p) => p.id == particleClozeId(1));
     final choose = particle.probes.firstWhere((p) => p.id == kParticleChooseId);
     final say = particle.probes.firstWhere((p) => p.id == sayCardId('cloze'));
     ClearRef c(int day, [ProbeDef? on]) => ClearRef(
@@ -343,7 +357,11 @@ void main() {
     await store.putMastery(MasteryState(
       itemId: particle.id,
       status: MasteryStatus.learning,
-      clears: [c(today - 70), c(today - 50, choose), c(today - 30, say)],
+      clears: [
+        c(today - 70, second),
+        c(today - 50, choose),
+        c(today - 30, say)
+      ],
       lastScoredDay: today - 30,
     ));
     final h = await pumpSession(
@@ -1669,7 +1687,7 @@ void main() {
     });
   });
 
-  group('next card (plan 2026-11-06, Task 6, D19)', () {
+  group('next card (plan 2026-11-06, Tasks 6 and 9, D19, D11)', () {
     final word = words[0];
     final particle = catalog.ofKind(ItemKind.particle).first;
     ProbeDef probeOf(ItemDef item, String template) =>
@@ -1785,7 +1803,7 @@ void main() {
       }
     });
 
-    test('once every mode has a clear, the scored probes take turns', () {
+    test("once every mode has a clear, a word's scored probes take turns", () {
       final all = learning(word, [
         clearOn(word, 'card', 1),
         clearOn(word, 'spoken', 2),
@@ -1816,6 +1834,113 @@ void main() {
           () => nextProbe(none, const MasteryState.initial('none'), 0),
           throwsA(isA<StateError>().having((e) => e.message, 'message',
               contains('has no scored probe to ask'))));
+    });
+
+    // Sentence rotation (plan 2026-11-06, Task 9, D11, PIN-4).
+    ClearRef on(ItemDef item, String id, int day) {
+      final p = item.probes.firstWhere((x) => x.id == id);
+      return ClearRef(
+          day: day,
+          template: p.template,
+          production: p.production,
+          probeId: p.id);
+    }
+
+    test('a particle carries one cloze per sentence, the first keeps its id',
+        () {
+      final clozes = [
+        for (final p in particle.scoredProbes)
+          if (p.template == 'cloze') p.id
+      ];
+      expect(
+          clozes, [kParticleClozeId, particleClozeId(1), particleClozeId(2)]);
+    });
+
+    test('within the needed mode, a sentence with no clear comes first', () {
+      // See it and say it cleared on the first sentence on two days: type it is needed, and
+      // the first sentence has moved aside, so the session asks sentence 1.
+      final moved = learning(particle, [
+        clearOn(particle, 'choose', 1),
+        clearOn(particle, kSayCardTemplate, 2),
+      ]);
+      for (var answered = 0; answered < 6; answered++) {
+        expect(nextProbe(particle, moved, answered).id, particleClozeId(1),
+            reason: 'after $answered attempts');
+      }
+      // The same two modes on one day: sentence 1 still has no clear, so it comes first.
+      final oneDay = learning(particle, [
+        clearOn(particle, 'choose', 1),
+        clearOn(particle, kSayCardTemplate, 1),
+      ]);
+      expect(nextProbe(particle, oneDay, 0).id, particleClozeId(1));
+    });
+
+    test('once every mode has a clear, the next sentence with no clear comes',
+        () {
+      final modes = [
+        on(particle, kParticleClozeId, 1),
+        on(particle, kParticleChooseId, 1),
+        on(particle, sayCardId(kParticleClozeId), 1),
+      ];
+      expect(nextProbe(particle, learning(particle, modes), 3).id,
+          particleClozeId(1));
+      expect(
+          nextProbe(
+                  particle,
+                  learning(particle,
+                      [...modes, on(particle, particleClozeId(1), 2)]),
+                  4)
+              .id,
+          particleClozeId(2));
+    });
+
+    test('a sentence cleared on 2 different days moves aside (D11)', () {
+      // Every mode cleared, every sentence cleared, the first on two days: the session never
+      // asks the first sentence again, in any of its three cards.
+      final state = learning(particle, [
+        on(particle, kParticleClozeId, 1),
+        on(particle, kParticleChooseId, 2),
+        on(particle, sayCardId(kParticleClozeId), 2),
+        on(particle, particleClozeId(1), 3),
+        on(particle, particleClozeId(2), 3),
+      ]);
+      final seen = <String>{};
+      for (var answered = 0; answered < 12; answered++) {
+        final p = nextProbe(particle, state, answered);
+        expect(transferKeyOf(p.id), isNot(kParticleClozeId),
+            reason: 'after $answered attempts');
+        seen.add(p.id);
+      }
+      expect(seen, {particleClozeId(1), particleClozeId(2)},
+          reason: 'the two sentences left take turns');
+      // On one day only, the first sentence is still in the turns.
+      final oneDay = learning(particle, [
+        on(particle, kParticleClozeId, 1),
+        on(particle, kParticleChooseId, 1),
+        on(particle, sayCardId(kParticleClozeId), 1),
+        on(particle, particleClozeId(1), 3),
+        on(particle, particleClozeId(2), 3),
+      ]);
+      expect({
+        for (var answered = 0; answered < 12; answered++)
+          transferKeyOf(nextProbe(particle, oneDay, answered).id)
+      }, contains(kParticleClozeId));
+    });
+
+    test('a rotate marker takes the scored probes in turn by attempts so far',
+        () {
+      // Early practice and a re-ask after a wrong (plan 2026-11-06, ASK-5): the state the
+      // D19 pick answers with the first card gives a different card per attempt.
+      final scored = word.scoredProbes.toList();
+      final fresh = MasteryState.initial(word.id);
+      for (var answered = 0; answered < scored.length * 2; answered++) {
+        expect(nextProbe(word, fresh, answered, rotate: true).id,
+            scored[answered % scored.length].id);
+      }
+      expect(nextProbe(word, fresh, 1).id, scored.first.id,
+          reason: 'with no marker the D19 pick keeps the first needed mode');
+      expect(
+          nextProbe(word, fresh, 1, rotate: true).id, isNot(scored.first.id));
     });
 
     final grammarDoc = _read('assets/lessons/jp_grammar.json');
@@ -1919,9 +2044,12 @@ void main() {
     testWidgets(
         "a grammar say card shows the English of the practice row it twins",
         (tester) async {
-      // A typed and a recognition clear: the first say card (`say.p0`) is the pick, and
-      // its English is practice row 0's, read through `transferKeyOf` in the real builder.
+      // A typed and a recognition clear: say it is needed, and the pick is the first say
+      // card whose sentence has no clear yet (D11, Task 9), past p0 and the choose row. Its
+      // English is that practice row's, read through `transferKeyOf` in the real builder.
       final grammar = catalog.ofKind(ItemKind.grammar).first;
+      final fill = probeOf(grammar, 'fill'),
+          choose = probeOf(grammar, 'choose');
       final pron = FakePronunciation();
       final h = await pumpPicked(
           tester,
@@ -1931,13 +2059,97 @@ void main() {
             clearOn(grammar, 'choose', today - 1),
           ]),
           pron);
-      final say = grammar.probes.firstWhere((p) => p.id == sayCardId('p0'));
+      final say = grammar.scoredProbes.firstWhere((p) =>
+          p.template == kSayCardTemplate &&
+          transferKeyOf(p.id) != fill.id &&
+          transferKeyOf(p.id) != choose.id);
+      final row = int.parse(transferKeyOf(say.id).substring(1));
+      expect(row, greaterThan(0), reason: 'a say card past row 0');
       final rows = practiceRowsOf(grammar.id);
       expect(h.shows('Say the whole sentence'), isTrue);
       expect(h.shows(say.text), isTrue);
-      expect(h.shows(rows[0]['en'] as String), isTrue,
-          reason: 'row 0 English, through the twin id');
+      expect(h.shows(rows[row]['en'] as String), isTrue,
+          reason: 'row $row English, through the twin id');
       expect(h.shows(say.answer), isFalse, reason: 'the prompt only (PIN-12)');
+    });
+
+    testWidgets(
+        "a particle's second cloze shows that sentence's English, not the example",
+        (tester) async {
+      // A recognition and a spoken clear: type it is needed, and the say clear counts for
+      // sentence 0 through `transferKeyOf`, so the pick is `cloze.1` (D11, Task 9). Its
+      // English is the drafted sentence's own, read by `particleEnglish` in the real builder.
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          particle,
+          learning(particle, [
+            clearOn(particle, 'choose', today - 2),
+            clearOn(particle, kSayCardTemplate, today - 1),
+          ]),
+          pron);
+      final row = particleRowOf(particle.id);
+      final sentences = (row['sentences'] as List).cast<Map>();
+      final english = sentences[1]['english'] as String;
+      expect(english, isNot(row['example_en']),
+          reason: 'the check needs two different translations');
+      await h.tap('Show English');
+      expect(h.shows(english), isTrue, reason: "sentence 1's own English");
+      expect(h.shows(row['example_en'] as String), isFalse,
+          reason: 'not the example sentence the fallback would show');
+    });
+
+    // Accepted forms reach the typed check through the real builder, so a right answer in
+    // another form is never marked wrong (jp_study_kit rule). けれど（も） answers けれど and
+    // accepts けれども and けど on its first cloze and on each drafted sentence: the drafted
+    // row is read for `cloze.N`, the particle's `cloze` for the first.
+    final keredo = catalog.byId('mari.particle.13')!;
+
+    testWidgets(
+        "a typed accepted form clears a particle's drafted sentence, not the answer alone",
+        (tester) async {
+      // A recognition and a spoken clear: type it is needed, and the pick is `cloze.1`.
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester,
+          keredo,
+          learning(keredo, [
+            clearOn(keredo, 'choose', today - 2),
+            clearOn(keredo, kSayCardTemplate, today - 1),
+          ]),
+          pron);
+      final row = particleRowOf(keredo.id);
+      final sentence = (row['sentences'] as List).cast<Map>()[1];
+      expect(h.shows(sentence['prompt'] as String), isTrue,
+          reason: 'the card asks sentence 1');
+      const typed = 'けど';
+      expect(sentence['accepted'], contains(typed));
+      expect(sentence['answer'], isNot(typed));
+      await tester.enterText(find.byType(TextField), typed);
+      await h.tap('Check');
+      final a = (await h.store.attempts(itemId: keredo.id)).single;
+      expect(a.probeId, particleClozeId(1));
+      expect(a.grade, Grade.clear);
+      expect(h.shows('Your answer: $typed'), isFalse,
+          reason: 'no wrong verdict for an accepted form');
+    });
+
+    testWidgets("a typed accepted form clears a particle's first cloze",
+        (tester) async {
+      final pron = FakePronunciation();
+      final h = await pumpPicked(
+          tester, keredo, MasteryState.initial(keredo.id), pron);
+      final row = particleRowOf(keredo.id);
+      final cloze = row['cloze'] as Map;
+      expect(h.shows(cloze['prompt'] as String), isTrue);
+      const typed = 'けれども';
+      expect(cloze['accepted'], contains(typed));
+      expect(cloze['answer'], isNot(typed));
+      await tester.enterText(find.byType(TextField), typed);
+      await h.tap('Check');
+      final a = (await h.store.attempts(itemId: keredo.id)).single;
+      expect(a.probeId, kParticleClozeId);
+      expect(a.grade, Grade.clear);
     });
 
     testWidgets('a word with a see-it clear asks its spoken card next',
@@ -1948,6 +2160,176 @@ void main() {
       expect(h.shows('Say or type the word'), isTrue,
           reason: 'the spoken card, not the card recall again');
       expect(h.shows('Show me'), isFalse);
+    });
+
+    // Through the hosts (plan 2026-11-06, Task 9, ASK-5): a probe builder that asks the
+    // session's own pick, with the marker each host passes. Every case seeds a prior
+    // attempt, because at answered 0 the rotation and the D19 pick both give the first card.
+
+    /// The fake probe on the pick: it names the card it asks and answers on it.
+    Widget pickedProbe(BuildContext context, SessionProbeRequest r) {
+      final probe = nextProbe(r.item, r.state, r.answered, rotate: r.rotate);
+      DrillAnswer draft(Grade g) => DrillAnswer(
+          itemId: r.item.id,
+          probeId: probe.id,
+          template: probe.template,
+          production: probe.production,
+          selfGraded: probe.selfGraded,
+          grade: g);
+      return Column(children: [
+        Text('asks ${probe.id}'),
+        for (final g in [Grade.clear, Grade.wrong])
+          TextButton(
+              onPressed: () => r.onAnswer(draft(g)),
+              child: Text('answer ${g.name}')),
+      ]);
+    }
+
+    String? asked() {
+      final f = find.textContaining('asks ');
+      if (f.evaluate().isEmpty) return null;
+      return (f.evaluate().single.widget as Text).data!.substring(5);
+    }
+
+    Future<Harness> pumpWithPick(WidgetTester tester, JpStoreMemory s,
+        Widget Function(JpStoreMemory s) body) async {
+      tester.view.physicalSize = const Size(900, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: body(s))));
+      final h = Harness(tester, s);
+      await h.settle();
+      return h;
+    }
+
+    testWidgets('two early answers in Practice now show two different cards',
+        (tester) async {
+      final s = JpStoreMemory();
+      // A prior attempt and no schedule: the word is not due, so practice is early.
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      final shown = <String?>[];
+      for (var i = 0; i < 2; i++) {
+        final h = await pumpWithPick(
+            tester,
+            s,
+            (s) => PracticeSessionWidget(
+                key: ValueKey('practice-$i'),
+                items: [word],
+                store: s,
+                catalog: catalog,
+                clock: FixedClock(at(today)),
+                probeBuilder: pickedProbe));
+        shown.add(asked());
+        await h.tap('answer clear');
+      }
+      expect(shown[0], isNotNull);
+      expect(shown[1], isNot(shown[0]),
+          reason: 'early practice rotates by attempts so far');
+      final written = (await s.attempts(itemId: word.id)).skip(1);
+      expect(written.map((a) => a.probeId).toList(), shown);
+      expect(written.every((a) => a.source == Source.early), isTrue);
+    });
+
+    testWidgets('a due item in Practice now keeps the first needed mode',
+        (tester) async {
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      await s.putSrs(
+          word.id,
+          const SrsState(
+              stability: 1.0,
+              difficulty: 5.0,
+              lastReviewDay: today - 1,
+              dueDay: today,
+              interval: 1));
+      await pumpWithPick(
+          tester,
+          s,
+          (s) => PracticeSessionWidget(
+              items: [word],
+              store: s,
+              catalog: catalog,
+              clock: FixedClock(at(today)),
+              probeBuilder: pickedProbe));
+      expect(asked(), word.scoredProbes.first.id,
+          reason: 'a due review keeps the D19 pick, not the rotation');
+    });
+
+    testWidgets(
+        'a seeded item due today in Practice now keeps the first needed mode',
+        (tester) async {
+      // A seed and no FSRS row (the state after `seedFromLessons`, PIN-9): the due day comes
+      // from `seedDueDay`, so the item is due and the D19 pick holds (plan 2026-11-06, ASK-5).
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      await s.appendSeeds([
+        SeedEvent(itemId: word.id, dueDay: today, atUtc: at(today).toUtc())
+      ]);
+      await pumpWithPick(
+          tester,
+          s,
+          (s) => PracticeSessionWidget(
+              items: [word],
+              store: s,
+              catalog: catalog,
+              clock: FixedClock(at(today)),
+              probeBuilder: pickedProbe));
+      expect(asked(), word.scoredProbes.first.id,
+          reason: 'a seeded due item keeps the D19 pick, not the rotation');
+    });
+
+    testWidgets('a due entry in the session still shows the first needed mode',
+        (tester) async {
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      await pumpWithPick(
+          tester,
+          s,
+          (s) => SessionWidget(
+              plan: planOf([entryOf(word, PlanSection.due)]),
+              store: s,
+              clock: FixedClock(at(today)),
+              catalog: catalog,
+              probeBuilder: pickedProbe));
+      expect(asked(), word.scoredProbes.first.id);
+      expect(nextProbe(word, MasteryState.initial(word.id), 1, rotate: true).id,
+          isNot(word.scoredProbes.first.id),
+          reason: 'the rotation would have shown another card here');
+    });
+
+    testWidgets(
+        'a re-ask after a wrong rotates to a different card here, and the held card stays',
+        (tester) async {
+      // The rotation is by attempts so far (plan 2026-11-06, ASK-5), not away from the card
+      // just missed: with other prior attempts the rotated card can coincide with the D19
+      // pick. This seeding (one prior attempt, the first card asked) keeps them apart.
+      final s = JpStoreMemory();
+      await s.appendAttempt(attemptOf(word, today - 1, Grade.hinted));
+      final h = await pumpWithPick(
+          tester,
+          s,
+          (s) => SessionWidget(
+              plan: planOf([entryOf(word, PlanSection.due)]),
+              store: s,
+              clock: FixedClock(at(today)),
+              catalog: catalog,
+              probeBuilder: pickedProbe));
+      final first = asked();
+      expect(first, word.scoredProbes.first.id);
+      await h.tap('answer wrong');
+      // The held card is the card just answered, though the plan already moved on to the
+      // re-ask (a marker read from the live entry would change it here).
+      expect(h.shows('Next'), isTrue);
+      expect(asked(), first, reason: 'the held card keeps its probe');
+      await h.tap('Next');
+      final again = asked();
+      expect(again, isNotNull, reason: 'the re-ask is on screen');
+      expect(again, isNot(first),
+          reason: 'a re-ask rotates (plan 2026-11-06, ASK-5)');
+      await h.tap('answer clear');
+      final probes =
+          (await s.attempts(itemId: word.id)).skip(1).map((a) => a.probeId);
+      expect(probes.toList(), [first, again]);
     });
   });
 }

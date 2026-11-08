@@ -11,6 +11,8 @@
 // the plan's D18 row, and every scored probe the catalog builds has a mode (D19). A particle
 // whose wrong-option pool runs short gets no choose card, at and under the boundary. Each item
 // names the modes it has a scored card for (plan 2026-11-06, Task 7, PIN-7), pinned per kind.
+// A particle asks each shipped sentence as its own cloze, and a replay over the real particles
+// stays Learning on one sentence and masters on two (plan 2026-11-06, Task 9, D4).
 
 import 'dart:convert';
 import 'dart:io';
@@ -55,6 +57,14 @@ Map<ItemKind, int> measuredCounts() {
     ItemKind.tableRow: rows.length,
   };
 }
+
+/// The shipped `sentences` of the particle [id], straight from the raw asset.
+List<Map<String, dynamic>> particleSentencesOf(String id) =>
+    ((grammarDoc['particles'] as List)
+                .cast<Map<String, dynamic>>()
+                .firstWhere((p) => p['id'] == id)['sentences'] as List? ??
+            const [])
+        .cast<Map<String, dynamic>>();
 
 void main() {
   final catalog = ItemCatalog.fromDocs(grammarDoc, lessonsDoc);
@@ -181,9 +191,11 @@ void main() {
     expect(
         word.probes.firstWhere((p) => p.template == 'card').selfGraded, isTrue);
     for (final p in catalog.ofKind(ItemKind.particle)) {
-      // The cloze, the choose card and the say card (Task 6, PIN-7), over one sentence.
+      // The cloze, the choose card and the say card (Task 6, PIN-7), and one cloze per
+      // sentence (Task 9): the probe count is the particle's sentences.
       expect(p.templateCount, 3, reason: 'cloze, choose and say card');
-      expect(p.probeCount, 1, reason: 'one sentence per particle');
+      expect(p.probeCount, particleSentencesOf(p.id).length,
+          reason: 'one sentence, one probe');
     }
     for (final p in catalog.ofKind(ItemKind.pair)) {
       expect(p.templateCount, 3,
@@ -324,7 +336,8 @@ void main() {
 
   test('ItemDef satisfies the mastery rule contract', () {
     final ItemDefLike item = catalog.ofKind(ItemKind.particle).first;
-    expect(transferProbesNeeded(item), 0);
+    expect(transferProbesNeeded(item), 2,
+        reason: 'two sentences per particle (plan 2026-11-06, Task 9, D4)');
     final grammar = catalog.ofKind(ItemKind.grammar).first;
     expect(transferProbesNeeded(grammar), 3);
   });
@@ -687,12 +700,10 @@ void main() {
       // as the transfer clause. The two-sentence fixture below is the one the transfer
       // clause alone decides.
       for (final item in grammar) {
-        expect(
-            [
-              for (final p in item.probes)
-                if (transferKeyOf(p.id) == 'p0') p.template
-            ],
-            unorderedEquals(['fill', kSayCardTemplate]),
+        expect([
+          for (final p in item.probes)
+            if (transferKeyOf(p.id) == 'p0') p.template
+        ], unorderedEquals(['fill', kSayCardTemplate]),
             reason: '${item.id}: no choose card twins p0');
         final s = replay(item, ['p0', 'say.p0', 'p0', 'say.p0']);
         expect(missingModes(item, s.clears), [ProbeMode.recognition],
@@ -767,6 +778,117 @@ void main() {
           remainingFor(item, learning([ref('p0', 0), ref('p1', 2)]));
       expect(afterSecond, contains('clears on 1 more different sentence'));
       expect(afterSecond, isNot(contains(twoMore)));
+    });
+  });
+
+  // Sentence variety (plan 2026-11-06, Task 9, D4, PIN-4): a particle asks each of its shipped
+  // sentences as its own cloze, and the rule needs clears on two of them.
+  group('a particle carries one cloze per sentence (plan 2026-11-06, Task 9)',
+      () {
+    final particles = catalog.ofKind(ItemKind.particle).toList();
+
+    test('every shipped sentence is a scored cloze, the first one keeps its id',
+        () {
+      expect(particles, isNotEmpty);
+      for (final item in particles) {
+        final sentences = particleSentencesOf(item.id);
+        expect(sentences.length, 3, reason: '${item.id}: three sentences (D4)');
+        final clozes = [
+          for (final p in item.scoredProbes)
+            if (p.template == 'cloze') p
+        ];
+        expect(clozes.length, sentences.length, reason: item.id);
+        // The first is the cloze the record already knows: its id never changes.
+        expect(clozes.first.id, kParticleClozeId);
+        for (var i = 0; i < sentences.length; i++) {
+          expect(clozes[i].id, particleClozeId(i), reason: item.id);
+          expect(clozes[i].text, sentences[i]['prompt'], reason: item.id);
+          expect(clozes[i].answer, sentences[i]['answer'], reason: item.id);
+          expect(clozes[i].production, isTrue);
+          expect(transferKeyOf(clozes[i].id), clozes[i].id,
+              reason: 'each sentence is its own transfer key');
+        }
+        expect(clozes.map((p) => p.id).toSet().length, sentences.length,
+            reason: '${item.id}: one id per sentence');
+      }
+    });
+
+    test('a particle whose asset has no sentences keeps its one cloze', () {
+      final raw = Map<String, dynamic>.from(grammarDoc);
+      raw['particles'] = [
+        for (final p
+            in (grammarDoc['particles'] as List).cast<Map<String, dynamic>>())
+          {...p}..remove('sentences')
+      ];
+      final old = ItemCatalog.fromDocs(raw, lessonsDoc);
+      for (final item in old.ofKind(ItemKind.particle)) {
+        expect([
+          for (final p in item.scoredProbes)
+            if (p.template == 'cloze') p.id
+        ], [
+          kParticleClozeId
+        ], reason: item.id);
+        expect(transferProbesNeeded(item), 1,
+            reason: 'capped at the one sentence it has');
+      }
+    });
+
+    // Four due clears on four days, the last 21 days after the third (D4 clauses 1 and 2).
+    const days = [0, 2, 8, 29];
+
+    Attempt clear(ItemDef item, String probeId, int day) {
+      final p = item.probes.firstWhere((x) => x.id == probeId);
+      return Attempt(
+        itemId: item.id,
+        probeId: p.id,
+        template: p.template,
+        production: p.production,
+        selfGraded: p.selfGraded,
+        atUtc: DateTime.utc(2026, 1, 1, 12).add(Duration(days: day)),
+        localDay: day,
+        grade: Grade.clear,
+        rating: kRatingGood,
+        wasDue: true,
+        source: Source.review,
+        sessionId: 'particle-$day',
+      );
+    }
+
+    MasteryState replay(ItemDef item, List<String> probeIds) =>
+        masteryFromAttempts(item, [
+          for (var i = 0; i < probeIds.length; i++)
+            clear(item, probeIds[i], days[i]),
+        ]);
+
+    test('the real particles replay: one sentence stays Learning, two master',
+        () {
+      for (final item in particles) {
+        expect(item.probes.any((p) => p.id == kParticleChooseId), isTrue,
+            reason: '${item.id}: the fixture clears see it on the choose card');
+        // All three modes on the first sentence: only the transfer clause can block.
+        final one = replay(item, [
+          kParticleClozeId,
+          kParticleChooseId,
+          sayCardId(kParticleClozeId),
+          kParticleClozeId,
+        ]);
+        expect(missingModes(item, one.clears), isEmpty, reason: item.id);
+        expect(one.clears.length, 4, reason: '${item.id}: all four count');
+        expect(one.status, MasteryStatus.learning,
+            reason:
+                '${item.id}: one sentence asked three ways is one sentence');
+        expect(remainingFor(item, one),
+            contains('clears on 1 more different sentence'),
+            reason: '${item.id}: the item page names the missing sentence');
+        // The fourth clear on a second sentence masters it.
+        final two = replay(item, [
+          kParticleClozeId,
+          kParticleChooseId,
+          sayCardId(kParticleClozeId),
+          particleClozeId(1),
+        ]);
+        expect(two.status, MasteryStatus.mastered, reason: item.id);
+      }
     });
   });
 
