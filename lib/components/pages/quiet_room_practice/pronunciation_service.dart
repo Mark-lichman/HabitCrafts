@@ -365,11 +365,13 @@ class PronunciationService {
   /// 16 kHz mono 16-bit PCM (PIN-6).
   static const int sampleRate = 16000;
 
-  /// How long a quiet stretch after speech must last before listening stops (PIN-5).
-  static const Duration silenceAfterSpeech = Duration(milliseconds: 1200);
+  /// How long a quiet stretch after speech must last before listening stops (PIN-5). Three
+  /// seconds, so a slow, long sentence with pauses is not cut off (#180).
+  static const Duration silenceAfterSpeech = Duration(seconds: 3);
 
-  /// The longest a listen runs, speech or not (PIN-5).
-  static const Duration listenCap = Duration(seconds: 10);
+  /// The longest a listen runs, speech or not (PIN-5). Twenty seconds fits a slow, long
+  /// grammar sentence (#180).
+  static const Duration listenCap = Duration(seconds: 20);
 
   /// A chunk at or above this level (dB full scale) counts as speech.
   static const double speechDbfs = -40;
@@ -384,8 +386,8 @@ class PronunciationService {
   static const double levelFloorDbfs = -60;
 
   /// How long the sign-in and the function call together may take before the check gives up
-  /// as unverified.
-  static const Duration callTimeout = Duration(seconds: 20);
+  /// as unverified. It stays above [listenCap] (#180).
+  static const Duration callTimeout = Duration(seconds: 30);
 
   static const String functionName = 'scorePronunciation';
   static const String functionRegion = 'us-central1';

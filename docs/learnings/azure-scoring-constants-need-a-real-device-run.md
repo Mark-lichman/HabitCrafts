@@ -9,5 +9,5 @@ metadata:
 ---
 
 `speechDbfs` is -40 and `silenceDbfs` is -50 in `pronunciation_service.dart`. A noise floor at or above
--50 dBFS stops the auto-stop, so each listen runs the 10 s cap. `EnableMiscue` goes as a JSON boolean.
+-50 dBFS stops the auto-stop, so each listen runs to `listenCap`. `EnableMiscue` goes as a JSON boolean.
 Neither was seen on a real device. The first real run on phone and web is the check.
