@@ -29,6 +29,15 @@ import '/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
 import '/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
+import '/components/pages/quiet_room_mastery/item_detail_widget.dart';
+import '/components/pages/quiet_room_mastery/lesson_page_widget.dart';
+import '/components/pages/quiet_room_mastery/lessons_path_widget.dart';
+import '/components/pages/quiet_room_mastery/mastery_debug_widget.dart';
+import '/components/pages/quiet_room_mastery/review_page.dart';
+import '/components/pages/quiet_room_mastery/seed_confirm_widget.dart';
+import '/components/pages/quiet_room_mastery/topic_page_widget.dart';
+import '/components/pages/quiet_room_mastery/topics_widget.dart';
+import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -97,16 +106,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       navigatorKey: appNavigatorKey,
       // Single-user Japanese build (2026-10-24): no login. Signed out, the app opens on
       // Japanese study instead of the launch screen. Signing in still reaches Today.
+      // QuietRoomJapaneseWidget runs `onLaunch` before it builds the home: the seed
+      // confirmation on a first launch, Welcome back after a break, else Today.
+      // Every builder of the signed-out home reads its `tab` (Task 27: Today, `?tab=lessons`
+      // and `?tab=topics`), because a tab tap is a `go` on the path the home is on, with
+      // the tab as the query. The app starts at `/`, so that path serves the tabs too.
       errorBuilder: (context, state) => appStateNotifier.loggedIn
           ? QuietRoomTodayWidget()
-          : QuietRoomJapaneseWidget(),
+          : QuietRoomJapaneseWidget(
+              tab: homeTabOf(state.uri.queryParameters['tab'])),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.loggedIn
+          builder: (context, params) => appStateNotifier.loggedIn
               ? QuietRoomTodayWidget()
-              : QuietRoomJapaneseWidget(),
+              : QuietRoomJapaneseWidget(
+                  tab: homeTabOf(params.getParam('tab', ParamType.String))),
         ),
         FFRoute(
           name: InitialPageWidget.routeName,
@@ -168,7 +184,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: QuietRoomJapaneseWidget.routeName,
           path: QuietRoomJapaneseWidget.routePath,
-          builder: (context, params) => QuietRoomJapaneseWidget(),
+          // The home by name. Its tabs read like the `/` route's above.
+          builder: (context, params) => QuietRoomJapaneseWidget(
+            tab: homeTabOf(params.getParam('tab', ParamType.String)),
+          ),
         ),
         FFRoute(
           name: QuietRoomGrammarWidget.routeName,
@@ -193,6 +212,64 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => QuietRoomSpeakWidget(
             lesson: params.getParam('lesson', ParamType.int),
           ),
+        ),
+        FFRoute(
+          name: MasteryDebugWidget.routeName,
+          path: MasteryDebugWidget.routePath,
+          builder: (context, params) => const MasteryDebugWidget(),
+        ),
+        // The Review session's entry points (plan 2026-11-02, Task 20). Each resolves today's
+        // launch itself (`onLaunch`), so a deep link or a refresh lands on the same day.
+        FFRoute(
+          name: QuietRoomReviewPage.routeName,
+          path: QuietRoomReviewPage.routePath,
+          builder: (context, params) => const QuietRoomReviewPage(),
+        ),
+        // Topics, the topic page and the item page (plan 2026-11-02, Task 23). Each reads the
+        // record itself, so a deep link or a refresh lands on the same topic or item.
+        FFRoute(
+          name: QuietRoomTopicsWidget.routeName,
+          path: QuietRoomTopicsWidget.routePath,
+          builder: (context, params) => const QuietRoomTopicsWidget(),
+        ),
+        FFRoute(
+          name: TopicPageWidget.routeName,
+          path: TopicPageWidget.routePath,
+          builder: (context, params) => TopicPageWidget(
+            topicId: params.getParam('topic', ParamType.String) ?? '',
+          ),
+        ),
+        FFRoute(
+          name: ItemDetailWidget.routeName,
+          path: ItemDetailWidget.routePath,
+          builder: (context, params) => ItemDetailWidget(
+            itemId: params.getParam('item', ParamType.String) ?? '',
+          ),
+        ),
+        // The lesson path and the lesson page (plan 2026-11-02, Task 26). Each reads the record
+        // itself, so a deep link or a refresh lands on the same list or lesson.
+        FFRoute(
+          name: LessonsPathWidget.routeName,
+          path: LessonsPathWidget.routePath,
+          builder: (context, params) => const LessonsPathWidget(),
+        ),
+        FFRoute(
+          name: LessonPageWidget.routeName,
+          path: LessonPageWidget.routePath,
+          builder: (context, params) => LessonPageWidget(
+            lesson: params.getParam('lesson', ParamType.int) ??
+                kPathFirstGrammarLesson,
+          ),
+        ),
+        FFRoute(
+          name: WelcomeBackWidget.routeName,
+          path: WelcomeBackWidget.routePath,
+          builder: (context, params) => const WelcomeBackWidget(),
+        ),
+        FFRoute(
+          name: SeedConfirmWidget.routeName,
+          path: SeedConfirmWidget.routePath,
+          builder: (context, params) => const SeedConfirmWidget(),
         ),
         FFRoute(
           name: QuietRoomPracticeWidget.routeName,

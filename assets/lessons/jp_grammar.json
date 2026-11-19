@@ -24,6 +24,13 @@
     "from": null,
     "to": 2,
     "why": "変える is an Ichidan (group 2) verb: jisho.org entry for 変える, from EDICT (EDRDG)."
+   },
+   {
+    "item": "mari.L33.3",
+    "field": "example",
+    "from": "立入禁止",
+    "to": "たちいりきんし",
+    "why": "The app is hiragana first, so the sign Mari quotes in kanji is written in hiragana in the example. 禁 is outside kanji_n5_n4.json, so the kanji version writes it in hiragana too."
    }
   ]
  },
@@ -921,13 +928,14 @@
     "meaning"
    ],
    "search": [
-    "「立入禁止」は はいっては いけないという いみです。"
+    "「たちいりきんし」は はいっては いけないという いみです。"
    ],
    "from": [
     "s04_mari_checklist",
     "uses.json",
     "_points.json",
-    "L33.json"
+    "L33.json",
+    "corrections.json"
    ],
    "open": {
     "screen": "grammar",
@@ -1803,7 +1811,7 @@
     "emphasis"
    ],
    "search": [
-    "この しごとに 3にちも かかりました。"
+    "この しごとに みっかも かかりました。"
    ],
    "from": [
     "s04_mari_checklist",
@@ -3840,16 +3848,16 @@
    "uses": [],
    "search": [
     "book",
-    "jisho, dictionary",
+    "dictionary",
     "magazine",
     "newspaper",
     "notebook",
-    "techō, pocket notebook",
+    "pocket notebook",
     "business card",
     "card",
     "pencil",
     "ballpoint pen",
-    "shāpupenshiru, mechanical pencil",
+    "mechanical pencil",
     "key",
     "watch, clock",
     "umbrella",
@@ -3859,7 +3867,7 @@
     "car",
     "desk",
     "chair",
-    "chokorēto, chocolate",
+    "chocolate",
     "coffee",
     "ほん",
     "じしょ",
@@ -3877,7 +3885,7 @@
     "かさ",
     "かばん",
     "テレビ",
-    "コンピュ-タ-",
+    "コンピューター",
     "くるま",
     "つくえ",
     "いす",
@@ -3902,7 +3910,7 @@
    "uses": [],
    "search": [
     "classroom",
-    "shokudō, canteen",
+    "canteen",
     "office",
     "meeting room",
     "reception",
@@ -3913,7 +3921,7 @@
     "elevator",
     "escalator",
     "county",
-    "kaisha, company",
+    "company",
     "house, home",
     "telephone",
     "shoes",
@@ -3925,12 +3933,12 @@
     "じむしょ",
     "かいぎしつ",
     "うけつけ",
-    "ロビ-",
+    "ロビー",
     "へや",
     "トイレ",
     "かいだん",
-    "エレベ-タ-",
-    "エスカレ-タ-",
+    "エレベーター",
+    "エスカレーター",
     "くに",
     "かいしゃ",
     "うち",
@@ -3966,8 +3974,8 @@
     "department store",
     "bank",
     "post office",
-    "toshokan, library",
-    "bijutsukan, art museum",
+    "library",
+    "art museum",
     "morning",
     "daytime, noon",
     "night",
@@ -3977,7 +3985,7 @@
     "やすみます",
     "べんきょうします",
     "おわります",
-    "デパ-ト",
+    "デパート",
     "ぎんこう",
     "ゆうびんきょく",
     "としょかん",
@@ -4011,7 +4019,7 @@
     "station",
     "airplane",
     "ship",
-    "densha, train",
+    "train",
     "subway",
     "bullet train",
     "bus",
@@ -4019,10 +4027,10 @@
     "bicycle",
     "friend",
     "he, boyfriend",
-    "kanojo, she, girlfriend",
+    "she, girlfriend",
     "family",
     "alone, by oneself",
-    "tanjōbi, birthday",
+    "birthday",
     "local (train)",
     "rapid",
     "express",
@@ -4075,7 +4083,7 @@
     "read",
     "write, draw, paint",
     "buy",
-    "torimasu(shashinwo), take (a photo)",
+    "take (a photo)",
     "meet, see (a friend)",
     "a meal, cooked rice",
     "breakfast",
@@ -4091,30 +4099,30 @@
     "vegetable",
     "fruit",
     "water",
-    "ocha, tea, green tea",
-    "kōcha, black tea",
+    "tea, green tea",
+    "black tea",
     "milk",
-    "jūsu, juice",
+    "juice",
     "beer",
     "alcohol",
     "movie",
     "CD",
     "letter",
-    "shashin, photograph",
+    "photograph",
     "store, shop",
     "restaurant",
-    "shukudai, homework",
+    "homework",
     "soccer",
     "たべます",
     "のみます",
-    "すいます[たばこを]",
+    "すいます",
     "みます",
     "ききます",
     "よみます",
     "かきます",
     "かいます",
-    "とります[しゃしんを]",
-    "あいます[ともだちに]",
+    "とります",
+    "あいます",
     "ごはん",
     "あさごはん",
     "ひるごはん",
@@ -4134,7 +4142,7 @@
     "ぎゅうにゅう",
     "ジュース",
     "ビール",
-    "(お)さけ",
+    "さけ",
     "えいが",
     "シーディー",
     "てがみ",
@@ -4142,7 +4150,7 @@
     "みせ",
     "レストラン",
     "しゅくだい",
-    "サッカ-"
+    "サッカー"
    ],
    "from": [
     "jp_lessons.json"
@@ -4183,7 +4191,7 @@
     "eraser",
     "paper",
     "flower, blossom",
-    "shatsu, shirt",
+    "shirt",
     "present, gift",
     "baggage, parcel",
     "money",
@@ -4201,17 +4209,17 @@
     "かります",
     "おしえます",
     "ならいます",
-    "かけます[でんわを]",
+    "かけます",
     "て",
     "はし",
     "スプーン",
     "ナイフ",
-    "フォ-ク",
+    "フォーク",
     "はさみ",
     "パソコン",
     "パンチ",
     "ホッチキス",
-    "セロテ-プ",
+    "セロテープ",
     "けしゴム",
     "かみ",
     "はな",
@@ -4224,7 +4232,7 @@
     "おかあさん",
     "いただきます。",
     "りょこう",
-    "(お)みやげ"
+    "みやげ"
    ],
    "from": [
     "jp_lessons.json"
@@ -4283,21 +4291,21 @@
     "car",
     "study",
     "work, business",
-    "ハンサム[な]",
-    "きれい[な]",
-    "しずか[な]",
-    "にぎやか[な]",
-    "ゆうめい[な]",
-    "しんせつ[な]",
-    "げんき[な]",
-    "ひま[な]",
-    "べんり[な]",
-    "すてき[な]",
+    "ハンサム",
+    "きれい",
+    "しずか",
+    "にぎやか",
+    "ゆうめい",
+    "しんせつ",
+    "げんき",
+    "ひま",
+    "べんり",
+    "すてき",
     "おおきい",
     "ちいさい",
     "あたらしい",
     "ふるい",
-    "いい (よい)",
+    "いい",
     "わるい",
     "あつい",
     "さむい",
@@ -4322,7 +4330,7 @@
     "たべもの",
     "くるま",
     "べんきょう",
-    "(お)しごと"
+    "しごと"
    ],
    "from": [
     "jp_lessons.json"
@@ -4345,7 +4353,7 @@
     "have",
     "like",
     "dislike",
-    "jōzu(na), good at",
+    "good at",
     "bad at",
     "cooking, cooked food",
     "drinks",
@@ -4357,19 +4365,19 @@
     "picture, drawing",
     "small change",
     "ticket",
-    "goshujin, someone else's husband",
-    "shujin, my husband",
+    "someone else's husband",
+    "my husband",
     "someone else's wife",
     "my wife",
     "わかります",
     "あります",
-    "すき[な]",
-    "きらい[な]",
-    "じょうず[な]",
-    "へた[な]",
+    "すき",
+    "きらい",
+    "じょうず",
+    "へた",
     "りょうり",
     "のみもの",
-    "スポ-ツ",
+    "スポーツ",
     "やきゅう",
     "ダンス",
     "おんがく",
@@ -4436,7 +4444,7 @@
     "between",
     "います",
     "あります",
-    "いろいろ[な]",
+    "いろいろ",
     "おとこのひと",
     "おんなのひと",
     "おとこのこ",
@@ -4508,14 +4516,14 @@
     "someone else's older sister",
     "someone else's younger brother",
     "someone else's younger sister",
-    "います[こどもが]",
-    "います[にほんに]",
-    "かかります[おかねが]",
-    "かかります[じかんが]",
-    "やすみます[かいしゃを]",
+    "います",
+    "います",
+    "かかります",
+    "かかります",
+    "やすみます",
     "りんご",
     "みかん",
-    "カレー(ライス)",
+    "カレー",
     "きって",
     "はがき",
     "ふうとう",
@@ -4579,7 +4587,7 @@
     "examination",
     "sushi",
     "maple, red leaves of autumn",
-    "かんたん[な]",
+    "かんたん",
     "ちかい",
     "とおい",
     "はやい",
@@ -4607,9 +4615,9 @@
     "くうこう",
     "うみ",
     "パーテイー",
-    "(お)まつり",
+    "まつり",
     "しけん",
-    "(お)すし",
+    "すし",
     "もみじ"
    ],
    "from": [
@@ -4638,8 +4646,8 @@
     "go out of a elevator",
     "marry",
     "do shopping",
-    "shokujishimasu, have a meal",
-    "sanposhimasu(kōenwo), take a walk [in a park]",
+    "have a meal",
+    "take a walk [in a park]",
     "hard",
     "want",
     "lonely",
@@ -4647,7 +4655,7 @@
     "narrow",
     "swimming pool",
     "river",
-    "bijutsu, arts",
+    "arts",
     "fishing",
     "skiing",
     "meeting",
@@ -4658,14 +4666,14 @@
     "およぎます",
     "むかえます",
     "つかれます",
-    "だします[てがみを]",
-    "はいります[〜に]",
-    "でます[〜を]",
+    "だします",
+    "はいります",
+    "でます",
     "けっこんします",
     "かいものします",
     "しょくじします",
-    "さんぽします[〜を]",
-    "たいへん[な]",
+    "さんぽします",
+    "たいへん",
     "ほしい",
     "さびしい",
     "ひろい",
@@ -4712,7 +4720,7 @@
     "call",
     "speak, talk",
     "show",
-    "oshiemasu(jūshowo), tell[an address]",
+    "tell[an address]",
     "start, begin",
     "rain",
     "copy",
@@ -4726,18 +4734,18 @@
     "しめます",
     "いそぎます",
     "まちます",
-    "とめます[おんがくを]",
-    "とめます[くるまを]",
-    "まがります[みぎへ ]",
+    "とめます",
+    "とめます",
+    "まがります",
     "もちます",
     "とります",
     "てつだいます",
     "よびます",
     "はなします",
     "みせます",
-    "おしえます[じゅうしょを]",
+    "おしえます",
     "はじめます",
-    "ふります[あめ が]",
+    "ふります",
     "コピーします",
     "エアコン",
     "パスポート",
@@ -4773,7 +4781,7 @@
     "catalog",
     "timetable",
     "clothes",
-    "haisha, dentist",
+    "dentist",
     "barber",
     "remember, recollect",
     "high school",
@@ -4814,7 +4822,7 @@
     "ride, get on [a train]",
     "get off [a train]",
     "change trains",
-    "abimasu(shawāwo), take [a shower]",
+    "take [a shower]",
     "put in, insert",
     "take out, withdraw",
     "enter [university]",
@@ -4837,19 +4845,19 @@
     "tooth",
     "stomach, belly, tummy",
     "foot, leg",
-    "jogingu, jogging",
+    "jogging",
     "temple",
-    "jinja, shinto shrine",
+    "shinto shrine",
     "foreign student",
-    "のります[でんしゃに ]",
-    "おります[でんしゃを]",
+    "のります",
+    "おります",
     "のりかえます",
-    "あびます[〜を]",
+    "あびます",
     "いれます",
     "だします",
-    "はいります[だいがくに]",
-    "でます[だいがくを]",
-    "やめます[かいしゃを]",
+    "はいります",
+    "でます",
+    "やめます",
     "おします",
     "わかい",
     "ながい",
@@ -4868,7 +4876,7 @@
     "おなか",
     "あし",
     "ジョギング",
-    "[お]てら",
+    "てら",
     "じんじゃ",
     "りゅうがくせい"
    ],
@@ -4892,7 +4900,7 @@
     "memorize",
     "forget",
     "lose",
-    "dashimasu(repōtowo), hand in [a report]",
+    "hand in [a report]",
     "pay",
     "return",
     "go out",
@@ -4901,11 +4909,11 @@
     "bring (something)",
     "worry",
     "work overtime",
-    "shucchōshimasu, go on a business trip",
+    "go on a business trip",
     "take [medicine]",
     "take [a bath]",
     "important, precious",
-    "daijōbu(na), all right",
+    "all right",
     "dangerous",
     "question, problem, trouble",
     "answer",
@@ -4922,7 +4930,7 @@
     "おぼえます",
     "わすれます",
     "なくします",
-    "だします[〜を]",
+    "だします",
     "はらいます",
     "かえします",
     "でかけます",
@@ -4932,10 +4940,10 @@
     "しんぱいします",
     "ざんぎょうします",
     "しゅっちょうします",
-    "のみます[くすりを ]",
-    "はいります[おふろに]",
-    "たいせつ[な]",
-    "だいじょうぶ[な]",
+    "のみます",
+    "はいります",
+    "たいせつ",
+    "だいじょうぶ",
     "あぶない",
     "もんだい",
     "こたえ",
@@ -4944,11 +4952,11 @@
     "ねつ",
     "びょうき",
     "くすり",
-    "(お)ふろ",
+    "ふろ",
     "うわぎ",
     "したぎ",
-    "いたいです[おなかが]",
-    "いたいです[あたまが]"
+    "いたいです",
+    "いたいです"
    ],
    "from": [
     "jp_lessons.json"
@@ -4967,7 +4975,7 @@
    "summary": "12 words",
    "uses": [],
    "search": [
-    "kimasu(shatsuwo), put on [a shirt]",
+    "put on [a shirt]",
     "put on [shoes or trousers]",
     "put on [a hat]",
     "put on [glasses]",
@@ -4979,17 +4987,17 @@
     "glasses",
     "Congratulations.",
     "apartment",
-    "きます[シャツを]",
-    "はきます[くつを]",
-    "かぶります[ぼうしを]",
-    "かけます[めがねを]",
+    "きます",
+    "はきます",
+    "かぶります",
+    "かけます",
     "うまれます",
     "コート",
     "スーツ",
     "セーター",
     "ぼうし",
     "めがね",
-    "おめでとう(ございます)。",
+    "おめでとう。",
     "アパート"
    ],
    "from": [
@@ -5014,35 +5022,35 @@
     "pull",
     "change",
     "touch",
-    "demasu(jūsuga), [juice] come out",
+    "[juice] come out",
     "[a car] move, work",
     "walk [along a road]",
     "cross [a bridge]",
-    "kiwotsukemasu, pay attention",
+    "pay attention",
     "move (house)",
     "electrician",
     "sound",
     "machine",
     "knob",
-    "koshō, break down",
+    "break down",
     "road, way",
     "crossroad",
     "traffic light",
     "corner",
     "bridge",
-    "chūshajō, parking lot",
-    "(o)shōgatsu, New year's day",
+    "parking lot",
+    "New year's day",
     "That was delicious.",
     "building",
-    "ききます[せんせいに]",
+    "ききます",
     "まわします",
     "ひきます",
     "かえます",
-    "さわります[に]",
-    "でます[ジュースが]",
-    "うごきます[くるまが]",
-    "あるきます[みちを]",
-    "わたります[はしを ]",
+    "さわります",
+    "でます",
+    "うごきます",
+    "あるきます",
+    "わたります",
     "きをつけます",
     "ひっこしします",
     "でんきや",
@@ -5056,8 +5064,8 @@
     "かど",
     "はし",
     "ちゅうしゃじょう",
-    "(お)しょうがつ",
-    "ごちそうさま(でした)。",
+    "しょうがつ",
+    "ごちそうさま。",
     "たてもの"
    ],
    "from": [
@@ -5081,30 +5089,30 @@
     "take (someone)",
     "bring (someone)",
     "send (someone)",
-    "shōkaishimasu, introduce",
+    "introduce",
     "show around",
     "explain",
-    "iremasu(kōhīwo), make [coffee]",
-    "ojīchan, grandfather",
+    "make [coffee]",
+    "grandfather",
     "old man",
-    "obāchan, grandmother",
+    "grandmother",
     "old woman",
     "sweets, snacks",
     "lunch box",
     "くれます",
     "つれていきます",
     "つれて きます",
-    "おくります[ひとを]",
+    "おくります",
     "しょうかいします",
     "あんないします",
     "せつめいします",
-    "いれます[を]",
+    "いれます",
     "おじいちゃん",
     "おじいさん",
     "おばあちゃん",
     "おばあさん",
-    "(お)かし",
-    "(お)べんとう"
+    "かし",
+    "べんとう"
    ],
    "from": [
     "jp_lessons.json"
@@ -5132,9 +5140,9 @@
     "transfer",
     "do one's best.",
     "かんがえます",
-    "つきます[えきに]",
+    "つきます",
     "りゅうがくします",
-    "とります[としを]",
+    "とります",
     "いなか",
     "たいしかん",
     "てんきん",
@@ -5161,17 +5169,17 @@
     "check",
     "look for",
     "search",
-    "okuremasu(jikanni), be late",
-    "maniaimasu(jikanni), be in time",
-    "sankashimasu(pāthīni), attend [a party]",
+    "be late",
+    "be in time",
+    "attend [a party]",
     "apply for, enter for",
     "convenient",
     "inconvenient",
     "feel well",
     "feel ill",
-    "jūdō, judo",
+    "judo",
     "sports day",
-    "basho, place",
+    "place",
     "volunteer",
     "[boxes] be put in order",
     "garbage, trash, dust",
@@ -5185,9 +5193,9 @@
     "みます",
     "さがします",
     "さがします",
-    "おくれます[に]",
-    "まにあいます[に]",
-    "さんかします[ に]",
+    "おくれます",
+    "まにあいます",
+    "さんかします",
     "もうしこみます",
     "つごうがいい",
     "つごうがわるい",
@@ -5197,14 +5205,14 @@
     "うんどうかい",
     "ばしょ",
     "ボランテイア",
-    "かたづきます[にもつが]",
+    "かたづきます",
     "ごみ",
-    "だします[ごみを]",
+    "だします",
     "もえます",
     "おきば",
     "びん",
     "かん",
-    "(お)ゆ"
+    "ゆ"
    ],
    "from": [
     "jp_lessons.json"
@@ -5241,19 +5249,19 @@
     "vending machine",
     "mail order",
     "cleaning, laundry",
-    "manshon, condominium, apartment",
+    "condominium, apartment",
     "kitchen",
     "Sunday carpenter",
     "bookshelf",
     "marvelous, wonderful",
     "かいます",
     "たてます",
-    "はしります[みちを]",
-    "とります[やすみを]",
-    "みえます[やまが]",
-    "きこえます[おとが]",
-    "できます[くうこうが]",
-    "ひらきます[きょうしつを]",
+    "はしります",
+    "とります",
+    "みえます",
+    "きこえます",
+    "できます",
+    "ひらきます",
     "とり",
     "こえ",
     "なみ",
@@ -5299,8 +5307,8 @@
     "earnest",
     "gentle, kind",
     "great",
-    "chōdoī, proper, just right",
-    "shūkan, custom",
+    "proper, just right",
+    "custom",
     "form, shape",
     "color",
     "taste",
@@ -5311,24 +5319,24 @@
     "bonus",
     "program",
     "drama",
-    "shōsetsu, novel",
-    "shōsetsuka, novelist",
-    "kashu, singer",
+    "novel",
+    "novelist",
+    "singer",
     "my son",
     "my daughter",
     "homestay",
     "conversation",
-    "oshaberishimasu, chat",
-    "うれます[パンが]",
+    "chat",
+    "うれます",
     "おどります",
     "かみます",
     "かみます",
     "えらびます",
     "ちがいます",
-    "かよいます[だいがくに]",
+    "かよいます",
     "メモします",
-    "まじめ[な]",
-    "ねっしん[な]",
+    "まじめ",
+    "ねっしん",
     "やさしい",
     "えらい",
     "ちょうどいい",
@@ -5380,14 +5388,14 @@
     "[a tree] break, snap",
     "[the paper] tear",
     "[the clothes] get dirty",
-    "tsukimasu(poketto ga), [a pocket] be attached",
-    "hazuremasu(botan ga), [a button] come off",
-    "tomarimasu(kuruma ga), [a car] stop",
+    "[a pocket] be attached",
+    "[a button] come off",
+    "[a car] stop",
     "make a mistake",
     "drop, lose",
     "be locked",
     "plate, dish",
-    "ochawan, rice bowl",
+    "rice bowl",
     "glass",
     "glass (material)",
     "bag",
@@ -5396,24 +5404,24 @@
     "station employee",
     "things left behind, lost property",
     "baggage rack",
-    "あきます[ドアが]",
-    "しまります[ドアが]",
-    "つきます[でんきが]",
-    "きえます[でんきが]",
-    "こみます[みちが]",
-    "すきます[みちが]",
-    "こわれます[いすが]",
-    "われます[コップが]",
-    "おれます[きが]",
-    "やぶれます[かみが]",
-    "よごれます[ふくが]",
-    "つきます[〜が]",
-    "はずれます[〜が]",
-    "とまります[〜が]",
+    "あきます",
+    "しまります",
+    "つきます",
+    "きえます",
+    "こみます",
+    "すきます",
+    "こわれます",
+    "われます",
+    "おれます",
+    "やぶれます",
+    "よごれます",
+    "つきます",
+    "はずれます",
+    "とまります",
     "まちがえます",
     "おとします",
-    "かかります[かぎが]",
-    "(お)さら",
+    "かかります",
+    "さら",
     "おちゃわん",
     "コップ",
     "ガラス",
@@ -5454,10 +5462,10 @@
     "decide",
     "inform",
     "consult, discuss",
-    "yoshūshimasu, prepare one's lesson",
-    "fukushūshimasu, review one's lesson",
+    "prepare one's lesson",
+    "review one's lesson",
     "leave things as they are",
-    "jugyō, class",
+    "class",
     "lecture",
     "meeting",
     "plan, schedule",
@@ -6469,7 +6477,7 @@
    "type": "source_file",
    "source": "Mark's review",
    "title": "corrections.json",
-   "summary": "5 approved sources, 3 corrections. Approved sources and reviewed corrections.",
+   "summary": "5 approved sources, 4 corrections. Approved sources and reviewed corrections.",
    "uses": [],
    "search": [
     "pipeline/jp/corrections.json",
@@ -6481,7 +6489,7 @@
    "origin": "Mark's review",
    "counts": {
     "approved sources": 5,
-    "corrections": 3
+    "corrections": 4
    },
    "from": [
     "corrections.json"
@@ -6489,6 +6497,32 @@
    "open": {
     "screen": "search",
     "query": "corrections.json"
+   }
+  },
+  {
+   "id": "file.particle_clozes.json",
+   "type": "source_file",
+   "source": "hand-written from Mari's particle examples",
+   "title": "particle_clozes.json",
+   "summary": "5 clozes. A cloze for each particle whose example does not hold it verbatim.",
+   "uses": [],
+   "search": [
+    "pipeline/jp/particle_clozes.json",
+    "particle_clozes.json",
+    "hand-written from Mari's particle examples"
+   ],
+   "file": "pipeline/jp/particle_clozes.json",
+   "role": "a cloze for each particle whose example does not hold it verbatim",
+   "origin": "hand-written from Mari's particle examples",
+   "counts": {
+    "clozes": 5
+   },
+   "from": [
+    "particle_clozes.json"
+   ],
+   "open": {
+    "screen": "search",
+    "query": "particle_clozes.json"
    }
   },
   {
@@ -6532,6 +6566,10 @@
      "goal": "Explain a reason or circumstance",
      "uses": [
       "reason"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "あたまが いたいんです。",
      "explain": "Adding んです to a plain form gives or asks for an explanation, reason, or background. It sounds softer and more personal than a bare statement.",
@@ -6641,6 +6679,11 @@
      "uses": [
       "request"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta",
+      "conj.te"
+     ],
      "example": "にもつが おおいんですが、てつだって いただけませんか。",
      "explain": "Explain your situation with んですが, then ask a favor with てForm + いただけませんか. It is a polite, soft way to ask for help.",
      "form": "ふつうForm + んですが、てForm + いただけませんか",
@@ -6748,6 +6791,10 @@
      "goal": "Ask for advice about what to do",
      "uses": [
       "ask_advice"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "かぜを ひいたんですが、どう したら いいですか。",
      "explain": "Explain your problem with んですが, then ask what you should do with a question word + たら いいですか.",
@@ -6869,6 +6916,9 @@
       "ability",
       "forms"
      ],
+     "prereqs": [
+      "conj.potential"
+     ],
      "example": "わたしは かんじが よめます。",
      "explain": "The potential form says what someone can do. The object usually takes が instead of を.",
      "form": "Nが + かのうどうし",
@@ -6977,6 +7027,7 @@
      "uses": [
       "ability"
      ],
+     "prereqs": [],
      "example": "ここから ふじさんが みえます。",
      "explain": "みえます and きこえます mean something can be seen or heard naturally, without trying. The thing seen or heard takes が.",
      "form": "Nが みえます／きこえます",
@@ -7085,6 +7136,7 @@
      "uses": [
       "ability"
      ],
+     "prereqs": [],
      "example": "にほんごが できます。",
      "explain": "Noun + が できます means you are able to do that skill or activity, like a language or a sport.",
      "form": "Nが できます",
@@ -7193,6 +7245,7 @@
      "uses": [
       "emphasis"
      ],
+     "prereqs": [],
      "example": "100えんしか ありません。",
      "explain": "しか with a negative verb means 'only', stressing that the amount is small or less than expected.",
      "form": "N + しか + Vません",
@@ -7301,6 +7354,7 @@
      "uses": [
       "contrast"
      ],
+     "prereqs": [],
      "example": "にくは たべますが、さかなは たべません。",
      "explain": "Put は on two items to contrast them: one thing is true for the first, something different for the second.",
      "form": "Aは 〜が、Bは 〜",
@@ -7421,6 +7475,7 @@
      "uses": [
       "contrast"
      ],
+     "prereqs": [],
      "example": "とうきょうには ともだちが います。",
      "explain": "You can add は after particles like に, へ, で, and と to make that phrase the topic or to contrast it.",
      "form": "N + に／へ／で／と + は",
@@ -7537,6 +7592,9 @@
       "manner",
       "time"
      ],
+     "prereqs": [
+      "conj.masu"
+     ],
      "example": "おんがくを ききながら、べんきょうします。",
      "explain": "ながら joins two actions one person does at the same time. The main action comes at the end of the sentence.",
      "form": "ますForm + ながら、〜",
@@ -7644,6 +7702,9 @@
      "goal": "Describe a habitual action",
      "uses": [
       "habit"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "まいあさ ジョギングを しています。",
      "explain": "てForm + います can describe something you do regularly, like a habit, a routine, or your job.",
@@ -7753,6 +7814,7 @@
      "uses": [
       "reason"
      ],
+     "prereqs": [],
      "example": "この まちは べんりだし、にぎやかです。",
      "explain": "し lists several qualities or reasons and suggests there may be more. It often gives reasons that lead to a conclusion.",
      "form": "ふつうForm + し、〜",
@@ -7868,6 +7930,9 @@
      "uses": [
       "state"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "まどが あいて います。",
      "explain": "An intransitive verb in てForm + います describes a state that remains after something happened, like a window that is open now.",
      "form": "Nが てForm (intransitive) + います",
@@ -7975,6 +8040,9 @@
      "goal": "Describe an ongoing resulting state with a defined topic",
      "uses": [
       "state"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "でんきは ついて います。",
      "explain": "Use は instead of が when the thing is already the topic, for example when answering a question about it or contrasting it with something else.",
@@ -8084,6 +8152,9 @@
      "uses": [
       "done"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "レポートを かいて しまいました。",
      "explain": "てForm + しまいます stresses that an action is completely finished, often with もう or ぜんぶ.",
      "form": "てForm + しまいます",
@@ -8191,6 +8262,9 @@
      "goal": "Express regret about something that happened",
      "uses": [
       "regret"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "だいじな しゃしんを なくして しまいました。",
      "explain": "てForm + しまいました also shows regret or embarrassment about something that happened, often by accident.",
@@ -8307,6 +8381,9 @@
      "uses": [
       "state"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "かべに ポスターが はって あります。",
      "explain": "A transitive verb in てForm + あります describes a state someone set up on purpose, like a poster put on a wall.",
      "form": "Nが てForm (transitive) + あります",
@@ -8414,6 +8491,9 @@
      "goal": "Describe preparing something in advance",
      "uses": [
       "plan"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "パーティーの まえに りょうりを つくって おきます。",
      "explain": "てForm + おきます means doing something in advance to get ready for a later event.",
@@ -8523,6 +8603,9 @@
      "uses": [
       "request",
       "state"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "つかれたので、そうじは あした して おきます。",
      "explain": "ておきます can also mean leaving something as it is, or getting a task done so it is taken care of. Ask someone to leave things as they are with ておいて ください.",
@@ -8640,6 +8723,9 @@
       "plan",
       "forms"
      ],
+     "prereqs": [
+      "conj.volitional"
+     ],
      "example": "いこう／たべよう／しよう／こよう",
      "explain": "The volitional form is the plain version of ましょう ('let's'). It is also used to talk about your own intentions.",
      "form": "G1 -u→-ou (いこう)／G2 +よう／しよう／こよう",
@@ -8747,6 +8833,9 @@
      "goal": "Express your own intention or plan",
      "uses": [
       "plan"
+     ],
+     "prereqs": [
+      "conj.volitional"
      ],
      "example": "らいねん りゅうがくしようと おもっています。",
      "explain": "Volitional form + と おもって います tells someone about your intention or plan, often one you have had for a while.",
@@ -8856,6 +8945,9 @@
      "uses": [
       "done"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "まだ しゅうしょくさきが きまって いません。",
      "explain": "まだ + てForm + いません says something has not happened yet but is still expected to.",
      "form": "まだ + てForm + いません",
@@ -8963,6 +9055,9 @@
      "goal": "State a future intention",
      "uses": [
       "plan"
+     ],
+     "prereqs": [
+      "conj.nai"
      ],
      "example": "らいねん けっこんする つもりです。",
      "explain": "つもりです states a firm intention. Use the dictionary form for what you plan to do and the ない form for what you plan not to do.",
@@ -9072,6 +9167,7 @@
      "uses": [
       "plan"
      ],
+     "prereqs": [],
      "example": "らいしゅう しゅっちょうする よていです。",
      "explain": "よていです states a scheduled plan, such as a trip, a meeting, or an arrival time.",
      "form": "じしょForm／Nの + よていです",
@@ -9187,6 +9283,10 @@
      "uses": [
       "advise"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
+     ],
      "example": "はやく びょういんへ いった ほうが いいです。",
      "explain": "Use たForm + ほうが いいです to advise doing something, and ないForm + ほうが いいです to advise not doing it.",
      "form": "たForm／ないForm + ほうが いいです",
@@ -9295,6 +9395,10 @@
      "uses": [
       "guess"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
+     ],
      "example": "あしたは はれるでしょう。",
      "explain": "でしょう after a plain form makes a guess the speaker is fairly sure about, like in a weather forecast.",
      "form": "ふつうForm + でしょう",
@@ -9402,6 +9506,10 @@
      "goal": "Express a weaker possibility",
      "uses": [
       "guess"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "あした あめが ふるかもしれません。",
      "explain": "かもしれません after a plain form says something might happen or might be true. It is less certain than でしょう.",
@@ -9519,6 +9627,10 @@
       "command",
       "forms"
      ],
+     "prereqs": [
+      "conj.imperative",
+      "conj.prohibitive"
+     ],
      "example": "とまれ！／はいるな！",
      "explain": "The imperative gives a blunt command, and the prohibitive (dictionary form + な) says 'don't'. You see them on signs, in emergencies, and in cheering.",
      "form": "G1 -u→-e (とまれ)／G2 +ろ／しろ／こい；じしょForm+な",
@@ -9627,6 +9739,7 @@
      "uses": [
       "hearsay"
      ],
+     "prereqs": [],
      "example": "かんばんに「きんえん」と かいて あります。",
      "explain": "と かいて あります tells what is written on a sign or paper; と よみます tells how something is read.",
      "form": "「〜」と かいて あります／よみます",
@@ -9735,15 +9848,16 @@
      "uses": [
       "meaning"
      ],
-     "example": "「立入禁止」は はいっては いけないという いみです。",
+     "prereqs": [],
+     "example": "「たちいりきんし」は はいっては いけないという いみです。",
      "explain": "〜は 〜という いみです explains what a word, sign, or phrase means.",
      "form": "Xは + ふつうForm + という いみです",
      "note": "To ask what something means, say これは どういう いみですか.",
      "examples": [
       {
-       "jp": "「立入禁止」は はいっては いけないという いみです。",
-       "jp_ruby": "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。",
-       "en": "'立入禁止' means you must not go in."
+       "jp": "「たちいりきんし」は はいっては いけないという いみです。",
+       "jp_ruby": "「たちいりきんし」は 入{はい}っては いけないという 意味{いみ}です。",
+       "en": "'たちいりきんし' (no entry) means you must not go in."
       },
       {
        "jp": "「きんえん」は たばこを すっては いけないという いみです。",
@@ -9844,6 +9958,7 @@
       "hearsay",
       "request"
      ],
+     "prereqs": [],
      "example": "たなかさんは あした やすむと いって いました。",
      "explain": "Use と いって いました to pass on what someone said, and と つたえて いただけませんか to ask someone to pass a message on.",
      "form": "ふつうForm + と いって いました／つたえて いただけませんか",
@@ -9965,6 +10080,9 @@
      "uses": [
       "manner"
      ],
+     "prereqs": [
+      "conj.ta"
+     ],
      "example": "せんせいの いう とおりに かいて ください。",
      "explain": "とおりに means 'just as' or 'the way.' Use it to say you do something exactly as someone said, showed, or did.",
      "form": "じしょForm／たForm／Nounの ＋ とおりに、〜",
@@ -10077,6 +10195,9 @@
      "uses": [
       "time"
      ],
+     "prereqs": [
+      "conj.ta"
+     ],
      "example": "しごとが おわった あとで、のみに いきます。",
      "explain": "あとで means 'after.' Use it to say one action happens after another one is finished.",
      "form": "たForm／Nounの ＋ あとで、〜",
@@ -10184,6 +10305,10 @@
      "goal": "Describe the manner or accompanying condition of an action",
      "uses": [
       "manner"
+     ],
+     "prereqs": [
+      "conj.te",
+      "conj.nai"
      ],
      "example": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
      "explain": "Use a て form or ないで before the main verb to say how you do it: in what state, or without doing something.",
@@ -10293,6 +10418,9 @@
      "uses": [
       "manner"
      ],
+     "prereqs": [
+      "conj.nai"
+     ],
      "example": "じしょを つかわないで、よんで ください。",
      "explain": "ないで means 'without doing.' Use it to say you do the main action without doing something, or do one thing instead of another.",
      "form": "ないForm＋で、〜",
@@ -10398,6 +10526,9 @@
      "uses": [
       "condition",
       "forms"
+     ],
+     "prereqs": [
+      "conj.conditional"
      ],
      "example": "はやく おきれば、まにあいます。",
      "explain": "The ば form of a verb means 'if.' Use it to say that when a condition is met, a certain result follows.",
@@ -10507,6 +10638,7 @@
      "uses": [
       "condition"
      ],
+     "prereqs": [],
      "example": "やすければ、かいます。",
      "explain": "For い adjectives, drop the final い and add ければ to say 'if it is ...'.",
      "form": "いadj（〜い→〜ければ）、〜",
@@ -10605,6 +10737,7 @@
      "uses": [
       "condition"
      ],
+     "prereqs": [],
      "example": "ひまなら、てつだって ください。",
      "explain": "For な adjectives and nouns, add なら to say 'if it is ...'.",
      "form": "なadj／Noun ＋ なら、〜",
@@ -10718,6 +10851,9 @@
       "ask_advice",
       "condition"
      ],
+     "prereqs": [
+      "conj.conditional"
+     ],
      "example": "どこで きっぷを かえば いいですか。",
      "explain": "Use a question word with a ば form and いいですか to ask for advice: 'What should I do?' or 'Where should I go?'",
      "form": "ぎもんし ＋ Verbば ＋ いいですか",
@@ -10830,6 +10966,7 @@
      "uses": [
       "advise"
      ],
+     "prereqs": [],
      "example": "すしなら、あの みせが おいしいです。",
      "explain": "Noun ＋ なら picks up a topic someone just mentioned, like 'If it's X you want, ...'. Use it to give advice or information about that topic.",
      "form": "Noun ＋ なら、〜",
@@ -10949,6 +11086,9 @@
      "uses": [
       "purpose"
      ],
+     "prereqs": [
+      "conj.nai"
+     ],
      "example": "よく きこえるように、おおきい こえで はなして ください。",
      "explain": "ように means 'so that.' It shows the goal of an action, usually a state you want to reach or avoid.",
      "form": "じしょForm／ないForm ＋ ように、〜",
@@ -11046,6 +11186,9 @@
      "goal": "Describe a gradual change in ability or state",
      "uses": [
       "change"
+     ],
+     "prereqs": [
+      "conj.nai"
      ],
      "example": "ひらがなが よめるように なりました。",
      "explain": "ように なります means 'come to' or 'become able to.' Use it for a gradual change in ability or habit.",
@@ -11156,6 +11299,9 @@
       "habit",
       "plan"
      ],
+     "prereqs": [
+      "conj.nai"
+     ],
      "example": "まいにち うんどうする ように します。",
      "explain": "ように します means 'make a point of' or 'try to.' Use it for an ongoing effort to build or keep a habit.",
      "form": "じしょForm／ないForm ＋ ように します",
@@ -11260,6 +11406,9 @@
      "goal": "Correctly form the passive voice",
      "uses": [
       "forms"
+     ],
+     "prereqs": [
+      "conj.passive"
      ],
      "example": "よまれる／たべられる／される／こられる",
      "explain": "The passive form shows that the subject receives an action, like 'is read' or 'was eaten.' Each verb group builds it differently.",
@@ -11373,6 +11522,9 @@
      "uses": [
       "regret"
      ],
+     "prereqs": [
+      "conj.passive"
+     ],
      "example": "わたしは あにに おかしを たべられました。",
      "explain": "Use this to say someone did something to you, often something unwelcome. You are the topic with は, and the doer takes に.",
      "form": "Personは Personに ＋ Passive",
@@ -11485,6 +11637,9 @@
      "uses": [
       "regret"
      ],
+     "prereqs": [
+      "conj.passive"
+     ],
      "example": "わたしは でんしゃで あしを ふまれました。",
      "explain": "Use this when someone does something to your belongings or body. You stay the topic, and the thing affected takes を.",
      "form": "Personは Personに Nを ＋ Passive",
@@ -11596,6 +11751,9 @@
      "goal": "Describe historical facts or general truths using the passive",
      "uses": [
       "certain"
+     ],
+     "prereqs": [
+      "conj.passive"
      ],
      "example": "この おてらは 1400ねんに たてられました。",
      "explain": "Use the passive with a thing as the subject when the doer is unknown or unimportant, for facts like when something was built or what it is made from.",
@@ -11712,6 +11870,7 @@
      "uses": [
       "opinion"
      ],
+     "prereqs": [],
      "example": "にほんごを はなすのは たのしいです。",
      "explain": "Add の to a dictionary form to turn an action into a noun. Then のは ... です says what that action is like.",
      "form": "じしょForm ＋ のは ＋ adj ＋ です",
@@ -11820,6 +11979,7 @@
      "uses": [
       "opinion"
      ],
+     "prereqs": [],
      "example": "かんじを おぼえるのが たいへんです。",
      "explain": "Add のが to a dictionary form before words like すき, じょうず, はやい, or たいへん to talk about likes, skills, or how you do an action.",
      "form": "じしょForm ＋ のが ＋ adj ＋ です",
@@ -11928,6 +12088,7 @@
      "uses": [
       "regret"
      ],
+     "prereqs": [],
      "example": "かぎを かけるのを わすれました。",
      "explain": "Add のを to a dictionary form before わすれました to say you forgot to do something.",
      "form": "じしょForm ＋ のを わすれました",
@@ -12036,6 +12197,10 @@
      "uses": [
       "hearsay"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
+     ],
      "example": "たなかさんが けっこんするのを しって います。",
      "explain": "Add のを to a plain form before しって います to say you know a fact, or ask with しって いますか whether someone knows some news.",
      "form": "ふつうForm ＋ のを しって いますか",
@@ -12143,6 +12308,10 @@
      "goal": "Identify a specific thing using nominalization",
      "uses": [
       "certain"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "わたしが すきなのは なつです。",
      "explain": "Use のは ... です to put the spotlight on one piece of information, like 'What I like is summer.' The key point comes right before です.",
@@ -12259,6 +12428,9 @@
      "uses": [
       "reason"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "かぜを ひいて、がっこうを やすみました。",
      "explain": "A て form can give a cause, often for a feeling or something you could not control. The second part tells the result.",
      "form": "てForm、〜",
@@ -12367,6 +12539,7 @@
      "uses": [
       "reason"
      ],
+     "prereqs": [],
      "example": "からくて たべられませんでした。",
      "explain": "Use the くて form of an い adjective or the で form of a な adjective to give a reason, often for a feeling or something you can't do.",
      "form": "いadj: い→くて／なadj: ＋で、〜",
@@ -12475,6 +12648,7 @@
      "uses": [
       "reason"
      ],
+     "prereqs": [],
      "example": "びょうきで、かいしゃを やすみました。",
      "explain": "Noun ＋ で gives a cause, usually an event or condition like an illness, accident, or earthquake.",
      "form": "Noun ＋ で、〜",
@@ -12582,6 +12756,10 @@
      "goal": "Give a polite, objective reason",
      "uses": [
       "reason"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "あめが ふって いるので、でかけません。",
      "explain": "ので means 'because' or 'so.' It sounds softer and more polite than から, so it works well for excuses and asking permission.",
@@ -12698,6 +12876,7 @@
      "uses": [
       "question"
      ],
+     "prereqs": [],
      "example": "どこで うって いるか、しりません。",
      "explain": "Put か after a question that has a question word to fit it inside a bigger sentence, like 'I don't know where ...'.",
      "form": "ぎもんし ＋ ふつうForm ＋ か、〜",
@@ -12814,6 +12993,7 @@
      "uses": [
       "question"
      ],
+     "prereqs": [],
      "example": "あした ひまかどうか、おしえて ください。",
      "explain": "Use かどうか for a yes-or-no question inside a sentence. It means 'whether or not.'",
      "form": "ふつうForm ＋ かどうか、〜",
@@ -12925,6 +13105,9 @@
      "goal": "Say you will try doing something",
      "uses": [
       "plan"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "この りょうりを たべて みて ください。",
      "explain": "て みます means 'try doing' something to see what it is like. Use it for testing or trying something new.",
@@ -13042,6 +13225,7 @@
       "favor",
       "polite"
      ],
+     "prereqs": [],
      "example": "せんせいから ほんを いただきました。",
      "explain": "いただきます is the humble 'receive' for things from superiors. くださいます is the respectful 'give me.' やります is 'give' to animals, plants, or juniors.",
      "form": "Nを いただきます／くださいます／やります",
@@ -13155,6 +13339,9 @@
       "favor",
       "polite"
      ],
+     "prereqs": [
+      "conj.te"
+     ],
      "example": "せんせいに さくぶんを なおして いただきました。",
      "explain": "Add these to a て form for favors: て いただきます (I receive a favor from a superior), て くださいます (a superior does it for me), て やります (for a junior or animal).",
      "form": "てForm ＋ いただきます／くださいます／やります",
@@ -13263,6 +13450,9 @@
      "uses": [
       "request",
       "polite"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "もういちど せつめいして くださいませんか。",
      "explain": "て くださいませんか is a very polite way to ask a favor, softer than て ください. Use it with superiors or people you don't know well.",
@@ -13379,6 +13569,7 @@
      "uses": [
       "purpose"
      ],
+     "prereqs": [],
      "example": "けんこうの ために、まいあさ はしって います。",
      "explain": "ために after a dictionary-form verb or a noun + の states a purpose: 'in order to' or 'for the sake of'. The verb before it is something you do on purpose.",
      "form": "じしょForm / Nounの + ために",
@@ -13491,6 +13682,7 @@
      "uses": [
       "purpose"
      ],
+     "prereqs": [],
      "example": "この はさみは かみを きるのに つかいます。",
      "explain": "Dictionary-form verb + のに tells what something is used for or needed for. It often goes with つかいます, べんりです, or いります.",
      "form": "じしょForm + のに / Noun + に",
@@ -13599,6 +13791,7 @@
      "uses": [
       "emphasis"
      ],
+     "prereqs": [],
      "example": "この しごとに みっかも かかりました。",
      "explain": "After an amount, も stresses that it feels like a lot: 'as many as' or 'as long as'. は after an amount gives a minimum: 'at least'.",
      "form": "Quantifier + も / は",
@@ -13704,6 +13897,9 @@
      "uses": [
       "appearance",
       "guess"
+     ],
+     "prereqs": [
+      "conj.masu"
      ],
      "example": "この ケーキは おいしそうです。／あめが ふりそうです。",
      "explain": "Use a verb's ます stem or an adjective stem + そうです to say how something looks, or what seems about to happen, based on what you see.",
@@ -13812,6 +14008,9 @@
      "goal": "Describe a change beginning or a quick round trip",
      "uses": [
       "change"
+     ],
+     "prereqs": [
+      "conj.te"
      ],
      "example": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
      "explain": "てForm + きます means going to do something and coming back. It can also show a change that has started and continues up to now.",
@@ -13930,6 +14129,9 @@
       "opinion",
       "emphasis"
      ],
+     "prereqs": [
+      "conj.masu"
+     ],
      "example": "ゆうべ たべすぎました。",
      "explain": "Add すぎます to a verb's ます stem or an adjective stem to say something is 'too' much or done too much, usually in a bad way.",
      "form": "ますForm / いadj(い) / なadj + すぎます",
@@ -14037,6 +14239,9 @@
      "goal": "Describe how easy or hard something is",
      "uses": [
       "opinion"
+     ],
+     "prereqs": [
+      "conj.masu"
      ],
      "example": "この じは よみやすいです。／この かんじは おぼえにくいです。",
      "explain": "ます stem + やすいです means something is easy to do. ます stem + にくいです means it is hard to do.",
@@ -14146,6 +14351,7 @@
      "uses": [
       "change"
      ],
+     "prereqs": [],
      "example": "へやを きれいに しました。",
      "explain": "い-adjective stem + くします or な-adjective + にします means someone deliberately makes something that way.",
      "form": "いadj(い→く) / なadj + に + します",
@@ -14254,6 +14460,7 @@
      "uses": [
       "manner"
      ],
+     "prereqs": [],
      "example": "じを おおきく かきます。",
      "explain": "To describe how an action is done, change an い-adjective to く (はやく) or add に to a な-adjective (しずかに), then put it before the verb.",
      "form": "いadj(い→く) / なadj + に + Verb",
@@ -14373,6 +14580,10 @@
      "uses": [
       "condition"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
+     ],
      "example": "ちこくする ばあいは、れんらくして ください。",
      "explain": "ばあいは means 'in case' or 'if that happens'. It is used to say what to do in a possible situation, often in instructions.",
      "form": "ふつうForm + ばあいは",
@@ -14481,6 +14692,10 @@
      "uses": [
       "regret",
       "contrast"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
      "explain": "Plain form + のに means 'even though'. It shows the result was not what you expected, often with surprise, regret, or complaint.",
@@ -14597,6 +14812,9 @@
      "uses": [
       "time"
      ],
+     "prereqs": [
+      "conj.ta"
+     ],
      "example": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。",
      "explain": "ところです shows the stage of an action: dictionary form means about to do it, ている form means in the middle of it, and た form means just finished.",
      "form": "じしょForm / ているForm / たForm + ところです",
@@ -14706,6 +14924,9 @@
       "time",
       "done"
      ],
+     "prereqs": [
+      "conj.ta"
+     ],
      "example": "さっき たべたばかりです。",
      "explain": "たForm + ばかりです means something happened only a short time ago, from the speaker's point of view.",
      "form": "たForm + ばかりです",
@@ -14814,6 +15035,10 @@
      "uses": [
       "certain",
       "guess"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "たなかさんは くる はずです。",
      "explain": "はずです means 'should' or 'is expected to'. Use it when you have a solid reason to believe something is true or will happen.",
@@ -14934,6 +15159,10 @@
      "uses": [
       "hearsay"
      ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
+     ],
      "example": "てんきよほうに よると、あした ゆきが ふるそうです。",
      "explain": "Plain form + そうです reports something you heard or read: 'I hear that'. Name the source with 〜に よると.",
      "form": "ふつうForm + そうです",
@@ -15042,6 +15271,10 @@
      "uses": [
       "guess",
       "appearance"
+     ],
+     "prereqs": [
+      "conj.nai",
+      "conj.ta"
      ],
      "example": "だれも いないようです。",
      "explain": "Plain form + ようです means 'it seems'. It is your own conclusion from what you see, hear, or notice.",
@@ -15158,6 +15391,9 @@
      "uses": [
       "forms"
      ],
+     "prereqs": [
+      "conj.causative"
+     ],
      "example": "いかせる／たべさせる／させる／こさせる",
      "explain": "Causative verbs mean 'make or let someone do'. Group 1 verbs change the last sound to the あ row + せる; Group 2 verbs add させる to the stem.",
      "form": "Group1: あ row + せる / Group2: stem + させる",
@@ -15265,6 +15501,9 @@
      "goal": "Describe making or letting someone do something",
      "uses": [
       "command"
+     ],
+     "prereqs": [
+      "conj.causative"
      ],
      "example": "せんせいは がくせいを たたせました。",
      "explain": "With verbs that take no object, like いく or たつ, mark the person you make or let act with を. It can mean forcing or allowing.",
@@ -15374,6 +15613,9 @@
      "uses": [
       "command"
      ],
+     "prereqs": [
+      "conj.causative"
+     ],
      "example": "ははは わたしに へやを そうじさせました。",
      "explain": "When the verb already has an object with を, mark the person you make or let do it with に, so the sentence has only one を.",
      "form": "Personに + Nounを + しえきけい",
@@ -15482,6 +15724,9 @@
      "uses": [
       "request",
       "polite"
+     ],
+     "prereqs": [
+      "conj.causative"
      ],
      "example": "すこし やすませて いただけませんか。",
      "explain": "Causative てForm + いただけませんか politely asks for permission to do something yourself: 'Could you let me...?'",
@@ -15598,6 +15843,7 @@
      "uses": [
       "polite"
      ],
+     "prereqs": [],
      "example": "しゃちょうは もう かえられました。",
      "explain": "The passive form can also show respect for what someone else does, like a boss or teacher. The meaning stays active.",
      "form": "うけみけい (〜(ら)れます)",
@@ -15705,6 +15951,9 @@
      "goal": "Use the polite honorific pattern for respect",
      "uses": [
       "polite"
+     ],
+     "prereqs": [
+      "conj.masu"
      ],
      "example": "しゃちょうは もう おかえりに なりました。",
      "explain": "お + ます stem + に なります is a respectful way to describe what a superior or customer does. It is more polite than the passive form.",
@@ -15814,6 +16063,7 @@
      "uses": [
       "polite"
      ],
+     "prereqs": [],
      "example": "せんせいは もう めしあがりましたか。",
      "explain": "Some common verbs have their own respectful forms, such as いらっしゃいます (go, come, be), めしあがります (eat, drink), and おっしゃいます (say).",
      "form": "いらっしゃいます・めしあがります・おっしゃいます など",
@@ -15933,6 +16183,9 @@
       "polite",
       "request"
      ],
+     "prereqs": [
+      "conj.masu"
+     ],
      "example": "どうぞ おかけください。",
      "explain": "お + ます stem + ください is a respectful way to ask a customer or superior to do something. It is more polite than てください.",
      "form": "お + ますForm + ください",
@@ -16048,6 +16301,9 @@
      "uses": [
       "polite"
      ],
+     "prereqs": [
+      "conj.masu"
+     ],
      "example": "にもつを おもちします。",
      "explain": "お or ご + ます stem + します is humble. Use it for something you do for a superior or customer, to lower yourself politely.",
      "form": "お / ご + ますForm + します",
@@ -16156,6 +16412,7 @@
      "uses": [
       "polite"
      ],
+     "prereqs": [],
      "example": "わたしは たなかと もうします。",
      "explain": "Some verbs have special humble forms for your own actions: もうします (say), まいります (go, come), いただきます (eat, receive), and おります (be).",
      "form": "もうします・まいります・いただきます・おります など",
@@ -16264,6 +16521,7 @@
      "uses": [
       "polite"
      ],
+     "prereqs": [],
      "example": "こちらに ございます。",
      "explain": "ございます is a very polite form of あります, and でございます is a very polite form of です. Store and hotel staff use them with customers.",
      "form": "あります → ございます / です → でございます",
@@ -16368,113 +16626,4568 @@
    ]
   }
  ],
+ "words": [
+  {
+   "id": "L02_00",
+   "reading": "ほん",
+   "gloss": "book",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_01",
+   "reading": "じしょ",
+   "gloss": "dictionary",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_02",
+   "reading": "ざっし",
+   "gloss": "magazine",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_03",
+   "reading": "しんぶん",
+   "gloss": "newspaper",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_04",
+   "reading": "ノート",
+   "gloss": "notebook",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_05",
+   "reading": "てちょう",
+   "gloss": "pocket notebook",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_06",
+   "reading": "めいし",
+   "gloss": "business card",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_07",
+   "reading": "カード",
+   "gloss": "card",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_08",
+   "reading": "えんぴつ",
+   "gloss": "pencil",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_09",
+   "reading": "ボールペン",
+   "gloss": "ballpoint pen",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_10",
+   "reading": "シャープペンシル",
+   "gloss": "mechanical pencil",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_11",
+   "reading": "かぎ",
+   "gloss": "key",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_12",
+   "reading": "とけい",
+   "gloss": "watch, clock",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_13",
+   "reading": "かさ",
+   "gloss": "umbrella",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_14",
+   "reading": "かばん",
+   "gloss": "bag, briefcase",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_15",
+   "reading": "テレビ",
+   "gloss": "television",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_16",
+   "reading": "コンピューター",
+   "gloss": "computer",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_17",
+   "reading": "くるま",
+   "gloss": "car",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_18",
+   "reading": "つくえ",
+   "gloss": "desk",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_19",
+   "reading": "いす",
+   "gloss": "chair",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_20",
+   "reading": "チョコレート",
+   "gloss": "chocolate",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L02_21",
+   "reading": "コーヒー",
+   "gloss": "coffee",
+   "lesson": 2,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_00",
+   "reading": "きょうしつ",
+   "gloss": "classroom",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_01",
+   "reading": "しょくどう",
+   "gloss": "canteen",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_02",
+   "reading": "じむしょ",
+   "gloss": "office",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_03",
+   "reading": "かいぎしつ",
+   "gloss": "meeting room",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_04",
+   "reading": "うけつけ",
+   "gloss": "reception",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_05",
+   "reading": "ロビー",
+   "gloss": "lobby",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_06",
+   "reading": "へや",
+   "gloss": "room",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_07",
+   "reading": "トイレ",
+   "gloss": "toilet",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_08",
+   "reading": "かいだん",
+   "gloss": "staircase",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_09",
+   "reading": "エレベーター",
+   "gloss": "elevator",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_10",
+   "reading": "エスカレーター",
+   "gloss": "escalator",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_11",
+   "reading": "くに",
+   "gloss": "county",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_12",
+   "reading": "かいしゃ",
+   "gloss": "company",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_13",
+   "reading": "うち",
+   "gloss": "house, home",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_14",
+   "reading": "でんわ",
+   "gloss": "telephone",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_15",
+   "reading": "くつ",
+   "gloss": "shoes",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_16",
+   "reading": "ネクタイ",
+   "gloss": "necktie",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_17",
+   "reading": "ワイン",
+   "gloss": "wine",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L03_18",
+   "reading": "たばこ",
+   "gloss": "tobacco",
+   "lesson": 3,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_00",
+   "reading": "おきます",
+   "gloss": "wake up",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_01",
+   "reading": "ねます",
+   "gloss": "sleep",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_02",
+   "reading": "はたらきます",
+   "gloss": "work",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_03",
+   "reading": "やすみます",
+   "gloss": "take a rest, take a holiday",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_04",
+   "reading": "べんきょうします",
+   "gloss": "study",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_05",
+   "reading": "おわります",
+   "gloss": "finish",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_06",
+   "reading": "デパート",
+   "gloss": "department store",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_07",
+   "reading": "ぎんこう",
+   "gloss": "bank",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_08",
+   "reading": "ゆうびんきょく",
+   "gloss": "post office",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_09",
+   "reading": "としょかん",
+   "gloss": "library",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_10",
+   "reading": "びじゅつかん",
+   "gloss": "art museum",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_11",
+   "reading": "あさ",
+   "gloss": "morning",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_12",
+   "reading": "ひる",
+   "gloss": "daytime, noon",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L04_13",
+   "reading": "ばん",
+   "gloss": "night",
+   "lesson": 4,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_00",
+   "reading": "いきます",
+   "gloss": "go",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_01",
+   "reading": "きます",
+   "gloss": "come",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_02",
+   "reading": "かえります",
+   "gloss": "go home",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_03",
+   "reading": "がっこう",
+   "gloss": "school",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_04",
+   "reading": "スーパー",
+   "gloss": "supermarket",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_05",
+   "reading": "えき",
+   "gloss": "station",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_06",
+   "reading": "ひこうき",
+   "gloss": "airplane",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_07",
+   "reading": "ふね",
+   "gloss": "ship",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_08",
+   "reading": "でんしゃ",
+   "gloss": "train",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_09",
+   "reading": "ちかてつ",
+   "gloss": "subway",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_10",
+   "reading": "しんかんせん",
+   "gloss": "bullet train",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_11",
+   "reading": "バス",
+   "gloss": "bus",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_12",
+   "reading": "タクシー",
+   "gloss": "taxi",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_13",
+   "reading": "じてんしゃ",
+   "gloss": "bicycle",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_14",
+   "reading": "ともだち",
+   "gloss": "friend",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_15",
+   "reading": "かれ",
+   "gloss": "he, boyfriend",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_16",
+   "reading": "かのじょ",
+   "gloss": "she, girlfriend",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_17",
+   "reading": "かぞく",
+   "gloss": "family",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_18",
+   "reading": "ひとりで",
+   "gloss": "alone, by oneself",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_19",
+   "reading": "たんじょうび",
+   "gloss": "birthday",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_20",
+   "reading": "ふつう",
+   "gloss": "local (train)",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_21",
+   "reading": "きゅうこう",
+   "gloss": "rapid",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L05_22",
+   "reading": "とっきゅう",
+   "gloss": "express",
+   "lesson": 5,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_00",
+   "reading": "たべます",
+   "gloss": "eat",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_01",
+   "reading": "のみます",
+   "gloss": "drink",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_02",
+   "reading": "すいます",
+   "gloss": "smoke (a cigarette)",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_03",
+   "reading": "みます",
+   "gloss": "see, look at, watch",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_04",
+   "reading": "ききます",
+   "gloss": "hear, listen",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_05",
+   "reading": "よみます",
+   "gloss": "read",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_06",
+   "reading": "かきます",
+   "gloss": "write, draw, paint",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_07",
+   "reading": "かいます",
+   "gloss": "buy",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_08",
+   "reading": "とります",
+   "gloss": "take (a photo)",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_09",
+   "reading": "あいます",
+   "gloss": "meet, see (a friend)",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_10",
+   "reading": "ごはん",
+   "gloss": "a meal, cooked rice",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_11",
+   "reading": "あさごはん",
+   "gloss": "breakfast",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_12",
+   "reading": "ひるごはん",
+   "gloss": "lunch",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_13",
+   "reading": "ばんごはん",
+   "gloss": "dinner",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_14",
+   "reading": "パン",
+   "gloss": "bread",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_15",
+   "reading": "たまご",
+   "gloss": "egg",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_16",
+   "reading": "にく",
+   "gloss": "meat",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_17",
+   "reading": "ぎゅうにく",
+   "gloss": "beef",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_18",
+   "reading": "ぶたにく",
+   "gloss": "pork",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_19",
+   "reading": "とりにく",
+   "gloss": "chicken",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_20",
+   "reading": "さかな",
+   "gloss": "fish",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_21",
+   "reading": "やさい",
+   "gloss": "vegetable",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_22",
+   "reading": "くだもの",
+   "gloss": "fruit",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_23",
+   "reading": "みず",
+   "gloss": "water",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_24",
+   "reading": "おちゃ",
+   "gloss": "tea, green tea",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_25",
+   "reading": "こうちゃ",
+   "gloss": "black tea",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_26",
+   "reading": "ぎゅうにゅう",
+   "gloss": "milk",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_27",
+   "reading": "ジュース",
+   "gloss": "juice",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_28",
+   "reading": "ビール",
+   "gloss": "beer",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_29",
+   "reading": "さけ",
+   "gloss": "alcohol",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_30",
+   "reading": "えいが",
+   "gloss": "movie",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_31",
+   "reading": "シーディー",
+   "gloss": "CD",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_32",
+   "reading": "てがみ",
+   "gloss": "letter",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_33",
+   "reading": "しゃしん",
+   "gloss": "photograph",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_34",
+   "reading": "みせ",
+   "gloss": "store, shop",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_35",
+   "reading": "レストラン",
+   "gloss": "restaurant",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_36",
+   "reading": "しゅくだい",
+   "gloss": "homework",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L06_37",
+   "reading": "サッカー",
+   "gloss": "soccer",
+   "lesson": 6,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_00",
+   "reading": "きります",
+   "gloss": "cut, slice",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_01",
+   "reading": "おくります",
+   "gloss": "send",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_02",
+   "reading": "あげます",
+   "gloss": "give",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_03",
+   "reading": "もらいます",
+   "gloss": "receive",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_04",
+   "reading": "かします",
+   "gloss": "lend",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_05",
+   "reading": "かります",
+   "gloss": "borrow",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_06",
+   "reading": "おしえます",
+   "gloss": "teach",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_07",
+   "reading": "ならいます",
+   "gloss": "learn",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_08",
+   "reading": "かけます",
+   "gloss": "make (a phone call)",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_09",
+   "reading": "て",
+   "gloss": "hand, arm",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_10",
+   "reading": "はし",
+   "gloss": "chopsticks",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_11",
+   "reading": "スプーン",
+   "gloss": "spoon",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_12",
+   "reading": "ナイフ",
+   "gloss": "knife",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_13",
+   "reading": "フォーク",
+   "gloss": "fork",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_14",
+   "reading": "はさみ",
+   "gloss": "scissors",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_15",
+   "reading": "パソコン",
+   "gloss": "personal computer",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_16",
+   "reading": "パンチ",
+   "gloss": "punch",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_17",
+   "reading": "ホッチキス",
+   "gloss": "stapler",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_18",
+   "reading": "セロテープ",
+   "gloss": "scotch tape",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_19",
+   "reading": "けしゴム",
+   "gloss": "eraser",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_20",
+   "reading": "かみ",
+   "gloss": "paper",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_21",
+   "reading": "はな",
+   "gloss": "flower, blossom",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_22",
+   "reading": "シャツ",
+   "gloss": "shirt",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_23",
+   "reading": "プレゼント",
+   "gloss": "present, gift",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_24",
+   "reading": "にもつ",
+   "gloss": "baggage, parcel",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_25",
+   "reading": "おかね",
+   "gloss": "money",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_26",
+   "reading": "きっぷ",
+   "gloss": "ticket",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_27",
+   "reading": "おとうさん",
+   "gloss": "someone else's father",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_28",
+   "reading": "おかあさん",
+   "gloss": "someone else's mother",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_29",
+   "reading": "いただきます。",
+   "gloss": "Thank you. (before eat/drink)",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_30",
+   "reading": "りょこう",
+   "gloss": "trip, tour",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L07_31",
+   "reading": "みやげ",
+   "gloss": "souvenir, present",
+   "lesson": 7,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_00",
+   "reading": "ハンサム",
+   "gloss": "handsome",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_01",
+   "reading": "きれい",
+   "gloss": "beautiful, clean",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_02",
+   "reading": "しずか",
+   "gloss": "quiet",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_03",
+   "reading": "にぎやか",
+   "gloss": "lively",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_04",
+   "reading": "ゆうめい",
+   "gloss": "famous",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_05",
+   "reading": "しんせつ",
+   "gloss": "kind",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_06",
+   "reading": "げんき",
+   "gloss": "healthy, cheerful",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_07",
+   "reading": "ひま",
+   "gloss": "free(time)",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_08",
+   "reading": "べんり",
+   "gloss": "convenient",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_09",
+   "reading": "すてき",
+   "gloss": "nice, wonderful",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_10",
+   "reading": "おおきい",
+   "gloss": "big, large",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_11",
+   "reading": "ちいさい",
+   "gloss": "small, little",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_12",
+   "reading": "あたらしい",
+   "gloss": "new",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_13",
+   "reading": "ふるい",
+   "gloss": "old (not of age)",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_14",
+   "reading": "いい",
+   "gloss": "good",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_15",
+   "reading": "わるい",
+   "gloss": "bad",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_16",
+   "reading": "あつい",
+   "gloss": "hot",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_17",
+   "reading": "さむい",
+   "gloss": "cold (weather)",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_18",
+   "reading": "あつい",
+   "gloss": "hot",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_19",
+   "reading": "つめたい",
+   "gloss": "cold (referring to touch)",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_20",
+   "reading": "むずかしい",
+   "gloss": "difficult",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_21",
+   "reading": "やさしい",
+   "gloss": "easy",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_22",
+   "reading": "たかい",
+   "gloss": "expensive",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_23",
+   "reading": "やすい",
+   "gloss": "cheap",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_24",
+   "reading": "たかい",
+   "gloss": "tall, high",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_25",
+   "reading": "ひくい",
+   "gloss": "low",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_26",
+   "reading": "おもしろい",
+   "gloss": "interesting",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_27",
+   "reading": "おいしい",
+   "gloss": "delicious, tasty",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_28",
+   "reading": "いそがしい",
+   "gloss": "busy",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_29",
+   "reading": "たのしい",
+   "gloss": "fun",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_30",
+   "reading": "しろい",
+   "gloss": "white",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_31",
+   "reading": "くろい",
+   "gloss": "black",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_32",
+   "reading": "あかい",
+   "gloss": "red",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_33",
+   "reading": "あおい",
+   "gloss": "blue",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_34",
+   "reading": "さくら",
+   "gloss": "cherry (blossom)",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_35",
+   "reading": "やま",
+   "gloss": "mountain",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_36",
+   "reading": "たべもの",
+   "gloss": "food",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_37",
+   "reading": "くるま",
+   "gloss": "car",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_38",
+   "reading": "べんきょう",
+   "gloss": "study",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L08_39",
+   "reading": "しごと",
+   "gloss": "work, business",
+   "lesson": 8,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_00",
+   "reading": "わかります",
+   "gloss": "understand",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_01",
+   "reading": "あります",
+   "gloss": "have",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_02",
+   "reading": "すき",
+   "gloss": "like",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_03",
+   "reading": "きらい",
+   "gloss": "dislike",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_04",
+   "reading": "じょうず",
+   "gloss": "good at",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_05",
+   "reading": "へた",
+   "gloss": "bad at",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_06",
+   "reading": "りょうり",
+   "gloss": "cooking, cooked food",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_07",
+   "reading": "のみもの",
+   "gloss": "drinks",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_08",
+   "reading": "スポーツ",
+   "gloss": "sport",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_09",
+   "reading": "やきゅう",
+   "gloss": "baseball",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_10",
+   "reading": "ダンス",
+   "gloss": "dance",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_11",
+   "reading": "おんがく",
+   "gloss": "music",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_12",
+   "reading": "うた",
+   "gloss": "song",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_13",
+   "reading": "え",
+   "gloss": "picture, drawing",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_14",
+   "reading": "こまかい おかね",
+   "gloss": "small change",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_15",
+   "reading": "チケット",
+   "gloss": "ticket",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_16",
+   "reading": "ごしゅじん",
+   "gloss": "someone else's husband",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_17",
+   "reading": "しゅじん",
+   "gloss": "my husband",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_18",
+   "reading": "おくさん",
+   "gloss": "someone else's wife",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L09_19",
+   "reading": "つま",
+   "gloss": "my wife",
+   "lesson": 9,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_00",
+   "reading": "います",
+   "gloss": "exist, be (animate things)",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_01",
+   "reading": "あります",
+   "gloss": "exist, be (inanimate things)",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_02",
+   "reading": "いろいろ",
+   "gloss": "various",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_03",
+   "reading": "おとこのひと",
+   "gloss": "man",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_04",
+   "reading": "おんなのひと",
+   "gloss": "woman",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_05",
+   "reading": "おとこのこ",
+   "gloss": "boy",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_06",
+   "reading": "おんなのこ",
+   "gloss": "girl",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_07",
+   "reading": "いぬ",
+   "gloss": "dog",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_08",
+   "reading": "ねこ",
+   "gloss": "cat",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_09",
+   "reading": "き",
+   "gloss": "tree, wood",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_10",
+   "reading": "でんち",
+   "gloss": "battery",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_11",
+   "reading": "はこ",
+   "gloss": "box",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_12",
+   "reading": "スイッチ",
+   "gloss": "switch",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_13",
+   "reading": "れいぞうこ",
+   "gloss": "refrigerator",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_14",
+   "reading": "テーブル",
+   "gloss": "table",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_15",
+   "reading": "たな",
+   "gloss": "shelf",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_16",
+   "reading": "ドア",
+   "gloss": "door",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_17",
+   "reading": "まど",
+   "gloss": "window",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_18",
+   "reading": "ポスト",
+   "gloss": "post",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_19",
+   "reading": "ビル",
+   "gloss": "building",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_20",
+   "reading": "こうえん",
+   "gloss": "park",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_21",
+   "reading": "きっさてん",
+   "gloss": "coffee shop",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_22",
+   "reading": "ほんや",
+   "gloss": "bookstore",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_23",
+   "reading": "のりば",
+   "gloss": "place to catch taxi, trains, bus",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_24",
+   "reading": "うえ",
+   "gloss": "on, above",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_25",
+   "reading": "した",
+   "gloss": "under, below",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_26",
+   "reading": "まえ",
+   "gloss": "front, before",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_27",
+   "reading": "うしろ",
+   "gloss": "back, behind",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_28",
+   "reading": "みぎ",
+   "gloss": "right",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_29",
+   "reading": "ひだり",
+   "gloss": "left",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_30",
+   "reading": "なか",
+   "gloss": "in, inside",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_31",
+   "reading": "そと",
+   "gloss": "outside",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_32",
+   "reading": "となり",
+   "gloss": "next",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_33",
+   "reading": "ちかく",
+   "gloss": "near",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L10_34",
+   "reading": "あいだ",
+   "gloss": "between",
+   "lesson": 10,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_00",
+   "reading": "います",
+   "gloss": "have (a child)",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_01",
+   "reading": "います",
+   "gloss": "stay (in Japan)",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_02",
+   "reading": "かかります",
+   "gloss": "take (money)",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_03",
+   "reading": "かかります",
+   "gloss": "take (time)",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_04",
+   "reading": "やすみます",
+   "gloss": "take a day off",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_05",
+   "reading": "りんご",
+   "gloss": "apple",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_06",
+   "reading": "みかん",
+   "gloss": "orange",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_07",
+   "reading": "カレー",
+   "gloss": "curry and rice",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_08",
+   "reading": "きって",
+   "gloss": "postage stamp",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_09",
+   "reading": "はがき",
+   "gloss": "post card",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_10",
+   "reading": "ふうとう",
+   "gloss": "envelope",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_11",
+   "reading": "そくたつ",
+   "gloss": "special delivery",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_12",
+   "reading": "かきとめ",
+   "gloss": "registered mail",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_13",
+   "reading": "こうくうびん",
+   "gloss": "airmail",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_14",
+   "reading": "ふなびん",
+   "gloss": "sea mail",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_15",
+   "reading": "りょうしん",
+   "gloss": "parents",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_16",
+   "reading": "きょうだい",
+   "gloss": "brothers and sisters",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_17",
+   "reading": "おにいさん",
+   "gloss": "someone else's older brother",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_18",
+   "reading": "おねえさん",
+   "gloss": "someone else's older sister",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_19",
+   "reading": "おとうとさん",
+   "gloss": "someone else's younger brother",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L11_20",
+   "reading": "いもうとさん",
+   "gloss": "someone else's younger sister",
+   "lesson": 11,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_00",
+   "reading": "かんたん",
+   "gloss": "easy",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_01",
+   "reading": "ちかい",
+   "gloss": "near",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_02",
+   "reading": "とおい",
+   "gloss": "far",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_03",
+   "reading": "はやい",
+   "gloss": "early",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_04",
+   "reading": "はやい",
+   "gloss": "fast",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_05",
+   "reading": "おそい",
+   "gloss": "late",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_06",
+   "reading": "おそい",
+   "gloss": "slow",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_07",
+   "reading": "おおい",
+   "gloss": "many, much",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_08",
+   "reading": "すくない",
+   "gloss": "few, a little",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_09",
+   "reading": "あたたかい",
+   "gloss": "warm",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_10",
+   "reading": "すずしい",
+   "gloss": "cool",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_11",
+   "reading": "あまい",
+   "gloss": "sweet",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_12",
+   "reading": "からい",
+   "gloss": "spicy",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_13",
+   "reading": "おもい",
+   "gloss": "heavy",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_14",
+   "reading": "かるい",
+   "gloss": "light",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_15",
+   "reading": "きせつ",
+   "gloss": "season",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_16",
+   "reading": "はる",
+   "gloss": "spring",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_17",
+   "reading": "なつ",
+   "gloss": "summer",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_18",
+   "reading": "あき",
+   "gloss": "autumn, fall",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_19",
+   "reading": "ふゆ",
+   "gloss": "winter",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_20",
+   "reading": "てんき",
+   "gloss": "weather",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_21",
+   "reading": "あめ",
+   "gloss": "rain",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_22",
+   "reading": "ゆき",
+   "gloss": "snow",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_23",
+   "reading": "くもり",
+   "gloss": "cloudy",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_24",
+   "reading": "ホテル",
+   "gloss": "hotel",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_25",
+   "reading": "くうこう",
+   "gloss": "airport",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_26",
+   "reading": "うみ",
+   "gloss": "sea, ocean",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_27",
+   "reading": "パーテイー",
+   "gloss": "party",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_28",
+   "reading": "まつり",
+   "gloss": "festival",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_29",
+   "reading": "しけん",
+   "gloss": "examination",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_30",
+   "reading": "すし",
+   "gloss": "sushi",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L12_31",
+   "reading": "もみじ",
+   "gloss": "maple, red leaves of autumn",
+   "lesson": 12,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_00",
+   "reading": "あそびます",
+   "gloss": "play, hang out",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_01",
+   "reading": "およぎます",
+   "gloss": "swim",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_02",
+   "reading": "むかえます",
+   "gloss": "go to meet, welcome",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_03",
+   "reading": "つかれます",
+   "gloss": "get tired",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_04",
+   "reading": "だします",
+   "gloss": "send [a letter]",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_05",
+   "reading": "はいります",
+   "gloss": "enter a elevator",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_06",
+   "reading": "でます",
+   "gloss": "go out of a elevator",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_07",
+   "reading": "けっこんします",
+   "gloss": "marry",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_08",
+   "reading": "かいものします",
+   "gloss": "do shopping",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_09",
+   "reading": "しょくじします",
+   "gloss": "have a meal",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_10",
+   "reading": "さんぽします",
+   "gloss": "take a walk [in a park]",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_11",
+   "reading": "たいへん",
+   "gloss": "hard",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_12",
+   "reading": "ほしい",
+   "gloss": "want",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_13",
+   "reading": "さびしい",
+   "gloss": "lonely",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_14",
+   "reading": "ひろい",
+   "gloss": "wide, spacious",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_15",
+   "reading": "せまい",
+   "gloss": "narrow",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_16",
+   "reading": "プール",
+   "gloss": "swimming pool",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_17",
+   "reading": "かわ",
+   "gloss": "river",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_18",
+   "reading": "びじゅつ",
+   "gloss": "arts",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_19",
+   "reading": "つり",
+   "gloss": "fishing",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_20",
+   "reading": "スキー",
+   "gloss": "skiing",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_21",
+   "reading": "かいぎ",
+   "gloss": "meeting",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_22",
+   "reading": "おなかがすきました。",
+   "gloss": "I'm hungry.",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_23",
+   "reading": "おなかがいっぱいです。",
+   "gloss": "I'm full.",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L13_24",
+   "reading": "のどがかわきました。",
+   "gloss": "I'm thirsty.",
+   "lesson": 13,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_00",
+   "reading": "つけます",
+   "gloss": "turn on",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_01",
+   "reading": "けします",
+   "gloss": "turn off",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_02",
+   "reading": "あけます",
+   "gloss": "open",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_03",
+   "reading": "しめます",
+   "gloss": "close, shut",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_04",
+   "reading": "いそぎます",
+   "gloss": "hurry",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_05",
+   "reading": "まちます",
+   "gloss": "wait",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_06",
+   "reading": "とめます",
+   "gloss": "stop",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_07",
+   "reading": "とめます",
+   "gloss": "park",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_08",
+   "reading": "まがります",
+   "gloss": "turn[to the right]",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_09",
+   "reading": "もちます",
+   "gloss": "hold",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_10",
+   "reading": "とります",
+   "gloss": "take, pass",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_11",
+   "reading": "てつだいます",
+   "gloss": "help",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_12",
+   "reading": "よびます",
+   "gloss": "call",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_13",
+   "reading": "はなします",
+   "gloss": "speak, talk",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_14",
+   "reading": "みせます",
+   "gloss": "show",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_15",
+   "reading": "おしえます",
+   "gloss": "tell[an address]",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_16",
+   "reading": "はじめます",
+   "gloss": "start, begin",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_17",
+   "reading": "ふります",
+   "gloss": "rain",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_18",
+   "reading": "コピーします",
+   "gloss": "copy",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_19",
+   "reading": "エアコン",
+   "gloss": "air conditioner",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_20",
+   "reading": "パスポート",
+   "gloss": "passport",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_21",
+   "reading": "しお",
+   "gloss": "salt",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L14_22",
+   "reading": "さとう",
+   "gloss": "sugar",
+   "lesson": 14,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_00",
+   "reading": "たちます",
+   "gloss": "stand up",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_01",
+   "reading": "すわります",
+   "gloss": "sit down",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_02",
+   "reading": "つかいます",
+   "gloss": "use",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_03",
+   "reading": "おきます",
+   "gloss": "put on",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_04",
+   "reading": "つくります",
+   "gloss": "make, produce",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_05",
+   "reading": "うります",
+   "gloss": "sell",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_06",
+   "reading": "すみます",
+   "gloss": "be going to live",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_07",
+   "reading": "けんきゅうします",
+   "gloss": "do research",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_08",
+   "reading": "しりょう",
+   "gloss": "materials, data",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_09",
+   "reading": "カタログ",
+   "gloss": "catalog",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_10",
+   "reading": "じこくひょう",
+   "gloss": "timetable",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_11",
+   "reading": "ふく",
+   "gloss": "clothes",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_12",
+   "reading": "はいしゃ",
+   "gloss": "dentist",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_13",
+   "reading": "とこや",
+   "gloss": "barber",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_14",
+   "reading": "おもいだします",
+   "gloss": "remember, recollect",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L15_15",
+   "reading": "こうこう",
+   "gloss": "high school",
+   "lesson": 15,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_00",
+   "reading": "のります",
+   "gloss": "ride, get on [a train]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_01",
+   "reading": "おります",
+   "gloss": "get off [a train]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_02",
+   "reading": "のりかえます",
+   "gloss": "change trains",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_03",
+   "reading": "あびます",
+   "gloss": "take [a shower]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_04",
+   "reading": "いれます",
+   "gloss": "put in, insert",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_05",
+   "reading": "だします",
+   "gloss": "take out, withdraw",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_06",
+   "reading": "はいります",
+   "gloss": "enter [university]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_07",
+   "reading": "でます",
+   "gloss": "graduate from [university]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_08",
+   "reading": "やめます",
+   "gloss": "quit [a company]",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_09",
+   "reading": "おします",
+   "gloss": "push, press",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_10",
+   "reading": "わかい",
+   "gloss": "young",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_11",
+   "reading": "ながい",
+   "gloss": "long",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_12",
+   "reading": "みじがい",
+   "gloss": "short",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_13",
+   "reading": "あかるい",
+   "gloss": "bright",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_14",
+   "reading": "くらい",
+   "gloss": "dark",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_15",
+   "reading": "せがたかい",
+   "gloss": "tall (referring to person)",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_16",
+   "reading": "からだ",
+   "gloss": "body",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_17",
+   "reading": "あたま",
+   "gloss": "head",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_18",
+   "reading": "かみ",
+   "gloss": "hair",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_19",
+   "reading": "かお",
+   "gloss": "face",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_20",
+   "reading": "め",
+   "gloss": "eye",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_21",
+   "reading": "みみ",
+   "gloss": "ear",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_22",
+   "reading": "くち",
+   "gloss": "mouth",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_23",
+   "reading": "は",
+   "gloss": "tooth",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_24",
+   "reading": "おなか",
+   "gloss": "stomach, belly, tummy",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_25",
+   "reading": "あし",
+   "gloss": "foot, leg",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_26",
+   "reading": "ジョギング",
+   "gloss": "jogging",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_27",
+   "reading": "てら",
+   "gloss": "temple",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_28",
+   "reading": "じんじゃ",
+   "gloss": "shinto shrine",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L16_29",
+   "reading": "りゅうがくせい",
+   "gloss": "foreign student",
+   "lesson": 16,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_00",
+   "reading": "おぼえます",
+   "gloss": "memorize",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_01",
+   "reading": "わすれます",
+   "gloss": "forget",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_02",
+   "reading": "なくします",
+   "gloss": "lose",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_03",
+   "reading": "だします",
+   "gloss": "hand in [a report]",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_04",
+   "reading": "はらいます",
+   "gloss": "pay",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_05",
+   "reading": "かえします",
+   "gloss": "return",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_06",
+   "reading": "でかけます",
+   "gloss": "go out",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_07",
+   "reading": "ぬぎます",
+   "gloss": "take off",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_08",
+   "reading": "もっていきます",
+   "gloss": "take (something)",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_09",
+   "reading": "もって きます",
+   "gloss": "bring (something)",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_10",
+   "reading": "しんぱいします",
+   "gloss": "worry",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_11",
+   "reading": "ざんぎょうします",
+   "gloss": "work overtime",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_12",
+   "reading": "しゅっちょうします",
+   "gloss": "go on a business trip",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_13",
+   "reading": "のみます",
+   "gloss": "take [medicine]",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_14",
+   "reading": "はいります",
+   "gloss": "take [a bath]",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_15",
+   "reading": "たいせつ",
+   "gloss": "important, precious",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_16",
+   "reading": "だいじょうぶ",
+   "gloss": "all right",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_17",
+   "reading": "あぶない",
+   "gloss": "dangerous",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_18",
+   "reading": "もんだい",
+   "gloss": "question, problem, trouble",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_19",
+   "reading": "こたえ",
+   "gloss": "answer",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_20",
+   "reading": "きんえん",
+   "gloss": "no smoking",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_21",
+   "reading": "かぜ",
+   "gloss": "cold, flu",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_22",
+   "reading": "ねつ",
+   "gloss": "fever",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_23",
+   "reading": "びょうき",
+   "gloss": "illness, disease",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_24",
+   "reading": "くすり",
+   "gloss": "medicine",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_25",
+   "reading": "ふろ",
+   "gloss": "bath",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_26",
+   "reading": "うわぎ",
+   "gloss": "jacket",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_27",
+   "reading": "したぎ",
+   "gloss": "underwear",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_28",
+   "reading": "いたいです",
+   "gloss": "stomachache",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L17_29",
+   "reading": "いたいです",
+   "gloss": "headache",
+   "lesson": 17,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_00",
+   "reading": "きます",
+   "gloss": "put on [a shirt]",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_01",
+   "reading": "はきます",
+   "gloss": "put on [shoes or trousers]",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_02",
+   "reading": "かぶります",
+   "gloss": "put on [a hat]",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_03",
+   "reading": "かけます",
+   "gloss": "put on [glasses]",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_04",
+   "reading": "うまれます",
+   "gloss": "be born",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_05",
+   "reading": "コート",
+   "gloss": "coat",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_06",
+   "reading": "スーツ",
+   "gloss": "suit",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_07",
+   "reading": "セーター",
+   "gloss": "sweater",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_08",
+   "reading": "ぼうし",
+   "gloss": "hat, cap",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_09",
+   "reading": "めがね",
+   "gloss": "glasses",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_10",
+   "reading": "おめでとう。",
+   "gloss": "Congratulations.",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L22_11",
+   "reading": "アパート",
+   "gloss": "apartment",
+   "lesson": 22,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_00",
+   "reading": "ききます",
+   "gloss": "ask [the teacher]",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_01",
+   "reading": "まわします",
+   "gloss": "turn",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_02",
+   "reading": "ひきます",
+   "gloss": "pull",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_03",
+   "reading": "かえます",
+   "gloss": "change",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_04",
+   "reading": "さわります",
+   "gloss": "touch",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_05",
+   "reading": "でます",
+   "gloss": "[juice] come out",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_06",
+   "reading": "うごきます",
+   "gloss": "[a car] move, work",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_07",
+   "reading": "あるきます",
+   "gloss": "walk [along a road]",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_08",
+   "reading": "わたります",
+   "gloss": "cross [a bridge]",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_09",
+   "reading": "きをつけます",
+   "gloss": "pay attention",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_10",
+   "reading": "ひっこしします",
+   "gloss": "move (house)",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_11",
+   "reading": "でんきや",
+   "gloss": "electrician",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_12",
+   "reading": "おと",
+   "gloss": "sound",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_13",
+   "reading": "きかい",
+   "gloss": "machine",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_14",
+   "reading": "つまみ",
+   "gloss": "knob",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_15",
+   "reading": "こしょう",
+   "gloss": "break down",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_16",
+   "reading": "みち",
+   "gloss": "road, way",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_17",
+   "reading": "こうさてん",
+   "gloss": "crossroad",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_18",
+   "reading": "しんごう",
+   "gloss": "traffic light",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_19",
+   "reading": "かど",
+   "gloss": "corner",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_20",
+   "reading": "はし",
+   "gloss": "bridge",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_21",
+   "reading": "ちゅうしゃじょう",
+   "gloss": "parking lot",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_22",
+   "reading": "しょうがつ",
+   "gloss": "New year's day",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_23",
+   "reading": "ごちそうさま。",
+   "gloss": "That was delicious.",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L23_24",
+   "reading": "たてもの",
+   "gloss": "building",
+   "lesson": 23,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_00",
+   "reading": "くれます",
+   "gloss": "give (me)",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_01",
+   "reading": "つれていきます",
+   "gloss": "take (someone)",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_02",
+   "reading": "つれて きます",
+   "gloss": "bring (someone)",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_03",
+   "reading": "おくります",
+   "gloss": "send (someone)",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_04",
+   "reading": "しょうかいします",
+   "gloss": "introduce",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_05",
+   "reading": "あんないします",
+   "gloss": "show around",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_06",
+   "reading": "せつめいします",
+   "gloss": "explain",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_07",
+   "reading": "いれます",
+   "gloss": "make [coffee]",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_08",
+   "reading": "おじいちゃん",
+   "gloss": "grandfather",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_09",
+   "reading": "おじいさん",
+   "gloss": "old man",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_10",
+   "reading": "おばあちゃん",
+   "gloss": "grandmother",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_11",
+   "reading": "おばあさん",
+   "gloss": "old woman",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_12",
+   "reading": "かし",
+   "gloss": "sweets, snacks",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L24_13",
+   "reading": "べんとう",
+   "gloss": "lunch box",
+   "lesson": 24,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_00",
+   "reading": "かんがえます",
+   "gloss": "think, consider",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_01",
+   "reading": "つきます",
+   "gloss": "arrive [at the station]",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_02",
+   "reading": "りゅうがくします",
+   "gloss": "study abroad",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_03",
+   "reading": "とります",
+   "gloss": "grow old",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_04",
+   "reading": "いなか",
+   "gloss": "countryside, hometown",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_05",
+   "reading": "たいしかん",
+   "gloss": "embassy",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_06",
+   "reading": "てんきん",
+   "gloss": "transfer",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L25_07",
+   "reading": "がんばります",
+   "gloss": "do one's best.",
+   "lesson": 25,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_00",
+   "reading": "みます",
+   "gloss": "check",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_01",
+   "reading": "みます",
+   "gloss": "check",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_02",
+   "reading": "さがします",
+   "gloss": "look for",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_03",
+   "reading": "さがします",
+   "gloss": "search",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_04",
+   "reading": "おくれます",
+   "gloss": "be late",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_05",
+   "reading": "まにあいます",
+   "gloss": "be in time",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_06",
+   "reading": "さんかします",
+   "gloss": "attend [a party]",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_07",
+   "reading": "もうしこみます",
+   "gloss": "apply for, enter for",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_08",
+   "reading": "つごうがいい",
+   "gloss": "convenient",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_09",
+   "reading": "つごうがわるい",
+   "gloss": "inconvenient",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_10",
+   "reading": "きぶんがいい",
+   "gloss": "feel well",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_11",
+   "reading": "きぶんがわるい",
+   "gloss": "feel ill",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_12",
+   "reading": "じゅうどう",
+   "gloss": "judo",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_13",
+   "reading": "うんどうかい",
+   "gloss": "sports day",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_14",
+   "reading": "ばしょ",
+   "gloss": "place",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_15",
+   "reading": "ボランテイア",
+   "gloss": "volunteer",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_16",
+   "reading": "かたづきます",
+   "gloss": "[boxes] be put in order",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_17",
+   "reading": "ごみ",
+   "gloss": "garbage, trash, dust",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_18",
+   "reading": "だします",
+   "gloss": "put out [the trash]",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_19",
+   "reading": "もえます",
+   "gloss": "[trash] burn",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_20",
+   "reading": "おきば",
+   "gloss": "place where something is put",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_21",
+   "reading": "びん",
+   "gloss": "bottle",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_22",
+   "reading": "かん",
+   "gloss": "can",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L26_23",
+   "reading": "ゆ",
+   "gloss": "hot water",
+   "lesson": 26,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_00",
+   "reading": "かいます",
+   "gloss": "keep (a pet), raise (an animal)",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_01",
+   "reading": "たてます",
+   "gloss": "build",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_02",
+   "reading": "はしります",
+   "gloss": "run, drive [along a road]",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_03",
+   "reading": "とります",
+   "gloss": "take [a holiday]",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_04",
+   "reading": "みえます",
+   "gloss": "[a mountain] can be seen",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_05",
+   "reading": "きこえます",
+   "gloss": "[a sound] can be heard",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_06",
+   "reading": "できます",
+   "gloss": "[an airport] be made, be, completed",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_07",
+   "reading": "ひらきます",
+   "gloss": "open",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_08",
+   "reading": "とり",
+   "gloss": "bird",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_09",
+   "reading": "こえ",
+   "gloss": "voice",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_10",
+   "reading": "なみ",
+   "gloss": "wave",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_11",
+   "reading": "はなび",
+   "gloss": "fireworks",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_12",
+   "reading": "けしき",
+   "gloss": "scenery, view",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_13",
+   "reading": "むかし",
+   "gloss": "old days",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_14",
+   "reading": "どうぐ",
+   "gloss": "tool",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_15",
+   "reading": "じどうはんばいき",
+   "gloss": "vending machine",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_16",
+   "reading": "つうしんはんばい",
+   "gloss": "mail order",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_17",
+   "reading": "クリーニング",
+   "gloss": "cleaning, laundry",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_18",
+   "reading": "マンション",
+   "gloss": "condominium, apartment",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_19",
+   "reading": "だいどころ",
+   "gloss": "kitchen",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_20",
+   "reading": "にちようだいく",
+   "gloss": "Sunday carpenter",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_21",
+   "reading": "ほんだな",
+   "gloss": "bookshelf",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L27_22",
+   "reading": "すばらしい",
+   "gloss": "marvelous, wonderful",
+   "lesson": 27,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_00",
+   "reading": "うれます",
+   "gloss": "[bread] sell",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_01",
+   "reading": "おどります",
+   "gloss": "dance",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_02",
+   "reading": "かみます",
+   "gloss": "chew",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_03",
+   "reading": "かみます",
+   "gloss": "bite",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_04",
+   "reading": "えらびます",
+   "gloss": "choose",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_05",
+   "reading": "ちがいます",
+   "gloss": "be different",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_06",
+   "reading": "かよいます",
+   "gloss": "go to and from [university]",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_07",
+   "reading": "メモします",
+   "gloss": "take a memo",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_08",
+   "reading": "まじめ",
+   "gloss": "serious",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_09",
+   "reading": "ねっしん",
+   "gloss": "earnest",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_10",
+   "reading": "やさしい",
+   "gloss": "gentle, kind",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_11",
+   "reading": "えらい",
+   "gloss": "great",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_12",
+   "reading": "ちょうどいい",
+   "gloss": "proper, just right",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_13",
+   "reading": "しゅうかん",
+   "gloss": "custom",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_14",
+   "reading": "かたち",
+   "gloss": "form, shape",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_15",
+   "reading": "いろ",
+   "gloss": "color",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_16",
+   "reading": "あじ",
+   "gloss": "taste",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_17",
+   "reading": "ガム",
+   "gloss": "chewing gum",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_18",
+   "reading": "しなもの",
+   "gloss": "goods",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_19",
+   "reading": "ねだん",
+   "gloss": "price",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_20",
+   "reading": "きゅうりょう",
+   "gloss": "salary",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_21",
+   "reading": "ボーナス",
+   "gloss": "bonus",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_22",
+   "reading": "ばんぐみ",
+   "gloss": "program",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_23",
+   "reading": "ドラマ",
+   "gloss": "drama",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_24",
+   "reading": "しょうせつ",
+   "gloss": "novel",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_25",
+   "reading": "しょうせつか",
+   "gloss": "novelist",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_26",
+   "reading": "かしゅ",
+   "gloss": "singer",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_27",
+   "reading": "むすこ",
+   "gloss": "my son",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_28",
+   "reading": "むすめ",
+   "gloss": "my daughter",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_29",
+   "reading": "ホームステイ",
+   "gloss": "homestay",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_30",
+   "reading": "かいわ",
+   "gloss": "conversation",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L28_31",
+   "reading": "おしゃべりします",
+   "gloss": "chat",
+   "lesson": 28,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_00",
+   "reading": "あきます",
+   "gloss": "[a door] open",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_01",
+   "reading": "しまります",
+   "gloss": "[a door] close, shut",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_02",
+   "reading": "つきます",
+   "gloss": "[a light] come on",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_03",
+   "reading": "きえます",
+   "gloss": "[a light] go off, disappear",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_04",
+   "reading": "こみます",
+   "gloss": "[a road] get crowded",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_05",
+   "reading": "すきます",
+   "gloss": "[a road] get empty",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_06",
+   "reading": "こわれます",
+   "gloss": "[a chair] break",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_07",
+   "reading": "われます",
+   "gloss": "[a glass] break, smash",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_08",
+   "reading": "おれます",
+   "gloss": "[a tree] break, snap",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_09",
+   "reading": "やぶれます",
+   "gloss": "[the paper] tear",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_10",
+   "reading": "よごれます",
+   "gloss": "[the clothes] get dirty",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_11",
+   "reading": "つきます",
+   "gloss": "[a pocket] be attached",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_12",
+   "reading": "はずれます",
+   "gloss": "[a button] come off",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_13",
+   "reading": "とまります",
+   "gloss": "[a car] stop",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_14",
+   "reading": "まちがえます",
+   "gloss": "make a mistake",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_15",
+   "reading": "おとします",
+   "gloss": "drop, lose",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_16",
+   "reading": "かかります",
+   "gloss": "be locked",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_17",
+   "reading": "さら",
+   "gloss": "plate, dish",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_18",
+   "reading": "おちゃわん",
+   "gloss": "rice bowl",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_19",
+   "reading": "コップ",
+   "gloss": "glass",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_20",
+   "reading": "ガラス",
+   "gloss": "glass (material)",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_21",
+   "reading": "ふくろ",
+   "gloss": "bag",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_22",
+   "reading": "さいふ",
+   "gloss": "wallet",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_23",
+   "reading": "えだ",
+   "gloss": "branch",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_24",
+   "reading": "えきいん",
+   "gloss": "station employee",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_25",
+   "reading": "わすれもの",
+   "gloss": "things left behind, lost property",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L29_26",
+   "reading": "あみだな",
+   "gloss": "baggage rack",
+   "lesson": 29,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_00",
+   "reading": "はります",
+   "gloss": "post, paste",
+   "lesson": 30,
+   "verbGroup": 1
+  },
+  {
+   "id": "L30_01",
+   "reading": "かけます",
+   "gloss": "hang",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_02",
+   "reading": "かざります",
+   "gloss": "display, decorate",
+   "lesson": 30,
+   "verbGroup": 1
+  },
+  {
+   "id": "L30_03",
+   "reading": "ならべます",
+   "gloss": "arrange, line up",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_04",
+   "reading": "うえます",
+   "gloss": "plant",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_05",
+   "reading": "もどします",
+   "gloss": "return, put ~ back",
+   "lesson": 30,
+   "verbGroup": 1
+  },
+  {
+   "id": "L30_06",
+   "reading": "まとめます",
+   "gloss": "put ~ together",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_07",
+   "reading": "まとめます",
+   "gloss": "sum up",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_08",
+   "reading": "かたづけます",
+   "gloss": "put things in order, tidy up",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_09",
+   "reading": "しまいます",
+   "gloss": "put away",
+   "lesson": 30,
+   "verbGroup": 1
+  },
+  {
+   "id": "L30_10",
+   "reading": "きめます",
+   "gloss": "decide",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_11",
+   "reading": "しらせます",
+   "gloss": "inform",
+   "lesson": 30,
+   "verbGroup": 2
+  },
+  {
+   "id": "L30_12",
+   "reading": "そうだんします",
+   "gloss": "consult, discuss",
+   "lesson": 30,
+   "verbGroup": 3
+  },
+  {
+   "id": "L30_13",
+   "reading": "よしゅうします",
+   "gloss": "prepare one's lesson",
+   "lesson": 30,
+   "verbGroup": 3
+  },
+  {
+   "id": "L30_14",
+   "reading": "ふくしゅうします",
+   "gloss": "review one's lesson",
+   "lesson": 30,
+   "verbGroup": 3
+  },
+  {
+   "id": "L30_15",
+   "reading": "そのままにします",
+   "gloss": "leave things as they are",
+   "lesson": 30,
+   "verbGroup": 3
+  },
+  {
+   "id": "L30_16",
+   "reading": "じゅぎょう",
+   "gloss": "class",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_17",
+   "reading": "こうぎ",
+   "gloss": "lecture",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_18",
+   "reading": "ミーティング",
+   "gloss": "meeting",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_19",
+   "reading": "よてい",
+   "gloss": "plan, schedule",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_20",
+   "reading": "カレンダー",
+   "gloss": "calendar",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_21",
+   "reading": "ごみばこ",
+   "gloss": "trash box",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_22",
+   "reading": "にんぎょう",
+   "gloss": "doll",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_23",
+   "reading": "かびん",
+   "gloss": "vase",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_24",
+   "reading": "かがみ",
+   "gloss": "mirror",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_25",
+   "reading": "ひきだし",
+   "gloss": "drawer",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_26",
+   "reading": "げんかん",
+   "gloss": "front door",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_27",
+   "reading": "ろうか",
+   "gloss": "corridor",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_28",
+   "reading": "かべ",
+   "gloss": "wall",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_29",
+   "reading": "いけ",
+   "gloss": "pond",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_30",
+   "reading": "こうばん",
+   "gloss": "police box",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_31",
+   "reading": "まわり",
+   "gloss": "round, around",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_32",
+   "reading": "まんなか",
+   "gloss": "center",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_33",
+   "reading": "すみ",
+   "gloss": "corner",
+   "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L30_34",
+   "reading": "ミュージカル",
+   "gloss": "musical",
+   "lesson": 30,
+   "verbGroup": null
+  }
+ ],
  "particles": [
   {
+   "id": "mari.particle.1",
    "expression": "によって",
    "meaning": "By (means of) / depending on",
    "example": "この おてらは ゆうめいな だいくに よって たてられました。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "この おてらは ゆうめいな だいく＿＿ たてられました。",
+    "answer": "によって",
+    "accepted": [
+     "に よって"
+    ],
+    "from": "particle_clozes.json"
+   }
   },
   {
+   "id": "mari.particle.2",
    "expression": "として",
    "meaning": "As (in the capacity/role of)",
    "example": "つうやくとして はたらいて います。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "つうやく＿＿ はたらいて います。",
+    "answer": "として",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.3",
    "expression": "にとって",
    "meaning": "For (from someone's perspective)",
    "example": "これは わたしに とって たいせつな ものです。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "これは わたし＿＿ たいせつな ものです。",
+    "answer": "にとって",
+    "accepted": [
+     "に とって"
+    ],
+    "from": "particle_clozes.json"
+   }
   },
   {
+   "id": "mari.particle.4",
    "expression": "について",
    "meaning": "About / concerning",
    "example": "にほんの れきしに ついて しらべて います。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "にほんの れきし＿＿ しらべて います。",
+    "answer": "について",
+    "accepted": [
+     "に ついて"
+    ],
+    "from": "particle_clozes.json"
+   }
   },
   {
+   "id": "mari.particle.5",
    "expression": "ように",
    "meaning": "So that (purpose)",
    "example": "わすれないように、メモを します。",
    "taught_in": [
     36
-   ]
+   ],
+   "cloze": {
+    "prompt": "わすれない＿＿、メモを します。",
+    "answer": "ように",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.6",
    "expression": "ために",
    "meaning": "For the sake of / in order to",
    "example": "かぞくの ために、はたらいて います。",
    "taught_in": [
     42
-   ]
+   ],
+   "cloze": {
+    "prompt": "かぞくの ＿＿、はたらいて います。",
+    "answer": "ために",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.7",
    "expression": "のに",
    "meaning": "Even though (contrast)",
    "example": "やくそくしたのに、きませんでした。",
    "taught_in": [
     42,
     45
-   ]
+   ],
+   "cloze": {
+    "prompt": "やくそくした＿＿、きませんでした。",
+    "answer": "のに",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.8",
    "expression": "ばかり",
    "meaning": "Only / just",
    "example": "あそんで ばかり います。",
    "taught_in": [
     46
-   ]
+   ],
+   "cloze": {
+    "prompt": "あそんで ＿＿ います。",
+    "answer": "ばかり",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.9",
    "expression": "でも",
    "meaning": "Even (emphasis)",
    "example": "こどもでも わかります。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "こども＿＿ わかります。",
+    "answer": "でも",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.10",
    "expression": "ながら",
    "meaning": "While (two actions at once)",
    "example": "あるきながら、はなします。",
    "taught_in": [
     28
-   ]
+   ],
+   "cloze": {
+    "prompt": "あるき＿＿、はなします。",
+    "answer": "ながら",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.11",
    "expression": "とおりに",
    "meaning": "Exactly as",
    "example": "せつめいの とおりに やって ください。",
    "taught_in": [
     34
-   ]
+   ],
+   "cloze": {
+    "prompt": "せつめいの ＿＿ やって ください。",
+    "answer": "とおりに",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.12",
    "expression": "しか〜ません",
    "meaning": "Only (with a negative verb)",
    "example": "すこししか わかりません。",
    "taught_in": [
     27
-   ]
+   ],
+   "cloze": {
+    "prompt": "すこし＿＿ わかりません。",
+    "answer": "しか",
+    "accepted": [],
+    "from": "particle_clozes.json"
+   }
   },
   {
+   "id": "mari.particle.13",
    "expression": "けれど（も）",
    "meaning": "Though / but",
    "example": "たかいけれど、かいます。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "たかい＿＿、かいます。",
+    "answer": "けれど",
+    "accepted": [
+     "けれども"
+    ],
+    "from": "particle_clozes.json"
+   }
   },
   {
+   "id": "mari.particle.14",
    "expression": "ので",
    "meaning": "Because (polite, objective reason)",
    "example": "あめなので、いえに います。",
    "taught_in": [
     39
-   ]
+   ],
+   "cloze": {
+    "prompt": "あめな＿＿、いえに います。",
+    "answer": "ので",
+    "accepted": [],
+    "from": "example"
+   }
   },
   {
+   "id": "mari.particle.15",
    "expression": "まま",
    "meaning": "As it is / while in a certain state",
    "example": "くつを はいた まま、はいらないで ください。",
-   "taught_in": []
+   "taught_in": [],
+   "cloze": {
+    "prompt": "くつを はいた ＿＿、はいらないで ください。",
+    "answer": "まま",
+    "accepted": [],
+    "from": "example"
+   }
   }
  ],
  "reference": [

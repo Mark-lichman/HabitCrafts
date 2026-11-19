@@ -1,0 +1,401 @@
+{
+  "recorded": "2026-11-03",
+  "source": "py-fsrs 6.3.2 (pip install fsrs==6.3.2), Python 3.14.3",
+  "scheduler": {
+    "parameters": [
+      0.2172,
+      1.1771,
+      3.2602,
+      16.1507,
+      7.0114,
+      0.57,
+      2.0966,
+      0.0069,
+      1.5261,
+      0.112,
+      1.0178,
+      1.849,
+      0.1133,
+      0.3127,
+      2.2934,
+      0.2191,
+      3.0004,
+      0.7536,
+      0.3332,
+      0.1437,
+      0.2
+    ],
+    "desiredRetention": 0.9,
+    "learningSteps": [],
+    "relearningSteps": [],
+    "maximumInterval": 90,
+    "enableFuzzing": false
+  },
+  "note": "Recorded once. Ratings: 1 Again, 2 Hard, 3 Good, 4 Easy. gapDays is the whole days since the previous review (0 = same day). interval is the days to the next due date. The recipe below regenerates this file.",
+  "recipe": [
+    "import json, sys",
+    "from datetime import datetime, timedelta, timezone",
+    "import fsrs",
+    "from fsrs import Scheduler, Card, Rating",
+    "",
+    "# The vendored dart-fsrs 2.0.1 parameter set (lib/fsrs.dart defaultParameters).",
+    "PARAMS = [0.2172, 1.1771, 3.2602, 16.1507, 7.0114, 0.57, 2.0966, 0.0069, 1.5261,",
+    "          0.112, 1.0178, 1.849, 0.1133, 0.3127, 2.2934, 0.2191, 3.0004, 0.7536,",
+    "          0.3332, 0.1437, 0.2]",
+    "# (rating, gap in whole days since the previous review; the first gap is ignored)",
+    "SEQ = [",
+    "  (3, 0), (3, 1), (3, 3), (2, 6), (3, 9), (1, 14), (3, 0), (3, 1), (3, 3), (3, 7),",
+    "  (4, 12), (3, 30), (2, 45), (3, 60), (1, 90), (1, 0), (2, 0), (3, 1), (3, 2), (3, 5),",
+    "  (3, 20), (1, 3), (3, 1), (2, 1), (3, 4), (3, 9), (3, 0), (4, 2), (3, 40), (1, 120),",
+    "  (3, 1), (3, 2), (3, 6), (2, 15), (3, 25), (3, 50), (1, 2), (3, 0), (3, 1), (3, 200),",
+    "]",
+    "assert len(SEQ) == 40",
+    "sched = Scheduler(parameters=PARAMS, desired_retention=0.9, learning_steps=(),",
+    "                  relearning_steps=(), maximum_interval=90, enable_fuzzing=False)",
+    "card = Card()",
+    "t = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)",
+    "rows = []",
+    "for i, (r, gap) in enumerate(SEQ):",
+    "    if i > 0:",
+    "        t = t + timedelta(days=gap)",
+    "    before = sched.get_card_retrievability(card, t) if i > 0 else None",
+    "    card, _ = sched.review_card(card, Rating(r), t)",
+    "    interval = (card.due - t).days",
+    "    rows.append({\"rating\": r, \"gapDays\": gap if i > 0 else 0,",
+    "                 \"retrievabilityBefore\": before,",
+    "                 \"stability\": card.stability, \"difficulty\": card.difficulty,",
+    "                 \"interval\": interval})",
+    "out = {",
+    "  \"recorded\": \"2026-11-03\",",
+    "  \"source\": f\"py-fsrs {fsrs.__version__ if hasattr(fsrs,'__version__') else '6.3.2'} (pip install fsrs==6.3.2), Python {sys.version.split()[0]}\",",
+    "  \"scheduler\": {\"parameters\": PARAMS, \"desiredRetention\": 0.9, \"learningSteps\": [],",
+    "                \"relearningSteps\": [], \"maximumInterval\": 90, \"enableFuzzing\": False},",
+    "  \"note\": \"Recorded once. Ratings: 1 Again, 2 Hard, 3 Good, 4 Easy. gapDays is the whole days since the previous review (0 = same day). interval is the days to the next due date. The recipe below regenerates this file.\",",
+    "  \"recipe\": open(__file__, encoding=\"utf-8\").read().splitlines(),",
+    "  \"reviews\": rows,",
+    "}",
+    "print(json.dumps(out, indent=2))"
+  ],
+  "reviews": [
+    {
+      "rating": 3,
+      "gapDays": 0,
+      "retrievabilityBefore": null,
+      "stability": 3.2602,
+      "difficulty": 4.884631634813845,
+      "interval": 3
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9621613629655896,
+      "stability": 6.4148261512259666,
+      "difficulty": 4.868056502338024,
+      "interval": 6
+    },
+    {
+      "rating": 3,
+      "gapDays": 3,
+      "retrievabilityBefore": 0.9453675642484797,
+      "stability": 14.81713312588547,
+      "difficulty": 4.851595738276286,
+      "interval": 15
+    },
+    {
+      "rating": 2,
+      "gapDays": 6,
+      "retrievabilityBefore": 0.95170400666804,
+      "stability": 18.237805534788457,
+      "difficulty": 6.026322417813412,
+      "interval": 18
+    },
+    {
+      "rating": 3,
+      "gapDays": 9,
+      "retrievabilityBefore": 0.9428322234774376,
+      "stability": 36.297395661135965,
+      "difficulty": 6.001869618934894,
+      "interval": 36
+    },
+    {
+      "rating": 1,
+      "gapDays": 14,
+      "retrievabilityBefore": 0.9536987622545254,
+      "stability": 3.525686571872112,
+      "difficulty": 7.827505776337127,
+      "interval": 4
+    },
+    {
+      "rating": 3,
+      "gapDays": 0,
+      "retrievabilityBefore": 1.0,
+      "stability": 3.7814287134275344,
+      "difficulty": 7.790624812284795,
+      "interval": 4
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9668826981232669,
+      "stability": 5.430399809563905,
+      "difficulty": 7.753998326884425,
+      "interval": 5
+    },
+    {
+      "rating": 3,
+      "gapDays": 3,
+      "retrievabilityBefore": 0.9371900361256134,
+      "stability": 9.859371625481197,
+      "difficulty": 7.717624564233316,
+      "interval": 10
+    },
+    {
+      "rating": 3,
+      "gapDays": 7,
+      "retrievabilityBefore": 0.9230475883541928,
+      "stability": 19.245928317524733,
+      "difficulty": 7.6815017805445,
+      "interval": 19
+    },
+    {
+      "rating": 4,
+      "gapDays": 12,
+      "retrievabilityBefore": 0.9306504991652511,
+      "stability": 65.53873429880595,
+      "difficulty": 7.109247941876612,
+      "interval": 66
+    },
+    {
+      "rating": 3,
+      "gapDays": 30,
+      "retrievabilityBefore": 0.9463530354256947,
+      "stability": 106.74647741018597,
+      "difficulty": 7.077322956882058,
+      "interval": 90
+    },
+    {
+      "rating": 2,
+      "gapDays": 45,
+      "retrievabilityBefore": 0.9500000243629452,
+      "stability": 119.80546215357525,
+      "difficulty": 7.72177421697838,
+      "interval": 90
+    },
+    {
+      "rating": 3,
+      "gapDays": 60,
+      "retrievabilityBefore": 0.9421195445994571,
+      "stability": 183.94892387832155,
+      "difficulty": 7.685622800685623,
+      "interval": 90
+    },
+    {
+      "rating": 1,
+      "gapDays": 90,
+      "retrievabilityBefore": 0.9432433437504154,
+      "stability": 6.879643944134584,
+      "difficulty": 8.720574652666077,
+      "interval": 7
+    },
+    {
+      "rating": 1,
+      "gapDays": 0,
+      "retrievabilityBefore": 1.0,
+      "stability": 1.4848761305645863,
+      "difficulty": 9.269516918979539,
+      "interval": 1
+    },
+    {
+      "rating": 2,
+      "gapDays": 0,
+      "retrievabilityBefore": 1.0,
+      "stability": 1.4848761305645863,
+      "difficulty": 9.391681996371485,
+      "interval": 1
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9262135307313477,
+      "stability": 2.3045830715962827,
+      "difficulty": 9.344008216400917,
+      "interval": 2
+    },
+    {
+      "rating": 3,
+      "gapDays": 2,
+      "retrievabilityBefore": 0.9100715356340936,
+      "stability": 3.837093826488937,
+      "difficulty": 9.296663385512145,
+      "interval": 4
+    },
+    {
+      "rating": 3,
+      "gapDays": 5,
+      "retrievabilityBefore": 0.8791859665863869,
+      "stability": 7.22106186081792,
+      "difficulty": 9.249645233956507,
+      "interval": 7
+    },
+    {
+      "rating": 3,
+      "gapDays": 20,
+      "retrievabilityBefore": 0.8070488086710046,
+      "stability": 17.33203229550766,
+      "difficulty": 9.202951507646603,
+      "interval": 17
+    },
+    {
+      "rating": 1,
+      "gapDays": 3,
+      "retrievabilityBefore": 0.977582327291217,
+      "stability": 2.2451342766935434,
+      "difficulty": 9.52537137586414,
+      "interval": 2
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9475870055721398,
+      "stability": 3.007387883229452,
+      "difficulty": 9.476775139175071,
+      "interval": 3
+    },
+    {
+      "rating": 2,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9593487131424652,
+      "stability": 3.179799925478213,
+      "difficulty": 9.549561326499983,
+      "interval": 3
+    },
+    {
+      "rating": 3,
+      "gapDays": 4,
+      "retrievabilityBefore": 0.8821056408590003,
+      "stability": 5.5559797672018325,
+      "difficulty": 9.500798179151529,
+      "interval": 6
+    },
+    {
+      "rating": 3,
+      "gapDays": 9,
+      "retrievabilityBefore": 0.8601886365172852,
+      "stability": 10.391639176893788,
+      "difficulty": 9.452371497519778,
+      "interval": 10
+    },
+    {
+      "rating": 3,
+      "gapDays": 0,
+      "retrievabilityBefore": 1.0,
+      "stability": 10.391639176893788,
+      "difficulty": 9.404278959991286,
+      "interval": 10
+    },
+    {
+      "rating": 4,
+      "gapDays": 2,
+      "retrievabilityBefore": 0.9752538167001611,
+      "stability": 14.883018622391358,
+      "difficulty": 9.218699293168616,
+      "interval": 15
+    },
+    {
+      "rating": 3,
+      "gapDays": 40,
+      "retrievabilityBefore": 0.81023061370649,
+      "stability": 34.085994697591666,
+      "difficulty": 9.172219093850147,
+      "interval": 34
+    },
+    {
+      "rating": 1,
+      "gapDays": 120,
+      "retrievabilityBefore": 0.7809988113892662,
+      "stability": 4.85375701290389,
+      "difficulty": 9.509070790627804,
+      "interval": 5
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9736431464018015,
+      "stability": 5.6120994321112025,
+      "difficulty": 9.460587027976867,
+      "interval": 6
+    },
+    {
+      "rating": 3,
+      "gapDays": 2,
+      "retrievabilityBefore": 0.9567895444192878,
+      "stability": 7.085061655313657,
+      "difficulty": 9.412437803288222,
+      "interval": 7
+    },
+    {
+      "rating": 3,
+      "gapDays": 6,
+      "retrievabilityBefore": 0.9117341620884803,
+      "stability": 10.990966723069228,
+      "difficulty": 9.364620808249928,
+      "interval": 11
+    },
+    {
+      "rating": 2,
+      "gapDays": 15,
+      "retrievabilityBefore": 0.8752868637518475,
+      "stability": 12.865559109022804,
+      "difficulty": 9.46412755880302,
+      "interval": 13
+    },
+    {
+      "rating": 3,
+      "gapDays": 25,
+      "retrievabilityBefore": 0.8430918965591445,
+      "stability": 24.68923445746915,
+      "difficulty": 9.415953904451673,
+      "interval": 25
+    },
+    {
+      "rating": 3,
+      "gapDays": 50,
+      "retrievabilityBefore": 0.8390655841813015,
+      "stability": 47.04845599135748,
+      "difficulty": 9.368112648315352,
+      "interval": 47
+    },
+    {
+      "rating": 1,
+      "gapDays": 2,
+      "retrievabilityBefore": 0.9942059663810945,
+      "stability": 3.426500369740234,
+      "difficulty": 9.612973451933792,
+      "interval": 3
+    },
+    {
+      "rating": 3,
+      "gapDays": 0,
+      "retrievabilityBefore": 1.0,
+      "stability": 3.690148652343832,
+      "difficulty": 9.563772760919843,
+      "interval": 4
+    },
+    {
+      "rating": 3,
+      "gapDays": 1,
+      "retrievabilityBefore": 0.9661430867736335,
+      "stability": 4.428646121512601,
+      "difficulty": 9.51491155467389,
+      "interval": 4
+    },
+    {
+      "rating": 3,
+      "gapDays": 200,
+      "retrievabilityBefore": 0.4990083551996078,
+      "stability": 21.463206234681667,
+      "difficulty": 9.466387490751035,
+      "interval": 21
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+ "about": "Hand-written cloze probes for the particles whose example in Mari's particle tab does not hold the expression verbatim (spaced, split or optional). publish.particle_clozes() blanks the expression in the example for every other particle, and fails if a cloze here is stale, names no particle, or does not give back its example when the answer or an accepted spelling fills the blank.",
+ "clozes": {
+  "mari.particle.1": {
+   "prompt": "この おてらは ゆうめいな だいく＿＿ たてられました。",
+   "answer": "によって",
+   "accepted": ["に よって"]
+  },
+  "mari.particle.3": {
+   "prompt": "これは わたし＿＿ たいせつな ものです。",
+   "answer": "にとって",
+   "accepted": ["に とって"]
+  },
+  "mari.particle.4": {
+   "prompt": "にほんの れきし＿＿ しらべて います。",
+   "answer": "について",
+   "accepted": ["に ついて"]
+  },
+  "mari.particle.12": {
+   "prompt": "すこし＿＿ わかりません。",
+   "answer": "しか",
+   "accepted": []
+  },
+  "mari.particle.13": {
+   "prompt": "たかい＿＿、かいます。",
+   "answer": "けれど",
+   "accepted": ["けれども"]
+  }
+ }
+}

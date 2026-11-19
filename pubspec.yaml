@@ -204,6 +204,11 @@ dev_dependencies:
   flutter_lints: 4.0.0
   image: 4.2.0
   lints: 4.0.0
+  # The SQLite study store runs in `flutter test` through the ffi factory (A5). Both pinned
+  # exactly: sqflite_common_ffi 2.3.6 or later needs sqflite_common 2.5.5 or later, and an
+  # unpinned sqlite3 floats to 3.x, which the ffi package does not compile against.
+  sqflite_common_ffi: 2.3.5
+  sqlite3: 2.9.4
   flutter_test:
     sdk: flutter
 

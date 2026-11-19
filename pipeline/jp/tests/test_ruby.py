@@ -135,7 +135,7 @@ def test_s03_transcription_reads_the_same_as_its_bundle():
 
 
 def test_publish_claims_kanji_validating_for_its_twin_checks():
-    # The twin checks run in publish.check_draft (check_twin, twin_errors), so the
+    # The twin checks run in publish.check_draft (check_twin, ruby_errors), so the
     # registry names KanjiValidating on publish.py as well as on ruby.py (PIN-12).
     assert publish.ruby_errors is ruby.ruby_errors
     assert "KanjiValidating" in stages.STAGES["publish.py"]
@@ -221,21 +221,27 @@ def test_kanji_twins_pass(mari, monkeypatch):
     assert publish.check_draft(d, mari) == []
 
 
-def test_kanji_bearing_mari_example_takes_a_twin_on_its_printed_text(mari, monkeypatch):
-    # mari.L33.3's first example is Mari's verbatim 「立入禁止」, so no reading can equal
-    # the field. Its twin must read every kanji and print as the field.
+def test_the_sign_example_is_hiragana_and_no_example_is_exempt(mari, monkeypatch):
+    # Plan A7: mari.L33.3's first example quoted the sign 「立入禁止」 in kanji, behind a
+    # hard-coded exemption. A reviewed correction now writes the sign in hiragana, the
+    # draft matches it, and a kanji example fails the draft like any other.
     monkeypatch.setattr(publish, "REQUIRE_RUBY", True)
     d = add_twins(_draft(33))
     ex = next(p for p in d["points"] if p["id"] == "mari.L33.3")["examples"][0]
-    assert ex["jp"] == "「立入禁止」は はいっては いけないという いみです。"
-    ex["jp_ruby"] = "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。"
+    assert ex["jp"] == "「たちいりきんし」は はいっては いけないという いみです。"
+    assert ex["jp"] == mari["mari.L33.3"]["example"]
     assert publish.check_draft(d, mari) == []
-    ex["jp_ruby"] = "「禁止{きんし}」は はいっては いけないという いみです。"
-    errs = publish.check_draft(d, mari)
-    assert any("jp_ruby" in e and "printed text" in e for e in errs), errs
-    ex["jp_ruby"] = ex["jp"]  # the kanji left unread
+    ex["jp_ruby"] = "「たちいりきんし」は 入{はい}っては いけないという 意味{いみ}です。"
+    assert publish.check_draft(d, mari) == []
+    ex["jp_ruby"] = "「立入禁止」は はいっては いけないという いみです。"  # kanji left unread
     errs = publish.check_draft(d, mari)
     assert any("jp_ruby" in e and "no reading" in e for e in errs), errs
+    kanji = copy.deepcopy(mari)
+    kanji["mari.L33.3"]["example"] = "「立入禁止」は はいっては いけないという いみです。"
+    ex["jp"] = kanji["mari.L33.3"]["example"]
+    ex["jp_ruby"] = "「立入禁止{たちいりきんし}」は はいっては いけないという いみです。"
+    errs = publish.check_draft(d, kanji)
+    assert any("mari.L33.3: example not kana" in e for e in errs), errs
 
 
 @pytest.mark.parametrize("where, field, value", [

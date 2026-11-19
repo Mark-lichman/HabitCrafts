@@ -14,11 +14,12 @@
 //
 // No deep-blue hero here either [§4.8]: at ~51 dL it would outshout the habit that still
 // needs doing.
-
-import 'dart:convert';
+//
+// The DAILY LESSON card ([DailyLessonCard]) opens the Japanese Review session
+// (`openReviewSession`, plan 2026-11-02, Task 27, D20). The signed-in shell gains no Japanese
+// entry of its own, and the card no longer opens a fixed vocabulary lesson.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 
 import '/backend/backend.dart';
@@ -26,8 +27,9 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/index.dart';
-import '/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import '/components/pages/create_habit_page/create_habit_page_widget.dart';
+import '/components/pages/quiet_room_mastery/review_page.dart'
+    show openReviewSession;
 import 'streak.dart';
 
 class QuietRoomTodayWidget extends StatefulWidget {
@@ -46,8 +48,6 @@ extension on HabitsRecord {
 }
 
 class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
-  Map<String, dynamic>? _lesson;
-
   /// Held in a field, not built inline. `queryHabitsRecord` returns a NEW stream on every
   /// call, so building it inside `build` resubscribed to Firestore on every setState.
   late Stream<List<HabitsRecord>> _habits;
@@ -56,7 +56,6 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
   void initState() {
     super.initState();
     _habits = _habitsStream();
-    _loadLesson();
   }
 
   Stream<List<HabitsRecord>> _habitsStream() => queryHabitsRecord(
@@ -69,19 +68,6 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
       );
 
   void _retry() => setState(() => _habits = _habitsStream());
-
-  Future<void> _loadLesson() async {
-    try {
-      final raw = await rootBundle.loadString('assets/lessons/jp_lessons.json');
-      if (mounted) {
-        setState(() => _lesson = json.decode(raw) as Map<String, dynamic>);
-      }
-    } catch (_) {
-      // A missing bundled lesson is not worth failing the screen for; the card simply
-      // does not render. Silent here is deliberate and bounded, not a swallowed error:
-      // the only consequence is one absent card.
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +95,7 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
                   )),
               _addHabit(t, first: habits.isEmpty),
               const SizedBox(height: 9),
-              if (_lesson != null) _lessonCard(t),
+              const DailyLessonCard(),
               const SizedBox(height: 18),
               _dayDots(t, habits),
               const SizedBox(height: 22),
@@ -435,73 +421,6 @@ class _QuietRoomTodayWidgetState extends State<QuietRoomTodayWidget> {
     );
   }
 
-  Widget _lessonCard(QuietRoomTokens t) {
-    final l = _lesson!;
-    final lessons = (l['lessons'] as List?) ?? const [];
-    final latest =
-        lessons.isEmpty ? null : lessons.last as Map<String, dynamic>;
-    final count = latest == null ? 0 : (latest['items'] as List).length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'DAILY LESSON',
-          style: GoogleFonts.schibstedGrotesk(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 11 * 0.07,
-            color: t.inkMuted,
-          ),
-        ),
-        const SizedBox(height: 7),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => context.pushNamed(QuietRoomLessonWidget.routeName),
-            child: Container(
-              decoration: BoxDecoration(
-                color: t.surfaceTinted,
-                border: Border.all(color: t.border, width: 1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          latest == null
-                              ? 'Vocabulary'
-                              : '第${latest['lesson']}課 vocabulary',
-                          style: GoogleFonts.schibstedGrotesk(
-                            fontSize: 15.5,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3,
-                            color: t.inkStrong,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${l['course']} · $count words',
-                          style: GoogleFonts.schibstedGrotesk(
-                              fontSize: 12.5, color: t.inkMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, size: 18, color: t.brand600),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   /// Fourteen days, from real check-in history. A day counts as kept when any habit was
   /// completed on it. Missed days are drawn small and faint on purpose: a miss is not a
   /// verdict. [§7.5]
@@ -667,4 +586,76 @@ class _GildPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GildPainter old) => old.color != color;
+}
+
+/// The DAILY LESSON card: opens today's Japanese Review session.
+class DailyLessonCard extends StatelessWidget {
+  const DailyLessonCard({super.key});
+
+  static const String label = 'DAILY LESSON';
+  static const String title = 'Japanese review';
+  static const String line =
+      'The session for today: what is due, then new items';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.schibstedGrotesk(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 11 * 0.07,
+            color: t.inkMuted,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => openReviewSession(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: t.surfaceTinted,
+                border: Border.all(color: t.border, width: 1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.schibstedGrotesk(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w600,
+                            height: 1.3,
+                            color: t.inkStrong,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          line,
+                          style: GoogleFonts.schibstedGrotesk(
+                              fontSize: 12.5, color: t.inkMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 18, color: t.brand600),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

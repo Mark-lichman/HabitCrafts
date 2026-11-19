@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -160,6 +161,159 @@ def test_committed_app_file_matches_a_fresh_publish(published):
     fresh = json.loads(out.read_text(encoding="utf-8"))
     committed = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
     assert committed == fresh, "run: python pipeline/jp/publish.py, then commit the asset"
+
+
+# ───────────── mastery data (plan Task 4) ─────────────
+
+KANJI = re.compile(r"[一-鿿々]")
+
+
+def hiragana_strings(doc: dict):
+    """Every string the app shows in hiragana mode, with a readable place. The `_ruby`
+    twins are the kanji mode, the reference tables print a counter's written form, and a
+    textbook pair's `kanji_*` sentences are its kanji mode, so none of those is here."""
+    for g in doc["grammar"]:
+        for p in g["points"]:
+            yield f"{p['id']} example", p["example"]
+            for i, e in enumerate(p.get("examples", [])):
+                yield f"{p['id']} ex{i}", e["jp"]
+            for i, q in enumerate(p.get("practice", [])):
+                for s in [q.get("prompt", ""), q.get("answer", ""), *q.get("accepted", []),
+                          *q.get("options", []), *q.get("why_wrong", {})]:
+                    yield f"{p['id']} p{i}", s
+    for pa in doc["particles"]:
+        c = pa["cloze"]
+        for s in [pa["expression"], pa["example"], c["prompt"], c["answer"], *c["accepted"]]:
+            yield pa["id"], s
+    for i, pr in enumerate(doc["pairs"]):
+        yield f"pair {i}", pr["ex_transitive"]
+        yield f"pair {i}", pr["ex_intransitive"]
+    for e in doc["catalog"]:
+        if e["type"] in ("grammar_point", "particle"):
+            for s in e["search"]:
+                yield f"catalog {e['id']}", s
+
+
+def test_no_hiragana_mode_string_holds_a_kanji():
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    bad = [(where, s) for where, s in hiragana_strings(doc) if KANJI.search(s)]
+    assert bad == [], f"kanji in hiragana mode: {bad}"
+    sign = next(p for g in doc["grammar"] for p in g["points"] if p["id"] == "mari.L33.3")
+    assert sign["example"].startswith("「たちいりきんし」")
+
+
+def test_every_particle_has_a_cloze_probe():
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    s04 = bundle("s04_mari_checklist")
+    assert [pa["id"] for pa in doc["particles"]] == [pa["id"] for pa in s04["particles"]]
+    for pa in doc["particles"]:
+        c = pa["cloze"]
+        assert c["prompt"].count("＿＿") == 1, pa["id"]
+        assert c["answer"] and c["answer"] not in c["prompt"], pa["id"]
+        # Filled in, the cloze gives back the particle's own example.
+        assert any(c["prompt"].replace("＿＿", a) == pa["example"]
+                   for a in [c["answer"], *c["accepted"]]), pa["id"]
+        verbatim = pa["expression"] in pa["example"]
+        assert c["from"] == ("example" if verbatim else "particle_clozes.json"), pa["id"]
+
+
+def _hand_clozes(tmp_path, monkeypatch, edit) -> None:
+    """Point publish.CLOZES at a copy of particle_clozes.json after `edit` changed it."""
+    import publish
+    doc = json.loads(publish.CLOZES.read_text(encoding="utf-8"))
+    edit(doc["clozes"])
+    path = tmp_path / "particle_clozes.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(publish, "CLOZES", path)
+
+
+def test_a_particle_with_no_cloze_fails_the_publish(tmp_path, monkeypatch):
+    import copy
+    import publish
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    hand = next(pa for pa in s04["particles"] if pa["expression"] not in pa["example"])
+    hand["id"] = "mari.particle.99"
+    with pytest.raises(SystemExit, match="no such particle"):
+        publish.particle_clozes(s04)
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    hand = next(pa for pa in s04["particles"] if pa["expression"] not in pa["example"])
+    hand["example"] = hand["expression"] + "です。"  # now blankable: the hand cloze is stale
+    with pytest.raises(SystemExit, match="stale"):
+        publish.particle_clozes(s04)
+    # The guard A15 rests on: a hand-cloze particle whose cloze is missing from the file.
+    _hand_clozes(tmp_path, monkeypatch, lambda clozes: clozes.pop("mari.particle.13"))
+    with pytest.raises(SystemExit, match="has no cloze for it"):
+        publish.particle_clozes(bundle("s04_mari_checklist"))
+
+
+def test_a_hand_cloze_that_does_not_fill_back_to_its_example_fails(tmp_path, monkeypatch):
+    import publish
+    _hand_clozes(tmp_path, monkeypatch,
+                 lambda clozes: clozes["mari.particle.13"].update(prompt="やすい＿＿、かいます。"))
+    with pytest.raises(SystemExit, match="filled in is not its example"):
+        publish.particle_clozes(bundle("s04_mari_checklist"))
+
+
+def test_a_cloze_that_shows_its_answer_fails():
+    import copy
+    import publish
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    pa = next(pa for pa in s04["particles"] if pa["expression"] == "でも")
+    pa["example"] = "でもでも わかります。"  # blanking the first leaves the second in view
+    with pytest.raises(SystemExit, match="one blank and must not show its answer"):
+        publish.particle_clozes(s04)
+
+
+def test_a_cloze_that_is_not_kana_fails():
+    import copy
+    import publish
+    s04 = copy.deepcopy(bundle("s04_mari_checklist"))
+    pa = next(pa for pa in s04["particles"] if pa["expression"] == "として")
+    pa["expression"], pa["example"] = "通訳として", "通訳として はたらいて います。"
+    with pytest.raises(SystemExit, match="cloze not kana"):
+        publish.particle_clozes(s04)
+
+
+def test_an_unknown_required_form_fails_the_publish():
+    import publish
+    with pytest.raises(SystemExit, match="maps to no conjugation idea"):
+        publish.prereqs({"id": "x", "requires_forms": ["bogus"]})
+
+
+def test_catalog_search_terms_are_the_corrected_text():
+    # catalog.build() without bundles applies the s04 corrections itself, so a search
+    # term is the text the app shows: the printed sign of mari.L33.3 reads in hiragana.
+    entry = next(e for e in build_catalog()["entries"]
+                 if e["type"] == "grammar_point" and e["id"] == "mari.L33.3")
+    assert entry["search"][0].startswith("「たちいりきんし」")
+    assert not any(KANJI.search(s) for s in entry["search"]), entry["search"]
+
+
+def test_every_point_carries_its_form_prereqs():
+    import publish
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    conj = {e["id"] for e in doc["catalog"] if e["type"] == "conjugation"}
+    forms = {p["id"]: p.get("requires_forms") or [] for p in bundle("s04_mari_checklist")["items"]}
+    points = [p for g in doc["grammar"] for p in g["points"]]
+    assert len(points) == len(forms)
+    for p in points:
+        assert set(p["prereqs"]) <= conj, p["id"]
+        want = [x for f in forms[p["id"]] for x in publish.FORM_PREREQS[f]]
+        assert p["prereqs"] == list(dict.fromkeys(want)), p["id"]
+    by_id = {p["id"]: p["prereqs"] for p in points}
+    te = next(i for i, f in forms.items() if f == ["te"])
+    assert by_id[te] == ["conj.te"]
+    plain = next(i for i, f in forms.items() if f == ["plain"])
+    assert by_id[plain] == ["conj.nai", "conj.ta"]
+
+
+def test_published_words_are_one_per_word_of_the_vocabulary():
+    doc = json.loads((ASSETS / "jp_grammar.json").read_text(encoding="utf-8"))
+    vocab = json.loads((ASSETS / "jp_lessons.json").read_text(encoding="utf-8"))
+    want = [(w["id"], w["kana"], w["gloss"], l["lesson"], w.get("verbGroup"))
+            for l in vocab["lessons"] for w in l["items"]]
+    got = [(w["id"], w["reading"], w["gloss"], w["lesson"], w["verbGroup"]) for w in doc["words"]]
+    assert got == want
 
 
 # ───────────── OPM schema ─────────────

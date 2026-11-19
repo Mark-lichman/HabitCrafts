@@ -102,8 +102,8 @@ def main(dry: bool) -> None:
         for p, where, field, idx, o in twins(d["points"]):
             cur = _get(o, field, idx)
             kana = o[field] if idx is None else o[field][idx]
-            # A field that itself prints kanji (Mari's verbatim sign in mari.L33.3) keeps
-            # its printed kanji: its twin is checked against the printed text.
+            # A field that itself prints kanji keeps it. None does since plan A7 wrote
+            # Mari's sign in mari.L33.3 in hiragana; the guard stays for a re-run.
             if re.search(r"[一-鿿々]", kana):
                 continue
             step1 = watashi(cur)

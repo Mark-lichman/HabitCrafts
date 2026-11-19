@@ -7,12 +7,20 @@ uses come from uses.json (Use Tagging, an LM judgment kept as reviewable data).
 
 Output: out/catalog/catalog.json, one entry per findable thing:
   {id, type, source, lesson?, title, summary, uses[], search, from[], open: {screen, params}}
+and, beside the entries, one row per word of jp_lessons.json (`words`), for the mastery
+queue: {id (the image stem), reading, gloss, lesson, verbGroup}. The words are not
+entries: the per-lesson `vocabulary` entry stands for a lesson's words, and the app
+finds a word by its reading or gloss.
 
-`from` lists the data files an entry came from. Each data file has a `source_file`
-entry of its own: its role, its origin and counts computed from the file at build
-time, so the counts live here and nowhere in prose (PIN-13). Opening a `source_file`
-entry searches for its key, and the home search matches `from`, so the result is the
-file and everything that came from it.
+The Topics search (lib/components/pages/quiet_room_mastery/topic_index.dart) reads the
+rows that stand for items (grammar_point, particle, verb_pair, conjugation,
+reference_table, vocabulary) plus the words. A `source_file` entry stands for no item
+and is not searched.
+
+`from` records which data files an entry came from. test_catalog_sources.py checks it.
+No app screen searches by `from` or opens a `source_file` entry. Each data file has a
+`source_file` entry of its own: its role, its origin and counts computed from the file
+at build time, so the counts live here and nowhere in prose (PIN-13).
 """
 
 from __future__ import annotations
@@ -114,9 +122,9 @@ def _source_entry(key: str, file: str, title: str, role: str, origin: str,
     e = {"id": f"file.{key}", "type": "source_file", "source": origin}
     if lesson is not None:
         e["lesson"] = lesson
-    # Counts first: the result card clips the summary at two lines on a phone, and
-    # the live counts are the point of the entry. The key often equals the base
-    # name, so the search terms are de-duplicated in order.
+    # The counts lead the summary so the data file's live counts read first: they are
+    # the point of the entry. The key often equals the base name, so the search terms
+    # are de-duplicated in order.
     return {**e, "title": title, "summary": f"{said}. {role[0].upper()}{role[1:]}.",
             "uses": [], "search": list(dict.fromkeys([file, file.rsplit("/", 1)[-1], key, origin])),
             "file": file, "role": role, "origin": origin, "counts": counts,
@@ -163,6 +171,11 @@ def source_files(uses: dict, corrections: dict, points_file: list, vocab: dict) 
         "approved sources and reviewed corrections", "Mark's review",
         {"approved sources": len(corrections["approved_sources"]),
          "corrections": len(corrections["corrections"])}))
+    clozes = json.loads((HERE / "particle_clozes.json").read_text(encoding="utf-8"))
+    out.append(_source_entry(
+        "particle_clozes.json", "pipeline/jp/particle_clozes.json", "particle_clozes.json",
+        "a cloze for each particle whose example does not hold it verbatim",
+        "hand-written from Mari's particle examples", {"clozes": len(clozes["clozes"])}))
     out.append(_source_entry(
         "jp_lessons.json", "assets/lessons/jp_lessons.json", "jp_lessons.json",
         "vocabulary, lesson by lesson", "Langoal word-list PDFs",
@@ -172,12 +185,29 @@ def source_files(uses: dict, corrections: dict, points_file: list, vocab: dict) 
     return out
 
 
-def build(save: bool = False) -> dict:
+def words(vocab: dict) -> list[dict]:
+    """One row per word: its image-stem id, reading, gloss, lesson and verb group (null
+    for a word that is not a verb)."""
+    return [{"id": w["id"], "reading": w["kana"], "gloss": w["gloss"], "lesson": l["lesson"],
+             "verbGroup": w.get("verbGroup")} for l in vocab["lessons"] for w in l["items"]]
+
+
+def build(save: bool = False, bundles: dict | None = None) -> dict:
+    """`bundles` are the bundles publish.py already corrected; without them the checklist
+    is read and corrected here, so a search term is the text the app shows."""
     uses = json.loads((HERE / "uses.json").read_text(encoding="utf-8"))
     tags = uses["points"]
     entries: list[dict] = []
 
-    s04 = _bundle("s04_mari_checklist")
+    if bundles is not None:
+        s04 = bundles["s04_mari_checklist"]
+    else:
+        from publish import apply_corrections  # publish imports this module
+        s04 = _bundle("s04_mari_checklist")
+        review = json.loads((HERE / "corrections.json").read_text(encoding="utf-8"))
+        apply_corrections({"s04_mari_checklist": s04},
+                          {"corrections": [c for c in review["corrections"]
+                                           if c["source"] == "s04_mari_checklist"]})
     for p in s04["items"]:
         entries.append({
             "id": p["id"], "type": "grammar_point", "source": "Mari", "lesson": p["lesson"],
@@ -260,7 +290,7 @@ def build(save: bool = False) -> dict:
         raise SystemExit(f"catalog: duplicate ids {sorted(dups)}")
 
     catalog = {"types": [{"id": k, "label": v} for k, v in TYPES.items()],
-               "uses": uses["uses"], "entries": entries}
+               "uses": uses["uses"], "entries": entries, "words": words(vocab)}
     if save:  # only the stage run saves; publish and tests just read it
         write("catalog", "catalog", catalog)
     return catalog
