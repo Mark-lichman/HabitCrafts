@@ -442,6 +442,103 @@ class SpeechVerdict(BaseModel):
     matched_span: CharSpan | None = None
 
 
+# ───────────────────────────── studying (SD5, SD6) ─────────────────────────────
+# The app side: the published items enter a review queue, and mastery is judged from the
+# attempt log. Code: lib/components/pages/quiet_room_mastery/ (seed.dart, plan_builder.dart,
+# session_widget.dart, probe_widgets.dart, attempt.dart, fsrs.dart, mastery_rule.dart).
+
+
+class SeedTicks(BaseModel):
+    """The lessons the learner ticked at the one-time seed confirmation (seed_confirm_widget.dart)."""
+
+    word_lessons: list[int]
+    grammar_lessons: list[int]
+
+
+class SeedEvent(BaseModel):
+    """A seeded item and its due day. Not an answer: no attempt, no clear (PIN-7)."""
+
+    item_id: str
+    due_day: int
+
+
+class PlanSection(str, Enum):
+    REPAIR = "repair"
+    DUE = "due"
+    KEEP_SHARP = "keep_sharp"
+    NEW = "new"
+
+
+class DayPlan(BaseModel):
+    """One day's queue (plan_builder.dart): a 15-minute target and a 20-minute ceiling."""
+
+    day: int
+    sections: dict[PlanSection, list[str]] = Field(description="Item ids in order, per section.")
+
+
+class HintUse(BaseModel):
+    """What the learner opened on a card before answering."""
+
+    item_id: str
+    english_shown: bool = Field(description="Free: a right answer after it is still clear.")
+    hint_level: int = Field(description="Above 0: a right answer is hinted.")
+
+
+class LessonReview(BaseModel):
+    """The core lesson opened from a card before the answer. Planned (lesson link).
+    A right answer after it is hinted (operator ruling, 2026-11-06)."""
+
+    item_id: str
+    lesson: int | None
+
+
+class Grade(str, Enum):
+    CLEAR = "clear"
+    HINTED = "hinted"
+    WRONG = "wrong"
+    UNSCORED = "unscored"
+
+
+class StudyAttempt(BaseModel):
+    """One answer in the append-only log (attempt.dart), the source of truth."""
+
+    item_id: str
+    probe_id: str
+    template: str
+    grade: Grade
+    rating: int | None = Field(description="FSRS rating: Good, Hard or Again; none if unscored.")
+    hint_level: int
+    revealed: bool
+    lesson_reviewed: bool = False
+    was_due: bool
+    local_day: int
+
+
+class SrsState(BaseModel):
+    """An item's FSRS-6 schedule (fsrs.dart): retention 0.90, interval cap 90 days."""
+
+    item_id: str
+    stability: float
+    difficulty: float
+    due_day: int
+    lapses: int
+
+
+class MasteryStatus(str, Enum):
+    NEW = "new"
+    LEARNING = "learning"
+    MASTERED = "mastered"
+    SHAKY = "shaky"
+
+
+class MasteryState(BaseModel):
+    """An item's place in the mastery rule (mastery_rule.dart), rebuilt from the log."""
+
+    item_id: str
+    status: MasteryStatus
+    clears: int = Field(description="Counting clears in the current run, 0 to 4.")
+
+
 # ───────────────────────────── gates and reports ─────────────────────────────
 
 
@@ -677,6 +774,15 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     # Both run in the app, on the published file.
     "AnswerChecking": (DET, (GrammarPracticeItem, KanjiVersion, TypedAnswer), (AnswerVerdict,)),
     "SpeechChecking": (DET, (GrammarPracticeItem, KanjiVersion, Transcript), (SpeechVerdict,)),
+    # ── Studying (SD5, SD6). All run in the app, on the published file and the study record.
+    "Seeding": (DET, (CatalogEntry, SeedTicks), (SeedEvent,)),
+    "Planning": (DET, (CatalogEntry, SeedEvent, StudyAttempt, SrsState, MasteryState), (DayPlan,)),
+    # The learner answers; Answer Checking and Speech Checking (SD4) judge what they give.
+    "Answering": (HUMAN, (DayPlan,), (TypedAnswer, Transcript, HintUse)),
+    "LessonReviewing": (HUMAN, (DayPlan, CatalogEntry), (LessonReview,)),
+    "Grading": (DET, (AnswerVerdict, SpeechVerdict, HintUse, LessonReview), (StudyAttempt,)),
+    "Scheduling": (DET, (StudyAttempt, SrsState), (SrsState,)),
+    "MasteryJudging": (DET, (StudyAttempt, MasteryState, CatalogEntry), (MasteryState,)),
     # ── Composite processes on SD: each zooms into stages (Language Lesson Extracting
     # into SD1). Listed so every process the diagram draws has an entry.
     "HabitLessonExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
@@ -717,6 +823,13 @@ OPM_NAMES: dict[str, str] = {
     "Judging": "Judging",
     "AnswerChecking": "Answer Checking",
     "SpeechChecking": "Speech Checking",
+    "Seeding": "Seeding",
+    "Planning": "Planning",
+    "Answering": "Answering",
+    "LessonReviewing": "Lesson Reviewing",
+    "Grading": "Grading",
+    "Scheduling": "Scheduling",
+    "MasteryJudging": "Mastery Judging",
     "HabitLessonExtracting": "Habit Lesson Extracting",
     "LanguageLessonExtracting": "Language Lesson Extracting",
     "ArticleExtracting": "Article Extracting",
@@ -729,9 +842,11 @@ OPM_NAMES: dict[str, str] = {
 # a category error and should be redrawn.
 
 # Stages with no upstream producer — pipeline roots and control objects.
-# TypedAnswer and Transcript come from the learner, in the app.
+# TypedAnswer and Transcript come from the learner, in the app. SeedTicks too, once.
+# SrsState and MasteryState start empty for every item: Scheduling and Mastery Judging
+# read their own last output.
 _ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query,
-          TypedAnswer, Transcript}
+          TypedAnswer, Transcript, SeedTicks, SrsState, MasteryState}
 
 # Produced but deliberately consumed by nothing — the pipeline's end products.
 _TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList,

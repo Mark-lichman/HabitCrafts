@@ -1,4 +1,4 @@
-// Generates opm-lesson-extraction.drawio (5 OPDs). Edit coords here, re-run:
+// Generates opm-lesson-extraction.drawio (7 OPDs). Edit coords here, re-run:
 //   node opm-lesson-extraction.gen.js [out.drawio]
 // Every process box is drawn with proc(), which names its STAGE_IO key from
 // ../pipeline/extraction_schemas.py (written into the cell style as opmStage=<key>).
@@ -479,5 +479,130 @@ raw('LEG4', S.note, 40, 1320, 420, 190, LEGEND('<b>SD4 rule:</b> hiragana is the
 
 const p4 = page('SD4 &#8212; Kanji Versions and Answer Checking', 'opd-sd4', 1750, 1560);
 
-fs.writeFileSync(OUT, `<mxfile host="app.diagrams.net">\n${p0}\n${p1}\n${p2}\n${p3}\n${p4}\n</mxfile>\n`);
+/* ═══════════════════════ SD5 — Studying ═══════════════════════ */
+// The app side: the published items enter a review queue, the learner answers one card at a
+// time, and every answer is graded, scheduled and judged for mastery. Code:
+// lib/components/pages/quiet_room_mastery/. Plan: docs/plans/2026-11-02-jp-mastery-queue.md.
+
+raw('F5', S.frame, 330, 40, 1100, 1560, esc('<b>SD5 &#8212; Studying</b> &#8212; lessons enter a daily review queue; every answer is graded, scheduled and judged for mastery. Runs in the app: <i>lib/components/pages/quiet_room_mastery/</i>.'));
+
+node('ASSET5', S.store, 570, 80, 360, 80, 'App Lesson File', 'jp_grammar.json + jp_lessons.json|written only by publish.py (SD3)');
+node('CAT5', S.obj, 980, 80, 300, 110, 'Study Item', 'Catalog Entry: grammar point ' + dot + 'particle ' + dot + 'word|conjugation ' + dot + 'verb pair ' + dot + 'table row|lesson: a grammar point, a word, and a|particle&#39;s first taught_in lesson');
+node('LRN5', S.ctrl, 40, 210, 240, 50, 'Learner', 'Mark');
+node('TICK', S.obj, 40, 300, 240, 90, 'Seed Ticks', 'word lessons 2 to 30|grammar lessons 26 to 31|any lesson can be unticked');
+
+proc('SEED', 'Seeding', S.det, 590, 210, 320, 75, 'Seeding', 'once per store|ticked lessons + foundation items|spread over 20 days');
+node('SEV', S.obj, 590, 320, 320, 60, 'Seed Event', 'item ' + dot + 'due day|not an answer: no attempt, no clear (PIN-7)');
+node('REC', S.store, 980, 300, 300, 110, 'Study Record', 'SQLite: append-only attempt log|seeds ' + dot + 'srs ' + dot + 'mastery ' + dot + 'days|export and import');
+
+proc('PLANP', 'Planning', S.det, 590, 425, 320, 80, 'Planning', 'target 15 min ' + dot + 'ceiling 20 min|New: 8 a day in lesson order|a particle arrives with its lesson');
+node('PLAN', S.objTop, 540, 545, 420, 105, 'Day Plan', 'one entry per item, each item once');
+node('PL1', S.state, 555, 605, 90, 30, 'repair', '');
+node('PL2', S.state, 655, 605, 80, 30, 'due', '');
+node('PL3', S.state, 745, 605, 105, 30, 'keep-sharp', '');
+node('PL4', S.state, 860, 605, 85, 30, 'new', '');
+
+proc('ANS', 'Answering', S.human, 590, 690, 320, 80, 'Answering', 'one card at a time|Show English: free|Show grammar hint: hinted');
+proc('LREVP', 'LessonReviewing', S.human, 1010, 690, 290, 80, 'Lesson Reviewing', 'Review the lesson, from the card|opens the core lesson at the idea|Back to practice: the same card');
+node('G51', S.gap, 1330, 680, 230, 110, 'PLANNED &#8212; lesson link', 'Concept agreed 2026-11-06, not built. A right answer after a review is hinted (operator ruling).');
+
+node('TA5', S.obj, 360, 810, 190, 60, 'Typed Answer', 'fill-in ' + dot + 'cloze ' + dot + 'word');
+node('HINT', S.obj, 580, 810, 190, 60, 'Hint Use', 'English shown|hint level');
+node('TR5', S.obj, 800, 810, 160, 60, 'Transcript', 'spoken answer');
+node('LREV', S.obj, 1010, 810, 290, 60, 'Lesson Review', 'item ' + dot + 'lesson|before the answer');
+
+node('VER5', S.obj, 540, 905, 420, 60, 'Answer Verdict ' + dot + ' Speech Verdict', 'from Answer Checking and Speech Checking (SD4)');
+
+proc('GRADE', 'Grading', S.det, 590, 1000, 320, 80, 'Grading', 'grammar hint or lesson review: hinted|English: no change|Show answer: wrong');
+node('ATT', S.objTop, 540, 1120, 420, 105, 'Study Attempt', 'item ' + dot + 'probe ' + dot + 'template ' + dot + 'rating ' + dot + 'was due');
+node('AT1', S.state, 555, 1180, 80, 30, 'clear', '');
+node('AT2', S.state, 645, 1180, 85, 30, 'hinted', '');
+node('AT3', S.state, 740, 1180, 80, 30, 'wrong', '');
+node('AT4', S.state, 830, 1180, 115, 30, 'unscored', '');
+
+proc('SCH', 'Scheduling', S.det, 380, 1290, 290, 75, 'Scheduling', 'FSRS-6 ' + dot + 'retention 0.90|clear Good ' + dot + 'hinted Hard ' + dot + 'wrong Again|interval cap 90 days');
+proc('MJ', 'MasteryJudging', S.det + 'strokeWidth=3;', 840, 1290, 300, 75, 'Mastery Judging', 'in-zoomed in OPD SD6');
+node('SRS', S.obj, 380, 1410, 290, 75, 'SRS State', 'stability ' + dot + 'difficulty|due day ' + dot + 'lapses');
+node('MST', S.objTop, 840, 1400, 300, 100, 'Mastery State', 'clears: 0 to 4');
+node('MS1', S.state, 850, 1450, 60, 30, 'new', '');
+node('MS2', S.state, 915, 1450, 75, 30, 'learning', '');
+node('MS3', S.state + 'fillColor=#fff2cc;', 995, 1450, 80, 30, 'mastered', '');
+node('MS4', S.state, 1080, 1450, 55, 30, 'shaky', '');
+
+edge('consume', 'ASSET5', 'CAT5', { exit: [1, 0.5], entry: [0, 0.4] });
+edge('consume', 'CAT5', 'SEED', { exit: [0.2, 1], entry: [1, 0.5], pts: [[1040, 247]] });
+edge('consume', 'TICK', 'SEED', { exit: [1, 0.3], entry: [0, 0.5], pts: [[400, 327], [400, 247]] });
+edge('agent', 'LRN5', 'TICK', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'SEED', 'SEV', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'SEV', 'REC', { exit: [1, 0.5], entry: [0, 0.4] });
+edge('consume', 'SEV', 'PLANP', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('instr', 'REC', 'PLANP', { exit: [0.2, 1], entry: [1, 0.5], pts: [[1040, 465]], label: 'attempts, srs,|mastery' });
+edge('result', 'PLANP', 'PLAN', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'PLAN', 'ANS', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('agent', 'LRN5', 'ANS', { exit: [0, 0.5], entry: [0, 0.5], pts: [[20, 235], [20, 730]] });
+edge('consume', 'PLAN', 'LREVP', { exit: [1, 0.5], entry: [0.5, 0], pts: [[1155, 597]] });
+edge('agent', 'LRN5', 'LREVP', { exit: [0.5, 0], entry: [0.85, 0], pts: [[160, 190], [1255, 190], [1255, 690]] });
+edge('gapLink', 'G51', 'LREVP', { exit: [0, 0.5], entry: [1, 0.5] });
+edge('result', 'ANS', 'TA5', { exit: [0.15, 1], entry: [0.5, 0], pts: [[638, 790], [455, 790]] });
+edge('result', 'ANS', 'HINT', { exit: [0.5, 1], entry: [0.5, 0], pts: [[750, 790], [675, 790]] });
+edge('result', 'ANS', 'TR5', { exit: [0.85, 1], entry: [0.5, 0], pts: [[862, 790], [880, 790]] });
+edge('result', 'LREVP', 'LREV', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'TA5', 'VER5', { exit: [0.5, 1], entry: [0, 0.5], pts: [[455, 935]], label: 'checked in SD4' });
+edge('consume', 'TR5', 'VER5', { exit: [0.5, 1], entry: [0.75, 0] });
+edge('consume', 'VER5', 'GRADE', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'HINT', 'GRADE', { exit: [0, 0.5], entry: [0, 0.5], pts: [[350, 840], [350, 1040]] });
+edge('consume', 'LREV', 'GRADE', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1155, 1040]] });
+edge('result', 'GRADE', 'ATT', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'ATT', 'SCH', { exit: [0.2, 1], entry: [0.5, 0], pts: [[624, 1255], [525, 1255]] });
+edge('consume', 'ATT', 'MJ', { exit: [0.8, 1], entry: [0.5, 0], pts: [[876, 1255], [990, 1255]] });
+edge('result', 'ATT', 'REC', { exit: [1, 0.3], entry: [0.8, 1], pts: [[1220, 1152]], label: 'appended' });
+edge('result', 'SCH', 'SRS', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('result', 'MJ', 'MST', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('consume', 'SRS', 'SCH', { exit: [0, 0.5], entry: [0, 0.5], pts: [[350, 1447], [350, 1327]], label: 'last state' });
+edge('consume', 'MST', 'MJ', { exit: [1, 0.5], entry: [1, 0.5], pts: [[1170, 1450], [1170, 1327]], label: 'last state' });
+edge('instr', 'CAT5', 'MJ', { exit: [1, 0.5], entry: [1, 0.2], pts: [[1400, 135], [1400, 1305]], label: 'templates, transfer' });
+
+raw('LEG5', S.note, 40, 1430, 300, 170, LEGEND('<b>SD5 rule:</b> a seed is not an answer; only real answers move an item toward Mastered.'));
+
+const p5 = page('SD5 &#8212; Studying', 'opd-sd5', 1750, 1660);
+
+/* ═══════════════════════ SD6 — Mastery Judging ═══════════════════════ */
+// The in-zoom of Mastery Judging: the four states and the rule that moves an item between
+// them (mastery_rule.dart). Planned changes from 2026-11-06 are drawn as red gap boxes.
+
+raw('F6', S.frame, 330, 40, 1100, 1060, esc('<b>SD6 &#8212; Mastery Judging</b> &#8212; in-zoomed. Mastery is a pure function of the attempt log, rebuilt on demand. Code: <i>mastery_rule.dart</i>.'));
+
+node('ATT6', S.obj, 540, 80, 420, 75, 'Study Attempt', 'grade ' + dot + 'template ' + dot + 'probe ' + dot + 'was due ' + dot + 'local day|one clear per item per day');
+node('CAT6', S.obj, 1000, 80, 300, 75, 'Study Item', 'template count ' + dot + 'production probe?|probe count (sentences, verbs, cells)');
+proc('MJ6', 'MasteryJudging', S.det + 'strokeWidth=3;', 590, 195, 320, 75, 'Mastery Judging', 'reads the whole log for the item');
+
+node('MS6', S.objTop, 380, 320, 740, 520, 'Mastery State', 'clears: the counting clears in the current run');
+node('N6', S.state, 410, 400, 150, 60, 'new', 'no attempt yet');
+node('L6', S.state, 640, 400, 220, 60, 'learning', 'n of 4 clears');
+node('M6', S.state + 'fillColor=#fff2cc;', 900, 400, 190, 60, 'mastered', 'never retires');
+node('K6', S.state, 900, 700, 190, 60, 'shaky', 'was mastered');
+
+edge('result', 'N6', 'L6', { exit: [1, 0.5], entry: [0, 0.5], label: 'first answer' });
+edge('result', 'L6', 'M6', { exit: [1, 0.5], entry: [0, 0.5], label: '4th clear' });
+edge('result', 'M6', 'K6', { exit: [0.7, 1], entry: [0.7, 0], label: 'a wrong, or|2 hinted in a row' });
+edge('result', 'K6', 'M6', { exit: [0.3, 0], entry: [0.3, 1], label: '2 clears, the 2nd|7+ days later' });
+edge('result', 'K6', 'L6', { exit: [0, 0.5], entry: [0.5, 1], pts: [[750, 730]], label: 'wrong again: count 0' });
+
+node('R6', S.metric, 410, 500, 420, 170, 'Counts toward Mastered (D4)', '1. a clear while the item is due, at most one a day|2. four clears on four different days|3. the 4th at least 21 days after the review before it|4. no wrong since the first of the four|5. two templates, one of them production, where the item has them|6. transfer: 3 sentences (grammar), 3 verbs (conjugation),|   2 directions (pair), 2 cells (table row)');
+node('R6b', S.metric, 410, 690, 420, 120, 'Counts for nothing', 'hinted: grammar hint, a lesson review before the answer|early practice clear, Say-it, unscored|English shown changes nothing: still a clear|seeded due days: never a clear (PIN-7)');
+
+node('G61', S.gap, 380, 880, 340, 110, 'PLANNED &#8212; type it, see it, say it (#145)', 'Mastered needs a clear in each: a typed answer, a recognition answer and a spoken answer. Blocked by #88 (speech on the phone).');
+node('G62', S.gap, 750, 880, 340, 110, 'PLANNED &#8212; vary the sentence (#146)', 'After one sentence earns clears on more than one day, the next review uses another sentence. Particles get 2 or 3 sentences and a transfer count of 2.');
+
+edge('consume', 'ATT6', 'MJ6', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('instr', 'CAT6', 'MJ6', { exit: [0.5, 1], entry: [1, 0.5], pts: [[1150, 232]] });
+edge('effect', 'MJ6', 'MS6', { exit: [0.5, 1], entry: [0.5, 0] });
+edge('gapLink', 'G61', 'R6', { exit: [0.5, 0], entry: [0.2, 1], pts: [[550, 850], [494, 850]] });
+edge('gapLink', 'G62', 'R6', { exit: [0.5, 0], entry: [0.9, 1], pts: [[920, 860], [788, 860]] });
+
+raw('LEG6', S.note, 40, 1120, 420, 170, LEGEND('<b>SD6 rule:</b> a clear means recall with no help. Anything that helps before the answer, except the English, makes it hinted.'));
+
+const p6 = page('SD6 &#8212; Mastery Judging', 'opd-sd6', 1750, 1340);
+
+fs.writeFileSync(OUT, `<mxfile host="app.diagrams.net">\n${p0}\n${p1}\n${p2}\n${p3}\n${p4}\n${p5}\n${p6}\n</mxfile>\n`);
 console.log('wrote', OUT, fs.statSync(OUT).size, 'bytes');

@@ -1,6 +1,6 @@
 # OPM: Content Extracting → Language Lesson Extracting
 
-Five OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
+Seven OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io):
 
 - **SD — Content Extracting**: the general framework. Any document in, classified, routed to a kind-specific extractor.
 - **SD1 — Language Lesson Extracting**: the in-zoom, entered once SD has classified the document as a *language lesson*. Carries the types from `pipeline/extraction_schemas.py`.
@@ -9,6 +9,10 @@ Five OPDs in `opm-lesson-extraction.drawio` (page tabs at the bottom of draw.io)
   tutor path where grammar points are given, not mined. Added 2026-10-23 after five real sources.
 - **SD4 — Kanji Versions and Answer Checking**: a kanji twin for every Japanese field, the
   independent judge pass, and the checks the app runs on typed and spoken answers. Added 2026-10-25.
+- **SD5 — Studying**: the app side. Lessons enter a daily review queue, the learner answers one
+  card at a time, and every answer is graded, scheduled and judged for mastery.
+- **SD6 — Mastery Judging**: the in-zoom of the mastery rule: four states, what counts toward
+  Mastered, what counts for nothing, and the planned changes.
 
 The OPL sentences below are the spec — edit these. The diagram is generated from
 `opm-lesson-extraction.gen.js`; regenerate rather than hand-editing coordinates if the model changes.
@@ -206,6 +210,62 @@ OPL sentences:
    matching part of the heard text highlighted, then asks for a self-check. A transcript that cannot
    be compared goes to **self-check**, never to wrong.
 
+## SD5 — Studying
+
+The app side, in `lib/components/pages/quiet_room_mastery/`. The published items enter a review
+queue once, through the seed. After that, every day has a plan, every answer is graded, and the
+schedule and the mastery state follow from the append-only attempt log.
+
+OPL sentences:
+
+1. **Seeding** requires **Learner** as its agent, consumes **Study Item** and **Seed Ticks**, and
+   yields **Seed Event**. It runs once per store. A ticked lesson's items and every foundation item
+   get a due day spread over 20 days. A particle a Mari lesson teaches follows that lesson.
+2. **Seed Event** is not an answer: it writes no attempt and no clear, so no seeded item is
+   **mastered** until it earns the rule from real answers.
+3. **Planning** requires **Study Record**, consumes **Seed Event**, **Study Attempt**, **SRS State**,
+   and **Mastery State**, and yields **Day Plan**. The plan aims at 15 minutes and stops at 20. New
+   items arrive 8 a day in lesson order.
+4. **Day Plan** can be **repair**, **due**, **keep-sharp**, or **new**, one section per entry.
+5. **Answering** requires **Learner** as its agent, consumes **Day Plan**, and yields **Typed Answer**,
+   **Transcript**, and **Hint Use**. Answer Checking and Speech Checking (SD4) judge the answers.
+6. **Hint Use** exhibits *English shown* and *hint level*. The English is free. A grammar hint makes
+   a right answer hinted.
+7. **Lesson Reviewing** requires **Learner** as its agent, consumes **Day Plan** and **Study Item**,
+   and yields **Lesson Review**. It opens the core lesson at the card's idea, and Back returns to
+   the same card, unanswered. It is planned, not built.
+8. **Grading** consumes **Answer Verdict**, **Speech Verdict**, **Hint Use**, and **Lesson Review**,
+   and yields **Study Attempt**. A grammar hint or a lesson review before the answer makes a right
+   answer **hinted**. Show answer makes it **wrong**.
+9. **Study Attempt** can be **clear**, **hinted**, **wrong**, or **unscored**. Every attempt is
+   appended to **Study Record**, the source of truth.
+10. **Scheduling** consumes **Study Attempt** and the last **SRS State**, and yields **SRS State**. It
+    runs FSRS-6 at retention 0.90 with a 90-day cap: clear is Good, hinted is Hard, wrong is Again.
+11. **Mastery Judging** requires **Study Item**, consumes **Study Attempt** and the last **Mastery
+    State**, and yields **Mastery State**. It is in-zoomed in SD6.
+
+## SD6 — Mastery Judging
+
+Mastery is a pure function of the attempt log, rebuilt on demand (`mastery_rule.dart`). A clear
+means recall with no help.
+
+OPL sentences:
+
+1. **Mastery Judging** requires **Study Item**, consumes **Study Attempt**, and affects **Mastery
+   State**.
+2. **Mastery State** can be **new**, **learning**, **mastered**, or **shaky**.
+3. **Mastery State** changes from **learning** to **mastered** on the fourth counting clear: four
+   clears on four days while due, the fourth at least 21 days after the review before it, no wrong
+   since the first, two templates with one production where the item has them, and the per-kind
+   transfer count.
+4. **Mastery State** changes from **mastered** to **shaky** on a wrong, or on two hinted answers in
+   a row, and back to **mastered** after two clears, the second at least 7 days later.
+5. A hinted answer, an early-practice clear, a Say-it attempt, an unscored attempt, and a seed
+   count for nothing. Showing the English changes nothing: the answer is still a clear.
+6. Planned (#145): **mastered** needs a clear in each of type it, see it, and say it.
+7. Planned (#146): after one sentence earns clears on more than one day, the next review uses
+   another sentence on the same idea.
+
 ## Open questions
 
 - ~~**Scoping picks one teachable unit**~~ — answered by the tutor's sheet: a lesson carries 2 to 6
@@ -223,7 +283,7 @@ OPL sentences:
 
 ## Regenerating the diagram
 
-`node opm-lesson-extraction.gen.js` (in this folder) writes `opm-lesson-extraction.drawio` (all five pages). Open the file at
+`node opm-lesson-extraction.gen.js` (in this folder) writes `opm-lesson-extraction.drawio` (all seven pages). Open the file at
 https://app.diagrams.net via File > Open From > Device, or drag it onto the canvas. The earlier
 single-OPD mermaid version is gone — one picture, one source.
 
