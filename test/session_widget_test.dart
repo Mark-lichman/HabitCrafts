@@ -463,6 +463,21 @@ void main() {
       expect(stored.section(PlanSection.due).last.reask, isTrue);
     });
 
+    testWidgets(
+        'a particle card offers its English and its meaning as the grammar hint',
+        (tester) async {
+      final plan = planOf([entryOf(particle, PlanSection.due)]);
+      final h = await pumpReal(tester, plan);
+      final row = (grammar['particles'] as List)
+          .cast<Map>()
+          .firstWhere((p) => p['id'] == particle.id);
+      expect(h.shows(row['example_en'] as String), isFalse);
+      await h.tap('Show English');
+      expect(h.shows(row['example_en'] as String), isTrue);
+      await h.tap('Show grammar hint');
+      expect(h.shows('The missing part means: ${row['meaning']}'), isTrue);
+    });
+
     testWidgets('Show answer shows the full answer and one Next',
         (tester) async {
       final plan = planOf([

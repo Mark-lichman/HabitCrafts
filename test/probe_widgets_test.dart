@@ -487,6 +487,7 @@ void main() {
               probe: _probe(_grammar, 'p1'),
               state: const MasteryState.initial('mari.L26.1'),
               hint: 'A noun needs な before んです',
+              english: 'Today is my day off, you see.',
               checkItem: checkItem,
               onAnswer: answers.call));
       return answers;
@@ -495,8 +496,47 @@ void main() {
     testWidgets('the hint stays behind a tap', (tester) async {
       await open(tester);
       expect(find.text('A noun needs な before んです'), findsNothing);
-      await _tap(tester, 'Show hint');
+      await _tap(tester, 'Show grammar hint');
       expect(find.text('A noun needs な before んです'), findsOneWidget);
+    });
+
+    testWidgets('the English stays behind its own tap', (tester) async {
+      await open(tester);
+      expect(find.text('Today is my day off, you see.'), findsNothing);
+      await _tap(tester, 'Show English');
+      expect(find.text('Today is my day off, you see.'), findsOneWidget);
+      expect(find.text('Show English'), findsNothing);
+      expect(find.text('Show grammar hint'), findsOneWidget,
+          reason: 'the grammar hint is still on offer');
+    });
+
+    testWidgets('a right answer after the English is still clear (ruling)',
+        (tester) async {
+      final a = await open(tester);
+      await _tap(tester, 'Show English');
+      await _type(tester, 'なんです');
+      await _tap(tester, 'Check');
+      _expectDraft(a.single,
+          itemId: 'mari.L26.1',
+          probeId: 'p1',
+          template: 'fill',
+          grade: Grade.clear,
+          selfGraded: false);
+    });
+
+    testWidgets('the English and the grammar hint together are hinted',
+        (tester) async {
+      final a = await open(tester);
+      await _tap(tester, 'Show English');
+      await _tap(tester, 'Show grammar hint');
+      await _type(tester, 'なんです');
+      await _tap(tester, 'Check');
+      _expectDraft(a.single,
+          itemId: 'mari.L26.1',
+          probeId: 'p1',
+          template: 'fill',
+          grade: Grade.hinted,
+          hintLevel: 1);
     });
 
     testWidgets('a right answer with no hint is clear', (tester) async {
@@ -515,7 +555,7 @@ void main() {
     testWidgets('a right answer after the hint is hinted (PIN-3)',
         (tester) async {
       final a = await open(tester);
-      await _tap(tester, 'Show hint');
+      await _tap(tester, 'Show grammar hint');
       await _type(tester, 'なんです');
       await _tap(tester, 'Check');
       _expectDraft(a.single,

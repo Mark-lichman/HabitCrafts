@@ -20975,6 +20975,8 @@
    "meaning": "By (means of) / depending on",
    "example": "この おてらは ゆうめいな だいくに よって たてられました。",
    "taught_in": [],
+   "example_en": "This temple was built by a famous carpenter.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "この おてらは ゆうめいな だいく＿＿ たてられました。",
     "answer": "によって",
@@ -20990,6 +20992,8 @@
    "meaning": "As (in the capacity/role of)",
    "example": "つうやくとして はたらいて います。",
    "taught_in": [],
+   "example_en": "I work as an interpreter.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "つうやく＿＿ はたらいて います。",
     "answer": "として",
@@ -21003,6 +21007,8 @@
    "meaning": "For (from someone's perspective)",
    "example": "これは わたしに とって たいせつな ものです。",
    "taught_in": [],
+   "example_en": "This is something important to me.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "これは わたし＿＿ たいせつな ものです。",
     "answer": "にとって",
@@ -21018,6 +21024,8 @@
    "meaning": "About / concerning",
    "example": "にほんの れきしに ついて しらべて います。",
    "taught_in": [],
+   "example_en": "I am researching the history of Japan.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "にほんの れきし＿＿ しらべて います。",
     "answer": "について",
@@ -21035,6 +21043,8 @@
    "taught_in": [
     36
    ],
+   "example_en": "I take notes so that I don't forget.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "わすれない＿＿、メモを します。",
     "answer": "ように",
@@ -21050,6 +21060,8 @@
    "taught_in": [
     42
    ],
+   "example_en": "I work for the sake of my family.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "かぞくの ＿＿、はたらいて います。",
     "answer": "ために",
@@ -21066,6 +21078,8 @@
     42,
     45
    ],
+   "example_en": "Even though they promised, they didn't come.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "やくそくした＿＿、きませんでした。",
     "answer": "のに",
@@ -21081,6 +21095,8 @@
    "taught_in": [
     46
    ],
+   "example_en": "All I do is play.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "あそんで ＿＿ います。",
     "answer": "ばかり",
@@ -21094,6 +21110,8 @@
    "meaning": "Even (emphasis)",
    "example": "こどもでも わかります。",
    "taught_in": [],
+   "example_en": "Even a child can understand it.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "こども＿＿ わかります。",
     "answer": "でも",
@@ -21109,6 +21127,8 @@
    "taught_in": [
     28
    ],
+   "example_en": "I talk while walking.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "あるき＿＿、はなします。",
     "answer": "ながら",
@@ -21124,6 +21144,8 @@
    "taught_in": [
     34
    ],
+   "example_en": "Please do it exactly as explained.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "せつめいの ＿＿ やって ください。",
     "answer": "とおりに",
@@ -21139,6 +21161,8 @@
    "taught_in": [
     27
    ],
+   "example_en": "I understand only a little.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "すこし＿＿ わかりません。",
     "answer": "しか",
@@ -21152,6 +21176,8 @@
    "meaning": "Though / but",
    "example": "たかいけれど、かいます。",
    "taught_in": [],
+   "example_en": "It's expensive, but I'll buy it.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "たかい＿＿、かいます。",
     "answer": "けれど",
@@ -21169,6 +21195,8 @@
    "taught_in": [
     39
    ],
+   "example_en": "Because it's raining, I'm staying home.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "あめな＿＿、いえに います。",
     "answer": "ので",
@@ -21182,6 +21210,8 @@
    "meaning": "As it is / while in a certain state",
    "example": "くつを はいた まま、はいらないで ください。",
    "taught_in": [],
+   "example_en": "Please don't come in with your shoes on.",
+   "example_en_reviewed": false,
    "cloze": {
     "prompt": "くつを はいた ＿＿、はいらないで ください。",
     "answer": "まま",

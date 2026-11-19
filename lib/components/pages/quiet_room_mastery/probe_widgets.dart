@@ -355,7 +355,9 @@ class _ChooseProbeState extends State<ChooseProbe> {
 
 /// A fill-in item or a particle cloze, typed on the Japanese keyboard and judged by
 /// `checkTypedAnswer`. The [hint] names the rule, never the answer, and sits behind a
-/// "Show hint" tap: a right answer after it is hinted. "Show answer" is wrong and is recorded
+/// "Show grammar hint" tap: a right answer after it is hinted. The [english] sentence sits
+/// behind "Show English" and is free: a right answer after it is still a clear (operator
+/// ruling, 2026-11-05). "Show answer" is wrong and is recorded
 /// as revealed. An answer the matcher cannot judge shows the answer and asks the learner: Got
 /// it is self, Missed it is wrong. An empty Check is no attempt.
 class TypedFillProbe extends StatefulWidget {
@@ -367,6 +369,7 @@ class TypedFillProbe extends StatefulWidget {
     required this.onAnswer,
     required this.checkItem,
     this.hint,
+    this.english,
   });
 
   final ItemDef item;
@@ -374,6 +377,9 @@ class TypedFillProbe extends StatefulWidget {
   final MasteryState state;
   final ProbeAnswered onAnswer;
   final String? hint;
+
+  /// The whole sentence in English. Seeing it changes no grade.
+  final String? english;
 
   /// The practice item `checkTypedAnswer` judges against, with its accepted forms and ruby
   /// twins. Required, because a [ProbeDef] carries no accepted forms and a catalog fill item
@@ -388,6 +394,7 @@ class TypedFillProbe extends StatefulWidget {
 class _TypedFillProbeState extends State<TypedFillProbe> {
   final TextEditingController _typed = TextEditingController();
   bool _hintTaken = false;
+  bool _englishShown = false;
   bool _selfCheck = false;
   bool _showAnswer = false;
   bool _empty = false;
@@ -481,8 +488,18 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
                           revealed: true),
                       revealed: true))),
         ]),
-      if (widget.hint != null && open && !_hintTaken)
-        _quietButton(t, 'Show hint', () => setState(() => _hintTaken = true)),
+      if (open &&
+          ((widget.english != null && !_englishShown) ||
+              (widget.hint != null && !_hintTaken)))
+        Wrap(spacing: 4, children: [
+          if (widget.english != null && !_englishShown)
+            _quietButton(
+                t, 'Show English', () => setState(() => _englishShown = true)),
+          if (widget.hint != null && !_hintTaken)
+            _quietButton(t, 'Show grammar hint',
+                () => setState(() => _hintTaken = true)),
+        ]),
+      if (widget.english != null && _englishShown) _quiet(t, widget.english!),
       if (widget.hint != null && _hintTaken) _quiet(t, widget.hint!),
       if (_grade == Grade.wrong && (_given ?? '').isNotEmpty)
         _quiet(t, 'Your answer: ${_given!}'),
