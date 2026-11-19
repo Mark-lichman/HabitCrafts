@@ -68,8 +68,10 @@ and nothing else will tell you.
 
 ### Name the codebase, or you deploy twice as much as you meant to
 
-`firebase.json` declares **two** codebases, `custom_cloud_functions` and `functions`, and
-the first holds **ten** functions. A codebase-wide deploy redeploys all ten with freshly
+`firebase.json` declares **three** codebases, `custom_cloud_functions`, `functions` and
+`speech_functions`, and
+the first holds **nine** functions (`grep -c "^exports." custom_cloud_functions/index.js`).
+A codebase-wide deploy redeploys all nine with freshly
 resolved dependencies, which is how an unrelated function breaks on a day you only meant
 to touch one.
 
@@ -77,7 +79,7 @@ to touch one.
 firebase deploy --only functions:custom_cloud_functions:deleteAllUserData --project tiny-habits-jf61nl
 ```
 
-The `custom_cloud_functions:` in the middle is the codebase. Omit it and you get both.
+The `custom_cloud_functions:` in the middle is the codebase. Omit it and you get all three.
 
 ### Two things that will look like errors and are not
 
