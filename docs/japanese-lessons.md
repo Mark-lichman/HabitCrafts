@@ -331,9 +331,11 @@ ticks extend to the last grammar lesson opened when it is past `kSeedLastGrammar
 (`defaultSeedLessons` in `seed_confirm_widget.dart`); it never unticks one. Any lesson can
 be unticked to skip it for now: its items stay New and arrive through the daily intake.
 
-`seedFromLessons` gives every word and grammar point of the ticked lessons, and every particle,
-conjugation idea, verb pair and table row, a due day spread over `kSeedSpreadDays` days in lesson
-order.
+`seedFromLessons` gives every word and grammar point of the ticked lessons, every particle a
+ticked grammar lesson teaches (its first `taught_in` lesson), and every foundation item
+(`ItemDef.isFoundation`: conjugation ideas, verb pairs, table rows and the particles no Mari
+lesson names), a due day spread over `kSeedSpreadDays` days in lesson order. An unticked
+lesson's particle arrives through the daily intake with that lesson.
 
 🚨 **A seed is not an answer.** Each seeded item gets one seed event: an item id and a due day.
 The seed event writes no attempt, no schedule and no clear, so no seeded item is Mastered until

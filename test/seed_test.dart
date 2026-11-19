@@ -40,9 +40,11 @@ Future<SeedReport> seedDefault(JpStore store, {SeedLessons? lessons}) =>
 /// The default seed set, counted straight from the catalog (A6).
 Set<String> defaultSet() => {
       for (final i in catalog.items)
-        if (i.prereqLevel == 0 ||
+        if (i.isFoundation ||
             (i.kind == ItemKind.word && i.lesson! >= 2 && i.lesson! <= 30) ||
-            (i.kind == ItemKind.grammar && i.lesson! >= 26 && i.lesson! <= 31))
+            ((i.kind == ItemKind.grammar || i.kind == ItemKind.particle) &&
+                i.lesson! >= 26 &&
+                i.lesson! <= 31))
           i.id
     };
 
@@ -67,8 +69,8 @@ Attempt clearOn(ItemDef item, int on) {
 void main() {
   test(
       'the default set is every word of lessons 2 to 30, every grammar point of '
-      '26 to 31 and every level-0 item, re-counted from the catalog (A6)',
-      () async {
+      '26 to 31 with their particles, and every foundation item, re-counted from the '
+      'catalog (A6)', () async {
     final store = JpStoreMemory();
     final report = await seedDefault(store);
     final seeded = {for (final s in await store.seeds()) s.itemId};
@@ -83,7 +85,12 @@ void main() {
       ItemKind.pair,
       ItemKind.tableRow,
     ]) {
-      expect(catalog.ofKind(kind).every((i) => seeded.contains(i.id)), isTrue,
+      expect(
+          catalog
+              .ofKind(kind)
+              .where((i) => i.isFoundation)
+              .every((i) => seeded.contains(i.id)),
+          isTrue,
           reason: '$kind');
     }
     expect(
@@ -170,9 +177,10 @@ void main() {
       for (final w in catalog.ofKind(ItemKind.word))
         if (w.lesson == 10) w.id
     ];
+    // Lesson 27's grammar points and the particle it teaches (しか〜ません), in catalog order.
     final grammar27 = [
-      for (final g in catalog.ofKind(ItemKind.grammar))
-        if (g.lesson == 27) g.id
+      for (final g in catalog.items)
+        if (g.kind != ItemKind.word && g.lesson == 27) g.id
     ];
     expect(words10, isNotEmpty);
     expect(grammar27, isNotEmpty);
@@ -224,6 +232,57 @@ void main() {
     expect(again.seeded, 0);
     expect((await store.seeds()).length, first.seeded);
     expect(await store.meta(kSeedFlag), isNotNull);
+  });
+
+  group(
+      'a particle a Mari lesson teaches follows that lesson (ruling 2026-11-05)',
+      () {
+    ItemDef particle(String expression) => catalog
+        .ofKind(ItemKind.particle)
+        .firstWhere((p) => p.title == expression);
+
+    test('the catalog gives it its first taught_in lesson', () {
+      expect(particle('ために').lesson, 42);
+      expect(particle('のに').lesson, 42);
+      expect(particle('ながら').lesson, 28);
+      expect(particle('によって').lesson, isNull);
+      expect(particle('ために').isFoundation, isFalse);
+      expect(particle('によって').isFoundation, isTrue);
+    });
+
+    test('the default seed takes lesson 28 and the lesson-free ones, not 42',
+        () async {
+      final store = JpStoreMemory();
+      await seedDefault(store);
+      final seeded = {for (final s in await store.seeds()) s.itemId};
+      expect(seeded, contains(particle('ながら').id));
+      expect(seeded, contains(particle('によって').id));
+      expect(seeded, isNot(contains(particle('ために').id)));
+      expect(seeded, isNot(contains(particle('ばかり').id)));
+    });
+
+    test('with no lesson ticked only the lesson-free particles are seeded',
+        () async {
+      final store = JpStoreMemory();
+      await seedDefault(store,
+          lessons: const SeedLessons(wordLessons: {}, grammarLessons: {}));
+      final seeded = {for (final s in await store.seeds()) s.itemId};
+      expect(seeded, contains(particle('によって').id));
+      expect(seeded, isNot(contains(particle('ながら').id)));
+      expect(seeded, isNot(contains(particle('ために').id)));
+    });
+
+    test('the intake brings it with its lesson, after the earlier lessons', () {
+      final order = newIntakeOrder(catalog, const {}, 100000);
+      final at = {for (var i = 0; i < order.length; i++) order[i].id: i};
+      final tameni = at[particle('ために').id]!;
+      final lesson41 = catalog.items
+          .where((i) => i.kind == ItemKind.grammar && i.lesson == 41)
+          .map((i) => at[i.id]!);
+      expect(lesson41.every((i) => i < tameni), isTrue);
+      expect(order.take(kFoundationNewPerDay).map((i) => i.id),
+          isNot(contains(particle('ために').id)));
+    });
   });
 
   test('an item already practised keeps its schedule and gets no seed',

@@ -138,11 +138,18 @@ class ItemDef implements ItemDefLike {
   /// The display name: the pattern, the reading, the expression, the form or the row.
   final String title;
 
-  /// The lesson a grammar point or a word belongs to; null for the lesson-free kinds.
+  /// The lesson a grammar point or a word belongs to, and the first Mari grammar lesson that
+  /// teaches a particle (its `taught_in`); null for the lesson-free kinds and particles.
   final int? lesson;
 
   /// 0 particles, conjugation ideas, pairs and table rows; 1 words; 2 grammar.
   final int prereqLevel;
+
+  /// A level-0 item that every learner gets, whatever lessons they tick: everything at level 0
+  /// except a particle a Mari lesson teaches, which follows that lesson (operator ruling,
+  /// 2026-11-05).
+  bool get isFoundation =>
+      prereqLevel == 0 && !(kind == ItemKind.particle && lesson != null);
 
   /// Ids of the items this one builds on.
   final List<String> prereqs;
@@ -268,6 +275,7 @@ List<ItemDef> _particles(Map<String, dynamic> grammar) => [
             id: p['id'] as String,
             kind: ItemKind.particle,
             title: _str(p['expression']),
+            lesson: _firstLesson(p['taught_in']),
             prereqLevel: 0,
             probes: [
               ProbeDef(
@@ -280,6 +288,16 @@ List<ItemDef> _particles(Map<String, dynamic> grammar) => [
             ],
           ),
     ];
+
+/// The lowest lesson number in a particle's `taught_in`, or null when it names none.
+int? _firstLesson(Object? taughtIn) {
+  final ns = [
+    if (taughtIn is List)
+      for (final n in taughtIn)
+        if (n is int) n
+  ];
+  return ns.isEmpty ? null : ns.reduce((a, b) => a < b ? a : b);
+}
 
 List<ItemDef> _words(Map<String, dynamic> lessons) => [
       for (final lesson in _maps(lessons['lessons']))
