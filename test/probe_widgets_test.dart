@@ -474,6 +474,30 @@ void main() {
       await tester.pump();
       expect(a.list, hasLength(1), reason: 'one answer per probe');
     });
+
+    testWidgets('the English is free: a right pick after it is still clear',
+        (tester) async {
+      final answers = Answers();
+      await _pump(
+          tester,
+          ChooseProbe(
+              item: _grammar,
+              probe: _probe(_grammar, 'p0'),
+              state: const MasteryState.initial('mari.L26.1'),
+              options: const ['ある', 'あります', 'あって'],
+              english: 'I have a test tomorrow, you see.',
+              onAnswer: answers.call));
+      expect(find.text('I have a test tomorrow, you see.'), findsNothing);
+      await _tap(tester, 'Show English');
+      expect(find.text('I have a test tomorrow, you see.'), findsOneWidget);
+      await _tap(tester, 'ある');
+      _expectDraft(answers.single,
+          itemId: 'mari.L26.1',
+          probeId: 'p0',
+          template: 'choose',
+          grade: Grade.clear,
+          selfGraded: false);
+    });
   });
 
   group('typed fill', () {
