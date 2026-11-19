@@ -1,0 +1,31 @@
+{
+  "reviewed_by": "Mark",
+  "reviewed_at": "2026-10-24",
+  "approved_sources": ["s01_number", "s02_pairs_mari", "s03_pairs_textbook", "s04_mari_checklist", "s05_mari_verb_forms"],
+  "corrections": [
+    {
+      "source": "s04_mari_checklist",
+      "item": "mari.L42.3",
+      "field": "example",
+      "from": "3にちも",
+      "to": "みっかも",
+      "why": "3日 as a length of time reads みっか (s01 durations table). Written 3にち, a kana reader says さんにち."
+    },
+    {
+      "source": "s01_number",
+      "item": "s01_number.months.〜か月.11",
+      "field": "mark",
+      "from": "regular",
+      "to": "sound_change",
+      "why": "じゅういっかげつ has a sound change (いち becomes いっ). The sheet leaves the cell grey."
+    },
+    {
+      "source": "s03_pairs_textbook",
+      "item": "s03_pairs_textbook.19",
+      "field": "transitive_group",
+      "from": null,
+      "to": 2,
+      "why": "変える is an Ichidan (group 2) verb: jisho.org entry for 変える, from EDICT (EDRDG)."
+    }
+  ]
+}

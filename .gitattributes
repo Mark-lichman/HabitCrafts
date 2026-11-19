@@ -1,0 +1,2 @@
+# Archived Tanos kanji pages: test_kanji_list.py hashes them byte for byte, so no eol conversion.
+pipeline/jp/tanos/*.html -text

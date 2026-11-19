@@ -1,7 +1,8 @@
 """First-pass schemas for the Content Extracting / Language Lesson Extracting pipeline.
 
 Companion to opm-lesson-extraction.md and .drawio. One model per OPM object.
-This is a PROPOSAL to argue with, not wired to anything.
+The models are a PROPOSAL to argue with. STAGE_IO and OPM_NAMES are not: the guard test
+pipeline/jp/tests/test_opm_sync.py holds them in step with the diagram and the OPL text.
 
 Three comment markers, all greppable:
 
@@ -11,8 +12,8 @@ Three comment markers, all greppable:
     # MISSING:  the OPM has no answer and neither do I. You decide.
 
 Requires pydantic v2.  Run `python extraction_schemas.py` for the self-check at the
-bottom — it verifies the stage graph actually composes. NOT YET RUN: no Python on the
-machine this was written on.
+bottom — it verifies the stage graph actually composes. CI runs it too
+(pipeline/jp/tests).
 """
 
 from __future__ import annotations
@@ -59,8 +60,32 @@ class GrammarItemKind(str, Enum):
 
 class BundleState(str, Enum):
     NEEDS_REVIEW = "needs_review"
+    # DECISION (SD3, 2026-10-23): added. A bundle whose hard checks fail is still
+    # written so a reviewer can see why, but it cannot be approved until re-run.
+    BLOCKED = "blocked"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class SourceShape(str, Enum):
+    """SD3. Detected from the file, and it picks the Normalizing variant.
+
+    Running five real Japanese sources showed SD's one Normalizing step is wrong for
+    three of them: prose is the minority shape for language material."""
+
+    TEXT = "text"  # real text layer, read by geometry (PyMuPDF)
+    PICTURE_TABLE = "picture_table"  # table drawn as an image, OCR text layer on top
+    IMAGE = "image"  # no text layer at all: needs Transcribing (LM)
+    SHEET = "sheet"  # spreadsheet: merged cells, hyperlinks, formulas
+
+
+class ReadingMark(str, Enum):
+    """The legend on a reference table. It is data: the color says which cells to
+    learn as a sound change and which as a special word."""
+
+    REGULAR = "regular"
+    SOUND_CHANGE = "sound_change"
+    SPECIAL = "special"
 
 
 class JobState(str, Enum):
@@ -194,14 +219,21 @@ class VocabItem(BaseModel):
 
 
 class GrammarPoint(BaseModel):
-    # MISSING: pattern_id and LessonScope.target_grammar_point_id must share an id
-    # space with CurriculumSpec, or Scoping cannot check prerequisites and
-    # rule_ref_valid is uncheckable. No such namespace exists in the OPM.
+    # RESOLVED for tutor sources (SD3): the tutor's sheet IS the namespace. Mari's
+    # ids are "mari.L<lesson>.<n>", and her lessons are the curriculum order. Mined
+    # grammar points still have no shared namespace.
     pattern_id: str
     construction: str = Field(description="The pattern itself, e.g. 'ir + a + infinitive'.")
-    cefr: CEFR
-    l1_contrast_note: str
+    # DECISION (SD3): CEFR is European. Japanese material is graded by JLPT (Mari's
+    # sheet is "N4"). A level is a (framework, value) pair, not a CEFR.
+    level: str | None = Field(default=None, description="'CEFR:A2', 'JLPT:N4', ...")
+    l1_contrast_note: str = ""
     example_sentence_id: str
+    provenance: Literal["mined", "tutor"] = "mined"
+    goal: str = ""  # tutor sources state the communicative goal; mined ones cannot
+    requires_forms: list[str] = Field(
+        default_factory=list,
+        description="Verb forms the pattern needs (te, nai, plain...). Prerequisites.")
 
 
 class LessonScope(BaseModel):
@@ -250,6 +282,164 @@ class GrammarPracticeItem(BaseModel):
 
 
 PracticeItem = SentencePracticeItem | GrammarPracticeItem
+
+
+# ───────────────────────────── SD3 — structured sources ─────────────────────────────
+
+
+class TableCell(BaseModel):
+    x: float
+    y: float
+    fill: str = Field(description="Fill class from the legend, or 'header'.")
+    lines: list[str]
+
+
+class CanonicalTable(BaseModel):
+    """What Normalizing yields for a table, sheet or transcribed image. The prose
+    CanonicalText cannot carry a cell's color, and the color is part of the answer."""
+
+    id: str
+    raw_asset_id: str
+    shape: SourceShape
+    cells: list[TableCell]
+    loose_text: list[str] = Field(default_factory=list, description="Titles, footnotes.")
+    transcribed_by: str | None = Field(
+        default=None, description="Set when an LM produced this. Then Reviewing is mandatory.")
+
+
+class ReferenceItem(BaseModel):
+    """One cell of a lookup table: 3 + 本 -> さんぼん."""
+
+    id: str
+    table: str
+    key: str  # the row label, e.g. "3"
+    column: str  # the column header, e.g. "本 ほん pens, bottles"
+    reading: str
+    alt_readings: list[str] = Field(default_factory=list)
+    mark: ReadingMark
+
+
+class VerbPair(BaseModel):
+    id: str
+    transitive: str
+    intransitive: str
+    transitive_group: int | None = None  # None = undecidable from the form; say so
+    intransitive_group: int | None = None
+    gloss: str = ""
+    example_transitive: str = ""
+    example_intransitive: str = ""
+
+
+class ParadigmCell(BaseModel):
+    """A tutor's worked conjugation. Gold for the Conjugation Engine."""
+
+    dictionary: str
+    group: int
+    form: str
+    result: str
+
+
+class ExternalResource(BaseModel):
+    """A tutor tool that is linked, not extracted (Canva deck, web drill)."""
+
+    kind: str
+    label: str
+    url: str
+
+
+class CatalogEntry(BaseModel):
+    """SD3 Cataloging. One findable thing. Typed at extraction time so the app's search
+    and sort never guess what a piece of content is."""
+
+    id: str
+    type: Literal["grammar_point", "particle", "reference_table", "verb_pair",
+                  "conjugation", "vocabulary", "source_file"]
+    source: str
+    lesson: int | None = None
+    title: str
+    summary: str = ""
+    uses: list[str] = Field(default_factory=list, description="Ids from the Use Taxonomy.")
+    search: list[str] = Field(default_factory=list, description="Extra text to match.")
+    open: dict[str, str | int] = Field(description="Which screen, with which parameters.")
+    from_: list[str] = Field(default_factory=list, alias="from",
+                             description="The data files the entry came from.")
+    # A source_file entry describes one data file. Its counts are computed from the
+    # file at catalog build time, so no prose restates them (PIN-13).
+    file: str | None = Field(default=None, description="source_file: repo path of the file.")
+    role: str | None = Field(default=None, description="source_file: what the file is for.")
+    origin: str | None = Field(default=None, description="source_file: where it came from.")
+    counts: dict[str, int] | None = Field(default=None, description="source_file: live counts.")
+
+
+class Query(BaseModel):
+    """What the learner asks the app. Text wins, then use, then type order."""
+
+    text: str | None = None
+    use: str | None = None
+
+
+class ResultList(BaseModel):
+    entries: list[CatalogEntry]
+
+
+# ───────────────────── kanji versions, judging, answer checking ─────────────────────
+# Added by docs/plans/2026-10-24-japanese-typing-kanji-speaking.md.
+
+
+class KanjiVersion(BaseModel):
+    """The `_ruby` twin of one Japanese field: kanji written `漢字{かんじ}`, one bracket
+    per kanji word, okurigana outside (`買{か}い物{もの}`). Replacing every bracket
+    with its reading must give the hiragana text exactly (PIN-5, PIN-11)."""
+
+    owner_id: str = Field(description="Grammar point id, plus the item index for practice.")
+    field: str = Field(description="jp_ruby, prompt_ruby, answer_ruby, accepted_ruby, ...")
+    hiragana: str
+    ruby: str
+
+
+class JudgeFinding(BaseModel):
+    """One finding of the independent judge pass (pipeline/jp/review/judge_*.json)."""
+
+    point_id: str
+    item_index: int = Field(description="-1 for the point itself, else the practice item.")
+    verdict: str
+    detail: str
+    fix: str
+    applied: bool = False
+
+
+class TypedAnswer(BaseModel):
+    """What the learner typed into a fill-in box (Japanese keyboard, PIN-3)."""
+
+    item_id: str
+    text: str
+
+
+class AnswerVerdict(BaseModel):
+    item_id: str
+    correct: bool
+    matched: str | None = Field(
+        default=None, description="The accepted form or kanji surface it matched.")
+
+
+class Transcript(BaseModel):
+    """What speech recognition heard. Often kanji, sometimes hiragana."""
+
+    item_id: str
+    heard: str
+
+
+class SpeechResult(str, Enum):
+    CORRECT = "correct"
+    CLOSE = "close"  # amber, matching part highlighted, then self-check (PIN-10)
+    SELF_CHECK = "self_check"  # uncomparable: never marked wrong (PIN-2)
+
+
+class SpeechVerdict(BaseModel):
+    item_id: str
+    heard: str
+    result: SpeechResult
+    matched_span: CharSpan | None = None
 
 
 # ───────────────────────────── gates and reports ─────────────────────────────
@@ -461,6 +651,75 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
     # Outputs () on purpose: Optimizing's real product is a recompiled DSPy
     # program, which has no honest pydantic type. See MISSING note below.
     "Optimizing": (DET, (EvalReport, AttemptRecord), ()),
+    # ── SD3 (pipeline/jp/). Normalizing splits by SourceShape.
+    "NormalizingPictureTable": (DET, (RawAsset,), (CanonicalTable,)),
+    "NormalizingSheet": (DET, (RawAsset,), (CanonicalTable,)),
+    "Transcribing": (LM, (RawAsset,), (CanonicalTable,)),
+    "TableExtracting": (DET, (CanonicalTable,), (ReferenceItem, VerbPair, ParadigmCell)),
+    # The tutor is the author; the code only reads her sheet. No LM touches it.
+    "CurriculumImporting": (DET, (CanonicalTable,), (CurriculumSpec, GrammarPoint, ExternalResource)),
+    "ValidatingSources": (DET, (ReferenceItem, VerbPair, ParadigmCell, CurriculumSpec,
+                                ExternalResource), (ValidationResult,)),
+    # Type is deterministic (which extractor made the item). Uses come from a reviewed
+    # data file, so Cataloging itself makes no LM call. The drafts are read too: an
+    # entry's `from` list names the drafts it came from, and each draft gets its own
+    # source_file entry.
+    "Cataloging": (DET, (LessonBundle, LessonDraft), (CatalogEntry,)),
+    # The judge's findings gate publishing: every one must be applied first.
+    "PublishingApp": (DET, (LessonBundle, CatalogEntry, JudgeFinding), ()),
+    # Runs in the app, on the published file.
+    "Finding": (DET, (CatalogEntry, Query), (ResultList,)),
+    # ── Kanji versions and answer checking (plan 2026-10-24).
+    "KanjiDrafting": (LM, (LessonDraft, GrammarPracticeItem), (KanjiVersion,)),
+    "KanjiValidating": (DET, (KanjiVersion,), (ValidationResult,)),
+    # Independent LM judge over the drafts and their kanji versions.
+    "Judging": (LM, (LessonDraft, GrammarPracticeItem, KanjiVersion), (JudgeFinding,)),
+    # Both run in the app, on the published file.
+    "AnswerChecking": (DET, (GrammarPracticeItem, KanjiVersion, TypedAnswer), (AnswerVerdict,)),
+    "SpeechChecking": (DET, (GrammarPracticeItem, KanjiVersion, Transcript), (SpeechVerdict,)),
+    # ── Composite processes on SD: each zooms into stages (Language Lesson Extracting
+    # into SD1). Listed so every process the diagram draws has an entry.
+    "HabitLessonExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+    "LanguageLessonExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+    "ArticleExtracting": (LM, (ExtractionRoute, CanonicalText), (LessonBundle,)),
+}
+
+# The name each stage carries in the diagram and the OPL text (docs/opm-lesson-extraction.md).
+OPM_NAMES: dict[str, str] = {
+    "Ingesting": "Ingesting",
+    "Normalizing": "Normalizing",
+    "Classifying": "Classifying",
+    "Routing": "Routing",
+    "Triaging": "Triaging",
+    "Segmenting": "Segmenting",
+    "Mining": "Mining",
+    "Scoping": "Scoping",
+    "Drafting": "Drafting",
+    "SentenceItemGenerating": "Sentence Item Generating",
+    "GrammarItemGenerating": "Grammar Item Generating",
+    "Validating": "Validating",
+    "Evaluating": "Evaluating",
+    "Assembling": "Assembling",
+    "Reviewing": "Reviewing",
+    "Publishing": "Publishing",
+    "Optimizing": "Optimizing",
+    "NormalizingPictureTable": "Normalizing (picture table)",
+    "NormalizingSheet": "Normalizing (sheet)",
+    "Transcribing": "Transcribing",
+    "TableExtracting": "Table Extracting",
+    "CurriculumImporting": "Curriculum Importing",
+    "ValidatingSources": "Validating (cross-source)",
+    "Cataloging": "Cataloging",
+    "PublishingApp": "Publishing (app)",
+    "Finding": "Finding",
+    "KanjiDrafting": "Kanji Drafting",
+    "KanjiValidating": "Kanji Validating",
+    "Judging": "Judging",
+    "AnswerChecking": "Answer Checking",
+    "SpeechChecking": "Speech Checking",
+    "HabitLessonExtracting": "Habit Lesson Extracting",
+    "LanguageLessonExtracting": "Language Lesson Extracting",
+    "ArticleExtracting": "Article Extracting",
 }
 
 # MISSING: Optimizing's real output is a new compiled DSPy program, not a model.
@@ -470,10 +729,13 @@ STAGE_IO: dict[str, tuple[str, Models, Models]] = {
 # a category error and should be redrawn.
 
 # Stages with no upstream producer — pipeline roots and control objects.
-_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample}
+# TypedAnswer and Transcript come from the learner, in the app.
+_ROOTS = {SourceDocument, CurriculumSpec, LearnerProfile, AttemptRecord, GoldExample, Query,
+          TypedAnswer, Transcript}
 
 # Produced but deliberately consumed by nothing — the pipeline's end products.
-_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob}
+_TERMINAL = {LessonBundle, ReviewNote, ExtractionRoute, ExtractionJob, ResultList,
+             AnswerVerdict, SpeechVerdict}
 
 
 def _check() -> None:
@@ -487,6 +749,7 @@ def _check() -> None:
         assert kind in (LM, DET, HUMAN), f"{stage}: bad kind {kind}"
         for i in ins:
             assert i in produced, f"{stage} consumes {i.__name__}, which nothing produces"
+    assert set(OPM_NAMES) == set(STAGE_IO), "every stage needs exactly one OPM name"
 
     orphans = produced - consumed - _TERMINAL - _ROOTS
     assert not orphans, f"produced but never consumed: {sorted(o.__name__ for o in orphans)}"

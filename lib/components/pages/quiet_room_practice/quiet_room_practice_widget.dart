@@ -412,7 +412,7 @@ class _QuietRoomPracticeWidgetState extends State<QuietRoomPracticeWidget> {
         head = r.heard.isEmpty ? 'Didn’t catch that' : 'Can’t check this one';
         body = r.heard.isEmpty
             ? 'Nothing was heard. Try again, or check the microphone permission.'
-            : 'Heard “${r.heard}” in kanji, which can’t be checked against kana here. '
+            : 'Heard “${r.heard}” in kanji, which can’t be checked against hiragana here. '
                 'The answer is ${card['kana']} — did you say it?';
     }
     return Container(

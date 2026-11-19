@@ -49,7 +49,7 @@ serialisation round-trips. Cheapest tier, and it covers the date/timezone helper
 the reminder defects.
 
 **`firebase/test/rules/`** — the highest-value tier for this codebase. Security rules are the only
-thing between an anonymous caller and the database (see `docs/architecture/01-system-context.md`),
+thing between an unauthenticated caller and the database (see `docs/architecture/01-system-context.md`),
 and issues #1, #14, and the Storage rules in #23 are all rules defects. These tests are written in
 Node against `@firebase/rules-unit-testing`, not in Dart.
 

@@ -10,7 +10,9 @@ export '../base_auth_user_provider.dart';
 class HabitCraftFirebaseUser extends BaseAuthUser {
   HabitCraftFirebaseUser(this.user);
   User? user;
-  bool get loggedIn => user != null;
+  // An anonymous user exists only so the speaking drill can call the scoring
+  // function (PIN-9). The router and every screen treat it as signed out.
+  bool get loggedIn => user != null && !user!.isAnonymous;
 
   @override
   AuthUserInfo get authUserInfo => AuthUserInfo(

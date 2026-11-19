@@ -1,0 +1,516 @@
+{
+  "lesson": 38,
+  "title": "Turning Verbs into Nouns",
+  "points": [
+    {
+      "id": "mari.L38.1",
+      "explain": "Add の to a dictionary form to turn an action into a noun. Then のは ... です says what that action is like.",
+      "form": "じしょForm ＋ のは ＋ adj ＋ です",
+      "note": "Only the end of the sentence is polite: はなすのは, not はなしますのは.",
+      "examples": [
+        {
+          "jp": "にほんごを はなすのは たのしいです。",
+          "jp_ruby": "日本語{にほんご}を 話{はな}すのは 楽{たの}しいです。",
+          "en": "Speaking Japanese is fun."
+        },
+        {
+          "jp": "ひとりで よる あるくのは あぶないです。",
+          "jp_ruby": "一人{ひとり}で 夜{よる} 歩{ある}くのは あぶないです。",
+          "en": "Walking alone at night is dangerous."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "えを ＿＿ のは たのしいです。",
+          "prompt_ruby": "えを ＿＿ のは 楽{たの}しいです。",
+          "en": "Drawing pictures is fun.",
+          "answer": "かく",
+          "answer_ruby": "かく",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "dictionary form of かきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あさ はやく ＿＿ きもちが いいです。",
+          "prompt_ruby": "朝{あさ} 早{はや}く ＿＿ 気持{きも}ちが いいです。",
+          "en": "Getting up early in the morning feels good.",
+          "answer": "おきるのは",
+          "answer_ruby": "起{お}きるのは",
+          "options": [
+            "おきるのは",
+            "おきますのは",
+            "おきるは"
+          ],
+          "options_ruby": [
+            "起{お}きるのは",
+            "起{お}きますのは",
+            "起{お}きるは"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "dictionary form ＋ のは"
+        },
+        {
+          "kind": "choose",
+          "prompt": "やさいを ＿＿ からだに いいです。",
+          "prompt_ruby": "やさいを ＿＿ 体{からだ}に いいです。",
+          "en": "Eating vegetables is good for your body.",
+          "answer": "たべるのは",
+          "answer_ruby": "食{た}べるのは",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "たべるのを",
+            "たべるのは",
+            "たべますのは"
+          ],
+          "options_ruby": [
+            "食{た}べるのを",
+            "食{た}べるのは",
+            "食{た}べますのは"
+          ],
+          "hint": "Dictionary form ＋ のは makes the action the topic you describe.",
+          "why_wrong": {
+            "たべるのを": "を marks an object, but いいです needs a topic marked with は.",
+            "たべますのは": "Only the end of the sentence is polite; use the dictionary form before の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ひとりで ＿＿ さびしいです。",
+          "prompt_ruby": "一人{ひとり}で ＿＿ さびしいです。",
+          "en": "Living alone is lonely.",
+          "answer": "すむのは",
+          "answer_ruby": "住{す}むのは",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "すんでのは",
+            "すみますのは",
+            "すむのは"
+          ],
+          "options_ruby": [
+            "住{す}んでのは",
+            "住{す}みますのは",
+            "住{す}むのは"
+          ],
+          "hint": "Add のは to the dictionary form to turn the action into a topic.",
+          "why_wrong": {
+            "すんでのは": "の attaches to the dictionary form, not the て form.",
+            "すみますのは": "Only the end of the sentence is polite; use すむ before の."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L38.2",
+      "explain": "Add のが to a dictionary form before words like すき, じょうず, はやい, or たいへん to talk about likes, skills, or how you do an action.",
+      "form": "じしょForm ＋ のが ＋ adj ＋ です",
+      "note": "Words like すき, きらい, じょうず, and へた normally take のが: えを かくのが すきです.",
+      "examples": [
+        {
+          "jp": "かんじを おぼえるのが たいへんです。",
+          "jp_ruby": "漢字{かんじ}を おぼえるのが たいへんです。",
+          "en": "Memorizing kanji is hard work."
+        },
+        {
+          "jp": "わたしは りょうりを つくるのが すきです。",
+          "jp_ruby": "私{わたし}は 料理{りょうり}を 作{つく}るのが すきです。",
+          "en": "I like cooking."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "わたしは うたを ＿＿ へたです。",
+          "prompt_ruby": "私{わたし}は 歌{うた}を ＿＿ 下手{へた}です。",
+          "en": "I'm bad at singing.",
+          "answer": "うたうのが",
+          "answer_ruby": "歌{うた}うのが",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "dictionary form ＋ のが"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ははは あるく＿＿ はやいです。",
+          "prompt_ruby": "母{はは}は 歩{ある}く＿＿ はやいです。",
+          "en": "My mother walks fast.",
+          "answer": "のが",
+          "answer_ruby": "のが",
+          "options": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "options_ruby": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "the particle used with はやい"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは えいがを ＿＿ すきです。",
+          "prompt_ruby": "私{わたし}は 映画{えいが}を ＿＿ すきです。",
+          "en": "I like watching movies.",
+          "answer": "みるのが",
+          "answer_ruby": "見{み}るのが",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "みるのが",
+            "みるが",
+            "みますのが"
+          ],
+          "options_ruby": [
+            "見{み}るのが",
+            "見{み}るが",
+            "見{み}ますのが"
+          ],
+          "hint": "すき takes dictionary form ＋ のが.",
+          "why_wrong": {
+            "みるが": "A verb needs の to become a noun before が.",
+            "みますのが": "Use the dictionary form before の, not the ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "サントスさんは ＿＿ じょうずです。",
+          "prompt_ruby": "サントスさんは ＿＿ 上手{じょうず}です。",
+          "en": "Mr. Santos is good at swimming.",
+          "answer": "およぐのが",
+          "answer_ruby": "およぐのが",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "およいでのが",
+            "およぎますのが",
+            "およぐのが"
+          ],
+          "options_ruby": [
+            "およいでのが",
+            "およぎますのが",
+            "およぐのが"
+          ],
+          "hint": "じょうず takes dictionary form ＋ のが.",
+          "why_wrong": {
+            "およいでのが": "の attaches to the dictionary form, not the て form.",
+            "およぎますのが": "Use the dictionary form before の, not the ます form."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L38.3",
+      "explain": "Add のを to a dictionary form before わすれました to say you forgot to do something.",
+      "form": "じしょForm ＋ のを わすれました",
+      "note": "Use the dictionary form for 'forgot to do': かけるのを わすれました. A た form here changes the meaning.",
+      "examples": [
+        {
+          "jp": "かぎを かけるのを わすれました。",
+          "jp_ruby": "かぎを かけるのを わすれました。",
+          "en": "I forgot to lock the door."
+        },
+        {
+          "jp": "メールを おくるのを わすれました。",
+          "jp_ruby": "メールを 送{おく}るのを わすれました。",
+          "en": "I forgot to send the email."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "でんきを ＿＿ わすれました。",
+          "prompt_ruby": "電気{でんき}を ＿＿ わすれました。",
+          "en": "I forgot to turn off the light.",
+          "answer": "けすのを",
+          "answer_ruby": "けすのを",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "dictionary form of けします ＋ のを"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゅくだいを ＿＿ わすれました。",
+          "prompt_ruby": "しゅくだいを ＿＿ わすれました。",
+          "en": "I forgot to hand in my homework.",
+          "answer": "だすのを",
+          "answer_ruby": "出{だ}すのを",
+          "options": [
+            "だすのを",
+            "だすのが",
+            "だすのは"
+          ],
+          "options_ruby": [
+            "出{だ}すのを",
+            "出{だ}すのが",
+            "出{だ}すのは"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "わすれます takes を"
+        },
+        {
+          "kind": "choose",
+          "prompt": "まどを ＿＿ わすれました。",
+          "prompt_ruby": "まどを ＿＿ わすれました。",
+          "en": "I forgot to close the window.",
+          "answer": "しめるのを",
+          "answer_ruby": "しめるのを",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "しめるのに",
+            "しめるのを",
+            "しめますのを"
+          ],
+          "options_ruby": [
+            "しめるのに",
+            "しめるのを",
+            "しめますのを"
+          ],
+          "hint": "Dictionary form ＋ のを わすれました means 'forgot to do.'",
+          "why_wrong": {
+            "しめるのに": "わすれます takes its object with を, not に.",
+            "しめますのを": "Use the dictionary form before の, not the ます form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "くすりを ＿＿ わすれないで ください。",
+          "prompt_ruby": "くすりを ＿＿ わすれないで ください。",
+          "en": "Please don't forget to take your medicine.",
+          "answer": "のむのを",
+          "answer_ruby": "飲{の}むのを",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "のむを",
+            "のみますのを",
+            "のむのを"
+          ],
+          "options_ruby": [
+            "飲{の}むを",
+            "飲{の}みますのを",
+            "飲{の}むのを"
+          ],
+          "hint": "A verb needs の before を to become the object of わすれます.",
+          "why_wrong": {
+            "のむを": "を cannot attach directly to a verb; add の first.",
+            "のみますのを": "Use the dictionary form before の, not the ます form."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L38.4",
+      "explain": "Add のを to a plain form before しって います to say you know a fact, or ask with しって いますか whether someone knows some news.",
+      "form": "ふつうForm ＋ のを しって いますか",
+      "note": "The negative answer is しりません, not しって いません.",
+      "examples": [
+        {
+          "jp": "たなかさんが けっこんするのを しって います。",
+          "jp_ruby": "田中{たなか}さんが けっこんするのを 知{し}って います。",
+          "en": "I know that Mr. Tanaka is getting married."
+        },
+        {
+          "jp": "らいしゅう テストが あるのを しって いますか。",
+          "jp_ruby": "来週{らいしゅう} テストが あるのを 知{し}って いますか。",
+          "en": "Do you know there's a test next week?"
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "きむらさんが かいしゃを やめた＿＿ しって いますか。",
+          "prompt_ruby": "きむらさんが 会社{かいしゃ}を やめた＿＿ 知{し}って いますか。",
+          "en": "Do you know that Ms. Kimura quit her company?",
+          "answer": "のを",
+          "answer_ruby": "のを",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "turns the clause into the object of しって います"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ミラーさんが かえるのを しって いますか。 いいえ、＿＿。",
+          "prompt_ruby": "ミラーさんが 帰{かえ}るのを 知{し}って いますか。 いいえ、＿＿。",
+          "en": "Do you know that Mr. Miller is going back home? No, I don't.",
+          "answer": "しりません",
+          "answer_ruby": "知{し}りません",
+          "options": [
+            "しりません",
+            "しって いません",
+            "しって います"
+          ],
+          "options_ruby": [
+            "知{し}りません",
+            "知{し}って いません",
+            "知{し}って います"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "the negative of しって います is special"
+        },
+        {
+          "kind": "choose",
+          "prompt": "やまださんが けがを した＿＿ しって いますか。",
+          "prompt_ruby": "山田{やまだ}さんが けがを した＿＿ 知{し}って いますか。",
+          "en": "Do you know that Mr. Yamada got hurt?",
+          "answer": "のを",
+          "answer_ruby": "のを",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "options_ruby": [
+            "のが",
+            "のを",
+            "のに"
+          ],
+          "hint": "のを turns the news into the object of しって います.",
+          "why_wrong": {
+            "のが": "しって います takes its object with を, not が.",
+            "のに": "のに means 'although'; here the clause is what you know."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "ミラーさんが ＿＿ のを しって いますか。",
+          "prompt_ruby": "ミラーさんが ＿＿ のを 知{し}って いますか。",
+          "en": "Do you know that Mr. Miller is sick?",
+          "answer": "びょうきな",
+          "answer_ruby": "病気{びょうき}な",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "びょうきだ",
+            "びょうきな",
+            "びょうき"
+          ],
+          "options_ruby": [
+            "病気{びょうき}だ",
+            "病気{びょうき}な",
+            "病気{びょうき}"
+          ],
+          "hint": "Before の, a noun or な adjective takes な: びょうきなのを.",
+          "why_wrong": {
+            "びょうきだ": "だ changes to な before の.",
+            "びょうき": "A noun needs な before this の."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L38.5",
+      "explain": "Use のは ... です to put the spotlight on one piece of information, like 'What I like is summer.' The key point comes right before です.",
+      "form": "ふつうForm ＋ のは ＋ N ＋ です",
+      "note": "A な adjective keeps な before の: すきなのは, not すきのは.",
+      "examples": [
+        {
+          "jp": "わたしが すきなのは なつです。",
+          "jp_ruby": "私{わたし}が すきなのは 夏{なつ}です。",
+          "en": "What I like is summer."
+        },
+        {
+          "jp": "わたしが うまれたのは おおさかです。",
+          "jp_ruby": "私{わたし}が 生{う}まれたのは おおさかです。",
+          "en": "The place where I was born is Osaka."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "きのう ＿＿ のは あにです。",
+          "prompt_ruby": "きのう ＿＿ のは 兄{あに}です。",
+          "en": "The one who came yesterday was my older brother.",
+          "answer": "きた",
+          "answer_ruby": "来{き}た",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "た form of きます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが いちばん ほしい＿＿ じかんです。",
+          "prompt_ruby": "私{わたし}が いちばん ほしい＿＿ 時間{じかん}です。",
+          "en": "What I want most is time.",
+          "answer": "のは",
+          "answer_ruby": "のは",
+          "options": [
+            "のは",
+            "のが",
+            "のを"
+          ],
+          "options_ruby": [
+            "のは",
+            "のが",
+            "のを"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "it marks the topic before です"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが いちばん ＿＿ のは きょうとです。",
+          "prompt_ruby": "私{わたし}が いちばん ＿＿ のは きょうとです。",
+          "en": "The place I want to go most is Kyoto.",
+          "answer": "いきたい",
+          "answer_ruby": "行{い}きたい",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "いきたいな",
+            "いきたい",
+            "いきたいだ"
+          ],
+          "options_ruby": [
+            "行{い}きたいな",
+            "行{い}きたい",
+            "行{い}きたいだ"
+          ],
+          "hint": "たい ends like an い adjective, so it connects to のは directly.",
+          "why_wrong": {
+            "いきたいな": "たい acts like an い adjective; な is only for な adjectives.",
+            "いきたいだ": "Do not put だ before の."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしが ＿＿ のは さかなです。",
+          "prompt_ruby": "私{わたし}が ＿＿ のは 魚{さかな}です。",
+          "en": "What I dislike is fish.",
+          "answer": "きらいな",
+          "answer_ruby": "きらいな",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "きらい",
+            "きらいだ",
+            "きらいな"
+          ],
+          "options_ruby": [
+            "きらい",
+            "きらいだ",
+            "きらいな"
+          ],
+          "hint": "A な adjective keeps な before のは.",
+          "why_wrong": {
+            "きらい": "きらい is a な adjective, so it needs な before の.",
+            "きらいだ": "だ changes to な before の."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -93,7 +93,9 @@ When something misbehaves, look in `custom_code/` first.
 - **Reusable UI** → `components/`
 - **Logic used by more than one screen** → `actions/actions.dart`
 - **Pure computation** → `flutter_flow/custom_functions.dart`
-- **New Firestore collection** → `backend/schema/`, plus rules in `firebase/firestore.rules`
+- **New Firestore collection** → `backend/schema/`, plus rules in `firebase/firestore.rules`. Use
+  the `signedIn()` helper there, never a bare `request.auth != null`, so the hidden anonymous
+  scoring user stays locked out (PIN-9).
 - **Anything touching platform APIs** → `custom_code/actions/`
 
 ## State management
