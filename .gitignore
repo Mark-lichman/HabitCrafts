@@ -91,3 +91,6 @@ firestore-debug.log
 *.pem
 *.p12
 serviceAccount*.json
+
+# Session scratch tooling (variant apply/restore scripts, extractors). Not part of the app.
+/scratchpad/

@@ -1,0 +1,452 @@
+// Widget tests for the vocabulary screen: the head word's `context` line (D18), the Knew it
+// and Not yet pills after a reveal and the attempts they write (PIN-13, PIN-14), a failed
+// write that says so (S4), the remembered lesson, and the open at one word from a card with the
+// "Back to practice" bar (plan 2026-11-06, Task 1).
+
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show BackToPracticeBar;
+import 'package:habit_craft/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
+import 'package:habit_craft/flutter_flow/quiet_room.dart';
+
+import 'jp_screen_harness.dart';
+
+/// The word file, read straight from disk to derive what each test expects.
+Map<String, dynamic> readWordFile() =>
+    json.decode(File('assets/lessons/jp_lessons.json').readAsStringSync())
+        as Map<String, dynamic>;
+
+/// The words of lesson [no], in screen order.
+List<Map<String, dynamic>> wordsOf(int no) =>
+    ((readWordFile()['lessons'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((l) => l['lesson'] == no)['items'] as List)
+        .cast<Map<String, dynamic>>();
+
+/// The first word of the course that carries a `context` line, and its lesson.
+({int lesson, Map<String, dynamic> word}) firstWithContext() {
+  for (final l
+      in (readWordFile()['lessons'] as List).cast<Map<String, dynamic>>()) {
+    for (final w in (l['items'] as List).cast<Map<String, dynamic>>()) {
+      if (w['context'] != null) return (lesson: l['lesson'] as int, word: w);
+    }
+  }
+  throw StateError('no word carries a context line');
+}
+
+/// The real catalog, built from the shipped assets.
+ItemCatalog catalog() => ItemCatalog.fromDocs(readLessonFile(), readWordFile());
+
+/// A store whose writes fail, for the S4 message.
+class FailingStore extends JpStoreMemory {
+  @override
+  Future<Attempt> appendAttempt(Attempt attempt,
+          {SrsState? srs, MasteryState? mastery}) =>
+      Future.error(StateError('disk full'));
+}
+
+/// 10:00 on 2026-11-03, well clear of the 04:00 day boundary.
+final DateTime kNow = DateTime(2026, 11, 3, 10);
+
+/// Pumps the screen. The word file is warmed under `runAsync` first: a large `loadString`
+/// decodes on another isolate, which the fake clock never advances.
+Future<void> pumpLesson(WidgetTester tester, QuietRoomLessonWidget screen,
+    {Size size = const Size(1200, 12000),
+    Map<String, Object> prefs = const {}}) async {
+  await tester
+      .runAsync(() => rootBundle.loadString('assets/lessons/jp_lessons.json'));
+  await pumpStudyScreen(tester, screen, size: size, prefs: prefs);
+}
+
+QuietRoomLessonWidget screen({int? lesson, JpStore? store}) =>
+    QuietRoomLessonWidget(
+      initialLesson: lesson,
+      store: store ?? JpStoreMemory(),
+      items: catalog().byId,
+      clock: FixedClock(kNow),
+      scheduler: const FsrsScheduler(),
+    );
+
+final Finder knewIt = find.text('Knew it');
+final Finder notYet = find.text('Not yet');
+
+/// Turns the card for [kana] over.
+Future<void> reveal(WidgetTester tester, String kana) async {
+  await tester.tap(find.text(kana).first);
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  testWidgets('the context line sits under its head word', (tester) async {
+    final hit = firstWithContext();
+    await pumpLesson(tester, screen(lesson: hit.lesson));
+
+    final head = find.text(hit.word['kana'] as String).first;
+    final context = find.text(hit.word['context'] as String);
+    expect(context, findsOneWidget);
+    // Under the head word, and shown before the card is turned over.
+    expect(tester.getTopLeft(context).dy,
+        greaterThan(tester.getBottomLeft(head).dy - 1));
+    expect(find.text(hit.word['gloss'] as String), findsNothing);
+  });
+
+  testWidgets('the pills appear only after the meaning is revealed',
+      (tester) async {
+    final word = wordsOf(30).first;
+    await pumpLesson(tester, screen(lesson: 30));
+    expect(knewIt, findsNothing);
+    expect(notYet, findsNothing);
+
+    await reveal(tester, word['kana'] as String);
+    expect(find.text(word['gloss'] as String), findsOneWidget);
+    expect(knewIt, findsOneWidget);
+    expect(notYet, findsOneWidget);
+  });
+
+  testWidgets('Knew it on a due word writes a clear review on the card probe',
+      (tester) async {
+    final word = wordsOf(30).first;
+    final id = word['id'] as String;
+    final store = JpStoreMemory();
+    final today = FixedClock(kNow).today();
+    await store.appendSeed(id, today, atUtc: kNow.toUtc());
+    await pumpLesson(tester, screen(lesson: 30, store: store));
+
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(knewIt);
+    await tester.pumpAndSettle();
+
+    final written = await store.attempts();
+    expect(written, hasLength(1));
+    final a = written.single;
+    expect(a.itemId, id);
+    expect(a.probeId, 'card');
+    // The mastery rule reads these from the attempt: they must match the catalog probe.
+    final probe =
+        catalog().byId(id)!.probes.singleWhere((p) => p.id == a.probeId);
+    expect(probe.template, a.template);
+    expect(probe.selfGraded, a.selfGraded);
+    expect(probe.production, a.production);
+    expect(a.template, 'card');
+    expect(a.selfGraded, isTrue);
+    expect(a.production, isFalse);
+    expect(a.revealed, isTrue);
+    expect(a.hintLevel, 0);
+    expect(a.grade, Grade.clear);
+    expect(a.rating, kRatingGood);
+    expect(a.wasDue, isTrue);
+    expect(a.source, Source.review);
+    expect(a.localDay, today);
+    // The schedule and the mastery moved in the same answer.
+    expect(await store.srs(id), isNotNull);
+    final m = await store.mastery(id);
+    expect(m!.status, MasteryStatus.learning);
+    expect(m.clears, hasLength(1));
+    // One grade per reveal: the pills stop taking taps.
+    await tester.tap(notYet);
+    await tester.pumpAndSettle();
+    expect(await store.attempts(), hasLength(1));
+  });
+
+  testWidgets('Not yet writes a wrong that counts even when not due',
+      (tester) async {
+    final word = wordsOf(30).first;
+    final id = word['id'] as String;
+    final store = JpStoreMemory();
+    await pumpLesson(tester, screen(lesson: 30, store: store));
+
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(notYet);
+    await tester.pumpAndSettle();
+
+    final a = (await store.attempts()).single;
+    expect(a.itemId, id);
+    expect(a.grade, Grade.wrong);
+    expect(a.rating, kRatingAgain);
+    expect(a.wasDue, isFalse);
+    expect(a.source, Source.early);
+    // An early wrong is a real wrong: due tomorrow (PIN-14).
+    expect((await store.srs(id))!.dueDay, FixedClock(kNow).today() + 1);
+    expect((await store.mastery(id))!.status, MasteryStatus.learning);
+  });
+
+  testWidgets('Knew it on a word not yet due is early and changes nothing',
+      (tester) async {
+    final word = wordsOf(30).first;
+    final id = word['id'] as String;
+    final store = JpStoreMemory();
+    await pumpLesson(tester, screen(lesson: 30, store: store));
+
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(knewIt);
+    await tester.pumpAndSettle();
+
+    final a = (await store.attempts()).single;
+    expect(a.grade, Grade.clear);
+    expect(a.source, Source.early);
+    // PIN-14: an early clear moves neither the schedule nor the mastery.
+    expect(await store.srs(id), isNull);
+    final m = await store.mastery(id);
+    expect(m == null || m.status == MasteryStatus.neu, isTrue);
+  });
+
+  testWidgets(
+      'Knew it reads the schedule before the seed: a word due tomorrow is early',
+      (tester) async {
+    final word = wordsOf(30).first;
+    final id = word['id'] as String;
+    final store = JpStoreMemory();
+    final today = FixedClock(kNow).today();
+    // Seeded for a past day, then one wrong today: the schedule now says tomorrow and the
+    // older seed must not win.
+    await store.appendSeed(id, today - 5, atUtc: kNow.toUtc());
+    await store.recordAnswer(
+      Attempt(
+        itemId: id,
+        probeId: 'card',
+        template: 'card',
+        production: false,
+        selfGraded: true,
+        atUtc: kNow.toUtc(),
+        localDay: today,
+        grade: Grade.wrong,
+        rating: kRatingAgain,
+        revealed: true,
+        wasDue: true,
+        source: Source.review,
+        sessionId: 'setup',
+      ),
+      item: catalog().byId(id),
+      scheduler: const FsrsScheduler(),
+    );
+    final srsBefore = (await store.srs(id))!;
+    expect(srsBefore.dueDay, today + 1);
+    final clearsBefore = (await store.mastery(id))!.clears;
+
+    await pumpLesson(tester, screen(lesson: 30, store: store));
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(knewIt);
+    await tester.pumpAndSettle();
+
+    final written = await store.attempts();
+    expect(written, hasLength(2));
+    final a = written.last;
+    expect(a.grade, Grade.clear);
+    expect(a.wasDue, isFalse);
+    expect(a.source, Source.early);
+    // PIN-14: the early clear moved neither the schedule nor the clears.
+    expect((await store.srs(id))!.dueDay, srsBefore.dueDay);
+    expect((await store.mastery(id))!.clears, clearsBefore);
+  });
+
+  testWidgets('a write that fails says so and leaves the pills to try again',
+      (tester) async {
+    final word = wordsOf(30).first;
+    await pumpLesson(tester, screen(lesson: 30, store: FailingStore()));
+
+    await reveal(tester, word['kana'] as String);
+    await tester.tap(knewIt);
+    await tester.pumpAndSettle();
+
+    expect(find.text(QuietRoomLessonWidget.saveFailedMessage), findsOneWidget);
+    // Not marked as graded: the pill still takes a tap.
+    final pill = tester.widget<InkWell>(
+        find.ancestor(of: knewIt, matching: find.byType(InkWell)).first);
+    expect(pill.onTap, isNotNull);
+  });
+
+  testWidgets('the last-opened lesson is remembered', (tester) async {
+    await pumpLesson(tester, screen(lesson: 30));
+    await tester.tap(find.text('12'));
+    await tester.pumpAndSettle();
+    expect(find.text('第12課'), findsOneWidget);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 12);
+
+    // A fresh open with no lesson named continues from it. Prefs are kept, so the screen is
+    // pumped directly rather than through the harness, which resets them.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(MaterialApp(home: screen()));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    expect(find.text('第12課'), findsOneWidget);
+  });
+
+  testWidgets('a named lesson wins over the remembered one and is remembered',
+      (tester) async {
+    // A remembered lesson is seeded first, so the named one has something to beat. The
+    // harness resets the prefs, so the screen is pumped directly, as the test above does.
+    SharedPreferences.setMockInitialValues(
+        {QuietRoomLessonWidget.lastLessonKey: 12});
+    await tester.runAsync(
+        () => rootBundle.loadString('assets/lessons/jp_lessons.json'));
+    await tester.pumpWidget(MaterialApp(home: screen(lesson: 6)));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+
+    expect(find.text('第6課'), findsOneWidget);
+    expect(find.text('第12課'), findsNothing);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 6);
+  });
+
+  group('opened at a word from a card (plan 2026-11-06, Task 1)', () {
+    /// The lesson with the most words, and its last word whose kana is unique in it: the card
+    /// furthest down.
+    ({int lesson, ItemDef word}) deepestWord() {
+      final words = catalog().ofKind(ItemKind.word);
+      final byLesson = <int, List<ItemDef>>{};
+      for (final w in words) {
+        (byLesson[w.lesson!] ??= []).add(w);
+      }
+      final lesson = byLesson.keys
+          .reduce((a, b) => byLesson[b]!.length > byLesson[a]!.length ? b : a);
+      final list = byLesson[lesson]!;
+      final word = list
+          .lastWhere((w) => list.where((o) => o.title == w.title).length == 1);
+      return (lesson: lesson, word: word);
+    }
+
+    QuietRoomLessonWidget atWord(String word, {bool fromCard = false}) =>
+        QuietRoomLessonWidget(
+          initialLesson: 6,
+          initialWord: word,
+          fromCard: fromCard,
+          store: JpStoreMemory(),
+          items: catalog().byId,
+          clock: FixedClock(kNow),
+        );
+
+    /// A word card drawn with the target outline: a Container whose border is 2 wide. Every
+    /// other card's border is 1 wide, and the card's inner Container draws no border.
+    final outlined = find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            ((w.decoration as BoxDecoration?)?.border as Border?)?.top.width ==
+                2,
+        skipOffstage: false);
+
+    testWidgets('the word lesson opens with its card in view, outlined',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id), size: kPhoneView);
+      await tester.pump();
+
+      // The word's lesson wins over the one named.
+      expect(
+          find.text('第${deep.lesson}課', skipOffstage: false), findsOneWidget);
+      final kana = find.text(deep.word.title);
+      expect(kana, findsOneWidget);
+      expect(inView(tester, kana), isTrue,
+          reason: 'the word card is scrolled into the view');
+      expect(find.ancestor(of: kana, matching: outlined), findsOneWidget,
+          reason: 'the word card is outlined');
+      expect(outlined, findsOneWidget, reason: 'no other card is outlined');
+      // Opened at, not answered: the meaning stays hidden.
+      expect(knewIt, findsNothing);
+    });
+
+    testWidgets('the plain entry on the same lesson starts at the top',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, screen(lesson: deep.lesson), size: kPhoneView);
+      await tester.pump();
+
+      expect(find.text('第${deep.lesson}課'), findsOneWidget);
+      final kana = find.text(deep.word.title);
+      expect(kana.evaluate().isEmpty || !inView(tester, kana), isTrue,
+          reason: 'the last word sits below a phone view at the top');
+      expect(outlined, findsNothing, reason: 'no card is outlined');
+      expect(find.text('Back to practice'), findsNothing);
+    });
+
+    testWidgets('an open at a word leaves the remembered lesson alone',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id),
+          prefs: {QuietRoomLessonWidget.lastLessonKey: 12});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(QuietRoomLessonWidget.lastLessonKey), 12);
+    });
+
+    testWidgets('Back to practice shows only when a card opened the screen',
+        (tester) async {
+      final deep = deepestWord();
+      await pumpLesson(tester, atWord(deep.word.id, fromCard: true));
+      expect(find.text('Back to practice'), findsOneWidget);
+      // The bar is held to the reading width, as on the screens built through
+      // QrStudyScaffold: the default view is wider than that width.
+      expect(tester.getSize(find.byType(BackToPracticeBar)).width,
+          QuietRoomMetrics.readMax);
+
+      await pumpLesson(tester, atWord(deep.word.id));
+      expect(find.text('Back to practice'), findsNothing);
+    });
+
+    testWidgets('Back to practice shows over the spinner while the words load',
+        (tester) async {
+      final deep = deepestWord();
+      // The word file is warmed under runAsync, so the load finishes in one real turn
+      // whether or not an earlier test read it. The screen still shows the spinner after
+      // one pump: the cached future belongs to the real zone, so the screen hears it
+      // complete only after a real event-loop turn (see pumpStudyScreen).
+      await tester.runAsync(
+          () => rootBundle.loadString('assets/lessons/jp_lessons.json'));
+      await tester
+          .pumpWidget(MaterialApp(home: atWord(deep.word.id, fromCard: true)));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Back to practice'), findsOneWidget);
+
+      // Let the load finish before the test ends.
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.text('Back to practice'), findsOneWidget);
+    });
+
+    testWidgets('a word id in no lesson falls back to the lesson named',
+        (tester) async {
+      await pumpLesson(tester, atWord('L99_99'), size: kPhoneView);
+      await tester.pump();
+      // atWord names lesson 6.
+      expect(find.text('第6課'), findsOneWidget);
+      expect(find.text('Back to practice'), findsNothing);
+    });
+
+    testWidgets(
+        'a word id in no lesson, with no lesson named, opens the newest',
+        (tester) async {
+      await pumpLesson(
+          tester,
+          QuietRoomLessonWidget(
+            initialWord: 'L99_99',
+            store: JpStoreMemory(),
+            items: catalog().byId,
+            clock: FixedClock(kNow),
+          ));
+      await tester.pump();
+      final newest = catalog()
+          .ofKind(ItemKind.word)
+          .map((w) => w.lesson!)
+          .reduce((a, b) => b > a ? b : a);
+      expect(find.text('第$newest課'), findsOneWidget);
+    });
+  });
+}

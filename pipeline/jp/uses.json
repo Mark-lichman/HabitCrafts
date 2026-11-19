@@ -1,0 +1,440 @@
+{
+ "note": "What each grammar point is FOR, so the app can list patterns by use. Hand-assigned 2026-10-24 (an LM judgment, reviewable). Every point in Mari's checklist must appear; publish.py checks that.",
+ "uses": [
+  {
+   "id": "ask_advice",
+   "label": "Asking for advice"
+  },
+  {
+   "id": "request",
+   "label": "Asking someone to do something"
+  },
+  {
+   "id": "advise",
+   "label": "Giving advice"
+  },
+  {
+   "id": "plan",
+   "label": "Saying what you plan to do"
+  },
+  {
+   "id": "certain",
+   "label": "Stating something definite"
+  },
+  {
+   "id": "guess",
+   "label": "Guessing what is likely"
+  },
+  {
+   "id": "regret",
+   "label": "Showing regret or displeasure"
+  },
+  {
+   "id": "opinion",
+   "label": "Giving your opinion"
+  },
+  {
+   "id": "reason",
+   "label": "Explaining why"
+  },
+  {
+   "id": "purpose",
+   "label": "Saying what it is for"
+  },
+  {
+   "id": "condition",
+   "label": "If and when"
+  },
+  {
+   "id": "contrast",
+   "label": "Contrasting"
+  },
+  {
+   "id": "state",
+   "label": "Describing how things are now"
+  },
+  {
+   "id": "done",
+   "label": "Finished, or not yet"
+  },
+  {
+   "id": "change",
+   "label": "Describing a change"
+  },
+  {
+   "id": "ability",
+   "label": "Saying what you can do"
+  },
+  {
+   "id": "habit",
+   "label": "Habits and routines"
+  },
+  {
+   "id": "time",
+   "label": "When: before, after, during"
+  },
+  {
+   "id": "manner",
+   "label": "How you do something"
+  },
+  {
+   "id": "appearance",
+   "label": "How things look or seem"
+  },
+  {
+   "id": "hearsay",
+   "label": "Passing on what you heard or read"
+  },
+  {
+   "id": "question",
+   "label": "Wondering or asking whether"
+  },
+  {
+   "id": "emphasis",
+   "label": "Stressing how much or how little"
+  },
+  {
+   "id": "command",
+   "label": "Commands, rules, making someone"
+  },
+  {
+   "id": "favor",
+   "label": "Giving and receiving favors"
+  },
+  {
+   "id": "polite",
+   "label": "Polite and honorific speech"
+  },
+  {
+   "id": "counting",
+   "label": "Counting, dates and time"
+  },
+  {
+   "id": "transitivity",
+   "label": "Who did it: が or を"
+  },
+  {
+   "id": "meaning",
+   "label": "Explaining what something means"
+  },
+  {
+   "id": "forms",
+   "label": "Verb forms to learn"
+  }
+ ],
+ "points": {
+  "mari.L26.1": [
+   "reason"
+  ],
+  "mari.L26.2": [
+   "request"
+  ],
+  "mari.L26.3": [
+   "ask_advice"
+  ],
+  "mari.L27.1": [
+   "ability",
+   "forms"
+  ],
+  "mari.L27.2": [
+   "ability"
+  ],
+  "mari.L27.3": [
+   "ability"
+  ],
+  "mari.L27.4": [
+   "emphasis"
+  ],
+  "mari.L27.5": [
+   "contrast"
+  ],
+  "mari.L27.6": [
+   "contrast"
+  ],
+  "mari.L28.1": [
+   "manner",
+   "time"
+  ],
+  "mari.L28.2": [
+   "habit"
+  ],
+  "mari.L28.3": [
+   "reason"
+  ],
+  "mari.L29.1": [
+   "state"
+  ],
+  "mari.L29.2": [
+   "state"
+  ],
+  "mari.L29.3": [
+   "done"
+  ],
+  "mari.L29.4": [
+   "regret"
+  ],
+  "mari.L30.1": [
+   "state"
+  ],
+  "mari.L30.2": [
+   "plan"
+  ],
+  "mari.L30.3": [
+   "request",
+   "state"
+  ],
+  "mari.L31.1": [
+   "plan",
+   "forms"
+  ],
+  "mari.L31.2": [
+   "plan"
+  ],
+  "mari.L31.3": [
+   "done"
+  ],
+  "mari.L31.4": [
+   "plan"
+  ],
+  "mari.L31.5": [
+   "plan"
+  ],
+  "mari.L32.1": [
+   "advise"
+  ],
+  "mari.L32.2": [
+   "guess"
+  ],
+  "mari.L32.3": [
+   "guess"
+  ],
+  "mari.L33.1": [
+   "command",
+   "forms"
+  ],
+  "mari.L33.2": [
+   "hearsay"
+  ],
+  "mari.L33.3": [
+   "meaning"
+  ],
+  "mari.L33.4": [
+   "hearsay",
+   "request"
+  ],
+  "mari.L34.1": [
+   "manner"
+  ],
+  "mari.L34.2": [
+   "time"
+  ],
+  "mari.L34.3": [
+   "manner"
+  ],
+  "mari.L34.4": [
+   "manner"
+  ],
+  "mari.L35.1": [
+   "condition",
+   "forms"
+  ],
+  "mari.L35.2": [
+   "condition"
+  ],
+  "mari.L35.3": [
+   "condition"
+  ],
+  "mari.L35.4": [
+   "ask_advice",
+   "condition"
+  ],
+  "mari.L35.5": [
+   "advise"
+  ],
+  "mari.L36.1": [
+   "purpose"
+  ],
+  "mari.L36.2": [
+   "change"
+  ],
+  "mari.L36.3": [
+   "habit",
+   "plan"
+  ],
+  "mari.L37.1": [
+   "forms"
+  ],
+  "mari.L37.2": [
+   "regret"
+  ],
+  "mari.L37.3": [
+   "regret"
+  ],
+  "mari.L37.4": [
+   "certain"
+  ],
+  "mari.L38.1": [
+   "opinion"
+  ],
+  "mari.L38.2": [
+   "opinion"
+  ],
+  "mari.L38.3": [
+   "regret"
+  ],
+  "mari.L38.4": [
+   "hearsay"
+  ],
+  "mari.L38.5": [
+   "certain"
+  ],
+  "mari.L39.1": [
+   "reason"
+  ],
+  "mari.L39.2": [
+   "reason"
+  ],
+  "mari.L39.3": [
+   "reason"
+  ],
+  "mari.L39.4": [
+   "reason"
+  ],
+  "mari.L40.1": [
+   "question"
+  ],
+  "mari.L40.2": [
+   "question"
+  ],
+  "mari.L40.3": [
+   "plan"
+  ],
+  "mari.L41.1": [
+   "favor",
+   "polite"
+  ],
+  "mari.L41.2": [
+   "favor",
+   "polite"
+  ],
+  "mari.L41.3": [
+   "request",
+   "polite"
+  ],
+  "mari.L42.1": [
+   "purpose"
+  ],
+  "mari.L42.2": [
+   "purpose"
+  ],
+  "mari.L42.3": [
+   "emphasis"
+  ],
+  "mari.L43.1": [
+   "appearance",
+   "guess"
+  ],
+  "mari.L43.2": [
+   "change"
+  ],
+  "mari.L44.1": [
+   "regret",
+   "opinion",
+   "emphasis"
+  ],
+  "mari.L44.2": [
+   "opinion"
+  ],
+  "mari.L44.3": [
+   "change"
+  ],
+  "mari.L44.4": [
+   "manner"
+  ],
+  "mari.L45.1": [
+   "condition"
+  ],
+  "mari.L45.2": [
+   "regret",
+   "contrast"
+  ],
+  "mari.L46.1": [
+   "time"
+  ],
+  "mari.L46.2": [
+   "time",
+   "done"
+  ],
+  "mari.L46.3": [
+   "certain",
+   "guess"
+  ],
+  "mari.L47.1": [
+   "hearsay"
+  ],
+  "mari.L47.2": [
+   "guess",
+   "appearance"
+  ],
+  "mari.L48.1": [
+   "forms"
+  ],
+  "mari.L48.2": [
+   "command"
+  ],
+  "mari.L48.3": [
+   "command"
+  ],
+  "mari.L48.4": [
+   "request",
+   "polite"
+  ],
+  "mari.L49.1": [
+   "polite"
+  ],
+  "mari.L49.2": [
+   "polite"
+  ],
+  "mari.L49.3": [
+   "polite"
+  ],
+  "mari.L49.4": [
+   "polite",
+   "request"
+  ],
+  "mari.L50.1": [
+   "polite"
+  ],
+  "mari.L50.2": [
+   "polite"
+  ],
+  "mari.L50.3": [
+   "polite"
+  ]
+ },
+ "particles": {
+  "によって": [
+   "manner",
+   "condition"
+  ],
+  "として": [
+   "manner"
+  ],
+  "にとって": [
+   "opinion"
+  ],
+  "について": [
+   "hearsay"
+  ],
+  "でも": [
+   "emphasis"
+  ],
+  "けれど（も）": [
+   "contrast"
+  ],
+  "まま": [
+   "state",
+   "manner"
+  ]
+ }
+}

@@ -1,0 +1,316 @@
+{
+  "lesson": 46,
+  "title": "Action Timing and Expectations",
+  "points": [
+    {
+      "id": "mari.L46.1",
+      "explain": "ところです shows the stage of an action: dictionary form means about to do it, ている form means in the middle of it, and た form means just finished.",
+      "form": "じしょForm / ているForm / たForm + ところです",
+      "note": "It often appears with いま, これから, or たったいま to make the timing clear.",
+      "examples": [
+        {
+          "jp": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。",
+          "jp_ruby": "今{いま} 出{で}かける ところです。／今{いま} 食事{しょくじ}を して いる ところです。／今{いま} 帰{かえ}った ところです。",
+          "en": "I'm just about to go out. I'm in the middle of eating now. I just got home."
+        },
+        {
+          "jp": "これから ばんごはんを たべる ところです。",
+          "jp_ruby": "これから ばんごはんを 食{た}べる ところです。",
+          "en": "I'm just about to eat dinner."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "いま レポートを ＿＿ ところです。",
+          "prompt_ruby": "今{いま} レポートを ＿＿ ところです。",
+          "en": "I'm in the middle of writing the report right now.",
+          "answer": "かいて いる",
+          "answer_ruby": "書{か}いて いる",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "ている form of かきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "たったいま えきに ＿＿ ところです。",
+          "prompt_ruby": "たった今{いま} 駅{えき}に ＿＿ ところです。",
+          "en": "I just arrived at the station a moment ago.",
+          "answer": "ついた",
+          "answer_ruby": "着{つ}いた",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "た Form for 'just finished'",
+          "options": [
+            "ついた",
+            "つく",
+            "ついて"
+          ],
+          "options_ruby": [
+            "着{つ}いた",
+            "着{つ}く",
+            "着{つ}いて"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "これから かいぎが ＿＿ ところです。",
+          "prompt_ruby": "これから かいぎが ＿＿ ところです。",
+          "en": "The meeting is just about to start.",
+          "answer": "はじまる",
+          "answer_ruby": "始{はじ}まる",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "はじまった",
+            "はじまる",
+            "はじまって"
+          ],
+          "options_ruby": [
+            "始{はじ}まった",
+            "始{はじ}まる",
+            "始{はじ}まって"
+          ],
+          "hint": "Dictionary form + ところです means 'about to'.",
+          "why_wrong": {
+            "はじまった": "た form + ところ means it just started, which clashes with これから.",
+            "はじまって": "The てForm alone cannot go before ところ."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "いま おふろに ＿＿ ところです。",
+          "prompt_ruby": "今{いま} おふろに ＿＿ ところです。",
+          "en": "I'm in the middle of taking a bath right now.",
+          "answer": "はいって いる",
+          "answer_ruby": "入{はい}って いる",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "はいる",
+            "はいって",
+            "はいって いる"
+          ],
+          "options_ruby": [
+            "入{はい}る",
+            "入{はい}って",
+            "入{はい}って いる"
+          ],
+          "hint": "ている form + ところです means 'in the middle of'.",
+          "why_wrong": {
+            "はいる": "Dictionary form + ところ means about to get in, not in the middle.",
+            "はいって": "The てForm alone cannot go before ところ; it needs いる."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L46.2",
+      "explain": "たForm + ばかりです means something happened only a short time ago, from the speaker's point of view.",
+      "form": "たForm + ばかりです",
+      "note": "ばかり is about how recent it feels, so even a month can count. た Form + ところ is only for the moment right after.",
+      "examples": [
+        {
+          "jp": "さっき たべたばかりです。",
+          "jp_ruby": "さっき 食{た}べたばかりです。",
+          "en": "I just ate a little while ago."
+        },
+        {
+          "jp": "せんげつ にほんへ きたばかりです。",
+          "jp_ruby": "先月{せんげつ} 日本{にほん}へ 来{き}たばかりです。",
+          "en": "I only came to Japan last month."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "この パソコンは かった＿＿なのに、もう こわれました。",
+          "prompt_ruby": "この パソコンは 買{か}った＿＿なのに、もう こわれました。",
+          "en": "I just bought this computer, but it's already broken.",
+          "answer": "ばかり",
+          "answer_ruby": "ばかり",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Word meaning 'just did' after た Form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "にほんごの べんきょうを ＿＿ばかりです。",
+          "prompt_ruby": "日本語{にほんご}の 勉強{べんきょう}を ＿＿ばかりです。",
+          "en": "I just started studying Japanese.",
+          "answer": "はじめた",
+          "answer_ruby": "始{はじ}めた",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "た Form",
+          "options": [
+            "はじめた",
+            "はじめる",
+            "はじめて"
+          ],
+          "options_ruby": [
+            "始{はじ}めた",
+            "始{はじ}める",
+            "始{はじ}めて"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "かいしゃに ＿＿ばかりなので、しごとが よく わかりません。",
+          "prompt_ruby": "会社{かいしゃ}に ＿＿ばかりなので、仕事{しごと}が よく 分{わ}かりません。",
+          "en": "I just joined the company, so I don't understand the work well.",
+          "answer": "はいった",
+          "answer_ruby": "入{はい}った",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "はいる",
+            "はいった",
+            "はいって"
+          ],
+          "options_ruby": [
+            "入{はい}る",
+            "入{はい}った",
+            "入{はい}って"
+          ],
+          "hint": "ばかり follows the た form to mean 'just did'.",
+          "why_wrong": {
+            "はいる": "ばかり in this meaning needs the た form, not the dictionary form.",
+            "はいって": "The てForm cannot go before ばかり here; use the た form."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんげつ けっこんした＿＿です。",
+          "prompt_ruby": "先月{せんげつ} けっこんした＿＿です。",
+          "en": "I just got married last month.",
+          "answer": "ばかり",
+          "answer_ruby": "ばかり",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "ところ",
+            "ながら",
+            "ばかり"
+          ],
+          "options_ruby": [
+            "ところ",
+            "ながら",
+            "ばかり"
+          ],
+          "hint": "ばかり is for something that feels recent, even a month ago.",
+          "why_wrong": {
+            "ところ": "た form + ところ is only for the moment right after, not last month.",
+            "ながら": "ながら means 'while' and joins the ます stem, not the た form."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L46.3",
+      "explain": "はずです means 'should' or 'is expected to'. Use it when you have a solid reason to believe something is true or will happen.",
+      "form": "ふつうForm + はずです",
+      "note": "With nouns use の (やすみの はずです), with な-adjectives use な. For your own plans, use つもりです instead.",
+      "examples": [
+        {
+          "jp": "たなかさんは くる はずです。",
+          "jp_ruby": "田中{たなか}さんは 来{く}る はずです。",
+          "en": "Mr. Tanaka should be coming."
+        },
+        {
+          "jp": "かいぎは さんじに おわる はずです。",
+          "jp_ruby": "かいぎは 三時{さんじ}に 終{お}わる はずです。",
+          "en": "The meeting should end at three."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "きのう だしたから、てがみは あした ＿＿ はずです。",
+          "prompt_ruby": "きのう 出{だ}したから、手紙{てがみ}は 明日{あした} ＿＿ はずです。",
+          "en": "I sent it yesterday, so the letter should arrive tomorrow.",
+          "answer": "つく",
+          "answer_ruby": "着{つ}く",
+          "accepted": [
+            "とどく"
+          ],
+          "accepted_ruby": [
+            "とどく"
+          ],
+          "hint": "Dictionary form of つきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "きょうは にちようびだから、ぎんこうは ＿＿ はずです。",
+          "prompt_ruby": "今日{きょう}は 日曜日{にちようび}だから、銀行{ぎんこう}は ＿＿ はずです。",
+          "en": "Today is Sunday, so the bank should be closed.",
+          "answer": "やすみの",
+          "answer_ruby": "休{やす}みの",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Noun + the right connector",
+          "options": [
+            "やすみの",
+            "やすみな",
+            "やすみだ"
+          ],
+          "options_ruby": [
+            "休{やす}みの",
+            "休{やす}みな",
+            "休{やす}みだ"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "たなかさんは えいごの せんせいだから、えいごが できる＿＿です。",
+          "prompt_ruby": "田中{たなか}さんは 英語{えいご}の 先生{せんせい}だから、英語{えいご}が できる＿＿です。",
+          "en": "Mr. Tanaka is an English teacher, so he should be able to speak English.",
+          "answer": "はず",
+          "answer_ruby": "はず",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "つもり",
+            "はず",
+            "ところ"
+          ],
+          "options_ruby": [
+            "つもり",
+            "はず",
+            "ところ"
+          ],
+          "hint": "はずです states what you firmly expect to be true about someone.",
+          "why_wrong": {
+            "つもり": "つもり is a plan you choose; できる is an ability, not a plan.",
+            "ところ": "ところ marks the stage of an action; できる has no such stage."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "この こうえんは よる ＿＿ はずです。",
+          "prompt_ruby": "この こうえんは 夜{よる} ＿＿ はずです。",
+          "en": "This park should be quiet at night.",
+          "answer": "しずかな",
+          "answer_ruby": "しずかな",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "しずかの",
+            "しずかだ",
+            "しずかな"
+          ],
+          "options_ruby": [
+            "しずかの",
+            "しずかだ",
+            "しずかな"
+          ],
+          "hint": "A な-adjective keeps な before はずです.",
+          "why_wrong": {
+            "しずかの": "の is for nouns; しずか is a な-adjective, so it takes な.",
+            "しずかだ": "だ cannot go before はず; a な-adjective takes な."
+          }
+        }
+      ]
+    }
+  ]
+}

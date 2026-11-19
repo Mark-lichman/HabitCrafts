@@ -63,3 +63,40 @@ jobs:
             exit 0
           fi
           flutter test
+
+  # Lesson pipeline evals (pipeline/jp/tests). The extractors need the source PDFs and
+  # the tutor's sheet, which are not in the repo, so these run on committed fixtures:
+  # the conjugation engine against Mari's 198 worked forms, the draft validator, the
+  # catalog, publishing with the reviewed corrections, and a drift check that the
+  # committed assets/lessons/jp_grammar.json equals a fresh publish.
+  #
+  # No setup-python action: ubuntu-latest ships Python 3, and a venv avoids adding an
+  # unpinned dependency to this workflow.
+  pipeline-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet -r pipeline/jp/requirements-test.txt
+
+      - name: Evals
+        run: .venv/bin/python -m pytest pipeline/jp/tests -q
+
+  # Unit tests for the scorePronunciation function (firebase/speech_functions).
+  # They import only score.js, which has no dependencies, and run against the
+  # committed Azure replies with a stubbed HTTP client, so there is no npm
+  # install and no network. ubuntu-latest ships Node; no setup-node action.
+  speech-function-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Function tests
+        run: |
+          node --version
+          node --test firebase/speech_functions/*.test.js

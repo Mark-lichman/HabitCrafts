@@ -1,0 +1,516 @@
+{
+  "lesson": 31,
+  "title": "Plans and Intentions",
+  "points": [
+    {
+      "id": "mari.L31.1",
+      "explain": "The volitional form is the plain version of ましょう ('let's'). It is also used to talk about your own intentions.",
+      "form": "G1 -u→-ou (いこう)／G2 +よう／しよう／こよう",
+      "note": "Use it with friends and family: いきましょう becomes いこう in casual speech.",
+      "examples": [
+        {
+          "jp": "いこう／たべよう／しよう／こよう",
+          "jp_ruby": "行{い}こう／食{た}べよう／しよう／来{こ}よう",
+          "en": "let's go / let's eat / let's do it / let's come"
+        },
+        {
+          "jp": "いっしょに かえろう。",
+          "jp_ruby": "いっしょに 帰{かえ}ろう。",
+          "en": "Let's go home together."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "つかれたね。ちょっと ＿＿。",
+          "prompt_ruby": "つかれたね。ちょっと ＿＿。",
+          "en": "We're tired, huh. Let's take a short rest.",
+          "answer": "やすもう",
+          "answer_ruby": "休{やす}もう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Volitional form of やすみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あした また ＿＿。",
+          "prompt_ruby": "明日{あした} また ＿＿。",
+          "en": "Let's come again tomorrow.",
+          "answer": "こよう",
+          "answer_ruby": "来{こ}よう",
+          "options": [
+            "こよう",
+            "きよう",
+            "くろう"
+          ],
+          "options_ruby": [
+            "来{こ}よう",
+            "来{き}よう",
+            "来{く}ろう"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Volitional form of くる"
+        },
+        {
+          "kind": "choose",
+          "prompt": "おなかが すいたね。なにか ＿＿。",
+          "prompt_ruby": "おなかが すいたね。何{なに}か ＿＿。",
+          "en": "I'm hungry. Let's eat something.",
+          "answer": "たべよう",
+          "answer_ruby": "食{た}べよう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "たべろう",
+            "たべおう",
+            "たべよう"
+          ],
+          "options_ruby": [
+            "食{た}べろう",
+            "食{た}べおう",
+            "食{た}べよう"
+          ],
+          "hint": "Group 2 volitional adds よう to the stem: たべ → たべよう.",
+          "why_wrong": {
+            "たべろう": "Group 2 verbs add よう, not ろう.",
+            "たべおう": "Group 2 verbs add よう; the -ou change is only for Group 1."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "みんなで しゃしんを ＿＿。",
+          "prompt_ruby": "みんなで 写真{しゃしん}を ＿＿。",
+          "en": "Let's all take a photo.",
+          "answer": "とろう",
+          "answer_ruby": "とろう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "とろう",
+            "とりよう",
+            "とおう"
+          ],
+          "options_ruby": [
+            "とろう",
+            "とりよう",
+            "とおう"
+          ],
+          "hint": "Group 1 volitional changes -u to -ou: とる → とろう.",
+          "why_wrong": {
+            "とりよう": "よう is for Group 2; Group 1 とる changes to とろう.",
+            "とおう": "The る becomes ろう, so the form is とろう."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L31.2",
+      "explain": "Volitional form + と おもって います tells someone about your intention or plan, often one you have had for a while.",
+      "form": "いこうけい + と おもって います",
+      "note": "と おもって います can describe other people's plans too; と おもいます is only for the speaker's own decision.",
+      "examples": [
+        {
+          "jp": "らいねん りゅうがくしようと おもっています。",
+          "jp_ruby": "来年{らいねん} りゅうがくしようと 思{おも}っています。",
+          "en": "I'm thinking of studying abroad next year."
+        },
+        {
+          "jp": "なつやすみに うみへ いこうと おもって います。",
+          "jp_ruby": "夏休{なつやす}みに 海{うみ}へ 行{い}こうと 思{おも}って います。",
+          "en": "I'm thinking of going to the beach during summer vacation."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "らいげつ あたらしい パソコンを ＿＿と おもって います。",
+          "prompt_ruby": "来月{らいげつ} 新{あたら}しい パソコンを ＿＿と 思{おも}って います。",
+          "en": "I'm thinking of buying a new computer next month.",
+          "answer": "かおう",
+          "answer_ruby": "買{か}おう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Volitional form of かいます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゅうまつは へやを ＿＿と おもって います。",
+          "prompt_ruby": "しゅうまつは へやを ＿＿と 思{おも}って います。",
+          "en": "I'm thinking of cleaning my room this weekend.",
+          "answer": "そうじしよう",
+          "answer_ruby": "そうじしよう",
+          "options": [
+            "そうじしよう",
+            "そうじしましょう",
+            "そうじして"
+          ],
+          "options_ruby": [
+            "そうじしよう",
+            "そうじしましょう",
+            "そうじして"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Plain volitional form"
+        },
+        {
+          "kind": "choose",
+          "prompt": "らいねん にほんへ ＿＿と おもって います。",
+          "prompt_ruby": "来年{らいねん} 日本{にほん}へ ＿＿と 思{おも}って います。",
+          "en": "I'm thinking of going to Japan next year.",
+          "answer": "いこう",
+          "answer_ruby": "行{い}こう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "いきよう",
+            "いこう",
+            "いけよう"
+          ],
+          "options_ruby": [
+            "行{い}きよう",
+            "行{い}こう",
+            "行{い}けよう"
+          ],
+          "hint": "Group 1 volitional changes -u to -ou: いく → いこう.",
+          "why_wrong": {
+            "いきよう": "よう is for Group 2; Group 1 いく changes to いこう.",
+            "いけよう": "This mixes the potential stem with よう; the volitional is いこう."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しごとを ＿＿と おもって います。",
+          "prompt_ruby": "仕事{しごと}を ＿＿と 思{おも}って います。",
+          "en": "I'm thinking of quitting my job.",
+          "answer": "やめよう",
+          "answer_ruby": "やめよう",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "やめましょう",
+            "やめろう",
+            "やめよう"
+          ],
+          "options_ruby": [
+            "やめましょう",
+            "やめろう",
+            "やめよう"
+          ],
+          "hint": "と おもって います follows the plain volitional form.",
+          "why_wrong": {
+            "やめましょう": "Use the plain volitional, not ましょう, before と おもって います.",
+            "やめろう": "Group 2 verbs add よう, not ろう: やめよう."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L31.3",
+      "explain": "まだ + てForm + いません says something has not happened yet but is still expected to.",
+      "form": "まだ + てForm + いません",
+      "note": "Answer もう 〜ましたか with まだ 〜て いません, not まだ 〜ませんでした.",
+      "examples": [
+        {
+          "jp": "まだ しゅうしょくさきが きまって いません。",
+          "jp_ruby": "まだ しゅうしょくさきが きまって いません。",
+          "en": "I still haven't found a job."
+        },
+        {
+          "jp": "しゅくだいは まだ おわって いません。",
+          "jp_ruby": "しゅくだいは まだ 終{お}わって いません。",
+          "en": "My homework isn't finished yet."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "もう ひるごはんを たべましたか。いいえ、まだ ＿＿ いません。",
+          "prompt_ruby": "もう 昼{ひる}ご飯{はん}を 食{た}べましたか。いいえ、まだ ＿＿ いません。",
+          "en": "Have you had lunch yet? No, not yet.",
+          "answer": "たべて",
+          "answer_ruby": "食{た}べて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "てForm of たべます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "てがみは まだ ＿＿。",
+          "prompt_ruby": "手紙{てがみ}は まだ ＿＿。",
+          "en": "The letter hasn't come yet.",
+          "answer": "きて いません",
+          "answer_ruby": "来{き}て いません",
+          "options": [
+            "きて いません",
+            "きませんでした",
+            "きて ください"
+          ],
+          "options_ruby": [
+            "来{き}て いません",
+            "来{き}ませんでした",
+            "来{き}て ください"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "まだ + てForm + いません"
+        },
+        {
+          "kind": "choose",
+          "prompt": "レポートは もう だしましたか。いいえ、まだ ＿＿。",
+          "prompt_ruby": "レポートは もう 出{だ}しましたか。いいえ、まだ ＿＿。",
+          "en": "Have you turned in the report yet? No, not yet.",
+          "answer": "だして いません",
+          "answer_ruby": "出{だ}して いません",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "だしませんでした",
+            "だして いません",
+            "だして いました"
+          ],
+          "options_ruby": [
+            "出{だ}しませんでした",
+            "出{だ}して いません",
+            "出{だ}して いました"
+          ],
+          "hint": "Answer もう 〜ましたか with まだ + てForm + いません.",
+          "why_wrong": {
+            "だしませんでした": "This means you did not turn it in; 'not yet' needs まだ 〜て いません.",
+            "だして いました": "This is positive, but the answer means 'not yet'."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "たなかさんから ＿＿ メールが きて いません。",
+          "prompt_ruby": "田中{たなか}さんから ＿＿ メールが 来{き}て いません。",
+          "en": "I still haven't gotten an email from Mr. Tanaka.",
+          "answer": "まだ",
+          "answer_ruby": "まだ",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "もう",
+            "よく",
+            "まだ"
+          ],
+          "options_ruby": [
+            "もう",
+            "よく",
+            "まだ"
+          ],
+          "hint": "まだ + てForm + いません means 'not yet'.",
+          "why_wrong": {
+            "もう": "もう with a negative means 'no longer', not 'not yet'.",
+            "よく": "よく means 'often' or 'well', not 'yet'."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L31.4",
+      "explain": "つもりです states a firm intention. Use the dictionary form for what you plan to do and the ない form for what you plan not to do.",
+      "form": "じしょForm／ないForm + つもりです",
+      "note": "Do not use the volitional before つもり: say いく つもりです, not いこう つもりです.",
+      "examples": [
+        {
+          "jp": "らいねん けっこんする つもりです。",
+          "jp_ruby": "来年{らいねん} けっこんする つもりです。",
+          "en": "I plan to get married next year."
+        },
+        {
+          "jp": "もう たばこは すわない つもりです。",
+          "jp_ruby": "もう たばこは すわない つもりです。",
+          "en": "I don't plan to smoke anymore."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "なつやすみは くにへ ＿＿ つもりです。",
+          "prompt_ruby": "夏休{なつやす}みは 国{くに}へ ＿＿ つもりです。",
+          "en": "I plan to go back to my country over summer vacation.",
+          "answer": "かえる",
+          "answer_ruby": "帰{かえ}る",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Dictionary form of かえります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "きょうは おさけを ＿＿ つもりです。",
+          "prompt_ruby": "今日{きょう}は おさけを ＿＿ つもりです。",
+          "en": "I plan not to drink today.",
+          "answer": "のまない",
+          "answer_ruby": "飲{の}まない",
+          "options": [
+            "のまない",
+            "のみません",
+            "のもう"
+          ],
+          "options_ruby": [
+            "飲{の}まない",
+            "飲{の}みません",
+            "飲{の}もう"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "ないForm before つもり"
+        },
+        {
+          "kind": "choose",
+          "prompt": "らいねん だいがくに ＿＿ つもりです。",
+          "prompt_ruby": "来年{らいねん} 大学{だいがく}に ＿＿ つもりです。",
+          "en": "I plan to enter university next year.",
+          "answer": "はいる",
+          "answer_ruby": "入{はい}る",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "はいろう",
+            "はいる",
+            "はいります"
+          ],
+          "options_ruby": [
+            "入{はい}ろう",
+            "入{はい}る",
+            "入{はい}ります"
+          ],
+          "hint": "つもりです follows the dictionary form.",
+          "why_wrong": {
+            "はいろう": "The volitional form cannot come before つもり.",
+            "はいります": "The polite ます form cannot come before つもり."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "もう あの みせには ＿＿ つもりです。",
+          "prompt_ruby": "もう あの 店{みせ}には ＿＿ つもりです。",
+          "en": "I don't plan to go to that store anymore.",
+          "answer": "いかない",
+          "answer_ruby": "行{い}かない",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "いかないで",
+            "いきません",
+            "いかない"
+          ],
+          "options_ruby": [
+            "行{い}かないで",
+            "行{い}きません",
+            "行{い}かない"
+          ],
+          "hint": "A plan not to do something uses the ないForm + つもりです.",
+          "why_wrong": {
+            "いかないで": "つもり follows the ないForm itself, not ないで.",
+            "いきません": "The polite form cannot come before つもり."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L31.5",
+      "explain": "よていです states a scheduled plan, such as a trip, a meeting, or an arrival time.",
+      "form": "じしょForm／Nの + よていです",
+      "note": "After a noun, add の: しゅっちょうの よていです.",
+      "examples": [
+        {
+          "jp": "らいしゅう しゅっちょうする よていです。",
+          "jp_ruby": "来週{らいしゅう} しゅっちょうする よていです。",
+          "en": "I'm scheduled to go on a business trip next week."
+        },
+        {
+          "jp": "ひこうきは さんじに つく よていです。",
+          "jp_ruby": "ひこうきは 三時{さんじ}に 着{つ}く よていです。",
+          "en": "The plane is scheduled to arrive at three."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "かいぎは ごご にじに ＿＿ よていです。",
+          "prompt_ruby": "かいぎは 午後{ごご} 二時{にじ}に ＿＿ よていです。",
+          "en": "The meeting is scheduled to start at 2 p.m.",
+          "answer": "はじまる",
+          "answer_ruby": "始{はじ}まる",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Dictionary form of はじまります"
+        },
+        {
+          "kind": "choose",
+          "prompt": "あしたは テスト＿＿ よていです。",
+          "prompt_ruby": "明日{あした}は テスト＿＿ よていです。",
+          "en": "A test is scheduled for tomorrow.",
+          "answer": "の",
+          "answer_ruby": "の",
+          "options": [
+            "の",
+            "な",
+            "を"
+          ],
+          "options_ruby": [
+            "の",
+            "な",
+            "を"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Particle joining a noun to よてい"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しんかんせんは ごじに とうきょうを ＿＿ よていです。",
+          "prompt_ruby": "しんかんせんは 五時{ごじ}に 東京{とうきょう}を ＿＿ よていです。",
+          "en": "The bullet train is scheduled to leave Tokyo at five.",
+          "answer": "でる",
+          "answer_ruby": "出{で}る",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "でた",
+            "でます",
+            "でる"
+          ],
+          "options_ruby": [
+            "出{で}た",
+            "出{で}ます",
+            "出{で}る"
+          ],
+          "hint": "A scheduled plan uses the dictionary form + よていです.",
+          "why_wrong": {
+            "でた": "A plan that has not happened yet uses the dictionary form, not the たForm.",
+            "でます": "The polite form cannot come before よてい."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "つまは らいげつ くにへ ＿＿ よていです。",
+          "prompt_ruby": "つまは 来月{らいげつ} 国{くに}へ ＿＿ よていです。",
+          "en": "My wife is scheduled to go back to her country next month.",
+          "answer": "かえる",
+          "answer_ruby": "帰{かえ}る",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "かえって",
+            "かえる",
+            "かえろう"
+          ],
+          "options_ruby": [
+            "帰{かえ}って",
+            "帰{かえ}る",
+            "帰{かえ}ろう"
+          ],
+          "hint": "よていです follows the dictionary form.",
+          "why_wrong": {
+            "かえって": "The てForm cannot come before よてい.",
+            "かえろう": "The volitional form cannot come before よてい."
+          }
+        }
+      ]
+    }
+  ]
+}

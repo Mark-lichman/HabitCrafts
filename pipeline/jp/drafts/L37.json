@@ -1,0 +1,426 @@
+{
+  "lesson": 37,
+  "title": "The Passive Voice",
+  "points": [
+    {
+      "id": "mari.L37.1",
+      "explain": "The passive form shows that the subject receives an action, like 'is read' or 'was eaten.' Each verb group builds it differently.",
+      "form": "I: あ row＋れる／II: る→られる／する→される／くる→こられる",
+      "note": "Group I verbs ending in う use わ: かう becomes かわれる, and いう becomes いわれる.",
+      "examples": [
+        {
+          "jp": "よまれる／たべられる／される／こられる",
+          "jp_ruby": "読{よ}まれる／食{た}べられる／される／来{こ}られる",
+          "en": "passive of よむ, たべる, する, くる"
+        },
+        {
+          "jp": "いわれる／しかられる／ほめられる",
+          "jp_ruby": "言{い}われる／しかられる／ほめられる",
+          "en": "passive of いう, しかる, ほめる"
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "せんせいに ＿＿。",
+          "prompt_ruby": "先生{せんせい}に ＿＿。",
+          "en": "I was scolded by my teacher.",
+          "answer": "しかられました",
+          "answer_ruby": "しかられました",
+          "accepted": [
+            "おこられました"
+          ],
+          "accepted_ruby": [
+            "おこられました"
+          ],
+          "hint": "passive of しかります, polite past"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ともだちに パーティーに ＿＿。",
+          "prompt_ruby": "ともだちに パーティーに ＿＿。",
+          "en": "I was invited to a party by a friend.",
+          "answer": "よばれました",
+          "answer_ruby": "よばれました",
+          "options": [
+            "よばれました",
+            "よばられました",
+            "よびれました"
+          ],
+          "options_ruby": [
+            "よばれました",
+            "よばられました",
+            "よびれました"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Group I: change the last sound to the あ row"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは ともだちに えいがに ＿＿。",
+          "prompt_ruby": "私{わたし}は ともだちに 映画{えいが}に ＿＿。",
+          "en": "I was invited to a movie by a friend.",
+          "answer": "さそわれました",
+          "answer_ruby": "さそわれました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "さそいれました",
+            "さそわれました",
+            "さそられました"
+          ],
+          "options_ruby": [
+            "さそいれました",
+            "さそわれました",
+            "さそられました"
+          ],
+          "hint": "Group I verbs ending in う use わ in the passive: さそう becomes さそわれる.",
+          "why_wrong": {
+            "さそいれました": "Group I passive uses the あ row; for う that sound is わ.",
+            "さそられました": "The う ending changes to わ, not ら: さそわれました."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "この スポーツは せかいじゅうで ＿＿ います。",
+          "prompt_ruby": "この スポーツは 世界中{せかいじゅう}で ＿＿ います。",
+          "en": "This sport is played all over the world.",
+          "answer": "されて",
+          "answer_ruby": "されて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "すられて",
+            "されて",
+            "されれて"
+          ],
+          "options_ruby": [
+            "すられて",
+            "されて",
+            "されれて"
+          ],
+          "hint": "します is irregular: its passive is される.",
+          "why_wrong": {
+            "すられて": "する does not follow the Group I pattern; its passive is される.",
+            "されれて": "There is only one れ: される becomes されて."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L37.2",
+      "explain": "Use this to say someone did something to you, often something unwelcome. You are the topic with は, and the doer takes に.",
+      "form": "Personは Personに ＋ Passive",
+      "note": "The doer takes に, not が: わたしは せんせいに しかられました.",
+      "examples": [
+        {
+          "jp": "わたしは あにに おかしを たべられました。",
+          "jp_ruby": "私{わたし}は 兄{あに}に おかしを 食{た}べられました。",
+          "en": "My older brother ate my sweets (and I was upset)."
+        },
+        {
+          "jp": "わたしは せんせいに ほめられました。",
+          "jp_ruby": "私{わたし}は 先生{せんせい}に ほめられました。",
+          "en": "I was praised by my teacher."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "わたしは ぶちょう＿＿ よばれました。",
+          "prompt_ruby": "私{わたし}は ぶちょう＿＿ よばれました。",
+          "en": "I was called by the department manager.",
+          "answer": "に",
+          "answer_ruby": "に",
+          "accepted": [
+            "から"
+          ],
+          "accepted_ruby": [
+            "から"
+          ],
+          "hint": "the particle that marks the doer"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは あさ はやく おとうとに ＿＿。",
+          "prompt_ruby": "私{わたし}は 朝{あさ} 早{はや}く 弟{おとうと}に ＿＿。",
+          "en": "I was woken up early in the morning by my little brother.",
+          "answer": "おこされました",
+          "answer_ruby": "起{お}こされました",
+          "options": [
+            "おこされました",
+            "おこしました",
+            "おこして"
+          ],
+          "options_ruby": [
+            "起{お}こされました",
+            "起{お}こしました",
+            "起{お}こして"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "passive of おこします, polite past"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは ＿＿ けっこんしきに しょうたいされました。",
+          "prompt_ruby": "私{わたし}は ＿＿ けっこんしきに しょうたいされました。",
+          "en": "I was invited to the wedding by Mr. Kimura.",
+          "answer": "きむらさんに",
+          "answer_ruby": "きむらさんに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "きむらさんが",
+            "きむらさんを",
+            "きむらさんに"
+          ],
+          "options_ruby": [
+            "きむらさんが",
+            "きむらさんを",
+            "きむらさんに"
+          ],
+          "hint": "In a passive sentence, the person who does the action takes に.",
+          "why_wrong": {
+            "きむらさんが": "わたしは is the subject; the doer of a passive takes に, not が.",
+            "きむらさんを": "を marks an object; the doer of a passive takes に."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは ぶちょうに ＿＿。",
+          "prompt_ruby": "私{わたし}は ぶちょうに ＿＿。",
+          "en": "I was warned by the department manager.",
+          "answer": "ちゅういされました",
+          "answer_ruby": "注意{ちゅうい}されました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "ちゅういしられました",
+            "ちゅういされました",
+            "ちゅういされれました"
+          ],
+          "options_ruby": [
+            "注意{ちゅうい}しられました",
+            "注意{ちゅうい}されました",
+            "注意{ちゅうい}されれました"
+          ],
+          "hint": "For します verbs, the passive is される: ちゅういされます.",
+          "why_wrong": {
+            "ちゅういしられました": "します becomes される in the passive, not しられる.",
+            "ちゅういされれました": "There is only one れ: ちゅういされました."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L37.3",
+      "explain": "Use this when someone does something to your belongings or body. You stay the topic, and the thing affected takes を.",
+      "form": "Personは Personに Nを ＋ Passive",
+      "note": "Say わたしは あしを ふまれました, not わたしの あしは ふまれました.",
+      "examples": [
+        {
+          "jp": "わたしは でんしゃで あしを ふまれました。",
+          "jp_ruby": "私{わたし}は 電車{でんしゃ}で 足{あし}を ふまれました。",
+          "en": "Someone stepped on my foot on the train."
+        },
+        {
+          "jp": "わたしは おとうとに パソコンを こわされました。",
+          "jp_ruby": "私{わたし}は 弟{おとうと}に パソコンを こわされました。",
+          "en": "My little brother broke my computer."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "わたしは だれかに さいふを ＿＿。",
+          "prompt_ruby": "私{わたし}は だれかに さいふを ＿＿。",
+          "en": "Someone stole my wallet.",
+          "answer": "とられました",
+          "answer_ruby": "とられました",
+          "accepted": [
+            "ぬすまれました"
+          ],
+          "accepted_ruby": [
+            "ぬすまれました"
+          ],
+          "hint": "passive of とります, polite past"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは いもうとに にっきを ＿＿。",
+          "prompt_ruby": "私{わたし}は 妹{いもうと}に にっきを ＿＿。",
+          "en": "My little sister read my diary.",
+          "answer": "よまれました",
+          "answer_ruby": "読{よ}まれました",
+          "options": [
+            "よまれました",
+            "よみられました",
+            "よまらました"
+          ],
+          "options_ruby": [
+            "読{よ}まれました",
+            "読{よ}みられました",
+            "読{よ}まらました"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "passive of よみます, polite past"
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは ねこに カップ＿＿ こわされました。",
+          "prompt_ruby": "私{わたし}は ねこに カップ＿＿ こわされました。",
+          "en": "My cat broke my cup.",
+          "answer": "を",
+          "answer_ruby": "を",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "が",
+            "に",
+            "を"
+          ],
+          "options_ruby": [
+            "が",
+            "に",
+            "を"
+          ],
+          "hint": "The thing that was affected keeps を in this passive.",
+          "why_wrong": {
+            "が": "わたしは is the subject; the affected thing keeps を.",
+            "に": "に already marks the cat, the doer; the cup takes を."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "わたしは こどもに ふくを ＿＿。",
+          "prompt_ruby": "私{わたし}は こどもに 服{ふく}を ＿＿。",
+          "en": "A child got my clothes dirty.",
+          "answer": "よごされました",
+          "answer_ruby": "よごされました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "よごしました",
+            "よごしられました",
+            "よごされました"
+          ],
+          "options_ruby": [
+            "よごしました",
+            "よごしられました",
+            "よごされました"
+          ],
+          "hint": "Use the passive when someone does something to your things: よごします becomes よごされます.",
+          "why_wrong": {
+            "よごしました": "This is active: it says I got them dirty, but the child did.",
+            "よごしられました": "Group I passive uses the あ row: よごさ＋れる, so よごされる."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L37.4",
+      "explain": "Use the passive with a thing as the subject when the doer is unknown or unimportant, for facts like when something was built or what it is made from.",
+      "form": "Nが／は ＋ Passive",
+      "note": "To name the creator of a work, use によって, not に: この えは ピカソによって かかれました.",
+      "examples": [
+        {
+          "jp": "この おてらは 1400ねんに たてられました。",
+          "jp_ruby": "この おてらは 1400年{ねん}に 建{た}てられました。",
+          "en": "This temple was built in 1400."
+        },
+        {
+          "jp": "ワインは ぶどうから つくられます。",
+          "jp_ruby": "ワインは ぶどうから 作{つく}られます。",
+          "en": "Wine is made from grapes."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "この ほんは せかいじゅうで ＿＿ います。",
+          "prompt_ruby": "この 本{ほん}は 世界中{せかいじゅう}で ＿＿ います。",
+          "en": "This book is read all over the world.",
+          "answer": "よまれて",
+          "answer_ruby": "読{よ}まれて",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "passive て form of よみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "らいげつ ここで かいぎが ＿＿。",
+          "prompt_ruby": "来月{らいげつ} ここで かいぎが ＿＿。",
+          "en": "A meeting will be held here next month.",
+          "answer": "ひらかれます",
+          "answer_ruby": "開{ひら}かれます",
+          "options": [
+            "ひらかれます",
+            "ひらかられます",
+            "ひらけられます"
+          ],
+          "options_ruby": [
+            "開{ひら}かれます",
+            "開{ひら}かられます",
+            "開{ひら}けられます"
+          ],
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "passive of ひらきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "この カメラは にほんで ＿＿。",
+          "prompt_ruby": "この カメラは 日本{にほん}で ＿＿。",
+          "en": "This camera was made in Japan.",
+          "answer": "つくられました",
+          "answer_ruby": "作{つく}られました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "つくらられました",
+            "つくられました",
+            "つくりられました"
+          ],
+          "options_ruby": [
+            "作{つく}らられました",
+            "作{つく}られました",
+            "作{つく}りられました"
+          ],
+          "hint": "Group I passive: change the last sound to the あ row and add れる.",
+          "why_wrong": {
+            "つくらられました": "Group I verbs add れる, not られる: つくられる.",
+            "つくりられました": "Use the あ row, not the ます stem: つくら＋れる."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "この えは ゴッホ＿＿ かかれました。",
+          "prompt_ruby": "この えは ゴッホ＿＿ かかれました。",
+          "en": "This painting was painted by Van Gogh.",
+          "answer": "によって",
+          "answer_ruby": "によって",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "から",
+            "によって",
+            "を"
+          ],
+          "options_ruby": [
+            "から",
+            "によって",
+            "を"
+          ],
+          "hint": "To name the creator of a work in the passive, use によって.",
+          "why_wrong": {
+            "から": "から shows a source or material, not who created a work.",
+            "を": "を marks an object; the creator takes によって."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -34,6 +34,28 @@ subprojects {
                     }
                 }
             }
+
+        // A plugin has no business minifying its own library module. R8 runs there with
+        // no consumer keep rules and strips the plugin's own entry class; the app module
+        // never sees it, so the app's -keep rules cannot save it and the app's usage.txt
+        // never mentions it. At runtime GeneratedPluginRegistrant then throws
+        // ClassNotFoundException and ABORTS REGISTRATION OF EVERY PLUGIN AFTER IT, which
+        // presents as an unrelated hang: shared_preferences never registers and Dart
+        // blocks forever on SharedPreferencesApi.getAll().
+        //
+        // flutter_open_app_settings 0.1.4 does exactly this. Shrinking belongs to the app
+        // module, which is the only place that owns the keep rules.
+        //
+        // Verify: a release build must define the class, not merely reference it.
+        //   dexdump -f classes*.dex | grep -i FlutterOpenAppSettings
+        if (project.plugins.hasPlugin("com.android.library")) {
+            project.android.buildTypes.all { bt ->
+                if (bt.minifyEnabled) {
+                    println "Disabling minifyEnabled on library module '${project.name}' (${bt.name})"
+                    bt.minifyEnabled = false
+                }
+            }
+        }
     }
 }
 subprojects {

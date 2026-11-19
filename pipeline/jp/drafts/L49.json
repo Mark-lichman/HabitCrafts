@@ -1,0 +1,424 @@
+{
+  "lesson": 49,
+  "title": "Respectful Language for Others",
+  "points": [
+    {
+      "id": "mari.L49.1",
+      "explain": "The passive form can also show respect for what someone else does, like a boss or teacher. The meaning stays active.",
+      "form": "うけみけい (〜(ら)れます)",
+      "note": "Never use it for your own actions. It is a lighter level of respect than お + ますForm + に なります.",
+      "examples": [
+        {
+          "jp": "しゃちょうは もう かえられました。",
+          "jp_ruby": "社長{しゃちょう}は もう 帰{かえ}られました。",
+          "en": "The company president has already gone home."
+        },
+        {
+          "jp": "ぶちょうは あした おおさかへ いかれます。",
+          "jp_ruby": "ぶちょうは 明日{あした} おおさかへ 行{い}かれます。",
+          "en": "The department manager will go to Osaka tomorrow."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "せんせいは まいあさ しんぶんを ＿＿か。",
+          "prompt_ruby": "先生{せんせい}は 毎朝{まいあさ} 新聞{しんぶん}を ＿＿か。",
+          "en": "Does the teacher read the newspaper every morning?",
+          "answer": "よまれます",
+          "answer_ruby": "読{よ}まれます",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Respectful passive form of よみます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゃちょうは さっき ＿＿。",
+          "prompt_ruby": "社長{しゃちょう}は さっき ＿＿。",
+          "en": "The company president went out a little while ago.",
+          "answer": "でかけられました",
+          "answer_ruby": "出{で}かけられました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Group 2 verb + られます",
+          "options": [
+            "でかけられました",
+            "でかけられせました",
+            "でかけされました"
+          ],
+          "options_ruby": [
+            "出{で}かけられました",
+            "出{で}かけられせました",
+            "出{で}かけされました"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいは なんじに ＿＿か。",
+          "prompt_ruby": "先生{せんせい}は 何時{なんじ}に ＿＿か。",
+          "en": "What time will the teacher come?",
+          "answer": "こられます",
+          "answer_ruby": "来{こ}られます",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "きられます",
+            "まいります",
+            "こられます"
+          ],
+          "options_ruby": [
+            "来{き}られます",
+            "まいります",
+            "来{こ}られます"
+          ],
+          "hint": "くる is irregular: its respectful passive is こられる.",
+          "why_wrong": {
+            "きられます": "くる changes to こ, not き: こられます.",
+            "まいります": "まいります is humble, for your own coming, never the teacher's."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゃちょうは らいしゅう アメリカへ しゅっちょう＿＿。",
+          "prompt_ruby": "社長{しゃちょう}は 来週{らいしゅう} アメリカへ しゅっちょう＿＿。",
+          "en": "The company president will go on a business trip to America next week.",
+          "answer": "されます",
+          "answer_ruby": "されます",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "させます",
+            "されます",
+            "いたします"
+          ],
+          "options_ruby": [
+            "させます",
+            "されます",
+            "いたします"
+          ],
+          "hint": "する becomes される to show respect for someone else's action.",
+          "why_wrong": {
+            "させます": "させる is causative, 'make someone go', not respect.",
+            "いたします": "いたします is humble, for your own actions, not the president's."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L49.2",
+      "explain": "お + ます stem + に なります is a respectful way to describe what a superior or customer does. It is more polite than the passive form.",
+      "form": "お + ますForm + に なります",
+      "note": "It doesn't work for short verbs like みます or います. Use special verbs like ごらんに なります or いらっしゃいます instead.",
+      "examples": [
+        {
+          "jp": "しゃちょうは もう おかえりに なりました。",
+          "jp_ruby": "社長{しゃちょう}は もう お帰{かえ}りに なりました。",
+          "en": "The company president has already gone home."
+        },
+        {
+          "jp": "ぶちょうは もう この しりょうを およみに なりましたか。",
+          "jp_ruby": "ぶちょうは もう この しりょうを お読{よ}みに なりましたか。",
+          "en": "Has the manager already read these documents?"
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "しゃちょうは もう ＿＿ なりましたか。",
+          "prompt_ruby": "社長{しゃちょう}は もう ＿＿ なりましたか。",
+          "en": "Has the company president already gone out?",
+          "answer": "おでかけに",
+          "answer_ruby": "お出{で}かけに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "お + ます stem of でかけます + に"
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいは どの ほんを ＿＿ なりましたか。",
+          "prompt_ruby": "先生{せんせい}は どの 本{ほん}を ＿＿ なりましたか。",
+          "en": "Which book did the teacher buy?",
+          "answer": "おかいに",
+          "answer_ruby": "お買{か}いに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "お + ます stem + に",
+          "options": [
+            "おかいに",
+            "おかうに",
+            "かいに"
+          ],
+          "options_ruby": [
+            "お買{か}いに",
+            "お買{か}うに",
+            "買{か}いに"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせいが この ほんを ＿＿か。",
+          "prompt_ruby": "先生{せんせい}が この 本{ほん}を ＿＿か。",
+          "en": "Did the teacher write this book?",
+          "answer": "おかきに なりました",
+          "answer_ruby": "お書{か}きに なりました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おかきしました",
+            "おかきに なりました",
+            "おかきに しました"
+          ],
+          "options_ruby": [
+            "お書{か}きしました",
+            "お書{か}きに なりました",
+            "お書{か}きに しました"
+          ],
+          "hint": "For a superior's action, use お + ます stem + に なります.",
+          "why_wrong": {
+            "おかきしました": "お + stem + します is humble, for your own actions only.",
+            "おかきに しました": "The respectful pattern ends in なります, not します."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゃちょうは もう ＿＿ なりました。",
+          "prompt_ruby": "社長{しゃちょう}は もう ＿＿ なりました。",
+          "en": "The company president has already gone to bed.",
+          "answer": "おやすみに",
+          "answer_ruby": "お休{やす}みに",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おやすむに",
+            "おやすみで",
+            "おやすみに"
+          ],
+          "options_ruby": [
+            "お休{やす}むに",
+            "お休{やす}みで",
+            "お休{やす}みに"
+          ],
+          "hint": "Use お + the ます stem やすみ + に before なります.",
+          "why_wrong": {
+            "おやすむに": "Use the ます stem やすみ, not the dictionary form やすむ.",
+            "おやすみで": "The pattern needs に before なります, not で."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L49.3",
+      "explain": "Some common verbs have their own respectful forms, such as いらっしゃいます (go, come, be), めしあがります (eat, drink), and おっしゃいます (say).",
+      "form": "いらっしゃいます・めしあがります・おっしゃいます など",
+      "note": "Use these only for other people. For your own eating, say いただきます (humble), never めしあがります.",
+      "examples": [
+        {
+          "jp": "せんせいは もう めしあがりましたか。",
+          "jp_ruby": "先生{せんせい}は もう めしあがりましたか。",
+          "en": "Have you already eaten, sensei?"
+        },
+        {
+          "jp": "しゃちょうは いま かいぎしつに いらっしゃいます。",
+          "jp_ruby": "社長{しゃちょう}は 今{いま} かいぎしつに いらっしゃいます。",
+          "en": "The company president is in the meeting room now."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "せんせい、あした パーティーに ＿＿か。",
+          "prompt_ruby": "先生{せんせい}、明日{あした} パーティーに ＿＿か。",
+          "en": "Sensei, will you come to the party tomorrow?",
+          "answer": "いらっしゃいます",
+          "answer_ruby": "いらっしゃいます",
+          "accepted": [
+            "おいでに なります",
+            "おこしに なります",
+            "みえます",
+            "おみえに なります"
+          ],
+          "accepted_ruby": [
+            "おいでに なります",
+            "おこしに なります",
+            "見{み}えます",
+            "お見{み}えに なります"
+          ],
+          "hint": "Special respectful verb for きます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "ぶちょうが そう ＿＿。",
+          "prompt_ruby": "ぶちょうが そう ＿＿。",
+          "en": "The department manager said so.",
+          "answer": "おっしゃいました",
+          "answer_ruby": "おっしゃいました",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Special respectful verb for いいます",
+          "options": [
+            "おっしゃいました",
+            "もうしました",
+            "まいりました"
+          ],
+          "options_ruby": [
+            "おっしゃいました",
+            "もうしました",
+            "まいりました"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "せんせい、なにを ＿＿か。",
+          "prompt_ruby": "先生{せんせい}、何{なに}を ＿＿か。",
+          "en": "Sensei, what would you like to drink?",
+          "answer": "めしあがります",
+          "answer_ruby": "めしあがります",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "いただきます",
+            "めしあがります",
+            "おのみします"
+          ],
+          "options_ruby": [
+            "いただきます",
+            "めしあがります",
+            "お飲{の}みします"
+          ],
+          "hint": "めしあがります is the respectful verb for another person's eating or drinking.",
+          "why_wrong": {
+            "いただきます": "いただきます is humble, for your own eating, not the teacher's.",
+            "おのみします": "お + stem + します is humble, never for the listener's actions."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "しゃちょうは いま どちらに ＿＿か。",
+          "prompt_ruby": "社長{しゃちょう}は 今{いま} どちらに ＿＿か。",
+          "en": "Where is the company president now?",
+          "answer": "いらっしゃいます",
+          "answer_ruby": "いらっしゃいます",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おります",
+            "いらっしゃいます",
+            "まいります"
+          ],
+          "options_ruby": [
+            "おります",
+            "いらっしゃいます",
+            "まいります"
+          ],
+          "hint": "いらっしゃいます is the respectful verb for a superior being somewhere.",
+          "why_wrong": {
+            "おります": "おります is humble, for yourself or your group, not the president.",
+            "まいります": "まいります is humble 'go or come', not 'be', and only for yourself."
+          }
+        }
+      ]
+    },
+    {
+      "id": "mari.L49.4",
+      "explain": "お + ます stem + ください is a respectful way to ask a customer or superior to do something. It is more polite than てください.",
+      "form": "お + ますForm + ください",
+      "note": "Like お〜に なります, it doesn't work for short verbs such as みます. Say ごらんください instead.",
+      "examples": [
+        {
+          "jp": "どうぞ おかけください。",
+          "jp_ruby": "どうぞ おかけください。",
+          "en": "Please have a seat."
+        },
+        {
+          "jp": "こちらで おまちください。",
+          "jp_ruby": "こちらで お待{ま}ちください。",
+          "en": "Please wait here."
+        }
+      ],
+      "practice": [
+        {
+          "kind": "fill",
+          "prompt": "ここに なまえを ＿＿ください。",
+          "prompt_ruby": "ここに 名前{なまえ}を ＿＿ください。",
+          "en": "Please write your name here.",
+          "answer": "おかき",
+          "answer_ruby": "お書{か}き",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "お + ます stem of かきます"
+        },
+        {
+          "kind": "choose",
+          "prompt": "どうぞ ＿＿ください。",
+          "prompt_ruby": "どうぞ ＿＿ください。",
+          "en": "Please take a look.",
+          "answer": "ごらん",
+          "answer_ruby": "ごらん",
+          "accepted": [],
+          "accepted_ruby": [],
+          "hint": "Special respectful word for みます",
+          "options": [
+            "ごらん",
+            "おみ",
+            "おみて"
+          ],
+          "options_ruby": [
+            "ごらん",
+            "お見{み}",
+            "お見{み}て"
+          ]
+        },
+        {
+          "kind": "choose",
+          "prompt": "どうぞ なかへ ＿＿ください。",
+          "prompt_ruby": "どうぞ 中{なか}へ ＿＿ください。",
+          "en": "Please come inside.",
+          "answer": "おはいり",
+          "answer_ruby": "お入{はい}り",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おはいって",
+            "はいり",
+            "おはいり"
+          ],
+          "options_ruby": [
+            "お入{はい}って",
+            "入{はい}り",
+            "お入{はい}り"
+          ],
+          "hint": "Use お + the ます stem directly before ください.",
+          "why_wrong": {
+            "おはいって": "お joins the ます stem はいり, not the てForm.",
+            "はいり": "Without お, the ます stem cannot go before ください."
+          }
+        },
+        {
+          "kind": "choose",
+          "prompt": "どうぞ この ペンを ＿＿。",
+          "prompt_ruby": "どうぞ この ペンを ＿＿。",
+          "en": "Please use this pen.",
+          "answer": "おつかいください",
+          "answer_ruby": "お使{つか}いください",
+          "accepted": [],
+          "accepted_ruby": [],
+          "options": [
+            "おつかいください",
+            "おつかいします",
+            "つかいください"
+          ],
+          "options_ruby": [
+            "お使{つか}いください",
+            "お使{つか}いします",
+            "使{つか}いください"
+          ],
+          "hint": "To ask a customer to act, use お + ます stem + ください.",
+          "why_wrong": {
+            "おつかいします": "お + stem + します is humble: 'I will use it', not a request.",
+            "つかいください": "The ます stem needs お in front before ください."
+          }
+        }
+      ]
+    }
+  ]
+}

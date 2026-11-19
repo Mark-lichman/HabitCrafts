@@ -1,0 +1,1941 @@
+{
+ "source_id": "s04_mari_checklist",
+ "sha256": "31c22adfd04121155eeabaaf4687797df5dcbbdf2a5224d994423901153cbb59",
+ "state": "needs_review",
+ "item_count": 89,
+ "validation": {
+  "passed": true,
+  "failures": []
+ },
+ "review_notes": [
+  "mari.L33.3: example has kanji or Latin, check the app can show it: '「立入禁止」は はいっては いけないという いみです。'",
+  "mari.L39.4: typo in the sheet, ふつうFrom for ふつうForm (read as plain form)",
+  "mari.L31.1: engine reproduces Mari's examples ['いこう', 'たべよう', 'しよう', 'こよう']",
+  "mari.L33.1: engine reproduces Mari's examples ['とまれ', 'はいるな']",
+  "mari.L37.1: engine reproduces Mari's examples ['よまれる', 'たべられる', 'される', 'こられる']",
+  "mari.L48.1: engine reproduces Mari's examples ['いかせる', 'たべさせる', 'させる', 'こさせる']",
+  "mari.L42.3: 3にち in 'この しごとに 3にちも かかりました。' reads みっか. Write it in kana so the app does not teach the wrong sound."
+ ],
+ "particles": [
+  {
+   "id": "mari.particle.1",
+   "expression": "によって",
+   "meaning": "By (means of) / depending on",
+   "example": "この おてらは ゆうめいな だいくに よって たてられました。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.2",
+   "expression": "として",
+   "meaning": "As (in the capacity/role of)",
+   "example": "つうやくとして はたらいて います。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.3",
+   "expression": "にとって",
+   "meaning": "For (from someone's perspective)",
+   "example": "これは わたしに とって たいせつな ものです。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.4",
+   "expression": "について",
+   "meaning": "About / concerning",
+   "example": "にほんの れきしに ついて しらべて います。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.5",
+   "expression": "ように",
+   "meaning": "So that (purpose)",
+   "example": "わすれないように、メモを します。",
+   "taught_in": [
+    36
+   ]
+  },
+  {
+   "id": "mari.particle.6",
+   "expression": "ために",
+   "meaning": "For the sake of / in order to",
+   "example": "かぞくの ために、はたらいて います。",
+   "taught_in": [
+    42
+   ]
+  },
+  {
+   "id": "mari.particle.7",
+   "expression": "のに",
+   "meaning": "Even though (contrast)",
+   "example": "やくそくしたのに、きませんでした。",
+   "taught_in": [
+    42,
+    45
+   ]
+  },
+  {
+   "id": "mari.particle.8",
+   "expression": "ばかり",
+   "meaning": "Only / just",
+   "example": "あそんで ばかり います。",
+   "taught_in": [
+    46
+   ]
+  },
+  {
+   "id": "mari.particle.9",
+   "expression": "でも",
+   "meaning": "Even (emphasis)",
+   "example": "こどもでも わかります。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.10",
+   "expression": "ながら",
+   "meaning": "While (two actions at once)",
+   "example": "あるきながら、はなします。",
+   "taught_in": [
+    28
+   ]
+  },
+  {
+   "id": "mari.particle.11",
+   "expression": "とおりに",
+   "meaning": "Exactly as",
+   "example": "せつめいの とおりに やって ください。",
+   "taught_in": [
+    34
+   ]
+  },
+  {
+   "id": "mari.particle.12",
+   "expression": "しか〜ません",
+   "meaning": "Only (with a negative verb)",
+   "example": "すこししか わかりません。",
+   "taught_in": [
+    27
+   ]
+  },
+  {
+   "id": "mari.particle.13",
+   "expression": "けれど（も）",
+   "meaning": "Though / but",
+   "example": "たかいけれど、かいます。",
+   "taught_in": []
+  },
+  {
+   "id": "mari.particle.14",
+   "expression": "ので",
+   "meaning": "Because (polite, objective reason)",
+   "example": "あめなので、いえに います。",
+   "taught_in": [
+    39
+   ]
+  },
+  {
+   "id": "mari.particle.15",
+   "expression": "まま",
+   "meaning": "As it is / while in a certain state",
+   "example": "くつを はいた まま、はいらないで ください。",
+   "taught_in": []
+  }
+ ],
+ "lessons": [
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50
+ ],
+ "notes_links": {
+  "26": "https://canva.link/e8ajc42q1hyr7pz",
+  "27": "https://canva.link/7ugqaxg82i7g89i",
+  "28": "https://canva.link/jnkaqj1ubuzlgpm",
+  "29": "https://canva.link/rhz6s3fhcn5i2rg",
+  "30": "https://canva.link/v5bxnx84rrcgii4",
+  "31": "https://canva.link/4qv74ly81p8ykr2",
+  "32": "https://canva.link/9va0qxjijd260l4",
+  "33": "https://canva.link/uaw0louq4g1wuvb",
+  "34": "https://canva.link/rb0rqazz11nojm7",
+  "35": "https://canva.link/2powtjii4gxxzg9",
+  "36": "https://canva.link/8y94bz0mcdtjuch",
+  "37": "https://canva.link/nbk3eakoe0jw9ff",
+  "38": "https://canva.link/kft3qq04921jh0q",
+  "39": "https://canva.link/oot0dlpn6u8bqb5",
+  "40": "https://canva.link/o0ritydhey6iobs",
+  "41": "https://canva.link/2ba5upe6rztcdnz",
+  "42": "https://canva.link/8ayprejl7qgdj4m",
+  "43": "https://canva.link/jx08zuc6yish4fz",
+  "44": "https://canva.link/u23a0v5r1inaued",
+  "45": "https://canva.link/cndrrmkm7jh3r34",
+  "46": "https://canva.link/rhsnrcczb0lvcmu",
+  "47": "https://canva.link/azwvoeu86mcjt3d",
+  "48": "https://canva.link/ntsw85lcsjwxl8r",
+  "49": "https://canva.link/uh032qgk1ox19ak",
+  "50": "https://canva.link/s180pj0y6rvc6yt"
+ },
+ "items": [
+  {
+   "id": "mari.L26.1",
+   "lesson": 26,
+   "no": 1,
+   "pattern": "ふつうForm＋んです（explanation）",
+   "example": "あたまが いたいんです。",
+   "goal": "Explain a reason or circumstance",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 26",
+    "url": "https://canva.link/e8ajc42q1hyr7pz"
+   }
+  },
+  {
+   "id": "mari.L26.2",
+   "lesson": 26,
+   "no": 2,
+   "pattern": "ふつうForm＋んですが、てForm＋いただけませんか（request）",
+   "example": "にもつが おおいんですが、てつだって いただけませんか。",
+   "goal": "Politely ask for help after explaining the situation",
+   "requires_forms": [
+    "plain",
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 26",
+    "url": "https://canva.link/e8ajc42q1hyr7pz"
+   }
+  },
+  {
+   "id": "mari.L26.3",
+   "lesson": 26,
+   "no": 3,
+   "pattern": "ふつうForm＋んですが、ぎもんし＋たらいいですか（listen to advice）",
+   "example": "かぜを ひいたんですが、どう したら いいですか。",
+   "goal": "Ask for advice about what to do",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 26",
+    "url": "https://canva.link/e8ajc42q1hyr7pz"
+   }
+  },
+  {
+   "id": "mari.L27.1",
+   "lesson": 27,
+   "no": 1,
+   "pattern": "Nが かのうどうし（Potential form）",
+   "example": "わたしは かんじが よめます。",
+   "goal": "Describe what you are able to do using potential verbs",
+   "requires_forms": [
+    "potential"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L27.2",
+   "lesson": 27,
+   "no": 2,
+   "pattern": "Nが みえます／きこえます",
+   "example": "ここから ふじさんが みえます。",
+   "goal": "Describe what you can see or hear",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L27.3",
+   "lesson": 27,
+   "no": 3,
+   "pattern": "Nが できます",
+   "example": "にほんごが できます。",
+   "goal": "Describe abilities using a noun",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L27.4",
+   "lesson": 27,
+   "no": 4,
+   "pattern": "Nしか〜ません",
+   "example": "100えんしか ありません。",
+   "goal": "Emphasize a limited amount using 'only'",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L27.5",
+   "lesson": 27,
+   "no": 5,
+   "pattern": "〜は〜、〜は〜（Contrast）",
+   "example": "にくは たべますが、さかなは たべません。",
+   "goal": "Contrast two things",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L27.6",
+   "lesson": 27,
+   "no": 6,
+   "pattern": "Compound particle（には・へは・とはなど）",
+   "example": "とうきょうには ともだちが います。",
+   "goal": "Combine particles to add nuance",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 27",
+    "url": "https://canva.link/7ugqaxg82i7g89i"
+   }
+  },
+  {
+   "id": "mari.L28.1",
+   "lesson": 28,
+   "no": 1,
+   "pattern": "ますForm＋ながら、〜（simultaneous）",
+   "example": "おんがくを ききながら、べんきょうします。",
+   "goal": "Describe two actions done at the same time",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 28",
+    "url": "https://canva.link/jnkaqj1ubuzlgpm"
+   }
+  },
+  {
+   "id": "mari.L28.2",
+   "lesson": 28,
+   "no": 2,
+   "pattern": "てForm＋います（habit）",
+   "example": "まいあさ ジョギングを しています。",
+   "goal": "Describe a habitual action",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 28",
+    "url": "https://canva.link/jnkaqj1ubuzlgpm"
+   }
+  },
+  {
+   "id": "mari.L28.3",
+   "lesson": 28,
+   "no": 3,
+   "pattern": "〜し、〜し（Parallel / reason）",
+   "example": "この まちは べんりだし、にぎやかです。",
+   "goal": "List multiple qualities or reasons",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 28",
+    "url": "https://canva.link/jnkaqj1ubuzlgpm"
+   }
+  },
+  {
+   "id": "mari.L29.1",
+   "lesson": 29,
+   "no": 1,
+   "pattern": "Nが てForm (intransitive)＋います（Result status）",
+   "example": "まどが あいて います。",
+   "goal": "Describe the resulting state of an event",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 29",
+    "url": "https://canva.link/rhz6s3fhcn5i2rg"
+   }
+  },
+  {
+   "id": "mari.L29.2",
+   "lesson": 29,
+   "no": 2,
+   "pattern": "Nは てForm (intransitive)＋います（The topic has been decided）",
+   "example": "でんきは ついて います。",
+   "goal": "Describe an ongoing resulting state with a defined topic",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 29",
+    "url": "https://canva.link/rhz6s3fhcn5i2rg"
+   }
+  },
+  {
+   "id": "mari.L29.3",
+   "lesson": 29,
+   "no": 3,
+   "pattern": "てForm＋しまいます（Complete）",
+   "example": "レポートを かいて しまいました。",
+   "goal": "Emphasize that something is completely finished",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 29",
+    "url": "https://canva.link/rhz6s3fhcn5i2rg"
+   }
+  },
+  {
+   "id": "mari.L29.4",
+   "lesson": 29,
+   "no": 4,
+   "pattern": "てForm＋しまいました（Regret）",
+   "example": "だいじな しゃしんを なくして しまいました。",
+   "goal": "Express regret about something that happened",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 29",
+    "url": "https://canva.link/rhz6s3fhcn5i2rg"
+   }
+  },
+  {
+   "id": "mari.L30.1",
+   "lesson": 30,
+   "no": 1,
+   "pattern": "てForm＋あります（Pre-arranged results）",
+   "example": "かべに ポスターが はって あります。",
+   "goal": "Describe a state that was intentionally arranged",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 30",
+    "url": "https://canva.link/v5bxnx84rrcgii4"
+   }
+  },
+  {
+   "id": "mari.L30.2",
+   "lesson": 30,
+   "no": 2,
+   "pattern": "てForm＋おきます（Preparation）",
+   "example": "パーティーの まえに りょうりを つくって おきます。",
+   "goal": "Describe preparing something in advance",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 30",
+    "url": "https://canva.link/v5bxnx84rrcgii4"
+   }
+  },
+  {
+   "id": "mari.L30.3",
+   "lesson": 30,
+   "no": 3,
+   "pattern": "てForm＋おきます（Leave it as it is）",
+   "example": "つかれたので、そうじは あした して おきます。",
+   "goal": "Describe leaving something as-is for later",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 30",
+    "url": "https://canva.link/v5bxnx84rrcgii4"
+   }
+  },
+  {
+   "id": "mari.L31.1",
+   "lesson": 31,
+   "no": 1,
+   "pattern": "いこうけい (Volitional form)",
+   "example": "いこう／たべよう／しよう／こよう",
+   "goal": "Correctly form the volitional form",
+   "requires_forms": [
+    "volitional"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 31",
+    "url": "https://canva.link/4qv74ly81p8ykr2"
+   }
+  },
+  {
+   "id": "mari.L31.2",
+   "lesson": 31,
+   "no": 2,
+   "pattern": "いこうけい＋とおもっています（intention）",
+   "example": "らいねん りゅうがくしようと おもっています。",
+   "goal": "Express your own intention or plan",
+   "requires_forms": [
+    "volitional"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 31",
+    "url": "https://canva.link/4qv74ly81p8ykr2"
+   }
+  },
+  {
+   "id": "mari.L31.3",
+   "lesson": 31,
+   "no": 3,
+   "pattern": "まだ てForm＋いません",
+   "example": "まだ しゅうしょくさきが きまって いません。",
+   "goal": "Say something has not happened yet",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 31",
+    "url": "https://canva.link/4qv74ly81p8ykr2"
+   }
+  },
+  {
+   "id": "mari.L31.4",
+   "lesson": 31,
+   "no": 4,
+   "pattern": "じしょForm・ないForm＋つもりです",
+   "example": "らいねん けっこんする つもりです。",
+   "goal": "State a future intention",
+   "requires_forms": [
+    "dictionary",
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 31",
+    "url": "https://canva.link/4qv74ly81p8ykr2"
+   }
+  },
+  {
+   "id": "mari.L31.5",
+   "lesson": 31,
+   "no": 5,
+   "pattern": "じしょForm・Nounの＋よていです",
+   "example": "らいしゅう しゅっちょうする よていです。",
+   "goal": "State a scheduled plan",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 31",
+    "url": "https://canva.link/4qv74ly81p8ykr2"
+   }
+  },
+  {
+   "id": "mari.L32.1",
+   "lesson": 32,
+   "no": 1,
+   "pattern": "たForm / ないForm ＋ほうが いいです",
+   "example": "はやく びょういんへ いった ほうが いいです。",
+   "goal": "Give advice or a recommendation",
+   "requires_forms": [
+    "nai",
+    "ta"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 32",
+    "url": "https://canva.link/9va0qxjijd260l4"
+   }
+  },
+  {
+   "id": "mari.L32.2",
+   "lesson": 32,
+   "no": 2,
+   "pattern": "ふつうForm＋でしょう（Conjecture）",
+   "example": "あしたは はれるでしょう。",
+   "goal": "Express a confident guess about the future",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 32",
+    "url": "https://canva.link/9va0qxjijd260l4"
+   }
+  },
+  {
+   "id": "mari.L32.3",
+   "lesson": 32,
+   "no": 3,
+   "pattern": "ふつうForm＋かもしれません（possibility）",
+   "example": "あした あめが ふるかもしれません。",
+   "goal": "Express a weaker possibility",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 32",
+    "url": "https://canva.link/9va0qxjijd260l4"
+   }
+  },
+  {
+   "id": "mari.L33.1",
+   "lesson": 33,
+   "no": 1,
+   "pattern": "めいれいけい／きんしけいの かつよう　（Imperative form）",
+   "example": "とまれ！／はいるな！",
+   "goal": "Correctly form imperative and prohibitive forms",
+   "requires_forms": [
+    "imperative",
+    "prohibitive"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 33",
+    "url": "https://canva.link/uaw0louq4g1wuvb"
+   }
+  },
+  {
+   "id": "mari.L33.2",
+   "lesson": 33,
+   "no": 2,
+   "pattern": "「〜」と かいて あります／よみます",
+   "example": "かんばんに「きんえん」と かいて あります。",
+   "goal": "Explain what a sign or text says",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 33",
+    "url": "https://canva.link/uaw0louq4g1wuvb"
+   }
+  },
+  {
+   "id": "mari.L33.3",
+   "lesson": 33,
+   "no": 3,
+   "pattern": "〜は〜という いみです",
+   "example": "「立入禁止」は はいっては いけないという いみです。",
+   "goal": "Explain the meaning of a word or phrase",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 33",
+    "url": "https://canva.link/uaw0louq4g1wuvb"
+   }
+  },
+  {
+   "id": "mari.L33.4",
+   "lesson": 33,
+   "no": 4,
+   "pattern": "〜と いって いました／つたえて いただけませんか",
+   "example": "たなかさんは あした やすむと いって いました。",
+   "goal": "Relay someone else's message",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 33",
+    "url": "https://canva.link/uaw0louq4g1wuvb"
+   }
+  },
+  {
+   "id": "mari.L34.1",
+   "lesson": 34,
+   "no": 1,
+   "pattern": "じしょForm / たForm / Noun の ＋とおりに、〜",
+   "example": "せんせいの いう とおりに かいて ください。",
+   "goal": "Describe doing something exactly as instructed",
+   "requires_forms": [
+    "dictionary",
+    "ta"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 34",
+    "url": "https://canva.link/rb0rqazz11nojm7"
+   }
+  },
+  {
+   "id": "mari.L34.2",
+   "lesson": 34,
+   "no": 2,
+   "pattern": "たForm / Nounの＋あとで、〜",
+   "example": "しごとが おわった あとで、のみに いきます。",
+   "goal": "Describe an action after another is completed",
+   "requires_forms": [
+    "ta"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 34",
+    "url": "https://canva.link/rb0rqazz11nojm7"
+   }
+  },
+  {
+   "id": "mari.L34.3",
+   "lesson": 34,
+   "no": 3,
+   "pattern": "てForm／ないForm＋で、〜（Attendant circumstances）",
+   "example": "たって テレビを みます。／なにも たべないで がっこうへ いきます。",
+   "goal": "Describe the manner or accompanying condition of an action",
+   "requires_forms": [
+    "te",
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 34",
+    "url": "https://canva.link/rb0rqazz11nojm7"
+   }
+  },
+  {
+   "id": "mari.L34.4",
+   "lesson": 34,
+   "no": 4,
+   "pattern": "ないForm＋で、〜",
+   "example": "じしょを つかわないで、よんで ください。",
+   "goal": "Say you do one thing without doing another",
+   "requires_forms": [
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 34",
+    "url": "https://canva.link/rb0rqazz11nojm7"
+   }
+  },
+  {
+   "id": "mari.L35.1",
+   "lesson": 35,
+   "no": 1,
+   "pattern": "じょうけんけい（Conditional Form）",
+   "example": "はやく おきれば、まにあいます。",
+   "goal": "Express a conditional using verbs",
+   "requires_forms": [
+    "conditional"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 35",
+    "url": "https://canva.link/2powtjii4gxxzg9"
+   }
+  },
+  {
+   "id": "mari.L35.2",
+   "lesson": 35,
+   "no": 2,
+   "pattern": "いadj ＋ければ、〜",
+   "example": "やすければ、かいます。",
+   "goal": "Express a conditional using i-adjectives",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 35",
+    "url": "https://canva.link/2powtjii4gxxzg9"
+   }
+  },
+  {
+   "id": "mari.L35.3",
+   "lesson": 35,
+   "no": 3,
+   "pattern": "なadj／Noun ＋なら、〜",
+   "example": "ひまなら、てつだって ください。",
+   "goal": "Express a conditional using na-adjectives or nouns",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 35",
+    "url": "https://canva.link/2powtjii4gxxzg9"
+   }
+  },
+  {
+   "id": "mari.L35.4",
+   "lesson": 35,
+   "no": 4,
+   "pattern": "ぎもんし＋じょうけんけい＋いいですか",
+   "example": "どこで きっぷを かえば いいですか。",
+   "goal": "Ask for advice using a conditional question",
+   "requires_forms": [
+    "conditional"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 35",
+    "url": "https://canva.link/2powtjii4gxxzg9"
+   }
+  },
+  {
+   "id": "mari.L35.5",
+   "lesson": 35,
+   "no": 5,
+   "pattern": "Noun＋なら、〜（topic）",
+   "example": "すしなら、あの みせが おいしいです。",
+   "goal": "Introduce a topic using 'if we're talking about'",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 35",
+    "url": "https://canva.link/2powtjii4gxxzg9"
+   }
+  },
+  {
+   "id": "mari.L36.1",
+   "lesson": 36,
+   "no": 1,
+   "pattern": "じしょForm / ないForm＋ように、〜（goal）",
+   "example": "よく きこえるように、おおきい こえで はなして ください。",
+   "goal": "Express a goal or purpose ('so that')",
+   "requires_forms": [
+    "dictionary",
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 36",
+    "url": "https://canva.link/8y94bz0mcdtjuch"
+   }
+  },
+  {
+   "id": "mari.L36.2",
+   "lesson": 36,
+   "no": 2,
+   "pattern": "じしょForm ＋ように なります／ないForm＋くなります（change）",
+   "example": "ひらがなが よめるように なりました。",
+   "goal": "Describe a gradual change in ability or state",
+   "requires_forms": [
+    "dictionary",
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 36",
+    "url": "https://canva.link/8y94bz0mcdtjuch"
+   }
+  },
+  {
+   "id": "mari.L36.3",
+   "lesson": 36,
+   "no": 3,
+   "pattern": "じしょForm / ないForm ＋ように します（Effort）",
+   "example": "まいにち うんどうする ように します。",
+   "goal": "Describe making an effort to form a habit",
+   "requires_forms": [
+    "dictionary",
+    "nai"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 36",
+    "url": "https://canva.link/8y94bz0mcdtjuch"
+   }
+  },
+  {
+   "id": "mari.L37.1",
+   "lesson": 37,
+   "no": 1,
+   "pattern": "うけみけい (Passive Form)",
+   "example": "よまれる／たべられる／される／こられる",
+   "goal": "Correctly form the passive voice",
+   "requires_forms": [
+    "passive"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 37",
+    "url": "https://canva.link/nbk3eakoe0jw9ff"
+   }
+  },
+  {
+   "id": "mari.L37.2",
+   "lesson": 37,
+   "no": 2,
+   "pattern": "Personは Personに＋Passive Form",
+   "example": "わたしは あにに おかしを たべられました。",
+   "goal": "Describe an action done to you by someone (with inconvenience)",
+   "requires_forms": [
+    "passive"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 37",
+    "url": "https://canva.link/nbk3eakoe0jw9ff"
+   }
+  },
+  {
+   "id": "mari.L37.3",
+   "lesson": 37,
+   "no": 3,
+   "pattern": "Personは Personにpossessionsを＋Passive Form",
+   "example": "わたしは でんしゃで あしを ふまれました。",
+   "goal": "Describe someone affecting your belongings",
+   "requires_forms": [
+    "passive"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 37",
+    "url": "https://canva.link/nbk3eakoe0jw9ff"
+   }
+  },
+  {
+   "id": "mari.L37.4",
+   "lesson": 37,
+   "no": 4,
+   "pattern": "objectが／は＋Passive Form",
+   "example": "この おてらは 1400ねんに たてられました。",
+   "goal": "Describe historical facts or general truths using the passive",
+   "requires_forms": [
+    "passive"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 37",
+    "url": "https://canva.link/nbk3eakoe0jw9ff"
+   }
+  },
+  {
+   "id": "mari.L38.1",
+   "lesson": 38,
+   "no": 1,
+   "pattern": "じしょForm + のは［ adj ］です",
+   "example": "にほんごを はなすのは たのしいです。",
+   "goal": "Describe a quality of an action using nominalization",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 38",
+    "url": "https://canva.link/kft3qq04921jh0q"
+   }
+  },
+  {
+   "id": "mari.L38.2",
+   "lesson": 38,
+   "no": 2,
+   "pattern": "じしょForm + のが［ adj ］です",
+   "example": "かんじを おぼえるのが たいへんです。",
+   "goal": "Describe difficulty or ease of an action",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 38",
+    "url": "https://canva.link/kft3qq04921jh0q"
+   }
+  },
+  {
+   "id": "mari.L38.3",
+   "lesson": 38,
+   "no": 3,
+   "pattern": "じしょForm + の をわすれました",
+   "example": "かぎを かけるのを わすれました。",
+   "goal": "Say you forgot to do something",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 38",
+    "url": "https://canva.link/kft3qq04921jh0q"
+   }
+  },
+  {
+   "id": "mari.L38.4",
+   "lesson": 38,
+   "no": 4,
+   "pattern": "ふつうForm + の をしっていますか",
+   "example": "たなかさんが けっこんするのを しって います。",
+   "goal": "Say you know that something is happening",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 38",
+    "url": "https://canva.link/kft3qq04921jh0q"
+   }
+  },
+  {
+   "id": "mari.L38.5",
+   "lesson": 38,
+   "no": 5,
+   "pattern": "ふつうForm + のは Nです",
+   "example": "わたしが すきなのは なつです。",
+   "goal": "Identify a specific thing using nominalization",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 38",
+    "url": "https://canva.link/kft3qq04921jh0q"
+   }
+  },
+  {
+   "id": "mari.L39.1",
+   "lesson": 39,
+   "no": 1,
+   "pattern": "てForm、〜（reason）",
+   "example": "かぜを ひいて、がっこうを やすみました。",
+   "goal": "Give a reason using the te-form",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 39",
+    "url": "https://canva.link/oot0dlpn6u8bqb5"
+   }
+  },
+  {
+   "id": "mari.L39.2",
+   "lesson": 39,
+   "no": 2,
+   "pattern": "いadj（くて）／なadj（で）、〜（reason）",
+   "example": "からくて たべられませんでした。",
+   "goal": "Give a reason using an adjective",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 39",
+    "url": "https://canva.link/oot0dlpn6u8bqb5"
+   }
+  },
+  {
+   "id": "mari.L39.3",
+   "lesson": 39,
+   "no": 3,
+   "pattern": "Noun（で）、〜（reason）",
+   "example": "びょうきで、かいしゃを やすみました。",
+   "goal": "Give a reason using a noun",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 39",
+    "url": "https://canva.link/oot0dlpn6u8bqb5"
+   }
+  },
+  {
+   "id": "mari.L39.4",
+   "lesson": 39,
+   "no": 4,
+   "pattern": "ふつうFrom＋ので、〜（Reason・Polite）",
+   "example": "あめが ふって いるので、でかけません。",
+   "goal": "Give a polite, objective reason",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 39",
+    "url": "https://canva.link/oot0dlpn6u8bqb5"
+   }
+  },
+  {
+   "id": "mari.L40.1",
+   "lesson": 40,
+   "no": 1,
+   "pattern": "ぎもんし＋か、〜（Uncertain）",
+   "example": "どこで うって いるか、しりません。",
+   "goal": "Express an embedded uncertain question",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 40",
+    "url": "https://canva.link/o0ritydhey6iobs"
+   }
+  },
+  {
+   "id": "mari.L40.2",
+   "lesson": 40,
+   "no": 2,
+   "pattern": "〜かどうか、〜",
+   "example": "あした ひまかどうか、おしえて ください。",
+   "goal": "Ask whether something is true or not",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 40",
+    "url": "https://canva.link/o0ritydhey6iobs"
+   }
+  },
+  {
+   "id": "mari.L40.3",
+   "lesson": 40,
+   "no": 3,
+   "pattern": "てForm＋みます（Attempt）",
+   "example": "この りょうりを たべて みて ください。",
+   "goal": "Say you will try doing something",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 40",
+    "url": "https://canva.link/o0ritydhey6iobs"
+   }
+  },
+  {
+   "id": "mari.L41.1",
+   "lesson": 41,
+   "no": 1,
+   "pattern": "Nounを いただきます／くださいます／やります",
+   "example": "せんせいから ほんを いただきました。",
+   "goal": "Use humble and respectful giving/receiving verbs",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 41",
+    "url": "https://canva.link/2ba5upe6rztcdnz"
+   }
+  },
+  {
+   "id": "mari.L41.2",
+   "lesson": 41,
+   "no": 2,
+   "pattern": "てForm＋いただきます／くださいます／やります",
+   "example": "せんせいに さくぶんを なおして いただきました。",
+   "goal": "Describe favors using humble and respectful forms",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 41",
+    "url": "https://canva.link/2ba5upe6rztcdnz"
+   }
+  },
+  {
+   "id": "mari.L41.3",
+   "lesson": 41,
+   "no": 3,
+   "pattern": "てForm＋くださいませんか（Polite request）",
+   "example": "もういちど せつめいして くださいませんか。",
+   "goal": "Make a very polite request",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 41",
+    "url": "https://canva.link/2ba5upe6rztcdnz"
+   }
+  },
+  {
+   "id": "mari.L42.1",
+   "lesson": 42,
+   "no": 1,
+   "pattern": "じしょForm／Nounの＋ために、〜（purpose）",
+   "example": "けんこうの ために、まいあさ はしって います。",
+   "goal": "Express a purpose ('in order to')",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 42",
+    "url": "https://canva.link/8ayprejl7qgdj4m"
+   }
+  },
+  {
+   "id": "mari.L42.2",
+   "lesson": 42,
+   "no": 2,
+   "pattern": "じしょForm／Nounの＋のに、〜（use / purpose）",
+   "example": "この はさみは かみを きるのに つかいます。",
+   "goal": "Explain what something is used for",
+   "requires_forms": [
+    "dictionary"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 42",
+    "url": "https://canva.link/8ayprejl7qgdj4m"
+   }
+  },
+  {
+   "id": "mari.L42.3",
+   "lesson": 42,
+   "no": 3,
+   "pattern": "すうりょうし(quantifier)＋は／も（emphasis）",
+   "example": "この しごとに 3にちも かかりました。",
+   "goal": "Emphasize a quantity as surprisingly large or small",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 42",
+    "url": "https://canva.link/8ayprejl7qgdj4m"
+   }
+  },
+  {
+   "id": "mari.L43.1",
+   "lesson": 43,
+   "no": 1,
+   "pattern": "ますForm／adj＋そうです（manner; state; appearance）",
+   "example": "この ケーキは おいしそうです。／あめが ふりそうです。",
+   "goal": "Describe the appearance of a situation ('looks like')",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 43",
+    "url": "https://canva.link/jx08zuc6yish4fz"
+   }
+  },
+  {
+   "id": "mari.L43.2",
+   "lesson": 43,
+   "no": 2,
+   "pattern": "てForm＋きます（to do… and come back）",
+   "example": "あめが ふって きました。／ちょっと コンビニへ いって きます。",
+   "goal": "Describe a change beginning or a quick round trip",
+   "requires_forms": [
+    "te"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 43",
+    "url": "https://canva.link/jx08zuc6yish4fz"
+   }
+  },
+  {
+   "id": "mari.L44.1",
+   "lesson": 44,
+   "no": 1,
+   "pattern": "ますForm / いadjい / なadj＋すぎます（too much）",
+   "example": "ゆうべ たべすぎました。",
+   "goal": "Say something was done to excess",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 44",
+    "url": "https://canva.link/u23a0v5r1inaued"
+   }
+  },
+  {
+   "id": "mari.L44.2",
+   "lesson": 44,
+   "no": 2,
+   "pattern": "ますForm＋やすい／にくいです",
+   "example": "この じは よみやすいです。／この かんじは おぼえにくいです。",
+   "goal": "Describe how easy or hard something is",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 44",
+    "url": "https://canva.link/u23a0v5r1inaued"
+   }
+  },
+  {
+   "id": "mari.L44.3",
+   "lesson": 44,
+   "no": 3,
+   "pattern": "いadj（く）／なadj（に）＋します（Deliberate change）",
+   "example": "へやを きれいに しました。",
+   "goal": "Describe deliberately changing something",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 44",
+    "url": "https://canva.link/u23a0v5r1inaued"
+   }
+  },
+  {
+   "id": "mari.L44.4",
+   "lesson": 44,
+   "no": 4,
+   "pattern": "adj → adverb",
+   "example": "じを おおきく かきます。",
+   "goal": "Use an adjective as an adverb.",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 44",
+    "url": "https://canva.link/u23a0v5r1inaued"
+   }
+  },
+  {
+   "id": "mari.L45.1",
+   "lesson": 45,
+   "no": 1,
+   "pattern": "ふつうForm＋ばあい (は)、〜",
+   "example": "ちこくする ばあいは、れんらくして ください。",
+   "goal": "Describe what to do in a certain case",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 45",
+    "url": "https://canva.link/cndrrmkm7jh3r34"
+   }
+  },
+  {
+   "id": "mari.L45.2",
+   "lesson": 45,
+   "no": 2,
+   "pattern": "ふつうForm＋のに、〜（Paradox）",
+   "example": "いっしょうけんめい べんきょうしたのに、おちて しまいました。",
+   "goal": "Express a surprising or disappointing contrast",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 45",
+    "url": "https://canva.link/cndrrmkm7jh3r34"
+   }
+  },
+  {
+   "id": "mari.L46.1",
+   "lesson": 46,
+   "no": 1,
+   "pattern": "じしょForm／〜ている／たForm＋ところです",
+   "example": "いま でかける ところです。／いま しょくじを して いる ところです。／いま かえった ところです。",
+   "goal": "Describe the exact stage of an action",
+   "requires_forms": [
+    "dictionary",
+    "ta"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 46",
+    "url": "https://canva.link/rhsnrcczb0lvcmu"
+   }
+  },
+  {
+   "id": "mari.L46.2",
+   "lesson": 46,
+   "no": 2,
+   "pattern": "たForm＋ばかりです",
+   "example": "さっき たべたばかりです。",
+   "goal": "Say something happened only a short time ago",
+   "requires_forms": [
+    "ta"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 46",
+    "url": "https://canva.link/rhsnrcczb0lvcmu"
+   }
+  },
+  {
+   "id": "mari.L46.3",
+   "lesson": 46,
+   "no": 3,
+   "pattern": "ふつうForm＋はずです（Considering objective reasons）",
+   "example": "たなかさんは くる はずです。",
+   "goal": "Express strong confidence in an expectation",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 46",
+    "url": "https://canva.link/rhsnrcczb0lvcmu"
+   }
+  },
+  {
+   "id": "mari.L47.1",
+   "lesson": 47,
+   "no": 1,
+   "pattern": "ふつうForm＋そうです（hearsay）",
+   "example": "てんきよほうに よると、あした ゆきが ふるそうです。",
+   "goal": "Report information heard from another source",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 47",
+    "url": "https://canva.link/azwvoeu86mcjt3d"
+   }
+  },
+  {
+   "id": "mari.L47.2",
+   "lesson": 47,
+   "no": 2,
+   "pattern": "ふつうForm＋ようです（Estimation）",
+   "example": "だれも いないようです。",
+   "goal": "Express a conclusion based on evidence or observation",
+   "requires_forms": [
+    "plain"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 47",
+    "url": "https://canva.link/azwvoeu86mcjt3d"
+   }
+  },
+  {
+   "id": "mari.L48.1",
+   "lesson": 48,
+   "no": 1,
+   "pattern": "しえきけい (Causative verbs)",
+   "example": "いかせる／たべさせる／させる／こさせる",
+   "goal": "Correctly form the causative",
+   "requires_forms": [
+    "causative"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 48",
+    "url": "https://canva.link/ntsw85lcsjwxl8r"
+   }
+  },
+  {
+   "id": "mari.L48.2",
+   "lesson": 48,
+   "no": 2,
+   "pattern": "Personを〜（さ）せます（compulsion・permission）",
+   "example": "せんせいは がくせいを たたせました。",
+   "goal": "Describe making or letting someone do something",
+   "requires_forms": [
+    "causative"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 48",
+    "url": "https://canva.link/ntsw85lcsjwxl8r"
+   }
+  },
+  {
+   "id": "mari.L48.3",
+   "lesson": 48,
+   "no": 3,
+   "pattern": "Personに（もの）を〜（さ）せます",
+   "example": "ははは わたしに へやを そうじさせました。",
+   "goal": "Describe making someone do something to an object",
+   "requires_forms": [
+    "causative"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 48",
+    "url": "https://canva.link/ntsw85lcsjwxl8r"
+   }
+  },
+  {
+   "id": "mari.L48.4",
+   "lesson": 48,
+   "no": 4,
+   "pattern": "しえきけい（て）＋いただけませんか（Request for permission）",
+   "example": "すこし やすませて いただけませんか。",
+   "goal": "Politely ask permission to do something",
+   "requires_forms": [
+    "causative"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 48",
+    "url": "https://canva.link/ntsw85lcsjwxl8r"
+   }
+  },
+  {
+   "id": "mari.L49.1",
+   "lesson": 49,
+   "no": 1,
+   "pattern": "そんけいごの うけみがた（〜（ら）れます）",
+   "example": "しゃちょうは もう かえられました。",
+   "goal": "Use respectful language for someone else's action",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 49",
+    "url": "https://canva.link/uh032qgk1ox19ak"
+   }
+  },
+  {
+   "id": "mari.L49.2",
+   "lesson": 49,
+   "no": 2,
+   "pattern": "お＋ますけい＋に なります",
+   "example": "しゃちょうは もう おかえりに なりました。",
+   "goal": "Use the polite honorific pattern for respect",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 49",
+    "url": "https://canva.link/uh032qgk1ox19ak"
+   }
+  },
+  {
+   "id": "mari.L49.3",
+   "lesson": 49,
+   "no": 3,
+   "pattern": "とくべつな そんけいご（いらっしゃる・めしあがる など）",
+   "example": "せんせいは もう めしあがりましたか。",
+   "goal": "Use special honorific verbs",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 49",
+    "url": "https://canva.link/uh032qgk1ox19ak"
+   }
+  },
+  {
+   "id": "mari.L49.4",
+   "lesson": 49,
+   "no": 4,
+   "pattern": "お＋ますけい＋ください",
+   "example": "どうぞ おかけください。",
+   "goal": "Make a respectful request",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 49",
+    "url": "https://canva.link/uh032qgk1ox19ak"
+   }
+  },
+  {
+   "id": "mari.L50.1",
+   "lesson": 50,
+   "no": 1,
+   "pattern": "お／ご＋ますけい＋します（けんじょうご）",
+   "example": "にもつを おもちします。",
+   "goal": "Use humble language to lower yourself when helping someone",
+   "requires_forms": [
+    "masu"
+   ],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 50",
+    "url": "https://canva.link/s180pj0y6rvc6yt"
+   }
+  },
+  {
+   "id": "mari.L50.2",
+   "lesson": 50,
+   "no": 2,
+   "pattern": "とくべつな けんじょうご（もうす・まいる・いただく など）",
+   "example": "わたしは たなかと もうします。",
+   "goal": "Use special humble verbs",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 50",
+    "url": "https://canva.link/s180pj0y6rvc6yt"
+   }
+  },
+  {
+   "id": "mari.L50.3",
+   "lesson": 50,
+   "no": 3,
+   "pattern": "ていねいご（です・ます／ございます）",
+   "example": "こちらに ございます。",
+   "goal": "Use polite language appropriately in formal contexts",
+   "requires_forms": [],
+   "after_class": "",
+   "can_use_it": "",
+   "review_needed": "",
+   "notes": "",
+   "resource": {
+    "kind": "canva",
+    "label": "Mari's notes, lesson 50",
+    "url": "https://canva.link/s180pj0y6rvc6yt"
+   }
+  }
+ ]
+}

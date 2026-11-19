@@ -11,6 +11,7 @@ import 'auth/firebase_auth/auth_util.dart';
 import 'backend/push_notifications/push_notifications_util.dart';
 import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/quiet_room.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -56,7 +57,10 @@ class MyAppScrollBehavior extends MaterialScrollBehavior {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+  // Pinned to Daylight. Nightfall is still built and `setThemeMode` still works, so
+  // this is one line to revert; it just stops the phone's own setting deciding which
+  // Quiet Room palette the app shows.
+  ThemeMode _themeMode = ThemeMode.light;
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
@@ -118,9 +122,22 @@ class _MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', '')],
+      // Quiet Room ships two palettes, Daylight and Nightfall. [D §2.5]
+      // `themeMode` was already ThemeMode.system here, but no `darkTheme` was supplied
+      // and FlutterFlowTheme.of() ignored brightness, so dark mode was inert.
+      //
+      // scaffoldBackgroundColor is set explicitly because the ground inversion has to be
+      // total [D §5.1]: any Scaffold that does not name its own background would
+      // otherwise fall back to Material's grey/white and sit outside the palette.
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: false,
+        scaffoldBackgroundColor: Daylight.canvas,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: false,
+        scaffoldBackgroundColor: Nightfall.canvas,
       ),
       themeMode: _themeMode,
       routerConfig: _router,
