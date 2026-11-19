@@ -11,6 +11,9 @@
 // The `srs`, `mastery` and seed-due tables are caches: `rebuild` replays the log through the same
 // pure functions the live writer uses (`srsAfter`, `masteryAfter`) and must land on the same
 // states. A learner note (the v2 `can_use_it` pill) is kept beside the log and exported with it.
+// So is a Discuss mark (PIN-6): Mark's reminder to raise an item with Mari, with an optional
+// short note. A mark is never an event in the log and never reaches `replayLog`, so setting or
+// clearing one writes no attempt and moves no schedule and no mastery state.
 //
 // The schedule rule per answer (`srsAfter`), the one place the store reads a grade:
 //   * unscored, and the Say-it track: no change (D4, D17);
@@ -88,6 +91,45 @@ class SeedEvent {
 
   @override
   String toString() => 'SeedEvent($itemId due $dueDay)';
+}
+
+/// Mark's reminder to raise an item with Mari (PIN-6), with an optional short note. Kept beside
+/// the log, carried by export and import, and read by nothing that grades or schedules.
+class DiscussMark {
+  const DiscussMark({required this.itemId, this.note, required this.atUtc});
+
+  final String itemId;
+
+  /// Null when the mark has no note. [JpStore.setDiscuss] trims it and stores a blank as null.
+  final String? note;
+
+  /// When the mark was last set.
+  final DateTime atUtc;
+
+  Map<String, dynamic> toJson() => {
+        'itemId': itemId,
+        if (note != null) 'note': note,
+        'atUtc': atUtc.toUtc().toIso8601String(),
+      };
+
+  factory DiscussMark.fromJson(Map<String, dynamic> j) => DiscussMark(
+        itemId: j['itemId'] as String,
+        note: j['note'] as String?,
+        atUtc: DateTime.parse(j['atUtc'] as String).toUtc(),
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      other is DiscussMark &&
+      other.itemId == itemId &&
+      other.note == note &&
+      other.atUtc.toUtc() == atUtc.toUtc();
+
+  @override
+  int get hashCode => Object.hash(itemId, note, atUtc.toUtc());
+
+  @override
+  String toString() => 'DiscussMark($itemId${note == null ? '' : ': $note'})';
 }
 
 /// What the store keeps per item beside its schedule: the earliest seeded due day and a note.
@@ -170,12 +212,14 @@ class DayRecord {
       'DayRecord($day at $position${completed ? ', done' : ''})';
 }
 
-/// Everything export writes and import reads: the two event logs and the notes.
+/// Everything export writes and import reads: the two event logs, the notes and the Discuss
+/// marks. The replay reads only the two logs.
 class StudyLog {
   const StudyLog({
     this.attempts = const [],
     this.seeds = const [],
     this.notes = const {},
+    this.discuss = const {},
   });
 
   /// Oldest first, in append order.
@@ -186,6 +230,9 @@ class StudyLog {
 
   /// Item id to note.
   final Map<String, String> notes;
+
+  /// Item id to Discuss mark (PIN-6).
+  final Map<String, DiscussMark> discuss;
 }
 
 /// The states a replay of the log lands on.
@@ -347,6 +394,27 @@ abstract class JpStore {
   /// Every note, by item id.
   Future<Map<String, String>> notes();
 
+  /// Sets the item's Discuss mark (PIN-6), replacing any earlier one. [note] is trimmed, and a
+  /// blank note is stored as none. Writes no attempt, no schedule and no mastery.
+  Future<void> setDiscuss(String itemId,
+          {String? note, required DateTime atUtc}) =>
+      putDiscuss(DiscussMark(
+          itemId: itemId,
+          note: (note == null || note.trim().isEmpty) ? null : note.trim(),
+          atUtc: atUtc.toUtc()));
+
+  /// Writes [mark] as given. [setDiscuss] is the caller; it normalises the note.
+  Future<void> putDiscuss(DiscussMark mark);
+
+  /// Clears the item's Discuss mark, if any. Writes nothing else.
+  Future<void> clearDiscuss(String itemId);
+
+  /// The item's Discuss mark; null when it has none.
+  Future<DiscussMark?> discuss(String itemId);
+
+  /// Every Discuss mark, by item id.
+  Future<Map<String, DiscussMark>> discussMarks();
+
   /// Every item due on or before [day]: stateful items by their FSRS due day, and seeded
   /// items with no FSRS state by their seeded due day (D26). Sorted by due day, stateful
   /// before seeded, then by item id. The plan builder orders them for the session.
@@ -372,12 +440,13 @@ abstract class JpStore {
   Future<void> putMeta(String key, String value);
 
   /// Replaces the schedule, the mastery states and the seeded due days in one transaction.
-  /// Notes, the log, the days and the flags stay.
+  /// Notes, Discuss marks, the log, the days and the flags stay.
   Future<void> replaceDerived(ReplayResult result);
 
-  /// Replaces the log and the notes with [log] and the derived states with [result], in one
-  /// transaction: a write that fails leaves the old log, caches and notes in place. The days
-  /// and the flags stay. [importLog] is its caller; [result] is [log]'s replay.
+  /// Replaces the log, the notes and the Discuss marks with [log] and the derived states with
+  /// [result], in one transaction: a write that fails leaves the old log, caches, notes and
+  /// marks in place. The days and the flags stay. [importLog] is its caller; [result] is
+  /// [log]'s replay.
   Future<void> replaceAll(StudyLog log, ReplayResult result);
 
   Future<void> close();
@@ -416,7 +485,10 @@ abstract class JpStore {
 
   /// The whole log, for export (study_export.dart).
   Future<StudyLog> exportLog() async => StudyLog(
-      attempts: await attempts(), seeds: await seeds(), notes: await notes());
+      attempts: await attempts(),
+      seeds: await seeds(),
+      notes: await notes(),
+      discuss: await discussMarks());
 
   /// Rebuilds the schedule, the mastery states and the seeded due days from the log and the
   /// seed events (D14, D26), and returns what it wrote. Runs on the [recordAnswer] chain, so

@@ -11,6 +11,10 @@
 // (by route name under the app router) and is absent where the lesson has no words (operator
 // ruling ASK-12); and a row opening the item page. A fake probe builder stands
 // in for the probe widgets, as in topics_widget_test.dart.
+//
+// Plan 2026-11-06, Task 1: a particle a Mari lesson teaches opens this page with the particle
+// block on top and never its example or cloze sentence (PIN-5, End state 2), with the "Back to
+// practice" bar; and `lessonTargetOf` names the screen and query each item kind opens (D20).
 
 import 'dart:convert';
 import 'dart:io';
@@ -20,6 +24,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show kBackToPractice;
+import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_drills_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_grammar_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_lesson/quiet_room_lesson_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
@@ -38,6 +45,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_debug_wi
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/session_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/topic_index.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/topic_page_widget.dart'
+    show TopicPageWidget;
 
 import 'jp_screen_harness.dart' show holdHttpRequests;
 
@@ -491,5 +500,188 @@ void main() {
     await tapText(tester, kWordCards);
     expect(find.text('the word cards'), findsOneWidget);
     expect(pushed, '30');
+  });
+
+  group('a particle opened from a card (plan 2026-11-06, Task 1, PIN-5)', () {
+    List<Map<String, dynamic>> particlesTaught() => [
+          for (final p
+              in (grammar['particles'] as List).cast<Map<String, dynamic>>())
+            if (catalog.byId(p['id'] as String)?.lesson != null) p
+        ];
+
+    Widget atParticle(Map<String, dynamic> p, {bool fromCard = true}) =>
+        LessonPageWidget(
+          lesson: catalog.byId(p['id'] as String)!.lesson!,
+          particleId: p['id'] as String,
+          fromCard: fromCard,
+          store: JpStoreMemory(),
+          catalog: catalog,
+          grammar: grammar,
+          clock: FixedClock(at(today)),
+          probeBuilder: fakeProbe,
+        );
+
+    test('the shipped particles include ones a Mari lesson teaches', () {
+      expect(particlesTaught(), isNotEmpty);
+    });
+
+    testWidgets(
+        'the lesson page opens with the particle block on top, and never its '
+        'example or cloze sentence (End state 2)', (tester) async {
+      for (final p in particlesTaught()) {
+        bigView(tester);
+        await tester.pumpWidget(MaterialApp(home: atParticle(p)));
+        await settle(tester);
+
+        final id = p['id'] as String;
+        final block = find.byKey(const ValueKey('particle-block'));
+        expect(block, findsOneWidget, reason: id);
+        expect(
+            find.descendant(
+                of: block, matching: find.text(p['expression'] as String)),
+            findsOneWidget);
+        expect(
+            find.descendant(
+                of: block, matching: find.text(p['meaning'] as String)),
+            findsOneWidget);
+        // On top: over the lesson title.
+        final title = find.text('第${catalog.byId(id)!.lesson}課');
+        expect(
+            tester.getTopLeft(block).dy, lessThan(tester.getTopLeft(title).dy));
+        final cloze = p['cloze'] as Map<String, dynamic>;
+        for (final hidden in [
+          p['example'] as String,
+          p['example_en'] as String,
+          (cloze['prompt'] as String).split('＿＿').first,
+        ]) {
+          expect(find.textContaining(hidden), findsNothing,
+              reason: '$id shows "$hidden"');
+        }
+        expect(find.text(kBackToPractice), findsOneWidget);
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('the plain entry shows no particle block and no bar',
+        (tester) async {
+      await pumpLesson(tester, JpStoreMemory(), 39);
+      expect(find.byKey(const ValueKey('particle-block')), findsNothing);
+      expect(find.text(kBackToPractice), findsNothing);
+    });
+
+    testWidgets('an unknown particle says so instead of an empty page',
+        (tester) async {
+      bigView(tester);
+      await tester.pumpWidget(MaterialApp(
+          home: LessonPageWidget(
+        lesson: 39,
+        particleId: 'mari.particle.999',
+        fromCard: true,
+        store: JpStoreMemory(),
+        catalog: catalog,
+        grammar: grammar,
+        clock: FixedClock(at(today)),
+        probeBuilder: fakeProbe,
+      )));
+      await settle(tester);
+      expect(find.textContaining('Could not open the lesson'), findsOneWidget);
+      expect(
+          find.textContaining('no particle mari.particle.999'), findsOneWidget);
+      expect(find.byKey(const ValueKey('particle-block')), findsNothing);
+    });
+
+    testWidgets('Back to practice returns to the card', (tester) async {
+      bigView(tester);
+      final p = particlesTaught().first;
+      await tester.pumpWidget(MaterialApp(
+          home: Builder(
+              builder: (context) => Scaffold(
+                    body: TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                                builder: (_) => atParticle(p))),
+                        child: const Text('the card')),
+                  ))));
+      await tester.tap(find.text('the card'));
+      await settle(tester);
+      await tester.pump(const Duration(seconds: 1));
+      await settle(tester);
+
+      await tester.tap(find.text(kBackToPractice));
+      await tester.pumpAndSettle();
+      expect(find.byType(LessonPageWidget), findsNothing);
+      expect(find.text('the card'), findsOneWidget);
+    });
+  });
+
+  group('lessonTargetOf (D20)', () {
+    ItemDef first(ItemKind kind, [bool Function(ItemDef)? where]) =>
+        catalog.ofKind(kind).firstWhere(where ?? (_) => true);
+
+    test('names the screen and query each kind opens at', () {
+      final point = first(ItemKind.grammar);
+      expect(lessonTargetOf(point).routeName, QuietRoomGrammarWidget.routeName);
+      expect(lessonTargetOf(point).query, {'point': point.id, 'from': 'card'});
+
+      final word = first(ItemKind.word);
+      expect(lessonTargetOf(word).routeName, QuietRoomLessonWidget.routeName);
+      expect(lessonTargetOf(word).query, {'word': word.id, 'from': 'card'});
+
+      final conj = catalog.byId('conj.causative_passive.g1')!;
+      expect(lessonTargetOf(conj).routeName, QuietRoomDrillsWidget.routeName);
+      expect(lessonTargetOf(conj).query,
+          {'mode': 'conjugation', 'form': 'causative_passive', 'from': 'card'});
+
+      final pair = first(ItemKind.pair);
+      expect(lessonTargetOf(pair).routeName, QuietRoomDrillsWidget.routeName);
+      expect(lessonTargetOf(pair).query,
+          {'mode': 'pairs', 'pair': pair.id, 'from': 'card'});
+
+      final row = catalog.byId('ref.dates.31')!;
+      expect(lessonTargetOf(row).routeName, QuietRoomDrillsWidget.routeName);
+      expect(lessonTargetOf(row).query,
+          {'mode': 'reference', 'table': 'dates', 'row': '31', 'from': 'card'});
+
+      final taught = first(ItemKind.particle, (i) => i.lesson != null);
+      expect(lessonTargetOf(taught).routeName, LessonPageWidget.routeName);
+      expect(lessonTargetOf(taught).query, {
+        'lesson': '${taught.lesson}',
+        'particle': taught.id,
+        'from': 'card'
+      });
+
+      final untaught = first(ItemKind.particle, (i) => i.lesson == null);
+      expect(lessonTargetOf(untaught).routeName, TopicPageWidget.routeName);
+      expect(lessonTargetOf(untaught).query,
+          {'particle': untaught.id, 'from': 'card'});
+    });
+
+    test('every table row id splits into a table and a row of the asset', () {
+      final tables = {
+        for (final t
+            in (grammar['reference'] as List).cast<Map<String, dynamic>>())
+          t['id'] as String: (t['rows'] as List).cast<String>()
+      };
+      for (final r in catalog.ofKind(ItemKind.tableRow)) {
+        final q = lessonTargetOf(r).query;
+        expect(tables[q['table']], contains(q['row']), reason: r.id);
+      }
+    });
+
+    // The two receivers below read their key from the asset lists the drills screen
+    // itself reads, so an id the catalog mints that the screen cannot open fails here.
+    test('every conjugation id names a form the conjugation drill offers', () {
+      final forms = (grammar['conjugation']['forms'] as List).cast<String>();
+      for (final c in catalog.ofKind(ItemKind.conjugation)) {
+        expect(forms, contains(lessonTargetOf(c).query['form']), reason: c.id);
+      }
+    });
+
+    test('every pair id is one the pairs drill lists', () {
+      final ids = pairItemIds(grammar);
+      for (final p in catalog.ofKind(ItemKind.pair)) {
+        expect(ids, contains(lessonTargetOf(p).query['pair']), reason: p.id);
+      }
+    });
   });
 }

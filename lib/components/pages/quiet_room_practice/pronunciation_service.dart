@@ -14,7 +14,14 @@
 //     close, below is wrong (PIN-4).
 //   * 🚨 Anything that cannot be scored is `unverified`, never `wrong` (PIN-3): no microphone,
 //     a recorder that throws, no speech, a failed sign-in, a network or function error, or a
-//     reply we cannot read. The drill sends unverified to self-check.
+//     reply we cannot read. The speak drill (practice, not counted) sends unverified to
+//     self-check; a counting spoken card writes it unscored, with no self-mark (plan
+//     2026-11-06, Task 5, D10), or wrong after the revealing hint rung (plan 2026-11-06,
+//     ASK-3).
+//
+// The counting spoken cards of the Review session and Practice now score only through this
+// service (plan 2026-11-06, Task 5, PIN-2). Their hosts build it with
+// [PronunciationService.counting], whose sign-in seam is `ensureCaller` (anon_caller.dart).
 //
 // The recorder, the clock, the caller sign-in and the function call are injectable seams, so
 // tests need no microphone, no network and no Firebase.
@@ -29,6 +36,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show ValueListenable, ValueNotifier;
 import 'package:record/record.dart';
 
+import 'anon_caller.dart';
 import 'speech_service.dart' show Judgement;
 
 export 'speech_service.dart' show Judgement;
@@ -171,7 +179,9 @@ class PronunciationResult {
     this.words = const [],
   });
 
-  /// Nothing could be scored. The drill sends this to self-check (PIN-3).
+  /// Nothing could be scored. The speak drill sends this to self-check (PIN-3); a counting
+  /// spoken card writes it unscored, with no self-mark (D10), or wrong after the revealing hint
+  /// rung (plan 2026-11-06, ASK-3).
   const PronunciationResult.unverified() : this(verdict: Judgement.unverified);
 
   final Judgement verdict;
@@ -323,6 +333,23 @@ class PronunciationService {
         _clock = clock ?? const SystemPronClock(),
         _signIn = signIn ?? _firebaseSignIn,
         _score = score ?? _callFunction;
+
+  /// The service a counting spoken card scores through (plan 2026-11-06, Task 5, PIN-2). Its
+  /// sign-in seam is [ensureCaller] over [auth], so the hidden anonymous caller is made only
+  /// after a recording, never for a learner who does not speak; a failed sign-in is
+  /// unverified (PIN-9). The other seams are for tests.
+  factory PronunciationService.counting({
+    CallerAuth auth = const FirebaseCallerAuth(),
+    PronRecorder? recorder,
+    PronClock? clock,
+    ScoreCall? score,
+  }) =>
+      PronunciationService(
+        recorder: recorder,
+        clock: clock,
+        signIn: () => ensureCaller(auth: auth),
+        score: score,
+      );
 
   final PronRecorder _recorder;
   final PronClock _clock;

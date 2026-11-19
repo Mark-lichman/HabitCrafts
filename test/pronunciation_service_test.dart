@@ -4,7 +4,11 @@
 //   * listening stops by itself after silence that follows speech, never before speech and
 //     never past the cap (PIN-5), and the live level streams while recording (PIN-7);
 //   * the recording is 16 kHz mono 16-bit WAV (PIN-6), sent with the hiragana reference (PIN-1);
-//   * the mora splitter and the syllable-to-letter mapping, with the whole-word fallback (PIN-8).
+//   * the mora splitter and the syllable-to-letter mapping, with the whole-word fallback (PIN-8);
+//   * the counting service of the Review session and Practice now (plan 2026-11-06, Task 5,
+//     PIN-2, D10): `PronunciationService.counting` signs in through `ensureCaller` only after a
+//     recording, and no microphone, a failed sign-in or no connection is unverified, never
+//     wrong, so the card writes it unscored.
 //
 // Every seam is faked: no microphone, no network, no Firebase.
 
@@ -16,6 +20,7 @@ import 'dart:typed_data';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:habit_craft/components/pages/quiet_room_practice/anon_caller.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart';
 
 const _goodFixture =
@@ -133,6 +138,23 @@ class _FakeRecorder implements PronRecorder {
 }
 
 Future<void> _flush() => pumpEventQueue();
+
+/// Firebase auth as `ensureCaller` sees it.
+class _FakeCallerAuth implements CallerAuth {
+  _FakeCallerAuth({this.hasUser = false, this.error});
+
+  @override
+  bool hasUser;
+  final Object? error;
+  int signIns = 0;
+
+  @override
+  Future<void> signInAnonymously() async {
+    signIns++;
+    if (error != null) throw error!;
+    hasUser = true;
+  }
+}
 
 class _Rig {
   _Rig({
@@ -781,6 +803,95 @@ void main() {
       expect(rig.service.listening.value, isFalse);
       expect(listening, [true, false]);
       await sub.cancel();
+    });
+  });
+
+  group('the counting service (plan 2026-11-06, Task 5, PIN-2, D10)', () {
+    late _FakeRecorder recorder;
+    late _FakeClock clock;
+    late List<String> calls;
+
+    PronunciationService counting(_FakeCallerAuth auth,
+        {bool micAvailable = true, Object? error, Object? reply}) {
+      recorder = _FakeRecorder(available: micAvailable);
+      clock = _FakeClock();
+      calls = [];
+      return PronunciationService.counting(
+        auth: auth,
+        recorder: recorder,
+        clock: clock,
+        score: (payload) async {
+          calls.add(payload['referenceText'] as String);
+          if (error != null) throw error;
+          return reply;
+        },
+      );
+    }
+
+    /// 800 ms of speech, then the silence that ends the listen.
+    Future<void> speak() async {
+      await _flush();
+      for (final (amp, ms) in [(_loud, 800), (_quiet, 1500)]) {
+        for (var t = 0; t < ms; t += 100) {
+          if (recorder.ctl == null || recorder.ctl!.isClosed) return;
+          clock.advance(const Duration(milliseconds: 100));
+          if (recorder.ctl!.isClosed) return;
+          recorder.ctl!.add(_pcm(amp, 100));
+          await _flush();
+        }
+      }
+    }
+
+    test('signs in through ensureCaller after the recording, then scores',
+        () async {
+      final auth = _FakeCallerAuth();
+      final svc = counting(auth, reply: _fixture(_goodFixture));
+      final f = svc.check(_sentence);
+      await _flush();
+      expect(auth.signIns, 0, reason: 'no caller is made before speech');
+      await speak();
+      final r = await f;
+      expect(auth.signIns, 1);
+      expect(calls, [_sentence], reason: 'scored against the hiragana');
+      expect(r.verdict, Judgement.correct);
+    });
+
+    test('reuses an existing caller', () async {
+      final auth = _FakeCallerAuth(hasUser: true);
+      final svc = counting(auth, reply: _fixture(_goodFixture));
+      final f = svc.check(_sentence);
+      await speak();
+      expect((await f).verdict, Judgement.correct);
+      expect(auth.signIns, 0);
+    });
+
+    test('no microphone is unverified, with no sign-in and no call', () async {
+      final auth = _FakeCallerAuth();
+      final svc = counting(auth, micAvailable: false);
+      final r = await svc.check(_sentence);
+      expect(r.verdict, Judgement.unverified);
+      expect(auth.signIns, 0);
+      expect(calls, isEmpty);
+    });
+
+    test('a failed sign-in is unverified, never wrong', () async {
+      final auth = _FakeCallerAuth(error: StateError('offline'));
+      final svc = counting(auth, reply: _fixture(_goodFixture));
+      final f = svc.check(_sentence);
+      await speak();
+      expect((await f).verdict, Judgement.unverified);
+      expect(calls, isEmpty);
+    });
+
+    test('no connection to the function is unverified, never wrong', () async {
+      final auth = _FakeCallerAuth(hasUser: true);
+      final svc = counting(auth,
+          error: FirebaseFunctionsException(
+              code: 'unavailable', message: 'no network'));
+      final f = svc.check(_sentence);
+      await speak();
+      expect((await f).verdict, Judgement.unverified);
+      expect(calls, [_sentence]);
     });
   });
 }

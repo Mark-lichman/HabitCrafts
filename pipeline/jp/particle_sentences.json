@@ -1,0 +1,136 @@
+{
+ "about": "Two more cloze sentences for each particle, beside its lesson example, so a particle is practiced on three sentences (plan D4, PIN-4). Each is in hiragana with N4 words, blanks the particle's cloze answer once, lists the spellings it accepts (every spelling the particle's own cloze accepts, at least) and gives its English. A sentence fills the slot its particle's choose card assumes (kParticleWrongOptions in item_catalog.dart), so no wrong option completes it. AI-drafted 2026-11-07 and checked by an independent judge pass (see `judge`); not yet reviewed by Mark. publish.particles() fails on a stale or leaking sentence and publishes each with this file's `reviewed` flag.",
+ "reviewed": false,
+ "judge": {
+  "judge": "independent-lm",
+  "method": "A separate headless Claude session that did not write the sentences and ran with no tools read every sentence against seven checks, then a second session read the revised set. Each finding names the particle and the sentence index (0 or 1).",
+  "checks": [
+   "C1: the filled-in sentence is natural, grammatical Japanese",
+   "C2: it uses the particle in Mari's meaning",
+   "C3: its words and grammar are within JLPT N4",
+   "C4: the kana spelling is right",
+   "C5: the English is an accurate translation",
+   "C6: no wrong option the particle's choose card can offer also completes it",
+   "C7: the accepted spellings fill the blank and none common is missing"
+  ],
+  "rounds": [
+   {
+    "round": 1,
+    "date": "2026-11-07",
+    "checked": 30,
+    "findings": [
+     {
+      "particle": "mari.particle.1",
+      "index": 0,
+      "check": "C3",
+      "finding": "さっか (author) is N3",
+      "applied": "rewritten as この かいしゃは わたしの そふ＿＿ つくられました。 (the judge's せんせい rewrite read unnaturally)"
+     },
+     {
+      "particle": "mari.particle.6",
+      "index": 1,
+      "check": "C3",
+      "finding": "けんこう (health) is N3",
+      "applied": "rewritten as こどもの ＿＿、おもちゃを かいました。 (the judge's rewrite repeated Mari's example)"
+     },
+     {
+      "particle": "mari.particle.8",
+      "index": 1,
+      "check": "C2",
+      "finding": "やいたばかり is the 'just happened' sense, a separate grammar point",
+      "applied": "the judge's rewrite: この みせは たかい もの＿＿ うって います。"
+     },
+     {
+      "particle": "mari.particle.9",
+      "index": 1,
+      "check": "C5",
+      "finding": "わからない is 'does not know', not 'cannot answer'",
+      "applied": "the judge's English"
+     },
+     {
+      "particle": "mari.particle.13",
+      "index": 0,
+      "check": "C7",
+      "finding": "けど also fills the blank",
+      "applied": "けど added to accepted"
+     },
+     {
+      "particle": "mari.particle.13",
+      "index": 1,
+      "check": "C7",
+      "finding": "けど also fills the blank",
+      "applied": "けど added to accepted"
+     }
+    ]
+   },
+   {
+    "round": 2,
+    "date": "2026-11-07",
+    "checked": 30,
+    "findings": []
+   }
+  ]
+ },
+ "sentences": {
+  "mari.particle.1": [
+   {"prompt": "この かいしゃは わたしの そふ＿＿ つくられました。", "answer": "によって", "accepted": ["に よって"], "english": "This company was founded by my grandfather."},
+   {"prompt": "ひと＿＿ かんがえかたが ちがいます。", "answer": "によって", "accepted": ["に よって"], "english": "The way of thinking differs from person to person."}
+  ],
+  "mari.particle.2": [
+   {"prompt": "かれは せんせい＿＿ この がっこうで はたらいて います。", "answer": "として", "accepted": [], "english": "He works at this school as a teacher."},
+   {"prompt": "わたしは りゅうがくせい＿＿ にほんに きました。", "answer": "として", "accepted": [], "english": "I came to Japan as an exchange student."}
+  ],
+  "mari.particle.3": [
+   {"prompt": "こども＿＿ この ほんは すこし むずかしいです。", "answer": "にとって", "accepted": ["に とって"], "english": "For children, this book is a little difficult."},
+   {"prompt": "わたし＿＿ かぞくは いちばん たいせつです。", "answer": "にとって", "accepted": ["に とって"], "english": "To me, my family is the most important thing."}
+  ],
+  "mari.particle.4": [
+   {"prompt": "あした、しごと＿＿ はなしましょう。", "answer": "について", "accepted": ["に ついて"], "english": "Let's talk about work tomorrow."},
+   {"prompt": "にほんの まつり＿＿ レポートを かきました。", "answer": "について", "accepted": ["に ついて"], "english": "I wrote a report about Japanese festivals."}
+  ],
+  "mari.particle.5": [
+   {"prompt": "かぜを ひかない＿＿、あたたかい ふくを きます。", "answer": "ように", "accepted": [], "english": "I wear warm clothes so that I don't catch a cold."},
+   {"prompt": "みんなに きこえる＿＿、おおきい こえで はなして ください。", "answer": "ように", "accepted": [], "english": "Please speak loudly so that everyone can hear."}
+  ],
+  "mari.particle.6": [
+   {"prompt": "にほんで はたらく＿＿、にほんごを べんきょうして います。", "answer": "ために", "accepted": [], "english": "I am studying Japanese in order to work in Japan."},
+   {"prompt": "こどもの ＿＿、おもちゃを かいました。", "answer": "ために", "accepted": [], "english": "I bought a toy for my child."}
+  ],
+  "mari.particle.7": [
+   {"prompt": "たくさん べんきょうした＿＿、しけんに おちました。", "answer": "のに", "accepted": [], "english": "Even though I studied a lot, I failed the exam."},
+   {"prompt": "まだ はやい＿＿、みせが しまって いました。", "answer": "のに", "accepted": [], "english": "Even though it was still early, the shop was closed."}
+  ],
+  "mari.particle.8": [
+   {"prompt": "おとうとは まんがを よんで ＿＿ います。", "answer": "ばかり", "accepted": [], "english": "My little brother does nothing but read manga."},
+   {"prompt": "この みせは たかい もの＿＿ うって います。", "answer": "ばかり", "accepted": [], "english": "This shop sells nothing but expensive things."}
+  ],
+  "mari.particle.9": [
+   {"prompt": "この かんじは しょうがくせい＿＿ よめます。", "answer": "でも", "accepted": [], "english": "Even an elementary school student can read this kanji."},
+   {"prompt": "せんせい＿＿ わからない もんだいが あります。", "answer": "でも", "accepted": [], "english": "There are questions that even the teacher does not know the answer to."}
+  ],
+  "mari.particle.10": [
+   {"prompt": "おんがくを きき＿＿、べんきょうします。", "answer": "ながら", "accepted": [], "english": "I study while listening to music."},
+   {"prompt": "テレビを み＿＿ ごはんを たべないで ください。", "answer": "ながら", "accepted": [], "english": "Please don't eat while watching TV."}
+  ],
+  "mari.particle.11": [
+   {"prompt": "せんせいが いった ＿＿ かいて ください。", "answer": "とおりに", "accepted": [], "english": "Please write it exactly as the teacher said."},
+   {"prompt": "ちずの ＿＿ いったら、えきに つきました。", "answer": "とおりに", "accepted": [], "english": "I went just as the map showed and got to the station."}
+  ],
+  "mari.particle.12": [
+   {"prompt": "さいふに ひゃくえん＿＿ ありません。", "answer": "しか", "accepted": [], "english": "I have only a hundred yen in my wallet."},
+   {"prompt": "この みせは どようび＿＿ あいて いません。", "answer": "しか", "accepted": [], "english": "This shop is open only on Saturdays."}
+  ],
+  "mari.particle.13": [
+   {"prompt": "この へやは せまい＿＿、えきに ちかいです。", "answer": "けれど", "accepted": ["けれども", "けど"], "english": "This room is small, but it is close to the station."},
+   {"prompt": "にほんごは むずかしい＿＿、おもしろいです。", "answer": "けれど", "accepted": ["けれども", "けど"], "english": "Japanese is difficult, but it is interesting."}
+  ],
+  "mari.particle.14": [
+   {"prompt": "あたまが いたい＿＿、きょうは やすみます。", "answer": "ので", "accepted": [], "english": "Because I have a headache, I am taking today off."},
+   {"prompt": "あしたは やすみな＿＿、ゆっくり ねます。", "answer": "ので", "accepted": [], "english": "Because tomorrow is a day off, I will sleep in."}
+  ],
+  "mari.particle.15": [
+   {"prompt": "まどを あけた ＿＿ ねて しまいました。", "answer": "まま", "accepted": [], "english": "I fell asleep with the window open."},
+   {"prompt": "でんきを つけた ＿＿ でかけないで ください。", "answer": "まま", "accepted": [], "english": "Please don't go out with the lights left on."}
+  ]
+ }
+}

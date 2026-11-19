@@ -10,7 +10,7 @@
 // |------------------------|--------------------------------------------------------|
 // | clear, the 4th that counts, or a Shaky item's regain | Mastered                 |
 // | clear                  | Clear, with the new interval                           |
-// | hinted                 | Right with a hint, no credit (PIN-3)                   |
+// | hinted                 | Right with a hint, no credit (PIN-3); a spoken close shows Close, no credit (PIN-10) |
 // | self                   | Marked as got it, no credit (PIN-3)                    |
 // | wrong                  | no card (operator ruling 2026-11-05), see below        |
 // | unscored               | Not counted; the entry moves to the end of its section |
@@ -20,6 +20,44 @@
 // it was not (a typed wrong, a wrong pick, Show answer), the probe stays with the full answer
 // and the session adds one Next. Either way the item is re-asked at the end of the section it
 // was answered in, and the wrong schedules it Again for another day.
+//
+// Review the lesson (plan 2026-11-06, Task 2, D21, PIN-5): every unanswered card shows a quiet
+// [ReviewLessonLink] naming the lesson ([reviewLessonDetail]), never the card's answer. It
+// pushes the item kind's lesson target ([openLessonTarget], D20); Back returns to the same card,
+// unanswered, marked "Lesson reviewed". `_onAnswer` passes the draft of a reviewed card
+// through `afterLessonReview`, so a clear is written hinted at hint level 1 or more, and a
+// spoken close loses its close mark the same way (it is written as a plain hinted answer);
+// wrong, other hinted, self and unscored are untouched.
+// An answered or held card has no link, so a review after the answer changes nothing.
+// Opening a lesson writes no attempt. With no router and no injected opener the card shows
+// no link. [PracticeSessionWidget] (item_detail_widget.dart) follows the same rule.
+//
+// Discuss with Mari (plan 2026-11-06, Task 4, PIN-6): every card, asked or held, carries a
+// quiet [DiscussToggle] (discuss_list_widget.dart) that sets or clears the item's Discuss
+// mark. A mark is no answer: it writes no attempt and leaves the card's grade as it was.
+//
+// Spoken answers (plan 2026-11-06, Task 5, PIN-2): the session hands one [PronunciationService]
+// to [standardProbeBuilder], so a word's spoken answer is scored by Azure against its
+// hiragana, never by the on-device recognizer. With none injected the session builds
+// `PronunciationService.counting()` (sign-in through `ensureCaller`) and disposes it. A spoken
+// close is written hinted with `Attempt.spokenClose`, neutral for the two-hinted reset
+// (PIN-10); an unverified check is written unscored, with no self-mark (D10), or wrong after
+// the revealing hint rung (plan 2026-11-06, ASK-3).
+//
+// New cards (plan 2026-11-06, Task 6): every kind's say card ([SayCardProbe]) scores through
+// the same service, and its draft is written with the entry's source, never `Source.sayIt`; a
+// particle's choose card offers the options the catalog built. The next card is mode-aware
+// ([nextProbe], D19): the first scored probe whose mode has no counting clear yet, then the
+// scored probes in turn.
+//
+// Sentence rotation (plan 2026-11-06, Task 9, D11, PIN-4): within the mode [nextProbe] picks,
+// or across all the scored probes once every mode has a clear, a grammar point, a particle
+// and every other kind with a transfer clause takes a sentence with no clear yet first, and
+// moves off a sentence once its clears fall on [kMoveOnClearDays] different days. A re-ask
+// after a wrong is asked with the rotate marker (plan 2026-11-06, ASK-5): the scored probes
+// in turn by attempts so far, so it shows another card. The marker is captured in `_next`
+// beside the attempt count, never read from `_entry` on the held card, because `_onAnswer`
+// has already moved `_index` to the next entry.
 //
 // The attempt copies the entry's `wasDue` (plan_builder.dart): a New or stretch entry is due, so
 // its clear is the first of the four (operator ruling ASK-6), and a re-ask is not due. The source
@@ -62,16 +100,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
-import '../quiet_room_practice/speech_service.dart';
+import '../quiet_room_practice/pronunciation_service.dart';
 import '../quiet_room_today/streak.dart';
 import 'attempt.dart';
+import 'discuss_list_widget.dart' show DiscussToggle;
 import 'drill_recorder.dart' show DrillAnswer, kAnswerNotSaved;
 import 'fsrs.dart';
 import 'item_catalog.dart';
 import 'jp_store.dart';
+import 'lesson_page_widget.dart' show lessonTargetOf;
 import 'local_day.dart';
 import 'mastery_rule.dart';
 import 'plan_builder.dart';
@@ -119,6 +160,7 @@ class SessionProbeRequest {
     required this.state,
     required this.answered,
     required this.onAnswer,
+    this.rotate = false,
   });
 
   final ItemDef item;
@@ -129,6 +171,11 @@ class SessionProbeRequest {
   /// The item's attempts so far, so a builder can rotate its probes.
   final int answered;
 
+  /// Whether the card rotates through the item's scored probes by [answered] instead of the
+  /// D19 pick ([nextProbe], plan 2026-11-06, ASK-5): early practice, and a same-day re-ask
+  /// after a wrong. A due review leaves it false.
+  final bool rotate;
+
   final ProbeAnswered onAnswer;
 }
 
@@ -136,11 +183,90 @@ class SessionProbeRequest {
 typedef SessionProbeBuilder = Widget Function(
     BuildContext context, SessionProbeRequest request);
 
-/// The probe widgets the app uses: one per item kind, rotating through the item's scored
-/// probes. [grammar] is the decoded `jp_grammar.json`, for a grammar item's options, accepted
-/// forms, hint and English, and a particle's meaning and English.
-SessionProbeBuilder standardProbeBuilder(
-    {required Map<String, dynamic> grammar, SpeechService? speech}) {
+/// Opens the lesson of [item] from a card (plan 2026-11-06, Task 2) and completes on Back.
+typedef LessonOpener = Future<void> Function(
+    BuildContext context, ItemDef item);
+
+/// The app's [LessonOpener]: pushes the item kind's lesson target (`lessonTargetOf`, D20)
+/// under the app's router. The card's route stays mounted underneath, so Back returns to the
+/// same card in the same state (A2).
+Future<void> openLessonTarget(BuildContext context, ItemDef item) async {
+  final target = lessonTargetOf(item);
+  await context.pushNamed(target.routeName, queryParameters: target.query);
+}
+
+/// The opener a card's "Review the lesson" uses: [injected], else [openLessonTarget] under
+/// the app's router, else null, and the card shows no link (never a dead one).
+LessonOpener? lessonOpenerFor(BuildContext context, LessonOpener? injected) =>
+    injected ?? (GoRouter.maybeOf(context) != null ? openLessonTarget : null);
+
+/// The different days a sentence's clears fall on before the session moves off it (plan
+/// 2026-11-06, D11).
+const int kMoveOnClearDays = 2;
+
+/// The probe the next card asks of [item] (plan 2026-11-06, D19, D11).
+///
+/// With [rotate] (early practice, or a same-day re-ask after a wrong: plan 2026-11-06,
+/// ASK-5), the scored probes in turn by [answered], the item's attempts so far.
+///
+/// Otherwise the mode comes first: the probes of the first mode (`modeOfTemplate`, D18) with
+/// no counting clear in [state] yet, so a needed mode shows before the clears run out; once
+/// every mode has one, all the scored probes. Then, for a kind with a transfer clause
+/// (`transferProbesNeeded`), the sentence rule (D11): the first of those probes whose
+/// sentence (`transferKeyOf`) has no clear yet; else the ones whose sentence has clears on
+/// fewer than [kMoveOnClearDays] days, in turn by [answered]; else all of them in turn. A kind
+/// with no transfer clause takes the first probe of the needed mode, else the scored probes in
+/// turn. A probe whose template has no mode is left to the turns. Throws a [StateError] for an
+/// item with no scored probe, which a host never asks.
+ProbeDef nextProbe(ItemDef item, MasteryState state, int answered,
+    {bool rotate = false}) {
+  final probes = item.scoredProbes.toList();
+  if (probes.isEmpty) {
+    throw StateError('${item.id} has no scored probe to ask');
+  }
+  if (rotate) return probes[answered % probes.length];
+  final cleared = {for (final c in state.clears) modeOfTemplate(c.template)};
+  ProbeMode? needed;
+  for (final p in probes) {
+    final mode = modeOfTemplate(p.template);
+    if (mode != null && !cleared.contains(mode)) {
+      needed = mode;
+      break;
+    }
+  }
+  final pool = needed == null
+      ? probes
+      : [
+          for (final p in probes)
+            if (modeOfTemplate(p.template) == needed) p
+        ];
+  if (transferProbesNeeded(item) == 0) {
+    return needed == null ? probes[answered % probes.length] : pool.first;
+  }
+  final days = <String, Set<int>>{};
+  for (final c in state.clears) {
+    (days[transferKeyOf(c.probeId)] ??= {}).add(c.day);
+  }
+  for (final p in pool) {
+    if (!days.containsKey(transferKeyOf(p.id))) return p;
+  }
+  final open = [
+    for (final p in pool)
+      if ((days[transferKeyOf(p.id)]?.length ?? 0) < kMoveOnClearDays) p
+  ];
+  final from = open.isEmpty ? pool : open;
+  return from[answered % from.length];
+}
+
+/// The probe widgets the app uses: one per item kind, on the probe [nextProbe] picks, and the
+/// say card ([SayCardProbe]) for any kind's `sayCard` probe. [grammar] is the decoded
+/// `jp_grammar.json`, for a grammar item's options, accepted forms, hint and English, and a
+/// particle's meaning, accepted forms and English. [pronunciation] scores every counting
+/// spoken answer by sound (Azure, PIN-2); the host owns it and disposes it.
+SessionProbeBuilder standardProbeBuilder({
+  required Map<String, dynamic> grammar,
+  required PronunciationService pronunciation,
+}) {
   final practice = <String, List<Map<String, dynamic>>>{};
   for (final lesson in (grammar['grammar'] as List? ?? const [])) {
     for (final point in ((lesson as Map)['points'] as List? ?? const [])) {
@@ -155,15 +281,65 @@ SessionProbeBuilder standardProbeBuilder(
     for (final x in (grammar['particles'] as List? ?? const []))
       ((x as Map)['id'] as String): Map<String, dynamic>.from(x)
   };
+
+  /// The drafted `sentences` row a particle probe asks (`cloze.1` reads sentence 1, plan
+  /// 2026-11-06 Task 9), or null for the first cloze and its twins, whose row is the
+  /// particle's `cloze`.
+  Map? particleSentence(ItemDef item, ProbeDef probe) {
+    final id = transferKeyOf(probe.id);
+    const prefix = '$kParticleClozeId.';
+    final at = id.startsWith(prefix)
+        ? int.tryParse(id.substring(prefix.length))
+        : null;
+    final sentences = particles[item.id]?['sentences'] as List? ?? const [];
+    return at != null && at < sentences.length ? sentences[at] as Map : null;
+  }
+
+  /// The English of the particle sentence a probe asks: a drafted sentence's own, else the
+  /// particle's example.
+  String? particleEnglish(ItemDef item, ProbeDef probe) =>
+      particleSentence(item, probe)?['english'] as String? ??
+      particles[item.id]?['example_en'] as String?;
+
+  /// The accepted forms of the particle sentence a probe asks (けれども and けど beside
+  /// けれど): a drafted sentence's own, else the particle's `cloze` ones. A typed accepted
+  /// form is right, never a wrong that wipes the clears (jp_study_kit rule).
+  List<String> particleAccepted(ItemDef item, ProbeDef probe) {
+    final row =
+        particleSentence(item, probe) ?? particles[item.id]?['cloze'] as Map?;
+    return (row?['accepted'] as List? ?? const []).cast<String>();
+  }
+
+  /// The practice row of a grammar probe, or of the probe a say card twins (`say.p2` reads
+  /// row 2).
+  Map<String, dynamic>? practiceRow(ItemDef item, ProbeDef probe) {
+    final id = transferKeyOf(probe.id);
+    final at = id.startsWith('p') ? int.tryParse(id.substring(1)) : null;
+    final rows = practice[item.id] ?? const [];
+    return at != null && at < rows.length ? rows[at] : null;
+  }
+
   return (context, r) {
     final item = r.item;
-    final probes = item.scoredProbes.toList();
-    final probe = probes[r.answered % probes.length];
+    final probe = nextProbe(item, r.state, r.answered, rotate: r.rotate);
+    if (probe.template == kSayCardTemplate) {
+      return SayCardProbe(
+          item: item,
+          probe: probe,
+          state: r.state,
+          pronunciation: pronunciation,
+          english: switch (item.kind) {
+            ItemKind.grammar => practiceRow(item, probe)?['en'] as String?,
+            ItemKind.particle => particleEnglish(item, probe),
+            _ => null,
+          },
+          imageAsset:
+              item.kind == ItemKind.word ? wordImageAsset(item.id) : null,
+          onAnswer: r.onAnswer);
+    }
     switch (item.kind) {
       case ItemKind.grammar:
-        final at = int.tryParse(probe.id.substring(1));
-        final rows = practice[item.id] ?? const [];
-        final raw = at != null && at < rows.length ? rows[at] : null;
+        final raw = practiceRow(item, probe);
         final options = (raw?['options'] as List?)?.cast<String>();
         if (probe.template == 'choose' && options != null) {
           return ChooseProbe(
@@ -185,20 +361,32 @@ SessionProbeBuilder standardProbeBuilder(
       case ItemKind.particle:
         final particle = particles[item.id];
         final meaning = particle?['meaning'] as String?;
+        if (probe.template == 'choose' && probe.options.isNotEmpty) {
+          return ChooseProbe(
+              item: item,
+              probe: probe,
+              state: r.state,
+              options: probe.options,
+              english: particle?['example_en'] as String?,
+              onAnswer: r.onAnswer);
+        }
         return TypedFillProbe(
             item: item,
             probe: probe,
             state: r.state,
-            checkItem: {'answer': probe.answer},
+            checkItem: {
+              'answer': probe.answer,
+              'accepted': particleAccepted(item, probe),
+            },
             hint: meaning == null ? null : 'The missing part means: $meaning',
-            english: particle?['example_en'] as String?,
+            english: particleEnglish(item, probe),
             onAnswer: r.onAnswer);
       case ItemKind.word:
         return WordRecallProbe(
             item: item,
             probe: probe,
             state: r.state,
-            speech: speech ?? SpeechService.instance,
+            pronunciation: pronunciation,
             imageAsset: wordImageAsset(item.id),
             onAnswer: r.onAnswer);
       case ItemKind.conjugation:
@@ -233,6 +421,8 @@ class SessionWidget extends StatefulWidget {
     this.scheduler = const FsrsScheduler(),
     this.sessionId,
     this.onClose,
+    this.openLesson,
+    this.pronunciation,
   });
 
   final DayPlan plan;
@@ -256,6 +446,14 @@ class SessionWidget extends StatefulWidget {
   /// Called by the end card's Done; null pops the route.
   final VoidCallback? onClose;
 
+  /// Opens a card's lesson for "Review the lesson"; null uses [lessonOpenerFor].
+  final LessonOpener? openLesson;
+
+  /// Scores the spoken answers of [standardProbeBuilder] (PIN-2). The caller owns an injected
+  /// one. Null builds `PronunciationService.counting()` when the session loads its own
+  /// builder, and the session disposes it.
+  final PronunciationService? pronunciation;
+
   @override
   State<SessionWidget> createState() => _SessionWidgetState();
 }
@@ -265,6 +463,9 @@ class _SessionWidgetState extends State<SessionWidget> {
   late int _index;
   late final String _sessionId;
   SessionProbeBuilder? _builder;
+
+  /// The service this session built for itself, disposed with it; null when injected.
+  PronunciationService? _ownPronunciation;
 
   _Phase _phase = _Phase.loading;
 
@@ -283,11 +484,21 @@ class _SessionWidgetState extends State<SessionWidget> {
   // The entry on screen.
   MasteryState? _state;
   int _answered = 0;
+
+  /// The rotate marker of the card on screen (plan 2026-11-06, ASK-5): a re-ask after a
+  /// wrong. Set in `_next` with `_answered`, so a held card keeps the marker it was asked with.
+  bool _rotate = false;
   int _presentation = 0;
   DateTime? _shownAt;
 
+  /// The presentation whose lesson was opened before its answer (PIN-5): its clear is hinted.
+  int? _reviewedPresentation;
+
   // The verdict on screen.
   Grade? _grade;
+
+  /// The answer on screen was a spoken close (PIN-10).
+  bool _spokenClose = false;
   bool _lost = false;
   bool _justMastered = false;
 
@@ -308,6 +519,15 @@ class _SessionWidgetState extends State<SessionWidget> {
   final List<String> _masteredToday = [];
   List<bool> _dots = const [];
 
+  @override
+  void dispose() {
+    // Only a service this session built is its to free; its dispose cancels a check still
+    // running and releases the recorder.
+    final own = _ownPronunciation;
+    if (own != null) unawaited(own.dispose());
+    super.dispose();
+  }
+
   QueueEntry get _entry => _plan.entries[_index];
   int get _ceiling => _plan.ceilingSeconds + _lift;
 
@@ -324,8 +544,14 @@ class _SessionWidgetState extends State<SessionWidget> {
   }
 
   Future<void> _start() async {
+    final grammar =
+        widget.probeBuilder == null ? await JpGrammarData.load() : null;
+    if (!mounted) return;
     _builder = widget.probeBuilder ??
-        standardProbeBuilder(grammar: await JpGrammarData.load());
+        standardProbeBuilder(
+            grammar: grammar!,
+            pronunciation: widget.pronunciation ??
+                (_ownPronunciation = PronunciationService.counting()));
     await _loadDayTally();
     if (!mounted) return;
     await _next();
@@ -438,6 +664,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     setState(() {
       _state = state;
       _answered = answered;
+      _rotate = _entry.reask;
       _presentation++;
       _shownAt = widget.clock.now();
       _grade = null;
@@ -445,8 +672,31 @@ class _SessionWidgetState extends State<SessionWidget> {
     });
   }
 
-  Future<void> _onAnswer(DrillAnswer d) async {
+  /// Opens the lesson of the card on screen and marks the card reviewed before the push, so
+  /// the mark holds whatever the lesson screen does. The card stays mounted underneath. If
+  /// the opener fails, no lesson was seen, so the mark goes back to what it was.
+  Future<void> _reviewLesson(LessonOpener open, ItemDef item) async {
     if (_phase != _Phase.asking) return;
+    final before = _reviewedPresentation;
+    setState(() => _reviewedPresentation = _presentation);
+    try {
+      await open(context, item);
+    } catch (e, s) {
+      if (mounted) setState(() => _reviewedPresentation = before);
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'quiet room session',
+          context: ErrorDescription('while opening the lesson of ${item.id}')));
+    }
+  }
+
+  Future<void> _onAnswer(DrillAnswer answer) async {
+    if (_phase != _Phase.asking) return;
+    // A lesson review before the answer makes a clear hinted (PIN-5).
+    final d = _reviewedPresentation == _presentation
+        ? afterLessonReview(answer)
+        : answer;
     final entry = _entry;
     final item = widget.catalog.byId(entry.itemId)!;
     final before = _state ?? MasteryState.initial(item.id);
@@ -472,6 +722,7 @@ class _SessionWidgetState extends State<SessionWidget> {
           source: d.sayIt ? Source.sayIt : entry.source,
           durationMs: now.difference(shown).inMilliseconds.clamp(0, 1 << 31),
           sessionId: _sessionId,
+          spokenClose: d.spokenClose,
         ),
         item: item,
         scheduler: widget.scheduler,
@@ -515,6 +766,7 @@ class _SessionWidgetState extends State<SessionWidget> {
     final hold = wrong && !d.answerShown;
     setState(() {
       _grade = grade;
+      _spokenClose = d.spokenClose;
       _lost = outcome == null;
       _justMastered = justMastered;
       _regained = justMastered && before.status == MasteryStatus.shaky;
@@ -680,6 +932,9 @@ class _SessionWidgetState extends State<SessionWidget> {
   /// Next under it.
   Widget _asking(BuildContext context, QuietRoomTokens t, {bool held = false}) {
     final item = held ? _heldItem! : widget.catalog.byId(_entry.itemId)!;
+    final open = held || _phase != _Phase.asking
+        ? null
+        : lessonOpenerFor(context, widget.openLesson);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -695,10 +950,24 @@ class _SessionWidgetState extends State<SessionWidget> {
               item: item,
               state: _state ?? MasteryState.initial(item.id),
               answered: _answered,
+              rotate: _rotate,
               onAnswer: _onAnswer,
             ),
           ),
         ),
+        if (open != null)
+          ReviewLessonLink(
+            item: item,
+            reviewed: _reviewedPresentation == _presentation,
+            onTap: () => _reviewLesson(open, item),
+          ),
+        // Keyed: the lesson link above leaves the card on the held phase, and an unkeyed
+        // toggle would be rebuilt by position and read the store again.
+        DiscussToggle(
+            key: ValueKey('discuss-${item.id}'),
+            itemId: item.id,
+            store: widget.store,
+            clock: widget.clock),
         if (held)
           _action(t, 'Next', () => _keepGoing(_Phase.held), primary: true),
       ],
@@ -780,7 +1049,7 @@ class _SessionWidgetState extends State<SessionWidget> {
               _line(t, 'Next review in ${_days(_interval!)}.'),
           ],
         Grade.hinted => [
-            _title(t, 'Right with a hint'),
+            _title(t, _spokenClose ? 'Close' : 'Right with a hint'),
             _line(t, 'No credit this time.'),
           ],
         Grade.self => [

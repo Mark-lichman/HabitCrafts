@@ -6,13 +6,19 @@
 //   2. the fourth (the clear that completes the rule) at least 21 days after the previous scored
 //      review of the item;
 //   3. no wrong since the first of them; a hinted answer earns no credit and two hinted in a row
-//      reset the count (PIN-3);
+//      reset the count (PIN-3); a spoken close (`Attempt.spokenClose`) is neutral for that row
+//      (PIN-10);
 //   4. where the item has two or more templates: two different templates among the clears and,
 //      where it has a production probe, one production clear; a one-template item needs only
 //      the spaced clears (PIN-15);
-//   5. transfer per kind: three sentences for a grammar point, three verbs for a conjugation
-//      idea, both directions for a pair, two different cells for a table row (every cell where
-//      the row has fewer than two).
+//   5. transfer per kind: three sentences for a grammar point, two for a particle (plan
+//      2026-11-06, Task 9, D4), three verbs for a conjugation idea, both directions for a pair,
+//      two different cells for a table row (every probe where the item has fewer). A probe
+//      that asks the same sentence, verb, direction or cell in another mode (`say.p0` beside
+//      `p0`, plan 2026-11-06 Task 6) counts as that one: see [transferKeyOf];
+//   6. a clear in every mode the item has a scored card for (PIN-7, D18): type it, see it, say
+//      it, by [kTemplateModes]. A word needs all three; a conjugation idea, a pair or a table
+//      row has no card in one of them and needs the other two. See [missingModes].
 // A wrong, or two hinted in a row, on a Mastered item makes it Shaky; two clears on two days,
 // the second 7 or more days after the first, regain it (PIN-4).
 //
@@ -44,10 +50,51 @@ const int kRegainGapDays = 7;
 /// Different probes needed per kind (D4 clause 5), before the cap at the item's probe count.
 const Map<ItemKind, int> kTransferProbes = {
   ItemKind.grammar: 3,
+  ItemKind.particle: 2,
   ItemKind.conjugation: 3,
   ItemKind.pair: 2,
   ItemKind.tableRow: 2,
 };
+
+/// The three ways a card asks for an item (plan 2026-11-06, D18): type it, see it, say it.
+enum ProbeMode { typed, recognition, spoken }
+
+/// The mode of each scored template (D18), keyed on the template name. The Say-it template
+/// (`say`) has none: it never counts. `sayCard` is the scored say card of every kind
+/// (`kSayCardTemplate` in item_catalog.dart).
+const Map<String, ProbeMode> kTemplateModes = {
+  'fill': ProbeMode.typed,
+  'cloze': ProbeMode.typed,
+  'typed': ProbeMode.typed,
+  'conjugate': ProbeMode.typed,
+  'choose': ProbeMode.recognition,
+  'card': ProbeMode.recognition,
+  'transitive': ProbeMode.recognition,
+  'intransitive': ProbeMode.recognition,
+  'cell': ProbeMode.recognition,
+  'spoken': ProbeMode.spoken,
+  'sayCard': ProbeMode.spoken,
+};
+
+/// The mode of [template], or null for a template with none (D18).
+ProbeMode? modeOfTemplate(String template) => kTemplateModes[template];
+
+/// The prefixes of a probe that asks another probe's sentence, verb, direction or cell in a
+/// different mode: `say.p0` says the sentence of `p0`, `choose.cloze` picks the particle of
+/// `cloze` (plan 2026-11-06, Task 6).
+const List<String> kTwinProbePrefixes = ['say.', 'choose.'];
+
+/// What the transfer clause counts a probe as: its sentence, verb, direction or cell. A twin
+/// (`say.p0`) is the probe it twins (`p0`), so one sentence asked two ways is still one
+/// sentence (D4 clause 5). Any other id is itself.
+String transferKeyOf(String probeId) {
+  for (final prefix in kTwinProbePrefixes) {
+    if (probeId.startsWith(prefix) && probeId.length > prefix.length) {
+      return probeId.substring(prefix.length);
+    }
+  }
+  return probeId;
+}
 
 /// What the rule needs to know about an item. Task 5's `ItemDef` implements it.
 abstract class ItemDefLike {
@@ -60,8 +107,23 @@ abstract class ItemDefLike {
   /// Whether the item has a scorable production probe (typed, spoken, conjugate, build).
   bool get hasProductionProbe;
 
-  /// The number of different probes: sentences, verbs, directions or cells.
+  /// The number of different probes: sentences, verbs, directions or cells, each counted once
+  /// however many modes ask it ([transferKeyOf]).
   int get probeCount;
+
+  /// The modes the item has a scored card for (D18, PIN-7): Mastered needs a counting clear in
+  /// each. An item with none needs no mode.
+  Set<ProbeMode> get modes;
+}
+
+/// The modes of [item] with no counting clear among [clears], in [ProbeMode] order (PIN-7). A
+/// clear on a template with no mode ([modeOfTemplate]) fills none.
+List<ProbeMode> missingModes(ItemDefLike item, Iterable<ClearRef> clears) {
+  final cleared = {for (final c in clears) modeOfTemplate(c.template)};
+  return [
+    for (final m in ProbeMode.values)
+      if (item.modes.contains(m) && !cleared.contains(m)) m
+  ];
 }
 
 /// The different probes an item needs among its clears (D4 clause 5).
@@ -252,7 +314,8 @@ bool _meetsRule(
       return false;
     }
   }
-  final probes = {for (final c in clears) c.probeId};
+  if (missingModes(item, clears).isNotEmpty) return false;
+  final probes = {for (final c in clears) transferKeyOf(c.probeId)};
   return probes.length >= transferProbesNeeded(item);
 }
 
@@ -304,6 +367,9 @@ MasteryState masteryAfter(
       return base;
 
     case Grade.hinted:
+      // A spoken close (Azure scored it close, no hint taken) earns no credit and is neutral
+      // for the hinted row, like a self answer (PIN-10, D14).
+      if (attempt.spokenClose) return base;
       // No credit (PIN-3). Two in a row: the hint is carrying the item.
       final streak = state.hintStreak + 1;
       if (streak < kHintedInARowReset) return base.copyWith(hintStreak: streak);

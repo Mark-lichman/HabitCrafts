@@ -23,12 +23,19 @@
 //
 // [openLessonPage] opens the page as a plain route. The lesson path (Task 26) reaches it by
 // its route name under the app's router (`nav.dart`), else through [openLessonPage].
+//
+// A practice card's "Review the lesson" on a particle that a Mari lesson teaches opens this
+// page at the particle (plan 2026-11-06, Task 1, PIN-5): [LessonPageWidget.particleId] puts a
+// [ParticleBlock] (the particle and its meaning, never its example or its cloze sentence) at
+// the top, and [LessonPageWidget.fromCard] shows the "Back to practice" bar. The plain entry
+// is unchanged. [lessonTargetOf] names the screen and query each item kind opens (D20).
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
+import '../quiet_room_grammar/quiet_room_drills_widget.dart';
 import '../quiet_room_grammar/quiet_room_grammar_widget.dart';
 import '../quiet_room_lesson/quiet_room_lesson_widget.dart';
 import 'attempt.dart';
@@ -42,7 +49,14 @@ import 'review_page.dart' show QrLoudButton, qrLoadingOr;
 import 'session_widget.dart' show SessionProbeBuilder;
 import 'topic_index.dart';
 import 'topic_page_widget.dart'
-    show TopicListRow, TopicPill, nextReviewLine, openItemPage;
+    show
+        ParticleBlock,
+        TopicListRow,
+        TopicPageWidget,
+        TopicPill,
+        nextReviewLine,
+        openItemPage,
+        particleOf;
 
 /// The loud action of the page.
 const String kReviewThese = 'Review these';
@@ -81,6 +95,73 @@ String lessonCountsLabel(TopicCounts c) => [
       if (c.learning > 0) '${c.learning} learning',
       if (c.neu > 0) '${c.neu} new',
     ].join(' · ');
+
+/// Where "Review the lesson" on a card over an item goes: a route name and its query (D20).
+typedef LessonTarget = ({String routeName, Map<String, String> query});
+
+/// The lesson screen of [item], opened at the item, with the "Back to practice" bar (D20,
+/// PIN-5). Pure.
+///
+/// | kind        | screen                                   | query                    |
+/// |-------------|------------------------------------------|--------------------------|
+/// | grammar     | the grammar screen                       | `point`                  |
+/// | word        | the word cards                           | `word`                   |
+/// | conjugation | the conjugation drill                    | `mode`, `form`           |
+/// | pair        | the pairs drill                          | `mode`, `pair`           |
+/// | tableRow    | the reference drill                      | `mode`, `table`, `row`   |
+/// | particle    | its Mari lesson's page, or its topic page | `lesson` or none, `particle` |
+LessonTarget lessonTargetOf(ItemDef item) {
+  const from = {'from': kFromCard};
+  final id = item.id;
+  switch (item.kind) {
+    case ItemKind.grammar:
+      return (
+        routeName: QuietRoomGrammarWidget.routeName,
+        query: {'point': id, ...from}
+      );
+    case ItemKind.word:
+      return (
+        routeName: QuietRoomLessonWidget.routeName,
+        query: {'word': id, ...from}
+      );
+    case ItemKind.conjugation:
+      // `conj.<form>.g<group>`; a form name holds no dot.
+      final form = id.split('.')[1];
+      return (
+        routeName: QuietRoomDrillsWidget.routeName,
+        query: {'mode': JpDrill.conjugation.name, 'form': form, ...from}
+      );
+    case ItemKind.pair:
+      return (
+        routeName: QuietRoomDrillsWidget.routeName,
+        query: {'mode': JpDrill.pairs.name, 'pair': id, ...from}
+      );
+    case ItemKind.tableRow:
+      // `ref.<table>.<row>`; a table id holds no dot, a row may.
+      final rest = id.substring('ref.'.length);
+      final dot = rest.indexOf('.');
+      return (
+        routeName: QuietRoomDrillsWidget.routeName,
+        query: {
+          'mode': JpDrill.reference.name,
+          'table': rest.substring(0, dot),
+          'row': rest.substring(dot + 1),
+          ...from
+        }
+      );
+    case ItemKind.particle:
+      final lesson = item.lesson;
+      return lesson != null
+          ? (
+              routeName: LessonPageWidget.routeName,
+              query: {'lesson': '$lesson', 'particle': id, ...from}
+            )
+          : (
+              routeName: TopicPageWidget.routeName,
+              query: {'particle': id, ...from}
+            );
+  }
+}
 
 /// What the lesson page shows.
 class LessonPage {
@@ -190,6 +271,8 @@ class LessonPageWidget extends StatefulWidget {
   const LessonPageWidget({
     super.key,
     required this.lesson,
+    this.particleId,
+    this.fromCard = false,
     this.store,
     this.catalog,
     this.grammar,
@@ -202,6 +285,12 @@ class LessonPageWidget extends StatefulWidget {
 
   /// The N of 第N課.
   final int lesson;
+
+  /// Opens at this particle (`mari.particle.14`): its [ParticleBlock] heads the page.
+  final String? particleId;
+
+  /// A practice card opened the page: the "Back to practice" bar shows.
+  final bool fromCard;
 
   /// Null uses the app's one shared store (`sharedJpStore`).
   final JpStore? store;
@@ -225,6 +314,7 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
   ItemCatalog? _catalog;
   TopicIndex? _index;
   LessonPage? _page;
+  Map<String, dynamic>? _particle;
   Object? _error;
 
   /// Bumped per load, so a load for a lesson no longer shown is dropped.
@@ -240,6 +330,7 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
   void didUpdateWidget(LessonPageWidget old) {
     super.didUpdateWidget(old);
     if (old.lesson != widget.lesson ||
+        old.particleId != widget.particleId ||
         old.store != widget.store ||
         old.catalog != widget.catalog) {
       _store = null;
@@ -264,10 +355,17 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
           today: widget.clock.today());
       final page =
           lessonPageOf(widget.lesson, index, grammar, await store.attempts());
+      final particleId = widget.particleId;
+      final particle =
+          particleId == null ? null : particleOf(grammar, particleId);
+      if (particleId != null && particle == null) {
+        throw StateError('no particle $particleId');
+      }
       if (mounted && load == _loads) {
         setState(() {
           _index = index;
           _page = page;
+          _particle = particle;
           _error = null;
         });
       }
@@ -350,8 +448,10 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
     final index = _index, page = _page;
     if (index == null || page == null) {
       return QrStudyScaffold(
+          fromCard: widget.fromCard,
           child: qrLoadingOr(context, _error, 'Could not open the lesson:'));
     }
+    final particle = _particle;
     final t = QuietRoomTokens.of(context);
     final catalog = _catalog!;
     Widget heading(String text) => Padding(
@@ -391,6 +491,7 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
           onTap: () => _openItem(id),
         );
     final rows = <Widget Function()>[
+      if (particle != null) () => ParticleBlock(particle: particle),
       () => Text('第${page.lesson}課', style: qrTitle(t, size: 28)),
       if (page.title != null)
         () => Padding(
@@ -439,6 +540,7 @@ class _LessonPageWidgetState extends State<LessonPageWidget> {
       for (final id in page.wordIds) () => itemRow(id),
     ];
     return QrStudyScaffold(
+      fromCard: widget.fromCard,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
         itemCount: rows.length,

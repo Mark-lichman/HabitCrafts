@@ -2,13 +2,17 @@
 // one-time import of the v2 study keys (Task 8).
 //
 // Export format, one JSON object per line:
-//   line 1   the header: {"format": "habitcrafts.jp.study", "version": 1, "exportedAtUtc",
-//            "attempts": n, "seeds": n, "notes": n}
-//   then     {"type": "seed", ...SeedEvent}, {"type": "attempt", ...Attempt} and
-//            {"type": "note", "itemId", "note"}, seeds first, each log kind in log order and
-//            the notes by item id, so the same record exports the same bytes from either store.
-// Reading it back replaces the store's log and rebuilds every state from it (JpStore.importLog),
-// so an export is also a backup and the input for fitting FSRS offline (A1).
+//   line 1   the header: {"format": "habitcrafts.jp.study", "version": 2, "exportedAtUtc",
+//            "attempts": n, "seeds": n, "notes": n, "discuss": n}
+//   then     {"type": "seed", ...SeedEvent}, {"type": "attempt", ...Attempt},
+//            {"type": "note", "itemId", "note"} and {"type": "discuss", ...DiscussMark}, seeds
+//            first, each log kind in log order, the notes and then the Discuss marks by item
+//            id, so the same record exports the same bytes from either store.
+// Version 1 (before the Discuss marks) has no `discuss` count and no discuss lines; this build
+// still reads it unchanged, with no marks (End state 8). An older build refuses version 2.
+// Reading it back replaces the store's log, notes and marks and rebuilds every state from the
+// log (JpStore.importLog), so an export is also a backup and the input for fitting FSRS
+// offline (A1). A Discuss mark never reaches the replay (PIN-6).
 //
 // The v2 migration reads two SharedPreferences keys and leaves both in place for one release:
 //   * `jp.selfcheck.<pointId>`: `review_needed` marks the point due today (a seed event, no
@@ -36,8 +40,9 @@ import 'scheduler.dart';
 /// The export header's `format`.
 const String kStudyExportFormat = 'habitcrafts.jp.study';
 
-/// The export format version this build writes and reads.
-const int kStudyExportVersion = 1;
+/// The export format version this build writes. It reads this version and every earlier one.
+/// Version 2 added the Discuss marks.
+const int kStudyExportVersion = 2;
 
 /// Writes [log] as JSON Lines with a header line.
 String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
@@ -49,6 +54,7 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
       'attempts': log.attempts.length,
       'seeds': log.seeds.length,
       'notes': log.notes.length,
+      'discuss': log.discuss.length,
     }),
     for (final s in log.seeds) jsonEncode({'type': 'seed', ...s.toJson()}),
     for (final a in log.attempts)
@@ -56,6 +62,10 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
     for (final e
         in log.notes.entries.toList()..sort((a, b) => a.key.compareTo(b.key)))
       jsonEncode({'type': 'note', 'itemId': e.key, 'note': e.value}),
+    for (final m
+        in log.discuss.values.toList()
+          ..sort((a, b) => a.itemId.compareTo(b.itemId)))
+      jsonEncode({'type': 'discuss', ...m.toJson()}),
   ];
   return '${lines.join('\n')}\n';
 }
@@ -63,7 +73,8 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
 /// Reads an export written by [encodeStudyExport]. Throws a [FormatException] naming the line
 /// for a missing or foreign header, a newer version, an unknown line type, an unreadable line,
 /// an attempt whose rating no [SrsRating] has, or counts that disagree with the header. A
-/// blank line is skipped and still counted, so the named line is the file's own.
+/// header with no `discuss` count (version 1) counts no Discuss mark. A blank line is skipped
+/// and still counted, so the named line is the file's own.
 StudyLog decodeStudyExport(String text) {
   final all = const LineSplitter().convert(text);
   final lines = <({int no, String text})>[
@@ -92,6 +103,7 @@ StudyLog decodeStudyExport(String text) {
   final attempts = <Attempt>[];
   final seeds = <SeedEvent>[];
   final notes = <String, String>{};
+  final discuss = <String, DiscussMark>{};
   for (var i = 1; i < lines.length; i++) {
     final j = parse(i);
     try {
@@ -108,6 +120,9 @@ StudyLog decodeStudyExport(String text) {
           seeds.add(SeedEvent.fromJson(j));
         case 'note':
           notes[j['itemId'] as String] = j['note'] as String;
+        case 'discuss':
+          final mark = DiscussMark.fromJson(j);
+          discuss[mark.itemId] = mark;
         default:
           throw FormatException('unknown type ${j['type']}');
       }
@@ -117,11 +132,13 @@ StudyLog decodeStudyExport(String text) {
   }
   if (header['attempts'] != attempts.length ||
       header['seeds'] != seeds.length ||
-      header['notes'] != notes.length) {
+      header['notes'] != notes.length ||
+      (header['discuss'] ?? 0) != discuss.length) {
     throw const FormatException(
         'study export: the line counts disagree with the header');
   }
-  return StudyLog(attempts: attempts, seeds: seeds, notes: notes);
+  return StudyLog(
+      attempts: attempts, seeds: seeds, notes: notes, discuss: discuss);
 }
 
 /// The store's log as an export file's text.

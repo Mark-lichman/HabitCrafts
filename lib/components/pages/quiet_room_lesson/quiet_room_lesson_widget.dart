@@ -22,16 +22,25 @@
 // yet a wrong against the word's `card` probe, through the study record (JpStore). An answer
 // on a word that is not due is early practice (PIN-14, D23): a clear changes nothing, a wrong
 // counts. The store, the item lookup, the clock and the scheduler are injectable for tests.
+//
+// A practice card's "Review the lesson" opens the screen at one word (plan 2026-11-06, Task 1):
+// [QuietRoomLessonWidget.initialWord] picks the word's lesson and scrolls its card to the top,
+// outlined, and [QuietRoomLessonWidget.fromCard] shows the "Back to practice" bar. An open at a
+// word leaves the remembered lesson alone: the learner did not choose it. The plain entry,
+// with neither set, is unchanged.
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
+import '/components/pages/quiet_room_grammar/jp_study_kit.dart'
+    show BackToPracticeBar;
 import '/components/pages/quiet_room_mastery/attempt.dart';
 import '/components/pages/quiet_room_mastery/fsrs.dart';
 import '/components/pages/quiet_room_mastery/item_catalog.dart';
@@ -46,6 +55,8 @@ class QuietRoomLessonWidget extends StatefulWidget {
   const QuietRoomLessonWidget({
     super.key,
     this.initialLesson,
+    this.initialWord,
+    this.fromCard = false,
     this.store,
     this.items,
     this.clock = const SystemClock(),
@@ -54,6 +65,13 @@ class QuietRoomLessonWidget extends StatefulWidget {
 
   /// The lesson to open. Null opens the last-opened one, or else the newest.
   final int? initialLesson;
+
+  /// Opens at this word (its item id, the image stem `L30_02`): on the word's own lesson,
+  /// with its card scrolled to the top and outlined. It wins over [initialLesson].
+  final String? initialWord;
+
+  /// A practice card opened the screen: the "Back to practice" bar shows.
+  final bool fromCard;
 
   /// The study record. Null uses the screen's shared store, opened once per run.
   final JpStore? store;
@@ -100,6 +118,10 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
   late final String _sessionId =
       'lesson-${widget.clock.now().toUtc().microsecondsSinceEpoch}';
 
+  /// The card of [QuietRoomLessonWidget.initialWord], scrolled to once after the load.
+  final _wordKey = GlobalKey();
+  bool _scrolledToWord = false;
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +134,9 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
       final raw = await rootBundle.loadString('assets/lessons/jp_lessons.json');
       final d = json.decode(raw) as Map<String, dynamic>;
       final ls = (d['lessons'] as List).cast<Map<String, dynamic>>();
+      final word = widget.initialWord;
+      final wordLesson = word == null ? null : _lessonOfWord(ls, word);
+      if (wordLesson != null) _lesson = wordLesson;
       if (_lesson == null) {
         final last = await _remembered();
         if (last != null && ls.any((l) => l['lesson'] == last)) _lesson = last;
@@ -121,12 +146,33 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
         _doc = d;
         _lesson ??= ls.isEmpty ? null : ls.last['lesson'] as int;
       });
-      if (_lesson != null) _remember(_lesson!);
+      if (_lesson != null && wordLesson == null) _remember(_lesson!);
     } catch (_) {
       // Surfaced, not swallowed: an empty screen with no explanation is a silent
       // failure, which S4 forbids.
       if (mounted) setState(() => _error = 'Could not load the vocabulary.');
     }
+  }
+
+  /// The lesson that lists the word [id], or null when none does.
+  static int? _lessonOfWord(List<Map<String, dynamic>> lessons, String id) {
+    for (final l in lessons) {
+      for (final w in (l['items'] as List).cast<Map<String, dynamic>>()) {
+        if (_wordId(w) == id) return l['lesson'] as int?;
+      }
+    }
+    return null;
+  }
+
+  /// Scrolls the word's card to the top once it is laid out.
+  void _scrollToWordOnce() {
+    if (_scrolledToWord) return;
+    _scrolledToWord = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _wordKey.currentContext;
+      if (target == null || !target.mounted) return;
+      Scrollable.ensureVisible(target, duration: Duration.zero);
+    });
   }
 
   /// The last-opened lesson, or null. A preference that cannot be read only loses the
@@ -237,27 +283,48 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
           tooltip: 'Back',
         ),
       ),
+      // Opened from a card, the bar sits over the spinner and the error text as well as
+      // the loaded body, and the bar and the body share the reading width, as on the
+      // screens built through QrStudyScaffold.
       body: SafeArea(
         top: false,
-        child: _error != null
-            ? Center(
-                child: Text(_error!,
-                    style: GoogleFonts.schibstedGrotesk(
-                        fontSize: 14, color: t.clay600)))
-            : _doc == null
-                ? Center(
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(t.inkSubtle)),
-                    ),
-                  )
-                : _body(t),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
+            child: widget.fromCard
+                ? Column(children: [
+                    const BackToPracticeBar(),
+                    Expanded(child: _content(t)),
+                  ])
+                : _content(t),
+          ),
+        ),
       ),
     );
+  }
+
+  /// The error text, the spinner while the word file loads, or the lesson body.
+  Widget _content(QuietRoomTokens t) {
+    if (_error != null) {
+      return Center(
+          child: Text(_error!,
+              style: GoogleFonts.schibstedGrotesk(
+                  fontSize: 14, color: t.clay600)));
+    }
+    if (_doc == null) {
+      return Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(t.inkSubtle)),
+        ),
+      );
+    }
+    return _body(t);
   }
 
   Widget _body(QuietRoomTokens t) {
@@ -278,68 +345,69 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
     };
     final missing =
         ((_doc?['missingLessons'] as List?) ?? const []).cast<int>();
+    final target = widget.initialWord;
+    final targetShown =
+        target != null && items.any((i) => _wordId(i) == target);
+    if (targetShown) _scrollToWordOnce();
 
-    return Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+    return ListView(
+      // Opened at a word, every card is built, so the word's card has a context to
+      // scroll to however far down the lesson it sits.
+      scrollCacheExtent:
+          targetShown ? const ScrollCacheExtent.pixels(100000) : null,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      children: [
+        Text(
+          '第${lesson['lesson']}課',
+          style: GoogleFonts.fraunces(
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 26 * -0.015,
+            height: 1.15,
+            color: t.inkStrong,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          '${_doc!['course']} · ${all.length} words',
+          style: GoogleFonts.schibstedGrotesk(fontSize: 14, color: t.inkMuted),
+        ),
+        const SizedBox(height: 16),
+        _lessonStrip(t, missing),
+        const SizedBox(height: 14),
+        _practiceButton(t, lesson['lesson'] as int),
+        const SizedBox(height: 14),
+        Row(
           children: [
-            Text(
-              '第${lesson['lesson']}課',
-              style: GoogleFonts.fraunces(
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 26 * -0.015,
-                height: 1.15,
-                color: t.inkStrong,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              '${_doc!['course']} · ${all.length} words',
-              style:
-                  GoogleFonts.schibstedGrotesk(fontSize: 14, color: t.inkMuted),
-            ),
-            const SizedBox(height: 16),
-            _lessonStrip(t, missing),
-            const SizedBox(height: 14),
-            _practiceButton(t, lesson['lesson'] as int),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                if (verbs > 0 || pairs > 0) ...[
-                  _chip(t, 'All ${all.length}', 0),
-                  if (verbs > 0) ...[
-                    const SizedBox(width: 8),
-                    _chip(t, 'Verbs $verbs', 1)
-                  ],
-                  if (pairs > 0) ...[
-                    const SizedBox(width: 8),
-                    _chip(t, 'Pairs $pairs', 2)
-                  ],
-                ],
-                const Spacer(),
-                _revealAllButton(t, items.length),
+            if (verbs > 0 || pairs > 0) ...[
+              _chip(t, 'All ${all.length}', 0),
+              if (verbs > 0) ...[
+                const SizedBox(width: 8),
+                _chip(t, 'Verbs $verbs', 1)
               ],
-            ),
-            const SizedBox(height: 14),
-            ...items.asMap().entries.map((e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 9),
-                  child: _item(t, e.value, e.key),
-                )),
-            const SizedBox(height: 10),
-            Text(
-              'Hiragana, katakana and English only. The sheets’ romaji is dropped: it is '
-              'spelled inconsistently across the course, and reading the Japanese is the point.'
-              '${missing.isEmpty ? '' : ' Lessons ${missing.join(', ')} have no usable source sheet.'}',
-              style: GoogleFonts.schibstedGrotesk(
-                  fontSize: 11.5, height: 1.45, color: t.inkSubtle),
-            ),
+              if (pairs > 0) ...[
+                const SizedBox(width: 8),
+                _chip(t, 'Pairs $pairs', 2)
+              ],
+            ],
+            const Spacer(),
+            _revealAllButton(t, items.length),
           ],
         ),
-      ),
+        const SizedBox(height: 14),
+        ...items.asMap().entries.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 9),
+              child: _item(t, e.value, e.key),
+            )),
+        const SizedBox(height: 10),
+        Text(
+          'Hiragana, katakana and English only. The sheets’ romaji is dropped: it is '
+          'spelled inconsistently across the course, and reading the Japanese is the point.'
+          '${missing.isEmpty ? '' : ' Lessons ${missing.join(', ')} have no usable source sheet.'}',
+          style: GoogleFonts.schibstedGrotesk(
+              fontSize: 11.5, height: 1.45, color: t.inkSubtle),
+        ),
+      ],
     );
   }
 
@@ -629,10 +697,13 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
     // The pills sit outside the card's tap target, so a grade never turns the card back.
     final id = _wordId(i);
     final graded = _graded[id];
+    final target = id == widget.initialWord;
     return Container(
+      key: target ? _wordKey : null,
       decoration: BoxDecoration(
         color: t.surface,
-        border: Border.all(color: t.border, width: 1),
+        border: Border.all(
+            color: target ? t.brand600 : t.border, width: target ? 2 : 1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

@@ -2,7 +2,7 @@
 
 The catalog (pipeline/jp/catalog.py) emits one `source_file` entry per data file: the
 five extraction bundles, each draft, uses.json, the kanji list, corrections.json,
-particle_clozes.json and jp_lessons.json.
+particle_clozes.json, particle_sentences.json and jp_lessons.json.
 Each entry carries its role, its origin and counts computed from the file. These tests
 recompute the counts here, straight from the files, so a hand-typed count in the
 catalog fails. They also scan docs/japanese-lessons.md for any of those counts: a
@@ -67,6 +67,9 @@ def expected_counts() -> dict[str, dict[str, int]]:
                                            "corrections": len(r["corrections"])}
     c = _read(JP / "particle_clozes.json")
     out["pipeline/jp/particle_clozes.json"] = {"clozes": len(c["clozes"])}
+    ps = _read(JP / "particle_sentences.json")["sentences"]
+    out["pipeline/jp/particle_sentences.json"] = {
+        "particles": len(ps), "sentences": sum(len(v) for v in ps.values())}
     v = _read(ASSETS / "jp_lessons.json")
     out["assets/lessons/jp_lessons.json"] = {
         "lessons": len(v["lessons"]), "words": sum(len(l["items"]) for l in v["lessons"]),
@@ -254,3 +257,12 @@ def test_the_doc_scan_catches_a_restated_count():
              "section 3.3. The rule is binding (PIN-13).")
     probe_counts = counts | {int(n) for n in re.findall(r"\d+", probe)}
     assert not any(_restates(n, a, probe_counts) for n, a, _ in _prose_numbers(probe))
+
+
+def test_particle_sentences_has_a_source_entry(sources):
+    # Plan Task 8: the drafted particle sentences are a data file with an entry of its own.
+    by_file = {e["file"]: e for e in sources}
+    e = by_file["pipeline/jp/particle_sentences.json"]
+    s = _read(JP / "particle_sentences.json")["sentences"]
+    assert e["counts"] == {"particles": len(s), "sentences": sum(len(v) for v in s.values())}
+    assert e["id"] == "file.particle_sentences.json"

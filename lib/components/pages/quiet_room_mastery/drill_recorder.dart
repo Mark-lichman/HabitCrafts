@@ -56,6 +56,7 @@ class DrillAnswer {
     this.sayIt = false,
     this.answerShown = false,
     this.atUtc,
+    this.spokenClose = false,
   });
 
   final String itemId;
@@ -78,6 +79,10 @@ class DrillAnswer {
 
   /// The answer's instant; null means now.
   final DateTime? atUtc;
+
+  /// A hinted spoken answer whose only help was an Azure `close` score (PIN-10): logged as
+  /// [Attempt.spokenClose], neutral for the two-hinted reset.
+  final bool spokenClose;
 }
 
 class AttemptRecorder {
@@ -166,6 +171,7 @@ class AttemptRecorder {
                 ? Source.review
                 : Source.early,
         sessionId: sessionId,
+        spokenClose: a.spokenClose,
       ),
       item: lookup(a.itemId),
       scheduler: scheduler,

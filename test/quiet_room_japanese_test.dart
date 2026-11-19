@@ -914,6 +914,10 @@ class _Word implements ItemDefLike {
   bool get hasProductionProbe => false;
   @override
   int get probeCount => 1;
+
+  // No moded card, so the three-mode clause (plan 2026-11-06, Task 7, PIN-7) never binds here.
+  @override
+  Set<ProbeMode> get modes => const {};
 }
 
 /// An answer on [item] on [day], as the session writes it.

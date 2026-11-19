@@ -393,7 +393,8 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
       builder: (context) => AlertDialog(
         title: Text('Replace the study record?', style: qrTitle(t, size: 20)),
         content: Text(
-            'Import replaces every attempt on this device with the file\'s, '
+            'Import replaces every attempt, note and Discuss mark on this '
+            'device with the file\'s, '
             'then rebuilds every state from it.',
             style: qrText(t)),
         actions: [

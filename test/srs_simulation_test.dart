@@ -2,9 +2,19 @@
 // (test/support/synthetic_learner.dart: 85% clear while retrievable, otherwise the chance
 // tracks retrievability, the rest 45% hinted and 55% wrong) answers the shipped catalog's items
 // through their real probes and templates for 120 days, through `buildPlan`, the FSRS scheduler
-// and the mastery rule, with a memory store and an injected clock. Four runs: from scratch
-// (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C), and with the
-// stretch taken whenever the end card offers it (D). The test prints each run's summary and a
+// and the mastery rule, with a memory store and an injected clock. Each card is the session's
+// own pick (`nextProbe`, D19), and the rule needs a clear in every mode the item has a card for
+// (plan 2026-11-06, Task 7, PIN-7). Since Task 9 a particle asks three sentences and needs
+// clears on two, the pick moves off a sentence cleared on 2 days (D11), and a re-ask after a
+// wrong rotates (plan 2026-11-06, ASK-5). Re-measured on 2026-11-07 at the phase 6 base: run
+// A mastered 397 items by day 120 (first on day 41, 27 conjugation ideas), run C 709 (first
+// on day 37, every kind). At the phase 5 base, before Task 9, run C was 687 and run A had 24
+// conjugation ideas; the mode clause alone moved neither run, because the pick asks a missing
+// mode before the clears run out. Under the phase 5 rule, the old rotation by answer count gave
+// run A 352 and 5 conjugation ideas: its first four cards on an idea are all typed, so the
+// run A conjugation floor (`kScratchConjugationFloor`) guards the pick. Four runs:
+// from scratch (A), with a 10-day break on days 50 to 59 (B), seeded per `seedFromLessons` (C),
+// and with the stretch taken whenever the end card offers it (D). The test prints each run's summary and a
 // 10-day table, so the simulator numbers in the plan's Context can be re-measured here. The
 // last test holds the plan's two `wasDue` stamps the harness and the session copy (ASK-6).
 
@@ -28,6 +38,11 @@ final catalog = ItemCatalog.fromDocs(_read('assets/lessons/jp_grammar.json'),
 
 /// The days of run B's break.
 final Set<int> breakDays = {for (var d = 50; d < 60; d++) d};
+
+/// The fewest conjugation ideas run A must master by day 120: between the old rotation's 5
+/// and the session pick's 27 (24 before Task 9), so a return to the old rotation fails the
+/// test.
+const int kScratchConjugationFloor = 12;
 
 void main() {
   late SimRun scratch, withBreak, seeded, stretch;
@@ -85,6 +100,18 @@ void main() {
     expect(scratch.firstMasteredDay, isNotNull, reason: scratch.summary());
     expect(scratch.firstMasteredDay!, lessThan(70), reason: scratch.summary());
     expect(scratch.masteredEnd, greaterThanOrEqualTo(200),
+        reason: scratch.summary());
+  });
+
+  test(
+      'from scratch, the session pick masters at least $kScratchConjugationFloor '
+      'conjugation ideas by day 120 (D19)', () {
+    // The floor the old rotation by answer count misses: measured on 2026-11-07, `nextProbe`
+    // gives 27 (24 before Task 9) and the old `n % length` pick gave 5, because its first
+    // four cards on an idea are all typed and the spoken clear never arrives before the
+    // clears run out.
+    expect(scratch.masteredByKind[ItemKind.conjugation],
+        greaterThanOrEqualTo(kScratchConjugationFloor),
         reason: scratch.summary());
   });
 

@@ -1,8 +1,9 @@
 // The study store (Task 8, D14, D26, A4, A5). One suite runs against both implementations:
 // `JpStoreMemory` (the web store) and `JpStoreSqlite` through the ffi factory. The SQLite-only
-// group covers the schema version, the indexes, a reopen of the file, the upgrade steps and
-// the rollback of an answer that fails inside its transaction. The gated memory store holds a
-// rebuild or an import open so an answer can try to land inside it.
+// group covers the schema version, the indexes, a reopen of the file, the upgrade steps (the
+// version 1 file gaining the Discuss table among them) and the rollback of an answer that fails
+// inside its transaction. The gated memory store holds a rebuild or an import open so an answer
+// can try to land inside it.
 
 import 'dart:async';
 import 'dart:convert';
@@ -576,6 +577,7 @@ void main() {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
         await store.setNote('keep', 'note');
+        await store.setDiscuss('keep', note: 'mark', atUtc: at(0));
         final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
             item: g, scheduler: scheduler);
         final good = encodeStudyExport(const StudyLog(), exportedAt: at(0));
@@ -585,8 +587,9 @@ void main() {
         final bad = <String, String>{
           '': 'empty',
           '{"format":"other","version":1}': 'line 1 is not the header',
-          good.replaceFirst('"version":1', '"version":2'):
-              'version 2 is not readable',
+          good.replaceFirst('"version":$kStudyExportVersion',
+                  '"version":${kStudyExportVersion + 1}'):
+              'version ${kStudyExportVersion + 1} is not readable',
           '$good{"type":"mystery"}\n': 'unknown type',
           '$good{"type":"seed","itemId":"x","dueDay":1,"atUtc":"2026-01-01T00:00:00.000Z"}\n':
               'line counts disagree',
@@ -609,6 +612,8 @@ void main() {
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
         expect(await store.notes(), {'keep': 'note'});
+        expect(await store.discussMarks(),
+            {'keep': DiscussMark(itemId: 'keep', note: 'mark', atUtc: at(0))});
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
       });
@@ -616,6 +621,7 @@ void main() {
       test('a log the replay rejects is not imported', () async {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
+        await store.setDiscuss('keep', note: 'mark', atUtc: at(0));
         final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
             item: g, scheduler: scheduler);
         final log = StudyLog(
@@ -625,9 +631,220 @@ void main() {
             store.importLog(log, catalog.byId, scheduler), throwsBadRating);
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
+        expect(await store.discussMarks(),
+            {'keep': DiscussMark(itemId: 'keep', note: 'mark', atUtc: at(0))});
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
         expect((await store.item('keep'))!.seedDueDay, 1);
+      });
+
+      group('Discuss marks (PIN-6)', () {
+        test('a mark is set with an optional short note, replaced and cleared',
+            () async {
+          final g = firstOf(ItemKind.grammar), p = firstOf(ItemKind.particle);
+          expect(await store.discussMarks(), isEmpty);
+          expect(await store.discuss(g.id), isNull);
+
+          await store.setDiscuss(g.id, atUtc: at(1));
+          await store.setDiscuss(p.id,
+              note: '  ask about に vs で ', atUtc: at(2));
+          expect(await store.discuss(g.id),
+              DiscussMark(itemId: g.id, atUtc: at(1)));
+          expect((await store.discuss(p.id))!.note, 'ask about に vs で',
+              reason: 'the note is trimmed');
+          expect((await store.discussMarks()).keys.toSet(), {g.id, p.id});
+
+          // Setting again replaces the mark; a blank note is no note.
+          await store.setDiscuss(p.id, note: '   ', atUtc: at(3));
+          expect(await store.discuss(p.id),
+              DiscussMark(itemId: p.id, atUtc: at(3)));
+          await store.setDiscuss(g.id, note: 'politeness', atUtc: at(4));
+          expect(await store.discuss(g.id),
+              DiscussMark(itemId: g.id, note: 'politeness', atUtc: at(4)));
+
+          await store.clearDiscuss(g.id);
+          expect(await store.discuss(g.id), isNull);
+          expect((await store.discussMarks()).keys, [p.id]);
+          // Clearing an unmarked item is a no-op.
+          await store.clearDiscuss('never-marked');
+          expect((await store.discussMarks()).keys, [p.id]);
+        });
+
+        test('a mark is kept apart from the learner note and the seed',
+            () async {
+          final g = firstOf(ItemKind.grammar);
+          await store.appendSeed(g.id, 4, atUtc: at(0));
+          await store.setNote(g.id, kNoteCanUseIt);
+          await store.setDiscuss(g.id, note: 'x', atUtc: at(1));
+          expect(await store.notes(), {g.id: kNoteCanUseIt});
+          expect((await store.item(g.id))!.seedDueDay, 4);
+          await store.clearDiscuss(g.id);
+          expect(await store.notes(), {g.id: kNoteCanUseIt});
+          expect((await store.item(g.id))!.seedDueDay, 4);
+          await store.setNote(g.id, null);
+          await store.setDiscuss(g.id, atUtc: at(2));
+          await store.setNote(g.id, kNoteCanUseIt);
+          await store.setNote(g.id, null);
+          expect(await store.discuss(g.id), isNotNull,
+              reason: 'clearing the note leaves the mark');
+        });
+
+        test(
+            'setting and clearing marks changes no attempt, schedule or mastery',
+            () async {
+          final g = firstOf(ItemKind.grammar), p = firstOf(ItemKind.particle);
+          await store.appendSeed(p.id, 6, atUtc: at(0));
+          for (final (day, grade) in [(1, Grade.clear), (5, Grade.wrong)]) {
+            await store.recordAnswer(answer(g, day, grade),
+                item: g, scheduler: scheduler);
+          }
+          Future<List<Object?>> snapshot() async => [
+                await store.attempts(),
+                await store.seeds(),
+                await store.allSrs(),
+                await store.allMastery(),
+                await store.dueOnOrBefore(1000),
+                await store.loadByDay(),
+              ];
+          final before = await snapshot();
+
+          await store.setDiscuss(g.id, note: 'why wrong?', atUtc: at(6));
+          await store.setDiscuss(p.id, atUtc: at(6));
+          await store.setDiscuss('unknown-item', atUtc: at(6));
+          expect(await snapshot(), before,
+              reason: 'a set touches nothing else');
+
+          // A rebuild replays the log alone: the marks change none of its states.
+          final rebuilt = await store.rebuild(catalog.byId, scheduler);
+          expect(rebuilt.srs, before[2]);
+          expect(rebuilt.mastery, before[3]);
+          expect(await snapshot(), before);
+          expect((await store.discussMarks()).length, 3,
+              reason: 'a rebuild keeps the marks');
+
+          await store.clearDiscuss(g.id);
+          expect(await snapshot(), before,
+              reason: 'a clear touches nothing else');
+        });
+
+        test('marks ride the export and replace the record on import',
+            () async {
+          final g = firstOf(ItemKind.grammar), p = firstOf(ItemKind.particle);
+          await store.recordAnswer(answer(g, 1, Grade.clear),
+              item: g, scheduler: scheduler);
+          await store.setNote(g.id, kNoteCanUseIt);
+          // Written in the reverse of their id order: the export sorts them.
+          await store.setDiscuss(p.id, note: 'は or が', atUtc: at(2));
+          await store.setDiscuss(g.id, atUtc: at(1));
+          final marks = await store.discussMarks();
+
+          final text = await exportStudy(store, exportedAt: at(10));
+          final lines = const LineSplitter().convert(text);
+          final header = jsonDecode(lines.first) as Map<String, dynamic>;
+          expect(header['discuss'], 2);
+          final discussLines = [
+            for (final l in lines.skip(1))
+              if ((jsonDecode(l) as Map)['type'] == 'discuss')
+                jsonDecode(l) as Map<String, dynamic>
+          ];
+          expect(discussLines.map((j) => j['itemId']), [g.id, p.id]..sort());
+          expect(discussLines.firstWhere((j) => j['itemId'] == g.id),
+              isNot(contains('note')),
+              reason: 'a mark with no note writes no note key');
+          expect(decodeStudyExport(text).discuss, marks);
+
+          for (final open in implementations.values) {
+            final other = await open();
+            try {
+              await other.setDiscuss('stale', note: 'gone', atUtc: at(0));
+              await importStudy(other, text,
+                  lookup: catalog.byId, scheduler: scheduler);
+              expect(await other.discussMarks(), marks,
+                  reason: 'the import replaces the marks');
+              expect(await other.allSrs(), await store.allSrs());
+              expect(await other.allMastery(), await store.allMastery());
+              expect(await other.notes(), {g.id: kNoteCanUseIt});
+              expect(await exportStudy(other, exportedAt: at(10)), text);
+            } finally {
+              await other.close();
+            }
+          }
+        });
+
+        test(
+            'an export written before this plan imports unchanged (End state 8)',
+            () async {
+          final fixture =
+              File('test/fixtures/study_export_v1.jsonl').readAsStringSync();
+          final fixtureLines = const LineSplitter().convert(fixture);
+          final fixtureHeader =
+              jsonDecode(fixtureLines.first) as Map<String, dynamic>;
+          expect(fixtureHeader['version'], 1,
+              reason: 'the fixture is a pre-plan export');
+          expect(fixtureHeader, isNot(contains('discuss')));
+
+          final log = decodeStudyExport(fixture);
+          expect([
+            log.attempts.length,
+            log.seeds.length,
+            log.notes.length
+          ], [
+            fixtureHeader['attempts'],
+            fixtureHeader['seeds'],
+            fixtureHeader['notes']
+          ]);
+          expect(log.discuss, isEmpty);
+
+          await store.setDiscuss('stale', atUtc: at(0));
+          final result = await importStudy(store, fixture,
+              lookup: catalog.byId, scheduler: scheduler);
+          expect(await store.discussMarks(), isEmpty);
+          expect(await store.attempts(), log.attempts,
+              reason: 'no attempt is rewritten');
+          expect(await store.seeds(), log.seeds);
+          expect(await store.notes(), log.notes);
+          expect(await store.allSrs(), result.srs);
+          expect(await store.allMastery(), result.mastery);
+          expect(result.srs, isNotEmpty);
+          expect(result.mastery, isNotEmpty);
+
+          // Re-exported, every record line is the fixture's own, byte for byte; only the
+          // header moves to this build's version and gains a zero Discuss count.
+          final again = const LineSplitter()
+              .convert(await exportStudy(store, exportedAt: at(10)));
+          expect(again.skip(1), fixtureLines.skip(1));
+          final header = jsonDecode(again.first) as Map<String, dynamic>;
+          expect(header, {
+            ...fixtureHeader,
+            'version': kStudyExportVersion,
+            'discuss': 0,
+          });
+        });
+
+        test('a Discuss line the header does not count is refused', () async {
+          final good = encodeStudyExport(const StudyLog(), exportedAt: at(0));
+          final mark = jsonEncode({
+            'type': 'discuss',
+            'itemId': 'x',
+            'atUtc': at(0).toIso8601String()
+          });
+          final v1 = '{"format":"$kStudyExportFormat","version":1,'
+              '"exportedAtUtc":"${at(0).toIso8601String()}",'
+              '"attempts":0,"seeds":0,"notes":0}\n';
+          for (final text in ['$good$mark\n', '$v1$mark\n']) {
+            await expectLater(
+                importStudy(store, text,
+                    lookup: catalog.byId, scheduler: scheduler),
+                throwsA(isA<FormatException>().having((x) => x.message,
+                    'message', contains('line counts disagree'))),
+                reason: text);
+          }
+          await expectLater(
+              importStudy(store, '$good{"type":"discuss","itemId":"x"}\n',
+                  lookup: catalog.byId, scheduler: scheduler),
+              throwsA(isA<FormatException>()
+                  .having((x) => x.message, 'message', contains('line 2'))));
+        });
       });
 
       group('the v2 migration', () {
@@ -943,6 +1160,7 @@ void main() {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
         await store.setNote('keep', 'note');
+        await store.setDiscuss('keep', note: 'mark', atUtc: at(0));
         await store.putMeta('k', 'v');
         final kept = await store.recordAnswer(answer(g, 1, Grade.clear),
             item: g, scheduler: scheduler);
@@ -951,7 +1169,8 @@ void main() {
         final log = StudyLog(
             attempts: [answer(g, 2, Grade.clear)],
             seeds: [SeedEvent(itemId: 'x', dueDay: 2, atUtc: at(0))],
-            notes: const {'x': 'new'});
+            notes: const {'x': 'new'},
+            discuss: {'x': DiscussMark(itemId: 'x', atUtc: at(1))});
         final result = ReplayResult(
             srs: {g.id: scheduler.first(SrsRating.good, 2)},
             mastery: {g.id: _Unwritable(g.id)},
@@ -960,6 +1179,8 @@ void main() {
         expect((await store.seeds()).single.itemId, 'keep');
         expect(await store.attempts(), [kept.attempt]);
         expect(await store.notes(), {'keep': 'note'});
+        expect(await store.discussMarks(),
+            {'keep': DiscussMark(itemId: 'keep', note: 'mark', atUtc: at(0))});
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
         expect((await store.item('keep'))!.seedDueDay, 1);
@@ -987,7 +1208,7 @@ void main() {
 
         store =
             await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
-        expect(await store.schemaVersion(), 1);
+        expect(await store.schemaVersion(), kJpStoreSchemaVersion);
         expect(await store.attempts(), [out.attempt]);
         expect(await store.srs(g.id), out.srs);
         expect(await store.mastery(g.id), out.mastery);
@@ -1000,8 +1221,10 @@ void main() {
                 "SELECT name FROM sqlite_master WHERE type = 'table'"))
             .map((r) => r['name'])
             .toSet();
-        expect(tables,
-            containsAll(['items', 'srs', 'mastery', 'attempts', 'days']));
+        expect(
+            tables,
+            containsAll(
+                ['items', 'srs', 'mastery', 'attempts', 'days', 'discuss']));
         final indexes = await db.rawQuery(
             "SELECT tbl_name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL");
         expect(
@@ -1016,14 +1239,56 @@ void main() {
       }
     });
 
+    test(
+        'a version 1 file upgrades to the Discuss table and keeps every row (PIN-6)',
+        () async {
+      final dir = await Directory.systemTemp.createTemp('jp_store_test');
+      final path = '${dir.path}/jp_study.db';
+      try {
+        final g = firstOf(ItemKind.grammar);
+        // A file as the build before this plan wrote it: version 1, no upgrade step.
+        var store = await JpStoreSqlite.open(
+            factory: databaseFactoryFfi, path: path, version: 1, upgrades: {});
+        expect(await store.schemaVersion(), 1);
+        final out = await store.recordAnswer(answer(g, 3, Grade.clear),
+            item: g, scheduler: scheduler);
+        await store.appendSeed('seeded', 5, atUtc: at(0));
+        await store.setNote(g.id, kNoteCanUseIt);
+        await store.close();
+
+        store =
+            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        expect(kJpStoreSchemaVersion, 2);
+        expect(await store.schemaVersion(), 2);
+        expect(await store.attempts(), [out.attempt]);
+        expect(await store.srs(g.id), out.srs);
+        expect(await store.mastery(g.id), out.mastery);
+        expect((await store.item('seeded'))!.seedDueDay, 5);
+        expect(await store.notes(), {g.id: kNoteCanUseIt});
+        expect(await store.discussMarks(), isEmpty);
+        await store.setDiscuss(g.id, note: 'ask Mari', atUtc: at(4));
+        await store.close();
+
+        store =
+            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        expect(await store.discuss(g.id),
+            DiscussMark(itemId: g.id, note: 'ask Mari', atUtc: at(4)));
+        expect(await store.attempts(), [out.attempt]);
+        await store.close();
+      } finally {
+        await dir.delete(recursive: true);
+      }
+    });
+
     test('onUpgrade runs the step to each later version and keeps the rows',
         () async {
       final dir = await Directory.systemTemp.createTemp('jp_store_test');
       final path = '${dir.path}/jp_study.db';
       try {
         final g = firstOf(ItemKind.grammar);
-        var store =
-            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        // A version 1 file: the seam's own step 2 must be the one that runs.
+        var store = await JpStoreSqlite.open(
+            factory: databaseFactoryFfi, path: path, version: 1, upgrades: {});
         final out = await store.recordAnswer(answer(g, 3, Grade.clear),
             item: g, scheduler: scheduler);
         await store.close();

@@ -32,8 +32,15 @@
 // or self answer changes neither its schedule nor its mastery, a wrong counts.
 // `gradeGrammarAnswer` holds the
 // grades (D17).
+//
+// A practice card's "Review the lesson" opens the screen at one grammar point (plan
+// 2026-11-06, Task 1, D20): [QuietRoomGrammarWidget.initialPoint] picks the point's lesson
+// and scrolls its card to the top, and [QuietRoomGrammarWidget.fromCard] shows the "Back to
+// practice" bar. An open at a point leaves the remembered lesson alone: the learner did not
+// choose it. The plain entry, with neither set, is unchanged.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
@@ -251,6 +258,8 @@ class QuietRoomGrammarWidget extends StatefulWidget {
       {super.key,
       this.initialLesson,
       this.initialQuery,
+      this.initialPoint,
+      this.fromCard = false,
       this.onPracticeResult,
       this.store,
       this.itemLookup,
@@ -273,6 +282,13 @@ class QuietRoomGrammarWidget extends StatefulWidget {
   /// Opens with this search already typed (a catalog link to an untaught particle).
   final String? initialQuery;
 
+  /// Opens at this grammar point (its id, `mari.L31.3`): on the point's own lesson, with its
+  /// card scrolled to the top. It wins over [initialLesson].
+  final String? initialPoint;
+
+  /// A practice card opened the screen: the "Back to practice" bar shows.
+  final bool fromCard;
+
   /// Hears every change to a practice item's result: a pick, a typed check, a hint
   /// tap, a reveal or a self-mark. Never an empty Check, never "Tap for English".
   final ValueChanged<GrammarPracticeResult>? onPracticeResult;
@@ -293,6 +309,11 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   bool _kanji = false;
   late String _query = widget.initialQuery ?? '';
   late final _searchCtl = TextEditingController(text: widget.initialQuery);
+
+  /// The card of [QuietRoomGrammarWidget.initialPoint], scrolled to once, on the first build
+  /// with the lesson file loaded.
+  final _pointKey = GlobalKey();
+  bool _scrolledToPoint = false;
 
   /// The lesson path's current lesson and the seed's default ticks follow it. Same key as
   /// `kLastGrammarLessonKey` (seed_confirm_widget.dart), spelled out to avoid an import cycle.
@@ -329,7 +350,36 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialLesson != null) _remember(widget.initialLesson!);
+    if (widget.initialLesson != null && widget.initialPoint == null) {
+      _remember(widget.initialLesson!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchCtl.dispose();
+    super.dispose();
+  }
+
+  /// The lesson that holds the point [id], or null when none does.
+  static int? _lessonOfPoint(List<Map<String, dynamic>> lessons, String id) {
+    for (final l in lessons) {
+      for (final p in (l['points'] as List).cast<Map<String, dynamic>>()) {
+        if (p['id'] == id) return l['lesson'] as int?;
+      }
+    }
+    return null;
+  }
+
+  /// Scrolls the point's card to the top once it is laid out.
+  void _scrollToPointOnce() {
+    if (_scrolledToPoint) return;
+    _scrolledToPoint = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _pointKey.currentContext;
+      if (target == null || !target.mounted) return;
+      Scrollable.ensureVisible(target, duration: Duration.zero);
+    });
   }
 
   /// Everything a learner might type: the pattern, what it is for, the explanation,
@@ -360,6 +410,7 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   @override
   Widget build(BuildContext context) {
     return QrStudyScaffold(
+      fromCard: widget.fromCard,
       child: QrLoad(builder: (context, doc) {
         final t = QuietRoomTokens.of(context);
         final lessons = (doc['grammar'] as List).cast<Map<String, dynamic>>();
@@ -373,7 +424,11 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
             for (final p in (l['points'] as List).cast<Map<String, dynamic>>())
               {...p, 'lesson': l['lesson']},
         ];
-        _lesson ??= widget.initialLesson ?? lessons.first['lesson'] as int;
+        _lesson ??= (widget.initialPoint == null
+                ? null
+                : _lessonOfPoint(lessons, widget.initialPoint!)) ??
+            widget.initialLesson ??
+            lessons.first['lesson'] as int;
         final lesson = lessons.firstWhere((l) => l['lesson'] == _lesson,
             orElse: () => lessons.first);
         final title = lesson['title'] as String? ?? '';
@@ -406,8 +461,17 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
               .join(' · ');
         }
         final crossLesson = searching || _byUse;
+        // The point to open at, by its index in the list shown.
+        final pointIndex = widget.initialPoint == null
+            ? -1
+            : points.indexWhere((p) => p['id'] == widget.initialPoint);
+        if (pointIndex >= 0) _scrollToPointOnce();
 
         return ListView(
+          // Opened at a point, every card is built, so the point's card has a context to
+          // scroll to however far down the lesson it sits.
+          scrollCacheExtent:
+              pointIndex >= 0 ? const ScrollCacheExtent.pixels(100000) : null,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
           children: [
             Row(
@@ -494,14 +558,15 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
               ],
               const SizedBox(height: 14),
             ],
-            ...points.map((p) => Padding(
+            ...points.asMap().entries.map((e) => Padding(
                   // Keyed by id so a card's revealed state never carries over to the
                   // same position in another lesson.
-                  key: ValueKey(p['id']),
+                  key: ValueKey(e.value['id']),
                   padding: const EdgeInsets.only(bottom: 12),
                   child: _PointCard(
-                    point: p,
-                    lesson: crossLesson ? p['lesson'] as int? : null,
+                    key: e.key == pointIndex ? _pointKey : null,
+                    point: e.value,
+                    lesson: crossLesson ? e.value['lesson'] as int? : null,
                     useNames: useNames,
                     kanji: _kanji,
                     onPracticeResult: widget.onPracticeResult,
@@ -549,7 +614,8 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
 
 class _PointCard extends StatefulWidget {
   const _PointCard(
-      {required this.point,
+      {super.key,
+      required this.point,
       this.lesson,
       this.useNames = const {},
       this.kanji = false,
