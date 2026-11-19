@@ -85,6 +85,7 @@ class RecordSummary {
     required this.load14,
     required this.overdue,
     required this.attemptCount,
+    this.sayItCount = 0,
     required this.answerTimes,
     required this.sessionCount,
     required this.medianSessionMinutes,
@@ -100,6 +101,9 @@ class RecordSummary {
   /// Items due before today.
   final int overdue;
   final int attemptCount;
+
+  /// Attempts on the Say-it track, which never count toward a day, the queue or Mastered.
+  final int sayItCount;
   final Map<ItemKind, AnswerTime> answerTimes;
 
   /// Review sessions only (ASK-10).
@@ -206,6 +210,7 @@ Future<RecordSummary> summarizeRecord(JpStore store, ItemCatalog catalog,
     load14: load14,
     overdue: overdue,
     attemptCount: attempts.length,
+    sayItCount: attempts.where((a) => a.source == Source.sayIt).length,
     answerTimes: answerTimes,
     sessionCount: all.length,
     medianSessionMinutes: _median(all.map(minutes).toList()),
@@ -223,6 +228,15 @@ String dueLabel(int day, int today) {
 }
 
 String _plural(int n, String one) => '$n $one${n == 1 ? '' : 's'}';
+
+/// The header line under the title. Say-it attempts are named apart, because they never count
+/// toward a day, the queue or Mastered, so a record with only Say-it tries still reads as unstarted.
+String attemptsLine(int attempts, int sayIt) {
+  final all = _plural(attempts, 'attempt');
+  if (sayIt == 0) return all;
+  if (sayIt == attempts) return '$all, all Say it (never counted)';
+  return '$all, $sayIt of them Say it (never counted)';
+}
 
 String _counts(int attempts, int seeds) =>
     '${_plural(attempts, 'attempt')} and ${_plural(seeds, 'seed')}';
@@ -428,7 +442,7 @@ class _MasteryDebugWidgetState extends State<MasteryDebugWidget> {
         children: [
           Text('Study record', style: qrTitle(t, size: 28)),
           const SizedBox(height: 5),
-          Text(_plural(s.attemptCount, 'attempt'),
+          Text(attemptsLine(s.attemptCount, s.sayItCount),
               style: qrText(t, color: t.inkMuted)),
           const SizedBox(height: 14),
           Wrap(spacing: 7, runSpacing: 7, children: [

@@ -408,7 +408,7 @@ class _QuietRoomLessonWidgetState extends State<QuietRoomLessonWidget> {
             }.withoutNulls,
           ),
           icon: Icon(Icons.mic_none, size: 19, color: t.onBrand),
-          label: Text('Practise speaking',
+          label: Text('Practice speaking',
               style: GoogleFonts.schibstedGrotesk(
                   fontSize: 15, fontWeight: FontWeight.w600, color: t.onBrand)),
           style: ElevatedButton.styleFrom(

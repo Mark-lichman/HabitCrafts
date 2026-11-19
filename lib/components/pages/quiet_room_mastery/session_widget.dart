@@ -642,10 +642,16 @@ class _SessionWidgetState extends State<SessionWidget> {
       _Phase.softStop => _softStopCard(t),
       _Phase.end => _endCard(t),
     };
+    // A question sits at the top, under the back arrow, so it and its answer field stay
+    // in reach when the keyboard opens (#138). The cards between questions stay centered.
+    final asking = _phase == _Phase.asking ||
+        _phase == _Phase.saving ||
+        _phase == _Phase.held;
     return ColoredBox(
       color: t.canvas,
       child: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: asking ? Alignment.topCenter : Alignment.center,
           child: ConstrainedBox(
             constraints:
                 const BoxConstraints(maxWidth: QuietRoomMetrics.readMax),

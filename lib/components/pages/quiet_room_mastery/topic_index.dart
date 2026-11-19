@@ -24,6 +24,7 @@ import 'item_catalog.dart';
 import 'jp_store.dart';
 import 'mastery_rule.dart';
 import 'probe_widgets.dart' show conjugationFormLabel;
+import 'romaji.dart';
 import 'scheduler.dart';
 
 /// The browse sets on the Topics screen, in display order.
@@ -335,14 +336,19 @@ class TopicIndex {
   // --- search ----------------------------------------------------------------
 
   /// Items and topics matching [query], best first. An empty query finds nothing.
+  /// A romaji query also searches the hiragana it spells (#137), so "mimasu" finds みます.
   List<SearchHit> search(String query) {
     final q = _norm(query);
     if (q.isEmpty) return const [];
+    final kana = romajiToHiragana(q);
+    final queries = [q, if (kana != null && kana != q) kana];
     int? best(List<_Field> fields) {
       int? r;
       for (final f in fields) {
-        final got = f.rank(q);
-        if (got != null && (r == null || got < r)) r = got;
+        for (final each in queries) {
+          final got = f.rank(each);
+          if (got != null && (r == null || got < r)) r = got;
+        }
       }
       return r;
     }

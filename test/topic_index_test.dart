@@ -80,6 +80,11 @@ void main() {
       expect(index.search('じしょ').first.itemId, 'L02_01');
     });
 
+    test('a romaji query lands on the word its hiragana spells (#137)', () {
+      expect(index.search('jisho').first.itemId, 'L02_01');
+      expect(index.search('JISHO').first.itemId, 'L02_01');
+    });
+
     test('a pattern, a summary and a catalog search term land on the point',
         () {
       expect(index.search('Nが できます').first.itemId, 'mari.L27.3');
