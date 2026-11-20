@@ -160,7 +160,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 5: The web study store
 - Files: `lib/components/pages/quiet_room_mastery/jp_store_web.dart`, `lib/components/pages/quiet_room_mastery/jp_store_sqlite.dart`, `pubspec.yaml`, `pubspec.lock`, `test/jp_store_test.dart`, `test/open_jp_store_test.dart`
-- Plan slice: on the web, `openJpStore` returns a store that keeps the record across reloads (mechanism is latitude, A4). It passes the same store contract tests as the SQLite and memory stores. Retire the A4 test "the web store is the memory store" in `test/jp_store_test.dart` and the "memory on web (A4)" comments in `jp_store_sqlite.dart`. Edit `pubspec.yaml` and `pubspec.lock` only if a package is added.
+- Plan slice: on the web, `openJpStore` returns a store that keeps the record across reloads (mechanism is latitude, A4). It passes the same store contract tests as the SQLite and memory stores. Retire the A4 test "the web store is the memory store" in `test/jp_store_test.dart` and the "memory on web (A4)" comments in `jp_store_sqlite.dart`. Edit `pubspec.yaml` and `pubspec.lock` only if a package is added. The web store re-reads the saved record inside its write lock before each change, so two open tabs never overwrite each other and another tab never undoes a sign-out wipe. Its wipe also clears `sync.cursor` and `sync.replayPending`, so the next sign-in pulls the whole record (operator rulings, Checkpoint 2026-11-20). Task 3 already edited `jp_store_sqlite.dart` and `test/jp_store_test.dart` this phase: build on its edits, never revert them.
 - Done when: `/c/src/flutter/bin/flutter test test/open_jp_store_test.dart test/jp_store_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
@@ -180,7 +180,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 6: Sync host and sign-out wipe
 - Files: `lib/components/pages/quiet_room_mastery/jp_sync_host.dart`, `lib/main.dart`, `lib/components/pages/profile_page/profile_page_widget.dart`, `test/jp_sync_host_test.dart`
-- Plan slice: start sync after a non-anonymous sign-in and on app resume. Never sync an anonymous user. Sign-out clears the local study store on the web. Add a "Signed-in devices" entry to the profile page that opens `DevicesPageWidget.routeName` (Task 7). Task 8 adds this file's adopted-files row.
+- Plan slice: start sync after a non-anonymous sign-in and on app resume. Never sync an anonymous user. Sign-out clears the local study store on the web, through the store wipe that also clears the sync cursor and replay flag (Task 5). Add a "Signed-in devices" entry to the profile page that opens `DevicesPageWidget.routeName` (Task 7). Task 8 adds this file's adopted-files row.
 - Done when: `/c/src/flutter/bin/flutter test --platform chrome test/jp_sync_host_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
@@ -200,6 +200,15 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 - Files: `lib/auth/firebase_auth/firebase_auth_manager.dart`, `lib/auth/firebase_auth/google_auth.dart`, `web/index.html`, `docs/architecture/adopted-files.md`, `test/web_auth_test.dart`
 - Plan slice: Google and email sign-in work on the web and reach the phone's uid. The web session persists across reloads. Password reset sends from the web. Apple sign-in on web is wired, and its Services ID setup goes in the runbook (Task 12). Add adopted-files rows for `firebase_auth_manager.dart`, `google_auth.dart` and `profile_page_widget.dart` (Task 6).
 - Done when: `/c/src/flutter/bin/flutter test --platform chrome test/web_auth_test.dart` (prints `All tests passed!`)
+- requiresTest: true
+- requiresPackaging: false
+- deps: []
+- target repo: superproject
+
+### Task 15: Millisecond legacy times and a kind-filtered read
+- Files: `lib/components/pages/quiet_room_mastery/jp_store.dart`, `lib/components/pages/quiet_room_mastery/jp_store_sqlite.dart`, `lib/components/pages/quiet_room_mastery/jp_store_web.dart`, `lib/components/pages/quiet_room_mastery/jp_store_memory.dart`, `test/jp_store_test.dart`, `test/jp_sync_test.dart`
+- Plan slice: two operator rulings from the Phase 2 Checkpoint (2026-11-20). (a) A legacy event (the v3 migration and `prepareLog`) cuts its event time and body `atUtc` to milliseconds when it is built, so phone and web derive byte-identical legacy events. Add a microsecond fixture to the End state 4 test. (b) Fix #204: add a kind-filtered read on `JpStore` (for example `eventsOfKind`), backed by a `WHERE kind = ?` query in the SQLite store and a filter in the web and memory stores. Use it in `lastLesson()`, `speakScores()` and the side-event reads, so a read no longer decodes every score row.
+- Done when: `/c/src/flutter/bin/flutter test test/jp_store_test.dart test/jp_sync_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
@@ -265,7 +274,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 ## Notes / conscious deviations
 
 - This plan replaces two items of `docs/plans/2026-11-02-jp-mastery-queue.md`: the guardrail "no login screen" (sync needs a signed-in account) and A4 "web keeps nothing between loads" (the web store now persists and syncs) (user, echo-back 1).
-- Files written in more than one phase, never twice in one phase: `firebase/firebase.json` and `.github/workflows/ci.yml` (Tasks 2, 12), `firebase/firestore.rules` (Tasks 2, 4), `jp_store.dart` (Tasks 1, 3), `jp_store_sqlite.dart` (Tasks 1, 5), `quiet_room_speak_widget.dart` (Tasks 13, 9), `docs/architecture/adopted-files.md` (Tasks 8, 14), `pubspec.yaml` and `pubspec.lock` (Tasks 5, 14).
+- Files written in more than one phase, never twice in one phase: `firebase/firebase.json` and `.github/workflows/ci.yml` (Tasks 2, 12), `firebase/firestore.rules` (Tasks 2, 4), `jp_store.dart` (Tasks 1, 3, 15), `jp_store_sqlite.dart` (Tasks 1, 3, 5, 15; Task 3's Phase 2 edit was a ruled exception), `jp_store_web.dart` (Tasks 5, 15), `quiet_room_speak_widget.dart` (Tasks 13, 9), `docs/architecture/adopted-files.md` (Tasks 8, 14), `pubspec.yaml` and `pubspec.lock` (Tasks 5, 14).
 - The 11/02 plan's other floor items (`firebase/functions` untouched, no FlutterFlow-managed edits outside its listed files, the record stays phone-local) scoped that plan only. This plan replaces them (user, red-team 2026-11-19).
 - Tasks 13 and 14 were added at red-team, so their numbers run out of order inside their phases.
 
