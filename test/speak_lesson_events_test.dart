@@ -90,7 +90,8 @@ void main() {
           expect(events.single.body['overall'], 72.4);
           expect(idsOf(await a.unpushedEvents()), {events.single.eventId},
               reason: 'the score waits for the next sync');
-          expect((await SharedPreferences.getInstance())
+          expect(
+              (await SharedPreferences.getInstance())
                   .get(SpeakScoreLog.prefsKey),
               isNull,
               reason: 'nothing writes the old key any more');
@@ -112,8 +113,7 @@ void main() {
 
         test('a mark whose attempt never saved still keeps its entry',
             () async {
-          final log =
-              await SpeakScoreLog.mark(a, attempt('ねこ', at(2)), false);
+          final log = await SpeakScoreLog.mark(a, attempt('ねこ', at(2)), false);
           expect(log.single.sentence, 'ねこ');
           expect(log.single.selfMark, isFalse);
         });
@@ -201,8 +201,7 @@ void main() {
           final prefs = await prefsWith(oldPrefs());
           expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 3);
           final log = await SpeakScoreLog.load(a);
-          expect(log.map((x) => x.sentence),
-              ['あたまが いたいんです。', 'ねこが います。'],
+          expect(log.map((x) => x.sentence), ['あたまが いたいんです。', 'ねこが います。'],
               reason: 'the unreadable entries are skipped');
           expect(log.first.selfMark, isTrue);
           expect((await a.speakScores()).first.atUtc,
@@ -345,8 +344,7 @@ void main() {
     test('a failed mark write is reported and mark still returns', () async {
       final store = _ScoreWriteFailsStore();
       final capture = ReportCapture();
-      final log =
-          await SpeakScoreLog.mark(store, attempt('ねこ', at(1)), true);
+      final log = await SpeakScoreLog.mark(store, attempt('ねこ', at(1)), true);
       final reports = capture.stop();
       expect(log, isEmpty);
       expect(contexts(reports), ['while saving a say-it score']);
@@ -355,11 +353,29 @@ void main() {
     test('a failed import is reported and the score still lands', () async {
       final store = _ImportFailsStore(clock: clock);
       final capture = ReportCapture();
-      await SpeakScoreLog.add(store, attempt('あたま', at(1)));
+      final log = await SpeakScoreLog.add(store, attempt('あたま', at(1)));
       final reports = capture.stop();
       expect(contexts(reports), ['while saving a say-it score']);
-      expect((await store.speakScores()).map((e) => e.body['sentence']),
-          ['あたま']);
+      expect(
+          (await store.speakScores()).map((e) => e.body['sentence']), ['あたま']);
+      // The list add returns still reads the store when only the import fails.
+      expect(log.map((x) => x.sentence), ['あたま']);
+    });
+
+    test('a failed import still shows a synced score on load', () async {
+      final store = _ImportFailsStore(clock: clock);
+      await store.recordSpeakScore(attempt('ねこ', at(1)).toJson(),
+          atUtc: at(1).toUtc());
+      final log = await SpeakScoreLog.load(store);
+      expect(log.map((x) => x.sentence), ['ねこ']);
+    });
+
+    test('a failed mark import still returns the marked score', () async {
+      final store = _ImportFailsStore(clock: clock);
+      final capture = ReportCapture();
+      final log = await SpeakScoreLog.mark(store, attempt('いぬ', at(1)), true);
+      capture.stop();
+      expect(log.map((x) => x.sentence), ['いぬ']);
     });
 
     test('a write that lands reports nothing', () async {

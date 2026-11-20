@@ -1357,10 +1357,7 @@ void main() {
               initialLesson: other, initialPoint: deep.point['id'] as String),
           prefs: {'jp.grammar.lastLesson': 50});
       final store = (await tester.runAsync(sharedJpStore))!;
-      expect(
-          await tester.runAsync(
-              () => readLastGrammarLesson(store)),
-          50);
+      expect(await tester.runAsync(() => readLastGrammarLesson(store)), 50);
       final lessons = [
         for (final e in (await tester.runAsync(store.sideEvents))!)
           if (e.kind == JpEventKind.lastLesson) e.body['lessonId']
