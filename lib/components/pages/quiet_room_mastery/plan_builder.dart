@@ -555,9 +555,11 @@ Future<DayPlan> buildPlan({
     );
   }
 
-  // Yesterday's wrongs, in the order they were first answered wrong.
+  // Yesterday's wrongs, in the order they were first answered wrong. The store returns row
+  // order, and a sync appends pulled attempts after local ones, so the fold sorts with
+  // [canonicalAttempts] first.
   final repairIds = <String>{
-    for (final a in attempts)
+    for (final a in canonicalAttempts(attempts))
       if (a.localDay == today - 1 &&
           a.grade == Grade.wrong &&
           a.source != Source.sayIt &&
