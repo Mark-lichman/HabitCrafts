@@ -22,7 +22,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart'
-    show JpEventKind;
+    show JpEvent, JpEventKind;
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
     show sharedJpStore;
@@ -1330,6 +1330,21 @@ void main() {
       expect(await tester.runAsync(store.lastLesson), '$other');
     });
 
+    testWidgets('a failed last-lesson write is reported and the screen shows',
+        (tester) async {
+      final other = lessonOtherThan({});
+      final capture = ReportCapture();
+      await pumpStudyScreen(
+          tester,
+          QuietRoomGrammarWidget(
+              initialLesson: other, store: _LastLessonFailsStore()));
+      final reports = capture.stop();
+      expect(reports, hasLength(1));
+      expect(reports.single.context.toString(),
+          contains('while remembering the last lesson'));
+      expect(find.text('第$other課'), findsOneWidget);
+    });
+
     testWidgets('an open at a point leaves the remembered lesson alone',
         (tester) async {
       final deep = deepestPoint();
@@ -1418,6 +1433,13 @@ class _GatedStore extends JpStoreMemory {
     gate = Completer<AnswerOutcome>();
     return gate!.future;
   }
+}
+
+/// A memory store whose last-lesson write fails, as a locked database would.
+class _LastLessonFailsStore extends JpStoreMemory {
+  @override
+  Future<JpEvent> setLastLesson(String lessonId, {required DateTime atUtc}) =>
+      Future.error(StateError('jp store: database is locked'));
 }
 
 /// A memory store whose first answer write throws, as a full disk would.
