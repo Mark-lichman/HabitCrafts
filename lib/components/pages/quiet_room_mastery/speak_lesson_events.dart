@@ -27,8 +27,9 @@
 //     reported to FlutterError, never read as empty in silence (S4), and the flag is still set.
 // Every imported event takes a legacy id of its content (`legacyEventId`), so a run cut short
 // before the flag skips what it already wrote, and two devices that import one value share one
-// event. Callers on one store share one run in flight, so two first reads never write one id
-// twice.
+// event. It carries no device id (null), as every legacy event does (jp_event.dart), so those
+// devices hold the same event field for field. Callers on one store share one run in flight, so
+// two first reads never write one id twice.
 
 import 'dart:convert';
 
@@ -73,7 +74,6 @@ Future<int> _importOnce(JpStore store, SharedPreferences? prefs) async {
   final p = prefs ?? await SharedPreferences.getInstance();
   final held = await store.sideEvents();
   final heldIds = {for (final e in held) e.eventId};
-  final device = await store.deviceId();
   var written = 0;
 
   Future<void> write(JpEvent e) async {
@@ -98,7 +98,7 @@ Future<int> _importOnce(JpStore store, SharedPreferences? prefs) async {
     await write(JpEvent(
       eventId: legacyEventId(JpEventKind.speakScore,
           [at.toIso8601String(), a.sentence, a.selfMark]),
-      deviceId: device,
+      deviceId: null,
       atUtc: at,
       kind: JpEventKind.speakScore,
       body: a.toJson(),
@@ -110,7 +110,7 @@ Future<int> _importOnce(JpStore store, SharedPreferences? prefs) async {
     final lessonId = '$lesson';
     await write(JpEvent(
       eventId: legacyEventId(JpEventKind.lastLesson, [lessonId]),
-      deviceId: device,
+      deviceId: null,
       atUtc: kLegacyLastLessonAtUtc,
       kind: JpEventKind.lastLesson,
       body: {'lessonId': lessonId},

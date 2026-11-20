@@ -334,7 +334,7 @@ void main() {
           await a.writeSideEvent(JpEvent(
             eventId: legacyEventId(JpEventKind.speakScore,
                 [first.toIso8601String(), 'あたまが いたいんです。', true]),
-            deviceId: await a.deviceId(),
+            deviceId: null,
             atUtc: first,
             kind: JpEventKind.speakScore,
             body: attempt('あたまが いたいんです。', first).marked(true).toJson(),
@@ -397,9 +397,44 @@ void main() {
           await importSpeakAndLessonPrefs(a, prefs: prefs);
           await importSpeakAndLessonPrefs(b, prefs: prefs);
           expect(idsOf(await a.sideEvents()), idsOf(await b.sideEvents()));
+          // A legacy event carries no device id, so both devices hold it field for field.
+          Future<void> expectSameLegacyEvents() async {
+            final fromA = {for (final e in await a.sideEvents()) e.eventId: e};
+            final fromB = await b.sideEvents();
+            expect(
+                {for (final e in fromB) e.kind},
+                {JpEventKind.speakScore, JpEventKind.lastLesson},
+                reason: 'both imported kinds are checked');
+            for (final e in [...fromA.values, ...fromB]) {
+              expect(e.deviceId, isNull, reason: '${e.kind.wire} ${e.eventId}');
+            }
+            for (final e in fromB) {
+              expect(e.sameContent(fromA[e.eventId]!), isTrue,
+                  reason: '${e.kind.wire} ${e.eventId}');
+            }
+          }
+
+          await expectSameLegacyEvents();
           await sync(a, b);
           expect(await b.sideEvents(), hasLength(3), reason: 'no duplicate');
           expect(await SpeakScoreLog.load(b), hasLength(2));
+          await sync(b, a);
+          expect(await a.sideEvents(), hasLength(3), reason: 'no duplicate');
+          await expectSameLegacyEvents();
+        });
+
+        test('an import alone leaves every event with no device id', () async {
+          final prefs = await prefsWith(oldPrefs());
+          expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 3);
+          final events = await a.sideEvents();
+          expect({for (final e in events) e.kind},
+              {JpEventKind.speakScore, JpEventKind.lastLesson});
+          for (final e in events) {
+            expect(e.deviceId, isNull, reason: '${e.kind.wire} ${e.eventId}');
+          }
+          expect([for (final e in await a.unpushedEvents()) e.deviceId],
+              [null, null, null],
+              reason: 'the events wait for the sync as they were written');
         });
       });
     });
