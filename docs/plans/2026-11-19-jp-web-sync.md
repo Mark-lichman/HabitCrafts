@@ -112,7 +112,7 @@ Confirmed by the operator at echo-back on 2026-11-19 (user).
   14. Both devices on the same local day show the same day plan. The first plan to reach the server wins, and position never moves back (PIN-10) · check: `/c/src/flutter/bin/flutter test test/jp_sync_test.dart` (prints `All tests passed!`).
   15. The whole Flutter suite stays green · gate: `flutter test` (the CI `analyze-and-test` job).
   16. A note, Discuss mark, say-it score or last-opened lesson changed on one device shows on the other after sync, and the later event time wins (PIN-12, PIN-16) · check: `/c/src/flutter/bin/flutter test test/jp_sync_test.dart test/speak_lesson_events_test.dart` (prints `All tests passed!`).
-  17. After the profile is deleted, a device still signed in cannot write `jp_events`, `jp_days` or `devices` (PIN-13) · check: `npm --prefix firebase/rules-tests test` (prints `# fail 0`).
+  17. After the profile is deleted, a device still signed in cannot write `jp_events`, `jp_days` or `devices`, even after it recreates `users/{uid}` (PIN-13) · check: `npm --prefix firebase/rules-tests test` (prints `# fail 0`).
 
 ## Build order (for /war)
 
@@ -122,7 +122,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 1: Global event ids and their migration
 - Files: `lib/components/pages/quiet_room_mastery/jp_event.dart`, `lib/components/pages/quiet_room_mastery/jp_store.dart`, `lib/components/pages/quiet_room_mastery/jp_store_sqlite.dart`, `lib/components/pages/quiet_room_mastery/jp_store_memory.dart`, `lib/components/pages/quiet_room_mastery/attempt.dart`, `lib/components/pages/quiet_room_mastery/study_export.dart`, `test/jp_event_test.dart`
-- Plan slice: add `JpEvent` (event id, device id, event time, kind attempt | seed | note | discuss | speak_score | last_lesson, body) and its Firestore map form. Give attempts (`attempt.dart`) and seeds an event id and device id. Record note, Discuss, say-it score and last-lesson changes as timestamped events, so last write wins (PIN-12, PIN-16). A one-time migration assigns ids to existing rows, stable on every later open. Export and import carry event ids and event times, with an export version bump. Add `JpStore` methods to list unpushed events, mark them pushed, and append remote events without duplicates. Day records carry the device and time that built them. Replay stays pure.
+- Plan slice: add `JpEvent` (event id, device id, event time, kind attempt | seed | note | discuss | speak_score | last_lesson, body) and its Firestore map form. Give attempts (`attempt.dart`) and seeds an event id and device id. Record note, Discuss, say-it score and last-lesson changes as timestamped events, so last write wins (PIN-12, PIN-16). A one-time migration assigns ids to existing rows, stable on every later open. Legacy ids (the migration and pre-v3 imports) derive from a hash of the row content (time, item, session, kind), so a restored old backup maps onto the uploaded events, and an id-less import reuses a matching held id (operator ruling, Checkpoint 2026-11-19). Keep append order in replay here; Task 3 owns the canonical order. Fix forward from the first audit round: a position move on a migrated day keeps a null build time (#191), and a local tie bump is 1 ms, not 1 microsecond, so it holds on the web (#193). Export and import carry event ids and event times, with an export version bump. Add `JpStore` methods to list unpushed events, mark them pushed, and append remote events without duplicates. Day records carry the device and time that built them. Replay stays pure.
 - Done when: `/c/src/flutter/bin/flutter test test/jp_event_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
@@ -131,7 +131,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 2: Firestore rules and the emulator suite
 - Files: `firebase/firestore.rules`, `firebase/firebase.json`, `firebase/rules-tests/package.json`, `firebase/rules-tests/package-lock.json`, `firebase/rules-tests/jp_rules.test.js`, `.github/workflows/ci.yml`
-- Plan slice: add owner-only rules under `users/{uid}` for `jp_events/{eventId}` (create and read only), `jp_days/{day}` (create once, then only a forward position or completed change, PIN-10) and `devices/{deviceId}` (read and write). Each calls `signedIn()` and requires `users/{uid}` to exist (PIN-3, PIN-13). Leave every existing rule as it is. Add an emulators block for auth, functions and firestore to `firebase.json`. The suite runs under `firebase emulators:exec` with `node --test --test-reporter=tap` and a pinned `firebase-tools`. A new CI job sets up Java 21 and Node, installs the packages of every functions codebase, and runs the suite. Tests include the two-device late-write case (End state 17).
+- Plan slice: add owner-only rules under `users/{uid}` for `jp_events/{eventId}` (create and read only), `jp_days/{day}` (create once, then only a forward position or completed change, PIN-10) and `devices/{deviceId}` (read and write). Each calls `signedIn()` and requires `users/{uid}` to exist (PIN-3, PIN-13). Leave every existing rule as it is. Add an emulators block for auth, functions and firestore to `firebase.json`. The suite runs under `firebase emulators:exec` with `node --test --test-reporter=tap` and a pinned `firebase-tools`. A new CI job sets up Java 21 and Node, installs the packages of every functions codebase, and runs the suite. Tests include the two-device late-write case (End state 17). Fix forward from the first audit round: the rules job sets `permissions: contents: read`, checks out with `persist-credentials: false`, and installs function codebases with `--ignore-scripts` (#195); add asserts for the equal-position and completed-only `jp_days` updates (#196).
 - Done when: `npm --prefix firebase/rules-tests test` (prints `# fail 0`)
 - requiresTest: true
 - requiresPackaging: false
@@ -141,8 +141,8 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 ## Phase 2 — Sync engine, delete, extra data
 
 ### Task 3: JpSync: push, pull, replay, day plan
-- Files: `lib/components/pages/quiet_room_mastery/jp_sync.dart`, `lib/components/pages/quiet_room_mastery/jp_remote.dart`, `lib/components/pages/quiet_room_mastery/jp_remote_firestore.dart`, `test/jp_sync_test.dart`
-- Plan slice: `JpRemote` is the remote interface, with an in-memory fake for tests and a Firestore version. `JpSync.run()` pushes unpushed events, pulls events after the sync cursor, appends them, replays, and writes the device's last sync time to `devices/{deviceId}`. The day plan syncs: the first plan to reach the server wins, the other device adopts it and keeps its own answers, and position only moves forward (PIN-10). Tests drive two stores against one fake remote, online and offline, and cover notes, Discuss marks, say-it scores and the last lesson (End state 16).
+- Files: `lib/components/pages/quiet_room_mastery/jp_sync.dart`, `lib/components/pages/quiet_room_mastery/jp_remote.dart`, `lib/components/pages/quiet_room_mastery/jp_remote_firestore.dart`, `lib/components/pages/quiet_room_mastery/jp_store.dart`, `test/jp_sync_test.dart`
+- Plan slice: `JpRemote` is the remote interface, with an in-memory fake for tests and a Firestore version. `JpSync.run()` pushes unpushed events, pulls events after the sync cursor, appends them, replays, and writes the device's last sync time to `devices/{deviceId}`. The day plan syncs: the first plan to reach the server wins, the other device adopts it and keeps its own answers, and position only moves forward (PIN-10). Replay, rebuild and import apply events in one canonical order, event time then event id, in `jp_store.dart` (operator ruling, Checkpoint 2026-11-19). Tests drive two stores against one fake remote, online and offline, and cover notes, Discuss marks, say-it scores and the last lesson (End state 16).
 - Done when: `/c/src/flutter/bin/flutter test test/jp_sync_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
@@ -150,8 +150,8 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 - target repo: superproject
 
 ### Task 4: Account delete removes the synced record
-- Files: `firebase/custom_cloud_functions/delete_all_user_data.js`, `firebase/rules-tests/delete_cascade.test.js`
-- Plan slice: on the Auth, Functions and Firestore emulators, delete an Auth user and wait until the `deleteAllUserData` trigger empties `users/{uid}/jp_events`, `jp_days` and `devices` (PIN-14). The merged `recursiveDelete` of the profile should already cover them, so change the function only if the test fails.
+- Files: `firebase/custom_cloud_functions/delete_all_user_data.js`, `firebase/firestore.rules`, `firebase/rules-tests/delete_cascade.test.js`
+- Plan slice: on the Auth, Functions and Firestore emulators, delete an Auth user and wait until the `deleteAllUserData` trigger empties `users/{uid}/jp_events`, `jp_days` and `devices` (PIN-14). The merged `recursiveDelete` of the profile should already cover them, so change the cascade only if the test fails. Close the recreate window too: the cleanup writes a `deleted_accounts/{uid}` marker (admin only, never client-readable or writable) before it deletes, and the `jp_events`, `jp_days` and `devices` rules refuse a write when that marker exists, so a still-signed-in device that recreates `users/{uid}` still cannot write study data (operator ruling, Checkpoint 2026-11-19). Leave the existing `users` rule unchanged.
 - Done when: `npm --prefix firebase/rules-tests test` (prints `# fail 0`)
 - requiresTest: true
 - requiresPackaging: false
@@ -265,7 +265,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 ## Notes / conscious deviations
 
 - This plan replaces two items of `docs/plans/2026-11-02-jp-mastery-queue.md`: the guardrail "no login screen" (sync needs a signed-in account) and A4 "web keeps nothing between loads" (the web store now persists and syncs) (user, echo-back 1).
-- Files written in more than one phase, never twice in one phase: `firebase/firebase.json` and `.github/workflows/ci.yml` (Tasks 2, 12), `jp_store_sqlite.dart` (Tasks 1, 5), `quiet_room_speak_widget.dart` (Tasks 13, 9), `docs/architecture/adopted-files.md` (Tasks 8, 14), `pubspec.yaml` and `pubspec.lock` (Tasks 5, 14).
+- Files written in more than one phase, never twice in one phase: `firebase/firebase.json` and `.github/workflows/ci.yml` (Tasks 2, 12), `firebase/firestore.rules` (Tasks 2, 4), `jp_store.dart` (Tasks 1, 3), `jp_store_sqlite.dart` (Tasks 1, 5), `quiet_room_speak_widget.dart` (Tasks 13, 9), `docs/architecture/adopted-files.md` (Tasks 8, 14), `pubspec.yaml` and `pubspec.lock` (Tasks 5, 14).
 - The 11/02 plan's other floor items (`firebase/functions` untouched, no FlutterFlow-managed edits outside its listed files, the record stays phone-local) scoped that plan only. This plan replaces them (user, red-team 2026-11-19).
 - Tasks 13 and 14 were added at red-team, so their numbers run out of order inside their phases.
 
