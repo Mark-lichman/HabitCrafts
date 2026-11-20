@@ -84,7 +84,11 @@ class LegacyEventIds {
     return legacyEventId(kind, fields, occurrence: n);
   }
 
-  static String _time(DateTime t) => t.toUtc().toIso8601String();
+  /// The time cut to milliseconds: a web DateTime keeps no finer time (as [kLocalTieBump]), so
+  /// a phone row with microseconds keys the same on the web. The occurrence splits a tie.
+  static String _time(DateTime t) =>
+      DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch, isUtc: true)
+          .toIso8601String();
 
   String attempt(Attempt a) =>
       _next(JpEventKind.attempt, [_time(a.atUtc), a.itemId, a.sessionId]);

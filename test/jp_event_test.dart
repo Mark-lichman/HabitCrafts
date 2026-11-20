@@ -648,6 +648,35 @@ void main() {
         expect(LegacyEventIds().attempt(answer(g, 1, Grade.wrong)), first);
       });
 
+      test('a legacy id keys the time to the millisecond, as a web DateTime holds',
+          () {
+        final g = firstOf(ItemKind.grammar);
+        final a = answer(g, 1, Grade.clear);
+        final ms = a.atUtc.add(const Duration(milliseconds: 7));
+        final phone = ms.add(const Duration(microseconds: 321));
+        Attempt timed(DateTime t) =>
+            Attempt.fromJson({...a.toJson(), 'atUtc': t.toIso8601String()});
+        // The oracle spells the millisecond time by hand, not through the code under test.
+        const key = '2026-03-03T12:00:00.007Z';
+        expect(LegacyEventIds().attempt(timed(phone)),
+            legacyEventId(JpEventKind.attempt, [key, g.id, 's1'], occurrence: 0));
+        expect(LegacyEventIds().attempt(timed(phone)),
+            LegacyEventIds().attempt(timed(ms)),
+            reason: 'microseconds alone never move the id');
+        expect(LegacyEventIds().seed(SeedEvent(itemId: g.id, dueDay: 1, atUtc: phone)),
+            legacyEventId(JpEventKind.seed, [key, g.id, null], occurrence: 0));
+        expect(
+            LegacyEventIds().discuss(DiscussMark(itemId: g.id, atUtc: phone, note: 'n')),
+            legacyEventId(JpEventKind.discuss, [key, g.id, null, 'n'],
+                occurrence: 0));
+        // A whole millisecond still moves the id, and a shared key takes the next occurrence.
+        final ids = LegacyEventIds();
+        final x = ids.attempt(timed(phone));
+        expect(ids.attempt(timed(ms)), isNot(x), reason: 'occurrence 1');
+        expect(LegacyEventIds().attempt(timed(ms.add(const Duration(milliseconds: 1)))),
+            isNot(x));
+      });
+
       test('an id-less import reuses the id the store holds for the same row',
           () async {
         final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
