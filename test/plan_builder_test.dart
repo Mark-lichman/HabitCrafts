@@ -119,9 +119,8 @@ Attempt wrongOn(ItemDef item, int day) {
     template: p.template,
     production: p.production,
     selfGraded: p.selfGraded,
-    atUtc: dayStart(day)
-        .add(Duration(hours: 8, seconds: _answerTick++))
-        .toUtc(),
+    atUtc:
+        dayStart(day).add(Duration(hours: 8, seconds: _answerTick++)).toUtc(),
     localDay: day,
     grade: Grade.wrong,
     rating: fsrsRatingFor(Grade.wrong),
@@ -246,7 +245,8 @@ void main() {
       final morning = wrongOn(words[0], tuesday - 1);
       Attempt at(ItemDef item, int hours) => Attempt.fromJson({
             ...wrongOn(item, tuesday - 1).toJson(),
-            'atUtc': morning.atUtc.add(Duration(hours: hours)).toIso8601String(),
+            'atUtc':
+                morning.atUtc.add(Duration(hours: hours)).toIso8601String(),
           });
       await store.appendAttempt(at(words[2], 2));
       await store.appendAttempt(at(words[1], 1));
