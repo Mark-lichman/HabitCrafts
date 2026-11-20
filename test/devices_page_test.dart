@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:habit_craft/auth/base_auth_user_provider.dart';
 import 'package:habit_craft/components/pages/devices_page/devices_page_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_remote.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
@@ -22,6 +23,29 @@ class _ListedRemote extends JpRemoteMemory {
 
   @override
   Future<List<JpDevice>> devices() async => listed;
+}
+
+/// An auth user with a fixed uid and sign-in state. An anonymous user has a uid but is not
+/// logged in, so the page must not open its remote.
+class _AuthUser extends BaseAuthUser {
+  _AuthUser({required this.uid, required this.loggedIn});
+
+  @override
+  final String uid;
+  @override
+  final bool loggedIn;
+  @override
+  bool get emailVerified => false;
+  @override
+  AuthUserInfo get authUserInfo => AuthUserInfo(uid: uid);
+  @override
+  Future? delete() => null;
+  @override
+  Future? updateEmail(String email) => null;
+  @override
+  Future? updatePassword(String newPassword) => null;
+  @override
+  Future? sendEmailVerification() => null;
 }
 
 /// [hour]:00 local time on 2026-11-20, as UTC, so a label reads the same in every time zone.
@@ -107,6 +131,23 @@ void main() {
     });
 
     testWidgets('asks to sign in when nobody is signed in', (tester) async {
+      await pumpStudyScreen(tester, const DevicesPageWidget());
+      expect(find.text(kDevicesSignedOut), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('asks to sign in when the user is anonymous', (tester) async {
+      currentUser = _AuthUser(uid: 'anon-uid', loggedIn: false);
+      addTearDown(() => currentUser = null);
+      await pumpStudyScreen(tester, const DevicesPageWidget());
+      expect(find.text(kDevicesSignedOut), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('asks to sign in when the signed-in user has an empty uid',
+        (tester) async {
+      currentUser = _AuthUser(uid: '', loggedIn: true);
+      addTearDown(() => currentUser = null);
       await pumpStudyScreen(tester, const DevicesPageWidget());
       expect(find.text(kDevicesSignedOut), findsOneWidget);
       expect(tester.takeException(), isNull);
