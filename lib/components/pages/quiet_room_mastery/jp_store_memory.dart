@@ -164,6 +164,14 @@ class JpStoreMemory extends JpStore {
   @override
   Future<List<JpEvent>> sideEvents() async => [..._events]..sort(compareEvents);
 
+  /// A filter over the side events; the web store reads it from this tab's copy, as
+  /// [sideEvents].
+  @override
+  Future<List<JpEvent>> eventsOfKind(JpEventKind kind) async => [
+        for (final e in _events)
+          if (e.kind == kind) e
+      ]..sort(compareEvents);
+
   @override
   Future<void> writeSideEvent(JpEvent event) async {
     _events.add(event);
@@ -263,14 +271,20 @@ class JpStoreMemory extends JpStore {
   Future<void> close() async {}
 
   /// Empties the study record: the logs, the pushed marks, the derived states, the days and
-  /// every meta key but the device id ([kDeviceIdMetaKey]). The sync cursor
-  /// ([kSyncCursorMetaKey]) and the replay flag go with the rest, so the next sync pulls the
-  /// whole record. The web store's sign-out wipe (jp_store_web.dart) runs it.
+  /// every meta key but the device id ([kDeviceIdMetaKey]) and the migration flags (each key
+  /// that starts with [kMigrationMetaPrefix]). The flags stay so a browser's old study keys
+  /// are never imported again into the next account (operator ruling, Checkpoint 2026-11-20).
+  /// The sync cursor ([kSyncCursorMetaKey]) and the replay flag go with the rest, so the next
+  /// sync pulls the whole record. The web store's sign-out wipe (jp_store_web.dart) runs it.
   Future<void> wipe() async => clearRecord();
 
   /// [wipe] in one synchronous step.
   void clearRecord() {
-    final device = _meta[kDeviceIdMetaKey];
+    final kept = {
+      for (final e in _meta.entries)
+        if (e.key == kDeviceIdMetaKey || e.key.startsWith(kMigrationMetaPrefix))
+          e.key: e.value
+    };
     _attempts.clear();
     _seeds.clear();
     _events.clear();
@@ -281,8 +295,9 @@ class JpStoreMemory extends JpStore {
     _notes.clear();
     _discuss.clear();
     _days.clear();
-    _meta.clear();
-    if (device != null) _meta[kDeviceIdMetaKey] = device;
+    _meta
+      ..clear()
+      ..addAll(kept);
     _attemptSeq = 0;
     _seedSeq = 0;
   }

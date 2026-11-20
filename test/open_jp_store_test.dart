@@ -299,6 +299,29 @@ void main() {
       expect(await reloaded.deviceId(), device);
     });
 
+    test(
+        'keeps every migration flag, so old browser keys are never imported again',
+        () async {
+      // Operator ruling, Checkpoint 2026-11-20: the next account must not import this
+      // browser's old study keys a second time.
+      final storage = MemoryJpWebStorage();
+      final store = await withRecord(storage);
+      await store.putMeta('migration.v2', '2026-11-01T00:00:00.000Z');
+      await store.putMeta('migration.speakLesson', '2026-11-02T00:00:00.000Z');
+      await store.putMeta('migrationv2', 'not a migration flag');
+      await store.wipe();
+
+      for (final s in [store, await JpStoreWeb.open(storage: storage)]) {
+        await expectEmpty(s);
+        expect(await s.meta('migration.v2'), '2026-11-01T00:00:00.000Z');
+        expect(
+            await s.meta('migration.speakLesson'), '2026-11-02T00:00:00.000Z');
+        expect(await s.meta('migrationv2'), isNull);
+        expect(await s.meta(kSyncCursorMetaKey), isNull);
+        expect(await s.meta(kSyncReplayPendingMetaKey), isNull);
+      }
+    });
+
     test('another open tab never undoes it', () async {
       final storage = MemoryJpWebStorage();
       final a = await withRecord(storage);
