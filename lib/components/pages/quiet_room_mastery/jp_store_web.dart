@@ -97,7 +97,7 @@ class JpStoreWeb extends JpStoreMemory {
 
   /// Brings memory up to the saved snapshot when another tab saved since this one last did.
   /// Nothing saved means the browser's storage was cleared: memory empties too, keeping this
-  /// tab's device id. An unreadable snapshot throws a [FormatException] and changes nothing.
+  /// tab's device id and migration flags ([JpStoreMemory.clearRecord]). An unreadable snapshot throws a [FormatException] and changes nothing.
   Future<void> _reread() async {
     final raw = await _storage.read();
     if (raw == _saved) return;
@@ -136,8 +136,10 @@ class JpStoreWeb extends JpStoreMemory {
   /// The sign-out wipe: empties this browser's study record and saves the empty record
   /// ([JpStoreMemory.wipe]). The sync cursor ([kSyncCursorMetaKey]) and the replay flag
   /// (`sync.replayPending`) go with it, so the next sign-in pulls the whole record. The device
-  /// id stays, because it names the browser, not the account. Every other open tab re-reads
-  /// before its next write, so none of them puts the old record back.
+  /// id stays, because it names the browser, not the account. Every migration flag
+  /// ([kMigrationMetaPrefix]) stays too, so this browser's old study keys are never imported
+  /// again into the next account (operator ruling, Checkpoint 2026-11-20). Every other open
+  /// tab re-reads before its next write, so none of them puts the old record back.
   @override
   Future<void> wipe() => _locked(() => super.wipe());
 

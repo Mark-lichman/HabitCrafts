@@ -634,58 +634,88 @@ void main() {
       final old = await JpStoreSqlite.open(
           factory: databaseFactoryFfi, path: path, version: 2);
       await old.close();
+      // The phone kept microseconds in every time; a browser reads the same text back cut to
+      // the millisecond (operator ruling, Checkpoint 2026-11-20).
+      DateTime fine(DateTime t, int us) => t.add(Duration(microseconds: us));
+      DateTime cut(DateTime t) =>
+          DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch,
+              isUtc: true);
+      Attempt fineAnswer(Attempt a, int us) => Attempt.fromJson(
+          {...a.toJson(), 'atUtc': fine(a.atUtc, us).toIso8601String()});
+      final markAt = fine(at(2, 5), 456789);
       final source = JpStoreMemory();
-      await source.appendSeed(w.id, 2, atUtc: at(0));
-      await source.recordAnswer(answer(g, 1, Grade.clear),
+      await source.appendSeed(w.id, 2, atUtc: fine(at(0), 123456));
+      await source.recordAnswer(fineAnswer(answer(g, 1, Grade.clear), 250001),
           item: g, scheduler: scheduler);
-      await source.recordAnswer(answer(w, 2, Grade.wrong),
+      await source.recordAnswer(fineAnswer(answer(w, 2, Grade.wrong), 999),
           item: w, scheduler: scheduler);
       final oldAttempts = await source.attempts();
       final oldSeeds = await source.seeds();
+      expect([for (final a in oldAttempts) a.atUtc.microsecond], [1, 999],
+          reason: 'the fixture holds sub-millisecond times');
       await writeOldRows(path,
           attempts: oldAttempts,
           srs: await source.allSrs(),
           mastery: (await source.allMastery()).values.toList(),
           seeds: oldSeeds,
           notes: {g.id: kNoteCanUseIt},
-          discuss: [DiscussMark(itemId: w.id, note: 'ask', atUtc: at(2, 5))]);
-      // The same history as an old (pre-v3) backup.
-      final backup = encodeStudyExport(
+          discuss: [DiscussMark(itemId: w.id, note: 'ask', atUtc: markAt)]);
+      // The same history as an old (pre-v3) backup, with its times as [time] reads them.
+      String backupOf(DateTime Function(DateTime) time) => encodeStudyExport(
           StudyLog(
             attempts: [
               for (final a in oldAttempts)
                 Attempt.fromJson(a.toJson()
                   ..remove('id')
                   ..remove('eventId')
-                  ..remove('deviceId'))
+                  ..remove('deviceId')
+                  ..['atUtc'] = time(a.atUtc).toIso8601String())
             ],
             seeds: [
               for (final s in oldSeeds)
-                SeedEvent(itemId: s.itemId, dueDay: s.dueDay, atUtc: s.atUtc)
+                SeedEvent(
+                    itemId: s.itemId, dueDay: s.dueDay, atUtc: time(s.atUtc))
             ],
             notes: {g.id: kNoteCanUseIt},
             discuss: {
-              w.id: DiscussMark(itemId: w.id, note: 'ask', atUtc: at(2, 5))
+              w.id: DiscussMark(itemId: w.id, note: 'ask', atUtc: time(markAt))
             },
           ),
           exportedAt: at(3));
+      final backup = backupOf((t) => t);
 
       final remote = JpRemoteMemory();
       final phoneStore = await JpStoreSqlite.open(
           factory: databaseFactoryFfi, path: path, clock: clock);
       final webStore = JpStoreMemory(clock: () => at(40));
+      final browser = JpStoreMemory(clock: () => at(40));
       try {
         final phone = Device(phoneStore, remote, 'Pixel');
         final web = Device(webStore, remote, 'Chrome');
         final legacy = await phoneStore.allEvents();
         expect(legacy.length, 5);
         expect(legacy.every((e) => e.deviceId == null), isTrue);
+        for (final e in legacy) {
+          expect(e.atUtc, cut(e.atUtc),
+              reason: 'a legacy event time is cut to the millisecond');
+          final bodyAt = e.body['atUtc'];
+          if (bodyAt is String) {
+            expect(bodyAt, e.atUtc.toIso8601String(),
+                reason: 'the body time is the event time');
+          }
+        }
 
         // The web imports the old backup before it ever syncs.
         await importStudy(webStore, backup,
             lookup: catalog.byId, scheduler: scheduler);
         expect(contentOf(await webStore.allEvents()), contentOf(legacy),
             reason: 'byte-identical legacy events');
+        // A browser's DateTime keeps milliseconds: the backup it reads is already cut.
+        await importStudy(browser, backupOf(cut),
+            lookup: catalog.byId, scheduler: scheduler);
+        expect(contentOf(await browser.allEvents()), contentOf(legacy),
+            reason: 'byte-identical legacy events in a browser');
+        expect(await browser.discussMarks(), await phoneStore.discussMarks());
 
         final first = await phone.run();
         expect(idsOf(first.pushed), idsOf(legacy));
@@ -722,6 +752,7 @@ void main() {
         }
       } finally {
         await webStore.close();
+        await browser.close();
       }
     });
   });
