@@ -356,10 +356,12 @@ class StudyLog {
     this.events = const [],
   });
 
-  /// Oldest first, in append order.
+  /// In row order: the order the store appended them. A sync appends pulled attempts after
+  /// the local ones, so row order is not time order; a fold sorts with [canonicalAttempts].
   final List<Attempt> attempts;
 
-  /// Oldest first, in append order.
+  /// In row order: the order the store appended them. A sync appends pulled seeds after the
+  /// local ones, so row order is not time order; a fold sorts with [canonicalOrder].
   final List<SeedEvent> seeds;
 
   /// Item id to note.
@@ -587,6 +589,12 @@ List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
   return [for (final r in indexed) r.$2];
 }
 
+/// [attempts] in the canonical replay order ([canonicalOrder]). Every fold of `masteryAfter`
+/// over a store's attempts sorts with this first, because the store returns row order and two
+/// synced devices hold the same attempts in different row orders. Pure.
+List<Attempt> canonicalAttempts(List<Attempt> attempts) =>
+    canonicalOrder(attempts, (a) => a.atUtc, (a) => a.eventId);
+
 /// Replays the log from nothing (D14, D26). Seeds and attempts are applied in the canonical
 /// order ([canonicalOrder]: event time, then event id), a seed before an attempt at the same
 /// instant, so two devices that hold the same events in different row orders land on the same
@@ -599,8 +607,7 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   int? dueOf(String id) => srs[id]?.dueDay ?? seedDue[id];
 
   final seeds = canonicalOrder(log.seeds, (s) => s.atUtc, (s) => s.eventId);
-  final attempts =
-      canonicalOrder(log.attempts, (a) => a.atUtc, (a) => a.eventId);
+  final attempts = canonicalAttempts(log.attempts);
   var s = 0, a = 0;
   while (s < seeds.length || a < attempts.length) {
     final takeSeed = a >= attempts.length ||
@@ -716,10 +723,12 @@ abstract class JpStore {
           {required DateTime atUtc}) =>
       appendSeeds([SeedEvent(itemId: itemId, dueDay: dueDay, atUtc: atUtc)]);
 
-  /// The attempts, oldest first; only [itemId]'s when given.
+  /// The attempts in row order (the order they were appended); only [itemId]'s when given.
+  /// After a sync row order is not time order, so a fold sorts with [canonicalAttempts].
   Future<List<Attempt>> attempts({String? itemId});
 
-  /// The seed events, oldest first.
+  /// The seed events in row order (the order they were appended). After a sync row order is
+  /// not time order, so a fold sorts with [canonicalOrder].
   Future<List<SeedEvent>> seeds();
 
   // --- the derived states ----------------------------------------------------
