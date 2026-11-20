@@ -222,6 +222,47 @@ void main() {
       expect(phone[g.id]!.eventId, web[g.id]!.eventId);
     });
 
+    test(
+        'a sqlite and a memory store resolve the same note and Discuss mark (PIN-12)',
+        () async {
+      final g = firstOf(ItemKind.grammar);
+      final remote = [
+        noteEvent(g.id, 'earlier',
+            eventId: 'b-earlier', deviceId: 'phone', atUtc: t),
+        noteEvent(g.id, 'later',
+            eventId: 'a-later', deviceId: 'web', atUtc: later),
+        discussEvent(g.id,
+            note: 'earlier', eventId: 'd-earlier', deviceId: 'phone', atUtc: t),
+        discussEvent(g.id,
+            note: 'later', eventId: 'c-later', deviceId: 'web', atUtc: later),
+      ];
+      // Both arrival orders, so neither store can win by insert order.
+      for (final events in [remote, remote.reversed.toList()]) {
+        final sqlite = await JpStoreSqlite.open(
+            factory: databaseFactoryFfi,
+            path: inMemoryDatabasePath,
+            clock: clock);
+        final memory = JpStoreMemory(clock: clock);
+        await sqlite.appendRemoteEvents(events);
+        await memory.appendRemoteEvents(events);
+        // The oracle, independent of the stores: at the millisecond the times tie, so the
+        // larger event id wins.
+        expect(await sqlite.notes(), {g.id: 'earlier'});
+        expect(await memory.notes(), {g.id: 'earlier'});
+        expect((await sqlite.discussMarks()).map((k, v) => MapEntry(k, v.note)),
+            {g.id: 'earlier'});
+        expect((await memory.discussMarks()).map((k, v) => MapEntry(k, v.note)),
+            {g.id: 'earlier'});
+        expect(idsOf(await sqlite.sideEvents()).toList(),
+            ['a-later', 'b-earlier', 'c-later', 'd-earlier'],
+            reason: 'oldest first by compareEvents: one millisecond, so by id');
+        expect(contentOf(await sqlite.sideEvents()),
+            contentOf(await memory.sideEvents()));
+        await sqlite.close();
+        await memory.close();
+      }
+    });
+
     test('a local change inside the same millisecond still shows (PIN-12)',
         () async {
       final g = firstOf(ItemKind.grammar);

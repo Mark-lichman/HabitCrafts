@@ -668,7 +668,9 @@ class JpStoreSqlite extends JpStore {
 
   // --- side events and sync ----------------------------------------------------
 
-  /// Moves the note or Discuss mark of [event]'s item to the latest event for that item.
+  /// Moves the note or Discuss mark of [event]'s item to the latest event for that item. The
+  /// latest is picked in Dart by [resolveNotes] or [resolveDiscuss], so it follows
+  /// [compareEvents] at the millisecond, never the microsecond `atUs` column.
   Future<void> _refresh(DatabaseExecutor db, JpEvent event) async {
     final id = event.subject;
     if (id == null) return;
@@ -676,33 +678,24 @@ class JpStoreSqlite extends JpStore {
       return;
     }
     final rows = await db.query('events',
-        where: 'kind = ? AND subject = ?',
-        whereArgs: [event.kind.wire, id],
-        orderBy: 'atUs DESC, eventId DESC',
-        limit: 1);
+        where: 'kind = ? AND subject = ?', whereArgs: [event.kind.wire, id]);
     if (rows.isEmpty) return;
-    final latest = _eventOf(rows.first);
+    final held = [for (final r in rows) _eventOf(r)];
     if (event.kind == JpEventKind.note) {
       await _ensureItem(db, id);
-      await db.update(
-          'items',
-          {
-            'note': resolveNotes([latest])[id]
-          },
-          where: 'itemId = ?',
-          whereArgs: [id]);
+      await db.update('items', {'note': resolveNotes(held)[id]},
+          where: 'itemId = ?', whereArgs: [id]);
     } else {
       await db.delete('discuss', where: 'itemId = ?', whereArgs: [id]);
-      final mark = resolveDiscuss([latest])[id];
+      final mark = resolveDiscuss(held)[id];
       if (mark != null) await _insertDiscuss(db, mark);
     }
   }
 
   @override
   Future<List<JpEvent>> sideEvents() async => [
-        for (final r in await _db.query('events', orderBy: 'atUs, eventId'))
-          _eventOf(r)
-      ];
+        for (final r in await _db.query('events')) _eventOf(r)
+      ]..sort(compareEvents);
 
   @override
   Future<void> writeSideEvent(JpEvent event) => _db.transaction((txn) async {
