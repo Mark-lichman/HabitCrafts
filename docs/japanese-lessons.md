@@ -221,7 +221,8 @@ is a different card, and it counts (see "Say cards and spoken answers" below).
 The record is an append-only log of attempts and seed events, and it is the source of truth.
 The schedule and the mastery state are caches that `JpStore.rebuild` replays from the log
 (`jp_store.dart`). On the phone the store is SQLite (`jp_store_sqlite.dart`). On the web it is
-in memory (`jp_store_memory.dart`) and keeps nothing between loads. The Study record page
+`JpStoreWeb` (`jp_store_web.dart`), a memory store that saves its snapshot to the browser's
+IndexedDB after each write, so the record survives a reload. The Study record page
 exports the log as JSON Lines and imports it back (`study_export.dart`). An export is a backup
 and the input for fitting the scheduler offline.
 
