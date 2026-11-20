@@ -14,6 +14,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/speak_lesson_events.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
 
 final t0 = DateTime.utc(2026, 3, 2, 12);
 
@@ -306,16 +308,16 @@ void main() {
       // browser's old study keys a second time.
       final storage = MemoryJpWebStorage();
       final store = await withRecord(storage);
-      await store.putMeta('migration.v2', '2026-11-01T00:00:00.000Z');
-      await store.putMeta('migration.speakLesson', '2026-11-02T00:00:00.000Z');
+      await store.putMeta(kV2MigrationFlag, '2026-11-01T00:00:00.000Z');
+      await store.putMeta(kSpeakLessonImportFlag, '2026-11-02T00:00:00.000Z');
       await store.putMeta('migrationv2', 'not a migration flag');
       await store.wipe();
 
       for (final s in [store, await JpStoreWeb.open(storage: storage)]) {
         await expectEmpty(s);
-        expect(await s.meta('migration.v2'), '2026-11-01T00:00:00.000Z');
+        expect(await s.meta(kV2MigrationFlag), '2026-11-01T00:00:00.000Z');
         expect(
-            await s.meta('migration.speakLesson'), '2026-11-02T00:00:00.000Z');
+            await s.meta(kSpeakLessonImportFlag), '2026-11-02T00:00:00.000Z');
         expect(await s.meta('migrationv2'), isNull);
         expect(await s.meta(kSyncCursorMetaKey), isNull);
         expect(await s.meta(kSyncReplayPendingMetaKey), isNull);

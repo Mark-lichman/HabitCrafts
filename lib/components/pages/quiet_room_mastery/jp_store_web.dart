@@ -97,7 +97,8 @@ class JpStoreWeb extends JpStoreMemory {
 
   /// Brings memory up to the saved snapshot when another tab saved since this one last did.
   /// Nothing saved means the browser's storage was cleared: memory empties too, keeping this
-  /// tab's device id and migration flags ([JpStoreMemory.clearRecord]). An unreadable snapshot throws a [FormatException] and changes nothing.
+  /// tab's device id and migration flags ([JpStoreMemory.clearRecord]). An unreadable snapshot
+  /// throws a [FormatException] and changes nothing.
   Future<void> _reread() async {
     final raw = await _storage.read();
     if (raw == _saved) return;
