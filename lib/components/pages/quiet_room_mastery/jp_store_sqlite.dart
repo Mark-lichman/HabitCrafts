@@ -24,9 +24,10 @@
 // One transaction per answer: `appendAttempt` writes the attempt, the schedule and the mastery
 // state together. A later schema adds a step to [_upgrades]; `onUpgrade` runs the steps after
 // the file's version, in order. Version 3 is the one-time event id migration: it gives every
-// existing attempt and seed a legacy event id (a hash of the row content) and the store's
-// device id, gives each note and Discuss mark an event, and leaves them all unpushed. It runs
-// once per file, so the ids stay put on every later open.
+// existing attempt and seed a legacy event id (a hash of the row content) and no device id,
+// gives each note and Discuss mark an event, and leaves them all unpushed. It runs once per
+// file, so the ids stay put on every later open. A side event with no device id keeps an empty
+// `deviceId` in its row (the column is NOT NULL) and reads back as null.
 //
 // Reads take every column, so a file a test opens below the current version reads with no
 // event ids. Writes need version 3.
@@ -65,7 +66,9 @@ Future<void> _createV2Discuss(Database db) =>
 
 /// Version 3: global event ids (plan 2026-11-19, Task 1). Adds the event columns and the side
 /// event table, then gives every existing row its legacy id ([LegacyEventIds]), once: a hash of
-/// the row content, so the same old rows restored on another device get the same ids. A note
+/// the row content, so the same old rows restored on another device get the same ids, and no
+/// device id, so they are the same events there byte for byte. The days take this store's
+/// device id as their builder. A note
 /// becomes a note event at [kLegacyNoteAtUtc] (its own time was never kept); a Discuss mark
 /// becomes an event at the time it was set. Every version 2 row stays, and every event starts
 /// unpushed.
@@ -100,8 +103,7 @@ Future<void> _createV3Events(Database db) async {
   final legacy = LegacyEventIds();
   for (final r in await db.query('attempts', orderBy: 'id')) {
     final a = Attempt.fromJson(jsonDecode(r['json'] as String));
-    await db.update(
-        'attempts', {'eventId': legacy.attempt(a), 'deviceId': device},
+    await db.update('attempts', {'eventId': legacy.attempt(a)},
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final r in await db.query('seeds', orderBy: 'id')) {
@@ -109,7 +111,7 @@ Future<void> _createV3Events(Database db) async {
         itemId: r['itemId'] as String,
         dueDay: r['dueDay'] as int,
         atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
-    await db.update('seeds', {'eventId': legacy.seed(s), 'deviceId': device},
+    await db.update('seeds', {'eventId': legacy.seed(s)},
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final table in const ['attempts', 'seeds']) {
@@ -124,7 +126,7 @@ Future<void> _createV3Events(Database db) async {
         db,
         noteEvent(itemId, note,
             eventId: legacy.note(itemId, note),
-            deviceId: device,
+            deviceId: null,
             atUtc: kLegacyNoteAtUtc),
         pushed: false);
   }
@@ -138,18 +140,18 @@ Future<void> _createV3Events(Database db) async {
         discussEvent(mark.itemId,
             note: mark.note,
             eventId: legacy.discuss(mark),
-            deviceId: device,
+            deviceId: null,
             atUtc: mark.atUtc),
         pushed: false);
   }
 }
 
-/// Writes one side event row.
+/// Writes one side event row; a legacy event's device id is written empty.
 Future<void> _insertEvent(DatabaseExecutor db, JpEvent e,
         {required bool pushed}) =>
     db.insert('events', {
       'eventId': e.eventId,
-      'deviceId': e.deviceId,
+      'deviceId': e.deviceId ?? '',
       'atUs': e.atUtc.microsecondsSinceEpoch,
       'atUtc': e.atUtc.toIso8601String(),
       'kind': e.kind.wire,
@@ -160,7 +162,7 @@ Future<void> _insertEvent(DatabaseExecutor db, JpEvent e,
 
 JpEvent _eventOf(Map<String, Object?> r) => JpEvent(
       eventId: r['eventId'] as String,
-      deviceId: r['deviceId'] as String,
+      deviceId: switch (r['deviceId']) { final String d when d.isNotEmpty => d, _ => null },
       atUtc: DateTime.parse(r['atUtc'] as String),
       kind: JpEventKind.fromWire(r['kind']),
       body: jsonDecode(r['body'] as String) as Map<String, dynamic>,

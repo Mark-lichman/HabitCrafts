@@ -78,6 +78,10 @@ JpEvent remoteNote(String itemId, String? note, DateTime atUtc,
     noteEvent(itemId, note,
         eventId: eventId ?? newEventId(), deviceId: 'phone-b', atUtc: atUtc);
 
+/// Every field of [events], in order: event equality compares the id alone.
+List<Map<String, dynamic>> contentOf(Iterable<JpEvent> events) =>
+    [for (final e in events) e.toFirestore()];
+
 /// The same events with their ids, as a set of ids.
 Set<String> idsOf(Iterable<JpEvent> events) =>
     {for (final e in events) e.eventId};
@@ -138,6 +142,7 @@ void main() {
         final back = JpEvent.fromFirestore(
             jsonDecode(jsonEncode(map)) as Map<String, dynamic>);
         expect(back, e);
+        expect(back.sameContent(e), isTrue, reason: '$map');
         expect(back.atUtc, e.atUtc, reason: 'microseconds survive');
       }
       expect(
@@ -159,7 +164,8 @@ void main() {
       for (final bad in <Map<String, dynamic>>[
         {...good}..remove('eventId'),
         {...good, 'eventId': ''},
-        {...good}..remove('deviceId'),
+        {...good, 'deviceId': ''},
+        {...good, 'deviceId': 7},
         {...good, 'atUtc': 'yesterday'},
         {...good, 'kind': 'mystery'},
         {...good, 'body': 'text'},
@@ -167,6 +173,31 @@ void main() {
         expect(() => JpEvent.fromFirestore(bad), throwsFormatException,
             reason: '$bad');
       }
+    });
+
+    test(
+        'a legacy event has no device id, and equality keys on the event id alone',
+        () {
+      final legacy = noteEvent('x', 'n',
+          eventId: legacyEventId(JpEventKind.note, [null, 'x', null, 'n']),
+          deviceId: null,
+          atUtc: kLegacyNoteAtUtc);
+      final map = legacy.toFirestore();
+      expect(map.containsKey('deviceId'), isFalse);
+      final back = JpEvent.fromFirestore(
+          jsonDecode(jsonEncode(map)) as Map<String, dynamic>);
+      expect(back.deviceId, isNull);
+      expect(back.sameContent(legacy), isTrue);
+      expect(JpEvent.fromFirestore({...map, 'deviceId': null}).deviceId, isNull);
+      // The same id with another device or body is the same event (operator ruling,
+      // Checkpoint 2026-11-19); sameContent still tells them apart.
+      final copy = noteEvent('x', 'other',
+          eventId: legacy.eventId, deviceId: 'web', atUtc: at(1));
+      expect(copy, legacy);
+      expect(copy.hashCode, legacy.hashCode);
+      expect({legacy, copy}.length, 1);
+      expect(copy.sameContent(legacy), isFalse);
+      expect(remoteNote('x', 'n', kLegacyNoteAtUtc), isNot(legacy));
     });
 
     test('an attempt or a seed with no event id cannot become an event', () {
@@ -548,7 +579,8 @@ void main() {
                 item: g, scheduler: scheduler);
             await importStudy(other, text,
                 lookup: catalog.byId, scheduler: scheduler);
-            expect(await other.allEvents(), await store.allEvents(),
+            expect(contentOf(await other.allEvents()),
+                contentOf(await store.allEvents()),
                 reason: 'the same ids, devices and times');
             expect(await other.notes(), await store.notes());
             expect(await other.discussMarks(), await store.discussMarks());
@@ -592,7 +624,8 @@ void main() {
         final events = await store.allEvents();
         expect(events.length,
             log.attempts.length + log.seeds.length + log.notes.length);
-        expect(events.every((e) => e.deviceId == device), isTrue);
+        expect(events.every((e) => e.deviceId == null), isTrue,
+            reason: 'a legacy event carries no device id');
         expect(idsOf(events).length, events.length);
         expect(await store.unpushedEvents(), events);
         final notes = [
@@ -616,9 +649,8 @@ void main() {
                 lookup: catalog.byId, scheduler: scheduler);
             expect(await other.deviceId(), isNot(device));
             expect(idsOf(await other.allEvents()), idsOf(events));
-            expect(
-                [for (final e in await other.allEvents()) e.atUtc],
-                [for (final e in events) e.atUtc]);
+            expect(contentOf(await other.allEvents()), contentOf(events),
+                reason: 'byte-identical legacy events on every device');
           } finally {
             await other.close();
           }
@@ -766,9 +798,11 @@ void main() {
       final device = await store.deviceId();
       final attempts = await store.attempts();
       expect(attempts, oldAttempts, reason: 'every row stays');
-      expect(attempts.every((a) => a.deviceId == device), isTrue);
+      expect(attempts.every((a) => a.eventId != null && a.deviceId == null),
+          isTrue,
+          reason: 'a legacy row carries no device id');
       final seeds = await store.seeds();
-      expect(seeds.single.deviceId, device);
+      expect(seeds.single.deviceId, isNull);
       expect(await store.allSrs(), oldSrs);
       expect(await store.allMastery(), oldMastery);
       expect(await store.notes(), {g.id: kNoteCanUseIt});
@@ -832,12 +866,14 @@ void main() {
           [for (final e in events) e.atUtc]);
       expect([for (final e in restoredEvents) e.body],
           [for (final e in events) e.body]);
+      expect(contentOf(restoredEvents), contentOf(events),
+          reason: 'no device id, so the same events byte for byte');
 
       // Reopened: the same ids and the same device, still unpushed.
       now = at(9);
       store = await open();
       expect(await store.deviceId(), device);
-      expect(await store.allEvents(), events);
+      expect(contentOf(await store.allEvents()), contentOf(events));
       expect(await store.unpushedEvents(), events);
       await store.markPushed(idsOf(events));
       await store.close();

@@ -810,19 +810,18 @@ void main() {
           expect(result.srs, isNotEmpty);
           expect(result.mastery, isNotEmpty);
 
-          // Re-exported, every record line is the fixture's own once the event fields the
-          // import gave it (plan 2026-11-19, Task 1) are taken out, and every line has them.
-          // The header moves to this build's version and gains zero Discuss and event counts.
+          // Re-exported, every record line is the fixture's own once the event id the import
+          // gave it (plan 2026-11-19, Task 1) is taken out, and every line has one. A legacy
+          // row carries no device id (operator ruling, Checkpoint 2026-11-19). The header
+          // moves to this build's version and gains zero Discuss and event counts.
           final again = const LineSplitter()
               .convert(await exportStudy(store, exportedAt: at(10)));
           expect(again.length, fixtureLines.length);
           for (var i = 1; i < again.length; i++) {
             final line = jsonDecode(again[i]) as Map<String, dynamic>;
             expect(line['eventId'], isA<String>(), reason: again[i]);
-            expect(line['deviceId'], await store.deviceId(), reason: again[i]);
-            final own = {...line}
-              ..remove('eventId')
-              ..remove('deviceId');
+            expect(line.containsKey('deviceId'), isFalse, reason: again[i]);
+            final own = {...line}..remove('eventId');
             if (line['type'] == 'note') own.remove('atUtc');
             expect(jsonEncode(own), fixtureLines[i]);
           }
