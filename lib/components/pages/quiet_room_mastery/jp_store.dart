@@ -16,7 +16,11 @@
 // moves no schedule and no mastery state.
 //
 // 🚨 EVERY EVENT HAS A GLOBAL ID (plan 2026-11-19, Task 1, jp_event.dart). The store stamps each
-// attempt and seed with an event id and this store's device id on append. A note, a Discuss
+// new attempt and seed with an event id and this store's device id on append. A legacy row,
+// written before event ids, takes its legacy id and no device id, so every device derives the
+// same legacy event; dedup keys on the event id alone (operator ruling, Checkpoint 2026-11-19).
+// Replay, rebuild and import apply the log in one canonical order, event time then event id
+// (`replayLog`), whatever order the rows were appended in. A note, a Discuss
 // mark, a say-it score and the last lesson are side events: each change is a timestamped
 // `JpEvent`, and the note, the mark and the last lesson shown are the latest event by event time
 // (last write wins, PIN-12, PIN-16). A local change always lands after the subject's latest
@@ -57,6 +61,11 @@ const String kNoteCanUseIt = 'can_use_it';
 
 /// The store flag that holds this store's device id, written once.
 const String kDeviceIdMetaKey = 'sync.deviceId';
+
+/// The store flag that holds the sync cursor: the latest server time pulled, UTC ISO 8601. An
+/// empty or missing value means no cursor: the next sync pulls every event ([JpStore.importLog]
+/// clears it).
+const String kSyncCursorMetaKey = 'sync.cursor';
 
 /// The event time of a note written before event ids, whose own time was never kept: the Unix
 /// epoch. A fixed time keeps a legacy note the same event on every device, and any later note
@@ -127,7 +136,8 @@ class SeedEvent {
   /// The global event id; the store assigns it on append when it is null.
   final String? eventId;
 
-  /// The device that logged the seed; the store fills it on append when it is null.
+  /// The device that logged the seed; the store fills it on append when the seed has no
+  /// [eventId]. A legacy seed, logged before event ids, keeps none.
   final String? deviceId;
 
   SeedEvent withId(int id) => SeedEvent(
@@ -138,7 +148,7 @@ class SeedEvent {
       eventId: eventId,
       deviceId: deviceId);
 
-  SeedEvent withEvent({required String eventId, required String deviceId}) =>
+  SeedEvent withEvent({required String eventId, required String? deviceId}) =>
       SeedEvent(
           id: id,
           itemId: itemId,
@@ -397,15 +407,16 @@ class StudyLog {
 
 // --- events ----------------------------------------------------------------------
 
-/// The attempt as an event. Throws a [StateError] for an attempt the store has not stamped.
+/// The attempt as an event; a legacy attempt's has no device id. Throws a [StateError] for an
+/// attempt with no event id.
 JpEvent attemptEvent(Attempt attempt) {
-  final eventId = attempt.eventId, deviceId = attempt.deviceId;
-  if (eventId == null || deviceId == null) {
+  final eventId = attempt.eventId;
+  if (eventId == null) {
     throw StateError('attempt on ${attempt.itemId} has no event id');
   }
   return JpEvent(
       eventId: eventId,
-      deviceId: deviceId,
+      deviceId: attempt.deviceId,
       atUtc: attempt.atUtc,
       kind: JpEventKind.attempt,
       body: attempt.toJson()
@@ -414,15 +425,16 @@ JpEvent attemptEvent(Attempt attempt) {
         ..remove('deviceId'));
 }
 
-/// The seed as an event. Throws a [StateError] for a seed the store has not stamped.
+/// The seed as an event; a legacy seed's has no device id. Throws a [StateError] for a seed
+/// with no event id.
 JpEvent seedEvent(SeedEvent seed) {
-  final eventId = seed.eventId, deviceId = seed.deviceId;
-  if (eventId == null || deviceId == null) {
+  final eventId = seed.eventId;
+  if (eventId == null) {
     throw StateError('seed of ${seed.itemId} has no event id');
   }
   return JpEvent(
       eventId: eventId,
-      deviceId: deviceId,
+      deviceId: seed.deviceId,
       atUtc: seed.atUtc,
       kind: JpEventKind.seed,
       body: seed.toJson()
@@ -432,17 +444,24 @@ JpEvent seedEvent(SeedEvent seed) {
 }
 
 /// The attempt an attempt event carries, with no row id.
-Attempt attemptOfEvent(JpEvent e) => Attempt.fromJson(
-    {...e.body, 'eventId': e.eventId, 'deviceId': e.deviceId}..remove('id'));
+Attempt attemptOfEvent(JpEvent e) => Attempt.fromJson({
+      ...e.body,
+      'eventId': e.eventId,
+      if (e.deviceId != null) 'deviceId': e.deviceId
+    }..remove('id'));
 
 /// The seed a seed event carries, with no row id.
-SeedEvent seedOfEvent(JpEvent e) => SeedEvent.fromJson(
-    {...e.body, 'eventId': e.eventId, 'deviceId': e.deviceId}..remove('id'));
+SeedEvent seedOfEvent(JpEvent e) => SeedEvent.fromJson({
+      ...e.body,
+      'eventId': e.eventId,
+      if (e.deviceId != null) 'deviceId': e.deviceId
+    }..remove('id'));
 
-/// A note event: [note] set on [itemId], or cleared when null.
+/// A note event: [note] set on [itemId], or cleared when null. A legacy note has no
+/// [deviceId].
 JpEvent noteEvent(String itemId, String? note,
         {required String eventId,
-        required String deviceId,
+        required String? deviceId,
         required DateTime atUtc}) =>
     JpEvent(
         eventId: eventId,
@@ -452,12 +471,12 @@ JpEvent noteEvent(String itemId, String? note,
         body: {'itemId': itemId, 'note': note});
 
 /// A Discuss event: [mark] set, its time the event time; or, with [cleared], [itemId]'s mark
-/// cleared.
+/// cleared. A legacy mark has no [deviceId].
 JpEvent discussEvent(String itemId,
     {String? note,
     bool cleared = false,
     required String eventId,
-    required String deviceId,
+    required String? deviceId,
     required DateTime atUtc}) {
   return JpEvent(
       eventId: eventId,
@@ -550,9 +569,26 @@ void _bump(Map<int, int> load, int? day, int by) {
   }
 }
 
-/// Replays the log from nothing (D14, D26). Seeds and attempts are applied in time order, a
-/// seed before an attempt at the same instant, each kind in append order. A seed keeps the
-/// earliest due day per item. Pure.
+/// [rows] in the canonical replay order: event time to the millisecond ([eventMs]), then event
+/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or read below the
+/// current schema) sorts before an id at the same time, and rows that tie on both keep their
+/// order. Pure; [rows] is not changed.
+List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
+    String? Function(T row) eventId) {
+  final indexed = [for (var i = 0; i < rows.length; i++) (i, rows[i])];
+  indexed.sort((x, y) {
+    final byTime = eventMs(atUtc(x.$2)).compareTo(eventMs(atUtc(y.$2)));
+    if (byTime != 0) return byTime;
+    final byId = (eventId(x.$2) ?? '').compareTo(eventId(y.$2) ?? '');
+    return byId != 0 ? byId : x.$1.compareTo(y.$1);
+  });
+  return [for (final r in indexed) r.$2];
+}
+
+/// Replays the log from nothing (D14, D26). Seeds and attempts are applied in the canonical
+/// order ([canonicalOrder]: event time, then event id), a seed before an attempt at the same
+/// instant, so two devices that hold the same events in different row orders land on the same
+/// states. A seed keeps the earliest due day per item. Pure.
 ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   final srs = <String, SrsState>{};
   final mastery = <String, MasteryState>{};
@@ -560,13 +596,14 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   final load = <int, int>{};
   int? dueOf(String id) => srs[id]?.dueDay ?? seedDue[id];
 
-  final seeds = [...log.seeds];
-  final attempts = [...log.attempts];
+  final seeds = canonicalOrder(log.seeds, (s) => s.atUtc, (s) => s.eventId);
+  final attempts =
+      canonicalOrder(log.attempts, (a) => a.atUtc, (a) => a.eventId);
   var s = 0, a = 0;
   while (s < seeds.length || a < attempts.length) {
     final takeSeed = a >= attempts.length ||
         (s < seeds.length &&
-            !seeds[s].atUtc.toUtc().isAfter(attempts[a].atUtc.toUtc()));
+            eventMs(seeds[s].atUtc) <= eventMs(attempts[a].atUtc));
     if (takeSeed) {
       final seed = seeds[s++];
       final id = seed.itemId;
@@ -617,22 +654,20 @@ abstract class JpStore {
         throw e;
       });
 
-  /// [attempt] with an event id and this store's device id where it has none. Each
+  /// [attempt] with a new event id and this store's device id when it has no event id. An
+  /// attempt that has one (an import, a remote, a legacy row) is kept as it is. Each
   /// implementation calls it before it writes an attempt.
-  Future<Attempt> stampAttempt(Attempt attempt) async =>
-      attempt.eventId != null && attempt.deviceId != null
-          ? attempt
-          : attempt.withEvent(
-              eventId: attempt.eventId ?? newEventId(),
-              deviceId: attempt.deviceId ?? await deviceId());
+  Future<Attempt> stampAttempt(Attempt attempt) async => attempt.eventId != null
+      ? attempt
+      : attempt.withEvent(
+          eventId: newEventId(),
+          deviceId: attempt.deviceId ?? await deviceId());
 
-  /// [seed] with an event id and this store's device id where it has none.
-  Future<SeedEvent> stampSeed(SeedEvent seed) async =>
-      seed.eventId != null && seed.deviceId != null
-          ? seed
-          : seed.withEvent(
-              eventId: seed.eventId ?? newEventId(),
-              deviceId: seed.deviceId ?? await deviceId());
+  /// [seed] with a new event id and this store's device id when it has no event id.
+  Future<SeedEvent> stampSeed(SeedEvent seed) async => seed.eventId != null
+      ? seed
+      : seed.withEvent(
+          eventId: newEventId(), deviceId: seed.deviceId ?? await deviceId());
 
   /// [record] with its builder and build time. A record that leaves either out keeps the
   /// stored record's when the plan is the same one (a position move), even a null build time
@@ -801,7 +836,7 @@ abstract class JpStore {
     final subject = draft.subject;
     if (subject != null) {
       final latest = latestBySubject(await sideEvents(), kind)[subject];
-      if (latest != null && !at.isAfter(latest.atUtc)) {
+      if (latest != null && eventMs(at) <= eventMs(latest.atUtc)) {
         at = latest.atUtc.add(kLocalTieBump);
       }
     }
@@ -865,33 +900,32 @@ abstract class JpStore {
   /// out.
   Future<List<JpEvent>> allEvents() async => [
         for (final a in await attempts())
-          if (a.eventId != null && a.deviceId != null) attemptEvent(a),
+          if (a.eventId != null) attemptEvent(a),
         for (final s in await seeds())
-          if (s.eventId != null && s.deviceId != null) seedEvent(s),
+          if (s.eventId != null) seedEvent(s),
         ...await sideEvents(),
       ]..sort(compareEvents);
 
-  /// [log] with an event id and a device id on every attempt and seed, and an event for each
-  /// note and Discuss mark no event names. The notes and marks are then the events resolved.
+  /// [log] with an event id on every attempt and seed, and an event for each note and Discuss
+  /// mark no event names. The notes and marks are then the events resolved.
   ///
   /// An id-less row (a pre-v3 import) first reuses the event this store holds for the same
   /// row: an attempt or seed with the same content, a note event with the same item and text,
   /// a Discuss event with the same item, note and time. It keeps that event's id, device and
-  /// time. Otherwise it takes its legacy id ([LegacyEventIds]) and this store's device id; a
-  /// note takes [kLegacyNoteAtUtc] and a mark its own time. So a restored old backup maps onto
-  /// the events this store or another device already holds (operator ruling, Checkpoint
+  /// time. Otherwise it takes its legacy id ([LegacyEventIds]) and no device id; a note takes
+  /// [kLegacyNoteAtUtc] and a mark its own time. So a restored old backup maps onto the events
+  /// this store or another device already holds, byte for byte (operator ruling, Checkpoint
   /// 2026-11-19).
   Future<StudyLog> prepareLog(StudyLog log) async {
-    final device = await deviceId();
     final legacy = LegacyEventIds();
     final heldAttempts = <String, List<Attempt>>{};
     for (final a in await attempts()) {
-      if (a.eventId == null || a.deviceId == null) continue;
+      if (a.eventId == null) continue;
       heldAttempts.putIfAbsent(_attemptKey(a), () => []).add(a);
     }
     final heldSeeds = <String, List<SeedEvent>>{};
     for (final s in await seeds()) {
-      if (s.eventId == null || s.deviceId == null) continue;
+      if (s.eventId == null) continue;
       heldSeeds.putIfAbsent(_seedKey(s), () => []).add(s);
     }
     final heldSide = await sideEvents();
@@ -923,7 +957,7 @@ abstract class JpStore {
               e.subject == n.key &&
               e.body['note'] == n.value) ??
           noteEvent(n.key, n.value,
-              eventId: id, deviceId: device, atUtc: kLegacyNoteAtUtc));
+              eventId: id, deviceId: null, atUtc: kLegacyNoteAtUtc));
     }
     for (final m in log.discuss.values) {
       if (marked.contains(m.itemId)) continue;
@@ -935,7 +969,7 @@ abstract class JpStore {
               e.body['note'] == m.note &&
               e.atUtc == m.atUtc.toUtc()) ??
           discussEvent(m.itemId,
-              note: m.note, eventId: id, deviceId: device, atUtc: m.atUtc));
+              note: m.note, eventId: id, deviceId: null, atUtc: m.atUtc));
     }
     T? take<T>(Map<String, List<T>> held, String key) {
       final queue = held[key];
@@ -945,30 +979,26 @@ abstract class JpStore {
     return StudyLog.resolved(
       attempts: [
         for (final a in log.attempts)
-          if (a.eventId != null && a.deviceId != null)
+          if (a.eventId != null)
             a
           else
             () {
               final id = legacy.attempt(a);
-              final held =
-                  a.eventId == null ? take(heldAttempts, _attemptKey(a)) : null;
+              final held = take(heldAttempts, _attemptKey(a));
               return a.withEvent(
-                  eventId: a.eventId ?? held?.eventId ?? id,
-                  deviceId: a.deviceId ?? held?.deviceId ?? device);
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()
       ],
       seeds: [
         for (final s in log.seeds)
-          if (s.eventId != null && s.deviceId != null)
+          if (s.eventId != null)
             s
           else
             () {
               final id = legacy.seed(s);
-              final held =
-                  s.eventId == null ? take(heldSeeds, _seedKey(s)) : null;
+              final held = take(heldSeeds, _seedKey(s));
               return s.withEvent(
-                  eventId: s.eventId ?? held?.eventId ?? id,
-                  deviceId: s.deviceId ?? held?.deviceId ?? device);
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()
       ],
       events: events,
@@ -1042,10 +1072,13 @@ abstract class JpStore {
   /// one transaction ([replaceAll]). The replay runs first, before any write: a log it cannot
   /// replay (such as an attempt whose rating no [SrsRating] has) throws here and the record
   /// stays as it was. Runs on the [recordAnswer] chain, so no answer lands during its write.
+  /// The sync cursor is cleared before the write ([kSyncCursorMetaKey]): the next sync pulls
+  /// every server event the file lacks. An import cut short costs one redundant full pull.
   Future<ReplayResult> importLog(
           StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
       _serialized(() async {
         final result = replayLog(log, lookup, scheduler);
+        await putMeta(kSyncCursorMetaKey, '');
         await replaceAll(log, result);
         return result;
       });
