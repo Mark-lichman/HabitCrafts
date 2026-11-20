@@ -364,8 +364,9 @@ class SpeakScoreLog {
       final a = SpeakAttempt.fromJson(e.body);
       if (a == null) continue;
       final old = latest[a.identityKey];
-      if (old == null || compareEvents(e, old.$1) > 0)
+      if (old == null || compareEvents(e, old.$1) > 0) {
         latest[a.identityKey] = (e, a);
+      }
     }
     final rows = latest.values.toList()
       ..sort((x, y) {
@@ -378,10 +379,15 @@ class SpeakScoreLog {
   }
 
   /// The log in [store], after the one-time import of the old SharedPreferences log. Never
-  /// throws: an unreadable store reads as empty.
+  /// throws: an unreadable store reads as empty. A failed import still reads the store, so
+  /// synced scores and a score that just landed still show (the writers report the failure).
   static Future<List<SpeakAttempt>> load(JpStore store) async {
     try {
       await importSpeakAndLessonPrefs(store);
+    } catch (_) {
+      // The import runs again on the next call, because its flag stays unset.
+    }
+    try {
       return fromEvents(await store.speakScores());
     } catch (_) {
       return [];
@@ -424,7 +430,8 @@ class SpeakScoreLog {
   /// the marked entry, at [nowUtc] (the store's clock by default) and always after [a]'s own
   /// time, so the mark wins. An attempt whose own save failed still gets its entry this way,
   /// so no mark is lost. Never throws.
-  static Future<List<SpeakAttempt>> mark(JpStore store, SpeakAttempt a, bool gotIt,
+  static Future<List<SpeakAttempt>> mark(
+      JpStore store, SpeakAttempt a, bool gotIt,
       {DateTime? nowUtc}) async {
     await _importReported(store);
     try {
