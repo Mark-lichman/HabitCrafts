@@ -427,9 +427,12 @@ class SpeakScoreLog {
   }
 
   /// Keeps the learner's Got it or Missed it on the logged attempt [a]: a second event with
-  /// the marked entry, at [nowUtc] (the store's clock by default) and always after [a]'s own
-  /// time, so the mark wins. An attempt whose own save failed still gets its entry this way,
-  /// so no mark is lost. Never throws.
+  /// the marked entry, at [nowUtc] (the store's clock by default) and always in a later
+  /// millisecond ([eventMs]) than [a]'s own time, so the mark wins on every device. The test
+  /// is the merge order's ([compareEvents]), as in `JpStore.appendLocalEvent`: a mark later
+  /// only in microseconds would tie the attempt's event, and the event id would pick the
+  /// winner. An attempt whose own save failed still gets its entry this way, so no mark is
+  /// lost. Never throws.
   static Future<List<SpeakAttempt>> mark(
       JpStore store, SpeakAttempt a, bool gotIt,
       {DateTime? nowUtc}) async {
@@ -437,7 +440,7 @@ class SpeakScoreLog {
     try {
       final at = a.at.toUtc();
       var markAt = (nowUtc ?? store.clock()).toUtc();
-      if (!markAt.isAfter(at)) markAt = at.add(kLocalTieBump);
+      if (eventMs(markAt) <= eventMs(at)) markAt = at.add(kLocalTieBump);
       await store.recordSpeakScore(a.marked(gotIt).toJson(), atUtc: markAt);
     } catch (e, st) {
       // As in add: a lost mark is reported and never blocks the drill.

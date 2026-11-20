@@ -111,6 +111,84 @@ void main() {
           expect(events.last.atUtc.isAfter(events.first.atUtc), isTrue);
         });
 
+        // The mark's event must land in a later whole millisecond than the attempt's, because
+        // the merge order compares whole milliseconds. Each row is one arm of that test in
+        // SpeakScoreLog.mark. The oracle reads millisecondsSinceEpoch itself, not eventMs.
+        const us = Duration(microseconds: 1);
+        final markTimeRows = <(String, DateTime, DateTime, DateTime)>[
+          // (name, the attempt's time, the clock at the mark, the mark event's time)
+          (
+            'the clock in the same millisecond, later in microseconds',
+            at(5),
+            at(5).add(us * 500),
+            at(5).add(kLocalTieBump),
+          ),
+          (
+            'the clock at the attempt\'s own time',
+            at(5),
+            at(5),
+            at(5).add(kLocalTieBump),
+          ),
+          (
+            'the clock in the same millisecond, earlier in microseconds',
+            at(5).add(us * 700),
+            at(5).add(us * 200),
+            at(5).add(us * 700).add(kLocalTieBump),
+          ),
+          (
+            'an attempt with microseconds and the clock later in its millisecond',
+            at(5).add(us * 700),
+            at(5).add(us * 900),
+            at(5).add(us * 700).add(kLocalTieBump),
+          ),
+          (
+            'the clock behind the attempt',
+            at(5),
+            at(1),
+            at(5).add(kLocalTieBump),
+          ),
+          (
+            'the clock in a later millisecond keeps its own time',
+            at(5),
+            at(5).add(kLocalTieBump * 5),
+            at(5).add(kLocalTieBump * 5),
+          ),
+          (
+            'the clock in the next millisecond keeps its own time',
+            at(5).add(us * 700),
+            at(5).add(kLocalTieBump).add(us * 100),
+            at(5).add(kLocalTieBump).add(us * 100),
+          ),
+        ];
+        for (final (name, attemptAt, markClock, wantMarkAt) in markTimeRows) {
+          test('a self-mark lands in a later millisecond: $name', () async {
+            final x = attempt('あたま', attemptAt);
+            await SpeakScoreLog.add(a, x);
+            now = markClock;
+            await SpeakScoreLog.mark(a, x, true);
+
+            final events = await a.speakScores();
+            expect(events, hasLength(2));
+            final marks = [
+              for (final e in events)
+                if (e.body['selfMark'] != null) e
+            ];
+            final plain = [
+              for (final e in events)
+                if (e.body['selfMark'] == null) e
+            ];
+            expect(marks, hasLength(1));
+            expect(plain, hasLength(1));
+            expect(
+                marks.single.atUtc.millisecondsSinceEpoch,
+                greaterThan(plain.single.atUtc.millisecondsSinceEpoch),
+                reason: 'a tie on the millisecond lets the event id pick');
+            expect(marks.single.atUtc.microsecondsSinceEpoch,
+                wantMarkAt.microsecondsSinceEpoch);
+            expect((await SpeakScoreLog.load(a)).single.selfMark, isTrue);
+          });
+        }
+
         test('a mark whose attempt never saved still keeps its entry',
             () async {
           final log = await SpeakScoreLog.mark(a, attempt('ねこ', at(2)), false);
