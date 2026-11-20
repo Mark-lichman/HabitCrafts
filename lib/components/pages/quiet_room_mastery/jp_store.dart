@@ -953,9 +953,11 @@ abstract class JpStore {
   ///
   /// An id-less row (a pre-v3 import) first reuses the event this store holds for the same
   /// row: an attempt or seed with the same content, a note event with the same item and text,
-  /// a Discuss event with the same item, note and time. It keeps that event's id, device and
-  /// time. Otherwise it takes its legacy id ([LegacyEventIds]) and no device id; a note takes
-  /// [kLegacyNoteAtUtc] and a mark its own time. An id-less attempt, seed or mark has its time
+  /// a Discuss event with the same item, note and time. An attempt or seed keeps that event's
+  /// id and device, and takes the time cut to the millisecond; a note or Discuss row is the
+  /// held event itself, its time included. Otherwise it takes its legacy id
+  /// ([LegacyEventIds]) and no device id; a note takes [kLegacyNoteAtUtc] and a mark its own
+  /// time. An id-less attempt, seed or mark has its time
   /// cut to the millisecond first ([legacyAttempt]), body included, so the phone and a browser
   /// read the same backup into the same events (operator ruling, Checkpoint 2026-11-20). So a
   /// restored old backup maps onto the events this store or another device already holds,
