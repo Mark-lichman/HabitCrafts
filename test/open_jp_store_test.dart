@@ -350,12 +350,22 @@ void main() {
       final storage = MemoryJpWebStorage();
       final store = await withRecord(storage);
       final device = await store.deviceId();
+      // The cleared-storage path runs the same clearRecord as the wipe, so it keeps the
+      // migration flags too (operator ruling, Checkpoint 2026-11-20).
+      await store.putMeta(kV2MigrationFlag, '2026-11-01T00:00:00.000Z');
+      await store.putMeta(kSpeakLessonImportFlag, '2026-11-02T00:00:00.000Z');
+      await store.putMeta('migrationv2', 'not a migration flag');
       await storage.clear();
       await store.putMeta('flag', 'on');
 
       final reloaded = await JpStoreWeb.open(storage: storage);
       await expectEmpty(reloaded);
       expect(await reloaded.meta(kSyncCursorMetaKey), isNull);
+      expect(await reloaded.meta(kSyncReplayPendingMetaKey), isNull);
+      expect(await reloaded.meta(kV2MigrationFlag), '2026-11-01T00:00:00.000Z');
+      expect(await reloaded.meta(kSpeakLessonImportFlag),
+          '2026-11-02T00:00:00.000Z');
+      expect(await reloaded.meta('migrationv2'), isNull);
       expect(await reloaded.meta('flag'), 'on');
       expect(await reloaded.deviceId(), device);
     });
