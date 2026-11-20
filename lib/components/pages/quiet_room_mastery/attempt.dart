@@ -131,6 +131,8 @@ class Attempt {
     this.durationMs = 0,
     required this.sessionId,
     this.spokenClose = false,
+    this.eventId,
+    this.deviceId,
   })  : assert(grade != Grade.clear || hintLevel == 0,
             'a clear never carries a hint (PIN-3); grade it through gradeAnswer'),
         assert(!spokenClose || grade == Grade.hinted,
@@ -179,6 +181,18 @@ class Attempt {
   /// the log only when true, so a record from before the mark exports byte for byte as it was.
   final bool spokenClose;
 
+  /// The global event id (jp_event.dart), the same on every device. The store assigns it on
+  /// append when it is null; a store migrated from before event ids assigned one to every row.
+  final String? eventId;
+
+  /// The device that logged the answer. The store fills it on append when it is null.
+  final String? deviceId;
+
+  /// This attempt with [eventId] and [deviceId] set.
+  Attempt withEvent({required String eventId, required String deviceId}) =>
+      Attempt.fromJson({...toJson(), 'eventId': eventId, 'deviceId': deviceId});
+
+  /// The two event fields are written only when set, after every other field.
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         'itemId': itemId,
@@ -202,6 +216,8 @@ class Attempt {
         'durationMs': durationMs,
         'sessionId': sessionId,
         if (spokenClose) 'spokenClose': true,
+        if (eventId != null) 'eventId': eventId,
+        if (deviceId != null) 'deviceId': deviceId,
       };
 
   factory Attempt.fromJson(Map<String, dynamic> j) => Attempt(
@@ -229,8 +245,12 @@ class Attempt {
         // Read only on a hinted row, so a hand-edited import cannot trip the assert.
         spokenClose:
             j['spokenClose'] == true && j['grade'] == Grade.hinted.name,
+        eventId: j['eventId'] as String?,
+        deviceId: j['deviceId'] as String?,
       );
 
+  /// The fields equality compares: the answer and its row id. The event id and the device id
+  /// are left out, so an answer compares equal to itself before and after the store stamps it.
   List<Object?> get _fields => [
         id,
         itemId,
