@@ -12,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'anonymous_auth.dart';
 import 'apple_auth.dart';
-import 'email_auth.dart';
 import 'firebase_user_provider.dart';
 import 'google_auth.dart';
 import 'jwt_token_auth.dart';
@@ -52,6 +51,31 @@ class FirebaseAuthManager extends AuthManager
         JwtSignInManager,
         GithubSignInManager,
         PhoneSignInManager {
+  /// Every argument is a test seam. The defaults are the live Firebase
+  /// instance, the `users/{uid}` profile create, analytics and the platform.
+  FirebaseAuthManager({
+    FirebaseAuth Function()? auth,
+    Future Function(User user) createUser = maybeCreateUser,
+    void Function(User? user, String method) logAuthEvent =
+        logFirebaseAuthEvent,
+    void Function(String name) logEvent = logFirebaseEvent,
+    bool isWeb = kIsWeb,
+  })  : _authOf = auth ?? _liveAuth,
+        _createUser = createUser,
+        _logAuthEvent = logAuthEvent,
+        _logEvent = logEvent,
+        _isWeb = isWeb;
+
+  static FirebaseAuth _liveAuth() => FirebaseAuth.instance;
+
+  final FirebaseAuth Function() _authOf;
+  final Future Function(User user) _createUser;
+  final void Function(User? user, String method) _logAuthEvent;
+  final void Function(String name) _logEvent;
+  final bool _isWeb;
+
+  FirebaseAuth get _auth => _authOf();
+
   // Set when using phone verification (after phone number is provided).
   String? _phoneAuthVerificationCode;
   // Set when using phone sign in in web mode (ignored otherwise).
@@ -60,8 +84,8 @@ class FirebaseAuthManager extends AuthManager
 
   @override
   Future signOut() {
-    logFirebaseEvent("SIGN_OUT");
-    return FirebaseAuth.instance.signOut();
+    _logEvent("SIGN_OUT");
+    return _auth.signOut();
   }
 
   @override
@@ -136,14 +160,16 @@ class FirebaseAuthManager extends AuthManager
     required BuildContext context,
   }) async {
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.message!}')),
+        SnackBar(content: Text('Error: ${e.message ?? e.code}')),
       );
       return null;
     }
+    if (!context.mounted) return null;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Password reset email sent')),
     );
@@ -157,7 +183,8 @@ class FirebaseAuthManager extends AuthManager
   ) =>
       _signInOrCreateAccount(
         context,
-        () => emailSignInFunc(email, password),
+        () => _auth.signInWithEmailAndPassword(
+            email: email.trim(), password: password),
         'EMAIL',
       );
 
@@ -169,7 +196,8 @@ class FirebaseAuthManager extends AuthManager
   ) =>
       _signInOrCreateAccount(
         context,
-        () => emailCreateAccountFunc(email, password),
+        () => _auth.createUserWithEmailAndPassword(
+            email: email.trim(), password: password),
         'EMAIL',
       );
 
@@ -185,7 +213,11 @@ class FirebaseAuthManager extends AuthManager
 
   @override
   Future<BaseAuthUser?> signInWithGoogle(BuildContext context) =>
-      _signInOrCreateAccount(context, googleSignInFunc, 'GOOGLE');
+      _signInOrCreateAccount(
+        context,
+        () => googleSignInFunc(auth: _auth, isWeb: _isWeb),
+        'GOOGLE',
+      );
 
   @override
   Future<BaseAuthUser?> signInWithGithub(BuildContext context) =>
@@ -302,6 +334,10 @@ class FirebaseAuthManager extends AuthManager
 
   /// Tries to sign in or create an account using Firebase Auth.
   /// Returns the User object if sign in was successful.
+  ///
+  /// [signInFunc] runs before any `await`, so a web popup still opens inside
+  /// the user's tap. A sign-in replaces an anonymous speaking-drill user and
+  /// never links onto it, so the uid is the account's own uid (PIN-9).
   Future<BaseAuthUser?> _signInOrCreateAccount(
     BuildContext context,
     Future<UserCredential?> Function() signInFunc,
@@ -309,26 +345,48 @@ class FirebaseAuthManager extends AuthManager
   ) async {
     try {
       final userCredential = await signInFunc();
-      logFirebaseAuthEvent(userCredential?.user, authProvider);
+      _logAuthEvent(userCredential?.user, authProvider);
       if (userCredential?.user != null) {
-        await maybeCreateUser(userCredential!.user!);
+        await _createUser(userCredential!.user!);
+        await _keepWebSession();
       }
       return userCredential == null
           ? null
           : HabitCraftFirebaseUser.fromUserCredential(userCredential);
     } on FirebaseAuthException catch (e) {
+      // The user closed the popup or opened a second one: nothing to report.
+      if (e.code == 'popup-closed-by-user' ||
+          e.code == 'cancelled-popup-request') {
+        return null;
+      }
       final errorMsg = switch (e.code) {
         'email-already-in-use' =>
           'Error: The email is already in use by a different account',
         'INVALID_LOGIN_CREDENTIALS' =>
           'Error: The supplied auth credential is incorrect, malformed or has expired',
-        _ => 'Error: ${e.message!}',
+        'popup-blocked' =>
+          'The browser blocked the sign-in window. Allow pop-ups for this site, then try again.',
+        'account-exists-with-different-credential' =>
+          'This email already signs in another way. Use that sign-in method.',
+        _ => 'Error: ${e.message ?? e.code}',
       };
+      if (!context.mounted) return null;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMsg)),
       );
       return null;
     }
+  }
+
+  /// Keeps a web session in IndexedDB, so it survives a reload and a closed
+  /// tab. This is the web SDK's default too; the call pins it. It runs after
+  /// the sign-in, never before, because an `await` ahead of a popup gets the
+  /// popup blocked. A failure here leaves the user signed in for this tab.
+  Future<void> _keepWebSession() async {
+    if (!_isWeb) return;
+    try {
+      await _auth.setPersistence(Persistence.INDEXED_DB);
+    } catch (_) {}
   }
 }
