@@ -602,9 +602,9 @@ void _bump(Map<int, int> load, int? day, int by) {
 }
 
 /// [rows] in the canonical replay order: event time to the millisecond ([eventMs]), then event
-/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or read below the
-/// current schema) sorts before an id at the same time, and rows that tie on both keep their
-/// order. Pure; [rows] is not changed.
+/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or
+/// read below the current schema) sorts before an id at the same time, and rows that tie on both
+/// keep their order. Pure; [rows] is not changed.
 List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
     String? Function(T row) eventId) {
   final indexed = [for (var i = 0; i < rows.length; i++) (i, rows[i])];

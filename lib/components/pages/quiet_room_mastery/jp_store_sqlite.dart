@@ -27,8 +27,9 @@
 // the file's version, in order. Version 3 is the one-time event id migration: it gives every
 // existing attempt and seed a legacy event id (a hash of the row content), its time cut to the
 // millisecond, and no device id. It gives each note and Discuss mark an event, and leaves them
-// all unpushed. It runs once per file, so the ids stay put on every later open. A side event with no device id keeps an empty
-// `deviceId` in its row (the column is NOT NULL) and reads back as null.
+// all unpushed. It runs once per file, so the ids stay put on every later open. A side event
+// with no device id keeps an empty `deviceId` in its row (the column is NOT NULL) and reads back
+// as null.
 //
 // Reads take every column, so a file a test opens below the current version reads with no
 // event ids. Writes need version 3.
