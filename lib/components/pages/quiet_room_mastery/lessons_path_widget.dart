@@ -6,21 +6,22 @@
 //     and the counts over its items ([lessonCountsLabel]) where the strips showed nothing
 //     or a Done mark. Each count is of the items' own states (PIN-1), never the lesson number;
 //   * the current lesson as the one loud row: the last grammar lesson opened, on the grammar
-//     screen or from this path (`kLastGrammarLessonKey`), else the first lesson on the path with an item not yet
-//     Mastered, else 第26課 ([currentLessonOf]);
+//     screen or from this path (the store's latest `last_lesson` event, speak_lesson_events.dart),
+//     else the first lesson on the path with an item not yet Mastered, else 第26課
+//     ([currentLessonOf]);
 //   * a Words-only section for 第2課 to 第25課: word sheets and no grammar. A lesson with no
 //     sheet keeps its row and says so.
 // A tap opens the lesson page (lesson_page_widget.dart). The path reads the record again
 // when the page returns, so its counts follow the answers given there. Opening a 第26課 to
-// 第50課 page makes it the current lesson: the tap writes `kLastGrammarLessonKey`, so the loud
-// row follows the learner (operator ruling ASK-11, 2026-11-05).
+// 第50課 page makes it the current lesson: the tap writes a `last_lesson` event, so the loud
+// row follows the learner on every device (operator ruling ASK-11, 2026-11-05; plan 2026-11-19,
+// Task 13, PIN-16).
 //
 // [lessonPathOf] is the pure read the path shows. The path is the Lessons tab of the home
 // (quiet_room_japanese_widget.dart) and has its own route in `nav.dart`.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/quiet_room.dart';
 import '../quiet_room_grammar/jp_study_kit.dart';
@@ -32,8 +33,9 @@ import 'lesson_page_widget.dart';
 import 'local_day.dart';
 import 'mastery_rule.dart';
 import 'review_page.dart' show qrLoadingOr;
-import 'seed_confirm_widget.dart' show kLastGrammarLessonKey;
 import 'session_widget.dart' show SessionProbeBuilder;
+import 'speak_lesson_events.dart'
+    show readLastGrammarLesson, rememberLastGrammarLesson;
 import 'topic_index.dart';
 import 'topic_page_widget.dart' show TopicPill;
 
@@ -125,7 +127,7 @@ int currentLessonOf(List<LessonPathRow> grammar, int? lastLesson) {
 }
 
 /// The path over [index] and the grammar file [grammar]. [lastLesson] is the last grammar
-/// lesson opened (`kLastGrammarLessonKey`). Pure.
+/// lesson opened (`readLastGrammarLesson`). Pure.
 LessonPath lessonPathOf(TopicIndex index, Map<String, dynamic> grammar,
     {int? lastLesson}) {
   final titles = <int, String>{};
@@ -231,8 +233,7 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
           catalog: catalog,
           grammar: grammar,
           today: widget.clock.today());
-      final last =
-          (await SharedPreferences.getInstance()).getInt(kLastGrammarLessonKey);
+      final last = await readLastGrammarLesson(store);
       final path = lessonPathOf(index, grammar, lastLesson: last);
       if (mounted && load == _loads) {
         setState(() {
@@ -249,8 +250,8 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
   /// as a plain page over the same store and clock.
   Future<void> _open(int lesson) async {
     if (lesson >= kPathFirstGrammarLesson && lesson <= kPathLastGrammarLesson) {
-      await (await SharedPreferences.getInstance())
-          .setInt(kLastGrammarLessonKey, lesson);
+      final store = _store ??= widget.store ?? await sharedJpStore();
+      await rememberLastGrammarLesson(store, lesson);
     }
     if (!mounted) return;
     if (widget.store == null && GoRouter.maybeOf(context) != null) {
