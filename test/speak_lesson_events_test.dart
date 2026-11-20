@@ -179,8 +179,7 @@ void main() {
             ];
             expect(marks, hasLength(1));
             expect(plain, hasLength(1));
-            expect(
-                marks.single.atUtc.millisecondsSinceEpoch,
+            expect(marks.single.atUtc.millisecondsSinceEpoch,
                 greaterThan(plain.single.atUtc.millisecondsSinceEpoch),
                 reason: 'a tie on the millisecond lets the event id pick');
             expect(marks.single.atUtc.microsecondsSinceEpoch,
@@ -401,10 +400,12 @@ void main() {
           Future<void> expectSameLegacyEvents() async {
             final fromA = {for (final e in await a.sideEvents()) e.eventId: e};
             final fromB = await b.sideEvents();
-            expect(
-                {for (final e in fromB) e.kind},
-                {JpEventKind.speakScore, JpEventKind.lastLesson},
-                reason: 'both imported kinds are checked');
+            expect({
+              for (final e in fromB) e.kind
+            }, {
+              JpEventKind.speakScore,
+              JpEventKind.lastLesson
+            }, reason: 'both imported kinds are checked');
             for (final e in [...fromA.values, ...fromB]) {
               expect(e.deviceId, isNull, reason: '${e.kind.wire} ${e.eventId}');
             }
@@ -423,6 +424,41 @@ void main() {
           await expectSameLegacyEvents();
         });
 
+        // The key fields the docs on `legacyEventId` (jp_event.dart) name for these two
+        // sources: a score keys on its time, sentence and self mark, and the last lesson on
+        // its lesson id alone. Neither carries an item or a session.
+        test(
+            'a score keys on time, sentence and self mark; the lesson on its id',
+            () async {
+          final prefs = await prefsWith(oldPrefs());
+          expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 3);
+          final events = await a.sideEvents();
+          final first = DateTime.utc(2026, 10, 27, 9);
+          final second = DateTime.utc(2026, 10, 28, 9);
+          expect({
+            for (final e in events)
+              if (e.kind == JpEventKind.speakScore) e.eventId
+          }, {
+            legacyEventId(JpEventKind.speakScore,
+                [first.toIso8601String(), 'あたまが いたいんです。', true]),
+            legacyEventId(JpEventKind.speakScore,
+                [second.toIso8601String(), 'ねこが います。', null]),
+          });
+          expect([
+            for (final e in events)
+              if (e.kind == JpEventKind.lastLesson) e.eventId
+          ], [
+            legacyEventId(JpEventKind.lastLesson, ['33'])
+          ]);
+          // The last lesson's event time is no part of its key: the id holds for any time.
+          expect(
+              events.singleWhere((e) => e.kind == JpEventKind.lastLesson).atUtc,
+              kLegacyLastLessonAtUtc);
+          // An answer's key shape (time, item, session) names a different event.
+          expect(legacyEventId(JpEventKind.lastLesson, ['33']),
+              isNot(legacyEventId(JpEventKind.lastLesson, [null, '33', null])));
+        });
+
         test('an import alone leaves every event with no device id', () async {
           final prefs = await prefsWith(oldPrefs());
           expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 3);
@@ -432,9 +468,13 @@ void main() {
           for (final e in events) {
             expect(e.deviceId, isNull, reason: '${e.kind.wire} ${e.eventId}');
           }
-          expect([for (final e in await a.unpushedEvents()) e.deviceId],
-              [null, null, null],
-              reason: 'the events wait for the sync as they were written');
+          expect([
+            for (final e in await a.unpushedEvents()) e.deviceId
+          ], [
+            null,
+            null,
+            null
+          ], reason: 'the events wait for the sync as they were written');
         });
       });
     });
