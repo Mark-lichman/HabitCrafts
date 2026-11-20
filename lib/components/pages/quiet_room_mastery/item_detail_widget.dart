@@ -22,7 +22,7 @@
 //   * Practice now, a one-item [PracticeSessionWidget].
 //
 // [itemDetailOf] is the pure read the page shows; the state is `masteryFromAttempts` over the
-// item's attempts, never the lesson number.
+// item's attempts in canonical replay order ([canonicalAttempts]), never the lesson number.
 //
 // [PracticeSessionWidget] asks each of its items once through the session's probe builder and
 // writes the answers through an [AttemptRecorder], so the due rule is the drills' (D23, PIN-14):

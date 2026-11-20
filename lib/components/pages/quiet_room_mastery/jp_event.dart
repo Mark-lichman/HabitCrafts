@@ -18,9 +18,10 @@
 // by the larger event id, so every device lands on the same value (last write wins).
 //
 // Two id forms. A new event takes a random (version 4) UUID (`newEventId`). A legacy row, one
-// written before event ids (the store's one-time migration and a pre-v3 import), takes a
-// name-based (version 5) UUID of its content (`legacyEventId`): its kind, time, item and session
-// (operator ruling, Checkpoint 2026-11-19). The same old row gets the same id on every device, so
+// written before event ids (the store's one-time migration, a pre-v3 import, and the one-time
+// import of the old say-it scores and last lesson), takes a name-based (version 5) UUID of its
+// content (`legacyEventId`): its kind, time, item and session (operator ruling, Checkpoint
+// 2026-11-19). The same old row gets the same id on every device, so
 // a restored old backup maps onto the events already uploaded. A legacy event carries no device
 // id (null), so the phone's migration and a web import of the same old backup derive the same
 // event, byte for byte.
