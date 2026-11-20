@@ -62,6 +62,11 @@ const String kNoteCanUseIt = 'can_use_it';
 /// The store flag that holds this store's device id, written once.
 const String kDeviceIdMetaKey = 'sync.deviceId';
 
+/// The store flag that holds the sync cursor: the latest server time pulled, UTC ISO 8601. An
+/// empty or missing value means no cursor: the next sync pulls every event ([JpStore.importLog]
+/// clears it).
+const String kSyncCursorMetaKey = 'sync.cursor';
+
 /// The event time of a note written before event ids, whose own time was never kept: the Unix
 /// epoch. A fixed time keeps a legacy note the same event on every device, and any later note
 /// change wins over it (PIN-12).
@@ -564,15 +569,15 @@ void _bump(Map<int, int> load, int? day, int by) {
   }
 }
 
-/// [rows] in the canonical replay order: event time, then event id (operator ruling,
-/// Checkpoint 2026-11-19). A row with no event id (a log built by hand or read below the
+/// [rows] in the canonical replay order: event time to the millisecond ([eventMs]), then event
+/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or read below the
 /// current schema) sorts before an id at the same time, and rows that tie on both keep their
 /// order. Pure; [rows] is not changed.
 List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
     String? Function(T row) eventId) {
   final indexed = [for (var i = 0; i < rows.length; i++) (i, rows[i])];
   indexed.sort((x, y) {
-    final byTime = atUtc(x.$2).toUtc().compareTo(atUtc(y.$2).toUtc());
+    final byTime = eventMs(atUtc(x.$2)).compareTo(eventMs(atUtc(y.$2)));
     if (byTime != 0) return byTime;
     final byId = (eventId(x.$2) ?? '').compareTo(eventId(y.$2) ?? '');
     return byId != 0 ? byId : x.$1.compareTo(y.$1);
@@ -598,7 +603,7 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   while (s < seeds.length || a < attempts.length) {
     final takeSeed = a >= attempts.length ||
         (s < seeds.length &&
-            !seeds[s].atUtc.toUtc().isAfter(attempts[a].atUtc.toUtc()));
+            eventMs(seeds[s].atUtc) <= eventMs(attempts[a].atUtc));
     if (takeSeed) {
       final seed = seeds[s++];
       final id = seed.itemId;
@@ -831,7 +836,7 @@ abstract class JpStore {
     final subject = draft.subject;
     if (subject != null) {
       final latest = latestBySubject(await sideEvents(), kind)[subject];
-      if (latest != null && !at.isAfter(latest.atUtc)) {
+      if (latest != null && eventMs(at) <= eventMs(latest.atUtc)) {
         at = latest.atUtc.add(kLocalTieBump);
       }
     }
@@ -1067,10 +1072,13 @@ abstract class JpStore {
   /// one transaction ([replaceAll]). The replay runs first, before any write: a log it cannot
   /// replay (such as an attempt whose rating no [SrsRating] has) throws here and the record
   /// stays as it was. Runs on the [recordAnswer] chain, so no answer lands during its write.
+  /// The sync cursor is cleared before the write ([kSyncCursorMetaKey]): the next sync pulls
+  /// every server event the file lacks. An import cut short costs one redundant full pull.
   Future<ReplayResult> importLog(
           StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
       _serialized(() async {
         final result = replayLog(log, lookup, scheduler);
+        await putMeta(kSyncCursorMetaKey, '');
         await replaceAll(log, result);
         return result;
       });

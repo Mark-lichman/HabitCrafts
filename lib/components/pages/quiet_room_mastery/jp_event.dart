@@ -199,9 +199,14 @@ class JpEvent {
       '${subject == null ? '' : ' $subject'})';
 }
 
-/// The merge order: event time, then event id. Every device sorts a merged log the same way.
+/// An event time as every device compares it: whole milliseconds since the epoch. A web
+/// DateTime keeps no finer time, so a phone event with microseconds must order the same there.
+int eventMs(DateTime t) => t.millisecondsSinceEpoch;
+
+/// The merge order: event time to the millisecond ([eventMs]), then event id. Every device
+/// sorts a merged log the same way.
 int compareEvents(JpEvent a, JpEvent b) {
-  final byTime = a.atUtc.compareTo(b.atUtc);
+  final byTime = eventMs(a.atUtc).compareTo(eventMs(b.atUtc));
   return byTime != 0 ? byTime : a.eventId.compareTo(b.eventId);
 }
 

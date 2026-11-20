@@ -5,8 +5,9 @@
 //   1. push: every event the store has not pushed goes to the remote, then is marked pushed.
 //      The remote creates each id once, so a re-push after a cut-short run, or a legacy event
 //      another device already uploaded, adds nothing (dedup by event id alone);
-//   2. pull: the events the server received after the sync cursor are appended, each id once;
-//   3. replay: when an attempt or a seed was pushed or pulled, the store rebuilds the schedule
+//   2. pull: the events the server received after the sync cursor are appended, each id once.
+//      No cursor (none yet, or cleared by an import) pulls every event;
+//   3. replay: when an attempt or a seed was pushed or newly pulled, the store rebuilds the schedule
 //      and mastery from the merged log, in the canonical order (event time, then event id), so
 //      every device lands on the same states. Notes, Discuss marks, say-it scores and the last
 //      lesson are side events: the store resolves them by the latest event time on append;
@@ -29,8 +30,7 @@ import 'jp_store.dart';
 import 'local_day.dart';
 import 'scheduler.dart';
 
-/// The store flag that holds the sync cursor: the latest server time pulled, UTC ISO 8601.
-const String kSyncCursorMetaKey = 'sync.cursor';
+export 'jp_store.dart' show kSyncCursorMetaKey;
 
 /// The store flag set while a pulled or pushed attempt or seed waits for its replay, so a run
 /// cut short between the append and the rebuild still rebuilds on the next run.
@@ -108,9 +108,13 @@ class JpSync {
 
     // 2. Pull.
     final kept = await store.meta(kSyncCursorMetaKey);
-    final cursor = kept == null ? null : DateTime.parse(kept).toUtc();
+    final cursor =
+        kept == null || kept.isEmpty ? null : DateTime.parse(kept).toUtc();
     final pull = await remote.pullEvents(cursor);
-    if (pull.events.any((e) => e.kind.replayed)) {
+    // Only events the store lacks call for a replay. A pull can return events it already
+    // holds: a web cursor keeps milliseconds, the server time keeps microseconds.
+    final held = {for (final e in await store.allEvents()) e.eventId};
+    if (pull.events.any((e) => e.kind.replayed && !held.contains(e.eventId))) {
       await store.putMeta(kSyncReplayPendingMetaKey, '1');
     }
     final pulled = await store.appendRemoteEvents(pull.events);

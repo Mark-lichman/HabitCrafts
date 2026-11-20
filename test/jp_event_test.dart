@@ -310,8 +310,9 @@ void main() {
           JpEventKind.speakScore,
           JpEventKind.lastLesson,
         ], reason: 'oldest first');
-        expect(unpushed.first, attemptEvent(out.attempt));
-        expect(unpushed, await store.allEvents());
+        expect(contentOf([unpushed.first]),
+            contentOf([attemptEvent(out.attempt)]));
+        expect(contentOf(unpushed), contentOf(await store.allEvents()));
 
         await store.markPushed([
           for (final e in unpushed.take(3)) e.eventId,
@@ -324,7 +325,8 @@ void main() {
         // Only what is new is unpushed after a push.
         final next = await store.recordAnswer(answer(g, 2, Grade.clear),
             item: g, scheduler: scheduler);
-        expect(await store.unpushedEvents(), [attemptEvent(next.attempt)]);
+        expect(contentOf(await store.unpushedEvents()),
+            contentOf([attemptEvent(next.attempt)]));
       });
 
       test(
@@ -355,7 +357,8 @@ void main() {
           expect(await store.appendRemoteEvents(sent), isEmpty);
           expect(await store.unpushedEvents(), isEmpty,
               reason: 'a remote event is already on the server');
-          expect(await store.allEvents(), await source.allEvents());
+          expect(contentOf(await store.allEvents()),
+              contentOf(await source.allEvents()));
           expect((await store.attempts()).length, 4);
           expect((await store.seeds()).length, 1);
 
@@ -586,7 +589,8 @@ void main() {
             expect(await other.notes(), await store.notes());
             expect(await other.discussMarks(), await store.discussMarks());
             expect(await other.lastLesson(), 'L26');
-            expect(await other.speakScores(), await store.speakScores());
+            expect(contentOf(await other.speakScores()),
+                contentOf(await store.speakScores()));
             expect(await other.allSrs(), await store.allSrs());
             expect(await exportStudy(other, exportedAt: at(10)), text);
           } finally {
@@ -628,7 +632,7 @@ void main() {
         expect(events.every((e) => e.deviceId == null), isTrue,
             reason: 'a legacy event carries no device id');
         expect(idsOf(events).length, events.length);
-        expect(await store.unpushedEvents(), events);
+        expect(contentOf(await store.unpushedEvents()), contentOf(events));
         final notes = [
           for (final e in events)
             if (e.kind == JpEventKind.note) e
@@ -838,7 +842,7 @@ void main() {
       final noteAt = events.firstWhere((e) => e.kind == JpEventKind.note);
       expect(noteAt.atUtc, kLegacyNoteAtUtc,
           reason: 'a note with no time takes the legacy time');
-      expect(await store.unpushedEvents(), events);
+      expect(contentOf(await store.unpushedEvents()), contentOf(events));
 
       // A move through a migrated day keeps its unknown build time (#191).
       final migratedDay = (await store.day(2))!;
@@ -885,19 +889,19 @@ void main() {
       store = await open();
       expect(await store.deviceId(), device);
       expect(contentOf(await store.allEvents()), contentOf(events));
-      expect(await store.unpushedEvents(), events);
+      expect(contentOf(await store.unpushedEvents()), contentOf(events));
       await store.markPushed(idsOf(events));
       await store.close();
 
       // Pushed once: no later open offers them again.
       store = await open();
       expect(await store.unpushedEvents(), isEmpty);
-      expect(await store.allEvents(), events);
+      expect(contentOf(await store.allEvents()), contentOf(events));
       // The ids ride an export into another store.
       final other = JpStoreMemory();
       await importStudy(other, await exportStudy(store, exportedAt: at(10)),
           lookup: catalog.byId, scheduler: scheduler);
-      expect(await other.allEvents(), events);
+      expect(contentOf(await other.allEvents()), contentOf(events));
       expect(await other.allSrs(), oldSrs);
       await store.close();
     });

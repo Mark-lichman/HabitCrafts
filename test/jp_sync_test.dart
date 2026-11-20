@@ -157,6 +157,85 @@ void main() {
     });
   });
 
+  group('event time orders to the millisecond, as a web DateTime holds it', () {
+    // Two events 300 microseconds apart, inside one millisecond, whose event ids run against
+    // their time order. The phone holds the microseconds; the web reads the same events back
+    // cut to the millisecond. Both must order them the same way.
+    final t = at(1).add(const Duration(microseconds: 100));
+    final later = t.add(const Duration(microseconds: 300));
+    DateTime cut(DateTime x) =>
+        DateTime.fromMillisecondsSinceEpoch(x.millisecondsSinceEpoch,
+            isUtc: true);
+    Attempt timed(Attempt a, DateTime atUtc, String eventId) =>
+        Attempt.fromJson({
+          ...a.toJson(),
+          'atUtc': atUtc.toUtc().toIso8601String(),
+          'eventId': eventId,
+          'deviceId': 'phone',
+        });
+
+    test(
+        'attempts and seeds replay the same on the phone and the web (End state 3)',
+        () {
+      final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
+      StudyLog log(DateTime Function(DateTime) time) => StudyLog(attempts: [
+            timed(answer(g, 1, Grade.wrong), time(t), 'b-earlier'),
+            timed(answer(g, 1, Grade.clear), time(later), 'a-later'),
+            timed(answer(w, 1, Grade.clear), time(t), 'c-attempt'),
+          ], seeds: [
+            SeedEvent(
+                itemId: w.id,
+                dueDay: 3,
+                atUtc: time(later),
+                eventId: 'd-seed',
+                deviceId: 'phone'),
+          ]);
+      expect(cut(t), cut(later), reason: 'the fixture sits in one millisecond');
+      final phone = replayLog(log((x) => x), catalog.byId, scheduler);
+      final web = replayLog(log(cut), catalog.byId, scheduler);
+      expect(phone.srs, web.srs);
+      expect(phone.mastery, web.mastery);
+      // The oracle: the two orders of g's answers land on different states, so the
+      // assertion above can tell them apart.
+      final timeOrder = replayLog(
+          StudyLog(attempts: [
+            timed(answer(g, 1, Grade.wrong), at(1), 'b-earlier'),
+            timed(answer(g, 1, Grade.clear), at(1, 1), 'a-later'),
+          ]),
+          catalog.byId,
+          scheduler);
+      expect(timeOrder.srs[g.id], isNot(web.srs[g.id]));
+    });
+
+    test(
+        'the last write of a note resolves the same on the phone and the web (PIN-12)',
+        () {
+      final g = firstOf(ItemKind.grammar);
+      List<JpEvent> notes(DateTime Function(DateTime) time) => [
+            noteEvent(g.id, 'earlier',
+                eventId: 'b-earlier', deviceId: 'phone', atUtc: time(t)),
+            noteEvent(g.id, 'later',
+                eventId: 'a-later', deviceId: 'web', atUtc: time(later)),
+          ];
+      final phone = latestBySubject(notes((x) => x), JpEventKind.note);
+      final web = latestBySubject(notes(cut), JpEventKind.note);
+      expect(phone[g.id]!.eventId, web[g.id]!.eventId);
+    });
+
+    test('a local change inside the same millisecond still shows (PIN-12)',
+        () async {
+      final g = firstOf(ItemKind.grammar);
+      final store = JpStoreMemory(clock: clock);
+      now = t;
+      for (var i = 0; i < 20; i++) {
+        await store.setNote(g.id, 'n$i');
+        expect(await store.notes(), {g.id: 'n$i'}, reason: 'change $i shows');
+        now = now.add(const Duration(microseconds: 300));
+      }
+      await store.close();
+    });
+  });
+
   for (final phoneEntry in phones.entries) {
     group('JpSync (phone ${phoneEntry.key}, web memory)', () {
       late JpRemoteMemory remote;
@@ -435,6 +514,52 @@ void main() {
         expect((await remote.devices()).length, 2);
       });
 
+      test(
+          'a pull that returns events the store holds moves nothing and rebuilds nothing',
+          () async {
+        final g = firstOf(ItemKind.grammar);
+        await phone.answer(answer(g, 1, Grade.clear));
+        await phone.run();
+        // A web cursor keeps milliseconds, the server time microseconds: the same events
+        // come back after the cursor.
+        final stale = Device(web.store, _StaleCursor(remote), 'Chrome');
+        final first = await stale.run();
+        expect(first.rebuilt, isTrue);
+        final again = await stale.run();
+        expect([again.pushed, again.pulled], [isEmpty, isEmpty]);
+        expect(again.rebuilt, isFalse,
+            reason: 'only events new to the store call for a replay');
+        await expectSameRecord(phone.store, web.store);
+      });
+
+      test(
+          'an import of an older export clears the cursor, so the next sync restores the rest',
+          () async {
+        final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
+        await phone.answer(answer(g, 1, Grade.clear));
+        await phone.run();
+        await web.run();
+        final older = await exportStudy(phone.store, exportedAt: at(1, 30));
+        await web.answer(answer(w, 2, Grade.wrong));
+        await web.answer(answer(g, 3, Grade.hinted));
+        await web.run();
+        await phone.run();
+        expect(await phone.store.meta(kSyncCursorMetaKey), isNotNull);
+        await expectSameRecord(phone.store, web.store);
+
+        await importStudy(phone.store, older,
+            lookup: catalog.byId, scheduler: scheduler);
+        expect(await phone.store.meta(kSyncCursorMetaKey), '',
+            reason: 'the import clears the cursor');
+        expect((await phone.store.attempts()).length, 1);
+        final next = await phone.run();
+        expect(next.pulled.length, 2, reason: 'the events the file lacks');
+        expect(next.rebuilt, isTrue);
+        expect(remote.events.length, 3, reason: 'nothing uploads twice');
+        await web.run();
+        await expectSameRecord(phone.store, web.store);
+      });
+
       test('overlapping runs share one run', () async {
         final g = firstOf(ItemKind.grammar);
         await phone.answer(answer(g, 1, Grade.clear));
@@ -559,6 +684,37 @@ void main() {
       }
     });
   });
+}
+
+/// A remote whose cursor trails the last server time by a microsecond, as a web cursor cut to
+/// the millisecond does: every pull returns the last pulled event again.
+class _StaleCursor extends JpRemoteMemory {
+  _StaleCursor(this.inner);
+
+  final JpRemoteMemory inner;
+
+  @override
+  Future<void> pushEvents(List<JpEvent> events) => inner.pushEvents(events);
+
+  @override
+  Future<JpPull> pullEvents(DateTime? cursor) async {
+    final pull = await inner.pullEvents(cursor);
+    final next = pull.cursor;
+    return JpPull(
+        events: pull.events,
+        cursor: next?.subtract(const Duration(microseconds: 1)));
+  }
+
+  @override
+  Future<DayRecord?> day(int day) => inner.day(day);
+
+  @override
+  Future<DayRecord> createDay(DayRecord record) => inner.createDay(record);
+
+  @override
+  Future<void> putDevice(String deviceId,
+          {required String name, required DateTime lastSyncUtc}) =>
+      inner.putDevice(deviceId, name: name, lastSyncUtc: lastSyncUtc);
 }
 
 /// A remote whose first pull fails: a run cut short after its push.
