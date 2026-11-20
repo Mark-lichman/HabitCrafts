@@ -185,12 +185,17 @@ class Attempt {
   /// append when it is null; a store migrated from before event ids assigned one to every row.
   final String? eventId;
 
-  /// The device that logged the answer. The store fills it on append when it is null.
+  /// The device that logged the answer. The store fills it on append when the attempt has no
+  /// [eventId]. A legacy attempt, logged before event ids, keeps none (jp_event.dart).
   final String? deviceId;
 
-  /// This attempt with [eventId] and [deviceId] set.
-  Attempt withEvent({required String eventId, required String deviceId}) =>
-      Attempt.fromJson({...toJson(), 'eventId': eventId, 'deviceId': deviceId});
+  /// This attempt with [eventId] and [deviceId] set; a null [deviceId] marks a legacy attempt.
+  Attempt withEvent({required String eventId, required String? deviceId}) =>
+      Attempt.fromJson({
+        ...toJson()..remove('deviceId'),
+        'eventId': eventId,
+        if (deviceId != null) 'deviceId': deviceId,
+      });
 
   /// The two event fields are written only when set, after every other field.
   Map<String, dynamic> toJson() => {

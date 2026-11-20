@@ -66,10 +66,14 @@ async function seed(docPath, data) {
   });
 }
 
-/** What the account-delete cleanup does: the profile and every subcollection. */
+/**
+ * What the account-delete cleanup does: the deleted_accounts marker first,
+ * then the profile and every subcollection.
+ */
 async function deleteProfile(uid) {
   await env.withSecurityRulesDisabled(async (ctx) => {
     const db = ctx.firestore();
+    await setDoc(doc(db, 'deleted_accounts', uid), { deletedAt: 1763500000000 });
     for (const sub of ['jp_events', 'jp_days', 'devices']) {
       const snap = await getDocs(collection(db, 'users', uid, sub));
       for (const d of snap.docs) await deleteDoc(d.ref);
@@ -337,6 +341,23 @@ test('two devices: after the profile is deleted, neither signed-in device can wr
     await assertFails(setDoc(doc(db, 'users', uid, 'jp_days', '20412'), day({ day: 20412 })));
     await assertFails(setDoc(doc(db, 'users', uid, 'devices', 'device-b'), { lastSyncAt: 2 }));
   }
+});
+
+test('after account delete, recreating users/{uid} does not reopen the study data', async () => {
+  const uid = newUid('alice');
+  await seedProfile(uid);
+  const browser = owner(uid);
+  await assertSucceeds(setDoc(doc(browser, 'users', uid, 'jp_events', 'b1'), event('b1')));
+
+  await deleteProfile(uid);
+
+  // The unchanged users rule lets a device with an unexpired token recreate
+  // the profile. The deleted_accounts marker still blocks every jp request.
+  await assertSucceeds(setDoc(doc(browser, 'users', uid), { uid, display_name: 'Learner' }));
+  await assertFails(setDoc(doc(browser, 'users', uid, 'jp_events', 'late'), event('late')));
+  await assertFails(setDoc(doc(browser, 'users', uid, 'jp_days', '20412'), day({ day: 20412 })));
+  await assertFails(setDoc(doc(browser, 'users', uid, 'devices', 'device-b'), { lastSyncAt: 2 }));
+  await assertFails(getDocs(collection(browser, 'users', uid, 'jp_events')));
 });
 
 test('after the profile is deleted, a surviving day plan cannot move forward', async () => {

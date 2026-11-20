@@ -209,6 +209,81 @@ void main() {
           [true, false, false, false, true]);
     });
 
+    test(
+        'attempts in reverse time order give the state and history of the time-ordered '
+        'fold: a synced store returns row order, not time order', () {
+      final word = firstOf(ItemKind.word);
+      final inTimeOrder = [
+        answer(word, today - 9, Grade.clear),
+        answer(word, today - 8, Grade.hinted),
+        answer(word, today - 7, Grade.clear,
+            source: Source.early, wasDue: false),
+        answer(word, today - 6, Grade.clear),
+        answer(word, today - 5, Grade.wrong),
+      ];
+      // The oracle is the mastery rule's own fold over the list as written above, plus the
+      // literal rows: neither reads the sort in itemDetailOf.
+      final want = masteryFromAttempts(word, inTimeOrder);
+      expect(want, isNot(masteryFromAttempts(word, inTimeOrder.reversed)),
+          reason: 'the fixture must tell the two orders apart');
+      for (final rows in [
+        inTimeOrder.reversed.toList(),
+        [
+          inTimeOrder[3],
+          inTimeOrder[0],
+          inTimeOrder[4],
+          inTimeOrder[1],
+          inTimeOrder[2]
+        ],
+        inTimeOrder,
+      ]) {
+        final d = itemDetailOf(word, rows);
+        expect(d.state, want);
+        expect([for (final r in d.history) r.attempt.localDay],
+            [today - 5, today - 6, today - 7, today - 8, today - 9]);
+        expect([for (final r in d.history) r.counted],
+            [false, true, false, false, true]);
+        expect(d.remaining, remainingFor(word, want));
+      }
+    });
+
+    test(
+        'attempts at one instant fold in event id order, whatever the row order',
+        () {
+      final word = firstOf(ItemKind.word);
+      final clear = answer(word, today - 4, Grade.clear)
+          .withEvent(eventId: 'a', deviceId: 'phone');
+      final wrong = answer(word, today - 4, Grade.wrong)
+          .withEvent(eventId: 'b', deviceId: 'web');
+      final want = masteryFromAttempts(word, [clear, wrong]);
+      expect(want, isNot(masteryFromAttempts(word, [wrong, clear])),
+          reason: 'the fixture must tell the two orders apart');
+      for (final rows in [
+        [clear, wrong],
+        [wrong, clear],
+      ]) {
+        final d = itemDetailOf(word, rows);
+        expect(d.state, want);
+        expect([for (final r in d.history) r.attempt.eventId], ['b', 'a']);
+      }
+    });
+
+    test('an empty log and another item\'s attempts read as a new item', () {
+      final word = firstOf(ItemKind.word);
+      final other = catalog.ofKind(ItemKind.word).elementAt(1);
+      for (final rows in [
+        const <Attempt>[],
+        [
+          answer(other, today - 2, Grade.clear),
+          answer(other, today - 3, Grade.clear)
+        ],
+      ]) {
+        final d = itemDetailOf(word, rows);
+        expect(d.state, MasteryState.initial(word.id));
+        expect(d.history, isEmpty);
+      }
+    });
+
     test('says what remains to Mastered', () {
       final word = firstOf(ItemKind.word);
       final d = itemDetailOf(word, [answer(word, today - 4, Grade.clear)]);

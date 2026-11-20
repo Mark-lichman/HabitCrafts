@@ -3,7 +3,8 @@
 //
 // Every logged event carries a global id, the id of the device that wrote it, and its event
 // time. Row ids stay local to one store; the event id is the same on every device, so a merge of
-// two logs drops a duplicate by id alone.
+// two logs drops a duplicate by id alone. Two events are equal when their ids are (operator
+// ruling, Checkpoint 2026-11-19).
 //
 // Six kinds:
 //   attempt      one answer (attempt.dart); the body is the attempt's JSON without ids
@@ -17,10 +18,13 @@
 // by the larger event id, so every device lands on the same value (last write wins).
 //
 // Two id forms. A new event takes a random (version 4) UUID (`newEventId`). A legacy row, one
-// written before event ids (the store's one-time migration and a pre-v3 import), takes a
-// name-based (version 5) UUID of its content (`legacyEventId`): its kind, time, item and session
-// (operator ruling, Checkpoint 2026-11-19). The same old row gets the same id on every device, so
-// a restored old backup maps onto the events already uploaded.
+// written before event ids (the store's one-time migration, a pre-v3 import, and the one-time
+// import of the old say-it scores and last lesson), takes a name-based (version 5) UUID of its
+// content (`legacyEventId`): its kind, time, item and session (operator ruling, Checkpoint
+// 2026-11-19). The same old row gets the same id on every device, so
+// a restored old backup maps onto the events already uploaded. A legacy event carries no device
+// id (null), so the phone's migration and a web import of the same old backup derive the same
+// event, byte for byte.
 //
 // The Firestore map form (`toFirestore`) holds only JSON values, so this file needs no Firestore
 // import and stays pure.
@@ -54,9 +58,9 @@ enum JpEventKind {
   final String wire;
 
   /// Throws a [FormatException] for a name no kind has.
-  static JpEventKind fromWire(Object? wire) => values.firstWhere(
-      (k) => k.wire == wire,
-      orElse: () => throw FormatException('unknown event kind $wire'));
+  static JpEventKind fromWire(Object? wire) =>
+      values.firstWhere((k) => k.wire == wire,
+          orElse: () => throw FormatException('unknown event kind $wire'));
 
   /// Whether the replay reads this kind: attempts and seeds.
   bool get replayed => this == attempt || this == seed;
@@ -102,7 +106,7 @@ String _uuid(List<int> b, int version) {
 class JpEvent {
   JpEvent({
     required this.eventId,
-    required this.deviceId,
+    this.deviceId,
     required DateTime atUtc,
     required this.kind,
     required Map<String, dynamic> body,
@@ -112,8 +116,8 @@ class JpEvent {
   /// The global id, unique across devices.
   final String eventId;
 
-  /// The device that wrote the event.
-  final String deviceId;
+  /// The device that wrote the event; null on a legacy event, written before event ids.
+  final String? deviceId;
 
   /// The event time. For an attempt or a seed it is the logged instant.
   final DateTime atUtc;
@@ -131,17 +135,19 @@ class JpEvent {
         _ => body['itemId'] as String?,
       };
 
-  /// The Firestore document form: JSON values only, the event time as UTC ISO 8601.
+  /// The Firestore document form: JSON values only, the event time as UTC ISO 8601. A legacy
+  /// event has no `deviceId` field.
   Map<String, dynamic> toFirestore() => {
         'v': kJpEventMapVersion,
         'eventId': eventId,
-        'deviceId': deviceId,
+        if (deviceId != null) 'deviceId': deviceId,
         'atUtc': atUtc.toIso8601String(),
         'kind': kind.wire,
         'body': _plainMap(body),
       };
 
-  /// Reads [toFirestore]'s form. Throws a [FormatException] for a missing id or device, an
+  /// Reads [toFirestore]'s form. A missing or null `deviceId` reads as a legacy event. Throws a
+  /// [FormatException] for a missing id, a device id that is not a non-empty string, an
   /// unreadable time, an unknown kind or a body that is not a map. Fields it does not know,
   /// such as a server timestamp a remote adds, are ignored.
   factory JpEvent.fromFirestore(Map<String, dynamic> m) {
@@ -152,8 +158,8 @@ class JpEvent {
     if (eventId is! String || eventId.isEmpty) {
       throw const FormatException('jp event: no eventId');
     }
-    if (deviceId is! String || deviceId.isEmpty) {
-      throw FormatException('jp event $eventId: no deviceId');
+    if (deviceId != null && (deviceId is! String || deviceId.isEmpty)) {
+      throw FormatException('jp event $eventId: unreadable deviceId $deviceId');
     }
     final atUtc = at is String ? DateTime.tryParse(at) : null;
     if (atUtc == null) {
@@ -164,16 +170,24 @@ class JpEvent {
     }
     return JpEvent(
       eventId: eventId,
-      deviceId: deviceId,
+      deviceId: deviceId as String?,
       atUtc: atUtc,
       kind: JpEventKind.fromWire(m['kind']),
       body: _plainMap(body),
     );
   }
 
+  /// Compares the event id alone: one id is one event on every device (operator ruling,
+  /// Checkpoint 2026-11-19). [sameContent] compares every field.
   @override
   bool operator ==(Object other) =>
-      other is JpEvent &&
+      other is JpEvent && other.eventId == eventId;
+
+  @override
+  int get hashCode => eventId.hashCode;
+
+  /// Whether [other] is this event field for field: id, device, time, kind and body.
+  bool sameContent(JpEvent other) =>
       other.eventId == eventId &&
       other.deviceId == deviceId &&
       other.atUtc == atUtc &&
@@ -181,17 +195,19 @@ class JpEvent {
       _canonical(other.body) == _canonical(body);
 
   @override
-  int get hashCode =>
-      Object.hash(eventId, deviceId, atUtc, kind, _canonical(body));
-
-  @override
-  String toString() => 'JpEvent(${kind.wire} $eventId ${atUtc.toIso8601String()}'
+  String toString() =>
+      'JpEvent(${kind.wire} $eventId ${atUtc.toIso8601String()}'
       '${subject == null ? '' : ' $subject'})';
 }
 
-/// The merge order: event time, then event id. Every device sorts a merged log the same way.
+/// An event time as every device compares it: whole milliseconds since the epoch. A web
+/// DateTime keeps no finer time, so a phone event with microseconds must order the same there.
+int eventMs(DateTime t) => t.millisecondsSinceEpoch;
+
+/// The merge order: event time to the millisecond ([eventMs]), then event id. Every device
+/// sorts a merged log the same way.
 int compareEvents(JpEvent a, JpEvent b) {
-  final byTime = a.atUtc.compareTo(b.atUtc);
+  final byTime = eventMs(a.atUtc).compareTo(eventMs(b.atUtc));
   return byTime != 0 ? byTime : a.eventId.compareTo(b.eventId);
 }
 

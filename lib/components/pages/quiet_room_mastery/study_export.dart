@@ -11,7 +11,8 @@
 //            order, so the same record exports the same bytes from either store.
 // Version 3 (plan 2026-11-19, Task 1) carries the global event ids and event times: every seed
 // and attempt line has its `eventId` and `deviceId`, and every note or Discuss change is its own
-// line with its `eventId`, `deviceId` and `atUtc`. A note line with `"note": null` clears the
+// line with its `eventId`, `deviceId` and `atUtc`. A legacy event (a row from before event ids)
+// has no device id, so its line has no `deviceId`. A note line with `"note": null` clears the
 // note; a discuss line with `"cleared": true` clears the mark. The header counts lines, and
 // `events` counts the say-it score and last-lesson lines.
 // Version 2 (the Discuss marks) and version 1 (before them, no `discuss` count and no discuss
@@ -85,7 +86,7 @@ List<Map<String, dynamic>> _changeLines(StudyLog log, JpEventKind kind) {
         ...json,
         if (kind == JpEventKind.note) 'atUtc': e.atUtc.toIso8601String(),
         'eventId': e.eventId,
-        'deviceId': e.deviceId,
+        if (e.deviceId != null) 'deviceId': e.deviceId,
       }
     ));
   }
@@ -125,7 +126,7 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
         {
           'type': e.kind.wire,
           'eventId': e.eventId,
-          'deviceId': e.deviceId,
+          if (e.deviceId != null) 'deviceId': e.deviceId,
           'atUtc': e.atUtc.toIso8601String(),
           'body': e.body,
         }

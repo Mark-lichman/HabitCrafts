@@ -1,5 +1,6 @@
 // The study store on the phone: SQLite through `sqflite` (D14). Tests open it through the ffi
-// factory of `sqflite_common_ffi` (A5), so the same suite runs here and on `JpStoreMemory`.
+// factory of `sqflite_common_ffi` (A5), so the same suite runs here, on `JpStoreMemory` and
+// on `JpStoreWeb`.
 //
 // Tables (schema version 3; version 1 had all but `discuss` and `events`, version 2 added
 // `discuss`, version 3 added `events` and the event columns):
@@ -24,9 +25,10 @@
 // One transaction per answer: `appendAttempt` writes the attempt, the schedule and the mastery
 // state together. A later schema adds a step to [_upgrades]; `onUpgrade` runs the steps after
 // the file's version, in order. Version 3 is the one-time event id migration: it gives every
-// existing attempt and seed a legacy event id (a hash of the row content) and the store's
-// device id, gives each note and Discuss mark an event, and leaves them all unpushed. It runs
-// once per file, so the ids stay put on every later open.
+// existing attempt and seed a legacy event id (a hash of the row content) and no device id,
+// gives each note and Discuss mark an event, and leaves them all unpushed. It runs once per
+// file, so the ids stay put on every later open. A side event with no device id keeps an empty
+// `deviceId` in its row (the column is NOT NULL) and reads back as null.
 //
 // Reads take every column, so a file a test opens below the current version reads with no
 // event ids. Writes need version 3.
@@ -40,7 +42,7 @@ import 'package:sqflite_common/sqlite_api.dart';
 import 'attempt.dart';
 import 'jp_event.dart';
 import 'jp_store.dart';
-import 'jp_store_memory.dart';
+import 'jp_store_web.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
 
@@ -65,7 +67,9 @@ Future<void> _createV2Discuss(Database db) =>
 
 /// Version 3: global event ids (plan 2026-11-19, Task 1). Adds the event columns and the side
 /// event table, then gives every existing row its legacy id ([LegacyEventIds]), once: a hash of
-/// the row content, so the same old rows restored on another device get the same ids. A note
+/// the row content, so the same old rows restored on another device get the same ids, and no
+/// device id, so they are the same events there byte for byte. The days take this store's
+/// device id as their builder. A note
 /// becomes a note event at [kLegacyNoteAtUtc] (its own time was never kept); a Discuss mark
 /// becomes an event at the time it was set. Every version 2 row stays, and every event starts
 /// unpushed.
@@ -89,10 +93,9 @@ Future<void> _createV3Events(Database db) async {
       'pushed INTEGER NOT NULL DEFAULT 0)');
   await db.execute('CREATE INDEX events_subject ON events (kind, subject)');
 
-  final kept = await db
-      .query('meta', where: 'key = ?', whereArgs: [kDeviceIdMetaKey]);
-  final device =
-      kept.isEmpty ? newEventId() : kept.first['value'] as String;
+  final kept =
+      await db.query('meta', where: 'key = ?', whereArgs: [kDeviceIdMetaKey]);
+  final device = kept.isEmpty ? newEventId() : kept.first['value'] as String;
   if (kept.isEmpty) {
     await db.insert('meta', {'key': kDeviceIdMetaKey, 'value': device});
   }
@@ -100,8 +103,7 @@ Future<void> _createV3Events(Database db) async {
   final legacy = LegacyEventIds();
   for (final r in await db.query('attempts', orderBy: 'id')) {
     final a = Attempt.fromJson(jsonDecode(r['json'] as String));
-    await db.update(
-        'attempts', {'eventId': legacy.attempt(a), 'deviceId': device},
+    await db.update('attempts', {'eventId': legacy.attempt(a)},
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final r in await db.query('seeds', orderBy: 'id')) {
@@ -109,22 +111,24 @@ Future<void> _createV3Events(Database db) async {
         itemId: r['itemId'] as String,
         dueDay: r['dueDay'] as int,
         atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
-    await db.update('seeds', {'eventId': legacy.seed(s), 'deviceId': device},
+    await db.update('seeds', {'eventId': legacy.seed(s)},
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final table in const ['attempts', 'seeds']) {
-    await db.execute(
-        'CREATE UNIQUE INDEX ${table}_eventId ON $table (eventId)');
+    await db
+        .execute('CREATE UNIQUE INDEX ${table}_eventId ON $table (eventId)');
   }
   await db.update('days', {'deviceId': device});
   for (final r in await db.query('items',
-      columns: ['itemId', 'note'], where: 'note IS NOT NULL', orderBy: 'itemId')) {
+      columns: ['itemId', 'note'],
+      where: 'note IS NOT NULL',
+      orderBy: 'itemId')) {
     final itemId = r['itemId'] as String, note = r['note'] as String;
     await _insertEvent(
         db,
         noteEvent(itemId, note,
             eventId: legacy.note(itemId, note),
-            deviceId: device,
+            deviceId: null,
             atUtc: kLegacyNoteAtUtc),
         pushed: false);
   }
@@ -138,18 +142,18 @@ Future<void> _createV3Events(Database db) async {
         discussEvent(mark.itemId,
             note: mark.note,
             eventId: legacy.discuss(mark),
-            deviceId: device,
+            deviceId: null,
             atUtc: mark.atUtc),
         pushed: false);
   }
 }
 
-/// Writes one side event row.
+/// Writes one side event row; a legacy event's device id is written empty.
 Future<void> _insertEvent(DatabaseExecutor db, JpEvent e,
         {required bool pushed}) =>
     db.insert('events', {
       'eventId': e.eventId,
-      'deviceId': e.deviceId,
+      'deviceId': e.deviceId ?? '',
       'atUs': e.atUtc.microsecondsSinceEpoch,
       'atUtc': e.atUtc.toIso8601String(),
       'kind': e.kind.wire,
@@ -160,7 +164,10 @@ Future<void> _insertEvent(DatabaseExecutor db, JpEvent e,
 
 JpEvent _eventOf(Map<String, Object?> r) => JpEvent(
       eventId: r['eventId'] as String,
-      deviceId: r['deviceId'] as String,
+      deviceId: switch (r['deviceId']) {
+        final String d when d.isNotEmpty => d,
+        _ => null
+      },
       atUtc: DateTime.parse(r['atUtc'] as String),
       kind: JpEventKind.fromWire(r['kind']),
       body: jsonDecode(r['body'] as String) as Map<String, dynamic>,
@@ -210,12 +217,17 @@ Future<void> _createV1(Database db) async {
   await batch.commit(noResult: true);
 }
 
-/// Opens the platform's store: SQLite on the phone, memory on web (A4).
+/// Opens the platform's store: SQLite on the phone, and on web a store that keeps the record
+/// in the browser across reloads ([JpStoreWeb], A4).
 ///
-/// Each call opens a new store. The app opens one per run through [sharedJpStore]; two
-/// stores on web do not see each other, and two on the phone do not serialize answers.
-Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
-  if (isWeb) return JpStoreMemory();
+/// Each call opens a new store. The app opens one per run through [sharedJpStore]. Two stores
+/// on web (two tabs) share one lock and re-read before each write, so neither saves over the
+/// other; two on the phone do not serialize answers.
+/// [webStorage] is a test seam for the web store's browser storage; the app passes nothing and
+/// the web store uses IndexedDB.
+Future<JpStore> openJpStore(
+    {bool isWeb = kIsWeb, JpWebStorage? webStorage}) async {
+  if (isWeb) return JpStoreWeb.open(storage: webStorage);
   return JpStoreSqlite.open();
 }
 
@@ -224,7 +236,7 @@ Future<JpStore>? _sharedStore;
 /// The one store of the run: opened on first use and kept. Every screen that reads or writes
 /// answers without an injected store goes through here (the practice, grammar, lesson and
 /// drill screens and the study record page), so the phone holds one SQLite handle and web
-/// holds one memory store. A failed open is not kept, so the next call tries again. Each
+/// holds one web store. A failed open is not kept, so the next call tries again. Each
 /// caller reports its own failed open.
 ///
 /// [open] is a seam for the retry test; the app passes nothing and opens the platform's store.
@@ -612,10 +624,10 @@ class JpStoreSqlite extends JpStore {
 
   /// The ids of every pushed event (or one appended from a remote).
   Future<Set<String>> _pushedIds(DatabaseExecutor db) async => {
-        for (final r in await db.rawQuery(
-            'SELECT eventId FROM attempts WHERE pushed = 1 '
-            'UNION ALL SELECT eventId FROM seeds WHERE pushed = 1 '
-            'UNION ALL SELECT eventId FROM events WHERE pushed = 1'))
+        for (final r in await db
+            .rawQuery('SELECT eventId FROM attempts WHERE pushed = 1 '
+                'UNION ALL SELECT eventId FROM seeds WHERE pushed = 1 '
+                'UNION ALL SELECT eventId FROM events WHERE pushed = 1'))
           if (r['eventId'] != null) r['eventId'] as String
       };
 
@@ -650,7 +662,7 @@ class JpStoreSqlite extends JpStore {
       _db.transaction((txn) => _writeDerived(txn, result));
 
   /// One transaction: a throw in either write rolls back both. The log is prepared before
-  /// the transaction, because the device id read goes through `_db`.
+  /// the transaction, because prepareLog reads the held rows through _db.
   @override
   Future<void> replaceAll(StudyLog log, ReplayResult result) async {
     final prepared = await prepareLog(log);
@@ -662,7 +674,9 @@ class JpStoreSqlite extends JpStore {
 
   // --- side events and sync ----------------------------------------------------
 
-  /// Moves the note or Discuss mark of [event]'s item to the latest event for that item.
+  /// Moves the note or Discuss mark of [event]'s item to the latest event for that item. The
+  /// latest is picked in Dart by [resolveNotes] or [resolveDiscuss], so it follows
+  /// [compareEvents] at the millisecond, never the microsecond `atUs` column.
   Future<void> _refresh(DatabaseExecutor db, JpEvent event) async {
     final id = event.subject;
     if (id == null) return;
@@ -670,28 +684,24 @@ class JpStoreSqlite extends JpStore {
       return;
     }
     final rows = await db.query('events',
-        where: 'kind = ? AND subject = ?',
-        whereArgs: [event.kind.wire, id],
-        orderBy: 'atUs DESC, eventId DESC',
-        limit: 1);
+        where: 'kind = ? AND subject = ?', whereArgs: [event.kind.wire, id]);
     if (rows.isEmpty) return;
-    final latest = _eventOf(rows.first);
+    final held = [for (final r in rows) _eventOf(r)];
     if (event.kind == JpEventKind.note) {
       await _ensureItem(db, id);
-      await db.update('items', {'note': resolveNotes([latest])[id]},
+      await db.update('items', {'note': resolveNotes(held)[id]},
           where: 'itemId = ?', whereArgs: [id]);
     } else {
       await db.delete('discuss', where: 'itemId = ?', whereArgs: [id]);
-      final mark = resolveDiscuss([latest])[id];
+      final mark = resolveDiscuss(held)[id];
       if (mark != null) await _insertDiscuss(db, mark);
     }
   }
 
   @override
   Future<List<JpEvent>> sideEvents() async => [
-        for (final r in await _db.query('events', orderBy: 'atUs, eventId'))
-          _eventOf(r)
-      ];
+        for (final r in await _db.query('events')) _eventOf(r)
+      ]..sort(compareEvents);
 
   @override
   Future<void> writeSideEvent(JpEvent event) => _db.transaction((txn) async {
