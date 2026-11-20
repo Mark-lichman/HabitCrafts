@@ -251,7 +251,16 @@ class _LessonsPathWidgetState extends State<LessonsPathWidget> {
   Future<void> _open(int lesson) async {
     if (lesson >= kPathFirstGrammarLesson && lesson <= kPathLastGrammarLesson) {
       final store = _store ??= widget.store ?? await sharedJpStore();
-      await rememberLastGrammarLesson(store, lesson);
+      // A failed write is reported and the lesson still opens, as on the grammar screen (S4).
+      try {
+        await rememberLastGrammarLesson(store, lesson);
+      } catch (e, st) {
+        FlutterError.reportError(FlutterErrorDetails(
+            exception: e,
+            stack: st,
+            library: 'lessons path',
+            context: ErrorDescription('while remembering the last lesson')));
+      }
     }
     if (!mounted) return;
     if (widget.store == null && GoRouter.maybeOf(context) != null) {

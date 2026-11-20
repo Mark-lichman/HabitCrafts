@@ -25,6 +25,8 @@ import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'jp_screen_harness.dart' show ReportCapture;
+
 DateTime at(int minute) => DateTime.utc(2026, 11, 19, 9, minute);
 
 /// The clock every store under test reads. Tests move it.
@@ -246,6 +248,72 @@ void main() {
               kLegacyLastLessonAtUtc);
         });
 
+        test('a run cut short before the flag skips what it already wrote',
+            () async {
+          final prefs = await prefsWith(oldPrefs());
+          // The first readable old score, as a run cut short wrote it, with no flag.
+          final first = DateTime.utc(2026, 10, 27, 9);
+          await a.writeSideEvent(JpEvent(
+            eventId: legacyEventId(JpEventKind.speakScore,
+                [first.toIso8601String(), 'あたまが いたいんです。', true]),
+            deviceId: await a.deviceId(),
+            atUtc: first,
+            kind: JpEventKind.speakScore,
+            body: attempt('あたまが いたいんです。', first).marked(true).toJson(),
+          ));
+          expect(await a.meta(kSpeakLessonImportFlag), isNull);
+          expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 2,
+              reason: 'the second score and the last lesson');
+          expect(await a.speakScores(), hasLength(2),
+              reason: 'one speak_score event per old entry');
+          expect(await a.meta(kSpeakLessonImportFlag), isNotNull);
+        });
+
+        test('first calls that overlap share one run and write each id once',
+            () async {
+          final prefs = await prefsWith(oldPrefs());
+          final results = await Future.wait([
+            importSpeakAndLessonPrefs(a, prefs: prefs),
+            importSpeakAndLessonPrefs(a, prefs: prefs),
+            readLastGrammarLesson(a, prefs: prefs),
+            SpeakScoreLog.load(a).then((log) => log.length),
+          ]);
+          expect(results, [3, 3, 33, 2]);
+          final events = await a.sideEvents();
+          expect(events, hasLength(3), reason: 'no duplicate row');
+          expect(idsOf(events), hasLength(3));
+          // Once the run ends, a later call reads the flag again.
+          expect(await importSpeakAndLessonPrefs(a, prefs: prefs), 0);
+        });
+
+        for (final bad in <String, Object>{
+          'not JSON': 'not json [',
+          'JSON but not a list': '{"sentence": "x"}',
+          'not a string': 7,
+        }.entries) {
+          test('a score log that is ${bad.key} is reported, never silent',
+              () async {
+            final prefs = await prefsWith(
+                {SpeakScoreLog.prefsKey: bad.value, kLastGrammarLessonKey: 33});
+            final capture = ReportCapture();
+            final written = await importSpeakAndLessonPrefs(a, prefs: prefs);
+            final reports = capture.stop();
+            expect(written, 1, reason: 'the last lesson still imports');
+            expect(reports, hasLength(1));
+            expect(reports.single.context.toString(),
+                contains('while importing the old say-it score log'));
+            expect(await a.meta(kSpeakLessonImportFlag), isNotNull);
+          });
+        }
+
+        test('an absent score log is not reported', () async {
+          final prefs = await prefsWith({kLastGrammarLessonKey: 33});
+          final capture = ReportCapture();
+          final written = await importSpeakAndLessonPrefs(a, prefs: prefs);
+          expect(capture.stop(), isEmpty);
+          expect(written, 1);
+        });
+
         test('two devices that import one value share one event', () async {
           final prefs = await prefsWith(oldPrefs());
           await importSpeakAndLessonPrefs(a, prefs: prefs);
@@ -277,6 +345,37 @@ void main() {
       expect(log, hasLength(SpeakScoreLog.keep));
       expect(log.first.sentence, 's1');
       expect(log.last.sentence, 's${SpeakScoreLog.keep}');
+    });
+
+    test('orders bodies from two zones by instant, not wall clock', () {
+      // 10:00 in Tokyo is 01:00Z, before 09:00Z, though its wall clock reads later.
+      final log = SpeakScoreLog.fromEvents([
+        score(attempt('utc', at(0)).toJson(), at(0)),
+        score({
+          ...attempt('tokyo', at(0)).toJson(),
+          'at': '2026-11-19T10:00:00.000+09:00',
+        }, DateTime.utc(2026, 11, 19, 1)),
+      ]);
+      expect(log.map((x) => x.sentence), ['tokyo', 'utc']);
+    });
+
+    test('an attempt and its mark share one entry across time forms', () {
+      // An offset-less local time, as an older body held it, and its mark in UTC.
+      final x = attempt('あたま', DateTime(2026, 11, 19, 9));
+      final log = SpeakScoreLog.fromEvents([
+        score({...x.toJson(), 'at': x.at.toIso8601String()}, x.at.toUtc()),
+        score(x.marked(true).toJson(), x.at.toUtc().add(kLocalTieBump)),
+      ]);
+      expect(log, hasLength(1));
+      expect(log.single.selfMark, isTrue);
+    });
+
+    test('toJson writes the attempt time in UTC', () {
+      final local = DateTime(2026, 11, 19, 9);
+      final json = attempt('x', local).toJson();
+      expect(json['at'], local.toUtc().toIso8601String());
+      expect((json['at'] as String).endsWith('Z'), isTrue);
+      expect(SpeakAttempt.fromJson(json)!.at.isAtSameMomentAs(local), isTrue);
     });
 
     test('skips a body this build cannot read', () {
