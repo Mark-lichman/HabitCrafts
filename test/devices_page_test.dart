@@ -5,6 +5,7 @@
 // synced yet, when the remote cannot be reached, and when nobody is signed in. The app router
 // registers it by name, so the profile page can open it.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,6 +24,18 @@ class _ListedRemote extends JpRemoteMemory {
 
   @override
   Future<List<JpDevice>> devices() async => listed;
+}
+
+/// A remote whose device read fails with a Firestore error, as `JpRemoteFirestore` does when a
+/// server read cannot complete.
+class _FailingRemote extends JpRemoteMemory {
+  _FailingRemote(this.code);
+
+  final String code;
+
+  @override
+  Future<List<JpDevice>> devices() async =>
+      throw FirebaseException(plugin: 'cloud_firestore', code: code);
 }
 
 /// An auth user with a fixed uid and sign-in state. An anonymous user has a uid but is not
@@ -127,6 +140,22 @@ void main() {
       final remote = JpRemoteMemory()..online = false;
       await pumpStudyScreen(tester, DevicesPageWidget(remote: remote));
       expect(find.text(kDevicesOffline), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('says so when a Firestore server read is unavailable',
+        (tester) async {
+      await pumpStudyScreen(
+          tester, DevicesPageWidget(remote: _FailingRemote('unavailable')));
+      expect(find.text(kDevicesOffline), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('does not call another Firestore error offline',
+        (tester) async {
+      await pumpStudyScreen(tester,
+          DevicesPageWidget(remote: _FailingRemote('permission-denied')));
+      expect(find.text(kDevicesOffline), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
