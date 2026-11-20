@@ -32,6 +32,8 @@ import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart'
+    show JpStore;
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/anon_caller.dart';
@@ -235,6 +237,9 @@ class Rig {
   late final AttemptRecorder recorder =
       AttemptRecorder.on(store, lookup: _catalog.byId);
 
+  /// The score log the drill saved to [store].
+  Future<List<Map<String, dynamic>>> savedAttempts() => savedAttemptsIn(store);
+
   /// The attempts written so far, once the recorder's queue drains.
   Future<List<Attempt>> attempts(WidgetTester tester) async {
     await settle(tester);
@@ -264,6 +269,7 @@ class Rig {
         speech: voice,
         play: realVoice ? null : play ?? (_) async => null,
         recorder: recorder,
+        store: store,
       );
 
   Future<void> open(WidgetTester tester,
@@ -347,12 +353,12 @@ String positionOf(WidgetTester tester) =>
 QuietRoomTokens tokensOf(WidgetTester tester) =>
     QuietRoomTokens.of(tester.element(find.text('Next sentence')));
 
-Future<List<Map<String, dynamic>>> savedAttempts() async {
-  final p = await SharedPreferences.getInstance();
-  final raw = p.getString(SpeakScoreLog.prefsKey);
-  if (raw == null) return const [];
-  return (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
-}
+/// The score log as [store] holds it (plan 2026-11-19, Task 13: `speak_score` events), each
+/// entry in its JSON form.
+Future<List<Map<String, dynamic>>> savedAttemptsIn(JpStore store) async => [
+      for (final a in await SpeakScoreLog.load(store))
+        jsonDecode(jsonEncode(a.toJson())) as Map<String, dynamic>
+    ];
 
 void main() {
   group('rubySurface', () {
@@ -612,14 +618,15 @@ void main() {
   group('SpeakScoreLog.mark', () {
     test('appends an attempt the log does not hold, with its mark', () async {
       SharedPreferences.setMockInitialValues({});
+      final store = JpStoreMemory();
       final attempt = SpeakAttempt(
         sentence: firstSentence().kana,
         verdict: Judgement.unverified,
         at: DateTime(2026, 11, 2, 9),
       );
       // The attempt's own save never happened. The mark still lands, on the attempt.
-      await SpeakScoreLog.mark(attempt, true);
-      final log = await SpeakScoreLog.load();
+      await SpeakScoreLog.mark(store, attempt, true);
+      final log = await SpeakScoreLog.load(store);
       expect(log, hasLength(1));
       expect(log.single.selfMark, isTrue);
       expect(log.single.sentence, attempt.sentence);
@@ -952,7 +959,7 @@ void main() {
       await rig.speakOnce(tester);
       await rig.settle(tester);
 
-      var saved = await tester.runAsync(savedAttempts);
+      var saved = await tester.runAsync(rig.savedAttempts);
       expect(saved, hasLength(1));
       expect(saved!.single['sentence'], firstSentence().kana);
       expect(saved.single['verdict'], 'correct');
@@ -974,7 +981,7 @@ void main() {
       await rig.sayAndGoQuiet(tester);
       await rig.settle(tester);
 
-      saved = await tester.runAsync(savedAttempts);
+      saved = await tester.runAsync(rig.savedAttempts);
       expect(saved!.map((a) => a['verdict']), ['correct', 'unverified']);
       expect(saved.last['sentence'], lesson26()[1].kana);
       expect(saved.last['overall'], isNull);
@@ -996,24 +1003,20 @@ void main() {
 
     testWidgets('Recent scores shows attempts kept from an earlier visit',
         (tester) async {
-      await Rig().open(tester);
+      final first = Rig();
+      await first.open(tester);
       expect(find.text('Recent scores'), findsNothing);
-      await tester.runAsync(() async {
-        final p = await SharedPreferences.getInstance();
-        await p.setString(
-            SpeakScoreLog.prefsKey,
-            jsonEncode([
-              {
-                'sentence': 'あたまが いたいんです。',
-                'verdict': 'close',
-                'overall': 72.4,
-                'at': '2026-10-27T09:00:00.000',
-                'words': [],
-              }
-            ]));
-      });
+      // Not under runAsync: the memory store's device id future belongs to the test's fake
+      // zone, so it completes only while the test pumps.
+      await SpeakScoreLog.add(
+          first.store,
+          SpeakAttempt(
+              sentence: 'あたまが いたいんです。',
+              verdict: Judgement.close,
+              overall: 72.4,
+              at: DateTime(2026, 10, 27, 9)));
       // Open the drill again on the same device.
-      final again = Rig();
+      final again = Rig(store: first.store);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(MaterialApp(home: again.widget()));
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
@@ -1025,28 +1028,25 @@ void main() {
     testWidgets('the score log keeps the newest ${SpeakScoreLog.keep} attempts',
         (tester) async {
       final rig = Rig(reply: fixture(_goodFixture));
-      await rig.open(tester);
       // A device that already holds a full log.
-      await tester.runAsync(() async {
-        final p = await SharedPreferences.getInstance();
-        await p.setString(
-            SpeakScoreLog.prefsKey,
-            jsonEncode([
-              for (var i = 0; i < SpeakScoreLog.keep; i++)
-                {
-                  'sentence': 'seed $i',
-                  'verdict': 'correct',
-                  'overall': 90,
-                  'at': '2026-10-27T09:00:00.000',
-                  'words': [],
-                }
-            ]));
-      });
+      // In the test's own zone, as the drill's writes are (see the test above).
+      for (var i = 0; i < SpeakScoreLog.keep; i++) {
+        final when = DateTime(2026, 10, 27, 9).add(Duration(seconds: i));
+        await rig.store.recordSpeakScore(
+            SpeakAttempt(
+                    sentence: 'seed $i',
+                    verdict: Judgement.correct,
+                    overall: 90,
+                    at: when)
+                .toJson(),
+            atUtc: when.toUtc());
+      }
+      await rig.open(tester);
       await rig.tapSpeak(tester);
       await rig.sayAndGoQuiet(tester);
       await rig.settle(tester);
 
-      final saved = await tester.runAsync(savedAttempts);
+      final saved = await tester.runAsync(rig.savedAttempts);
       expect(saved, hasLength(SpeakScoreLog.keep));
       // The oldest entry dropped off, and the new attempt is last.
       expect(saved!.first['sentence'], 'seed 1');
@@ -1072,7 +1072,8 @@ void main() {
               },
             ]));
       });
-      // Open the drill again on the same device.
+      // An older build left that log in SharedPreferences. A store that has not imported it
+      // yet (Task 13's one-time import) reads it on the first open.
       final again = Rig();
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(MaterialApp(home: again.widget()));
@@ -1129,7 +1130,7 @@ void main() {
       expect(find.text('That’s it'), findsNothing);
       expect(find.text('Can’t check this one'), findsNothing);
       expect(buttonAction(tester, 'Speak'), isNotNull);
-      expect(await tester.runAsync(savedAttempts), isEmpty);
+      expect(await tester.runAsync(rig.savedAttempts), isEmpty);
       await walkToEnd(tester);
       expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
       expect(find.text('Nothing was scored this time.'), findsOneWidget);
@@ -1288,7 +1289,7 @@ void main() {
       await rig.settle(tester);
       expect(find.text('That’s it'), findsNothing);
       expect(find.textContaining('Score '), findsNothing);
-      expect(await tester.runAsync(savedAttempts), isEmpty);
+      expect(await tester.runAsync(rig.savedAttempts), isEmpty);
       await walkToEnd(tester);
       expect(find.byKey(const ValueKey('speak-tally')), findsNothing);
       expect(find.text('Nothing was scored this time.'), findsOneWidget);
@@ -1326,7 +1327,7 @@ void main() {
       expect(find.text('That’s it'), findsNothing);
       expect(find.text('Listening'), findsNothing);
       expect(buttonAction(tester, 'Speak'), isNotNull);
-      expect(await tester.runAsync(savedAttempts), isEmpty);
+      expect(await tester.runAsync(rig.savedAttempts), isEmpty);
     });
 
     testWidgets('a late result after Cancel never lands on a newer attempt',
@@ -1381,7 +1382,7 @@ void main() {
       expect(find.text('Can’t check this one'), findsNothing);
       expect(rig.sent, isEmpty);
       expect(buttonAction(tester, 'Speak'), isNotNull);
-      expect(await tester.runAsync(savedAttempts), isEmpty);
+      expect(await tester.runAsync(rig.savedAttempts), isEmpty);
     });
 
     testWidgets('a pause while Checking drops the result that lands later',
@@ -1403,7 +1404,7 @@ void main() {
       expect(find.text('That’s it'), findsNothing);
       expect(find.text('Checking…'), findsNothing);
       expect(buttonAction(tester, 'Speak'), isNotNull);
-      expect(await tester.runAsync(savedAttempts), isEmpty);
+      expect(await tester.runAsync(rig.savedAttempts), isEmpty);
     });
 
     testWidgets('a Got it after an unverified result is kept with the attempt',
@@ -1417,7 +1418,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
       await rig.settle(tester);
 
-      var saved = await tester.runAsync(savedAttempts);
+      var saved = await tester.runAsync(rig.savedAttempts);
       expect(saved, hasLength(1));
       expect(saved!.single['verdict'], 'unverified');
       expect(saved.single['selfMark'], 'got_it');
@@ -1431,13 +1432,13 @@ void main() {
       await rig.settle(tester);
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
       await rig.settle(tester);
-      saved = await tester.runAsync(savedAttempts);
+      saved = await tester.runAsync(rig.savedAttempts);
       expect(saved!.map((a) => a['selfMark']), ['got_it', 'missed_it']);
       expect(saved.last['sentence'], lesson26()[1].kana);
       expect(saved.map((a) => a['verdict']), everyElement('unverified'));
 
       // The marks read back, and Recent scores names them.
-      final back = await tester.runAsync(SpeakScoreLog.load);
+      final back = await tester.runAsync(() => SpeakScoreLog.load(rig.store));
       expect(back!.map((a) => a.selfMark), [true, false]);
       expect(find.textContaining('unverified · got it'), findsOneWidget);
       expect(find.textContaining('unverified · missed it'), findsOneWidget);
@@ -1450,7 +1451,7 @@ void main() {
       await rig.settle(tester);
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
       await rig.settle(tester);
-      final saved = await tester.runAsync(savedAttempts);
+      final saved = await tester.runAsync(rig.savedAttempts);
       expect(saved!.single['verdict'], 'close');
       expect(saved.single['selfMark'], 'missed_it');
     });
@@ -1483,7 +1484,7 @@ void main() {
       final rig = Rig(reply: fixture(_goodFixture));
       await rig.speakOnce(tester);
       await rig.settle(tester);
-      final saved = await tester.runAsync(savedAttempts);
+      final saved = await tester.runAsync(rig.savedAttempts);
       expect(saved!.single['verdict'], 'correct');
       expect(saved.single['selfMark'], isNull);
     });
@@ -1652,7 +1653,7 @@ void main() {
       expect(written.single.grade, Grade.clear);
       expect(written.single.probeId, 'ex0');
       // The attempt keeps the instant the score log keeps, so the two line up.
-      final saved = await tester.runAsync(savedAttempts);
+      final saved = await tester.runAsync(rig.savedAttempts);
       expect(written.single.atUtc,
           DateTime.parse(saved!.single['at'] as String).toUtc());
 
@@ -1780,7 +1781,7 @@ void main() {
         await tester.pump();
         expect(find.text(kAnswerNotSaved), findsOneWidget);
         // The score log, the tuning aid, still kept the attempt.
-        final saved = await tester.runAsync(savedAttempts);
+        final saved = await tester.runAsync(rig.savedAttempts);
         expect(saved, hasLength(1));
 
         await tester.tap(find.text('Next sentence'));

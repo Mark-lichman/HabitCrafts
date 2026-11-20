@@ -39,7 +39,8 @@
 //     the same self-check question. The Got it or Missed it is kept with the attempt in
 //     the score log, so no self-mark is lost.
 // Every scored result shows the sentence with each hiragana letter colored by its syllable
-// score (PIN-8). Every attempt's sentence, scores and verdict stay on the device and the
+// score (PIN-8). Every attempt's sentence, scores and verdict go to the study store as a
+// `speak_score` event, which syncs with the account (plan 2026-11-19, Task 13, PIN-16), and the
 // newest are listed under "Recent scores", so the operator can tune the cutoffs (PIN-4).
 //
 // The study record (plan 2026-11-02, Task 11). Each sentence belongs to a grammar point and
@@ -50,16 +51,20 @@
 // written when the score lands; an unverified result writes only once marked, Got it as self
 // and Missed it as unscored, because unverified is never wrong. A self-mark after a close
 // stays in the score log only: the close already wrote its attempt. `SpeakScoreLog` stays as
-// the tuning aid beside the record.
-
-import 'dart:convert';
+// the tuning aid beside the record, as its own event kind that never reaches the replay.
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '/components/pages/quiet_room_mastery/drill_recorder.dart';
 import '/components/pages/quiet_room_mastery/item_catalog.dart'
     show kSayItTemplate;
+import '/components/pages/quiet_room_mastery/jp_event.dart';
+import '/components/pages/quiet_room_mastery/jp_store.dart'
+    show JpStore, kLocalTieBump;
+import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show sharedJpStore;
+import '/components/pages/quiet_room_mastery/speak_lesson_events.dart'
+    show importSpeakAndLessonPrefs;
 import '/components/pages/quiet_room_mastery/study_export.dart' show sayItGrade;
 import '/components/pages/quiet_room_practice/anon_caller.dart';
 import '/components/pages/quiet_room_practice/listening_bars.dart';
@@ -210,7 +215,7 @@ String formatScore(double v) =>
 
 // --- the score log (PIN-4) ---------------------------------------------------
 
-/// One spoken attempt, as the device keeps it.
+/// One spoken attempt, as the score log keeps it (the body of a `speak_score` event).
 class SpeakAttempt {
   const SpeakAttempt({
     required this.sentence,
@@ -265,10 +270,9 @@ class SpeakAttempt {
         selfMark: gotIt,
       );
 
-  /// The same attempt as [other]: one sentence at one moment.
-  bool sameAs(SpeakAttempt other) =>
-      sentence == other.sentence &&
-      at.toIso8601String() == other.at.toIso8601String();
+  /// The attempt's identity: one sentence at one instant, whatever zone [at] was read in.
+  /// Every event of one attempt shares it (`SpeakScoreLog.fromEvents`).
+  String get identityKey => '${at.toUtc().toIso8601String()}\u0000$sentence';
 
   static const String _gotIt = 'got_it';
   static const String _missedIt = 'missed_it';
@@ -276,7 +280,8 @@ class SpeakAttempt {
   Map<String, Object?> toJson() => {
         'sentence': sentence,
         'verdict': verdict.name,
-        'at': at.toIso8601String(),
+        // UTC with its offset, so another device reads the same instant (the log syncs).
+        'at': at.toUtc().toIso8601String(),
         'overall': overall,
         'accuracy': accuracy,
         'fluency': fluency,
@@ -337,60 +342,108 @@ class SpeakAttempt {
   }
 }
 
-/// Every attempt's sentence, scores and verdict, kept on the device, oldest first, so the
-/// operator can tune the cutoffs from real scores (PIN-4). There is no account to sync to.
+/// Every attempt's sentence, scores and verdict, oldest first, so the operator can tune the
+/// cutoffs from real scores (PIN-4). The log lives in the study store as `speak_score` events,
+/// so it syncs with the account (plan 2026-11-19, Task 13, PIN-16; speak_lesson_events.dart).
 class SpeakScoreLog {
+  /// The SharedPreferences key an older build kept the log under. The store's one-time import
+  /// reads it (`importSpeakAndLessonPrefs`); nothing writes it any more.
   static const String prefsKey = 'jp.speak.scores';
 
-  /// The newest attempts kept. Older ones drop off.
+  /// The newest attempts shown. The store keeps every event (the log is append-only); older
+  /// attempts drop off the list.
   static const int keep = 200;
 
-  /// Never throws: an unreadable log reads as empty.
-  static Future<List<SpeakAttempt>> load() async {
+  /// The log as [events] hold it, oldest first by the attempt's time: one entry per attempt
+  /// (one sentence at one moment), from its latest event, so a self-mark replaces the entry it
+  /// marks. An entry this build cannot read is skipped. The newest [keep] are kept. Pure.
+  static List<SpeakAttempt> fromEvents(Iterable<JpEvent> events) {
+    final latest = <String, (JpEvent, SpeakAttempt)>{};
+    for (final e in events) {
+      if (e.kind != JpEventKind.speakScore) continue;
+      final a = SpeakAttempt.fromJson(e.body);
+      if (a == null) continue;
+      final old = latest[a.identityKey];
+      if (old == null || compareEvents(e, old.$1) > 0) {
+        latest[a.identityKey] = (e, a);
+      }
+    }
+    final rows = latest.values.toList()
+      ..sort((x, y) {
+        final byAt = x.$2.at.compareTo(y.$2.at);
+        return byAt != 0 ? byAt : compareEvents(x.$1, y.$1);
+      });
+    final list = [for (final r in rows) r.$2];
+    if (list.length > keep) list.removeRange(0, list.length - keep);
+    return list;
+  }
+
+  /// The log in [store], after the one-time import of the old SharedPreferences log. Never
+  /// throws: an unreadable store reads as empty. A failed import still reads the store, so
+  /// synced scores and a score that just landed still show (the writers report the failure).
+  static Future<List<SpeakAttempt>> load(JpStore store) async {
     try {
-      final raw = (await SharedPreferences.getInstance()).getString(prefsKey);
-      if (raw == null) return [];
-      final list = jsonDecode(raw);
-      if (list is! List) return [];
-      return list.map(SpeakAttempt.fromJson).whereType<SpeakAttempt>().toList();
+      await importSpeakAndLessonPrefs(store);
+    } catch (_) {
+      // The import runs again on the next call, because its flag stays unset.
+    }
+    try {
+      return fromEvents(await store.speakScores());
     } catch (_) {
       return [];
     }
   }
 
-  /// Appends [a] and returns the log as saved. Never throws: a failed save keeps the drill
-  /// running and returns what could be read. The drill chains its saves, so two never
-  /// overlap.
-  static Future<List<SpeakAttempt>> add(SpeakAttempt a) async {
-    final list = await load();
-    list.add(a);
-    return _save(list);
-  }
+  /// Reports a failed score log write. The log syncs with the account (PIN-16), so a lost
+  /// write is lost synced data and is never silent (S4). The drill still keeps running.
+  static void reportFailure(Object e, StackTrace st) =>
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'say-it score log',
+          context: ErrorDescription('while saving a say-it score')));
 
-  /// Keeps the learner's Got it or Missed it on the logged attempt [a]. An attempt the log
-  /// does not hold (its own save failed) is appended with the mark, so no mark is lost.
-  /// Never throws.
-  static Future<List<SpeakAttempt>> mark(SpeakAttempt a, bool gotIt) async {
-    final list = await load();
-    final i = list.lastIndexWhere((e) => e.sameAs(a));
-    if (i < 0) {
-      list.add(a.marked(gotIt));
-    } else {
-      list[i] = list[i].marked(gotIt);
-    }
-    return _save(list);
-  }
-
-  static Future<List<SpeakAttempt>> _save(List<SpeakAttempt> list) async {
-    if (list.length > keep) list.removeRange(0, list.length - keep);
+  /// Runs the one-time import and reports a failure. A failed import never skips the write
+  /// after it: the import runs again on the next call, because its flag stays unset.
+  static Future<void> _importReported(JpStore store) async {
     try {
-      final p = await SharedPreferences.getInstance();
-      await p.setString(
-          prefsKey, jsonEncode([for (final e in list) e.toJson()]));
-    } catch (_) {
-      // The score log is a tuning aid; losing one entry never blocks the drill.
+      await importSpeakAndLessonPrefs(store);
+    } catch (e, st) {
+      reportFailure(e, st);
     }
-    return list;
+  }
+
+  /// Logs [a] as a `speak_score` event at its own time and returns the log as saved. Never
+  /// throws: a failed save is reported, keeps the drill running and returns what could be
+  /// read. The drill chains its saves, so two never overlap.
+  static Future<List<SpeakAttempt>> add(JpStore store, SpeakAttempt a) async {
+    await _importReported(store);
+    try {
+      await store.recordSpeakScore(a.toJson(), atUtc: a.at.toUtc());
+    } catch (e, st) {
+      reportFailure(e, st);
+    }
+    return load(store);
+  }
+
+  /// Keeps the learner's Got it or Missed it on the logged attempt [a]: a second event with
+  /// the marked entry, at [nowUtc] (the store's clock by default) and always after [a]'s own
+  /// time, so the mark wins. An attempt whose own save failed still gets its entry this way,
+  /// so no mark is lost. Never throws.
+  static Future<List<SpeakAttempt>> mark(
+      JpStore store, SpeakAttempt a, bool gotIt,
+      {DateTime? nowUtc}) async {
+    await _importReported(store);
+    try {
+      final at = a.at.toUtc();
+      var markAt = (nowUtc ?? store.clock()).toUtc();
+      if (!markAt.isAfter(at)) markAt = at.add(kLocalTieBump);
+      await store.recordSpeakScore(a.marked(gotIt).toJson(), atUtc: markAt);
+    } catch (e, st) {
+      // As in add: a lost mark is reported and never blocks the drill.
+      reportFailure(e, st);
+    }
+    return load(store);
   }
 }
 
@@ -405,6 +458,7 @@ class QuietRoomSpeakWidget extends StatefulWidget {
     this.callerAuth,
     this.speech,
     this.recorder,
+    this.store,
   });
 
   /// The grammar lesson number, as in `grammar[].lesson`.
@@ -421,6 +475,10 @@ class QuietRoomSpeakWidget extends StatefulWidget {
   /// Where the Say-it attempts go. Null writes to the app's study store, with one recorder
   /// per visit to the screen.
   final AttemptRecorder? recorder;
+
+  /// Where the score log goes, as `speak_score` events. Null uses the app's one shared store
+  /// (`sharedJpStore`).
+  final JpStore? store;
 
   static String routeName = 'quietRoomSpeak';
   static String routePath = '/quietRoomSpeak';
@@ -484,7 +542,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// attempt is no longer current drops its result instead of showing or keeping it.
   int _attempt = 0;
 
-  /// The device's score log, oldest first.
+  /// The score log from the study store, oldest first.
   List<SpeakAttempt> _log = const [];
 
   /// Every log write runs after the one before, so a self-mark never races the save of the
@@ -499,16 +557,24 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
         widget.newService ?? (signIn) => PronunciationService(signIn: signIn);
     _svc = make(_signIn);
     _svc.listening.addListener(_onMic);
-    SpeakScoreLog.load().then((log) {
-      if (mounted && log.isNotEmpty) setState(() => _log = log);
-    });
+    // The first read runs on the write chain too, so its one-time import never races a save.
+    _writeLog(SpeakScoreLog.load);
   }
 
-  /// Queues a log write after the ones before it and shows the log it saved.
-  void _writeLog(Future<List<SpeakAttempt>> Function() write) {
+  /// The store the score log lives in.
+  Future<JpStore> _logStore() async => widget.store ?? await sharedJpStore();
+
+  /// Queues a log write after the ones before it and shows the log it saved. A store that
+  /// cannot open loses the write, which is reported, and leaves the list as it was.
+  void _writeLog(Future<List<SpeakAttempt>> Function(JpStore store) write) {
     _logWrites = _logWrites.then((_) async {
-      final log = await write();
-      if (mounted) setState(() => _log = log);
+      try {
+        final log = await write(await _logStore());
+        if (mounted && log.isNotEmpty) setState(() => _log = log);
+      } catch (e, st) {
+        // As in SpeakScoreLog.add: the drill keeps running.
+        SpeakScoreLog.reportFailure(e, st);
+      }
     });
   }
 
@@ -608,7 +674,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
           _seen++;
         }
       });
-      _writeLog(() => SpeakScoreLog.add(entry));
+      _writeLog((store) => SpeakScoreLog.add(store, entry));
       // A scored result is the attempt; an unverified one waits for its self-mark.
       if (r.verdict != Judgement.unverified) _recordSayIt(s, entry);
     } finally {
@@ -656,7 +722,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       if (gotIt) _right++;
     });
     // Kept with the attempt it answers, after that attempt's own save (no mark is lost).
-    if (entry != null) _writeLog(() => SpeakScoreLog.mark(entry, gotIt));
+    if (entry != null) {
+      _writeLog((store) => SpeakScoreLog.mark(store, entry, gotIt));
+    }
     // An unverified result is recorded once it is marked. A close one already was.
     if (entry != null &&
         sentence != null &&
@@ -1175,7 +1243,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// How many attempts the drill lists under Recent scores.
   static const int _recentShown = 8;
 
-  /// The newest attempts from the device's score log, newest first (PIN-4).
+  /// The newest attempts from the score log, newest first (PIN-4).
   Widget _recentScores(QuietRoomTokens t) {
     final newest = _log.reversed.take(_recentShown);
     return Column(

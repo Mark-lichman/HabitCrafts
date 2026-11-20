@@ -147,6 +147,21 @@ Map<String, dynamic> pointDef(String id) {
   throw StateError('the asset has no ／ example');
 }
 
+/// Appends [a] to the SharedPreferences score log the way a build before plan 2026-11-19
+/// Task 13 wrote it (`jp.speak.scores`), for the v2 migration to read.
+Future<void> addOldSpeakScore(SpeakAttempt a) async {
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getString(SpeakScoreLog.prefsKey);
+  final list = raw == null ? <Object?>[] : jsonDecode(raw) as List;
+  await prefs.setString(
+      SpeakScoreLog.prefsKey,
+      // An old build wrote local time with no offset; toJson now writes UTC.
+      jsonEncode([
+        ...list,
+        {...a.toJson(), 'at': a.at.toIso8601String()}
+      ]));
+}
+
 typedef Opener = Future<JpStore> Function();
 
 final Map<String, Opener> implementations = {
@@ -887,24 +902,24 @@ void main() {
           await SelfCheck.set(other.id, 'can_use_it');
           await SelfCheck.set('mari.L99.9', 'review_needed');
           await SelfCheck.set(third.id, 'something_else');
-          await SpeakScoreLog.add(SpeakAttempt(
+          await addOldSpeakScore(SpeakAttempt(
               sentence: sentence.key,
               verdict: Judgement.correct,
               at: spokenAt[0]));
-          await SpeakScoreLog.add(SpeakAttempt(
+          await addOldSpeakScore(SpeakAttempt(
               sentence: sentence.key,
               verdict: Judgement.unverified,
               at: spokenAt[1],
               selfMark: false));
-          await SpeakScoreLog.add(SpeakAttempt(
+          await addOldSpeakScore(SpeakAttempt(
               sentence: 'どこにもないぶん',
               verdict: Judgement.correct,
               at: DateTime(2026, 10, 22, 19)));
-          await SpeakScoreLog.add(SpeakAttempt(
+          await addOldSpeakScore(SpeakAttempt(
               sentence: practiceKana,
               verdict: Judgement.correct,
               at: spokenAt[2]));
-          await SpeakScoreLog.add(SpeakAttempt(
+          await addOldSpeakScore(SpeakAttempt(
               sentence: slash.form,
               verdict: Judgement.correct,
               at: spokenAt[3]));

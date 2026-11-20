@@ -41,7 +41,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
@@ -53,6 +52,8 @@ import '/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
     show sharedJpStore;
 import '/components/pages/quiet_room_mastery/local_day.dart';
 import '/components/pages/quiet_room_mastery/scheduler.dart';
+import '/components/pages/quiet_room_mastery/speak_lesson_events.dart'
+    show rememberLastGrammarLesson;
 import '/components/pages/quiet_room_practice/speech_service.dart';
 import 'jp_study_kit.dart';
 import 'quiet_room_speak_widget.dart';
@@ -315,11 +316,21 @@ class _QuietRoomGrammarWidgetState extends State<QuietRoomGrammarWidget> {
   final _pointKey = GlobalKey();
   bool _scrolledToPoint = false;
 
-  /// The lesson path's current lesson and the seed's default ticks follow it. Same key as
-  /// `kLastGrammarLessonKey` (seed_confirm_widget.dart), spelled out to avoid an import cycle.
-  static Future<void> _remember(int lesson) async =>
-      (await SharedPreferences.getInstance())
-          .setInt('jp.grammar.lastLesson', lesson);
+  /// The lesson path's current lesson and the seed's default ticks follow it. Written to the
+  /// study store as a `last_lesson` event, so it syncs (plan 2026-11-19, Task 13, PIN-16). A
+  /// lost write goes to the app's error handler (S4) and never stops the screen.
+  Future<void> _remember(int lesson) async {
+    try {
+      final store = widget.store ?? await sharedJpStore();
+      await rememberLastGrammarLesson(store, lesson);
+    } catch (e, st) {
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'quiet room grammar',
+          context: ErrorDescription('while remembering the last lesson')));
+    }
+  }
 
   late final GrammarAttemptWriter _writer = GrammarAttemptWriter(
     store: widget.store != null
