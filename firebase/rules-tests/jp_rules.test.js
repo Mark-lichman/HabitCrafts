@@ -214,6 +214,28 @@ test('jp_days: position moves forward and completed turns on', async () => {
   await assertSucceeds(updateDoc(ref, { position: 5, completed: true }));
 });
 
+test('jp_days: a re-push at the same position succeeds', async () => {
+  const uid = newUid('alice');
+  await seedProfile(uid);
+  await seed(`users/${uid}/jp_days/20411`, day({ position: 3 }));
+  const ref = doc(owner(uid), 'users', uid, 'jp_days', '20411');
+  // An idempotent push resends the position the server already holds.
+  await assertSucceeds(updateDoc(ref, { position: 3 }));
+  await assertSucceeds(updateDoc(ref, { position: 3, completed: false }));
+});
+
+test('jp_days: completed turns on with the position unchanged', async () => {
+  const uid = newUid('alice');
+  await seedProfile(uid);
+  await seed(`users/${uid}/jp_days/20411`, day({ position: 7 }));
+  const ref = doc(owner(uid), 'users', uid, 'jp_days', '20411');
+  await assertSucceeds(updateDoc(ref, { completed: true }));
+  const snap = await getDoc(ref);
+  if (snap.get('position') !== 7 || snap.get('completed') !== true) {
+    throw new Error(`expected position 7 and completed true, got ${JSON.stringify(snap.data())}`);
+  }
+});
+
 test('jp_days: position never moves back', async () => {
   const uid = newUid('alice');
   await seedProfile(uid);
