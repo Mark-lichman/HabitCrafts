@@ -656,7 +656,7 @@ class JpStoreSqlite extends JpStore {
       _db.transaction((txn) => _writeDerived(txn, result));
 
   /// One transaction: a throw in either write rolls back both. The log is prepared before
-  /// the transaction, because the device id read goes through `_db`.
+  /// the transaction, because prepareLog reads the held rows through _db.
   @override
   Future<void> replaceAll(StudyLog log, ReplayResult result) async {
     final prepared = await prepareLog(log);
