@@ -2,14 +2,21 @@
 // one-time import of the v2 study keys (Task 8).
 //
 // Export format, one JSON object per line:
-//   line 1   the header: {"format": "habitcrafts.jp.study", "version": 2, "exportedAtUtc",
-//            "attempts": n, "seeds": n, "notes": n, "discuss": n}
-//   then     {"type": "seed", ...SeedEvent}, {"type": "attempt", ...Attempt},
-//            {"type": "note", "itemId", "note"} and {"type": "discuss", ...DiscussMark}, seeds
-//            first, each log kind in log order, the notes and then the Discuss marks by item
-//            id, so the same record exports the same bytes from either store.
-// Version 1 (before the Discuss marks) has no `discuss` count and no discuss lines; this build
-// still reads it unchanged, with no marks (End state 8). An older build refuses version 2.
+//   line 1   the header: {"format": "habitcrafts.jp.study", "version": 3, "exportedAtUtc",
+//            "attempts": n, "seeds": n, "notes": n, "discuss": n, "events": n}
+//   then     {"type": "seed", ...SeedEvent}, {"type": "attempt", ...Attempt}, the note lines,
+//            the discuss lines, then {"type": "speak_score" | "last_lesson", "eventId",
+//            "deviceId", "atUtc", "body"}: seeds first, each log kind in log order, the notes
+//            and then the Discuss lines by item id and event order, the last two kinds by event
+//            order, so the same record exports the same bytes from either store.
+// Version 3 (plan 2026-11-19, Task 1) carries the global event ids and event times: every seed
+// and attempt line has its `eventId` and `deviceId`, and every note or Discuss change is its own
+// line with its `eventId`, `deviceId` and `atUtc`. A note line with `"note": null` clears the
+// note; a discuss line with `"cleared": true` clears the mark. The header counts lines, and
+// `events` counts the say-it score and last-lesson lines.
+// Version 2 (the Discuss marks) and version 1 (before them, no `discuss` count and no discuss
+// lines) carry no event ids; this build still reads both, and the store gives each event an id
+// when it imports them (End state 8 of plan 2026-11-02). An older build refuses version 3.
 // Reading it back replaces the store's log, notes and marks and rebuilds every state from the
 // log (JpStore.importLog), so an export is also a backup and the input for fitting FSRS
 // offline (A1). A Discuss mark never reaches the replay (PIN-6).
@@ -33,6 +40,7 @@ import '../quiet_room_grammar/quiet_room_speak_widget.dart'
 import '../quiet_room_practice/speech_service.dart' show Judgement;
 import 'attempt.dart';
 import 'item_catalog.dart' show kSayItTemplate;
+import 'jp_event.dart';
 import 'jp_store.dart';
 import 'local_day.dart';
 import 'scheduler.dart';
@@ -41,11 +49,87 @@ import 'scheduler.dart';
 const String kStudyExportFormat = 'habitcrafts.jp.study';
 
 /// The export format version this build writes. It reads this version and every earlier one.
-/// Version 2 added the Discuss marks.
-const int kStudyExportVersion = 2;
+/// Version 2 added the Discuss marks; version 3 the event ids and event times.
+const int kStudyExportVersion = 3;
+
+/// The side event kinds written as their own line types after the Discuss lines.
+const Set<JpEventKind> _plainEventKinds = {
+  JpEventKind.speakScore,
+  JpEventKind.lastLesson,
+};
+
+/// One line per note or Discuss change in [log], by item id and then event order. An item
+/// with a note or mark and no event (a log built by hand) gets one line with no event fields.
+List<Map<String, dynamic>> _changeLines(StudyLog log, JpEventKind kind) {
+  final lines = <({String itemId, int order, Map<String, dynamic> json})>[];
+  final named = <String>{};
+  final events = [...log.events]..sort(compareEvents);
+  for (var i = 0; i < events.length; i++) {
+    final e = events[i];
+    if (e.kind != kind) continue;
+    final itemId = e.subject!;
+    named.add(itemId);
+    final json = kind == JpEventKind.note
+        ? {'type': 'note', 'itemId': itemId, 'note': e.body['note']}
+        : {
+            'type': 'discuss',
+            'itemId': itemId,
+            if (e.body['note'] != null) 'note': e.body['note'],
+            'atUtc': e.atUtc.toIso8601String(),
+            if (e.body['cleared'] == true) 'cleared': true,
+          };
+    lines.add((
+      itemId: itemId,
+      order: i,
+      json: {
+        ...json,
+        if (kind == JpEventKind.note) 'atUtc': e.atUtc.toIso8601String(),
+        'eventId': e.eventId,
+        'deviceId': e.deviceId,
+      }
+    ));
+  }
+  if (kind == JpEventKind.note) {
+    for (final n in log.notes.entries) {
+      if (named.contains(n.key)) continue;
+      lines.add((
+        itemId: n.key,
+        order: -1,
+        json: {'type': 'note', 'itemId': n.key, 'note': n.value}
+      ));
+    }
+  } else {
+    for (final m in log.discuss.values) {
+      if (named.contains(m.itemId)) continue;
+      lines.add((
+        itemId: m.itemId,
+        order: -1,
+        json: {'type': 'discuss', ...m.toJson()}
+      ));
+    }
+  }
+  lines.sort((a, b) {
+    final byItem = a.itemId.compareTo(b.itemId);
+    return byItem != 0 ? byItem : a.order.compareTo(b.order);
+  });
+  return [for (final l in lines) l.json];
+}
 
 /// Writes [log] as JSON Lines with a header line.
 String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
+  final notes = _changeLines(log, JpEventKind.note);
+  final discuss = _changeLines(log, JpEventKind.discuss);
+  final plain = [
+    for (final e in [...log.events]..sort(compareEvents))
+      if (_plainEventKinds.contains(e.kind))
+        {
+          'type': e.kind.wire,
+          'eventId': e.eventId,
+          'deviceId': e.deviceId,
+          'atUtc': e.atUtc.toIso8601String(),
+          'body': e.body,
+        }
+  ];
   final lines = <String>[
     jsonEncode({
       'format': kStudyExportFormat,
@@ -53,28 +137,38 @@ String encodeStudyExport(StudyLog log, {required DateTime exportedAt}) {
       'exportedAtUtc': exportedAt.toUtc().toIso8601String(),
       'attempts': log.attempts.length,
       'seeds': log.seeds.length,
-      'notes': log.notes.length,
-      'discuss': log.discuss.length,
+      'notes': notes.length,
+      'discuss': discuss.length,
+      'events': plain.length,
     }),
     for (final s in log.seeds) jsonEncode({'type': 'seed', ...s.toJson()}),
     for (final a in log.attempts)
       jsonEncode({'type': 'attempt', ...a.toJson()}),
-    for (final e
-        in log.notes.entries.toList()..sort((a, b) => a.key.compareTo(b.key)))
-      jsonEncode({'type': 'note', 'itemId': e.key, 'note': e.value}),
-    for (final m
-        in log.discuss.values.toList()
-          ..sort((a, b) => a.itemId.compareTo(b.itemId)))
-      jsonEncode({'type': 'discuss', ...m.toJson()}),
+    for (final n in notes) jsonEncode(n),
+    for (final d in discuss) jsonEncode(d),
+    for (final p in plain) jsonEncode(p),
   ];
   return '${lines.join('\n')}\n';
 }
 
+/// The event a v3 change or event line carries. [body] is the event's body.
+JpEvent _lineEvent(
+        Map<String, dynamic> j, JpEventKind kind, Map<String, dynamic> body) =>
+    JpEvent.fromFirestore({
+      'eventId': j['eventId'],
+      'deviceId': j['deviceId'],
+      'atUtc': j['atUtc'],
+      'kind': kind.wire,
+      'body': body,
+    });
+
 /// Reads an export written by [encodeStudyExport]. Throws a [FormatException] naming the line
 /// for a missing or foreign header, a newer version, an unknown line type, an unreadable line,
 /// an attempt whose rating no [SrsRating] has, or counts that disagree with the header. A
-/// header with no `discuss` count (version 1) counts no Discuss mark. A blank line is skipped
-/// and still counted, so the named line is the file's own.
+/// header with no `discuss` count (version 1) counts no Discuss line, and one with no `events`
+/// count (versions 1 and 2) counts no event line. A note or discuss line with an `eventId` is a
+/// change event; one without is the item's note or mark from before event ids. A blank line is
+/// skipped and still counted, so the named line is the file's own.
 StudyLog decodeStudyExport(String text) {
   final all = const LineSplitter().convert(text);
   final lines = <({int no, String text})>[
@@ -104,6 +198,8 @@ StudyLog decodeStudyExport(String text) {
   final seeds = <SeedEvent>[];
   final notes = <String, String>{};
   final discuss = <String, DiscussMark>{};
+  final events = <JpEvent>[];
+  var noteLines = 0, discussLines = 0, eventLines = 0;
   for (var i = 1; i < lines.length; i++) {
     final j = parse(i);
     try {
@@ -119,10 +215,33 @@ StudyLog decodeStudyExport(String text) {
         case 'seed':
           seeds.add(SeedEvent.fromJson(j));
         case 'note':
-          notes[j['itemId'] as String] = j['note'] as String;
+          noteLines++;
+          final itemId = j['itemId'] as String;
+          if (j.containsKey('eventId')) {
+            events.add(_lineEvent(j, JpEventKind.note,
+                {'itemId': itemId, 'note': j['note'] as String?}));
+          } else {
+            notes[itemId] = j['note'] as String;
+          }
         case 'discuss':
-          final mark = DiscussMark.fromJson(j);
-          discuss[mark.itemId] = mark;
+          discussLines++;
+          if (j.containsKey('eventId')) {
+            events.add(_lineEvent(j, JpEventKind.discuss, {
+              'itemId': j['itemId'] as String,
+              if (j['note'] != null) 'note': j['note'] as String,
+              if (j['cleared'] == true) 'cleared': true,
+            }));
+          } else {
+            final mark = DiscussMark.fromJson(j);
+            discuss[mark.itemId] = mark;
+          }
+        case 'speak_score':
+        case 'last_lesson':
+          eventLines++;
+          final body = j['body'];
+          if (body is! Map) throw const FormatException('no body');
+          events.add(_lineEvent(j, JpEventKind.fromWire(j['type']),
+              Map<String, dynamic>.from(body)));
         default:
           throw FormatException('unknown type ${j['type']}');
       }
@@ -132,13 +251,18 @@ StudyLog decodeStudyExport(String text) {
   }
   if (header['attempts'] != attempts.length ||
       header['seeds'] != seeds.length ||
-      header['notes'] != notes.length ||
-      (header['discuss'] ?? 0) != discuss.length) {
+      header['notes'] != noteLines ||
+      (header['discuss'] ?? 0) != discussLines ||
+      (header['events'] ?? 0) != eventLines) {
     throw const FormatException(
         'study export: the line counts disagree with the header');
   }
-  return StudyLog(
-      attempts: attempts, seeds: seeds, notes: notes, discuss: discuss);
+  return StudyLog.resolved(
+      attempts: attempts,
+      seeds: seeds,
+      legacyNotes: notes,
+      legacyDiscuss: discuss,
+      events: events);
 }
 
 /// The store's log as an export file's text.

@@ -28,6 +28,8 @@ import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'jp_store_old_rows.dart';
+
 Map<String, dynamic> _read(String path) =>
     json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
@@ -808,16 +810,28 @@ void main() {
           expect(result.srs, isNotEmpty);
           expect(result.mastery, isNotEmpty);
 
-          // Re-exported, every record line is the fixture's own, byte for byte; only the
-          // header moves to this build's version and gains a zero Discuss count.
+          // Re-exported, every record line is the fixture's own once the event fields the
+          // import gave it (plan 2026-11-19, Task 1) are taken out, and every line has them.
+          // The header moves to this build's version and gains zero Discuss and event counts.
           final again = const LineSplitter()
               .convert(await exportStudy(store, exportedAt: at(10)));
-          expect(again.skip(1), fixtureLines.skip(1));
+          expect(again.length, fixtureLines.length);
+          for (var i = 1; i < again.length; i++) {
+            final line = jsonDecode(again[i]) as Map<String, dynamic>;
+            expect(line['eventId'], isA<String>(), reason: again[i]);
+            expect(line['deviceId'], await store.deviceId(), reason: again[i]);
+            final own = {...line}
+              ..remove('eventId')
+              ..remove('deviceId');
+            if (line['type'] == 'note') own.remove('atUtc');
+            expect(jsonEncode(own), fixtureLines[i]);
+          }
           final header = jsonDecode(again.first) as Map<String, dynamic>;
           expect(header, {
             ...fixtureHeader,
             'version': kStudyExportVersion,
             'discuss': 0,
+            'events': 0,
           });
         });
 
@@ -1246,20 +1260,27 @@ void main() {
       final path = '${dir.path}/jp_study.db';
       try {
         final g = firstOf(ItemKind.grammar);
-        // A file as the build before this plan wrote it: version 1, no upgrade step.
+        // A file as the build before the Discuss marks wrote it: version 1, no upgrade step,
+        // its rows written with that build's columns.
         var store = await JpStoreSqlite.open(
             factory: databaseFactoryFfi, path: path, version: 1, upgrades: {});
         expect(await store.schemaVersion(), 1);
-        final out = await store.recordAnswer(answer(g, 3, Grade.clear),
-            item: g, scheduler: scheduler);
-        await store.appendSeed('seeded', 5, atUtc: at(0));
-        await store.setNote(g.id, kNoteCanUseIt);
         await store.close();
+        final out = await JpStoreMemory().recordAnswer(
+            answer(g, 3, Grade.clear),
+            item: g,
+            scheduler: scheduler);
+        await writeOldRows(path,
+            attempts: [out.attempt],
+            srs: {g.id: out.srs!},
+            mastery: [out.mastery!],
+            seeds: [SeedEvent(itemId: 'seeded', dueDay: 5, atUtc: at(0))],
+            notes: {g.id: kNoteCanUseIt});
 
         store =
             await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
-        expect(kJpStoreSchemaVersion, 2);
-        expect(await store.schemaVersion(), 2);
+        expect(kJpStoreSchemaVersion, 3);
+        expect(await store.schemaVersion(), 3);
         expect(await store.attempts(), [out.attempt]);
         expect(await store.srs(g.id), out.srs);
         expect(await store.mastery(g.id), out.mastery);
@@ -1289,9 +1310,15 @@ void main() {
         // A version 1 file: the seam's own step 2 must be the one that runs.
         var store = await JpStoreSqlite.open(
             factory: databaseFactoryFfi, path: path, version: 1, upgrades: {});
-        final out = await store.recordAnswer(answer(g, 3, Grade.clear),
-            item: g, scheduler: scheduler);
         await store.close();
+        final out = await JpStoreMemory().recordAnswer(
+            answer(g, 3, Grade.clear),
+            item: g,
+            scheduler: scheduler);
+        await writeOldRows(path,
+            attempts: [out.attempt],
+            srs: {g.id: out.srs!},
+            mastery: [out.mastery!]);
 
         final ran = <int>[];
         final toV2 = {
