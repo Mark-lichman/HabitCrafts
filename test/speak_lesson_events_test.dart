@@ -385,6 +385,41 @@ void main() {
     });
   });
 
+  group('a failed import on the last lesson', () {
+    List<String> contexts(List<FlutterErrorDetails> reports) =>
+        [for (final r in reports) r.context.toString()];
+
+    test('remember still writes the lesson and read still returns it',
+        () async {
+      final store = _ImportFailsStore(clock: clock);
+      final capture = ReportCapture();
+      await rememberLastGrammarLesson(store, 41);
+      final read = await readLastGrammarLesson(store);
+      final reports = capture.stop();
+      final events = (await store.sideEvents())
+          .where((e) => e.kind == JpEventKind.lastLesson)
+          .toList();
+      expect(events, hasLength(1));
+      expect(events.single.body['lessonId'], '41');
+      expect(read, 41);
+      expect(contexts(reports), [
+        'while importing the old last lesson',
+        'while importing the old last lesson',
+      ]);
+      expect(reports.first.library, 'speak lesson events');
+    });
+
+    test('read still returns a synced lesson', () async {
+      final store = _ImportFailsStore(clock: clock);
+      await store.setLastLesson('7', atUtc: at(1).toUtc());
+      final capture = ReportCapture();
+      final read = await readLastGrammarLesson(store);
+      final reports = capture.stop();
+      expect(read, 7);
+      expect(contexts(reports), ['while importing the old last lesson']);
+    });
+  });
+
   group('SpeakScoreLog.fromEvents', () {
     JpEvent score(Map<String, dynamic> body, DateTime atUtc) => JpEvent(
         eventId: newEventId(),

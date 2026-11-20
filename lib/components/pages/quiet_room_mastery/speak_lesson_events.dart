@@ -122,21 +122,39 @@ Future<int> _importOnce(JpStore store, SharedPreferences? prefs) async {
   return written;
 }
 
+/// Runs the one-time import for the last-lesson helpers and reports a failure to FlutterError
+/// (S4) in place of throwing it. The import is best effort: the old lesson lands at the Unix
+/// epoch, so it loses to any real last_lesson event in either order, and a later run that finds
+/// one held skips it.
+Future<void> _importForLastLesson(
+    JpStore store, SharedPreferences? prefs) async {
+  try {
+    await importSpeakAndLessonPrefs(store, prefs: prefs);
+  } catch (e, st) {
+    FlutterError.reportError(FlutterErrorDetails(
+        exception: e,
+        stack: st,
+        library: 'speak lesson events',
+        context: ErrorDescription('while importing the old last lesson')));
+  }
+}
+
 /// The last grammar lesson opened, by the latest event time, after the one-time import; null
-/// before the first or when the latest names no lesson number.
+/// before the first or when the latest names no lesson number. A failed import is reported and
+/// the store is still read.
 Future<int?> readLastGrammarLesson(JpStore store,
     {SharedPreferences? prefs}) async {
-  await importSpeakAndLessonPrefs(store, prefs: prefs);
+  await _importForLastLesson(store, prefs);
   final id = await store.lastLesson();
   return id == null ? null : int.tryParse(id);
 }
 
 /// Records [lesson] as the last grammar lesson opened, at the store's clock. The store moves the
-/// event past the latest one, so the lesson just opened shows here at once.
+/// event past the latest one, so the lesson just opened shows here at once. A failed import is
+/// reported and the lesson is still written.
 Future<void> rememberLastGrammarLesson(JpStore store, int lesson,
     {SharedPreferences? prefs}) async {
-  // The import first, so an old value never lands after this one.
-  await importSpeakAndLessonPrefs(store, prefs: prefs);
+  await _importForLastLesson(store, prefs);
   await store.setLastLesson('$lesson', atUtc: store.clock().toUtc());
 }
 
