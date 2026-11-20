@@ -28,7 +28,7 @@ const String kDevicesEmpty =
 
 /// The remote could not be reached.
 const String kDevicesOffline =
-    'Could not reach the server. Connect to the internet to see your devices.';
+    'Could not reach the server. Connect to the internet, then open this page again.';
 
 /// Nobody is signed in, or the user is anonymous: nothing syncs.
 const String kDevicesSignedOut =
