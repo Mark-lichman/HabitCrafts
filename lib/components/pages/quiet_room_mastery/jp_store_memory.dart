@@ -1,18 +1,26 @@
 // The in-memory study store: the store on web, where nothing persists between loads (A4), and
 // a fast store for tests and the simulator. Same contract as `JpStoreSqlite`; the shared suite
-// in test/jp_store_test.dart runs against both. Every write is synchronous inside one call, so
-// an answer's attempt, schedule and mastery land together or not at all.
+// in test/jp_store_test.dart runs against both. Every write is synchronous inside one call once
+// its event ids are stamped, so an answer's attempt, schedule and mastery land together or not
+// at all. A fresh memory store holds no rows from before event ids, so it needs no migration.
 
 import 'attempt.dart';
+import 'jp_event.dart';
 import 'jp_store.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
 
 class JpStoreMemory extends JpStore {
-  JpStoreMemory();
+  JpStoreMemory({super.clock});
 
   final List<Attempt> _attempts = [];
   final List<SeedEvent> _seeds = [];
+
+  /// The side events, in append order.
+  final List<JpEvent> _events = [];
+
+  /// The ids of every event pushed or appended from a remote.
+  final Set<String> _pushed = {};
   final Map<String, SrsState> _srs = {};
   final Map<String, MasteryState> _mastery = {};
   final Map<String, int> _seedDue = {};
@@ -27,20 +35,24 @@ class JpStoreMemory extends JpStore {
   Future<Attempt> appendAttempt(Attempt attempt,
       {SrsState? srs, MasteryState? mastery}) async {
     checkAnswerStates(attempt, mastery);
-    final written = attemptWithId(attempt, ++_attemptSeq);
+    final stamped = await stampAttempt(attempt);
+    final written = attemptWithId(stamped, ++_attemptSeq);
     _attempts.add(written);
     if (srs != null) _srs[attempt.itemId] = srs;
     if (mastery != null) _mastery[attempt.itemId] = mastery;
     return written;
   }
 
+  void _addSeed(SeedEvent s) {
+    _seeds.add(s.withId(++_seedSeq));
+    final old = _seedDue[s.itemId];
+    if (old == null || s.dueDay < old) _seedDue[s.itemId] = s.dueDay;
+  }
+
   @override
   Future<void> appendSeeds(Iterable<SeedEvent> seeds) async {
-    for (final s in seeds) {
-      _seeds.add(s.withId(++_seedSeq));
-      final old = _seedDue[s.itemId];
-      if (old == null || s.dueDay < old) _seedDue[s.itemId] = s.dueDay;
-    }
+    final stamped = [for (final s in seeds) await stampSeed(s)];
+    stamped.forEach(_addSeed);
   }
 
   @override
@@ -81,23 +93,7 @@ class JpStoreMemory extends JpStore {
   }
 
   @override
-  Future<void> setNote(String itemId, String? note) async {
-    if (note == null) {
-      _notes.remove(itemId);
-    } else {
-      _notes[itemId] = note;
-    }
-  }
-
-  @override
   Future<Map<String, String>> notes() async => {..._notes};
-
-  @override
-  Future<void> putDiscuss(DiscussMark mark) async =>
-      _discuss[mark.itemId] = mark;
-
-  @override
-  Future<void> clearDiscuss(String itemId) async => _discuss.remove(itemId);
 
   @override
   Future<DiscussMark?> discuss(String itemId) async => _discuss[itemId];
@@ -133,7 +129,10 @@ class JpStoreMemory extends JpStore {
   Future<DayRecord?> day(int day) async => _days[day];
 
   @override
-  Future<void> putDay(DayRecord record) async => _days[record.day] = record;
+  Future<void> putDay(DayRecord record) async {
+    final stamped = await stampDay(record);
+    _days[stamped.day] = stamped;
+  }
 
   @override
   Future<int?> lastDay() async =>
@@ -144,6 +143,66 @@ class JpStoreMemory extends JpStore {
 
   @override
   Future<void> putMeta(String key, String value) async => _meta[key] = value;
+
+  // --- side events and sync ----------------------------------------------------
+
+  /// Moves the note or Discuss mark [event] names to the latest event for its item.
+  void _refresh(JpEvent event) {
+    final id = event.subject;
+    if (id == null) return;
+    if (event.kind == JpEventKind.note) {
+      final note = resolveNotes(_events)[id];
+      note == null ? _notes.remove(id) : _notes[id] = note;
+    } else if (event.kind == JpEventKind.discuss) {
+      final mark = resolveDiscuss(_events)[id];
+      mark == null ? _discuss.remove(id) : _discuss[id] = mark;
+    }
+  }
+
+  @override
+  Future<List<JpEvent>> sideEvents() async => [..._events]..sort(compareEvents);
+
+  @override
+  Future<void> writeSideEvent(JpEvent event) async {
+    _events.add(event);
+    _refresh(event);
+  }
+
+  @override
+  Future<List<JpEvent>> unpushedEvents() async => [
+        for (final e in await allEvents())
+          if (!_pushed.contains(e.eventId)) e
+      ];
+
+  @override
+  Future<void> markPushed(Iterable<String> eventIds) async {
+    final held = {for (final e in await allEvents()) e.eventId};
+    _pushed.addAll(eventIds.where(held.contains));
+  }
+
+  @override
+  Future<List<JpEvent>> writeRemoteEvents(List<JpEvent> events) async {
+    final held = {for (final e in await allEvents()) e.eventId};
+    final added = <JpEvent>[];
+    for (final e in events) {
+      if (held.contains(e.eventId)) continue;
+      switch (e.kind) {
+        case JpEventKind.attempt:
+          _attempts.add(attemptWithId(attemptOfEvent(e), ++_attemptSeq));
+        case JpEventKind.seed:
+          _addSeed(seedOfEvent(e));
+        case JpEventKind.note:
+        case JpEventKind.discuss:
+        case JpEventKind.speakScore:
+        case JpEventKind.lastLesson:
+          _events.add(e);
+          _refresh(e);
+      }
+      _pushed.add(e.eventId);
+      added.add(e);
+    }
+    return added;
+  }
 
   void _writeDerived(ReplayResult result) {
     _srs
@@ -157,7 +216,14 @@ class JpStoreMemory extends JpStore {
       ..addAll(result.seedDue);
   }
 
+  /// Writes a prepared log ([prepareLog]): every attempt and seed has an event id.
   void _writeLog(StudyLog log) {
+    final ids = <String>{
+      for (final a in log.attempts) a.eventId!,
+      for (final s in log.seeds) s.eventId!,
+      for (final e in log.events) e.eventId,
+    };
+    _pushed.retainWhere(ids.contains);
     _attempts.clear();
     _seeds.clear();
     _attemptSeq = 0;
@@ -168,6 +234,9 @@ class JpStoreMemory extends JpStore {
     for (final s in log.seeds) {
       _seeds.add(s.withId(++_seedSeq));
     }
+    _events
+      ..clear()
+      ..addAll(log.events);
     _notes
       ..clear()
       ..addAll(log.notes);
@@ -183,7 +252,8 @@ class JpStoreMemory extends JpStore {
   /// One synchronous block, no await between the log and the states.
   @override
   Future<void> replaceAll(StudyLog log, ReplayResult result) async {
-    _writeLog(log);
+    final prepared = await prepareLog(log);
+    _writeLog(prepared);
     _writeDerived(result);
   }
 
