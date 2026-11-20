@@ -154,7 +154,12 @@ Future<void> addOldSpeakScore(SpeakAttempt a) async {
   final raw = prefs.getString(SpeakScoreLog.prefsKey);
   final list = raw == null ? <Object?>[] : jsonDecode(raw) as List;
   await prefs.setString(
-      SpeakScoreLog.prefsKey, jsonEncode([...list, a.toJson()]));
+      SpeakScoreLog.prefsKey,
+      // An old build wrote local time with no offset; toJson now writes UTC.
+      jsonEncode([
+        ...list,
+        {...a.toJson(), 'at': a.at.toIso8601String()}
+      ]));
 }
 
 typedef Opener = Future<JpStore> Function();

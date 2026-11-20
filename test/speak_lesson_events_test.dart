@@ -11,6 +11,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show FlutterErrorDetails;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart';
@@ -327,6 +328,47 @@ void main() {
     });
   }
 
+  group('a failed score log write', () {
+    List<String> contexts(List<FlutterErrorDetails> reports) =>
+        [for (final r in reports) r.context.toString()];
+
+    test('a failed score write is reported and add still returns', () async {
+      final store = _ScoreWriteFailsStore();
+      final capture = ReportCapture();
+      final log = await SpeakScoreLog.add(store, attempt('あたま', at(1)));
+      final reports = capture.stop();
+      expect(log, isEmpty);
+      expect(contexts(reports), ['while saving a say-it score']);
+      expect(reports.single.library, 'say-it score log');
+    });
+
+    test('a failed mark write is reported and mark still returns', () async {
+      final store = _ScoreWriteFailsStore();
+      final capture = ReportCapture();
+      final log =
+          await SpeakScoreLog.mark(store, attempt('ねこ', at(1)), true);
+      final reports = capture.stop();
+      expect(log, isEmpty);
+      expect(contexts(reports), ['while saving a say-it score']);
+    });
+
+    test('a failed import is reported and the score still lands', () async {
+      final store = _ImportFailsStore(clock: clock);
+      final capture = ReportCapture();
+      await SpeakScoreLog.add(store, attempt('あたま', at(1)));
+      final reports = capture.stop();
+      expect(contexts(reports), ['while saving a say-it score']);
+      expect((await store.speakScores()).map((e) => e.body['sentence']),
+          ['あたま']);
+    });
+
+    test('a write that lands reports nothing', () async {
+      final capture = ReportCapture();
+      await SpeakScoreLog.add(JpStoreMemory(clock: clock), attempt('x', at(1)));
+      expect(capture.stop(), isEmpty);
+    });
+  });
+
   group('SpeakScoreLog.fromEvents', () {
     JpEvent score(Map<String, dynamic> body, DateTime atUtc) => JpEvent(
         eventId: newEventId(),
@@ -390,3 +432,23 @@ void main() {
 
 Set<String> idsOf(Iterable<JpEvent> events) =>
     {for (final e in events) e.eventId};
+
+/// A memory store whose say-it score write fails, as a locked database would.
+class _ScoreWriteFailsStore extends JpStoreMemory {
+  _ScoreWriteFailsStore() : super(clock: clock);
+
+  @override
+  Future<JpEvent> recordSpeakScore(Map<String, dynamic> score,
+          {required DateTime atUtc}) =>
+      Future.error(StateError('jp store: database is locked'));
+}
+
+/// A memory store whose one-time import fails at its flag read. Every other read works.
+class _ImportFailsStore extends JpStoreMemory {
+  _ImportFailsStore({super.clock});
+
+  @override
+  Future<String?> meta(String key) => key == kSpeakLessonImportFlag
+      ? Future.error(StateError('jp store: database is locked'))
+      : super.meta(key);
+}

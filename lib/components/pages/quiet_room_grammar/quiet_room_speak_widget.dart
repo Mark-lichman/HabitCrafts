@@ -388,15 +388,34 @@ class SpeakScoreLog {
     }
   }
 
-  /// Logs [a] as a `speak_score` event at its own time and returns the log as saved. Never
-  /// throws: a failed save keeps the drill running and returns what could be read. The drill
-  /// chains its saves, so two never overlap.
-  static Future<List<SpeakAttempt>> add(JpStore store, SpeakAttempt a) async {
+  /// Reports a failed score log write. The log syncs with the account (PIN-16), so a lost
+  /// write is lost synced data and is never silent (S4). The drill still keeps running.
+  static void reportFailure(Object e, StackTrace st) =>
+      FlutterError.reportError(FlutterErrorDetails(
+          exception: e,
+          stack: st,
+          library: 'say-it score log',
+          context: ErrorDescription('while saving a say-it score')));
+
+  /// Runs the one-time import and reports a failure. A failed import never skips the write
+  /// after it: the import runs again on the next call, because its flag stays unset.
+  static Future<void> _importReported(JpStore store) async {
     try {
       await importSpeakAndLessonPrefs(store);
+    } catch (e, st) {
+      reportFailure(e, st);
+    }
+  }
+
+  /// Logs [a] as a `speak_score` event at its own time and returns the log as saved. Never
+  /// throws: a failed save is reported, keeps the drill running and returns what could be
+  /// read. The drill chains its saves, so two never overlap.
+  static Future<List<SpeakAttempt>> add(JpStore store, SpeakAttempt a) async {
+    await _importReported(store);
+    try {
       await store.recordSpeakScore(a.toJson(), atUtc: a.at.toUtc());
-    } catch (_) {
-      // The score log is a tuning aid; losing one entry never blocks the drill.
+    } catch (e, st) {
+      reportFailure(e, st);
     }
     return load(store);
   }
@@ -407,14 +426,15 @@ class SpeakScoreLog {
   /// so no mark is lost. Never throws.
   static Future<List<SpeakAttempt>> mark(JpStore store, SpeakAttempt a, bool gotIt,
       {DateTime? nowUtc}) async {
+    await _importReported(store);
     try {
-      await importSpeakAndLessonPrefs(store);
       final at = a.at.toUtc();
       var markAt = (nowUtc ?? store.clock()).toUtc();
       if (!markAt.isAfter(at)) markAt = at.add(kLocalTieBump);
       await store.recordSpeakScore(a.marked(gotIt).toJson(), atUtc: markAt);
-    } catch (_) {
-      // As in add: a lost mark never blocks the drill.
+    } catch (e, st) {
+      // As in add: a lost mark is reported and never blocks the drill.
+      reportFailure(e, st);
     }
     return load(store);
   }
@@ -538,14 +558,15 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   Future<JpStore> _logStore() async => widget.store ?? await sharedJpStore();
 
   /// Queues a log write after the ones before it and shows the log it saved. A store that
-  /// cannot open loses the write and leaves the list as it was: the log is a tuning aid.
+  /// cannot open loses the write, which is reported, and leaves the list as it was.
   void _writeLog(Future<List<SpeakAttempt>> Function(JpStore store) write) {
     _logWrites = _logWrites.then((_) async {
       try {
         final log = await write(await _logStore());
         if (mounted && log.isNotEmpty) setState(() => _log = log);
-      } catch (_) {
-        // As above: the drill keeps running.
+      } catch (e, st) {
+        // As in SpeakScoreLog.add: the drill keeps running.
+        SpeakScoreLog.reportFailure(e, st);
       }
     });
   }
