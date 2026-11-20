@@ -262,6 +262,31 @@ class JpStoreMemory extends JpStore {
   @override
   Future<void> close() async {}
 
+  /// Empties the study record: the logs, the pushed marks, the derived states, the days and
+  /// every meta key but the device id ([kDeviceIdMetaKey]). The sync cursor
+  /// ([kSyncCursorMetaKey]) and the replay flag go with the rest, so the next sync pulls the
+  /// whole record. The web store's sign-out wipe (jp_store_web.dart) runs it.
+  Future<void> wipe() async => clearRecord();
+
+  /// [wipe] in one synchronous step.
+  void clearRecord() {
+    final device = _meta[kDeviceIdMetaKey];
+    _attempts.clear();
+    _seeds.clear();
+    _events.clear();
+    _pushed.clear();
+    _srs.clear();
+    _mastery.clear();
+    _seedDue.clear();
+    _notes.clear();
+    _discuss.clear();
+    _days.clear();
+    _meta.clear();
+    if (device != null) _meta[kDeviceIdMetaKey] = device;
+    _attemptSeq = 0;
+    _seedSeq = 0;
+  }
+
   // --- the snapshot ------------------------------------------------------------
 
   /// Everything this store holds as JSON values: the logs with their row ids, event ids and

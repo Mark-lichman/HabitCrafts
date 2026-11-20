@@ -5,7 +5,8 @@
 // one (a full quota, an abort) leaves the old value. No dependency is added for this.
 // `package:web` is only a transitive dependency of the Firebase plugins, so the few IndexedDB
 // interfaces needed are declared below with `dart:js_interop`, which ships with the SDK, the
-// same way mic_level_web.dart declares its Web Audio ones.
+// same way mic_level_web.dart declares its Web Audio ones. The Web Locks interface behind
+// [JpWebStorage.exclusive] is declared the same way.
 
 import 'dart:async';
 import 'dart:js_interop';
@@ -54,11 +55,59 @@ extension type _IdbObjectStore._(JSObject _) implements JSObject {
   external _IdbRequest delete(JSAny key);
 }
 
+/// The Web Locks name the study store's tabs share.
+const String kJpWebLockName = 'habitcrafts_jp_study';
+
+@JS('navigator')
+external _Navigator? get _navigator;
+
+extension type _Navigator._(JSObject _) implements JSObject {
+  external _LockManager? get locks;
+}
+
+extension type _LockManager._(JSObject _) implements JSObject {
+  external JSPromise<JSAny?> request(String name, JSFunction callback);
+}
+
 /// The browser's IndexedDB as a [JpWebStorage].
 JpWebStorage browserJpWebStorage() => _IdbStorage();
 
 class _IdbStorage implements JpWebStorage {
   Future<_IdbDatabase>? _db;
+
+  /// The tail of the in-page chain, used only where the browser has no Web Locks.
+  Future<void> _tail = Future.value();
+
+  /// Holds the Web Lock [kJpWebLockName] while [body] runs, so no other tab of the site runs
+  /// one at the same time. The lock is released when [body] settles, and [body]'s own error
+  /// is rethrown here. A browser without Web Locks (an old one, or a page not served over
+  /// HTTPS) gets an in-page chain: each write still re-reads first, but two tabs can race.
+  @override
+  Future<T> exclusive<T>(Future<T> Function() body) async {
+    final locks = _navigator?.locks;
+    if (locks == null) {
+      final run = _tail.then((_) => body());
+      _tail = run.then((_) {}, onError: (Object _) {});
+      return run;
+    }
+    late T result;
+    Object? error;
+    StackTrace? trace;
+    Future<void> held() async {
+      try {
+        result = await body();
+      } catch (e, s) {
+        error = e;
+        trace = s;
+      }
+    }
+
+    await locks
+        .request(kJpWebLockName, ((JSAny? _) => held().toJS).toJS)
+        .toDart;
+    if (error != null) Error.throwWithStackTrace(error!, trace!);
+    return result;
+  }
 
   /// Opens the database once. A failed open is not kept, so the next call tries again.
   Future<_IdbDatabase> _open() => _db ??= () {

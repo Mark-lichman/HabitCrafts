@@ -220,9 +220,9 @@ Future<void> _createV1(Database db) async {
 /// Opens the platform's store: SQLite on the phone, and on web a store that keeps the record
 /// in the browser across reloads ([JpStoreWeb], A4).
 ///
-/// Each call opens a new store. The app opens one per run through [sharedJpStore]; two
-/// stores on web each save over the other's snapshot, and two on the phone do not serialize
-/// answers. [webStorage] is a test seam for the web store's browser storage; the app passes
+/// Each call opens a new store. The app opens one per run through [sharedJpStore]. Two stores
+/// on web (two tabs) share one lock and re-read before each write, so neither saves over the
+/// other; two on the phone do not serialize answers. [webStorage] is a test seam for the web store's browser storage; the app passes
 /// nothing and the web store uses IndexedDB.
 Future<JpStore> openJpStore(
     {bool isWeb = kIsWeb, JpWebStorage? webStorage}) async {

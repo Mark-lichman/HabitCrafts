@@ -1,7 +1,9 @@
 // The web study store keeps the record across reloads (plan 2026-11-19, Task 5, A4). A reload
 // is a second open over the same browser storage. The contract suite in test/jp_store_test.dart
 // runs against `JpStoreWeb` too; this file covers what only the web store does: the open,
-// the reload, the rollback of a write the browser refuses, and an unreadable snapshot.
+// the reload, the rollback of a write the browser refuses, an unreadable snapshot, two open
+// tabs over one browser storage, and the sign-out wipe (operator rulings, Checkpoint
+// 2026-11-20).
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
@@ -9,6 +11,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 
@@ -186,5 +189,150 @@ void main() {
     final store = await JpStoreWeb.open(storage: MemoryJpWebStorage());
     expect(await store.attempts(), isEmpty);
     expect(await store.lastDay(), isNull);
+  });
+
+  // Two open tabs are two stores over one browser storage.
+  group('two open tabs', () {
+    test('share one device id, even when both open a fresh browser at once',
+        () async {
+      final storage = MemoryJpWebStorage();
+      final tabs = await Future.wait([
+        JpStoreWeb.open(storage: storage),
+        JpStoreWeb.open(storage: storage)
+      ]);
+      expect(await tabs[0].deviceId(), await tabs[1].deviceId());
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      expect(await reloaded.deviceId(), await tabs[0].deviceId());
+    });
+
+    test('a write in one tab never overwrites the other tab\'s answers',
+        () async {
+      final storage = MemoryJpWebStorage();
+      final a = await JpStoreWeb.open(storage: storage);
+      final b = await JpStoreWeb.open(storage: storage);
+      final fromA = await a.appendAttempt(answer('g1', 1, Grade.clear));
+      final fromB = await b.appendAttempt(answer('w1', 2, Grade.wrong));
+      await a.setNote('g1', 'from tab a');
+
+      // Each tab re-reads before it writes, so the record holds both tabs' writes.
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      expect([for (final x in await reloaded.attempts()) x.eventId],
+          [fromA.eventId, fromB.eventId]);
+      expect(await reloaded.notes(), {'g1': 'from tab a'});
+      // Tab a saw tab b's answer when it wrote its note.
+      expect(await a.attempts(), hasLength(2));
+    });
+
+    test('writes in flight in both tabs at once all land', () async {
+      final storage = MemoryJpWebStorage();
+      final a = await JpStoreWeb.open(storage: storage);
+      final b = await JpStoreWeb.open(storage: storage);
+      await Future.wait([
+        for (var i = 0; i < 5; i++) ...[
+          a.appendAttempt(answer('a$i', 1, Grade.clear, minute: i)),
+          b.appendAttempt(answer('b$i', 1, Grade.clear, minute: i)),
+          b.putMeta('b.$i', 'v'),
+        ]
+      ]);
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      expect({
+        for (final x in await reloaded.attempts()) x.itemId
+      }, {
+        for (var i = 0; i < 5; i++) ...['a$i', 'b$i']
+      });
+      for (var i = 0; i < 5; i++) {
+        expect(await reloaded.meta('b.$i'), 'v');
+      }
+      // Row ids stay unique across the tabs.
+      final ids = [for (final x in await reloaded.attempts()) x.id];
+      expect(ids.toSet(), hasLength(10));
+    });
+  });
+
+  group('the sign-out wipe', () {
+    Future<JpStoreWeb> withRecord(MemoryJpWebStorage storage) async {
+      final store = await JpStoreWeb.open(storage: storage);
+      await store.appendAttempt(answer('g1', 1, Grade.clear),
+          srs: srsA,
+          mastery:
+              const MasteryState(itemId: 'g1', status: MasteryStatus.learning));
+      await store.appendSeed('s1', 9, atUtc: t0);
+      await store.setNote('g1', 'can use it');
+      await store.setDiscuss('g1', note: 'ask Mari', atUtc: t0);
+      await store.setLastLesson('L3', atUtc: t0);
+      await store.putDay(const DayRecord(day: 4, plan: '{}', position: 1));
+      await store.putMeta(kSyncCursorMetaKey, '2026-11-20T00:00:00.000Z');
+      await store.putMeta(kSyncReplayPendingMetaKey, '1');
+      return store;
+    }
+
+    Future<void> expectEmpty(JpStore store) async {
+      expect(await store.attempts(), isEmpty);
+      expect(await store.seeds(), isEmpty);
+      expect(await store.allSrs(), isEmpty);
+      expect(await store.allMastery(), isEmpty);
+      expect(await store.notes(), isEmpty);
+      expect(await store.discussMarks(), isEmpty);
+      expect(await store.sideEvents(), isEmpty);
+      expect(await store.unpushedEvents(), isEmpty);
+      expect(await store.lastLesson(), isNull);
+      expect(await store.lastDay(), isNull);
+      expect(await store.dueOnOrBefore(100), isEmpty);
+    }
+
+    test('clears the record, the sync cursor and the replay flag', () async {
+      final storage = MemoryJpWebStorage();
+      final store = await withRecord(storage);
+      final device = await store.deviceId();
+      await store.wipe();
+
+      await expectEmpty(store);
+      expect(await store.meta(kSyncCursorMetaKey), isNull);
+      expect(await store.meta(kSyncReplayPendingMetaKey), isNull);
+      // The browser keeps its device id: the wipe clears study data only.
+      expect(await store.deviceId(), device);
+
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      await expectEmpty(reloaded);
+      expect(await reloaded.meta(kSyncCursorMetaKey), isNull);
+      expect(await reloaded.meta(kSyncReplayPendingMetaKey), isNull);
+      expect(await reloaded.deviceId(), device);
+    });
+
+    test('another open tab never undoes it', () async {
+      final storage = MemoryJpWebStorage();
+      final a = await withRecord(storage);
+      final b = await JpStoreWeb.open(storage: storage);
+      expect(await b.attempts(), hasLength(1));
+
+      await a.wipe();
+      // Tab b still holds the old record in memory, and then writes.
+      final later = await b.appendAttempt(answer('n1', 5, Grade.clear));
+      await b.setNote('n1', 'after sign-out');
+
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      expect([for (final x in await reloaded.attempts()) x.eventId],
+          [later.eventId]);
+      expect(await reloaded.notes(), {'n1': 'after sign-out'});
+      expect(await reloaded.seeds(), isEmpty);
+      expect(await reloaded.allSrs(), isEmpty);
+      expect(await reloaded.lastLesson(), isNull);
+      expect(await reloaded.meta(kSyncCursorMetaKey), isNull);
+      expect(await reloaded.meta(kSyncReplayPendingMetaKey), isNull);
+    });
+
+    test('a cleared browser storage counts as a wipe', () async {
+      final storage = MemoryJpWebStorage();
+      final store = await withRecord(storage);
+      final device = await store.deviceId();
+      await storage.clear();
+      await store.putMeta('flag', 'on');
+
+      final reloaded = await JpStoreWeb.open(storage: storage);
+      await expectEmpty(reloaded);
+      expect(await reloaded.meta(kSyncCursorMetaKey), isNull);
+      expect(await reloaded.meta('flag'), 'on');
+      expect(await reloaded.deviceId(), device);
+    });
   });
 }
