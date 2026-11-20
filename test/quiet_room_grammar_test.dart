@@ -13,7 +13,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/jp_study_kit.dart'
     show RubyTapText, TypedVerdict, kBackToPractice, rubyWords;
@@ -22,8 +21,14 @@ import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart'
+    show JpEventKind;
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
+    show sharedJpStore;
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/speak_lesson_events.dart'
+    show readLastGrammarLesson;
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
 import 'package:habit_craft/flutter_flow/quiet_room.dart';
@@ -1320,8 +1325,9 @@ void main() {
       await pumpStudyScreen(
           tester, QuietRoomGrammarWidget(initialLesson: other),
           prefs: {'jp.grammar.lastLesson': 50});
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt('jp.grammar.lastLesson'), other);
+      // The store's last_lesson event (plan 2026-11-19, Task 13), past the imported 50.
+      final store = (await tester.runAsync(sharedJpStore))!;
+      expect(await tester.runAsync(store.lastLesson), '$other');
     });
 
     testWidgets('an open at a point leaves the remembered lesson alone',
@@ -1335,8 +1341,16 @@ void main() {
           QuietRoomGrammarWidget(
               initialLesson: other, initialPoint: deep.point['id'] as String),
           prefs: {'jp.grammar.lastLesson': 50});
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt('jp.grammar.lastLesson'), 50);
+      final store = (await tester.runAsync(sharedJpStore))!;
+      expect(
+          await tester.runAsync(
+              () => readLastGrammarLesson(store)),
+          50);
+      final lessons = [
+        for (final e in (await tester.runAsync(store.sideEvents))!)
+          if (e.kind == JpEventKind.lastLesson) e.body['lessonId']
+      ];
+      expect(lessons, ['50'], reason: 'only the imported value, no new event');
     });
 
     testWidgets('a point id in no lesson falls back to the lesson named',

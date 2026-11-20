@@ -295,6 +295,7 @@ void main() {
 
     testWidgets('the last lesson the grammar screen opened is the loud row',
         (tester) async {
+      // An older build's value, which the store's one-time import moves in (Task 13).
       await pumpPath(tester, JpStoreMemory(),
           prefs: {kLastGrammarLessonKey: 33});
       final loud = find.byKey(const ValueKey('path-current'));
@@ -318,7 +319,8 @@ void main() {
     testWidgets(
         'opening a grammar lesson makes it the current lesson; a words-only one '
         'does not (ASK-11)', (tester) async {
-      await pumpPath(tester, JpStoreMemory());
+      final store = JpStoreMemory();
+      await pumpPath(tester, store);
       final f = find.byKey(const ValueKey('path-41'));
       await tester.ensureVisible(f);
       await tester.tap(f);
@@ -327,8 +329,11 @@ void main() {
           find.byWidgetPredicate(
               (w) => w is LessonPageWidget && w.lesson == 41),
           findsOneWidget);
+      // Written to the store as a last_lesson event, so it syncs (plan 2026-11-19, Task 13).
+      expect(await store.lastLesson(), '41');
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt(kLastGrammarLessonKey), 41);
+      expect(prefs.getInt(kLastGrammarLessonKey), isNull,
+          reason: 'nothing writes the old key any more');
 
       Navigator.of(tester.element(find.byType(LessonPageWidget))).pop();
       await settle(tester);
@@ -342,7 +347,7 @@ void main() {
       await tester.ensureVisible(words);
       await tester.tap(words);
       await settle(tester);
-      expect(prefs.getInt(kLastGrammarLessonKey), 41,
+      expect(await store.lastLesson(), '41',
           reason: 'a words-only lesson is not a grammar lesson');
     });
 
