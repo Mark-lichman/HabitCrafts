@@ -300,14 +300,17 @@ class JpStoreMemory extends JpStore {
     Map<String, dynamic> obj(Object? v) => Map<String, dynamic>.from(v as Map);
     Map<String, dynamic> field(String k) => obj(snapshot[k]);
     List<Object?> list(String k) => snapshot[k] as List<Object?>;
-    final attempts = [for (final a in list('attempts')) Attempt.fromJson(obj(a))];
+    final attempts = [
+      for (final a in list('attempts')) Attempt.fromJson(obj(a))
+    ];
     final seeds = [for (final s in list('seeds')) SeedEvent.fromJson(obj(s))];
     final events = [
       for (final e in list('events')) JpEvent.fromFirestore(obj(e))
     ];
     final pushed = {for (final id in list('pushed')) id as String};
     final srs = {
-      for (final e in field('srs').entries) e.key: SrsState.fromJson(obj(e.value))
+      for (final e in field('srs').entries)
+        e.key: SrsState.fromJson(obj(e.value))
     };
     final mastery = {
       for (final e in field('mastery').entries)

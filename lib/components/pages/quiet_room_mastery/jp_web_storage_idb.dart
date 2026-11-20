@@ -64,7 +64,8 @@ class _IdbStorage implements JpWebStorage {
   Future<_IdbDatabase> _open() => _db ??= () {
         final factory = _indexedDB;
         if (factory == null) {
-          throw UnsupportedError('jp web storage: this browser has no IndexedDB');
+          throw UnsupportedError(
+              'jp web storage: this browser has no IndexedDB');
         }
         final done = Completer<_IdbDatabase>();
         final req = factory.open(kJpWebDbName, 1);
@@ -106,15 +107,15 @@ class _IdbStorage implements JpWebStorage {
   @override
   Future<String?> read() async {
     late _IdbRequest req;
-    await _run('readonly',
-        (store) => req = store.getValue(kJpWebSnapshotKey.toJS));
+    await _run(
+        'readonly', (store) => req = store.getValue(kJpWebSnapshotKey.toJS));
     final value = req.result.dartify();
     return value is String ? value : null;
   }
 
   @override
-  Future<void> write(String snapshot) => _run('readwrite',
-      (store) => store.put(snapshot.toJS, kJpWebSnapshotKey.toJS));
+  Future<void> write(String snapshot) => _run(
+      'readwrite', (store) => store.put(snapshot.toJS, kJpWebSnapshotKey.toJS));
 
   @override
   Future<void> clear() =>

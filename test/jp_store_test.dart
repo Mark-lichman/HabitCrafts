@@ -169,7 +169,7 @@ typedef Opener = Future<JpStore> Function();
 final Map<String, Opener> implementations = {
   'memory': () async => JpStoreMemory(),
   'web': () => JpStoreWeb.open(storage: MemoryJpWebStorage()),
-  'sqlite':() => JpStoreSqlite.open(
+  'sqlite': () => JpStoreSqlite.open(
       factory: databaseFactoryFfi, path: inMemoryDatabasePath),
 };
 

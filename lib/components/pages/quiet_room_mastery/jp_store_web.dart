@@ -60,8 +60,7 @@ class JpStoreWeb extends JpStoreMemory {
     return store;
   }
 
-  String _encode() =>
-      jsonEncode({'v': kJpWebSnapshotVersion, ...toSnapshot()});
+  String _encode() => jsonEncode({'v': kJpWebSnapshotVersion, ...toSnapshot()});
 
   void _restore(String raw) {
     final Object? decoded = jsonDecode(raw);

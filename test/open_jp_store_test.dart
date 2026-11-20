@@ -66,8 +66,8 @@ void main() {
     final first = await openJpStore(isWeb: true, webStorage: storage);
     final a1 = await first.appendAttempt(answer('g1', 1, Grade.clear),
         srs: srsA,
-        mastery: const MasteryState(
-            itemId: 'g1', status: MasteryStatus.learning));
+        mastery:
+            const MasteryState(itemId: 'g1', status: MasteryStatus.learning));
     await first.appendAttempt(answer('w1', 2, Grade.wrong, minute: 1));
     await first.appendSeed('s1', 9, atUtc: t0);
     await first.setNote('g1', 'can use it');
