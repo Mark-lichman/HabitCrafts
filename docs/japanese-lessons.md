@@ -182,9 +182,12 @@ When Azure's words do not line up with the sentence letter for letter, the drill
 words instead, so no scored letter is left uncolored. Words Azure heard that the sentence lacks
 show struck through.
 
-Each attempt's sentence, scores and verdict are kept on the device (`SpeakScoreLog`, under the
-`shared_preferences` key `jp.speak.scores`). The newest show under **Recent scores** at the foot of
-the drill, so the cutoffs can be tuned against real attempts.
+Each attempt's sentence, scores and verdict go to the study store as a `speak_score` event, so
+they sync with the account (`SpeakScoreLog`, speak_lesson_events.dart). The newest show under
+**Recent scores** at the foot of the drill, so the cutoffs can be tuned against real attempts. An
+older build kept the log on the device, under the `shared_preferences` key `jp.speak.scores`. The
+store reads that key only as the source of its one-time import (`importSpeakAndLessonPrefs`), and
+nothing writes it any more.
 
 Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, or at most
 `SpeechService.speakWait`, before it returns. Play and Speak stay disabled until then, so the
