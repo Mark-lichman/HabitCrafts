@@ -21,6 +21,8 @@
 // new attempt and seed with an event id and this store's device id on append. A legacy row,
 // written before event ids, takes its legacy id and no device id, so every device derives the
 // same legacy event; dedup keys on the event id alone (operator ruling, Checkpoint 2026-11-19).
+// Its time is cut to the millisecond when it is built, so a phone time with microseconds and a
+// browser's read of it are the same bytes (operator ruling, Checkpoint 2026-11-20).
 // Replay, rebuild and import apply the log in one canonical order, event time then event id
 // (`replayLog`), whatever order the rows were appended in. A note, a Discuss
 // mark, a say-it score and the last lesson are side events: each change is a timestamped
@@ -74,9 +76,37 @@ const String kSyncCursorMetaKey = 'sync.cursor';
 /// change wins over it (PIN-12).
 final DateTime kLegacyNoteAtUtc = DateTime.utc(1970);
 
+/// The prefix of every one-time migration flag (`migration.v2`, `migration.speakLesson`). The
+/// web store's sign-out wipe keeps these flags, so a browser's old study keys are never
+/// imported again into the next account (operator ruling, Checkpoint 2026-11-20).
+const String kMigrationMetaPrefix = 'migration.';
+
 /// How far a local change moves past its subject's latest event when the clock is not after
 /// it. A millisecond, because a DateTime on some web runtimes keeps no finer time (#193).
 const Duration kLocalTieBump = Duration(milliseconds: 1);
+
+/// [t] in UTC, cut to the millisecond: a web DateTime keeps no finer time.
+DateTime legacyTime(DateTime t) =>
+    DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch, isUtc: true);
+
+/// [a] with its time cut to the millisecond ([legacyTime]). A legacy attempt is built with it,
+/// so the phone and the web derive the same event, body included (operator ruling,
+/// Checkpoint 2026-11-20).
+Attempt legacyAttempt(Attempt a) => Attempt.fromJson(
+    {...a.toJson(), 'atUtc': legacyTime(a.atUtc).toIso8601String()});
+
+/// [s] with its time cut to the millisecond, as [legacyAttempt].
+SeedEvent legacySeed(SeedEvent s) => SeedEvent(
+    id: s.id,
+    itemId: s.itemId,
+    dueDay: s.dueDay,
+    atUtc: legacyTime(s.atUtc),
+    eventId: s.eventId,
+    deviceId: s.deviceId);
+
+/// [m] with its time cut to the millisecond, as [legacyAttempt].
+DiscussMark legacyMark(DiscussMark m) =>
+    DiscussMark(itemId: m.itemId, note: m.note, atUtc: legacyTime(m.atUtc));
 
 /// Assigns legacy ids ([legacyEventId]) to rows written before event ids, in append order (the
 /// store's one-time migration and a pre-v3 import; operator ruling, Checkpoint 2026-11-19).
@@ -95,11 +125,9 @@ class LegacyEventIds {
     return legacyEventId(kind, fields, occurrence: n);
   }
 
-  /// The time cut to milliseconds: a web DateTime keeps no finer time (as [kLocalTieBump]), so
-  /// a phone row with microseconds keys the same on the web. The occurrence splits a tie.
-  static String _time(DateTime t) =>
-      DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch, isUtc: true)
-          .toIso8601String();
+  /// The time cut to milliseconds ([legacyTime]): a web DateTime keeps no finer time, so a
+  /// phone row with microseconds keys the same on the web. The occurrence splits a tie.
+  static String _time(DateTime t) => legacyTime(t).toIso8601String();
 
   String attempt(Attempt a) =>
       _next(JpEventKind.attempt, [_time(a.atUtc), a.itemId, a.sessionId]);
@@ -574,9 +602,9 @@ void _bump(Map<int, int> load, int? day, int by) {
 }
 
 /// [rows] in the canonical replay order: event time to the millisecond ([eventMs]), then event
-/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or read below the
-/// current schema) sorts before an id at the same time, and rows that tie on both keep their
-/// order. Pure; [rows] is not changed.
+/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or
+/// read below the current schema) sorts before an id at the same time, and rows that tie on both
+/// keep their order. Pure; [rows] is not changed.
 List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
     String? Function(T row) eventId) {
   final indexed = [for (var i = 0; i < rows.length; i++) (i, rows[i])];
@@ -828,6 +856,11 @@ abstract class JpStore {
   /// [compareEvents].
   Future<List<JpEvent>> sideEvents();
 
+  /// The side events of [kind] alone, oldest first by [compareEvents]: empty for an attempt or
+  /// a seed, which are not side events. A read of one kind never decodes the others, so the
+  /// say-it scores, the one high-volume kind, cost nothing to a note or last-lesson read (#204).
+  Future<List<JpEvent>> eventsOfKind(JpEventKind kind);
+
   /// Appends one side event, unpushed, and moves the note or Discuss mark it names to the
   /// latest event for that item. Callers go through [appendLocalEvent].
   Future<void> writeSideEvent(JpEvent event);
@@ -846,7 +879,7 @@ abstract class JpStore {
         body: body);
     final subject = draft.subject;
     if (subject != null) {
-      final latest = latestBySubject(await sideEvents(), kind)[subject];
+      final latest = latestBySubject(await eventsOfKind(kind), kind)[subject];
       if (latest != null && eventMs(at) <= eventMs(latest.atUtc)) {
         at = latest.atUtc.add(kLocalTieBump);
       }
@@ -868,10 +901,7 @@ abstract class JpStore {
       appendLocalEvent(JpEventKind.speakScore, score, atUtc: atUtc);
 
   /// The say-it score events, oldest first.
-  Future<List<JpEvent>> speakScores() async => [
-        for (final e in await sideEvents())
-          if (e.kind == JpEventKind.speakScore) e
-      ];
+  Future<List<JpEvent>> speakScores() => eventsOfKind(JpEventKind.speakScore);
 
   /// Records [lessonId] as the last grammar lesson opened (PIN-16).
   Future<JpEvent> setLastLesson(String lessonId, {required DateTime atUtc}) =>
@@ -879,7 +909,8 @@ abstract class JpStore {
           atUtc: atUtc);
 
   /// The last grammar lesson opened, by the latest event time; null before the first.
-  Future<String?> lastLesson() async => resolveLastLesson(await sideEvents());
+  Future<String?> lastLesson() async =>
+      resolveLastLesson(await eventsOfKind(JpEventKind.lastLesson));
 
   /// Every event this store has not pushed yet, of every kind, oldest first by
   /// [compareEvents].
@@ -922,11 +953,15 @@ abstract class JpStore {
   ///
   /// An id-less row (a pre-v3 import) first reuses the event this store holds for the same
   /// row: an attempt or seed with the same content, a note event with the same item and text,
-  /// a Discuss event with the same item, note and time. It keeps that event's id, device and
-  /// time. Otherwise it takes its legacy id ([LegacyEventIds]) and no device id; a note takes
-  /// [kLegacyNoteAtUtc] and a mark its own time. So a restored old backup maps onto the events
-  /// this store or another device already holds, byte for byte (operator ruling, Checkpoint
-  /// 2026-11-19).
+  /// a Discuss event with the same item, note and time. An attempt or seed keeps that event's
+  /// id and device, and takes the time cut to the millisecond; a note or Discuss row is the
+  /// held event itself, its time included. Otherwise it takes its legacy id
+  /// ([LegacyEventIds]) and no device id; a note takes [kLegacyNoteAtUtc] and a mark its own
+  /// time. An id-less attempt, seed or mark has its time
+  /// cut to the millisecond first ([legacyAttempt]), body included, so the phone and a browser
+  /// read the same backup into the same events (operator ruling, Checkpoint 2026-11-20). So a
+  /// restored old backup maps onto the events this store or another device already holds,
+  /// byte for byte (operator ruling, Checkpoint 2026-11-19).
   Future<StudyLog> prepareLog(StudyLog log) async {
     final legacy = LegacyEventIds();
     final heldAttempts = <String, List<Attempt>>{};
@@ -939,7 +974,10 @@ abstract class JpStore {
       if (s.eventId == null) continue;
       heldSeeds.putIfAbsent(_seedKey(s), () => []).add(s);
     }
-    final heldSide = await sideEvents();
+    final heldSide = [
+      ...await eventsOfKind(JpEventKind.note),
+      ...await eventsOfKind(JpEventKind.discuss),
+    ];
     final used = <String>{};
     JpEvent? heldSideEvent(bool Function(JpEvent e) match) {
       JpEvent? best;
@@ -970,44 +1008,52 @@ abstract class JpStore {
           noteEvent(n.key, n.value,
               eventId: id, deviceId: null, atUtc: kLegacyNoteAtUtc));
     }
-    for (final m in log.discuss.values) {
-      if (marked.contains(m.itemId)) continue;
+    for (final raw in log.discuss.values) {
+      if (marked.contains(raw.itemId)) continue;
+      final m = legacyMark(raw);
       final id = legacy.discuss(m);
       events.add(heldSideEvent((e) =>
               e.kind == JpEventKind.discuss &&
               e.subject == m.itemId &&
               e.body['cleared'] != true &&
               e.body['note'] == m.note &&
-              e.atUtc == m.atUtc.toUtc()) ??
+              eventMs(e.atUtc) == eventMs(m.atUtc)) ??
           discussEvent(m.itemId,
               note: m.note, eventId: id, deviceId: null, atUtc: m.atUtc));
     }
-    T? take<T>(Map<String, List<T>> held, String key) {
-      final queue = held[key];
-      return queue == null || queue.isEmpty ? null : queue.removeAt(0);
+    // A held row matches on the cut time, or on the row's own time for a row a store kept
+    // with microseconds; either way the imported row takes the cut time.
+    T? take<T>(Map<String, List<T>> held, String cutKey, String rawKey) {
+      for (final key in {cutKey, rawKey}) {
+        final queue = held[key];
+        if (queue != null && queue.isNotEmpty) return queue.removeAt(0);
+      }
+      return null;
     }
 
     return StudyLog.resolved(
       attempts: [
-        for (final a in log.attempts)
-          if (a.eventId != null)
-            a
+        for (final raw in log.attempts)
+          if (raw.eventId != null)
+            raw
           else
             () {
+              final a = legacyAttempt(raw);
               final id = legacy.attempt(a);
-              final held = take(heldAttempts, _attemptKey(a));
+              final held = take(heldAttempts, _attemptKey(a), _attemptKey(raw));
               return a.withEvent(
                   eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()
       ],
       seeds: [
-        for (final s in log.seeds)
-          if (s.eventId != null)
-            s
+        for (final raw in log.seeds)
+          if (raw.eventId != null)
+            raw
           else
             () {
+              final s = legacySeed(raw);
               final id = legacy.seed(s);
-              final held = take(heldSeeds, _seedKey(s));
+              final held = take(heldSeeds, _seedKey(s), _seedKey(raw));
               return s.withEvent(
                   eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()

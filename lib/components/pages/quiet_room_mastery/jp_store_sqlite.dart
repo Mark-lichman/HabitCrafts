@@ -25,10 +25,11 @@
 // One transaction per answer: `appendAttempt` writes the attempt, the schedule and the mastery
 // state together. A later schema adds a step to [_upgrades]; `onUpgrade` runs the steps after
 // the file's version, in order. Version 3 is the one-time event id migration: it gives every
-// existing attempt and seed a legacy event id (a hash of the row content) and no device id,
-// gives each note and Discuss mark an event, and leaves them all unpushed. It runs once per
-// file, so the ids stay put on every later open. A side event with no device id keeps an empty
-// `deviceId` in its row (the column is NOT NULL) and reads back as null.
+// existing attempt and seed a legacy event id (a hash of the row content), its time cut to the
+// millisecond, and no device id. It gives each note and Discuss mark an event, and leaves them
+// all unpushed. It runs once per file, so the ids stay put on every later open. A side event
+// with no device id keeps an empty `deviceId` in its row (the column is NOT NULL) and reads back
+// as null.
 //
 // Reads take every column, so a file a test opens below the current version reads with no
 // event ids. Writes need version 3.
@@ -68,8 +69,9 @@ Future<void> _createV2Discuss(Database db) =>
 /// Version 3: global event ids (plan 2026-11-19, Task 1). Adds the event columns and the side
 /// event table, then gives every existing row its legacy id ([LegacyEventIds]), once: a hash of
 /// the row content, so the same old rows restored on another device get the same ids, and no
-/// device id, so they are the same events there byte for byte. The days take this store's
-/// device id as their builder. A note
+/// device id, so they are the same events there byte for byte. Each attempt, seed and Discuss
+/// time is cut to the millisecond, because a web DateTime keeps no finer time (operator ruling,
+/// Checkpoint 2026-11-20). The days take this store's device id as their builder. A note
 /// becomes a note event at [kLegacyNoteAtUtc] (its own time was never kept); a Discuss mark
 /// becomes an event at the time it was set. Every version 2 row stays, and every event starts
 /// unpushed.
@@ -100,18 +102,30 @@ Future<void> _createV3Events(Database db) async {
     await db.insert('meta', {'key': kDeviceIdMetaKey, 'value': device});
   }
   // Legacy ids from the row content, in append order (operator ruling, Checkpoint 2026-11-19).
+  // Each time is cut to the millisecond, in its column and in the attempt's JSON, so the web
+  // derives the same events byte for byte (operator ruling, Checkpoint 2026-11-20).
   final legacy = LegacyEventIds();
   for (final r in await db.query('attempts', orderBy: 'id')) {
-    final a = Attempt.fromJson(jsonDecode(r['json'] as String));
-    await db.update('attempts', {'eventId': legacy.attempt(a)},
-        where: 'id = ?', whereArgs: [r['id']]);
+    final json = jsonDecode(r['json'] as String) as Map<String, dynamic>;
+    final a = legacyAttempt(Attempt.fromJson(json));
+    final at = a.atUtc.toIso8601String();
+    await db.update(
+        'attempts',
+        {
+          'eventId': legacy.attempt(a),
+          'atUtc': at,
+          'json': jsonEncode({...json, 'atUtc': at}),
+        },
+        where: 'id = ?',
+        whereArgs: [r['id']]);
   }
   for (final r in await db.query('seeds', orderBy: 'id')) {
-    final s = SeedEvent(
+    final s = legacySeed(SeedEvent(
         itemId: r['itemId'] as String,
         dueDay: r['dueDay'] as int,
-        atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
-    await db.update('seeds', {'eventId': legacy.seed(s)},
+        atUtc: DateTime.parse(r['atUtc'] as String).toUtc()));
+    await db.update('seeds',
+        {'eventId': legacy.seed(s), 'atUtc': s.atUtc.toIso8601String()},
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final table in const ['attempts', 'seeds']) {
@@ -133,10 +147,12 @@ Future<void> _createV3Events(Database db) async {
         pushed: false);
   }
   for (final r in await db.query('discuss', orderBy: 'itemId')) {
-    final mark = DiscussMark(
+    final mark = legacyMark(DiscussMark(
         itemId: r['itemId'] as String,
         note: r['note'] as String?,
-        atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
+        atUtc: DateTime.parse(r['atUtc'] as String).toUtc()));
+    await db.update('discuss', {'atUtc': mark.atUtc.toIso8601String()},
+        where: 'itemId = ?', whereArgs: [mark.itemId]);
     await _insertEvent(
         db,
         discussEvent(mark.itemId,
@@ -701,6 +717,15 @@ class JpStoreSqlite extends JpStore {
   @override
   Future<List<JpEvent>> sideEvents() async => [
         for (final r in await _db.query('events')) _eventOf(r)
+      ]..sort(compareEvents);
+
+  /// One `WHERE kind = ?` query, on the `events (kind, subject)` index: no other kind's row is
+  /// read or decoded (#204).
+  @override
+  Future<List<JpEvent>> eventsOfKind(JpEventKind kind) async => [
+        for (final r in await _db
+            .query('events', where: 'kind = ?', whereArgs: [kind.wire]))
+          _eventOf(r)
       ]..sort(compareEvents);
 
   @override

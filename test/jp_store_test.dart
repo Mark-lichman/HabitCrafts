@@ -17,6 +17,7 @@ import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_speak
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart';
@@ -101,6 +102,14 @@ class _Unwritable extends MasteryState {
 /// write (by the store, or by sqflite) would pass a type check with no rollback to prove.
 final Matcher throwsUnwritable = throwsA(
     isA<StateError>().having((e) => e.message, 'message', 'unwritable'));
+
+/// A memory store whose read of every side event throws: the reads of one kind (#204) must
+/// never reach it.
+class _NoFullScan extends JpStoreMemory {
+  @override
+  Future<List<JpEvent>> sideEvents() =>
+      throw StateError('read every side event');
+}
 
 /// A memory store whose log read (in a rebuild) and whole-record write (in an import) wait on
 /// [gate], so a test can start an answer while either is open.
@@ -193,6 +202,28 @@ void main() {
         expect(await store.attempts(), [a1, a2, a3]);
         expect(await store.attempts(itemId: g.id), [a1, a3]);
         expect((await store.attempts()).first.hintLevel, 0);
+      });
+
+      test('eventsOfKind reads one kind of side event, oldest first (#204)',
+          () async {
+        expect(await store.eventsOfKind(JpEventKind.speakScore), isEmpty);
+        final s2 = await store.recordSpeakScore({'n': 2}, atUtc: at(2));
+        final s1 = await store.recordSpeakScore({'n': 1}, atUtc: at(1));
+        final l1 = await store.setLastLesson('L1', atUtc: at(1));
+        await store.setNote('n1', 'a note');
+        await store.setDiscuss('n1', note: 'ask', atUtc: at(3));
+        final l2 = await store.setLastLesson('L2', atUtc: at(4));
+        List<String> ids(List<JpEvent> es) => [for (final e in es) e.eventId];
+        expect(ids(await store.eventsOfKind(JpEventKind.speakScore)),
+            [s1.eventId, s2.eventId]);
+        expect(ids(await store.eventsOfKind(JpEventKind.lastLesson)),
+            [l1.eventId, l2.eventId]);
+        expect(await store.eventsOfKind(JpEventKind.note), hasLength(1));
+        expect(await store.eventsOfKind(JpEventKind.discuss), hasLength(1));
+        expect(await store.eventsOfKind(JpEventKind.attempt), isEmpty,
+            reason: 'attempts and seeds are not side events');
+        expect(await store.lastLesson(), 'L2');
+        expect(ids(await store.speakScores()), [s1.eventId, s2.eventId]);
       });
 
       test('one answer writes its attempt, schedule and mastery together',
@@ -637,6 +668,77 @@ void main() {
         expect(await store.srs(g.id), kept.srs);
         expect(await store.mastery(g.id), kept.mastery);
       });
+
+      // The oracle is the held row itself, read back from the store: the import must name its
+      // event once, with no legacy event beside it, whichever time the held row kept.
+      Future<void> expectImportMapsOntoHeld(
+          {required DateTime heldAt, required DateTime fileAt}) async {
+        final g = firstOf(ItemKind.grammar);
+        Attempt timed(DateTime t) => Attempt.fromJson({
+              ...answer(g, 1, Grade.clear).toJson(),
+              'atUtc': t.toIso8601String()
+            });
+        final held = (await store.recordAnswer(timed(heldAt),
+                item: g, scheduler: scheduler))
+            .attempt;
+        expect(held.atUtc, heldAt, reason: 'the store kept the held time');
+        final bare = Attempt.fromJson(timed(fileAt).toJson()
+          ..remove('id')
+          ..remove('eventId')
+          ..remove('deviceId'));
+        await store.importLog(
+            StudyLog(attempts: [bare]), catalog.byId, scheduler);
+        final events = await store.allEvents();
+        expect([for (final e in events) e.eventId], [held.eventId],
+            reason: 'the held event once, and no legacy event beside it');
+        final kept = (await store.attempts()).single;
+        expect(kept.eventId, held.eventId);
+        expect(kept.deviceId, held.deviceId);
+        expect(kept.deviceId, isNotNull);
+        expect(kept.atUtc, legacyTime(fileAt),
+            reason: 'the imported row takes the time cut to the millisecond');
+      }
+
+      // The seed arm of the same match, by the same oracle.
+      Future<void> expectSeedImportMapsOntoHeld(
+          {required DateTime heldAt, required DateTime fileAt}) async {
+        await store.appendSeed('seeded', 3, atUtc: heldAt);
+        final held = (await store.seeds()).single;
+        expect(held.atUtc, heldAt, reason: 'the store kept the held time');
+        await store.importLog(
+            StudyLog(
+                seeds: [SeedEvent(itemId: 'seeded', dueDay: 3, atUtc: fileAt)]),
+            catalog.byId,
+            scheduler);
+        final events = await store.allEvents();
+        expect([for (final e in events) e.eventId], [held.eventId],
+            reason: 'the held event once, and no legacy event beside it');
+        final kept = (await store.seeds()).single;
+        expect(kept.eventId, held.eventId);
+        expect(kept.deviceId, held.deviceId);
+        expect(kept.deviceId, isNotNull);
+        expect(kept.atUtc, legacyTime(fileAt),
+            reason: 'the imported row takes the time cut to the millisecond');
+      }
+
+      final fine = at(1).add(const Duration(microseconds: 321));
+      test(
+          'an id-less import maps onto a held attempt kept with microseconds, by its own time',
+          () => expectImportMapsOntoHeld(heldAt: fine, fileAt: fine));
+
+      test(
+          'an id-less import with microseconds maps onto a held attempt cut to the millisecond',
+          () =>
+              expectImportMapsOntoHeld(heldAt: legacyTime(fine), fileAt: fine));
+
+      test(
+          'an id-less seed import maps onto a held seed kept with microseconds, by its own time',
+          () => expectSeedImportMapsOntoHeld(heldAt: fine, fileAt: fine));
+
+      test(
+          'an id-less seed import with microseconds maps onto a held seed cut to the millisecond',
+          () => expectSeedImportMapsOntoHeld(
+              heldAt: legacyTime(fine), fileAt: fine));
 
       test('a log the replay rejects is not imported', () async {
         final g = firstOf(ItemKind.grammar);
@@ -1087,6 +1189,29 @@ void main() {
         map[slash.form], (itemId: slash.itemId, probeId: 'ex${slash.index}'));
   });
 
+  test(
+      'the last lesson, the say-it scores, a side event write and an import read one kind (#204)',
+      () async {
+    final store = _NoFullScan();
+    await store.recordSpeakScore({'n': 1}, atUtc: at(1));
+    await store.setLastLesson('L1', atUtc: at(1));
+    await store.setLastLesson('L2', atUtc: at(1));
+    await store.setNote('n1', 'a');
+    await store.setNote('n1', null);
+    await store.setDiscuss('n1', note: 'ask', atUtc: at(2));
+    await store.clearDiscuss('n1');
+    expect(await store.lastLesson(), 'L2');
+    expect(await store.speakScores(), hasLength(1));
+    await store.importLog(
+        StudyLog(
+            notes: const {'n2': 'kept'},
+            discuss: {'n2': DiscussMark(itemId: 'n2', atUtc: at(2))}),
+        catalog.byId,
+        scheduler);
+    expect(await store.notes(), {'n2': 'kept'});
+    await store.close();
+  });
+
   group('the write chain', () {
     final g = firstOf(ItemKind.grammar);
 
@@ -1219,6 +1344,44 @@ void main() {
         expect(await store.meta('k'), 'v');
       } finally {
         await store.close();
+      }
+    });
+
+    test('a read of one kind never decodes the say-it score rows (#204)',
+        () async {
+      final dir = await Directory.systemTemp.createTemp('jp_store_test');
+      final path = '${dir.path}/jp_study.db';
+      try {
+        var store =
+            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        await store.recordSpeakScore({'n': 1}, atUtc: at(1));
+        await store.setLastLesson('L1', atUtc: at(1));
+        await store.close();
+        // A score row no decode survives: only a read that skips it still works.
+        final raw = await databaseFactoryFfi.openDatabase(path);
+        await raw.update('events', {'body': '{'},
+            where: 'kind = ?', whereArgs: [JpEventKind.speakScore.wire]);
+        await raw.close();
+
+        store =
+            await JpStoreSqlite.open(factory: databaseFactoryFfi, path: path);
+        try {
+          expect(await store.lastLesson(), 'L1');
+          await store.setLastLesson('L2', atUtc: at(2));
+          await store.setNote('n1', 'a note');
+          expect(await store.lastLesson(), 'L2');
+          expect(await store.notes(), {'n1': 'a note'});
+          await expectLater(store.speakScores(), throwsFormatException,
+              reason: 'the fixture row is unreadable');
+        } finally {
+          await store.close();
+        }
+      } finally {
+        try {
+          await dir.delete(recursive: true);
+        } on FileSystemException {
+          // Windows can hold the file a moment after close.
+        }
       }
     });
 
