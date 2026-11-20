@@ -669,6 +669,77 @@ void main() {
         expect(await store.mastery(g.id), kept.mastery);
       });
 
+      // The oracle is the held row itself, read back from the store: the import must name its
+      // event once, with no legacy event beside it, whichever time the held row kept.
+      Future<void> expectImportMapsOntoHeld(
+          {required DateTime heldAt, required DateTime fileAt}) async {
+        final g = firstOf(ItemKind.grammar);
+        Attempt timed(DateTime t) => Attempt.fromJson({
+              ...answer(g, 1, Grade.clear).toJson(),
+              'atUtc': t.toIso8601String()
+            });
+        final held = (await store.recordAnswer(timed(heldAt),
+                item: g, scheduler: scheduler))
+            .attempt;
+        expect(held.atUtc, heldAt, reason: 'the store kept the held time');
+        final bare = Attempt.fromJson(timed(fileAt).toJson()
+          ..remove('id')
+          ..remove('eventId')
+          ..remove('deviceId'));
+        await store.importLog(
+            StudyLog(attempts: [bare]), catalog.byId, scheduler);
+        final events = await store.allEvents();
+        expect([for (final e in events) e.eventId], [held.eventId],
+            reason: 'the held event once, and no legacy event beside it');
+        final kept = (await store.attempts()).single;
+        expect(kept.eventId, held.eventId);
+        expect(kept.deviceId, held.deviceId);
+        expect(kept.deviceId, isNotNull);
+        expect(kept.atUtc, legacyTime(fileAt),
+            reason: 'the imported row takes the time cut to the millisecond');
+      }
+
+      // The seed arm of the same match, by the same oracle.
+      Future<void> expectSeedImportMapsOntoHeld(
+          {required DateTime heldAt, required DateTime fileAt}) async {
+        await store.appendSeed('seeded', 3, atUtc: heldAt);
+        final held = (await store.seeds()).single;
+        expect(held.atUtc, heldAt, reason: 'the store kept the held time');
+        await store.importLog(
+            StudyLog(
+                seeds: [SeedEvent(itemId: 'seeded', dueDay: 3, atUtc: fileAt)]),
+            catalog.byId,
+            scheduler);
+        final events = await store.allEvents();
+        expect([for (final e in events) e.eventId], [held.eventId],
+            reason: 'the held event once, and no legacy event beside it');
+        final kept = (await store.seeds()).single;
+        expect(kept.eventId, held.eventId);
+        expect(kept.deviceId, held.deviceId);
+        expect(kept.deviceId, isNotNull);
+        expect(kept.atUtc, legacyTime(fileAt),
+            reason: 'the imported row takes the time cut to the millisecond');
+      }
+
+      final fine = at(1).add(const Duration(microseconds: 321));
+      test(
+          'an id-less import maps onto a held attempt kept with microseconds, by its own time',
+          () => expectImportMapsOntoHeld(heldAt: fine, fileAt: fine));
+
+      test(
+          'an id-less import with microseconds maps onto a held attempt cut to the millisecond',
+          () =>
+              expectImportMapsOntoHeld(heldAt: legacyTime(fine), fileAt: fine));
+
+      test(
+          'an id-less seed import maps onto a held seed kept with microseconds, by its own time',
+          () => expectSeedImportMapsOntoHeld(heldAt: fine, fileAt: fine));
+
+      test(
+          'an id-less seed import with microseconds maps onto a held seed cut to the millisecond',
+          () => expectSeedImportMapsOntoHeld(
+              heldAt: legacyTime(fine), fileAt: fine));
+
       test('a log the replay rejects is not imported', () async {
         final g = firstOf(ItemKind.grammar);
         await store.appendSeed('keep', 1, atUtc: at(0));
