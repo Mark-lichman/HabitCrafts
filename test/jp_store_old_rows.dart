@@ -25,9 +25,9 @@ Future<void> writeOldRows(
 }) async {
   final db = await databaseFactoryFfi.openDatabase(path);
   try {
-    Future<void> ensureItem(String itemId) => db.insert(
-        'items', {'itemId': itemId},
-        conflictAlgorithm: ConflictAlgorithm.ignore);
+    Future<void> ensureItem(String itemId) =>
+        db.insert('items', {'itemId': itemId},
+            conflictAlgorithm: ConflictAlgorithm.ignore);
     for (final a in attempts) {
       await db.insert('attempts', {
         'itemId': a.itemId,

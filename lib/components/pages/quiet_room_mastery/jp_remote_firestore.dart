@@ -50,8 +50,8 @@ class JpRemoteFirestore implements JpRemote {
   @override
   Future<void> pushEvents(List<JpEvent> events) async {
     for (var i = 0; i < events.length; i += kJpPushChunk) {
-      final chunk = events.sublist(
-          i, i + kJpPushChunk > events.length ? events.length : i + kJpPushChunk);
+      final chunk = events.sublist(i,
+          i + kJpPushChunk > events.length ? events.length : i + kJpPushChunk);
       await firestore.runTransaction((tx) async {
         final missing = <JpEvent>[];
         for (final e in chunk) {
@@ -97,7 +97,8 @@ class JpRemoteFirestore implements JpRemote {
         'position': r.position,
         'completed': r.completed,
         if (r.deviceId != null) 'deviceId': r.deviceId,
-        if (r.builtAtUtc != null) 'builtAt': r.builtAtUtc!.millisecondsSinceEpoch,
+        if (r.builtAtUtc != null)
+          'builtAt': r.builtAtUtc!.millisecondsSinceEpoch,
       };
 
   static DayRecord _dayOf(int day, Map<String, dynamic> m) {
@@ -143,8 +144,8 @@ class JpRemoteFirestore implements JpRemote {
             position: position > old.position ? position : old.position,
             completed: old.completed || completed);
         if (after != old) {
-          tx.update(ref,
-              {'position': after.position, 'completed': after.completed});
+          tx.update(
+              ref, {'position': after.position, 'completed': after.completed});
         }
         return after;
       });

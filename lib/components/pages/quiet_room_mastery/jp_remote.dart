@@ -58,7 +58,8 @@ class JpDevice {
   int get hashCode => Object.hash(deviceId, name, lastSyncUtc);
 
   @override
-  String toString() => 'JpDevice($deviceId $name ${lastSyncUtc.toIso8601String()})';
+  String toString() =>
+      'JpDevice($deviceId $name ${lastSyncUtc.toIso8601String()})';
 }
 
 /// The learner's synced record on the server.
@@ -118,8 +119,9 @@ class JpRemoteMemory implements JpRemote {
 
   /// The events held, in arrival order, read back from their documents.
   List<JpEvent> get events => [
-        for (final e in _events.values.toList()
-          ..sort((a, b) => a.serverAt.compareTo(b.serverAt)))
+        for (final e
+            in _events.values.toList()
+              ..sort((a, b) => a.serverAt.compareTo(b.serverAt)))
           JpEvent.fromFirestore(e.doc)
       ];
 

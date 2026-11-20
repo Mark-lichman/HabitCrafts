@@ -576,7 +576,8 @@ List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
     if (byTime != 0) return byTime;
     final byId = (eventId(x.$2) ?? '').compareTo(eventId(y.$2) ?? '');
     return byId != 0 ? byId : x.$1.compareTo(y.$1);
-  });  return [for (final r in indexed) r.$2];
+  });
+  return [for (final r in indexed) r.$2];
 }
 
 /// Replays the log from nothing (D14, D26). Seeds and attempts are applied in the canonical
@@ -654,7 +655,8 @@ abstract class JpStore {
   Future<Attempt> stampAttempt(Attempt attempt) async => attempt.eventId != null
       ? attempt
       : attempt.withEvent(
-          eventId: newEventId(), deviceId: attempt.deviceId ?? await deviceId());
+          eventId: newEventId(),
+          deviceId: attempt.deviceId ?? await deviceId());
 
   /// [seed] with a new event id and this store's device id when it has no event id.
   Future<SeedEvent> stampSeed(SeedEvent seed) async => seed.eventId != null
@@ -979,8 +981,7 @@ abstract class JpStore {
               final id = legacy.attempt(a);
               final held = take(heldAttempts, _attemptKey(a));
               return a.withEvent(
-                  eventId: held?.eventId ?? id,
-                  deviceId: held?.deviceId);
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()
       ],
       seeds: [
@@ -992,8 +993,7 @@ abstract class JpStore {
               final id = legacy.seed(s);
               final held = take(heldSeeds, _seedKey(s));
               return s.withEvent(
-                  eventId: held?.eventId ?? id,
-                  deviceId: held?.deviceId);
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
             }()
       ],
       events: events,

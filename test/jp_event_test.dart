@@ -65,12 +65,12 @@ final Map<String, Opener> implementations = {
       factory: databaseFactoryFfi, path: inMemoryDatabasePath, clock: clock),
 };
 
-final RegExp uuidV4 =
-    RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
+final RegExp uuidV4 = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 
 /// A legacy id: a name-based (version 5) UUID of the row content.
-final RegExp uuidV5 =
-    RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
+final RegExp uuidV5 = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 
 /// A note event from another device.
 JpEvent remoteNote(String itemId, String? note, DateTime atUtc,
@@ -114,7 +114,10 @@ void main() {
             deviceId: 'web',
             atUtc: at(3)),
         discussEvent(g.id,
-            cleared: true, eventId: newEventId(), deviceId: 'web', atUtc: at(4)),
+            cleared: true,
+            eventId: newEventId(),
+            deviceId: 'web',
+            atUtc: at(4)),
         JpEvent(
             eventId: newEventId(),
             deviceId: 'web',
@@ -145,8 +148,7 @@ void main() {
         expect(back.sameContent(e), isTrue, reason: '$map');
         expect(back.atUtc, e.atUtc, reason: 'microseconds survive');
       }
-      expect(
-          [for (final k in JpEventKind.values) k.wire],
+      expect([for (final k in JpEventKind.values) k.wire],
           ['attempt', 'seed', 'note', 'discuss', 'speak_score', 'last_lesson']);
       expect(attemptOfEvent(events[0]), attempt);
       expect(attemptOfEvent(events[0]).eventId, attempt.eventId);
@@ -188,7 +190,8 @@ void main() {
           jsonDecode(jsonEncode(map)) as Map<String, dynamic>);
       expect(back.deviceId, isNull);
       expect(back.sameContent(legacy), isTrue);
-      expect(JpEvent.fromFirestore({...map, 'deviceId': null}).deviceId, isNull);
+      expect(
+          JpEvent.fromFirestore({...map, 'deviceId': null}).deviceId, isNull);
       // The same id with another device or body is the same event (operator ruling,
       // Checkpoint 2026-11-19); sameContent still tells them apart.
       final copy = noteEvent('x', 'other',
@@ -203,8 +206,7 @@ void main() {
     test('an attempt or a seed with no event id cannot become an event', () {
       final g = firstOf(ItemKind.grammar);
       expect(() => attemptEvent(answer(g, 1, Grade.clear)), throwsStateError);
-      expect(
-          () => seedEvent(SeedEvent(itemId: g.id, dueDay: 1, atUtc: at(0))),
+      expect(() => seedEvent(SeedEvent(itemId: g.id, dueDay: 1, atUtc: at(0))),
           throwsStateError);
     });
 
@@ -293,12 +295,14 @@ void main() {
         now = at(1, 5);
         await store.setNote(g.id, kNoteCanUseIt);
         await store.setDiscuss(g.id, note: 'ask', atUtc: at(1, 6));
-        await store.recordSpeakScore({'sentence': 'x', 'score': 80},
-            atUtc: at(1, 7));
+        await store
+            .recordSpeakScore({'sentence': 'x', 'score': 80}, atUtc: at(1, 7));
         await store.setLastLesson('L26', atUtc: at(1, 8));
 
         final unpushed = await store.unpushedEvents();
-        expect([for (final e in unpushed) e.kind], [
+        expect([
+          for (final e in unpushed) e.kind
+        ], [
           JpEventKind.attempt,
           JpEventKind.seed,
           JpEventKind.note,
@@ -313,8 +317,7 @@ void main() {
           for (final e in unpushed.take(3)) e.eventId,
           'an-id-nobody-holds',
         ]);
-        expect(idsOf(await store.unpushedEvents()),
-            idsOf(unpushed.skip(3)));
+        expect(idsOf(await store.unpushedEvents()), idsOf(unpushed.skip(3)));
         await store.markPushed(idsOf(unpushed));
         expect(await store.unpushedEvents(), isEmpty);
 
@@ -347,8 +350,7 @@ void main() {
           final sent = await source.unpushedEvents();
 
           // Sent twice, and once more inside one batch: each lands once.
-          final added =
-              await store.appendRemoteEvents([...sent, sent.first]);
+          final added = await store.appendRemoteEvents([...sent, sent.first]);
           expect(added, sent);
           expect(await store.appendRemoteEvents(sent), isEmpty);
           expect(await store.unpushedEvents(), isEmpty,
@@ -451,8 +453,7 @@ void main() {
         expect((await store.sideEvents()).length, count);
       });
 
-      test(
-          'say-it scores and the last lesson are timestamped events (PIN-16)',
+      test('say-it scores and the last lesson are timestamped events (PIN-16)',
           () async {
         expect(await store.lastLesson(), isNull);
         expect(await store.speakScores(), isEmpty);
@@ -503,7 +504,8 @@ void main() {
         // A move through the plan keeps its builder and build time.
         now = at(4, 50);
         await store.putDay(day.copyWith(position: 2));
-        await store.putDay(const DayRecord(day: 4, plan: '{"p":1}', position: 3));
+        await store
+            .putDay(const DayRecord(day: 4, plan: '{"p":1}', position: 3));
         day = (await store.day(4))!;
         expect([day.position, day.deviceId, day.builtAtUtc],
             [3, device, at(4, 10)]);
@@ -534,8 +536,8 @@ void main() {
         now = at(2, 13);
         await store.clearDiscuss(g.id);
         await store.setDiscuss(w.id, atUtc: at(2, 14));
-        await store.recordSpeakScore({'sentence': 'x', 'score': 91},
-            atUtc: at(2, 15));
+        await store
+            .recordSpeakScore({'sentence': 'x', 'score': 91}, atUtc: at(2, 15));
         await store.setLastLesson('L26', atUtc: at(2, 16));
         await store.appendRemoteEvents([remoteNote('z', 'from b', at(2, 17))]);
 
@@ -563,8 +565,7 @@ void main() {
           expect(j['deviceId'], isA<String>(), reason: l);
           expect(j['atUtc'], isA<String>(), reason: l);
         }
-        expect(
-            lines.where((l) => l.contains('"type":"note"')).last,
+        expect(lines.where((l) => l.contains('"type":"note"')).last,
             contains('"note":"from b"'));
 
         final log = decodeStudyExport(text);
@@ -633,7 +634,8 @@ void main() {
             if (e.kind == JpEventKind.note) e
         ];
         expect(notes.every((e) => e.atUtc == kLegacyNoteAtUtc), isTrue,
-            reason: 'a note with no time takes the legacy time, not the import\'s');
+            reason:
+                'a note with no time takes the legacy time, not the import\'s');
         // Exported again, the ids are the store's own, the same on every export.
         final once = await exportStudy(store, exportedAt: at(31));
         expect(await exportStudy(store, exportedAt: at(31)), once);
@@ -680,7 +682,8 @@ void main() {
         expect(LegacyEventIds().attempt(answer(g, 1, Grade.wrong)), first);
       });
 
-      test('a legacy id keys the time to the millisecond, as a web DateTime holds',
+      test(
+          'a legacy id keys the time to the millisecond, as a web DateTime holds',
           () {
         final g = firstOf(ItemKind.grammar);
         final a = answer(g, 1, Grade.clear);
@@ -690,22 +693,29 @@ void main() {
             Attempt.fromJson({...a.toJson(), 'atUtc': t.toIso8601String()});
         // The oracle spells the millisecond time by hand, not through the code under test.
         const key = '2026-03-03T12:00:00.007Z';
-        expect(LegacyEventIds().attempt(timed(phone)),
-            legacyEventId(JpEventKind.attempt, [key, g.id, 's1'], occurrence: 0));
+        expect(
+            LegacyEventIds().attempt(timed(phone)),
+            legacyEventId(JpEventKind.attempt, [key, g.id, 's1'],
+                occurrence: 0));
         expect(LegacyEventIds().attempt(timed(phone)),
             LegacyEventIds().attempt(timed(ms)),
             reason: 'microseconds alone never move the id');
-        expect(LegacyEventIds().seed(SeedEvent(itemId: g.id, dueDay: 1, atUtc: phone)),
+        expect(
+            LegacyEventIds()
+                .seed(SeedEvent(itemId: g.id, dueDay: 1, atUtc: phone)),
             legacyEventId(JpEventKind.seed, [key, g.id, null], occurrence: 0));
         expect(
-            LegacyEventIds().discuss(DiscussMark(itemId: g.id, atUtc: phone, note: 'n')),
+            LegacyEventIds()
+                .discuss(DiscussMark(itemId: g.id, atUtc: phone, note: 'n')),
             legacyEventId(JpEventKind.discuss, [key, g.id, null, 'n'],
                 occurrence: 0));
         // A whole millisecond still moves the id, and a shared key takes the next occurrence.
         final ids = LegacyEventIds();
         final x = ids.attempt(timed(phone));
         expect(ids.attempt(timed(ms)), isNot(x), reason: 'occurrence 1');
-        expect(LegacyEventIds().attempt(timed(ms.add(const Duration(milliseconds: 1)))),
+        expect(
+            LegacyEventIds()
+                .attempt(timed(ms.add(const Duration(milliseconds: 1)))),
             isNot(x));
       });
 
@@ -743,7 +753,8 @@ void main() {
         expect(after.length, held.length + 1);
         final added =
             after.singleWhere((e) => !idsOf(held).contains(e.eventId));
-        expect(added.eventId, LegacyEventIds().attempt(answer(g, 2, Grade.clear)),
+        expect(
+            added.eventId, LegacyEventIds().attempt(answer(g, 2, Grade.clear)),
             reason: 'a row the store does not hold takes its legacy id');
         for (final e in held) {
           expect(after.singleWhere((x) => x.eventId == e.eventId), e,
@@ -811,14 +822,14 @@ void main() {
       expect((await store.day(2))!.deviceId, device);
 
       final events = await store.allEvents();
-      expect([for (final e in events) e.kind]..sort((a, b) => a.index - b.index),
-          [
-            JpEventKind.attempt,
-            JpEventKind.attempt,
-            JpEventKind.seed,
-            JpEventKind.note,
-            JpEventKind.discuss,
-          ]);
+      expect(
+          [for (final e in events) e.kind]..sort((a, b) => a.index - b.index), [
+        JpEventKind.attempt,
+        JpEventKind.attempt,
+        JpEventKind.seed,
+        JpEventKind.note,
+        JpEventKind.discuss,
+      ]);
       expect(idsOf(events).length, 5);
       expect(events.every((e) => uuidV5.hasMatch(e.eventId)), isTrue,
           reason: 'a migrated row takes its legacy id');

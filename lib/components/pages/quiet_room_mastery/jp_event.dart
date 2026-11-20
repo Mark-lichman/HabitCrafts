@@ -57,9 +57,9 @@ enum JpEventKind {
   final String wire;
 
   /// Throws a [FormatException] for a name no kind has.
-  static JpEventKind fromWire(Object? wire) => values.firstWhere(
-      (k) => k.wire == wire,
-      orElse: () => throw FormatException('unknown event kind $wire'));
+  static JpEventKind fromWire(Object? wire) =>
+      values.firstWhere((k) => k.wire == wire,
+          orElse: () => throw FormatException('unknown event kind $wire'));
 
   /// Whether the replay reads this kind: attempts and seeds.
   bool get replayed => this == attempt || this == seed;
@@ -179,7 +179,8 @@ class JpEvent {
   /// Compares the event id alone: one id is one event on every device (operator ruling,
   /// Checkpoint 2026-11-19). [sameContent] compares every field.
   @override
-  bool operator ==(Object other) => other is JpEvent && other.eventId == eventId;
+  bool operator ==(Object other) =>
+      other is JpEvent && other.eventId == eventId;
 
   @override
   int get hashCode => eventId.hashCode;
@@ -193,7 +194,8 @@ class JpEvent {
       _canonical(other.body) == _canonical(body);
 
   @override
-  String toString() => 'JpEvent(${kind.wire} $eventId ${atUtc.toIso8601String()}'
+  String toString() =>
+      'JpEvent(${kind.wire} $eventId ${atUtc.toIso8601String()}'
       '${subject == null ? '' : ' $subject'})';
 }
 

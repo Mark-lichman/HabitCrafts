@@ -88,8 +88,8 @@ class Device {
 
   Future<JpSyncResult> run() => sync.run();
 
-  Future<AnswerOutcome> answer(Attempt a) => store.recordAnswer(a,
-      item: catalog.byId(a.itemId), scheduler: scheduler);
+  Future<AnswerOutcome> answer(Attempt a) =>
+      store.recordAnswer(a, item: catalog.byId(a.itemId), scheduler: scheduler);
 }
 
 Set<String> idsOf(Iterable<JpEvent> events) =>
@@ -145,10 +145,11 @@ void main() {
       final remote = JpRemoteMemory()..online = false;
       final e = noteEvent('x', 'n',
           eventId: newEventId(), deviceId: 'phone', atUtc: at(0));
-      await expectLater(remote.pushEvents([e]), throwsA(isA<JpRemoteUnavailable>()));
-      await expectLater(remote.pullEvents(null), throwsA(isA<JpRemoteUnavailable>()));
       await expectLater(
-          remote.createDay(const DayRecord(day: 1, plan: '{}')),
+          remote.pushEvents([e]), throwsA(isA<JpRemoteUnavailable>()));
+      await expectLater(
+          remote.pullEvents(null), throwsA(isA<JpRemoteUnavailable>()));
+      await expectLater(remote.createDay(const DayRecord(day: 1, plan: '{}')),
           throwsA(isA<JpRemoteUnavailable>()));
       remote.online = true;
       expect(remote.events, isEmpty);
@@ -170,7 +171,8 @@ void main() {
         await web.store.close();
       });
 
-      test('an answer on one device shows on the other after its next sync (End state 1)',
+      test(
+          'an answer on one device shows on the other after its next sync (End state 1)',
           () async {
         final g = firstOf(ItemKind.grammar);
         final out = await phone.answer(answer(g, 1, Grade.clear));
@@ -195,7 +197,8 @@ void main() {
         expect(again.rebuilt, isFalse);
       });
 
-      test('answers made offline on both devices sync with no loss and no duplicate (End state 2)',
+      test(
+          'answers made offline on both devices sync with no loss and no duplicate (End state 2)',
           () async {
         final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
         remote.online = false;
@@ -213,7 +216,8 @@ void main() {
         await phone.run();
         await web.run();
         await phone.run();
-        expect(remote.events.length, 4, reason: 'each answer once on the server');
+        expect(remote.events.length, 4,
+            reason: 'each answer once on the server');
         for (final d in [phone, web]) {
           final attempts = await d.store.attempts();
           expect(attempts.length, 4, reason: d.name);
@@ -229,7 +233,8 @@ void main() {
         expect((await web.store.attempts()).length, 4);
       });
 
-      test('interleaved answers on one item replay to identical srs and mastery (End state 3)',
+      test(
+          'interleaved answers on one item replay to identical srs and mastery (End state 3)',
           () async {
         final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
         remote.online = false;
@@ -245,7 +250,9 @@ void main() {
         await phone.run();
         await web.run();
         await phone.run();
-        final phoneRows = [for (final a in await phone.store.attempts()) a.eventId];
+        final phoneRows = [
+          for (final a in await phone.store.attempts()) a.eventId
+        ];
         final webRows = [for (final a in await web.store.attempts()) a.eventId];
         expect(phoneRows.toSet(), webRows.toSet());
         expect(phoneRows, isNot(webRows), reason: 'the row orders differ');
@@ -255,7 +262,9 @@ void main() {
         final sorted = [...log.attempts]
           ..sort((a, b) => compareEvents(attemptEvent(a), attemptEvent(b)));
         final canonical = replayLog(
-            StudyLog(attempts: sorted, seeds: log.seeds), catalog.byId, scheduler);
+            StudyLog(attempts: sorted, seeds: log.seeds),
+            catalog.byId,
+            scheduler);
         expect(await phone.store.allSrs(), canonical.srs);
         expect(await phone.store.allMastery(), canonical.mastery);
         // A debug-page rebuild lands on the same states as the sync.
@@ -264,7 +273,8 @@ void main() {
         await expectSameRecord(phone.store, web.store);
       });
 
-      test('a run cut short after the push still pulls and replays on the next run',
+      test(
+          'a run cut short after the push still pulls and replays on the next run',
           () async {
         final g = firstOf(ItemKind.grammar);
         final fromWeb = await web.answer(answer(g, 1, Grade.clear));
@@ -286,23 +296,24 @@ void main() {
         await expectSameRecord(phone.store, web.store);
       });
 
-      test('notes, Discuss marks, say-it scores and the last lesson: the later event time wins (End state 16)',
+      test(
+          'notes, Discuss marks, say-it scores and the last lesson: the later event time wins (End state 16)',
           () async {
         final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
         remote.online = false;
         now = at(1, 1);
         await phone.store.setNote(g.id, 'phone note');
         await phone.store.setDiscuss(w.id, note: 'ask Mari', atUtc: at(1, 2));
-        await phone.store.recordSpeakScore({'sentence': 'a', 'score': 80},
-            atUtc: at(1, 3));
+        await phone.store
+            .recordSpeakScore({'sentence': 'a', 'score': 80}, atUtc: at(1, 3));
         await phone.store.setLastLesson('L5', atUtc: at(1, 9));
         now = at(1, 4);
         await web.store.setNote(g.id, 'web note');
         now = at(1, 5);
         await web.store.setDiscuss(w.id, note: 'from web', atUtc: at(1, 1));
         await web.store.clearDiscuss(w.id);
-        await web.store.recordSpeakScore({'sentence': 'b', 'score': 95},
-            atUtc: at(1, 6));
+        await web.store
+            .recordSpeakScore({'sentence': 'b', 'score': 95}, atUtc: at(1, 6));
         await web.store.setLastLesson('L4', atUtc: at(1, 7));
         remote.online = true;
 
@@ -315,8 +326,12 @@ void main() {
           expect(await d.store.discuss(w.id), isNull,
               reason: 'the web cleared it after the phone set it');
           expect(await d.store.lastLesson(), 'L5', reason: d.name);
-          expect([for (final e in await d.store.speakScores()) e.body['score']],
-              [80, 95], reason: 'every score from both devices, once');
+          expect([
+            for (final e in await d.store.speakScores()) e.body['score']
+          ], [
+            80,
+            95
+          ], reason: 'every score from both devices, once');
         }
         await expectSameRecord(phone.store, web.store);
 
@@ -338,13 +353,14 @@ void main() {
             reason: 'side events move no schedule');
       });
 
-      test('the day plan: the first plan to reach the server wins, and position never moves back (End state 14)',
+      test(
+          'the day plan: the first plan to reach the server wins, and position never moves back (End state 14)',
           () async {
         final g = firstOf(ItemKind.grammar);
         today = 5;
         remote.online = false;
-        await phone.store.putDay(
-            const DayRecord(day: 5, plan: '{"entries":["phone"]}', position: 3));
+        await phone.store.putDay(const DayRecord(
+            day: 5, plan: '{"entries":["phone"]}', position: 3));
         final phoneAnswer = await phone.answer(answer(g, 5, Grade.clear));
         await web.store.putDay(
             const DayRecord(day: 5, plan: '{"entries":["web"]}', position: 1));
@@ -355,8 +371,10 @@ void main() {
         expect((await remote.day(5))!.plan, '{"entries":["web"]}');
         final phoneRun = await phone.run();
         final adopted = (await phone.store.day(5))!;
-        expect(adopted.plan, '{"entries":["web"]}', reason: 'the phone adopts it');
-        expect(adopted.position, 3, reason: 'the phone\'s position never moves back');
+        expect(adopted.plan, '{"entries":["web"]}',
+            reason: 'the phone adopts it');
+        expect(adopted.position, 3,
+            reason: 'the phone\'s position never moves back');
         expect(phoneRun.days[5]!.plan, adopted.plan);
         expect(adopted.deviceId, await web.store.deviceId(),
             reason: 'the builder is the winning device');
@@ -366,12 +384,14 @@ void main() {
         expect((await remote.day(5))!.position, 3);
 
         await web.run();
-        expect(await web.store.day(5), adopted, reason: 'both show the same plan');
+        expect(await web.store.day(5), adopted,
+            reason: 'both show the same plan');
         expect((await web.store.attempts()).single.eventId,
             phoneAnswer.attempt.eventId);
 
         // A stale device never moves the server back, and adopts the further position.
-        await phone.store.putDay(adopted.copyWith(position: 6, completed: true));
+        await phone.store
+            .putDay(adopted.copyWith(position: 6, completed: true));
         await phone.run();
         await web.store.putDay((await web.store.day(5))!.copyWith(position: 4));
         await web.run();
@@ -392,7 +412,8 @@ void main() {
         expect(await web.store.lastDay(), 7);
       });
 
-      test('each sync writes the device\'s last sync time to devices/{deviceId}',
+      test(
+          'each sync writes the device\'s last sync time to devices/{deviceId}',
           () async {
         now = at(3, 10);
         await phone.run();

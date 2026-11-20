@@ -92,10 +92,9 @@ Future<void> _createV3Events(Database db) async {
       'pushed INTEGER NOT NULL DEFAULT 0)');
   await db.execute('CREATE INDEX events_subject ON events (kind, subject)');
 
-  final kept = await db
-      .query('meta', where: 'key = ?', whereArgs: [kDeviceIdMetaKey]);
-  final device =
-      kept.isEmpty ? newEventId() : kept.first['value'] as String;
+  final kept =
+      await db.query('meta', where: 'key = ?', whereArgs: [kDeviceIdMetaKey]);
+  final device = kept.isEmpty ? newEventId() : kept.first['value'] as String;
   if (kept.isEmpty) {
     await db.insert('meta', {'key': kDeviceIdMetaKey, 'value': device});
   }
@@ -115,12 +114,14 @@ Future<void> _createV3Events(Database db) async {
         where: 'id = ?', whereArgs: [r['id']]);
   }
   for (final table in const ['attempts', 'seeds']) {
-    await db.execute(
-        'CREATE UNIQUE INDEX ${table}_eventId ON $table (eventId)');
+    await db
+        .execute('CREATE UNIQUE INDEX ${table}_eventId ON $table (eventId)');
   }
   await db.update('days', {'deviceId': device});
   for (final r in await db.query('items',
-      columns: ['itemId', 'note'], where: 'note IS NOT NULL', orderBy: 'itemId')) {
+      columns: ['itemId', 'note'],
+      where: 'note IS NOT NULL',
+      orderBy: 'itemId')) {
     final itemId = r['itemId'] as String, note = r['note'] as String;
     await _insertEvent(
         db,
@@ -162,7 +163,10 @@ Future<void> _insertEvent(DatabaseExecutor db, JpEvent e,
 
 JpEvent _eventOf(Map<String, Object?> r) => JpEvent(
       eventId: r['eventId'] as String,
-      deviceId: switch (r['deviceId']) { final String d when d.isNotEmpty => d, _ => null },
+      deviceId: switch (r['deviceId']) {
+        final String d when d.isNotEmpty => d,
+        _ => null
+      },
       atUtc: DateTime.parse(r['atUtc'] as String),
       kind: JpEventKind.fromWire(r['kind']),
       body: jsonDecode(r['body'] as String) as Map<String, dynamic>,
@@ -614,10 +618,10 @@ class JpStoreSqlite extends JpStore {
 
   /// The ids of every pushed event (or one appended from a remote).
   Future<Set<String>> _pushedIds(DatabaseExecutor db) async => {
-        for (final r in await db.rawQuery(
-            'SELECT eventId FROM attempts WHERE pushed = 1 '
-            'UNION ALL SELECT eventId FROM seeds WHERE pushed = 1 '
-            'UNION ALL SELECT eventId FROM events WHERE pushed = 1'))
+        for (final r in await db
+            .rawQuery('SELECT eventId FROM attempts WHERE pushed = 1 '
+                'UNION ALL SELECT eventId FROM seeds WHERE pushed = 1 '
+                'UNION ALL SELECT eventId FROM events WHERE pushed = 1'))
           if (r['eventId'] != null) r['eventId'] as String
       };
 
@@ -680,8 +684,13 @@ class JpStoreSqlite extends JpStore {
     final latest = _eventOf(rows.first);
     if (event.kind == JpEventKind.note) {
       await _ensureItem(db, id);
-      await db.update('items', {'note': resolveNotes([latest])[id]},
-          where: 'itemId = ?', whereArgs: [id]);
+      await db.update(
+          'items',
+          {
+            'note': resolveNotes([latest])[id]
+          },
+          where: 'itemId = ?',
+          whereArgs: [id]);
     } else {
       await db.delete('discuss', where: 'itemId = ?', whereArgs: [id]);
       final mark = resolveDiscuss([latest])[id];
