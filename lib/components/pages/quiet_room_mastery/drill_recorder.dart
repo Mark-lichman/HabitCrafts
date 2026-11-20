@@ -13,7 +13,7 @@
 //
 // With no store injected, a recorder writes to the app's one shared store (`sharedJpStore`),
 // the same one the grammar, lesson and practice screens and the study record page use, so the
-// phone holds one SQLite handle and web one memory store.
+// phone holds one SQLite handle and web one web store.
 //
 // The screens never wait on a write and never fail because of one. A store that cannot open
 // (no SQLite in a unit test, say) or a write that throws loses that attempt: the loss goes

@@ -1,8 +1,10 @@
-// The study record's store (D14, D26): one interface, two implementations.
+// The study record's store (D14, D26): one interface, three implementations.
 //
 // `JpStoreSqlite` (jp_store_sqlite.dart) keeps the record on the phone in SQLite. `JpStoreMemory`
-// (jp_store_memory.dart) keeps it in memory and is the store on web, which keeps nothing between
-// loads (A4). The same test suite runs against both (test/jp_store_test.dart).
+// (jp_store_memory.dart) keeps it in memory, for tests. `JpStoreWeb` (jp_store_web.dart) is the
+// store on web: a memory store that saves its snapshot in the browser after each write, so the
+// record survives a reload (A4). The same test suite runs against all three
+// (test/jp_store_test.dart).
 //
 // 🚨 THE LOG IS THE SOURCE OF TRUTH. Two event kinds are append-only:
 //   * an `Attempt` per answer (attempt.dart);

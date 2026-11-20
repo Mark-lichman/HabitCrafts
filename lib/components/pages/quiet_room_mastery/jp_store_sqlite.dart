@@ -1,5 +1,6 @@
 // The study store on the phone: SQLite through `sqflite` (D14). Tests open it through the ffi
-// factory of `sqflite_common_ffi` (A5), so the same suite runs here and on `JpStoreMemory`.
+// factory of `sqflite_common_ffi` (A5), so the same suite runs here, on `JpStoreMemory` and
+// on `JpStoreWeb`.
 //
 // Tables (schema version 3; version 1 had all but `discuss` and `events`, version 2 added
 // `discuss`, version 3 added `events` and the event columns):
@@ -41,7 +42,7 @@ import 'package:sqflite_common/sqlite_api.dart';
 import 'attempt.dart';
 import 'jp_event.dart';
 import 'jp_store.dart';
-import 'jp_store_memory.dart';
+import 'jp_store_web.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
 
@@ -216,12 +217,17 @@ Future<void> _createV1(Database db) async {
   await batch.commit(noResult: true);
 }
 
-/// Opens the platform's store: SQLite on the phone, memory on web (A4).
+/// Opens the platform's store: SQLite on the phone, and on web a store that keeps the record
+/// in the browser across reloads ([JpStoreWeb], A4).
 ///
-/// Each call opens a new store. The app opens one per run through [sharedJpStore]; two
-/// stores on web do not see each other, and two on the phone do not serialize answers.
-Future<JpStore> openJpStore({bool isWeb = kIsWeb}) async {
-  if (isWeb) return JpStoreMemory();
+/// Each call opens a new store. The app opens one per run through [sharedJpStore]. Two stores
+/// on web (two tabs) share one lock and re-read before each write, so neither saves over the
+/// other; two on the phone do not serialize answers.
+/// [webStorage] is a test seam for the web store's browser storage; the app passes nothing and
+/// the web store uses IndexedDB.
+Future<JpStore> openJpStore(
+    {bool isWeb = kIsWeb, JpWebStorage? webStorage}) async {
+  if (isWeb) return JpStoreWeb.open(storage: webStorage);
   return JpStoreSqlite.open();
 }
 
@@ -230,7 +236,7 @@ Future<JpStore>? _sharedStore;
 /// The one store of the run: opened on first use and kept. Every screen that reads or writes
 /// answers without an injected store goes through here (the practice, grammar, lesson and
 /// drill screens and the study record page), so the phone holds one SQLite handle and web
-/// holds one memory store. A failed open is not kept, so the next call tries again. Each
+/// holds one web store. A failed open is not kept, so the next call tries again. Each
 /// caller reports its own failed open.
 ///
 /// [open] is a seam for the retry test; the app passes nothing and opens the platform's store.

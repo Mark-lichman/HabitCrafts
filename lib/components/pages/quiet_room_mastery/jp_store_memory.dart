@@ -1,8 +1,10 @@
-// The in-memory study store: the store on web, where nothing persists between loads (A4), and
-// a fast store for tests and the simulator. Same contract as `JpStoreSqlite`; the shared suite
-// in test/jp_store_test.dart runs against both. Every write is synchronous inside one call once
-// its event ids are stamped, so an answer's attempt, schedule and mastery land together or not
-// at all. A fresh memory store holds no rows from before event ids, so it needs no migration.
+// The in-memory study store: a fast store for tests and the simulator, and the working copy
+// under the web store (jp_store_web.dart), which saves its snapshot ([toSnapshot]) in the
+// browser after each write (A4). Same contract as `JpStoreSqlite`; the shared suite in
+// test/jp_store_test.dart runs against all three. Every write is synchronous inside one call
+// once its event ids are stamped, so an answer's attempt, schedule and mastery land together or
+// not at all. A fresh memory store holds no rows from before event ids, so it needs no
+// migration.
 
 import 'attempt.dart';
 import 'jp_event.dart';
@@ -259,4 +261,150 @@ class JpStoreMemory extends JpStore {
 
   @override
   Future<void> close() async {}
+
+  /// Empties the study record: the logs, the pushed marks, the derived states, the days and
+  /// every meta key but the device id ([kDeviceIdMetaKey]). The sync cursor
+  /// ([kSyncCursorMetaKey]) and the replay flag go with the rest, so the next sync pulls the
+  /// whole record. The web store's sign-out wipe (jp_store_web.dart) runs it.
+  Future<void> wipe() async => clearRecord();
+
+  /// [wipe] in one synchronous step.
+  void clearRecord() {
+    final device = _meta[kDeviceIdMetaKey];
+    _attempts.clear();
+    _seeds.clear();
+    _events.clear();
+    _pushed.clear();
+    _srs.clear();
+    _mastery.clear();
+    _seedDue.clear();
+    _notes.clear();
+    _discuss.clear();
+    _days.clear();
+    _meta.clear();
+    if (device != null) _meta[kDeviceIdMetaKey] = device;
+    _attemptSeq = 0;
+    _seedSeq = 0;
+  }
+
+  // --- the snapshot ------------------------------------------------------------
+
+  /// Everything this store holds as JSON values: the logs with their row ids, event ids and
+  /// pushed marks, the derived states, the days and the meta. [restoreSnapshot] reads it back.
+  /// The web store (jp_store_web.dart) keeps it in the browser between loads.
+  Map<String, dynamic> toSnapshot() => {
+        'attempts': [for (final a in _attempts) a.toJson()],
+        'seeds': [for (final s in _seeds) s.toJson()],
+        'events': [for (final e in _events) e.toFirestore()],
+        'pushed': [..._pushed],
+        'srs': {for (final e in _srs.entries) e.key: e.value.toJson()},
+        'mastery': {for (final e in _mastery.entries) e.key: e.value.toJson()},
+        'seedDue': {..._seedDue},
+        'notes': {..._notes},
+        'discuss': {for (final e in _discuss.entries) e.key: e.value.toJson()},
+        'days': [
+          for (final d in _days.values)
+            {
+              'day': d.day,
+              'plan': d.plan,
+              'position': d.position,
+              'completed': d.completed,
+              if (d.deviceId != null) 'deviceId': d.deviceId,
+              if (d.builtAtUtc != null)
+                'builtAtUtc': d.builtAtUtc!.toUtc().toIso8601String(),
+            }
+        ],
+        'meta': {..._meta},
+        'attemptSeq': _attemptSeq,
+        'seedSeq': _seedSeq,
+      };
+
+  /// Replaces everything this store holds with [snapshot] ([toSnapshot]'s form). Throws, and
+  /// changes nothing, when a field is missing or of the wrong type.
+  void restoreSnapshot(Map<String, dynamic> snapshot) {
+    Map<String, dynamic> obj(Object? v) => Map<String, dynamic>.from(v as Map);
+    Map<String, dynamic> field(String k) => obj(snapshot[k]);
+    List<Object?> list(String k) => snapshot[k] as List<Object?>;
+    final attempts = [
+      for (final a in list('attempts')) Attempt.fromJson(obj(a))
+    ];
+    final seeds = [for (final s in list('seeds')) SeedEvent.fromJson(obj(s))];
+    final events = [
+      for (final e in list('events')) JpEvent.fromFirestore(obj(e))
+    ];
+    final pushed = {for (final id in list('pushed')) id as String};
+    final srs = {
+      for (final e in field('srs').entries)
+        e.key: SrsState.fromJson(obj(e.value))
+    };
+    final mastery = {
+      for (final e in field('mastery').entries)
+        e.key: MasteryState.fromJson(obj(e.value))
+    };
+    final seedDue = {
+      for (final e in field('seedDue').entries) e.key: e.value as int
+    };
+    final notes = {
+      for (final e in field('notes').entries) e.key: e.value as String
+    };
+    final discuss = {
+      for (final e in field('discuss').entries)
+        e.key: DiscussMark.fromJson(obj(e.value))
+    };
+    final days = <int, DayRecord>{};
+    for (final raw in list('days')) {
+      final d = obj(raw);
+      final built = d['builtAtUtc'] as String?;
+      final record = DayRecord(
+        day: d['day'] as int,
+        plan: d['plan'] as String,
+        position: d['position'] as int,
+        completed: d['completed'] as bool,
+        deviceId: d['deviceId'] as String?,
+        builtAtUtc: built == null ? null : DateTime.parse(built).toUtc(),
+      );
+      days[record.day] = record;
+    }
+    final meta = {
+      for (final e in field('meta').entries) e.key: e.value as String
+    };
+    final attemptSeq = snapshot['attemptSeq'] as int;
+    final seedSeq = snapshot['seedSeq'] as int;
+
+    _attempts
+      ..clear()
+      ..addAll(attempts);
+    _seeds
+      ..clear()
+      ..addAll(seeds);
+    _events
+      ..clear()
+      ..addAll(events);
+    _pushed
+      ..clear()
+      ..addAll(pushed);
+    _srs
+      ..clear()
+      ..addAll(srs);
+    _mastery
+      ..clear()
+      ..addAll(mastery);
+    _seedDue
+      ..clear()
+      ..addAll(seedDue);
+    _notes
+      ..clear()
+      ..addAll(notes);
+    _discuss
+      ..clear()
+      ..addAll(discuss);
+    _days
+      ..clear()
+      ..addAll(days);
+    _meta
+      ..clear()
+      ..addAll(meta);
+    _attemptSeq = attemptSeq;
+    _seedSeq = seedSeq;
+  }
 }

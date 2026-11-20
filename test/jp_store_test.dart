@@ -1,5 +1,6 @@
-// The study store (Task 8, D14, D26, A4, A5). One suite runs against both implementations:
-// `JpStoreMemory` (the web store) and `JpStoreSqlite` through the ffi factory. The SQLite-only
+// The study store (Task 8, D14, D26, A4, A5). One suite runs against all three implementations:
+// `JpStoreMemory`, `JpStoreWeb` (the web store, over a `MemoryJpWebStorage`; its reload is in
+// test/open_jp_store_test.dart) and `JpStoreSqlite` through the ffi factory. The SQLite-only
 // group covers the schema version, the indexes, a reopen of the file, the upgrade steps (the
 // version 1 file gaining the Discuss table among them) and the rollback of an answer that fails
 // inside its transaction. The gated memory store holds a rebuild or an import open so an answer
@@ -19,6 +20,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/local_day.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
@@ -166,6 +168,7 @@ typedef Opener = Future<JpStore> Function();
 
 final Map<String, Opener> implementations = {
   'memory': () async => JpStoreMemory(),
+  'web': () => JpStoreWeb.open(storage: MemoryJpWebStorage()),
   'sqlite': () => JpStoreSqlite.open(
       factory: databaseFactoryFfi, path: inMemoryDatabasePath),
 };
@@ -1402,11 +1405,5 @@ void main() {
           throwsA(isA<StateError>().having((e) => e.message, 'message',
               contains('no upgrade step to version 2'))));
     });
-  });
-
-  test('the web store is the memory store (A4)', () async {
-    final store = await openJpStore(isWeb: true);
-    expect(store, isA<JpStoreMemory>());
-    await store.close();
   });
 }
