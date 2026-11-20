@@ -270,10 +270,9 @@ class SpeakAttempt {
         selfMark: gotIt,
       );
 
-  /// The same attempt as [other]: one sentence at one moment.
-  bool sameAs(SpeakAttempt other) =>
-      sentence == other.sentence &&
-      at.toIso8601String() == other.at.toIso8601String();
+  /// The attempt's identity: one sentence at one instant, whatever zone [at] was read in.
+  /// Every event of one attempt shares it (`SpeakScoreLog.fromEvents`).
+  String get identityKey => '${at.toUtc().toIso8601String()}\u0000$sentence';
 
   static const String _gotIt = 'got_it';
   static const String _missedIt = 'missed_it';
@@ -281,7 +280,8 @@ class SpeakAttempt {
   Map<String, Object?> toJson() => {
         'sentence': sentence,
         'verdict': verdict.name,
-        'at': at.toIso8601String(),
+        // UTC with its offset, so another device reads the same instant (the log syncs).
+        'at': at.toUtc().toIso8601String(),
         'overall': overall,
         'accuracy': accuracy,
         'fluency': fluency,
@@ -363,9 +363,9 @@ class SpeakScoreLog {
       if (e.kind != JpEventKind.speakScore) continue;
       final a = SpeakAttempt.fromJson(e.body);
       if (a == null) continue;
-      final key = '${a.at.toIso8601String()}\u0000${a.sentence}';
-      final old = latest[key];
-      if (old == null || compareEvents(e, old.$1) > 0) latest[key] = (e, a);
+      final old = latest[a.identityKey];
+      if (old == null || compareEvents(e, old.$1) > 0)
+        latest[a.identityKey] = (e, a);
     }
     final rows = latest.values.toList()
       ..sort((x, y) {
@@ -515,7 +515,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// attempt is no longer current drops its result instead of showing or keeping it.
   int _attempt = 0;
 
-  /// The device's score log, oldest first.
+  /// The score log from the study store, oldest first.
   List<SpeakAttempt> _log = const [];
 
   /// Every log write runs after the one before, so a self-mark never races the save of the
@@ -1215,7 +1215,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// How many attempts the drill lists under Recent scores.
   static const int _recentShown = 8;
 
-  /// The newest attempts from the device's score log, newest first (PIN-4).
+  /// The newest attempts from the score log, newest first (PIN-4).
   Widget _recentScores(QuietRoomTokens t) {
     final newest = _log.reversed.take(_recentShown);
     return Column(

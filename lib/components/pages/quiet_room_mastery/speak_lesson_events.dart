@@ -23,12 +23,16 @@
 //     (`kLegacyLastLessonAtUtc`), so a lesson opened on any device after it wins. A store that
 //     already holds a last lesson (one synced from another device) keeps it and skips the old
 //     value.
+//   * A score log that is present but unreadable (not a string, not JSON or not a list) is
+//     reported to FlutterError, never read as empty in silence (S4), and the flag is still set.
 // Every imported event takes a legacy id of its content (`legacyEventId`), so a run cut short
 // before the flag skips what it already wrote, and two devices that import one value share one
-// event.
+// event. Callers on one store share one run in flight, so two first reads never write one id
+// twice.
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../quiet_room_grammar/quiet_room_speak_widget.dart'
@@ -44,11 +48,27 @@ const String kSpeakLessonImportFlag = 'migration.speakLesson';
 /// the same unknown time a legacy note takes (`kLegacyNoteAtUtc`).
 final DateTime kLegacyLastLessonAtUtc = DateTime.utc(1970);
 
+/// The import run in flight on each store, so callers that overlap share it.
+final Expando<Future<int>> _importsInFlight = Expando('speakLessonImport');
+
 /// Imports `jp.speak.scores` and `jp.grammar.lastLesson` from [prefs] into [store], once per
 /// store (see the file comment). [prefs] null reads the device's own. Returns the number of
-/// events written; zero once the flag is set.
+/// events written; zero once the flag is set. A call made while another runs on [store] waits
+/// for that run and returns its count.
 Future<int> importSpeakAndLessonPrefs(JpStore store,
     {SharedPreferences? prefs}) async {
+  final pending = _importsInFlight[store];
+  if (pending != null) return pending;
+  final run = _importOnce(store, prefs);
+  _importsInFlight[store] = run;
+  try {
+    return await run;
+  } finally {
+    if (identical(_importsInFlight[store], run)) _importsInFlight[store] = null;
+  }
+}
+
+Future<int> _importOnce(JpStore store, SharedPreferences? prefs) async {
   if (await store.meta(kSpeakLessonImportFlag) != null) return 0;
   final p = prefs ?? await SharedPreferences.getInstance();
   final held = await store.sideEvents();
@@ -62,7 +82,16 @@ Future<int> importSpeakAndLessonPrefs(JpStore store,
     written++;
   }
 
-  for (final raw in _decodeList(p.get(SpeakScoreLog.prefsKey))) {
+  final rawLog = p.get(SpeakScoreLog.prefsKey);
+  final entries = rawLog == null ? const <Object?>[] : _decodeList(rawLog);
+  if (entries == null) {
+    FlutterError.reportError(FlutterErrorDetails(
+        exception: FormatException(
+            'unreadable ${SpeakScoreLog.prefsKey}', '${rawLog.runtimeType}'),
+        library: 'speak lesson events',
+        context: ErrorDescription('while importing the old say-it score log')));
+  }
+  for (final raw in entries ?? const <Object?>[]) {
     final a = SpeakAttempt.fromJson(raw);
     if (a == null || a.at.year < 2000) continue;
     final at = a.at.toUtc();
@@ -111,14 +140,14 @@ Future<void> rememberLastGrammarLesson(JpStore store, int lesson,
   await store.setLastLesson('$lesson', atUtc: store.clock().toUtc());
 }
 
-/// The score log's entries, or none when the value is absent, not a string, not JSON or not a
-/// list.
-List<Object?> _decodeList(Object? raw) {
-  if (raw is! String) return const [];
+/// The score log's entries, or null when [raw] is not a string, not JSON or not a list (as
+/// study_export.dart reads it).
+List<Object?>? _decodeList(Object raw) {
+  if (raw is! String) return null;
   try {
     final v = jsonDecode(raw);
-    return v is List ? v : const [];
+    return v is List ? v : null;
   } catch (_) {
-    return const [];
+    return null;
   }
 }

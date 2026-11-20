@@ -21,6 +21,8 @@ import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japan
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart'
+    show JpEvent;
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
@@ -35,7 +37,15 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/seed_confirm_wid
 import 'package:habit_craft/components/pages/quiet_room_mastery/topic_index.dart';
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
 
-import 'jp_screen_harness.dart' show holdHttpRequests, pumpStudyScreen;
+import 'jp_screen_harness.dart'
+    show ReportCapture, holdHttpRequests, pumpStudyScreen;
+
+/// A memory store whose last-lesson write throws, as a locked database would.
+class _LastLessonFailsStore extends JpStoreMemory {
+  @override
+  Future<JpEvent> setLastLesson(String lessonId, {required DateTime atUtc}) =>
+      Future.error(StateError('jp store: database is locked'));
+}
 
 Map<String, dynamic> _read(String path) =>
     json.decode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -349,6 +359,24 @@ void main() {
       await settle(tester);
       expect(await store.lastLesson(), '41',
           reason: 'a words-only lesson is not a grammar lesson');
+    });
+
+    testWidgets('a failed last-lesson write is reported and the lesson opens',
+        (tester) async {
+      await pumpPath(tester, _LastLessonFailsStore());
+      final f = find.byKey(const ValueKey('path-41'));
+      await tester.ensureVisible(f);
+      final capture = ReportCapture();
+      await tester.tap(f);
+      await settle(tester);
+      final reports = capture.stop();
+      expect(reports, hasLength(1));
+      expect(reports.single.context.toString(),
+          contains('while remembering the last lesson'));
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is LessonPageWidget && w.lesson == 41),
+          findsOneWidget);
     });
 
     testWidgets('the loud row opens the lesson page on the current lesson',
