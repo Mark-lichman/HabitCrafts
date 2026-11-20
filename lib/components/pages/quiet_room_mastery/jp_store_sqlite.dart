@@ -24,9 +24,9 @@
 // One transaction per answer: `appendAttempt` writes the attempt, the schedule and the mastery
 // state together. A later schema adds a step to [_upgrades]; `onUpgrade` runs the steps after
 // the file's version, in order. Version 3 is the one-time event id migration: it gives every
-// existing attempt and seed an event id and the store's device id, gives each note and Discuss
-// mark an event, and leaves them all unpushed. It runs once per file, so the ids stay put on
-// every later open.
+// existing attempt and seed a legacy event id (a hash of the row content) and the store's
+// device id, gives each note and Discuss mark an event, and leaves them all unpushed. It runs
+// once per file, so the ids stay put on every later open.
 //
 // Reads take every column, so a file a test opens below the current version reads with no
 // event ids. Writes need version 3.
@@ -64,9 +64,11 @@ Future<void> _createV2Discuss(Database db) =>
         'atUtc TEXT NOT NULL)');
 
 /// Version 3: global event ids (plan 2026-11-19, Task 1). Adds the event columns and the side
-/// event table, then gives every existing row its id, once. A note becomes a note event at the
-/// migration's time (its own time was never kept); a Discuss mark becomes an event at the time
-/// it was set. Every version 2 row stays, and every event starts unpushed.
+/// event table, then gives every existing row its legacy id ([LegacyEventIds]), once: a hash of
+/// the row content, so the same old rows restored on another device get the same ids. A note
+/// becomes a note event at [kLegacyNoteAtUtc] (its own time was never kept); a Discuss mark
+/// becomes an event at the time it was set. Every version 2 row stays, and every event starts
+/// unpushed.
 Future<void> _createV3Events(Database db) async {
   for (final table in const ['attempts', 'seeds']) {
     await db.execute('ALTER TABLE $table ADD COLUMN eventId TEXT');
@@ -94,33 +96,50 @@ Future<void> _createV3Events(Database db) async {
   if (kept.isEmpty) {
     await db.insert('meta', {'key': kDeviceIdMetaKey, 'value': device});
   }
+  // Legacy ids from the row content, in append order (operator ruling, Checkpoint 2026-11-19).
+  final legacy = LegacyEventIds();
+  for (final r in await db.query('attempts', orderBy: 'id')) {
+    final a = Attempt.fromJson(jsonDecode(r['json'] as String));
+    await db.update(
+        'attempts', {'eventId': legacy.attempt(a), 'deviceId': device},
+        where: 'id = ?', whereArgs: [r['id']]);
+  }
+  for (final r in await db.query('seeds', orderBy: 'id')) {
+    final s = SeedEvent(
+        itemId: r['itemId'] as String,
+        dueDay: r['dueDay'] as int,
+        atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
+    await db.update('seeds', {'eventId': legacy.seed(s), 'deviceId': device},
+        where: 'id = ?', whereArgs: [r['id']]);
+  }
   for (final table in const ['attempts', 'seeds']) {
-    final rows = await db.query(table, columns: ['id'], orderBy: 'id');
-    for (final r in rows) {
-      await db.update(table, {'eventId': newEventId(), 'deviceId': device},
-          where: 'id = ?', whereArgs: [r['id']]);
-    }
     await db.execute(
         'CREATE UNIQUE INDEX ${table}_eventId ON $table (eventId)');
   }
   await db.update('days', {'deviceId': device});
-  final now = DateTime.now().toUtc();
   for (final r in await db.query('items',
-      columns: ['itemId', 'note'], where: 'note IS NOT NULL')) {
+      columns: ['itemId', 'note'], where: 'note IS NOT NULL', orderBy: 'itemId')) {
+    final itemId = r['itemId'] as String, note = r['note'] as String;
     await _insertEvent(
         db,
-        noteEvent(r['itemId'] as String, r['note'] as String,
-            eventId: newEventId(), deviceId: device, atUtc: now),
+        noteEvent(itemId, note,
+            eventId: legacy.note(itemId, note),
+            deviceId: device,
+            atUtc: kLegacyNoteAtUtc),
         pushed: false);
   }
-  for (final r in await db.query('discuss')) {
+  for (final r in await db.query('discuss', orderBy: 'itemId')) {
+    final mark = DiscussMark(
+        itemId: r['itemId'] as String,
+        note: r['note'] as String?,
+        atUtc: DateTime.parse(r['atUtc'] as String).toUtc());
     await _insertEvent(
         db,
-        discussEvent(r['itemId'] as String,
-            note: r['note'] as String?,
-            eventId: newEventId(),
+        discussEvent(mark.itemId,
+            note: mark.note,
+            eventId: legacy.discuss(mark),
             deviceId: device,
-            atUtc: DateTime.parse(r['atUtc'] as String).toUtc()),
+            atUtc: mark.atUtc),
         pushed: false);
   }
 }

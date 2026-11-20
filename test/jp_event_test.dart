@@ -68,6 +68,10 @@ final Map<String, Opener> implementations = {
 final RegExp uuidV4 =
     RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 
+/// A legacy id: a name-based (version 5) UUID of the row content.
+final RegExp uuidV5 =
+    RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
+
 /// A note event from another device.
 JpEvent remoteNote(String itemId, String? note, DateTime atUtc,
         {String? eventId}) =>
@@ -402,7 +406,8 @@ void main() {
         await store.setNote(g.id, 'just now');
         expect(await store.notes(), {g.id: 'just now'});
         final mine = (await store.sideEvents()).last;
-        expect(mine.atUtc, at(9).add(const Duration(microseconds: 1)));
+        // The bump is 1 ms, which a millisecond DateTime on the web still keeps (#193).
+        expect(mine.atUtc, at(9).add(const Duration(milliseconds: 1)));
         // Two changes at one clock instant keep their order.
         now = at(20);
         await store.setNote(g.id, kNoteCanUseIt);
@@ -594,12 +599,95 @@ void main() {
           for (final e in events)
             if (e.kind == JpEventKind.note) e
         ];
-        expect(notes.every((e) => e.atUtc == at(30)), isTrue,
-            reason: 'a note with no time takes the import\'s');
+        expect(notes.every((e) => e.atUtc == kLegacyNoteAtUtc), isTrue,
+            reason: 'a note with no time takes the legacy time, not the import\'s');
         // Exported again, the ids are the store's own, the same on every export.
         final once = await exportStudy(store, exportedAt: at(31));
         expect(await exportStudy(store, exportedAt: at(31)), once);
         expect(idsOf(decodeStudyExport(once).events), idsOf(notes));
+
+        // The ids derive from the rows (operator ruling, Checkpoint 2026-11-19): the same
+        // old export on another device, at another time, gets the same events.
+        for (final open in implementations.values) {
+          final other = await open();
+          try {
+            now = at(40);
+            await importStudy(other, fixture,
+                lookup: catalog.byId, scheduler: scheduler);
+            expect(await other.deviceId(), isNot(device));
+            expect(idsOf(await other.allEvents()), idsOf(events));
+            expect(
+                [for (final e in await other.allEvents()) e.atUtc],
+                [for (final e in events) e.atUtc]);
+          } finally {
+            await other.close();
+          }
+        }
+      });
+
+      test('a legacy id hashes the row content, once per repeat', () {
+        final g = firstOf(ItemKind.grammar);
+        final a = answer(g, 1, Grade.clear);
+        final ids = LegacyEventIds();
+        final first = ids.attempt(a);
+        final again = ids.attempt(a);
+        expect(first, isNot(again), reason: 'a repeat of the same row');
+        expect(LegacyEventIds().attempt(a), first, reason: 'stable');
+        expect(uuidV5.hasMatch(first), isTrue, reason: first);
+        // Time, item, session and kind each move the id.
+        final fresh = LegacyEventIds();
+        final moved = {
+          fresh.attempt(answer(g, 2, Grade.clear)),
+          fresh.attempt(Attempt.fromJson({...a.toJson(), 'sessionId': 'x'})),
+          fresh.attempt(answer(firstOf(ItemKind.word), 1, Grade.clear)),
+          fresh.seed(SeedEvent(itemId: g.id, dueDay: 1, atUtc: a.atUtc)),
+        };
+        expect(moved.length, 4);
+        expect(moved, isNot(contains(first)));
+        // The grade is not part of the key: the same answer slot keeps its id.
+        expect(LegacyEventIds().attempt(answer(g, 1, Grade.wrong)), first);
+      });
+
+      test('an id-less import reuses the id the store holds for the same row',
+          () async {
+        final g = firstOf(ItemKind.grammar), w = firstOf(ItemKind.word);
+        final out = await store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
+        await store.appendSeed(w.id, 3, atUtc: at(1, 5));
+        await store.setDiscuss(w.id, note: 'ask', atUtc: at(1, 6));
+        now = at(1, 7);
+        await store.setNote(g.id, kNoteCanUseIt);
+        final held = await store.allEvents();
+        expect(held.every((e) => uuidV4.hasMatch(e.eventId)), isTrue,
+            reason: 'a new event takes a random id');
+        final seed = (await store.seeds()).single;
+        // The same rows with no ids, as a pre-v3 backup holds them.
+        final bare = StudyLog(
+          attempts: [
+            Attempt.fromJson(out.attempt.toJson()
+              ..remove('id')
+              ..remove('eventId')
+              ..remove('deviceId')),
+            answer(g, 2, Grade.clear),
+          ],
+          seeds: [SeedEvent(itemId: w.id, dueDay: 3, atUtc: seed.atUtc)],
+          notes: {g.id: kNoteCanUseIt},
+          discuss: {
+            w.id: DiscussMark(itemId: w.id, note: 'ask', atUtc: at(1, 6))
+          },
+        );
+        await store.importLog(bare, catalog.byId, scheduler);
+        final after = await store.allEvents();
+        expect(idsOf(after), containsAll(idsOf(held)));
+        expect(after.length, held.length + 1);
+        final added =
+            after.singleWhere((e) => !idsOf(held).contains(e.eventId));
+        expect(added.eventId, LegacyEventIds().attempt(answer(g, 2, Grade.clear)),
+            reason: 'a row the store does not hold takes its legacy id');
+        for (final e in held) {
+          expect(after.singleWhere((x) => x.eventId == e.eventId), e,
+              reason: 'a held event keeps its device and time');
+        }
       });
     });
   }
@@ -669,11 +757,52 @@ void main() {
             JpEventKind.discuss,
           ]);
       expect(idsOf(events).length, 5);
-      expect(events.every((e) => uuidV4.hasMatch(e.eventId)), isTrue);
+      expect(events.every((e) => uuidV5.hasMatch(e.eventId)), isTrue,
+          reason: 'a migrated row takes its legacy id');
       final discussAt = events.firstWhere((e) => e.kind == JpEventKind.discuss);
       expect(discussAt.atUtc, at(2, 5), reason: 'a mark keeps its time');
+      final noteAt = events.firstWhere((e) => e.kind == JpEventKind.note);
+      expect(noteAt.atUtc, kLegacyNoteAtUtc,
+          reason: 'a note with no time takes the legacy time');
       expect(await store.unpushedEvents(), events);
+
+      // A move through a migrated day keeps its unknown build time (#191).
+      final migratedDay = (await store.day(2))!;
+      expect(migratedDay.builtAtUtc, isNull);
+      await store.putDay(migratedDay.copyWith(position: 2));
+      expect([(await store.day(2))!.position, (await store.day(2))!.builtAtUtc],
+          [2, isNull]);
       await store.close();
+
+      // A restored old backup on another device maps onto the uploaded events: the same
+      // rows with no ids get the same ids and the same times.
+      final restored = JpStoreMemory(clock: () => at(50));
+      await restored.importLog(
+          StudyLog(
+            attempts: [
+              for (final a in oldAttempts)
+                Attempt.fromJson(a.toJson()
+                  ..remove('id')
+                  ..remove('eventId')
+                  ..remove('deviceId'))
+            ],
+            seeds: [
+              for (final s in await source.seeds())
+                SeedEvent(itemId: s.itemId, dueDay: s.dueDay, atUtc: s.atUtc)
+            ],
+            notes: {g.id: kNoteCanUseIt},
+            discuss: {
+              w.id: DiscussMark(itemId: w.id, note: 'ask', atUtc: at(2, 5))
+            },
+          ),
+          catalog.byId,
+          scheduler);
+      final restoredEvents = await restored.allEvents();
+      expect(idsOf(restoredEvents), idsOf(events));
+      expect([for (final e in restoredEvents) e.atUtc],
+          [for (final e in events) e.atUtc]);
+      expect([for (final e in restoredEvents) e.body],
+          [for (final e in events) e.body]);
 
       // Reopened: the same ids and the same device, still unpushed.
       now = at(9);

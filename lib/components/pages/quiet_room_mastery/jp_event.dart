@@ -16,11 +16,22 @@
 // Discuss mark and the last lesson resolve to the event with the latest event time, ties broken
 // by the larger event id, so every device lands on the same value (last write wins).
 //
+// Two id forms. A new event takes a random (version 4) UUID (`newEventId`). A legacy row, one
+// written before event ids (the store's one-time migration and a pre-v3 import), takes a
+// name-based (version 5) UUID of its content (`legacyEventId`): its kind, time, item and session
+// (operator ruling, Checkpoint 2026-11-19). The same old row gets the same id on every device, so
+// a restored old backup maps onto the events already uploaded.
+//
 // The Firestore map form (`toFirestore`) holds only JSON values, so this file needs no Firestore
 // import and stays pure.
 
 import 'dart:convert';
 import 'dart:math';
+
+// A transitive package (pubspec.lock), already imported by apple_auth.dart; pure Dart, so it
+// runs on the web too.
+// ignore: depend_on_referenced_packages
+import 'package:crypto/crypto.dart' show sha1;
 
 /// The map form's own version, written as `v`.
 const int kJpEventMapVersion = 1;
@@ -56,9 +67,33 @@ final Random _random = Random.secure();
 /// A new global event id: a random (version 4) UUID.
 String newEventId() {
   final b = List<int>.generate(16, (_) => _random.nextInt(256));
-  b[6] = (b[6] & 0x0f) | 0x40;
-  b[8] = (b[8] & 0x3f) | 0x80;
-  final hex = [for (final x in b) x.toRadixString(16).padLeft(2, '0')].join();
+  return _uuid(b, 0x40);
+}
+
+/// The namespace of every legacy id: a fixed random UUID, so no other name-based id collides.
+const List<int> _kLegacyNamespace = [
+  0x6b, 0x2f, 0x1d, 0x3e, 0x58, 0x0a, 0x4c, 0x7f, //
+  0x9a, 0x41, 0xe2, 0x05, 0x83, 0xd6, 0x2c, 0x91,
+];
+
+/// The legacy id of a row written before event ids: a version 5 UUID of [kind], the key
+/// [fields] (the time, the item and the session; see `LegacyEventIds` in jp_store.dart) and the
+/// [occurrence], which counts earlier rows with the same key in append order. Pure and the
+/// same on every device.
+String legacyEventId(JpEventKind kind, List<Object?> fields,
+    {int occurrence = 0}) {
+  final name = utf8.encode(jsonEncode([kind.wire, ...fields, occurrence]));
+  final digest = sha1.convert([..._kLegacyNamespace, ...name]).bytes;
+  return _uuid(digest.sublist(0, 16), 0x50);
+}
+
+/// The UUID text of 16 bytes [b], with [version] (0x40 or 0x50) and the RFC 4122 variant set.
+String _uuid(List<int> b, int version) {
+  final bytes = [...b];
+  bytes[6] = (bytes[6] & 0x0f) | version;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  final hex =
+      [for (final x in bytes) x.toRadixString(16).padLeft(2, '0')].join();
   return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
       '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
 }
