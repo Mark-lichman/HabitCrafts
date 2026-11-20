@@ -1,5 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+// The modular import: `admin.firestore.FieldValue` is undefined on this
+// namespace when the app is initialized through firebase-admin/app.
+const { FieldValue } = require("firebase-admin/firestore");
 // To avoid deployment errors, do not call admin.initializeApp() in your code
 
 const db = admin.firestore();
@@ -80,6 +83,18 @@ exports.deleteAllUserData = functions.auth.user().onDelete(async (user) => {
   const deleted = {};
 
   try {
+    /* First, before anything is deleted: the deleted_accounts/{uid} marker.
+       A device still signed in keeps a valid ID token for up to an hour, and
+       the users rule lets it recreate users/{uid}. The rules for jp_events,
+       jp_days and devices refuse every request while this marker exists, so
+       that device cannot write study data again (PIN-13). The marker holds
+       only the time, and no client may read or write it. */
+    await db
+      .collection("deleted_accounts")
+      .doc(userId)
+      .set({ deletedAt: FieldValue.serverTimestamp() });
+    deleted.marker = "deleted_accounts marker written";
+
     for (const [collection, field] of OWNED_BY_USER) {
       deleted[collection] = await deleteMatching(collection, field, userRef);
     }
@@ -100,7 +115,9 @@ exports.deleteAllUserData = functions.auth.user().onDelete(async (user) => {
     /* Last, and the one that matters most: the profile document and every
        subcollection under it, which is where `user_activity` lives.
        recursiveDelete handles the subcollections; a plain delete would orphan
-       them, leaving the activity history behind with no parent. */
+       them, leaving the activity history behind with no parent. The synced
+       Japanese record (jp_events, jp_days, devices) lives here too, so this
+       one call removes it (PIN-14). */
     await db.recursiveDelete(userRef);
     deleted.users = "profile and subcollections removed";
 
