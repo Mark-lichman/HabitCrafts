@@ -41,9 +41,10 @@ The rows dated 2026-11-20 come from the web sync plan (`docs/plans/2026-11-19-jp
 Tasks 6 and 8). They make sign-in, sign-out and password reset work on the web, under the same
 account as the phone (PIN-8).
 
-The rows dated 2026-11-21 come from Phase 4 of the same plan (Tasks 11 and 14). They let the whole
-app open every route in a browser (End state 6, PIN-15): `test/web_routes_smoke_test.dart` opens
-each route in Chrome and fails on any uncaught error. Two of them sit in `lib/custom_code/`, which
+The rows dated 2026-11-21 come from Phase 4 of the same plan (Tasks 11 and 14). Task 14's nav,
+model and action rows let the whole app open every route in a browser (End state 6, PIN-15):
+`test/web_routes_smoke_test.dart` opens each route in Chrome and fails on any uncaught error. Task
+11's push token row serves web push and reminders (PIN-6). Two of them sit in `lib/custom_code/`, which
 the section above keeps out of the register. They are listed anyway because both actions still
 carry the FlutterFlow custom-action header, so a builder sync would write its copy over them and
 drop the web guard.
