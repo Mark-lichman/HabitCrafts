@@ -559,8 +559,7 @@ void main() {
         await expectWiped(rig);
       });
 
-      test('wipes them before the auth stream reports the loss too',
-          () async {
+      test('wipes them before the auth stream reports the loss too', () async {
         final rig = await unsyncedAnswer();
 
         await rig.host.forget();
