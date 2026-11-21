@@ -16,7 +16,7 @@ import 'flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'flutter_flow/nav/nav.dart';
-import 'components/pages/quiet_room_mastery/jp_sync_host.dart';
+import 'components/pages/quiet_room_mastery/jp_sync_host_service.dart';
 import 'index.dart';
 
 void main() async {
@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> {
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
     // The study record syncs after a non-anonymous sign-in and on each app resume, and the
-    // web forgets it when the user goes (plan 2026-11-19, Task 6, jp_sync_host.dart).
+    // web forgets it when the user goes (plan 2026-11-19, Task 6, jp_sync_host_service.dart).
     JpSyncHost.instance.attach();
     userStream = habitCraftFirebaseUserStream()
       ..listen((user) {

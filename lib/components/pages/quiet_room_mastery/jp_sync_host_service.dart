@@ -1,5 +1,10 @@
 // HAND-WRITTEN. Not FlutterFlow output, so S3 has nothing to adopt.
 //
+// The file name must not end in `host.dart`. The plan names it `jp_sync_host.dart`, but the
+// Flutter web test server serves its own test runner for any URL that contains
+// `host.dart.js` (flutter_tools `flutter_web_platform.dart`). A library compiled to
+// `jp_sync_host.dart.js` then never loads, and every Chrome test that reaches it hangs.
+//
 // The sync host (plan 2026-11-19, Task 6, D8, PIN-8, End state 7): it decides when the study
 // record syncs and when this browser forgets it.
 //

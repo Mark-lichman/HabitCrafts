@@ -27,7 +27,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
-import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync_host.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync_host_service.dart';
 
 /// An auth user with a fixed uid and sign-in state. An anonymous user has a uid but is not
 /// logged in (`HabitCraftFirebaseUser.loggedIn`).
@@ -51,12 +51,28 @@ class _User extends BaseAuthUser {
   Future? sendEmailVerification() => null;
 }
 
-late ItemCatalog catalog;
+/// One grammar item the answers score against. It is built here, not read from the asset
+/// catalog, because the Flutter web test server serves no `assets/` folder: a `rootBundle`
+/// read never completes in Chrome.
+final ItemDef grammarItem = ItemDef(
+  id: 'mari.L26.1',
+  kind: ItemKind.grammar,
+  title: '〜んです',
+  prereqLevel: 2,
+  lesson: 26,
+  probes: const [
+    ProbeDef(
+        id: 'p0', template: 'choose', text: 'あした テストが ＿＿んです。', answer: 'ある'),
+  ],
+);
+
+ItemDef? lookup(String itemId) => itemId == grammarItem.id ? grammarItem : null;
+
 const scheduler = FsrsScheduler();
 final DateTime t0 = DateTime.utc(2026, 11, 20, 9);
 
-Attempt answer(int minute, {ItemKind kind = ItemKind.grammar}) {
-  final item = catalog.ofKind(kind).first;
+Attempt answer(int minute) {
+  final item = grammarItem;
   final p = item.scoredProbes.first;
   return Attempt(
     itemId: item.id,
@@ -75,7 +91,7 @@ Attempt answer(int minute, {ItemKind kind = ItemKind.grammar}) {
 }
 
 Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
-    item: catalog.byId(a.itemId), scheduler: scheduler);
+    item: lookup(a.itemId), scheduler: scheduler);
 
 /// One browser (or phone) under test: its store, the remote of each account, and its host.
 class Rig {
@@ -83,7 +99,7 @@ class Rig {
     host = JpSyncHost(
       openStore: () async => store,
       remoteFor: (uid) => remotes.putIfAbsent(uid, JpRemoteMemory.new),
-      loadLookup: () async => catalog.byId,
+      loadLookup: () async => lookup,
       isWeb: isWeb,
       deviceName: isWeb ? 'Web browser' : 'Android phone',
       clock: () => t0.add(const Duration(hours: 1)),
@@ -107,10 +123,6 @@ Future<JpStoreWeb> webStore() =>
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUpAll(() async {
-    catalog = await ItemCatalog.load();
-  });
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -165,7 +177,7 @@ void main() {
       await JpSync(
               store: phone,
               remote: rig.remote('mark'),
-              lookup: catalog.byId,
+              lookup: lookup,
               scheduler: scheduler,
               deviceName: 'Android phone')
           .run();

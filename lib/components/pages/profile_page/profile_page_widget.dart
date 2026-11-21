@@ -3,7 +3,7 @@ import '/backend/backend.dart';
 import '/components/empty_blocked_users_widget.dart';
 import '/components/pages/devices_page/devices_page_widget.dart'
     show DevicesPageWidget, kDevicesTitle;
-import '/components/pages/quiet_room_mastery/jp_sync_host.dart';
+import '/components/pages/quiet_room_mastery/jp_sync_host_service.dart';
 import '/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_widget.dart';
 import '/components/profile_components/profile_image_component/profile_image_component_widget.dart';
 import '/components/profile_components/profile_line_item/profile_line_item_widget.dart';
