@@ -102,6 +102,21 @@ Attempt answer(int minute) {
 Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
     item: lookup(a.itemId), scheduler: scheduler);
 
+/// A store that is not a `JpStoreMemory`, so it has no wipe. Only [meta] answers: any other
+/// call fails the test.
+class _NoWipeStore implements JpStore {
+  _NoWipeStore({this.owner});
+
+  final String? owner;
+
+  @override
+  Future<String?> meta(String key) async => key == kSyncOwnerMetaKey ? owner : null;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('_NoWipeStore: ${invocation.memberName}');
+}
+
 /// One browser (or phone) under test: its store, the remote of each account, and its host.
 class Rig {
   Rig(this.store, {this.isWeb = true, this.ownerChoice}) {
@@ -669,6 +684,43 @@ void main() {
       expect(await rig.host.signOut(), isFalse);
       expect(rig.host.uid, 'mark');
       expect(rig.errors.single, isA<StateError>());
+    });
+  });
+
+  group('a web store with no wipe', () {
+    bool isNoWipe(Object e) =>
+        e is StateError && e.message == 'jp web wipe: store has no wipe';
+
+    test('sign-out with nobody signed in stops and keeps the jp. keys', () async {
+      SharedPreferences.setMockInitialValues({'jp.vocab.lastLesson': 4});
+      final rig = Rig(_NoWipeStore());
+
+      expect(await rig.host.signOut(), isFalse);
+      expect(rig.errors.single, predicate(isNoWipe));
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('jp.vocab.lastLesson'), 4);
+    });
+
+    test('another account\'s record never syncs, and sign-out stops and keeps the uid',
+        () async {
+      final rig = Rig(_NoWipeStore(owner: 'other'));
+
+      await rig.host.userChanged(_User('mark'));
+      expect(rig.remotes, isEmpty, reason: 'the failed wipe stops the sync');
+      expect(rig.host.uid, 'mark');
+
+      expect(await rig.host.signOut(), isFalse);
+      expect(rig.host.uid, 'mark',
+          reason: 'the user stays signed in here, so the next resume syncs again');
+      expect(rig.errors, hasLength(2));
+      expect(rig.errors.every(isNoWipe), isTrue);
+    });
+
+    test('the phone never wipes, so a store with no wipe signs out', () async {
+      final rig = Rig(_NoWipeStore(), isWeb: false);
+
+      expect(await rig.host.signOut(), isTrue);
+      expect(rig.errors, isEmpty);
     });
   });
 

@@ -266,7 +266,8 @@ class JpSyncHost with WidgetsBindingObserver {
   /// (operator ruling a). False, or no [signOutAnyway], stops sign-out: nothing is wiped and
   /// the user stays signed in here, so the next resume syncs again. The phone wipes nothing,
   /// so a failed last sync never stops it. A store that will not open is reported: the phone
-  /// signs out anyway, and the web stops sign-out because it cannot wipe.
+  /// signs out anyway, and the web stops sign-out because it cannot wipe. A web store with no
+  /// wipe stops sign-out the same way.
   Future<bool> signOut({Future<bool> Function()? signOutAnyway}) {
     final id = _uid;
     final result = Completer<bool>();
@@ -300,8 +301,10 @@ class JpSyncHost with WidgetsBindingObserver {
             }
           }
         }
-        if (_uid == id) _setUid(null);
+        // The wipe runs before the uid clears: a wipe that throws stops sign-out, and the
+        // user stays signed in here, so the next resume syncs again.
         if (isWeb) await _wipe(store);
+        if (_uid == id) _setUid(null);
         result.complete(true);
       } finally {
         if (!result.isCompleted) result.complete(false);
@@ -396,9 +399,13 @@ class JpSyncHost with WidgetsBindingObserver {
     ).run();
   }
 
-  /// The web wipe: the store's own wipe, then the browser's `jp.` keys.
+  /// The web wipe: the store's own wipe, then the browser's `jp.` keys. A store with no wipe
+  /// throws, so the caller stops in place of reporting a wipe that never ran.
   Future<void> _wipe(JpStore store) async {
-    if (store is JpStoreMemory) await store.wipe();
+    if (store is! JpStoreMemory) {
+      throw StateError('jp web wipe: store has no wipe');
+    }
+    await store.wipe();
     await _clearPrefs();
   }
 }
