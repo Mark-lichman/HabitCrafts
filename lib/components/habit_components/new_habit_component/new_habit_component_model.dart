@@ -24,8 +24,8 @@ class NewHabitComponentModel extends FlutterFlowModel<NewHabitComponentWidget> {
   ///  State fields for stateful widgets in this component.
 
   // State field(s) for Expandable widget. The widget sets the controller in its initState,
-  // but the create habit page creates and disposes nine of these models while it builds
-  // only the steps it shows, so dispose must cope with no controller.
+  // but the create habit page creates and disposes one of these models per step while it
+  // builds only the steps it shows, so dispose must cope with no controller.
   ExpandableController? _expandableController;
   ExpandableController get expandableExpandableController =>
       _expandableController!;

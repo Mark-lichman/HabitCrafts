@@ -625,12 +625,12 @@ class FFRoute {
           final page = ffParams.hasFutures
               ? FutureBuilder(
                   future: ffParams.completeFutures(),
-                  builder: (context, snapshot) =>
-                      snapshot.connectionState == ConnectionState.done
-                          ? builder(context, ffParams)
-                          : Container(
-                              color: FlutterFlowTheme.of(context)
-                                  .primaryBackground),
+                  builder: (context, snapshot) => snapshot.connectionState ==
+                          ConnectionState.done
+                      ? builder(context, ffParams)
+                      : Container(
+                          color:
+                              FlutterFlowTheme.of(context).primaryBackground),
                 )
               : builder(context, ffParams);
           final child = appStateNotifier.loading
