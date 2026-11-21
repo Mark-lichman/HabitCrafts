@@ -26,3 +26,20 @@ void installFakeRecognizer(String name, {String? answer, bool reject = false}) {
 void removeFakeRecognizer(String name) {
   globalContext.delete(name.toJS);
 }
+
+/// Puts a fake `navigator` on the page under [name], for the recording probe
+/// (operator ruling 2026-11-21). Its `mediaDevices` has `getUserMedia` only when
+/// [getUserMedia] is true.
+void installFakeNavigator(String name, {required bool getUserMedia}) {
+  final devices = JSObject();
+  if (getUserMedia) {
+    JSAny? open(JSAny? constraints) => null;
+    devices['getUserMedia'] = open.toJS;
+  }
+  globalContext[name] = JSObject()..['mediaDevices'] = devices;
+}
+
+/// Takes the fake navigator under [name] off the page.
+void removeFakeNavigator(String name) {
+  globalContext.delete(name.toJS);
+}

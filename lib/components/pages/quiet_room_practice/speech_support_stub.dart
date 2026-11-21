@@ -9,3 +9,8 @@ import 'speech_service.dart' show SpeechSupport;
 Future<SpeechSupport> browserSpeechSupport(
         List<String> recognizerNames) async =>
     SpeechSupport.works;
+
+/// The phone records through the `record` plugin, so recording works.
+Future<SpeechSupport> browserRecordingSupport(
+        String navigatorName, List<String> recorderNames) async =>
+    SpeechSupport.works;

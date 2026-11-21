@@ -53,8 +53,10 @@
 // stays in the score log only: the close already wrote its attempt. `SpeakScoreLog` stays as
 // the tuning aid beside the record, as its own event kind that never reaches the replay.
 //
-// Type-it where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6). The drill
-// reads `SpeechService.speechSupport`. Where it is not `works`, Speak gives way to a type-it
+// Type-it where the browser cannot record (plan 2026-11-19, Task 9, PIN-6; operator ruling
+// 2026-11-21). Azure scores the drill's recording, so the drill reads
+// `SpeechService.recordingSupport`, not the Web Speech probe, and a browser that records but has
+// no recognizer (Firefox) keeps Speak. Where it is not `works`, Speak gives way to a type-it
 // form: Play still reads the sentence, the learner types it, and Check says whether it
 // matches. A typed sentence logs nothing: no `speak_score` event, no Say-it attempt, and no
 // tally, because nothing was said. Speak waits, disabled, until the browser has answered.
@@ -558,10 +560,11 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// attempt it marks.
   Future<void> _logWrites = Future<void>.value();
 
-  /// What the browser offers for Japanese speech; null until it has answered.
+  /// Whether the browser can record the learner; null until it has answered. Azure scores
+  /// the recording, so this is the drill's gate, not Web Speech.
   SpeechSupport? _support;
 
-  /// True where the browser cannot hear Japanese: the drill shows the type-it form.
+  /// True where the browser cannot record: the drill shows the type-it form.
   bool get _typeOnly => _support != null && _support != SpeechSupport.works;
 
   /// The type-it form's text and its last verdict.
@@ -571,9 +574,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   @override
   void initState() {
     super.initState();
-    _support = _voice.speechSupport;
+    _support = _voice.recordingSupport;
     if (_support == null) {
-      _voice.checkSpeechSupport().then((s) {
+      _voice.checkRecordingSupport().then((s) {
         if (mounted) setState(() => _support = s);
       });
     }
@@ -974,7 +977,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
         ),
       );
 
-  /// Play, then the type-it form in place of Speak, where the browser cannot hear Japanese.
+  /// Play, then the type-it form in place of Speak, where the browser cannot record.
   Widget _typeItControls(QuietRoomTokens t, SpeakSentence s) {
     final v = _typedVerdict;
     return Column(

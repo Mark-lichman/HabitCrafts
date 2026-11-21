@@ -11,6 +11,11 @@
 //   3. A browser without `available()`, or one whose answer fails or never comes, cannot rule
 //      Japanese out, so speech works. A recognizer that then refuses `ja_JP` reports
 //      `language-not-supported`, and SpeechService downgrades on that error.
+//
+// The say-it cards do not use that probe (operator ruling 2026-11-21). They record the learner
+// and Azure scores the audio, so they ask [browserRecordingSupport] instead: the page needs
+// `navigator.mediaDevices.getUserMedia` and a `MediaRecorder`. Firefox has both and no
+// recognizer, so it keeps spoken say-it cards.
 
 import 'dart:async';
 import 'dart:js_interop';
@@ -44,6 +49,27 @@ Future<SpeechSupport> browserSpeechSupport(List<String> recognizerNames) async {
         ? SpeechSupport.noJapanese
         : SpeechSupport.works;
   } catch (_) {
+    return SpeechSupport.works;
+  }
+}
+
+/// Whether this page can record the learner: `getUserMedia` on the page global
+/// [navigatorName]'s `mediaDevices`, and one of [recorderNames] as a page global.
+Future<SpeechSupport> browserRecordingSupport(
+    String navigatorName, List<String> recorderNames) async {
+  try {
+    final nav = globalContext[navigatorName];
+    if (nav.isUndefinedOrNull) return SpeechSupport.noRecorder;
+    final devices = (nav as JSObject)['mediaDevices'];
+    if (devices.isUndefinedOrNull) return SpeechSupport.noRecorder;
+    if (!(devices as JSObject).has('getUserMedia')) {
+      return SpeechSupport.noRecorder;
+    }
+    final hasRecorder =
+        recorderNames.any((name) => !globalContext[name].isUndefinedOrNull);
+    return hasRecorder ? SpeechSupport.works : SpeechSupport.noRecorder;
+  } catch (_) {
+    // A page that cannot be read cannot rule recording out; a failed recording is unscored.
     return SpeechSupport.works;
   }
 }
