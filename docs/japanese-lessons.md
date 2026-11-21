@@ -692,7 +692,8 @@ answer goes out on a spoken probe. A say card's typed answer goes on the probe i
 only where that twin is a type-it card, so typing never earns a say-it clear. The phone always
 answers `works`.
 
-The Web Speech probe stays for the Practice screen, whose listen runs on the recogniser. A browser
+The Web Speech probe is kept, and no screen reads it yet. The Practice screen's `listenOnce` runs
+on the recogniser without consulting it, and a recogniser error there still downgrades it. A browser
 may have no `SpeechRecognition` at all (Firefox), or one that cannot take `ja-JP`.
 `speech_to_text` cannot tell: its web `locales()` returns only the recogniser's own `lang`, which
 is empty until set. So `SpeechService.checkSpeechSupport` asks the page once per run:

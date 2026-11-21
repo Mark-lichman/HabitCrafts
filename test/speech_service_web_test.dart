@@ -5,7 +5,8 @@
 // The say-it cards score a recording through Azure, so they gate on recording
 // (`getUserMedia` and `MediaRecorder`), not on Web Speech (operator ruling 2026-11-21). A
 // browser that records but has no recognizer (Firefox) keeps spoken say-it cards. The Web
-// Speech probe stays for the Practice screen, whose listen runs on the recognizer.
+// Speech probe is kept, and no screen reads it yet. A recognizer error in the Practice
+// screen's listen still downgrades it.
 //
 // The file runs in Chrome (`--platform chrome`) and on the VM, so it reads no file from disk.
 // The browser's answers come through the SpeechService seams (`web`, `browserSpeech`,
@@ -375,7 +376,7 @@ void main() {
       expect(SpeechSupport.values, contains(s));
     });
 
-    test('typeItLine names the reason and is null where speech works', () {
+    test('typeItLine names the reason and is null where the probe answers works', () {
       expect(typeItLine(SpeechSupport.works), isNull);
       expect(typeItLine(null), isNull);
       expect(_noRecognizerLine, contains('type it instead'));

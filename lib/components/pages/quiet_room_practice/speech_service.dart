@@ -38,8 +38,9 @@
 // show the type-it form and credit no spoken attempt. A browser with recording and no
 // recognizer (Firefox) keeps spoken say-it cards.
 //
-// The Web Speech probe stays for the Practice screen, whose [listenOnce] runs on the
-// recognizer. speech_to_text runs on the web with `localeId: 'ja_JP'`, but a browser may have
+// The Web Speech probe is kept, and no screen reads it yet. The Practice screen calls
+// [listenOnce] without consulting it, and a recognizer error in that listen still downgrades
+// the probe's answer. speech_to_text runs on the web with `localeId: 'ja_JP'`, but a browser may have
 // no recognizer at all or none for Japanese. [SpeechService.checkSpeechSupport] asks once per
 // run ([browserSpeechSupport]) and caches the answer. A recognizer error that says the language
 // is unsupported, or a recognizer that will not start, downgrades it later. Neither probe
@@ -60,10 +61,12 @@ import 'speech_support_stub.dart'
 
 enum Judgement { correct, close, wrong, unverified }
 
-/// What this browser offers for a spoken Japanese answer (plan 2026-11-19, Task 9, PIN-6).
+/// What one probe found this browser offers for a spoken Japanese answer (plan 2026-11-19,
+/// Task 9, PIN-6). The Web Speech probe and the recording probe both answer in this type.
 enum SpeechSupport {
-  /// A recognizer that takes Japanese, or one the browser cannot rule out. The phone is
-  /// always here.
+  /// The probe found no reason to refuse: for the Web Speech probe, a recognizer that takes
+  /// Japanese or one the browser cannot rule out; for the recording probe, a way to record.
+  /// The phone is always here.
   works,
 
   /// No speech recognizer at all (no `SpeechRecognition` on the page).
@@ -96,7 +99,8 @@ Future<SpeechSupport> browserRecordingSupport(
         List<String> recorderNames = const ['MediaRecorder']}) =>
     support.browserRecordingSupport(navigatorName, recorderNames);
 
-/// The line a say-it card shows over its type-it form, or null where speech works.
+/// The line a say-it card shows over its type-it form, or null where the probe answers
+/// [SpeechSupport.works].
 String? typeItLine(SpeechSupport? s) => switch (s) {
       SpeechSupport.noRecognizer =>
         'This browser has no speech recognition, so type it instead.',
@@ -319,8 +323,8 @@ class SpeechService {
   SpeechSupport? get speechSupport => _web ? _support : SpeechSupport.works;
 
   /// Asks the browser once and keeps the answer; later calls return it. A probe that throws
-  /// cannot rule speech out, so it answers [SpeechSupport.works]: the say-it card's own
-  /// check still treats a failed recording as unscored, never wrong (PIN-3).
+  /// cannot rule speech out, so it answers [SpeechSupport.works]. The say-it cards never read
+  /// this answer: they gate on [checkRecordingSupport].
   Future<SpeechSupport> checkSpeechSupport() {
     if (!_web) return Future.value(SpeechSupport.works);
     final known = _support;
