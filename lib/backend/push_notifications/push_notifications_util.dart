@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'serialization_util.dart';
@@ -21,20 +19,75 @@ class UserTokenInfo {
   final String fcmToken;
 }
 
-Stream<UserTokenInfo> getFcmTokenStream(String userPath) =>
-    Stream.value(!kIsWeb && (Platform.isIOS || Platform.isAndroid))
-        .where((shouldGetToken) => shouldGetToken)
-        .asyncMap<String?>(
-            (_) => FirebaseMessaging.instance.requestPermission().then(
-                  (settings) => settings.authorizationStatus ==
-                          AuthorizationStatus.authorized
-                      ? FirebaseMessaging.instance.getToken()
-                      : null,
-                ))
-        .switchMap((fcmToken) => Stream.value(fcmToken)
-            .merge(FirebaseMessaging.instance.onTokenRefresh))
-        .where((fcmToken) => fcmToken != null && fcmToken.isNotEmpty)
-        .map((token) => UserTokenInfo(userPath, token!));
+/// The FCM web push key (the VAPID public key from the Firebase console).
+/// It comes from build config, `--dart-define=FCM_WEB_VAPID_KEY=...`, and is
+/// never committed. A build without it skips web push (plan 2026-11-19,
+/// Task 11).
+const kFcmWebVapidKey = String.fromEnvironment('FCM_WEB_VAPID_KEY');
+
+/// The `deviceType` that `addFcmToken` stores as `device_type`.
+String fcmDeviceType({bool isWeb = kIsWeb, TargetPlatform? platform}) {
+  if (isWeb) {
+    return 'Web';
+  }
+  return (platform ?? defaultTargetPlatform) == TargetPlatform.iOS
+      ? 'iOS'
+      : 'Android';
+}
+
+/// The browser and both phone platforms get a token. The browser needs the
+/// web push key too. On the web the token request also registers
+/// `web/firebase-messaging-sw.js`, which shows pushes that arrive while the
+/// tab is in the background.
+Stream<UserTokenInfo> getFcmTokenStream(
+  String userPath, {
+  FirebaseMessaging? messaging,
+  bool isWeb = kIsWeb,
+  TargetPlatform? platform,
+  String vapidKey = kFcmWebVapidKey,
+}) {
+  final target = platform ?? defaultTargetPlatform;
+  final shouldGetToken = isWeb
+      ? vapidKey.isNotEmpty
+      : (target == TargetPlatform.iOS || target == TargetPlatform.android);
+  FirebaseMessaging client() => messaging ?? FirebaseMessaging.instance;
+  Future<String?> requestToken() => client().requestPermission().then(
+        (settings) =>
+            settings.authorizationStatus == AuthorizationStatus.authorized
+                ? client().getToken(vapidKey: isWeb ? vapidKey : null)
+                : null,
+      );
+  return Stream.value(shouldGetToken)
+      .where((shouldGetToken) => shouldGetToken)
+      .asyncMap<String?>(
+        // A browser can reject the permission or service worker call, for
+        // example when notifications are blocked. Web push then stays off
+        // and the app keeps running. The log names the cause for the
+        // in-browser check.
+        (_) => isWeb
+            ? requestToken().catchError((Object e) {
+                debugPrint('Web push token skipped: $e');
+                return null;
+              })
+            : requestToken(),
+      )
+      .switchMap(
+          (fcmToken) => Stream.value(fcmToken).merge(client().onTokenRefresh))
+      .where((fcmToken) => fcmToken != null && fcmToken.isNotEmpty)
+      .map((token) => UserTokenInfo(userPath, token!));
+}
+
+/// The `addFcmToken` call data for one token.
+Map<String, String> addFcmTokenData(
+  UserTokenInfo userTokenInfo, {
+  bool isWeb = kIsWeb,
+  TargetPlatform? platform,
+}) =>
+    {
+      'userDocPath': userTokenInfo.userPath,
+      'fcmToken': userTokenInfo.fcmToken,
+      'deviceType': fcmDeviceType(isWeb: isWeb, platform: platform),
+    };
 
 final fcmTokenUserStream = authenticatedUserStream
     .where((user) => user != null)
@@ -44,11 +97,7 @@ final fcmTokenUserStream = authenticatedUserStream
     .map(
       (userTokenInfo) => makeCloudCall(
         'addFcmToken',
-        {
-          'userDocPath': userTokenInfo.userPath,
-          'fcmToken': userTokenInfo.fcmToken,
-          'deviceType': Platform.isIOS ? 'iOS' : 'Android',
-        },
+        addFcmTokenData(userTokenInfo),
       ),
     );
 
