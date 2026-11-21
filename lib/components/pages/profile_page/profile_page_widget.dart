@@ -545,10 +545,17 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                         // synced, then wipe this browser's study record. If
                                         // that push fails, the user picks wait (stay signed
                                         // in, nothing wiped) or sign out anyway (ruling a).
+                                        // If the web study store will not open, the user
+                                        // stays signed in or signs out anyway, and the
+                                        // record waits for the next sign-in (ruling c,
+                                        // Checkpoint 2026-11-21).
                                         final mayLeave =
                                             await JpSyncHost.instance.signOut(
                                                 signOutAnyway: () =>
                                                     confirmUnsyncedSignOut(
+                                                        context),
+                                                signOutWithoutStore: () =>
+                                                    confirmStoreUnavailableSignOut(
                                                         context));
                                         if (!mayLeave) {
                                           return;
@@ -665,6 +672,9 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                           await currentUserReference!.delete();
                                           logFirebaseEvent('Button_auth');
                                           await authManager.deleteUser(context);
+                                          // The web forgets the deleted account's study
+                                          // record, unsynced answers too.
+                                          await JpSyncHost.instance.forget();
                                           logFirebaseEvent(
                                               'Button_navigate_to');
 

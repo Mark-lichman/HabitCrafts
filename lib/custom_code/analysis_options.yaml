@@ -82,7 +82,7 @@ analyzer:
     # unawaited_futures                4  (delete_group_member_list_action:26,
     #                                      delete_search_member_list_action:26,
     #                                      lock_portrait_model:18,
-    #                                      open_notification_settings:21)
+    #                                      open_notification_settings:29)
     # avoid_dynamic_calls              3  (filter_groups_that_have_today_checkin:30 x2,
     #                                      progress_calendar_widget:96)
     # invalid_null_aware_operator      2  (progress_calendar_widget:310, :358)

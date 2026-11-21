@@ -23,8 +23,14 @@ class NewHabitComponentModel extends FlutterFlowModel<NewHabitComponentWidget> {
 
   ///  State fields for stateful widgets in this component.
 
-  // State field(s) for Expandable widget.
-  late ExpandableController expandableExpandableController;
+  // State field(s) for Expandable widget. The widget sets the controller in its initState,
+  // but the create habit page creates and disposes one of these models per step while it
+  // builds only the steps it shows, so dispose must cope with no controller.
+  ExpandableController? _expandableController;
+  ExpandableController get expandableExpandableController =>
+      _expandableController!;
+  set expandableExpandableController(ExpandableController controller) =>
+      _expandableController = controller;
 
   // State field(s) for InputField widget.
   final inputFieldKey = GlobalKey();
@@ -47,8 +53,9 @@ class NewHabitComponentModel extends FlutterFlowModel<NewHabitComponentWidget> {
 
   @override
   void dispose() {
-    expandableExpandableController.dispose();
-    inputFieldFocusNode?.dispose();
+    _expandableController?.dispose();
+    // inputFieldFocusNode is not disposed here: the Autocomplete creates it, hands it to the
+    // field builder and disposes it itself, so a second dispose asserts.
 
     reminderTextComponentModel.dispose();
   }

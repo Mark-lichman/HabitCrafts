@@ -52,6 +52,14 @@
 // and Missed it as unscored, because unverified is never wrong. A self-mark after a close
 // stays in the score log only: the close already wrote its attempt. `SpeakScoreLog` stays as
 // the tuning aid beside the record, as its own event kind that never reaches the replay.
+//
+// Type-it where the browser cannot record (plan 2026-11-19, Task 9, PIN-6; operator ruling
+// 2026-11-21). Azure scores the drill's recording, so the drill reads
+// `SpeechService.recordingSupport`, not the Web Speech probe, and a browser that records but has
+// no recognizer (Firefox) keeps Speak. Where it is not `works`, Speak gives way to a type-it
+// form: Play still reads the sentence, the learner types it, and Check says whether it
+// matches. A typed sentence logs nothing: no `speak_score` event, no Say-it attempt, and no
+// tally, because nothing was said. Speak waits, disabled, until the browser has answered.
 
 import 'package:flutter/material.dart';
 
@@ -70,7 +78,7 @@ import '/components/pages/quiet_room_practice/anon_caller.dart';
 import '/components/pages/quiet_room_practice/listening_bars.dart';
 import '/components/pages/quiet_room_practice/pronunciation_service.dart';
 import '/components/pages/quiet_room_practice/speech_service.dart'
-    show SpeechService;
+    show SpeechService, SpeechSupport, typeItLine;
 import '/flutter_flow/quiet_room.dart';
 import 'jp_study_kit.dart';
 
@@ -552,9 +560,26 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
   /// attempt it marks.
   Future<void> _logWrites = Future<void>.value();
 
+  /// Whether the browser can record the learner; null until it has answered. Azure scores
+  /// the recording, so this is the drill's gate, not Web Speech.
+  SpeechSupport? _support;
+
+  /// True where the browser cannot record: the drill shows the type-it form.
+  bool get _typeOnly => _support != null && _support != SpeechSupport.works;
+
+  /// The type-it form's text and its last verdict.
+  final TextEditingController _typed = TextEditingController();
+  TypedVerdict? _typedVerdict;
+
   @override
   void initState() {
     super.initState();
+    _support = _voice.recordingSupport;
+    if (_support == null) {
+      _voice.checkRecordingSupport().then((s) {
+        if (mounted) setState(() => _support = s);
+      });
+    }
     WidgetsBinding.instance.addObserver(this);
     final make =
         widget.newService ?? (signIn) => PronunciationService(signIn: signIn);
@@ -601,6 +626,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
     _svc.listening.removeListener(_onMic);
     _svc.dispose();
     _voice.stopSpeaking();
+    _typed.dispose();
     super.dispose();
   }
 
@@ -639,6 +665,7 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
 
   Future<void> _speak(SpeakSentence s) async {
     if (_busy || _playing) return;
+    if (_support == null || _typeOnly) return;
     final attempt = ++_attempt;
     setState(() {
       _busy = true;
@@ -784,7 +811,19 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _logged = null;
       _loggedSentence = null;
       _selfMark = null;
+      _typed.clear();
+      _typedVerdict = null;
     });
+  }
+
+  /// Checks the typed sentence against its kana or its kanji surface. Logs nothing: typing
+  /// is not saying it (PIN-6).
+  void _checkTyped(SpeakSentence s) {
+    final v = checkTypedAnswer(_typed.text, {
+      'answer': s.kana,
+      'accepted': [if (s.surface != s.kana) s.surface],
+    });
+    setState(() => _typedVerdict = v);
   }
 
   /// Starts the set and its tally again from the first sentence.
@@ -798,6 +837,8 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
       _logged = null;
       _loggedSentence = null;
       _selfMark = null;
+      _typed.clear();
+      _typedVerdict = null;
     });
   }
 
@@ -841,7 +882,9 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
         final s = sentences[index];
         final last = index == sentences.length - 1;
         final Widget action;
-        if (_busy && !_stopped) {
+        if (_typeOnly) {
+          action = _typeItControls(t, s);
+        } else if (_busy && !_stopped) {
           action = _scoring ? _checkingPanel(t) : _listeningPanel(t);
         } else {
           action = _controls(t, s);
@@ -860,7 +903,10 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
               ],
             ),
             const SizedBox(height: 4),
-            Text('Play it, then say it once.',
+            Text(
+                _typeOnly
+                    ? 'Play it, then type it.'
+                    : 'Play it, then say it once.',
                 style: qrText(t, size: 13.5, color: t.inkMuted)),
             const SizedBox(height: 16),
             QrCard(
@@ -913,35 +959,89 @@ class _QuietRoomSpeakWidgetState extends State<QuietRoomSpeakWidget>
     );
   }
 
+  Widget _playButton(QuietRoomTokens t, SpeakSentence s,
+          {required bool idle}) =>
+      SizedBox(
+        height: QuietRoomMetrics.targetMin,
+        child: OutlinedButton.icon(
+          onPressed: idle ? () => _play(s) : null,
+          icon: Icon(Icons.volume_up_outlined, size: 20, color: t.ink),
+          label:
+              Text('Play', style: qrText(t, size: 15, weight: FontWeight.w600)),
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(
+                color: t.borderControl, width: QuietRoomMetrics.strokeControl),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm)),
+          ),
+        ),
+      );
+
+  /// Play, then the type-it form in place of Speak, where the browser cannot record.
+  Widget _typeItControls(QuietRoomTokens t, SpeakSentence s) {
+    final v = _typedVerdict;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(typeItLine(_support)!,
+            style: qrText(t, size: 13.5, color: t.inkMuted)),
+        const SizedBox(height: 10),
+        _playButton(t, s, idle: !_playing),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _typed,
+          decoration: const InputDecoration(hintText: 'Type in hiragana'),
+          onSubmitted: (_) => _checkTyped(s),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: QuietRoomMetrics.targetMin,
+          child: ElevatedButton(
+            onPressed: () => _checkTyped(s),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: t.brand600,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(QuietRoomMetrics.radiusSm)),
+            ),
+            child: Text('Check',
+                style: qrText(t,
+                    size: 15, weight: FontWeight.w600, color: t.onBrand)),
+          ),
+        ),
+        if (v != null) ...[
+          const SizedBox(height: 8),
+          Text(
+              key: const ValueKey('speak-typed-verdict'),
+              switch (v) {
+                TypedVerdict.empty => 'Type the sentence first.',
+                TypedVerdict.right => 'Typed right.',
+                TypedVerdict.wrong =>
+                  'Not quite. Compare it with the sentence.',
+                TypedVerdict.selfCheck =>
+                  'This could not be checked. Compare it with the sentence.',
+              },
+              style: qrText(t,
+                  size: 13.5,
+                  weight: FontWeight.w600,
+                  color: v == TypedVerdict.right ? t.sage700 : t.inkMuted)),
+        ],
+      ],
+    );
+  }
+
   Widget _controls(QuietRoomTokens t, SpeakSentence s) {
     final idle = !_playing && !_busy;
     return Row(
       children: [
-        Expanded(
-          child: SizedBox(
-            height: QuietRoomMetrics.targetMin,
-            child: OutlinedButton.icon(
-              onPressed: idle ? () => _play(s) : null,
-              icon: Icon(Icons.volume_up_outlined, size: 20, color: t.ink),
-              label: Text('Play',
-                  style: qrText(t, size: 15, weight: FontWeight.w600)),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                    color: t.borderControl,
-                    width: QuietRoomMetrics.strokeControl),
-                shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(QuietRoomMetrics.radiusSm)),
-              ),
-            ),
-          ),
-        ),
+        Expanded(child: _playButton(t, s, idle: idle)),
         const SizedBox(width: 10),
         Expanded(
           child: SizedBox(
             height: QuietRoomMetrics.targetMin,
             child: ElevatedButton.icon(
-              onPressed: idle ? () => _speak(s) : null,
+              onPressed: idle && _support != null ? () => _speak(s) : null,
               icon: Icon(Icons.mic_none, size: 20, color: t.onBrand),
               label: Text('Speak',
                   style: qrText(t,

@@ -677,6 +677,34 @@ Failure stays honest: if the permission is refused or there is no input device, 
 false, the level stays 0, and the indicator holds its still state. `cancel()` must tear the tap
 down as well as the recogniser, or the browser's recording indicator stays lit after Stop.
 
+### Type-it where the browser cannot record
+
+The say-it cards (the speak drill, the Say-it sentence, the say card and the word card) record
+the learner, and Azure scores the audio. So they gate on the recording path, not on Web Speech
+(plan 2026-11-19, Task 9, PIN-6; operator ruling 2026-11-21). `SpeechService.checkRecordingSupport`
+asks the page once per run, through `speech_support_web.dart` (`dart:js_interop`, no new
+dependency): `navigator.mediaDevices.getUserMedia` and a `MediaRecorder` global mean `works`, and
+either one missing means `noRecorder`. Firefox records and has no recogniser, so it keeps spoken
+say-it cards.
+
+Where the answer is not `works`, the say-it cards show the type-it form in place of Say it, and no
+answer goes out on a spoken probe. A say card's typed answer goes on the probe it twins, graded
+only where that twin is a type-it card, so typing never earns a say-it clear. The phone always
+answers `works`.
+
+The Web Speech probe is kept, and no screen reads it yet. The Practice screen's `listenOnce` runs
+on the recogniser without consulting it, and a recogniser error there still downgrades it. A browser
+may have no `SpeechRecognition` at all (Firefox), or one that cannot take `ja-JP`.
+`speech_to_text` cannot tell: its web `locales()` returns only the recogniser's own `lang`, which
+is empty until set. So `SpeechService.checkSpeechSupport` asks the page once per run:
+
+- no `SpeechRecognition` or `webkitSpeechRecognition` global: `noRecognizer`;
+- the recogniser's static `available({langs: ['ja-JP']})`, where the browser has it, answering
+  `unavailable`: `noJapanese`;
+- anything else, a browser without `available()` included: `works`. A recogniser that then
+  reports `language-not-supported`, or will not start, downgrades the answer. That never changes
+  the recording answer.
+
 ### The listening indicator is a visualiser, and the genre lies by default
 
 `listening_bars.dart` is a symmetric bar row, the shape of podcast and voice-recording
