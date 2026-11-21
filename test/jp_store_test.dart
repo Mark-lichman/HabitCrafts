@@ -1108,31 +1108,81 @@ void main() {
           expect((await store.seeds()).length, 1);
         });
 
-        test('a run cut short before the flag logs no Say-it attempt twice',
+        // The first spoken time as a phone keeps it, with microseconds, and the same time cut
+        // to the millisecond by plain epoch arithmetic (not by `legacyTime`, the code under
+        // test).
+        final spokenMicro = spokenAt[0].add(const Duration(microseconds: 300));
+        final spokenCut = DateTime.fromMillisecondsSinceEpoch(
+            spokenMicro.millisecondsSinceEpoch,
+            isUtc: true);
+
+        /// Rewrites the first old score's time to [at], the way an old build wrote it.
+        Future<void> setFirstOldScoreTime(DateTime at) async {
+          final prefs = await SharedPreferences.getInstance();
+          final list =
+              jsonDecode(prefs.getString(SpeakScoreLog.prefsKey)!) as List;
+          (list.first as Map)['at'] = at.toIso8601String();
+          await prefs.setString(SpeakScoreLog.prefsKey, jsonEncode(list));
+        }
+
+        for (final (name, oldScoreAt, loggedAt)
+            in <(String, DateTime, DateTime)>[
+          ('on a whole millisecond', spokenAt[0], spokenAt[0].toUtc()),
+          // A pre-v3 run logged the attempt, and the v3 migration then cut its time.
+          ('cut by the v3 migration', spokenMicro, spokenCut),
+          // The mirror: the store still holds the microseconds.
+          ('logged with its microseconds', spokenMicro, spokenMicro.toUtc()),
+        ]) {
+          test(
+              'a run cut short before the flag logs no Say-it attempt twice '
+              '($name)', () async {
+            expect(spokenCut.isBefore(spokenMicro), isTrue,
+                reason: 'the fixture is under a millisecond past the cut');
+            await setFirstOldScoreTime(oldScoreAt);
+            // The first run died after the seed and one Say-it attempt, before the flag.
+            await store.appendSeed(point.id, today,
+                atUtc: DateTime.utc(2026, 11, 3, 9));
+            await store.appendAttempt(Attempt.fromJson({
+              ...firstSayIt(sessionId: 'first-run').toJson(),
+              'atUtc': loggedAt.toIso8601String(),
+            }));
+            final report = await migrate();
+            expect(report.sayIt, 3);
+            expect(report.alreadyLogged, 1);
+            expect(report.dueToday, 1);
+            final log = await store.attempts();
+            expect(log.length, 4);
+            expect(
+                log.where((a) =>
+                    a.itemId == point.id &&
+                    a.probeId == sentence.value.probeId &&
+                    a.atUtc.millisecondsSinceEpoch ==
+                        oldScoreAt.millisecondsSinceEpoch),
+                hasLength(1));
+            expect(log.first.sessionId, 'first-run',
+                reason: 'the logged one stays');
+            // The seed repeats in the log and the item is still due once, today.
+            expect((await store.seeds()).length, 2);
+            expect(await store.dueOnOrBefore(today),
+                [DueItem(itemId: point.id, dueDay: today, seeded: true)]);
+            expect((await migrate()).alreadyRan, isTrue);
+          });
+        }
+
+        test('a logged Say-it attempt a millisecond away is another attempt',
             () async {
-          // The first run died after the seed and one Say-it attempt, before the flag.
-          await store.appendSeed(point.id, today,
-              atUtc: DateTime.utc(2026, 11, 3, 9));
-          await store.appendAttempt(firstSayIt(sessionId: 'first-run'));
+          // The cut is to the millisecond and no wider: the neighbor does not hide the entry.
+          await setFirstOldScoreTime(spokenMicro);
+          await store.appendAttempt(Attempt.fromJson({
+            ...firstSayIt(sessionId: 'first-run').toJson(),
+            'atUtc': spokenCut
+                .add(const Duration(milliseconds: 1))
+                .toIso8601String(),
+          }));
           final report = await migrate();
-          expect(report.sayIt, 3);
-          expect(report.alreadyLogged, 1);
-          expect(report.dueToday, 1);
-          final log = await store.attempts();
-          expect(log.length, 4);
-          expect(
-              log.where((a) =>
-                  a.itemId == point.id &&
-                  a.probeId == sentence.value.probeId &&
-                  a.atUtc == spokenAt[0].toUtc()),
-              hasLength(1));
-          expect(log.first.sessionId, 'first-run',
-              reason: 'the logged one stays');
-          // The seed repeats in the log and the item is still due once, today.
-          expect((await store.seeds()).length, 2);
-          expect(await store.dueOnOrBefore(today),
-              [DueItem(itemId: point.id, dueDay: today, seeded: true)]);
-          expect((await migrate()).alreadyRan, isTrue);
+          expect(report.sayIt, 4);
+          expect(report.alreadyLogged, 0);
+          expect((await store.attempts()).length, 5);
         });
 
         test(

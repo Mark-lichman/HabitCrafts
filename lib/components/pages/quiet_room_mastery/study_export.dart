@@ -464,9 +464,11 @@ Future<V2MigrationReport> migrateV2Keys(
       skipped: skipped);
 }
 
-/// The identity of one imported Say-it attempt: its point, probe and instant.
+/// The identity of one imported Say-it attempt: its point, probe and instant. The instant is
+/// cut to the millisecond ([legacyTime]), because the v3 migration cuts a logged attempt's
+/// time and the SharedPreferences entry keeps its microseconds on a phone.
 String _sayItKey(String itemId, String probeId, DateTime at) =>
-    '$itemId\u0000$probeId\u0000${at.toUtc().toIso8601String()}';
+    '$itemId\u0000$probeId\u0000${legacyTime(at).toIso8601String()}';
 
 /// The score log's entries, or null when the blob is not a string, not JSON or not a list.
 List<Object?>? _decodeList(Object raw) {
