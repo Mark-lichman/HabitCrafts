@@ -30,14 +30,22 @@
 // is no longer current neither stops the recogniser nor closes the level tap, because both now
 // belong to a newer attempt.
 //
-// 🚨 ON THE WEB, SAY-IT CARDS ASK FOR SPEECH ONLY WHERE THE BROWSER CAN HEAR JAPANESE (plan
-// 2026-11-19, Task 9, PIN-6). speech_to_text runs on the web with `localeId: 'ja_JP'`, but a
-// browser may have no recognizer at all (Firefox) or none for Japanese. [SpeechService.
-// checkSpeechSupport] asks the browser once per run ([browserSpeechSupport]) and caches the
-// answer. A recognizer error that says the language is unsupported, or a recognizer that will
-// not start, downgrades it later. Where it is not [SpeechSupport.works], the say-it cards show
-// the type-it form and credit no spoken attempt. The phone always answers `works`: its recognizer
-// path is unchanged (PIN-9).
+// 🚨 ON THE WEB, SAY-IT CARDS ASK FOR SPEECH ONLY WHERE THE BROWSER CAN RECORD (plan
+// 2026-11-19, Task 9, PIN-6; operator ruling 2026-11-21). The say-it cards record the learner
+// and Azure scores the audio (`PronunciationService`), so their gate is the recording path:
+// [SpeechService.checkRecordingSupport] asks once per run ([browserRecordingSupport]) for
+// `getUserMedia` and `MediaRecorder`. Where it is not [SpeechSupport.works], the say-it cards
+// show the type-it form and credit no spoken attempt. A browser with recording and no
+// recognizer (Firefox) keeps spoken say-it cards.
+//
+// The Web Speech probe is kept, and no screen reads it yet. The Practice screen calls
+// [listenOnce] without consulting it, and a recognizer error in that listen still downgrades
+// the probe's answer. speech_to_text runs on the web with `localeId: 'ja_JP'`, but a browser may have
+// no recognizer at all or none for Japanese. [SpeechService.checkSpeechSupport] asks once per
+// run ([browserSpeechSupport]) and caches the answer. A recognizer error that says the language
+// is unsupported, or a recognizer that will not start, downgrades it later. Neither probe
+// touches the other's answer. The phone always answers `works` to both: its paths are
+// unchanged (PIN-9).
 
 import 'dart:async';
 
@@ -53,10 +61,12 @@ import 'speech_support_stub.dart'
 
 enum Judgement { correct, close, wrong, unverified }
 
-/// What this browser offers for a spoken Japanese answer (plan 2026-11-19, Task 9, PIN-6).
+/// What one probe found this browser offers for a spoken Japanese answer (plan 2026-11-19,
+/// Task 9, PIN-6). The Web Speech probe and the recording probe both answer in this type.
 enum SpeechSupport {
-  /// A recognizer that takes Japanese, or one the browser cannot rule out. The phone is
-  /// always here.
+  /// The probe found no reason to refuse: for the Web Speech probe, a recognizer that takes
+  /// Japanese or one the browser cannot rule out; for the recording probe, a way to record.
+  /// The phone is always here.
   works,
 
   /// No speech recognizer at all (no `SpeechRecognition` on the page).
@@ -64,6 +74,10 @@ enum SpeechSupport {
 
   /// A recognizer, but the browser says it cannot take `ja-JP`.
   noJapanese,
+
+  /// No way to record the learner (no `getUserMedia` or no `MediaRecorder`). Only the
+  /// recording probe answers this.
+  noRecorder,
 }
 
 /// Asks the browser what it offers for Japanese speech. Off the web it answers
@@ -76,12 +90,24 @@ Future<SpeechSupport> browserSpeechSupport(
         ]}) =>
     support.browserSpeechSupport(recognizerNames);
 
-/// The line a say-it card shows over its type-it form, or null where speech works.
+/// Asks the browser whether it can record the learner for a say-it card: `getUserMedia` on
+/// the page global [navigatorName]'s `mediaDevices`, and one of [recorderNames] as a page
+/// global. Off the web it answers [SpeechSupport.works] and touches nothing. A test passes
+/// names no browser has to reach [SpeechSupport.noRecorder].
+Future<SpeechSupport> browserRecordingSupport(
+        {String navigatorName = 'navigator',
+        List<String> recorderNames = const ['MediaRecorder']}) =>
+    support.browserRecordingSupport(navigatorName, recorderNames);
+
+/// The line a say-it card shows over its type-it form, or null where the probe answers
+/// [SpeechSupport.works].
 String? typeItLine(SpeechSupport? s) => switch (s) {
       SpeechSupport.noRecognizer =>
         'This browser has no speech recognition, so type it instead.',
       SpeechSupport.noJapanese =>
         'This browser cannot hear Japanese, so type it instead.',
+      SpeechSupport.noRecorder =>
+        'This browser cannot record your voice, so type it instead.',
       _ => null,
     };
 
@@ -233,11 +259,13 @@ class SpeechService {
         _ttsSeam = null,
         _micPermission = _pluginMicPermission,
         _web = kIsWeb,
-        _browserSpeech = browserSpeechSupport;
+        _browserSpeech = browserSpeechSupport,
+        _browserRecording = browserRecordingSupport;
   static final SpeechService instance = SpeechService._();
 
   /// A service on fake engines, for tests. [web] makes it act as the web build, where
-  /// [browserSpeech] answers what the browser offers (null asks the real browser).
+  /// [browserSpeech] answers what the browser offers for Web Speech and [browserRecording]
+  /// whether it can record (null asks the real browser).
   @visibleForTesting
   SpeechService.withEngines({
     required SttEngine stt,
@@ -245,28 +273,58 @@ class SpeechService {
     Future<bool> Function()? micPermission,
     bool web = false,
     Future<SpeechSupport> Function()? browserSpeech,
+    Future<SpeechSupport> Function()? browserRecording,
   })  : _sttSeam = stt,
         _ttsSeam = tts,
         _micPermission = micPermission ?? (() async => true),
         _web = web,
-        _browserSpeech = browserSpeech ?? browserSpeechSupport;
+        _browserSpeech = browserSpeech ?? browserSpeechSupport,
+        _browserRecording = browserRecording ?? browserRecordingSupport;
 
   final SttEngine? _sttSeam;
   final TtsEngine? _ttsSeam;
   final Future<bool> Function() _micPermission;
   final bool _web;
   final Future<SpeechSupport> Function() _browserSpeech;
+  final Future<SpeechSupport> Function() _browserRecording;
 
   SpeechSupport? _support;
   Future<SpeechSupport>? _supportCheck;
+
+  SpeechSupport? _recording;
+  Future<SpeechSupport>? _recordingCheck;
+
+  /// Whether the browser can record the learner for a say-it card, or null on the web until
+  /// [checkRecordingSupport] has its answer. Off the web always [SpeechSupport.works]. The
+  /// say-it cards gate on this, never on [speechSupport]: Azure scores their recording.
+  SpeechSupport? get recordingSupport =>
+      _web ? _recording : SpeechSupport.works;
+
+  /// Asks the browser once whether it can record, and keeps the answer. A probe that throws
+  /// cannot rule recording out, so it answers [SpeechSupport.works]: a recording that then
+  /// fails is unscored, never wrong (PIN-3). Recognizer errors never change this answer.
+  Future<SpeechSupport> checkRecordingSupport() {
+    if (!_web) return Future.value(SpeechSupport.works);
+    final known = _recording;
+    if (known != null) return Future.value(known);
+    return _recordingCheck ??= () async {
+      SpeechSupport s;
+      try {
+        s = await _browserRecording();
+      } catch (_) {
+        s = SpeechSupport.works;
+      }
+      return _recording ??= s;
+    }();
+  }
 
   /// What the browser offers for a spoken Japanese answer, or null on the web until
   /// [checkSpeechSupport] has its answer. Off the web always [SpeechSupport.works].
   SpeechSupport? get speechSupport => _web ? _support : SpeechSupport.works;
 
   /// Asks the browser once and keeps the answer; later calls return it. A probe that throws
-  /// cannot rule speech out, so it answers [SpeechSupport.works]: the say-it card's own
-  /// check still treats a failed recording as unscored, never wrong (PIN-3).
+  /// cannot rule speech out, so it answers [SpeechSupport.works]. The say-it cards never read
+  /// this answer: they gate on [checkRecordingSupport].
   Future<SpeechSupport> checkSpeechSupport() {
     if (!_web) return Future.value(SpeechSupport.works);
     final known = _support;

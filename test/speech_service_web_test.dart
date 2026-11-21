@@ -1,12 +1,18 @@
 // Say-it cards on the web (plan 2026-11-19, Task 9, End state 10, PIN-6). The say-it cards use
-// speech where the browser can hear Japanese and fall back to type-it where it cannot, and a
-// type-it answer credits no spoken attempt.
+// speech where the browser can record the learner and fall back to type-it where it cannot, and
+// a type-it answer credits no spoken attempt.
+//
+// The say-it cards score a recording through Azure, so they gate on recording
+// (`getUserMedia` and `MediaRecorder`), not on Web Speech (operator ruling 2026-11-21). A
+// browser that records but has no recognizer (Firefox) keeps spoken say-it cards. The Web
+// Speech probe is kept, and no screen reads it yet. A recognizer error in the Practice
+// screen's listen still downgrades it.
 //
 // The file runs in Chrome (`--platform chrome`) and on the VM, so it reads no file from disk.
-// The browser's answer comes through the SpeechService seam (`web`, `browserSpeech`), so both
-// fallbacks run in any browser. The real probe is run once against the page as well: a
-// recognizer name no browser has must read as no recognizer in Chrome, and as `works` on the
-// VM, where there is no browser to ask.
+// The browser's answers come through the SpeechService seams (`web`, `browserSpeech`,
+// `browserRecording`), so every fallback runs in any browser. The real probes run against the
+// page as well: a recognizer or recorder name no browser has must read as missing in Chrome,
+// and as `works` on the VM, where there is no browser to ask.
 
 import 'dart:async';
 import 'dart:convert';
@@ -83,13 +89,27 @@ class _Tts implements TtsEngine {
   Future<void> stop() async {}
 }
 
-/// A speech service acting as the web build, where the browser answers [support].
+/// A speech service acting as the web build, where the browser answers [support] for Web
+/// Speech and can record.
 SpeechService _webSpeech(SpeechSupport support, {_Stt? stt}) =>
     SpeechService.withEngines(
         stt: stt ?? _Stt(),
         tts: _Tts(),
         web: true,
-        browserSpeech: () async => support);
+        browserSpeech: () async => support,
+        browserRecording: () async => SpeechSupport.works);
+
+/// A speech service acting as the web build, where the browser answers [recording] for
+/// recording and [speech] for Web Speech. The default speech works, so a type-it card here
+/// can only come from the recording gate.
+SpeechService _webCard(SpeechSupport recording,
+        {SpeechSupport speech = SpeechSupport.works}) =>
+    SpeechService.withEngines(
+        stt: _Stt(),
+        tts: _Tts(),
+        web: true,
+        browserSpeech: () async => speech,
+        browserRecording: () async => recording);
 
 // --- items -------------------------------------------------------------------
 
@@ -226,6 +246,7 @@ VoidCallback? _action(WidgetTester tester, String label) => tester
 
 final _noRecognizerLine = typeItLine(SpeechSupport.noRecognizer)!;
 final _noJapaneseLine = typeItLine(SpeechSupport.noJapanese)!;
+final _noRecorderLine = typeItLine(SpeechSupport.noRecorder)!;
 
 void main() {
   group('SpeechService detects what the browser offers', () {
@@ -355,11 +376,116 @@ void main() {
       expect(SpeechSupport.values, contains(s));
     });
 
-    test('typeItLine names the reason and is null where speech works', () {
+    test('typeItLine names the reason and is null where the probe works', () {
       expect(typeItLine(SpeechSupport.works), isNull);
       expect(typeItLine(null), isNull);
       expect(_noRecognizerLine, contains('type it instead'));
       expect(_noJapaneseLine, contains('Japanese'));
+      expect(_noRecorderLine, contains('record'));
+      expect(_noRecorderLine, contains('type it instead'));
+    });
+  });
+
+  group('SpeechService detects whether the browser can record', () {
+    test('off the web recording works at once and the browser is never asked',
+        () async {
+      var asked = 0;
+      final s = SpeechService.withEngines(
+          stt: _Stt(),
+          tts: _Tts(),
+          browserRecording: () async {
+            asked++;
+            return SpeechSupport.noRecorder;
+          });
+      expect(s.recordingSupport, SpeechSupport.works);
+      expect(await s.checkRecordingSupport(), SpeechSupport.works);
+      expect(asked, 0);
+    });
+
+    test('on the web the answer is unknown until the browser is asked, once',
+        () async {
+      var asked = 0;
+      final s = SpeechService.withEngines(
+          stt: _Stt(),
+          tts: _Tts(),
+          web: true,
+          browserRecording: () async {
+            asked++;
+            return SpeechSupport.noRecorder;
+          });
+      expect(s.recordingSupport, isNull);
+      final both = await Future.wait(
+          [s.checkRecordingSupport(), s.checkRecordingSupport()]);
+      expect(both, [SpeechSupport.noRecorder, SpeechSupport.noRecorder]);
+      expect(s.recordingSupport, SpeechSupport.noRecorder);
+      expect(asked, 1);
+    });
+
+    test('a recording probe that throws cannot rule recording out', () async {
+      final s = SpeechService.withEngines(
+          stt: _Stt(),
+          tts: _Tts(),
+          web: true,
+          browserRecording: () async => throw StateError('no answer'));
+      expect(await s.checkRecordingSupport(), SpeechSupport.works);
+    });
+
+    test('recording and Web Speech are asked apart', () async {
+      final s =
+          _webCard(SpeechSupport.works, speech: SpeechSupport.noRecognizer);
+      expect(await s.checkRecordingSupport(), SpeechSupport.works);
+      expect(await s.checkSpeechSupport(), SpeechSupport.noRecognizer);
+      expect(s.recordingSupport, SpeechSupport.works);
+    });
+
+    test('a recognizer error never downgrades recording', () async {
+      final s = _webCard(SpeechSupport.works);
+      expect(await s.checkRecordingSupport(), SpeechSupport.works);
+      // The recognizer will not start: Web Speech reads as none, recording stands.
+      final broken = SpeechService.withEngines(
+          stt: _Stt()..initialised = false,
+          tts: _Tts(),
+          web: true,
+          browserRecording: () async => SpeechSupport.works);
+      expect(await broken.checkRecordingSupport(), SpeechSupport.works);
+      expect(await broken.prepareMic(), isFalse);
+      expect(broken.speechSupport, SpeechSupport.noRecognizer);
+      expect(broken.recordingSupport, SpeechSupport.works);
+    });
+
+    test('the real probe finds no recorder under a name no browser has',
+        () async {
+      final s = await browserRecordingSupport(
+          recorderNames: const ['habitCraftsNoSuchRecorder']);
+      expect(s, kIsWeb ? SpeechSupport.noRecorder : SpeechSupport.works);
+    });
+
+    group('the real probe reads getUserMedia in Chrome', () {
+      const nav = 'habitCraftsFakeNavigator';
+      tearDown(() => removeFakeNavigator(nav));
+
+      test('no getUserMedia is no recorder', () async {
+        installFakeNavigator(nav, getUserMedia: false);
+        expect(await browserRecordingSupport(navigatorName: nav),
+            SpeechSupport.noRecorder);
+      }, skip: !kIsWeb);
+
+      test('getUserMedia and MediaRecorder work', () async {
+        installFakeNavigator(nav, getUserMedia: true);
+        expect(await browserRecordingSupport(navigatorName: nav),
+            SpeechSupport.works);
+      }, skip: !kIsWeb);
+
+      test('no navigator at all is no recorder', () async {
+        expect(
+            await browserRecordingSupport(
+                navigatorName: 'habitCraftsNoSuchNavigator'),
+            SpeechSupport.noRecorder);
+      }, skip: !kIsWeb);
+    });
+
+    test('this browser can record, so its say-it cards stay spoken', () async {
+      expect(await browserRecordingSupport(), SpeechSupport.works);
     });
   });
 
@@ -368,7 +494,7 @@ void main() {
     late List<DrillAnswer> answers;
 
     Future<void> open(WidgetTester tester, ItemDef item, String probeId,
-        {SpeechSupport support = SpeechSupport.noRecognizer}) async {
+        {SpeechSupport recording = SpeechSupport.noRecorder}) async {
       pron = FakePronunciation();
       answers = [];
       await _pump(
@@ -378,7 +504,7 @@ void main() {
               probe: _probe(item, probeId),
               state: _state,
               pronunciation: pron,
-              speech: _webSpeech(support),
+              speech: _webCard(recording),
               onAnswer: answers.add));
     }
 
@@ -387,7 +513,7 @@ void main() {
       await open(tester, _grammar, 'say.p1');
       expect(find.text('Say it'), findsNothing);
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text(_noRecognizerLine), findsOneWidget);
+      expect(find.text(_noRecorderLine), findsOneWidget);
     });
 
     testWidgets('the label asks to type, never to say, over the type-it form',
@@ -395,15 +521,14 @@ void main() {
       await open(tester, _grammar, 'say.p1');
       expect(find.text('Type the whole sentence'), findsOneWidget);
       expect(find.text('Say the whole sentence'), findsNothing);
-      await open(tester, _word, kWordSayCardId,
-          support: SpeechSupport.noJapanese);
+      await open(tester, _word, kWordSayCardId);
       expect(find.text('Type the word'), findsOneWidget);
       expect(find.text('Say the word'), findsNothing);
     });
 
-    testWidgets('where speech works the label still asks to say',
+    testWidgets('where recording works the label still asks to say',
         (tester) async {
-      await open(tester, _grammar, 'say.p1', support: SpeechSupport.works);
+      await open(tester, _grammar, 'say.p1', recording: SpeechSupport.works);
       expect(find.text('Say the whole sentence'), findsOneWidget);
       expect(find.text('Type the whole sentence'), findsNothing);
     });
@@ -441,9 +566,8 @@ void main() {
     });
 
     testWidgets('a word say card goes on the typed probe', (tester) async {
-      await open(tester, _word, kWordSayCardId,
-          support: SpeechSupport.noJapanese);
-      expect(find.text(_noJapaneseLine), findsOneWidget);
+      await open(tester, _word, kWordSayCardId);
+      expect(find.text(_noRecorderLine), findsOneWidget);
       await _type(tester, 'かばん');
       await _tap(tester, 'Check');
       expect(answers.single.probeId, 'typed');
@@ -470,9 +594,9 @@ void main() {
       expect(answers.single.grade, Grade.unscored);
     });
 
-    testWidgets('where speech works the card asks for speech as before',
+    testWidgets('where recording works the card asks for speech as before',
         (tester) async {
-      await open(tester, _grammar, 'say.p1', support: SpeechSupport.works);
+      await open(tester, _grammar, 'say.p1', recording: SpeechSupport.works);
       expect(find.byType(TextField), findsNothing);
       await _tap(tester, 'Say it');
       expect(pron.checks, hasLength(1));
@@ -493,7 +617,8 @@ void main() {
                   stt: _Stt(),
                   tts: _Tts(),
                   web: true,
-                  browserSpeech: () => answer.future),
+                  browserSpeech: () async => SpeechSupport.works,
+                  browserRecording: () => answer.future),
               onAnswer: (_) {}));
       expect(_action(tester, 'Say it'), isNull);
       answer.complete(SpeechSupport.works);
@@ -515,11 +640,11 @@ void main() {
               probe: _probe(_word, 'spoken'),
               state: _state,
               pronunciation: pron,
-              speech: _webSpeech(SpeechSupport.noRecognizer),
+              speech: _webCard(SpeechSupport.noRecorder),
               onAnswer: answers.add));
       expect(find.text('Say it'), findsNothing);
       expect(find.text('Type the word'), findsOneWidget);
-      expect(find.text(_noRecognizerLine), findsOneWidget);
+      expect(find.text(_noRecorderLine), findsOneWidget);
       await _tap(tester, 'Skip');
       expect(answers.single.probeId, 'typed');
       expect(_spokenTemplates, isNot(contains(answers.single.template)));
@@ -535,7 +660,7 @@ void main() {
               probe: _probe(_word, 'spoken'),
               state: _state,
               pronunciation: FakePronunciation(),
-              speech: _webSpeech(SpeechSupport.noJapanese),
+              speech: _webCard(SpeechSupport.noRecorder),
               onAnswer: answers.add));
       await _type(tester, 'かばん');
       await _tap(tester, 'Check');
@@ -554,7 +679,7 @@ void main() {
               probe: _probe(_grammar, 'ex0'),
               state: _state,
               pronunciation: pron,
-              speech: _webSpeech(SpeechSupport.noRecognizer),
+              speech: _webCard(SpeechSupport.noRecorder),
               onAnswer: answers.add));
       expect(find.text('Say it'), findsNothing);
       expect(find.text('Type the sentence'), findsOneWidget);
@@ -569,13 +694,75 @@ void main() {
     });
   });
 
+  // Firefox: it records, but it has no SpeechRecognition. The say-it cards score a recording
+  // through Azure, so they stay spoken (operator ruling 2026-11-21).
+  group('a browser that records but has no recognizer keeps spoken cards', () {
+    SpeechService firefox() =>
+        _webCard(SpeechSupport.works, speech: SpeechSupport.noRecognizer);
+
+    testWidgets('the say card offers Say it and scores the recording',
+        (tester) async {
+      final pron = FakePronunciation();
+      await _pump(
+          tester,
+          SayCardProbe(
+              item: _grammar,
+              probe: _probe(_grammar, 'say.p1'),
+              state: _state,
+              pronunciation: pron,
+              speech: firefox(),
+              onAnswer: (_) {}));
+      expect(find.byType(TextField), findsNothing);
+      expect(find.text(_noRecognizerLine), findsNothing);
+      expect(find.text('Say the whole sentence'), findsOneWidget);
+      await _tap(tester, 'Say it');
+      expect(pron.checks, hasLength(1));
+    });
+
+    testWidgets('the word card offers Say it and scores the recording',
+        (tester) async {
+      final pron = FakePronunciation();
+      await _pump(
+          tester,
+          WordRecallProbe(
+              item: _word,
+              probe: _probe(_word, 'spoken'),
+              state: _state,
+              pronunciation: pron,
+              speech: firefox(),
+              onAnswer: (_) {}));
+      expect(find.text(_noRecognizerLine), findsNothing);
+      await _tap(tester, 'Say it');
+      expect(pron.checks, hasLength(1));
+    });
+
+    testWidgets('the Say-it sentence offers Say it and scores the recording',
+        (tester) async {
+      final pron = FakePronunciation();
+      await _pump(
+          tester,
+          SayItProbe(
+              item: _grammar,
+              probe: _probe(_grammar, 'ex0'),
+              state: _state,
+              pronunciation: pron,
+              speech: firefox(),
+              onAnswer: (_) {}));
+      expect(find.byType(TextField), findsNothing);
+      expect(find.text('Say the sentence'), findsOneWidget);
+      await _tap(tester, 'Say it');
+      expect(pron.checks, hasLength(1));
+    });
+  });
+
   group('the speak drill falls back to type-it', () {
     late FakePronunciation pron;
     late JpStoreMemory store;
     late AttemptRecorder recorder;
     late SpeakSentence first;
 
-    Future<void> open(WidgetTester tester, SpeechSupport support) async {
+    Future<void> open(WidgetTester tester, SpeechSupport recording,
+        {SpeechSupport speech = SpeechSupport.works}) async {
       SharedPreferences.setMockInitialValues({});
       store = JpStoreMemory();
       debugSetSharedJpStore(store);
@@ -608,7 +795,7 @@ void main() {
           home: QuietRoomSpeakWidget(
         lesson: 26,
         newService: (_) => pron,
-        speech: _webSpeech(support),
+        speech: _webCard(recording, speech: speech),
         play: (_) async => null,
         recorder: recorder,
         store: store,
@@ -621,10 +808,10 @@ void main() {
 
     testWidgets('Speak gives way to the type-it form, and nothing is logged',
         (tester) async {
-      await open(tester, SpeechSupport.noRecognizer);
+      await open(tester, SpeechSupport.noRecorder);
       expect(find.text('Speak'), findsNothing);
       expect(find.text('Play'), findsOneWidget);
-      expect(find.text(_noRecognizerLine), findsOneWidget);
+      expect(find.text(_noRecorderLine), findsOneWidget);
       await _type(tester, first.kana);
       await _tap(tester, 'Check');
       expect(find.text('Typed right.'), findsOneWidget);
@@ -639,10 +826,20 @@ void main() {
       expect(await store.attempts(), isEmpty, reason: 'no Say-it attempt');
     });
 
-    testWidgets('where speech works the drill offers Speak as before',
+    testWidgets('where recording works the drill offers Speak as before',
         (tester) async {
       await open(tester, SpeechSupport.works);
       expect(find.text('Speak'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      expect(_action(tester, 'Speak'), isNotNull);
+    });
+
+    testWidgets('a browser that records but has no recognizer offers Speak',
+        (tester) async {
+      await open(tester, SpeechSupport.works,
+          speech: SpeechSupport.noRecognizer);
+      expect(find.text('Speak'), findsOneWidget);
+      expect(find.text(_noRecognizerLine), findsNothing);
       expect(find.byType(TextField), findsNothing);
       expect(_action(tester, 'Speak'), isNotNull);
     });

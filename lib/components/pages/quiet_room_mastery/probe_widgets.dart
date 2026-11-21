@@ -56,10 +56,12 @@
 //
 // Every widget shows the item's state pill with its n of 4 clears ([ProbeStatePill]).
 //
-// Type-it where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6). The three
-// spoken cards ([WordRecallProbe], [SayCardProbe], [SayItProbe]) read
-// `SpeechService.speechSupport` ([_SpeechGate]). Where it is not `works` they show the type-it
-// form in place of Say it, and no answer goes out on a spoken probe:
+// Type-it where the browser cannot record (plan 2026-11-19, Task 9, PIN-6; operator ruling
+// 2026-11-21). The three spoken cards ([WordRecallProbe], [SayCardProbe], [SayItProbe]) score a
+// recording through Azure, so they read `SpeechService.recordingSupport` ([_SpeechGate]), not
+// the Web Speech probe. A browser that records but has no recognizer (Firefox) keeps Say it.
+// Where it is not `works` they show the type-it form in place of Say it, and no answer goes out
+// on a spoken probe:
 //   * the word card keeps its typed form, and Skip goes on its `typed` probe;
 //   * a say card's typed answer goes on the probe it twins ([sayCardTypedProbe]), graded by
 //     `checkTypedAnswer` when that twin is a type-it card, else unscored, so typing never
@@ -343,14 +345,16 @@ Widget _quietButton(QuietRoomTokens t, String label, VoidCallback? onPressed) =>
               size: 13.5, weight: FontWeight.w600, color: t.brand600)),
     );
 
-/// Whether a spoken card may ask for speech (plan 2026-11-19, Task 9, PIN-6). Reads the
-/// service's answer at once, or asks the browser and rebuilds when it answers.
+/// Whether a spoken card may ask for speech (plan 2026-11-19, Task 9, PIN-6). The card records
+/// and Azure scores it, so the gate is the browser's recording support, not Web Speech
+/// (operator ruling 2026-11-21). Reads the service's answer at once, or asks the browser and
+/// rebuilds when it answers.
 mixin _SpeechGate<T extends StatefulWidget> on State<T> {
   SpeechService? get speechSeam;
 
   SpeechSupport? _support;
 
-  /// True where the browser cannot hear Japanese: the card shows the type-it form.
+  /// True where the browser cannot record: the card shows the type-it form.
   bool get typeOnly => _support != null && _support != SpeechSupport.works;
 
   /// True once the browser has answered. Say it stays disabled until then.
@@ -360,16 +364,16 @@ mixin _SpeechGate<T extends StatefulWidget> on State<T> {
   void initState() {
     super.initState();
     final speech = speechSeam ?? SpeechService.instance;
-    _support = speech.speechSupport;
+    _support = speech.recordingSupport;
     if (_support == null) {
-      speech.checkSpeechSupport().then((s) {
+      speech.checkRecordingSupport().then((s) {
         if (mounted) setState(() => _support = s);
       });
     }
   }
 }
 
-/// The probe a say card's typed answer goes on where the browser cannot hear Japanese: the
+/// The probe a say card's typed answer goes on where the browser cannot record: the
 /// probe it twins (`say.p2` twins `p2`), or a word's `typed` probe for its one say card.
 /// Null when the item has neither.
 ProbeDef? sayCardTypedProbe(ItemDef item, ProbeDef sayCard) {
@@ -658,7 +662,7 @@ class _TypedFillProbeState extends State<TypedFillProbe> {
 /// then Knew it (clear) or Not yet (wrong), self-graded (PIN-13); a hint before the reveal
 /// makes Knew it hinted.
 ///
-/// Where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6) Say it is gone and
+/// Where the browser cannot record (plan 2026-11-19, Task 9, PIN-6) Say it is gone and
 /// Skip goes on the `typed` probe, so no spoken attempt is logged.
 class WordRecallProbe extends StatefulWidget {
   const WordRecallProbe({
@@ -674,7 +678,7 @@ class WordRecallProbe extends StatefulWidget {
     this.speech,
   });
 
-  /// Says whether the browser can hear Japanese. Null uses [SpeechService.instance].
+  /// Says whether the browser can record. Null uses [SpeechService.instance].
   final SpeechService? speech;
 
   final ItemDef item;
@@ -841,8 +845,8 @@ class _WordRecallProbeState extends State<WordRecallProbe>
   void _mark(bool gotIt) => _report(_awaiting!,
       _grade0(gotIt ? Outcome.none : Outcome.wrong, selfOverride: gotIt));
 
-  /// Skip goes on the spoken probe, or on the typed one where the browser cannot hear
-  /// Japanese, so a type-only card logs no spoken attempt.
+  /// Skip goes on the spoken probe, or on the typed one where the browser cannot record,
+  /// so a type-only card logs no spoken attempt.
   void _skip() {
     if (_listening || _grade != null) return;
     _report(_awaiting ?? _probeFor(typeOnly ? 'typed' : 'spoken'),
@@ -1146,7 +1150,7 @@ String sayCardInstruction(ItemDef item, ProbeDef probe) => switch (item.kind) {
 /// the section still hides it. The draft is never on the Say-it track: the host writes the
 /// session's source.
 ///
-/// Where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6) the card shows the
+/// Where the browser cannot record (plan 2026-11-19, Task 9, PIN-6) the card shows the
 /// type-it form instead, and its answer goes on [sayCardTypedProbe], never on the say card:
 /// graded by `checkTypedAnswer` when that probe is a type-it card (a typed answer the matcher
 /// cannot judge asks Got it, self, or Missed it, wrong), else unscored. Skip is unscored on it.
@@ -1163,7 +1167,7 @@ class SayCardProbe extends StatefulWidget {
     this.speech,
   });
 
-  /// Says whether the browser can hear Japanese. Null uses [SpeechService.instance].
+  /// Says whether the browser can record. Null uses [SpeechService.instance].
   final SpeechService? speech;
 
   final ItemDef item;
@@ -1195,7 +1199,7 @@ class _SayCardProbeState extends State<SayCardProbe>
   bool _spokenClose = false;
   bool _notScored = false;
 
-  // The type-it form, where the browser cannot hear Japanese.
+  // The type-it form, where the browser cannot record.
   final TextEditingController _typed = TextEditingController();
   bool _empty = false;
 
@@ -1381,7 +1385,7 @@ class _SayCardProbeState extends State<SayCardProbe>
 /// examples with ／ (いこう／たべよう／しよう／こよう), and the scorer takes one sentence, so the
 /// caller passes one form, as the speak drill splits them. Null uses the probe's answer.
 ///
-/// Where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6) the card shows the
+/// Where the browser cannot record (plan 2026-11-19, Task 9, PIN-6) the card shows the
 /// type-it form: Check says whether the typed sentence matches, and the typed sentence goes
 /// out unscored, as Skip, so it credits nothing.
 class SayItProbe extends StatefulWidget {
@@ -1396,7 +1400,7 @@ class SayItProbe extends StatefulWidget {
     this.speech,
   });
 
-  /// Says whether the browser can hear Japanese. Null uses [SpeechService.instance].
+  /// Says whether the browser can record. Null uses [SpeechService.instance].
   final SpeechService? speech;
 
   final ItemDef item;
@@ -1423,7 +1427,7 @@ class _SayItProbeState extends State<SayItProbe> with _SpeechGate<SayItProbe> {
   int _token = 0;
   Grade? _grade;
 
-  // The type-it form, where the browser cannot hear Japanese.
+  // The type-it form, where the browser cannot record.
   final TextEditingController _typed = TextEditingController();
   bool _empty = false;
 
