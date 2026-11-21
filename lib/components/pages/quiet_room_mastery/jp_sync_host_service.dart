@@ -90,7 +90,9 @@ const String kUnsyncedSignOutAnyway = 'Sign out anyway';
 /// The other-account dialog (operator ruling b).
 const String kOwnerTitle = 'This phone has another account\'s study record';
 const String kOwnerBody =
-    'The study record on this phone belongs to another account. Choose what to do with it.';
+    'The study record on this phone belongs to another account. Choose what to do with it. '
+    'Start fresh removes it from this phone, and any answers it never synced to the other '
+    'account are lost.';
 const String kOwnerKeepLocal = 'Keep it on this phone';
 const String kOwnerUpload = 'Upload it to this account';
 const String kOwnerStartFresh = 'Start fresh';
@@ -120,19 +122,25 @@ Future<JpOwnerChoice?> askOwnerChoice(BuildContext context) =>
     showDialog<JpOwnerChoice>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(kOwnerTitle),
-        content: const Text(kOwnerBody),
-        actions: [
-          for (final (label, choice) in const [
-            (kOwnerKeepLocal, JpOwnerChoice.keepLocal),
-            (kOwnerUpload, JpOwnerChoice.upload),
-            (kOwnerStartFresh, JpOwnerChoice.startFresh),
-          ])
-            TextButton(
-                onPressed: () => Navigator.pop(dialogContext, choice),
-                child: Text(label)),
-        ],
+      // The system back button would pop with null, which skips sync for the whole session
+      // and tells the user nothing, so only a pick closes this dialog. The unsynced dialog
+      // needs no such guard: its null answer maps to "Wait", the safe choice.
+      builder: (dialogContext) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: const Text(kOwnerTitle),
+          content: const Text(kOwnerBody),
+          actions: [
+            for (final (label, choice) in const [
+              (kOwnerKeepLocal, JpOwnerChoice.keepLocal),
+              (kOwnerUpload, JpOwnerChoice.upload),
+              (kOwnerStartFresh, JpOwnerChoice.startFresh),
+            ])
+              TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, choice),
+                  child: Text(label)),
+          ],
+        ),
       ),
     );
 
@@ -275,7 +283,10 @@ class JpSyncHost with WidgetsBindingObserver {
           }
           return;
         }
-        if (id != null && await store.meta(kSyncOwnerMetaKey) == id) {
+        // The last sync runs unless another account owns the record. A record with no owner
+        // yet (a sign-in sync that failed before it claimed the record) is claimable, as in
+        // [_sync], so its unpushed answers still get the ruling (a) ask.
+        if (id != null && _claimable(await store.meta(kSyncOwnerMetaKey), id)) {
           try {
             await _run(id, store);
           } catch (e, s) {
@@ -299,6 +310,10 @@ class JpSyncHost with WidgetsBindingObserver {
     return result.future;
   }
 
+  /// Whether [id] may sync a record whose store owner is [owner]: no owner yet, or [id] itself.
+  static bool _claimable(String? owner, String id) =>
+      owner == null || owner.isEmpty || owner == id;
+
   void _setUid(String? id) {
     _uid = id;
     _choice = null;
@@ -317,7 +332,7 @@ class JpSyncHost with WidgetsBindingObserver {
     if (_uid != id) return;
     final store = await _openStore();
     final owner = await store.meta(kSyncOwnerMetaKey);
-    if (owner != null && owner.isNotEmpty && owner != id) {
+    if (owner != null && !_claimable(owner, id)) {
       if (isWeb) {
         await _wipe(store);
       } else if (!await _takeOver(id, owner, store, ask: ask)) {

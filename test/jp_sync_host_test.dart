@@ -354,6 +354,51 @@ void main() {
         expect(asks, 0);
         expect(await rig.store.allEvents(), isEmpty);
       });
+
+      test('a record with no owner yet still asks: the sign-in sync failed early',
+          () async {
+        final rig = Rig(await webStore());
+        rig.failOpen = true;
+        await rig.host.userChanged(_User('mark'));
+        rig.failOpen = false;
+        expect(await rig.store.meta(kSyncOwnerMetaKey), isNull);
+        await record(rig.store, answer(2));
+        rig.remote('mark').online = false;
+
+        final signedOut =
+            await rig.host.signOut(signOutAnyway: () async => false);
+
+        expect(signedOut, isFalse);
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        expect(rig.host.uid, 'mark');
+      });
+
+      test('an empty owner counts as no owner', () async {
+        final rig = Rig(await webStore());
+        rig.failOpen = true;
+        await rig.host.userChanged(_User('mark'));
+        rig.failOpen = false;
+        await rig.store.putMeta(kSyncOwnerMetaKey, '');
+        await record(rig.store, answer(2));
+        rig.remote('mark').online = false;
+
+        expect(await rig.host.signOut(signOutAnyway: () async => false),
+            isFalse);
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+      });
+    });
+
+    test('a record with no owner yet is pushed by the last sync', () async {
+      final rig = Rig(await webStore());
+      rig.failOpen = true;
+      await rig.host.userChanged(_User('mark'));
+      rig.failOpen = false;
+      await record(rig.store, answer(2));
+
+      expect(await rig.host.signOut(), isTrue);
+
+      expect(rig.remote('mark').events, hasLength(1));
+      expect(await rig.store.allEvents(), isEmpty);
     });
 
     test('losing the user from the auth stream (account delete) wipes too',
@@ -674,6 +719,35 @@ void main() {
         expect(result, choice);
       });
     }
+
+    testWidgets('the other-account dialog ignores the back button and names '
+        'what "start fresh" loses', (tester) async {
+      var closed = false;
+      JpOwnerChoice? result;
+      await tester.pumpWidget(MaterialApp(
+          home: Builder(
+              builder: (context) => TextButton(
+                  onPressed: () async {
+                    result = await askOwnerChoice(context);
+                    closed = true;
+                  },
+                  child: const Text('go')))));
+
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('removes it from this phone'), findsOneWidget);
+      expect(find.textContaining('never synced'), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text(kOwnerTitle), findsOneWidget);
+      expect(closed, isFalse);
+
+      await tester.tap(find.text(kOwnerStartFresh));
+      await tester.pumpAndSettle();
+      expect(closed, isTrue);
+      expect(result, JpOwnerChoice.startFresh);
+    });
   });
 
   group('jpDeviceName', () {
