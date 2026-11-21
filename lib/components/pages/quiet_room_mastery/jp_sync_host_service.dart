@@ -16,12 +16,18 @@
 //     answers this device has not pushed yet reach the account, then on the web wipes the
 //     store. If that last sync fails and answers are still unpushed, sign-out stops and asks
 //     the user to wait or sign out anyway (operator ruling a, Checkpoint 2026-11-20). Nothing
-//     is wiped without "sign out anyway". Losing the user from the auth stream (account
-//     delete) wipes on the web with no last sync: the account's record is gone anyway. The
-//     wipe is the store's own (`JpStoreWeb.wipe`), which also clears the sync cursor and the
-//     replay flag, so the next sign-in pulls the whole record. It keeps the device id and the
-//     migration flags. The host also removes the browser's `jp.` SharedPreferences keys, so
-//     no study data of the last account stays in this browser.
+//     is wiped without "sign out anyway". If the web study store will not open at sign-out,
+//     the host asks to stay signed in or sign out anyway (ruling c, Checkpoint 2026-11-21).
+//     "Sign out anyway" leaves the record in this browser until the next sign-in, which wipes
+//     it as another account's record. The wipe is the store's own (`JpStoreWeb.wipe`), which
+//     also clears the sync cursor and the replay flag, so the next sign-in pulls the whole
+//     record. It keeps the device id and the migration flags. The host also removes the
+//     browser's `jp.` SharedPreferences keys, so no study data of the last account stays in
+//     this browser.
+//   * Losing the user from the auth stream without Log Out (a revoked session, another tab's
+//     sign-out, account delete) runs no last sync. On the web it wipes a record with no
+//     unsynced answer. A record with unsynced answers stays (ruling d, Checkpoint 2026-11-21):
+//     the same account's next sign-in pushes them, and another account's sign-in wipes them.
 //   * The store keeps the uid it syncs for ([kSyncOwnerMetaKey]). On the web, a record another
 //     account left behind (a tab closed before sign-out) is wiped before the first sync, so it
 //     never reaches the next account. A record with no owner yet (the phone's history before
@@ -31,24 +37,29 @@
 //     phone asks once ([JpSyncHost.askOwner], operator ruling b): keep the record local,
 //     upload it to the new account, or start fresh. Then the new account syncs.
 //       - keep local: the whole record stays on the phone as a study export under
-//         [kKeptRecordMetaPrefix] plus the old owner's uid, and is never sent. The working
-//         record empties, so the new account's record replays alone. The export stays in the
-//         store under that key. No screen reads it yet. An empty record writes no export, so
-//         a pick that finishes on a later resume never replaces the export with an empty one.
+//         [kKeptRecordMetaPrefix] plus the old owner's uid, and is never sent to the new
+//         account. The working record and its day plans empty, so the new account's record
+//         replays alone and receives no old plan. When the old owner signs in again on this
+//         phone, the kept record joins the working one and syncs to the old owner (ruling a,
+//         Checkpoint 2026-11-21). A later keep for the same owner joins the earlier kept
+//         record and never replaces it. An empty record writes no export.
 //       - upload: every event goes to the new account, the ones the old owner already holds
 //         too, then the record is the new account's. The sync cursor (the old owner's server
 //         time) is cleared, so the first pull reads the new account's whole record.
-//       - start fresh: the working record empties, then the new account's record is pulled.
+//       - start fresh: the working record and its day plans empty (ruling b, Checkpoint
+//         2026-11-21), then the new account's record is pulled.
 //     The pick holds for the session, so a resume never asks again. The record becomes the new
 //     account's only once the pick's work is done, so a pick the network cut short finishes on
-//     the next resume. No answer (the dialog never shown) changes nothing and syncs nothing
-//     until the next sign-in.
+//     the next resume. That retry repeats only the owner write, never the keep or the empty
+//     step. No answer (the dialog never shown) changes nothing and syncs nothing until the
+//     next sign-in.
 //
 // Every step runs one at a time, in the order called, so a wipe never races a sync. A failed
 // sync (offline, the rules refused) is reported to [JpSyncHost.onError] and never thrown: the
 // phone keeps working offline (PIN-9), and the next sign-in or resume tries again.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -65,7 +76,7 @@ import 'jp_store_memory.dart';
 import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'jp_sync.dart';
 import 'scheduler.dart';
-import 'study_export.dart' show encodeStudyExport;
+import 'study_export.dart' show decodeStudyExport, encodeStudyExport;
 
 /// The store flag that holds the uid whose record the store syncs. The web wipe clears it.
 const String kSyncOwnerMetaKey = 'sync.owner';
@@ -87,6 +98,35 @@ const String kUnsyncedBody =
     'synced are lost.';
 const String kUnsyncedWait = 'Wait';
 const String kUnsyncedSignOutAnyway = 'Sign out anyway';
+
+/// The store-unavailable sign-out dialog (operator ruling c, Checkpoint 2026-11-21). Its
+/// "sign out anyway" button reuses [kUnsyncedSignOutAnyway].
+const String kNoStoreTitle = 'Your study record could not be opened';
+const String kNoStoreBody =
+    'This browser could not open your study record, so it cannot remove it. If you sign out '
+    'anyway, the record stays in this browser until the next sign-in. If another account '
+    'signs in here, the record is removed then.';
+const String kNoStoreStay = 'Stay signed in';
+
+/// Asks whether to sign out when the web store will not open. True means "sign out anyway".
+Future<bool> confirmStoreUnavailableSignOut(BuildContext context) async =>
+    await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text(kNoStoreTitle),
+        content: const Text(kNoStoreBody),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(kNoStoreStay)),
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text(kUnsyncedSignOutAnyway)),
+        ],
+      ),
+    ) ??
+    false;
 
 /// The other-account dialog (operator ruling b).
 const String kOwnerTitle = 'This phone has another account\'s study record';
@@ -153,6 +193,31 @@ bool studyLogHoldsRecord(StudyLog log) =>
     log.events.isNotEmpty ||
     log.notes.isNotEmpty ||
     log.discuss.isNotEmpty;
+
+/// [a] and [b] joined, each event once: attempts, seeds and side events keyed by event id, an
+/// id-less row by its content. The notes and Discuss marks are the joined events resolved; an
+/// item no event names keeps its plain note or mark, [b]'s over [a]'s. Keeping a record for the
+/// same owner twice, and bringing a kept record back, both join (operator ruling a).
+StudyLog mergeStudyLogs(StudyLog a, StudyLog b) {
+  String rowKey(String? eventId, Map<String, dynamic> json) =>
+      eventId ?? 'row:${jsonEncode(json..remove('id'))}';
+  List<T> join<T>(List<T> x, List<T> y, String Function(T row) key) {
+    final seen = <String>{};
+    return [
+      for (final row in [...x, ...y])
+        if (seen.add(key(row))) row
+    ];
+  }
+
+  return StudyLog.resolved(
+    attempts:
+        join(a.attempts, b.attempts, (r) => rowKey(r.eventId, r.toJson())),
+    seeds: join(a.seeds, b.seeds, (r) => rowKey(r.eventId, r.toJson())),
+    legacyNotes: {...a.notes, ...b.notes},
+    legacyDiscuss: {...a.discuss, ...b.discuss},
+    events: join(a.events, b.events, (e) => e.eventId),
+  );
+}
 
 /// The plain name the devices page shows for this device.
 String jpDeviceName({bool isWeb = kIsWeb, TargetPlatform? platform}) {
@@ -230,6 +295,11 @@ class JpSyncHost with WidgetsBindingObserver {
   /// Whether the signed-in uid was asked this session and gave no pick.
   bool _declined = false;
 
+  /// Whether the pick's keep and empty steps ran this session. A pick cut short after them
+  /// repeats only the owner write, so a retry never empties the new account's answers nor
+  /// keeps them as the old owner's.
+  bool _applied = false;
+
   /// The tail of the step chain.
   Future<void> _tail = Future.value();
 
@@ -248,7 +318,8 @@ class JpSyncHost with WidgetsBindingObserver {
   }
 
   /// The auth stream's latest user. A new non-anonymous user syncs. Losing a signed-in user
-  /// wipes the web store. Returns when the steps it queued finish.
+  /// wipes the web store unless it holds unsynced answers ([_lost]). Returns when the steps it
+  /// queued finish.
   Future<void> userChanged(BaseAuthUser? user) {
     final id = user?.uid;
     final next = user != null && user.loggedIn && id != null && id.isNotEmpty
@@ -258,9 +329,25 @@ class JpSyncHost with WidgetsBindingObserver {
     final previous = _uid;
     _setUid(next);
     return _step(() async {
-      if (previous != null && isWeb) await _wipe(await _openStore());
+      if (previous != null && isWeb) await _lost(previous, await _openStore());
       if (next != null) await _sync(next, ask: true);
     });
+  }
+
+  /// The web lost [previous] without Log Out: a revoked session, another tab's sign-out, or
+  /// account delete. A record with no unsynced answer is wiped. One with unsynced answers stays
+  /// (operator ruling d, Checkpoint 2026-11-21): the same account's next sign-in pushes them,
+  /// and any other account's sign-in wipes them ([_sync]). A kept record with no owner yet
+  /// takes [previous] as owner, so the next account cannot claim it.
+  Future<void> _lost(String previous, JpStore store) async {
+    if ((await store.unpushedEvents()).isEmpty) {
+      await _wipe(store);
+      return;
+    }
+    final owner = await store.meta(kSyncOwnerMetaKey);
+    if (owner == null || owner.isEmpty) {
+      await store.putMeta(kSyncOwnerMetaKey, previous);
+    }
   }
 
   /// An app resume: syncs when a non-anonymous user is signed in.
@@ -277,9 +364,13 @@ class JpSyncHost with WidgetsBindingObserver {
   /// (operator ruling a). False, or no [signOutAnyway], stops sign-out: nothing is wiped and
   /// the user stays signed in here, so the next resume syncs again. The phone wipes nothing,
   /// so a failed last sync never stops it. A store that will not open is reported: the phone
-  /// signs out anyway, and the web stops sign-out because it cannot wipe. A web store with no
-  /// wipe stops sign-out the same way.
-  Future<bool> signOut({Future<bool> Function()? signOutAnyway}) {
+  /// signs out anyway. The web cannot wipe, so it calls [signOutWithoutStore] (operator ruling
+  /// c, Checkpoint 2026-11-21). True signs out and leaves the record in this browser until the
+  /// next sign-in: the same account syncs it, another account's sign-in wipes it. False, or no
+  /// [signOutWithoutStore], stops sign-out. A web store with no wipe stops sign-out.
+  Future<bool> signOut(
+      {Future<bool> Function()? signOutAnyway,
+      Future<bool> Function()? signOutWithoutStore}) {
     final id = _uid;
     final result = Completer<bool>();
     _step(() async {
@@ -289,7 +380,8 @@ class JpSyncHost with WidgetsBindingObserver {
           store = await _openStore();
         } catch (e, s) {
           onError(e, s);
-          if (!isWeb) {
+          if (!isWeb ||
+              (signOutWithoutStore != null && await signOutWithoutStore())) {
             if (_uid == id) _setUid(null);
             result.complete(true);
           }
@@ -332,6 +424,7 @@ class JpSyncHost with WidgetsBindingObserver {
     _uid = id;
     _choice = null;
     _declined = false;
+    _applied = false;
   }
 
   Future<void> _step(Future<void> Function() step) {
@@ -353,7 +446,23 @@ class JpSyncHost with WidgetsBindingObserver {
         return;
       }
     }
+    await _restoreKept(id, store);
     await _run(id, store);
+  }
+
+  /// Brings back the record kept on this phone for [id] ("keep local"), now that [id] owns the
+  /// record again (operator ruling a, Checkpoint 2026-11-21). The kept record joins the working
+  /// one, each event once, and replays. Its events the account lacks go out on the next push;
+  /// the remote keeps the ones it holds as they are. The kept slot is then emptied. A restore
+  /// cut short repeats on the next sync, and the join adds nothing twice.
+  Future<void> _restoreKept(String id, JpStore store) async {
+    final key = kKeptRecordMetaPrefix + id;
+    final kept = await store.meta(key);
+    if (kept == null || kept.isEmpty) return;
+    final merged =
+        mergeStudyLogs(await store.exportLog(), decodeStudyExport(kept));
+    await store.importLog(merged, await _loadLookup(), scheduler);
+    await store.putMeta(key, '');
   }
 
   /// The phone's pick for a record [owner] holds, now signed in as [id]. Returns whether the
@@ -377,27 +486,46 @@ class JpSyncHost with WidgetsBindingObserver {
         // The cursor is the old owner's server time: the new account's pull starts over.
         await store.putMeta(kSyncCursorMetaKey, '');
       case JpOwnerChoice.keepLocal:
-        // A pick finished on a later resume runs this arm again, on the record the earlier
-        // run emptied. An empty record writes no export, so it never replaces the kept one.
-        final log = await store.exportLog();
-        if (studyLogHoldsRecord(log)) {
-          final kept = encodeStudyExport(log,
-              exportedAt: (_clock ?? DateTime.now)().toUtc());
-          await store.putMeta(kKeptRecordMetaPrefix + owner, kept);
+        // A pick cut short after these steps repeats only the owner write ([_applied]). A
+        // run cut short inside them repeats them: an empty record then writes no export.
+        if (!_applied) {
+          final log = await store.exportLog();
+          if (studyLogHoldsRecord(log)) await _keep(owner, log, store);
+          await _empty(store);
+          _applied = true;
         }
-        await _empty(store);
       case JpOwnerChoice.startFresh:
-        await _empty(store);
+        if (!_applied) {
+          await _empty(store);
+          _applied = true;
+        }
     }
     await store.putMeta(kSyncOwnerMetaKey, id);
     return true;
   }
 
+  /// Keeps [log] on the phone as [owner]'s record. An earlier kept record for [owner] is never
+  /// replaced: [log] joins it, each event once (operator ruling a, Checkpoint 2026-11-21).
+  Future<void> _keep(String owner, StudyLog log, JpStore store) async {
+    final key = kKeptRecordMetaPrefix + owner;
+    final earlier = await store.meta(key);
+    final merged = earlier == null || earlier.isEmpty
+        ? log
+        : mergeStudyLogs(decodeStudyExport(earlier), log);
+    await store.putMeta(
+        key,
+        encodeStudyExport(merged,
+            exportedAt: (_clock ?? DateTime.now)().toUtc()));
+  }
+
   /// Empties the phone's working record through the store's import: the log, the side
-  /// events and the derived states go, and the sync cursor with them. The replay flag is
-  /// cleared too, so the next sync pulls the whole record and replays only what it pulls.
+  /// events and the derived states go, and the sync cursor with them. The day plans go too
+  /// (operator ruling b, Checkpoint 2026-11-21), so the new account receives no old plan. The
+  /// replay flag is cleared, so the next sync pulls the whole record and replays only what it
+  /// pulls.
   Future<void> _empty(JpStore store) async {
     await store.importLog(const StudyLog(), await _loadLookup(), scheduler);
+    await store.clearDays();
     await store.putMeta(kSyncReplayPendingMetaKey, '0');
   }
 

@@ -368,6 +368,23 @@ void main() {
         expect(await store.lastDay(), 40);
       });
 
+      test('clearDays removes every day plan and keeps the log and the flags',
+          () async {
+        final g = firstOf(ItemKind.grammar);
+        await store.appendAttempt(answer(g, 1, Grade.clear));
+        await store.putMeta('k', 'v');
+        await store.putDay(const DayRecord(day: 38, plan: '{}'));
+        await store.putDay(const DayRecord(day: 40, plan: '{}', position: 1));
+
+        await store.clearDays();
+
+        expect(await store.lastDay(), isNull);
+        expect(await store.day(38), isNull);
+        expect(await store.day(40), isNull);
+        expect(await store.attempts(), hasLength(1));
+        expect(await store.meta('k'), 'v');
+      });
+
       test('notes and flags', () async {
         await store.setNote('n', kNoteCanUseIt);
         expect((await store.item('n'))!.note, kNoteCanUseIt);

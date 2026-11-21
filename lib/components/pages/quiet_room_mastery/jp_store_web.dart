@@ -167,6 +167,9 @@ class JpStoreWeb extends JpStoreMemory {
   Future<void> putDay(DayRecord record) => _locked(() => super.putDay(record));
 
   @override
+  Future<void> clearDays() => _locked(() => super.clearDays());
+
+  @override
   Future<void> putMeta(String key, String value) =>
       _locked(() => super.putMeta(key, value));
 

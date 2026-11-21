@@ -831,6 +831,11 @@ abstract class JpStore {
   /// The latest local day with a [DayRecord], or null before the first session.
   Future<int?> lastDay();
 
+  /// Removes every [DayRecord]. The log, the derived states and the flags stay. The phone's
+  /// account switch runs it when it empties the record (start fresh, keep local), so the new
+  /// account receives no plan of the old one (operator ruling b, Checkpoint 2026-11-21).
+  Future<void> clearDays();
+
   // --- bookkeeping -----------------------------------------------------------
 
   /// A store-level flag, such as the one-time v2 migration's.
