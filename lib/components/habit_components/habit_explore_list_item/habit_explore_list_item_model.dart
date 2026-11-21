@@ -18,8 +18,14 @@ class HabitExploreListItemModel
     extends FlutterFlowModel<HabitExploreListItemWidget> {
   ///  State fields for stateful widgets in this component.
 
-  // State field(s) for Expandable widget.
-  late ExpandableController expandableExpandableController;
+  // State field(s) for Expandable widget. The widget sets the controller in its initState,
+  // but the explore component creates and disposes this model even when the widget never
+  // builds (no habits to list), so dispose must cope with no controller.
+  ExpandableController? _expandableController;
+  ExpandableController get expandableExpandableController =>
+      _expandableController!;
+  set expandableExpandableController(ExpandableController controller) =>
+      _expandableController = controller;
 
   // Model for category_list_display component.
   late CategoryListDisplayModel categoryListDisplayModel;
@@ -32,7 +38,7 @@ class HabitExploreListItemModel
 
   @override
   void dispose() {
-    expandableExpandableController.dispose();
+    _expandableController?.dispose();
     categoryListDisplayModel.dispose();
   }
 }
