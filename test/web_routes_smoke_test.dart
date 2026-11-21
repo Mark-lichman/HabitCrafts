@@ -34,6 +34,12 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.
     show debugSetSharedJpStore;
 import 'package:habit_craft/custom_code/actions/index.dart' as actions;
 import 'package:habit_craft/flutter_flow/nav/nav.dart';
+import 'package:habit_craft/index.dart'
+    show
+        Chat2DetailsWidget,
+        Chat2InviteUsersWidget,
+        ImageDetailsWidget,
+        LibraryDetailPageWidget;
 import 'package:habit_craft/main.dart';
 
 const _uid = 'smoke-user';
@@ -475,8 +481,11 @@ class _FakeMessaging extends FirebaseMessagingPlatform
   @override
   Stream<String> get onTokenRefresh => const Stream.empty();
 
+  /// Whether this browser has the Notification API. A test that clears it restores it.
+  var supported = true;
+
   @override
-  Future<bool> isSupported() async => true;
+  Future<bool> isSupported() async => supported;
 }
 
 class _FakeCallable extends HttpsCallablePlatform {
@@ -535,6 +544,16 @@ const _routeQueries = <String, Map<String, String>>{
   '/imageDetails': {'chatMessage': 'message1'},
 };
 
+/// The screen each route in [_routeQueries] builds, keyed by the screen's own route path.
+/// Some of these routes wait for their URL document behind a blank placeholder inside
+/// [PushNotificationsHandler], so the handler alone does not prove the screen was built.
+final _routeScreens = <String, Type>{
+  LibraryDetailPageWidget.routePath: LibraryDetailPageWidget,
+  Chat2DetailsWidget.routePath: Chat2DetailsWidget,
+  Chat2InviteUsersWidget.routePath: Chat2InviteUsersWidget,
+  ImageDetailsWidget.routePath: ImageDetailsWidget,
+};
+
 /// A layout overflow is a debug paint warning, not a thrown error, and the test font draws
 /// every glyph as a wide box, so text that fits in a real browser overflows here. Every
 /// other report fails the test.
@@ -587,6 +606,11 @@ Future<void> _openRoute(WidgetTester tester, String path) async {
   // handler, and the splash logo replaces both.
   expect(find.byType(PushNotificationsHandler), findsWidgets,
       reason: '$path showed the launch splash, not its screen');
+  final screen = _routeScreens[path];
+  if (screen != null) {
+    expect(find.byType(screen), findsOneWidget,
+        reason: '$path showed its loading placeholder, not $screen');
+  }
 
   // Unmount the app so no screen's timer outlives the test.
   await tester.pumpWidget(const SizedBox());
@@ -608,6 +632,15 @@ void main() {
       await actions.openNotificationSettings();
       expect(_messaging.permissionRequests, before + 1);
     });
+
+    test('the Notifications row asks nothing of a browser with no Notification API',
+        () async {
+      _messaging.supported = false;
+      addTearDown(() => _messaging.supported = true);
+      final before = _messaging.permissionRequests;
+      await actions.openNotificationSettings();
+      expect(_messaging.permissionRequests, before);
+    });
   });
 
   group('every route opens', () {
@@ -617,6 +650,13 @@ void main() {
       expect(paths.length, greaterThanOrEqualTo(36));
       expect(paths.toSet().length, paths.length,
           reason: 'a path is registered twice');
+    });
+
+    test('every route with a URL query names the screen it builds', () {
+      expect(_routeScreens.keys.toSet(), _routeQueries.keys.toSet());
+      for (final path in _routeQueries.keys) {
+        expect(paths, contains(path), reason: '$path is not a router path');
+      }
     });
 
     for (final path in paths) {
