@@ -29,6 +29,7 @@ import 'package:habit_craft/components/pages/profile_page/profile_page_widget.da
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/fsrs.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/jp_event.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_remote.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
@@ -115,6 +116,23 @@ class _NoWipeStore implements JpStore {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnimplementedError('_NoWipeStore: ${invocation.memberName}');
+}
+
+/// A phone store whose next write of the [failNext] meta key and value throws, one time.
+class _FailOnceStore extends JpStoreMemory {
+  _FailOnceStore() : super(clock: () => t0);
+
+  /// The meta key and value whose next write throws; null for none.
+  (String, String)? failNext;
+
+  @override
+  Future<void> putMeta(String key, String value) async {
+    if (failNext == (key, value)) {
+      failNext = null;
+      throw StateError('write failed: $key');
+    }
+    return super.putMeta(key, value);
+  }
 }
 
 /// One browser (or phone) under test: its store, the remote of each account, and its host.
@@ -493,9 +511,9 @@ void main() {
     group('another account signs in (operator ruling b)', () {
       /// A phone whose record account A synced, its answer on A's remote, then one more
       /// answer A never pushed.
-      Future<Rig> phoneOfA(JpOwnerChoice? choice) async {
-        final rig =
-            Rig(JpStoreMemory(clock: () => t0), isWeb: false, ownerChoice: choice);
+      Future<Rig> phoneOfA(JpOwnerChoice? choice, {JpStore? store}) async {
+        final rig = Rig(store ?? JpStoreMemory(clock: () => t0),
+            isWeb: false, ownerChoice: choice);
         await record(rig.store, answer(0));
         await rig.host.userChanged(_User('a'));
         await rig.host.signOut();
@@ -574,6 +592,82 @@ void main() {
             [for (final a in before.attempts) a.eventId]);
         expect(log.attempts, hasLength(2));
         expect(rig.errors, isEmpty);
+      });
+
+      // "Keep it local" cut short after the record emptied: the write named here throws one
+      // time, so the pick finishes on the next resume, on an empty record.
+      for (final (name, failing) in const [
+        ('the owner write', (kSyncOwnerMetaKey, 'b')),
+        ('the replay flag write', (kSyncReplayPendingMetaKey, '0')),
+      ]) {
+        test('"keep it local" cut short at $name keeps A\'s export on the retry',
+            () async {
+          final store = _FailOnceStore();
+          final rig = await phoneOfA(JpOwnerChoice.keepLocal, store: store);
+          final before = await store.exportLog();
+          await bAnsweredElsewhere(rig);
+          store.failNext = failing;
+
+          await rig.host.userChanged(_User('b'));
+          expect(rig.errors.single, isA<StateError>());
+          expect(store.failNext, isNull, reason: 'the write was reached');
+          expect(await store.meta(kSyncOwnerMetaKey), 'a',
+              reason: 'the record is not B\'s until the pick\'s work lands');
+          expect(await store.allEvents(), isEmpty);
+
+          await rig.host.resume();
+
+          final log =
+              decodeStudyExport((await store.meta('${kKeptRecordMetaPrefix}a'))!);
+          expect(log.attempts, hasLength(2));
+          expect([for (final a in log.attempts) a.eventId],
+              [for (final a in before.attempts) a.eventId]);
+          expect(rig.asked, ['a']);
+          expect(rig.errors, hasLength(1));
+          expect(await store.meta(kSyncOwnerMetaKey), 'b');
+          expect(await store.allEvents(), hasLength(1), reason: 'only B\'s own');
+          expect(rig.remote('b').events, hasLength(1), reason: 'none of A\'s');
+        });
+      }
+
+      test('"keep it local" on an empty record writes no export', () async {
+        final rig = Rig(JpStoreMemory(clock: () => t0),
+            isWeb: false, ownerChoice: JpOwnerChoice.keepLocal);
+        await rig.host.userChanged(_User('a'));
+        await rig.host.signOut();
+        await rig.host.userChanged(null);
+
+        await rig.host.userChanged(_User('b'));
+
+        expect(rig.asked, ['a']);
+        expect(await rig.store.meta('${kKeptRecordMetaPrefix}a'), isNull);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+        expect(rig.errors, isEmpty);
+      });
+
+      test('a record holds something with any one of its parts, and nothing empty',
+          () {
+        const item = 'mari.L26.1';
+        expect(studyLogHoldsRecord(const StudyLog()), isFalse);
+        expect(studyLogHoldsRecord(StudyLog(attempts: [answer(0)])), isTrue);
+        expect(
+            studyLogHoldsRecord(StudyLog(
+                seeds: [SeedEvent(itemId: item, dueDay: 1, atUtc: t0)])),
+            isTrue);
+        expect(studyLogHoldsRecord(const StudyLog(notes: {item: 'ask'})), isTrue);
+        expect(
+            studyLogHoldsRecord(StudyLog(
+                discuss: {item: DiscussMark(itemId: item, atUtc: t0)})),
+            isTrue);
+        expect(
+            studyLogHoldsRecord(StudyLog(events: [
+              JpEvent(
+                  eventId: 'e1',
+                  atUtc: t0,
+                  kind: JpEventKind.lastLesson,
+                  body: const {'lesson': 26})
+            ])),
+            isTrue);
       });
 
       test('asks once: a resume after the choice syncs without asking', () async {

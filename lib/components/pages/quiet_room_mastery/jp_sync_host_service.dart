@@ -33,7 +33,8 @@
 //       - keep local: the whole record stays on the phone as a study export under
 //         [kKeptRecordMetaPrefix] plus the old owner's uid, and is never sent. The working
 //         record empties, so the new account's record replays alone. The export stays in the
-//         store under that key. No screen reads it yet.
+//         store under that key. No screen reads it yet. An empty record writes no export, so
+//         a pick that finishes on a later resume never replaces the export with an empty one.
 //       - upload: every event goes to the new account, the ones the old owner already holds
 //         too, then the record is the new account's. The sync cursor (the old owner's server
 //         time) is cleared, so the first pull reads the new account's whole record.
@@ -143,6 +144,15 @@ Future<JpOwnerChoice?> askOwnerChoice(BuildContext context) =>
         ),
       ),
     );
+
+/// Whether [log] holds anything to keep: an attempt, a seed, a side event, a note or a
+/// Discuss mark. "Keep local" exports only such a record.
+bool studyLogHoldsRecord(StudyLog log) =>
+    log.attempts.isNotEmpty ||
+    log.seeds.isNotEmpty ||
+    log.events.isNotEmpty ||
+    log.notes.isNotEmpty ||
+    log.discuss.isNotEmpty;
 
 /// The plain name the devices page shows for this device.
 String jpDeviceName({bool isWeb = kIsWeb, TargetPlatform? platform}) {
@@ -366,9 +376,14 @@ class JpSyncHost with WidgetsBindingObserver {
         // The cursor is the old owner's server time: the new account's pull starts over.
         await store.putMeta(kSyncCursorMetaKey, '');
       case JpOwnerChoice.keepLocal:
-        final kept = encodeStudyExport(await store.exportLog(),
-            exportedAt: (_clock ?? DateTime.now)().toUtc());
-        await store.putMeta(kKeptRecordMetaPrefix + owner, kept);
+        // A pick finished on a later resume runs this arm again, on the record the earlier
+        // run emptied. An empty record writes no export, so it never replaces the kept one.
+        final log = await store.exportLog();
+        if (studyLogHoldsRecord(log)) {
+          final kept = encodeStudyExport(log,
+              exportedAt: (_clock ?? DateTime.now)().toUtc());
+          await store.putMeta(kKeptRecordMetaPrefix + owner, kept);
+        }
         await _empty(store);
       case JpOwnerChoice.startFresh:
         await _empty(store);
