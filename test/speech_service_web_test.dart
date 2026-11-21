@@ -376,7 +376,7 @@ void main() {
       expect(SpeechSupport.values, contains(s));
     });
 
-    test('typeItLine names the reason and is null where the probe answers works', () {
+    test('typeItLine names the reason and is null where the probe works', () {
       expect(typeItLine(SpeechSupport.works), isNull);
       expect(typeItLine(null), isNull);
       expect(_noRecognizerLine, contains('type it instead'));
