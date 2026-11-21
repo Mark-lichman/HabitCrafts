@@ -29,6 +29,15 @@
 // in flight that lands later as a miss. Every listen takes an attempt token: a listen whose token
 // is no longer current neither stops the recogniser nor closes the level tap, because both now
 // belong to a newer attempt.
+//
+// 🚨 ON THE WEB, SAY-IT CARDS ASK FOR SPEECH ONLY WHERE THE BROWSER CAN HEAR JAPANESE (plan
+// 2026-11-19, Task 9, PIN-6). speech_to_text runs on the web with `localeId: 'ja_JP'`, but a
+// browser may have no recognizer at all (Firefox) or none for Japanese. [SpeechService.
+// checkSpeechSupport] asks the browser once per run ([browserSpeechSupport]) and caches the
+// answer. A recognizer error that says the language is unsupported, or a recognizer that will
+// not start, downgrades it later. Where it is not [SpeechSupport.works], the say-it cards show
+// the type-it form and credit no spoken attempt. The phone always answers `works`: its recognizer
+// path is unchanged (PIN-9).
 
 import 'dart:async';
 
@@ -39,8 +48,42 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'mic_level.dart';
+import 'speech_support_stub.dart'
+    if (dart.library.js_interop) 'speech_support_web.dart' as support;
 
 enum Judgement { correct, close, wrong, unverified }
+
+/// What this browser offers for a spoken Japanese answer (plan 2026-11-19, Task 9, PIN-6).
+enum SpeechSupport {
+  /// A recognizer that takes Japanese, or one the browser cannot rule out. The phone is
+  /// always here.
+  works,
+
+  /// No speech recognizer at all (no `SpeechRecognition` on the page).
+  noRecognizer,
+
+  /// A recognizer, but the browser says it cannot take `ja-JP`.
+  noJapanese,
+}
+
+/// Asks the browser what it offers for Japanese speech. Off the web it answers
+/// [SpeechSupport.works] and touches nothing. [recognizerNames] are the page globals tried for
+/// the recognizer; a test passes a name no browser has to reach [SpeechSupport.noRecognizer].
+Future<SpeechSupport> browserSpeechSupport(
+        {List<String> recognizerNames = const [
+          'SpeechRecognition',
+          'webkitSpeechRecognition',
+        ]}) =>
+    support.browserSpeechSupport(recognizerNames);
+
+/// The line a say-it card shows over its type-it form, or null where speech works.
+String? typeItLine(SpeechSupport? s) => switch (s) {
+      SpeechSupport.noRecognizer =>
+        'This browser has no speech recognition, so type it instead.',
+      SpeechSupport.noJapanese =>
+        'This browser cannot hear Japanese, so type it instead.',
+      _ => null,
+    };
 
 class SpeechResult {
   const SpeechResult(this.heard, this.judgement);
@@ -188,22 +231,62 @@ class SpeechService {
   SpeechService._()
       : _sttSeam = null,
         _ttsSeam = null,
-        _micPermission = _pluginMicPermission;
+        _micPermission = _pluginMicPermission,
+        _web = kIsWeb,
+        _browserSpeech = browserSpeechSupport;
   static final SpeechService instance = SpeechService._();
 
-  /// A service on fake engines, for tests.
+  /// A service on fake engines, for tests. [web] makes it act as the web build, where
+  /// [browserSpeech] answers what the browser offers (null asks the real browser).
   @visibleForTesting
   SpeechService.withEngines({
     required SttEngine stt,
     required TtsEngine tts,
     Future<bool> Function()? micPermission,
+    bool web = false,
+    Future<SpeechSupport> Function()? browserSpeech,
   })  : _sttSeam = stt,
         _ttsSeam = tts,
-        _micPermission = micPermission ?? (() async => true);
+        _micPermission = micPermission ?? (() async => true),
+        _web = web,
+        _browserSpeech = browserSpeech ?? browserSpeechSupport;
 
   final SttEngine? _sttSeam;
   final TtsEngine? _ttsSeam;
   final Future<bool> Function() _micPermission;
+  final bool _web;
+  final Future<SpeechSupport> Function() _browserSpeech;
+
+  SpeechSupport? _support;
+  Future<SpeechSupport>? _supportCheck;
+
+  /// What the browser offers for a spoken Japanese answer, or null on the web until
+  /// [checkSpeechSupport] has its answer. Off the web always [SpeechSupport.works].
+  SpeechSupport? get speechSupport => _web ? _support : SpeechSupport.works;
+
+  /// Asks the browser once and keeps the answer; later calls return it. A probe that throws
+  /// cannot rule speech out, so it answers [SpeechSupport.works]: the say-it card's own
+  /// check still treats a failed recording as unscored, never wrong (PIN-3).
+  Future<SpeechSupport> checkSpeechSupport() {
+    if (!_web) return Future.value(SpeechSupport.works);
+    final known = _support;
+    if (known != null) return Future.value(known);
+    return _supportCheck ??= () async {
+      SpeechSupport s;
+      try {
+        s = await _browserSpeech();
+      } catch (_) {
+        s = SpeechSupport.works;
+      }
+      // A recognizer error may have downgraded it while the probe ran: that one stands.
+      return _support ??= s;
+    }();
+  }
+
+  /// Marks speech as unusable in this browser from what the recognizer itself reported.
+  void _downgrade(SpeechSupport s) {
+    if (_web) _support = s;
+  }
 
   // Built on first use, so a test service never touches a platform channel.
   late final TtsEngine _tts = _ttsSeam ?? _PluginTts();
@@ -399,6 +482,8 @@ class SpeechService {
     _sttReady = await _stt.initialize(onError: _onSttError);
     if (!_sttReady) {
       lastError ??= 'Speech recognition is unavailable on this device.';
+      // On the web the recognizer fails to start only where the page has none.
+      _downgrade(SpeechSupport.noRecognizer);
     }
     return _sttReady;
   }
@@ -419,8 +504,16 @@ class SpeechService {
   /// heard rather than waiting out its timeout.
   void _onSttError(String code) {
     lastError = describeError(code);
+    if (isLanguageUnsupported(code)) _downgrade(SpeechSupport.noJapanese);
     _finishListen(const []);
   }
+
+  /// Whether the recognizer's raw error [code] says it cannot take Japanese.
+  static bool isLanguageUnsupported(String code) => const {
+        'error_language_not_supported',
+        'error_language_unavailable',
+        'language-not-supported',
+      }.contains(code.trim().toLowerCase());
 
   /// Listens once and judges against [expectedKana]. Always reports what was heard. A [cancel]
   /// while it listens ends it at once with an empty, unverified result.
