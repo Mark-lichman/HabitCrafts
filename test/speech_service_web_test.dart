@@ -1,6 +1,6 @@
 // Say-it cards on the web (plan 2026-11-19, Task 9, End state 10, PIN-6). The say-it cards use
 // speech where the browser can hear Japanese and fall back to type-it where it cannot, and a
-// type-it answer logs no spoken attempt.
+// type-it answer credits no spoken attempt.
 //
 // The file runs in Chrome (`--platform chrome`) and on the VM, so it reads no file from disk.
 // The browser's answer comes through the SpeechService seam (`web`, `browserSpeech`), so both
@@ -491,7 +491,7 @@ void main() {
       expect(answers.single.grade, Grade.clear);
     });
 
-    testWidgets('a typed Say-it sentence is unscored and records nothing',
+    testWidgets('a typed Say-it sentence goes out unscored, as Skip',
         (tester) async {
       final pron = FakePronunciation();
       final answers = <DrillAnswer>[];

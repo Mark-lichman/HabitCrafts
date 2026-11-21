@@ -1376,8 +1376,8 @@ class _SayCardProbeState extends State<SayCardProbe>
 /// caller passes one form, as the speak drill splits them. Null uses the probe's answer.
 ///
 /// Where the browser cannot hear Japanese (plan 2026-11-19, Task 9, PIN-6) the card shows the
-/// type-it form: Check says whether the typed sentence matches, and the draft is unscored,
-/// as Skip, so no spoken attempt is logged.
+/// type-it form: Check says whether the typed sentence matches, and the typed sentence goes
+/// out unscored, as Skip, so it credits nothing.
 class SayItProbe extends StatefulWidget {
   const SayItProbe({
     super.key,

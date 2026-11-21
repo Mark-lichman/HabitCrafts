@@ -36,7 +36,7 @@
 // checkSpeechSupport] asks the browser once per run ([browserSpeechSupport]) and caches the
 // answer. A recognizer error that says the language is unsupported, or a recognizer that will
 // not start, downgrades it later. Where it is not [SpeechSupport.works], the say-it cards show
-// the type-it form and log no spoken attempt. The phone always answers `works`: its recognizer
+// the type-it form and credit no spoken attempt. The phone always answers `works`: its recognizer
 // path is unchanged (PIN-9).
 
 import 'dart:async';
