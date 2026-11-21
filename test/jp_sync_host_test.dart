@@ -1,9 +1,9 @@
 // The sync host and the sign-out wipe (plan 2026-11-19, Task 6, End state 7, D8, PIN-8).
 //
 // The host runs a sync after a non-anonymous sign-in and on app resume, and never for an
-// anonymous or signed-out user. On the web, sign-out (and losing the user, as account delete
-// does) empties this browser's study record through the store wipe, which also clears the sync
-// cursor and the replay flag. A browser record that belongs to another account is wiped before
+// anonymous or signed-out user. On the web, sign-out, account delete, and losing the user when
+// nothing is unsynced empty this browser's study record through the store wipe, which also
+// clears the sync cursor and the replay flag. A browser record that belongs to another account is wiped before
 // it can reach the new account. The profile page's "Signed-in devices" entry opens the
 // devices page.
 //
@@ -13,6 +13,14 @@
 // record with a different (or deleted) owner is asked once: keep the record local, upload it
 // to the new account, or start fresh. Then the new account syncs. The phone never wipes on
 // sign-out.
+//
+// The four account-switch rulings (Checkpoint 2026-11-21, Task 16): (a) a kept record comes back
+// when its owner signs in again on that phone, and a later keep for the same owner adds to the
+// earlier kept record, never replaces it. (b) Start fresh and keep local clear the day plans too,
+// so the new account receives no old plan. (c) On the web, a study store that will not open at
+// Log Out shows a message with "sign out anyway"; the record stays until another account's
+// sign-in wipes it. (d) On the web, a session that ends without Log Out keeps a record with
+// unsynced answers: the same account's next sign-in pushes them, another account's wipes them.
 //
 // It runs in Chrome (the Done-when) and on the VM (the gate), so it imports no `dart:io`. The
 // web store runs over in-memory browser storage, the remote is `JpRemoteMemory`.
@@ -37,7 +45,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync_host_service.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart'
-    show decodeStudyExport;
+    show decodeStudyExport, encodeStudyExport;
 
 /// An auth user with a fixed uid and sign-in state. An anonymous user has a uid but is not
 /// logged in (`HabitCraftFirebaseUser.loggedIn`).
@@ -440,8 +448,9 @@ void main() {
       expect(await rig.store.allEvents(), isEmpty);
     });
 
-    test('losing the user from the auth stream (account delete) wipes too',
-        () async {
+    test(
+        'losing the user from the auth stream (account delete) wipes a record '
+        'with nothing unsynced', () async {
       final rig = Rig(await webStore());
       await record(rig.store, answer(0));
       await rig.host.userChanged(_User('mark'));
@@ -450,6 +459,137 @@ void main() {
 
       expect(await rig.store.allEvents(), isEmpty);
       expect(await rig.store.meta(kSyncCursorMetaKey), isNull);
+    });
+
+    group('a session that ends without Log Out (operator ruling d)', () {
+      /// A browser signed in as mark, with one answer the remote never received.
+      Future<Rig> unsyncedAnswer() async {
+        final rig = Rig(await webStore());
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        await record(rig.store, answer(2));
+        return rig;
+      }
+
+      test('keeps a record with unsynced answers', () async {
+        final rig = await unsyncedAnswer();
+
+        await rig.host.userChanged(null);
+
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'mark');
+        expect(rig.host.uid, isNull);
+        expect(rig.errors, isEmpty);
+      });
+
+      test('the same account\'s next sign-in pushes the kept answers',
+          () async {
+        final rig = await unsyncedAnswer();
+        await rig.host.userChanged(null);
+        rig.remote('mark').online = true;
+
+        await rig.host.userChanged(_User('mark'));
+
+        expect(rig.remote('mark').events, hasLength(1));
+        expect(await rig.store.unpushedEvents(), isEmpty);
+      });
+
+      test('another account\'s sign-in wipes the kept answers', () async {
+        final rig = await unsyncedAnswer();
+        await rig.host.userChanged(null);
+
+        await rig.host.userChanged(_User('other'));
+
+        expect(rig.remote('other').events, isEmpty);
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'other');
+        expect(rig.remote('mark').events, isEmpty);
+      });
+
+      test(
+          'a kept record with no owner yet takes the lost account as owner, so '
+          'another account cannot claim it', () async {
+        final rig = Rig(await webStore());
+        rig.failOpen = true;
+        await rig.host.userChanged(_User('mark'));
+        rig.failOpen = false;
+        await record(rig.store, answer(2));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), isNull);
+
+        await rig.host.userChanged(null);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'mark');
+        await rig.host.userChanged(_User('other'));
+
+        expect(rig.remote('other').events, isEmpty);
+        expect(await rig.store.allEvents(), isEmpty);
+      });
+    });
+
+    group('account delete', () {
+      /// A browser signed in as mark, one answer unsynced, and a `jp.` key set.
+      Future<Rig> unsyncedAnswer() async {
+        SharedPreferences.setMockInitialValues({'jp.vocab.lastLesson': 4});
+        final rig = Rig(await webStore());
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        await record(rig.store, answer(2));
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        return rig;
+      }
+
+      Future<void> expectWiped(Rig rig) async {
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(await rig.store.unpushedEvents(), isEmpty);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), isNull);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getKeys().where((k) => k.startsWith('jp.')), isEmpty);
+        expect(rig.errors, isEmpty);
+      }
+
+      test(
+          'wipes a record with unsynced answers after the auth stream loses '
+          'the user', () async {
+        final rig = await unsyncedAnswer();
+        await rig.host.userChanged(null);
+        expect(await rig.store.unpushedEvents(), hasLength(1),
+            reason: 'losing the user alone keeps them (ruling d)');
+
+        await rig.host.forget();
+
+        await expectWiped(rig);
+      });
+
+      test('wipes them before the auth stream reports the loss too',
+          () async {
+        final rig = await unsyncedAnswer();
+
+        await rig.host.forget();
+        await rig.host.userChanged(null);
+
+        await expectWiped(rig);
+        expect(rig.host.uid, isNull);
+      });
+
+      test('the phone keeps its record', () async {
+        final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        await record(rig.store, answer(2));
+
+        await rig.host.forget();
+        await rig.host.userChanged(null);
+
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        expect(rig.errors, isEmpty);
+      });
+
+      test('a web store with no wipe is reported, never thrown', () async {
+        final rig = Rig(_NoWipeStore());
+
+        await rig.host.forget();
+
+        expect(rig.errors.single, isA<StateError>());
+      });
     });
 
     test('no sync runs after the wipe, even on resume', () async {
@@ -655,6 +795,154 @@ void main() {
         expect(rig.errors, isEmpty);
       });
 
+      List<String> ids(Iterable<JpEvent> events) =>
+          [for (final e in events) e.eventId];
+
+      group('a kept record (Checkpoint 2026-11-21, ruling a)', () {
+        test(
+            'comes back when the old owner signs in again, and its unsynced '
+            'answer reaches the old owner', () async {
+          final rig = await phoneOfA(JpOwnerChoice.keepLocal);
+          final aIds = ids(await rig.store.allEvents());
+          await bAnsweredElsewhere(rig);
+          await rig.host.userChanged(_User('b'));
+          final bIds = ids(await rig.store.allEvents());
+          await rig.host.signOut();
+          await rig.host.userChanged(null);
+
+          await rig.host.userChanged(_User('a'));
+
+          expect(rig.asked, ['a', 'b']);
+          expect(ids(await rig.store.allEvents())..sort(), [...aIds]..sort(),
+              reason: 'A\'s record is back, B\'s is kept apart under B');
+          expect(await rig.store.allSrs(), isNotEmpty,
+              reason: 'the restored record is replayed');
+          expect(ids(rig.remote('a').events)..sort(), [...aIds]..sort(),
+              reason: 'A\'s unpushed answer reaches A, and none of B\'s');
+          expect(await rig.store.unpushedEvents(), isEmpty);
+          expect(await rig.store.meta('${kKeptRecordMetaPrefix}a'), isEmpty,
+              reason: 'the kept record is used up');
+          final keptB = decodeStudyExport(
+              (await rig.store.meta('${kKeptRecordMetaPrefix}b'))!);
+          expect([for (final a in keptB.attempts) a.eventId], bIds);
+          expect(await rig.store.meta(kSyncOwnerMetaKey), 'a');
+          expect(rig.errors, isEmpty);
+        });
+
+        test(
+            'comes back on top of a record uploaded to the old owner, '
+            'nothing lost', () async {
+          final rig = await phoneOfA(JpOwnerChoice.keepLocal);
+          final aIds = ids(await rig.store.allEvents());
+          await rig.host.userChanged(_User('b'));
+          await record(rig.store, answer(5));
+          final bIds = ids(await rig.store.unpushedEvents());
+          await rig.host.signOut();
+          await rig.host.userChanged(null);
+          rig.host.askOwner = (previous) async {
+            rig.asked.add(previous);
+            return JpOwnerChoice.upload;
+          };
+
+          await rig.host.userChanged(_User('a'));
+
+          final all = [...aIds, ...bIds]..sort();
+          expect(ids(await rig.store.allEvents())..sort(), all);
+          expect(ids(rig.remote('a').events)..sort(), all);
+          expect(await rig.store.unpushedEvents(), isEmpty);
+        });
+
+        test(
+            'a later keep for the same owner adds to the earlier kept record, '
+            'never replaces it', () async {
+          final rig = await phoneOfA(JpOwnerChoice.keepLocal);
+          final earlierStore = JpStoreMemory(clock: () => t0);
+          await record(earlierStore, answer(7));
+          final earlier = await earlierStore.exportLog();
+          await rig.store.putMeta('${kKeptRecordMetaPrefix}a',
+              encodeStudyExport(earlier, exportedAt: t0));
+          final later = await rig.store.exportLog();
+
+          await rig.host.userChanged(_User('b'));
+
+          final kept = decodeStudyExport(
+              (await rig.store.meta('${kKeptRecordMetaPrefix}a'))!);
+          expect(
+              [for (final a in kept.attempts) a.eventId]..sort(),
+              [
+                for (final a in [...earlier.attempts, ...later.attempts])
+                  a.eventId
+              ]..sort());
+          expect(kept.attempts, hasLength(3));
+          expect(rig.errors, isEmpty);
+        });
+
+        // A pick cut short at the owner write finishes on the next resume. B answered in
+        // between, so the retry must not empty the record again nor keep B's answer as A's.
+        for (final choice in [
+          JpOwnerChoice.keepLocal,
+          JpOwnerChoice.startFresh
+        ]) {
+          test('a $choice retried after B answered keeps B\'s answer as B\'s',
+              () async {
+            final store = _FailOnceStore();
+            final rig = await phoneOfA(choice, store: store);
+            final before = ids(await store.allEvents());
+            store.failNext = (kSyncOwnerMetaKey, 'b');
+            await rig.host.userChanged(_User('b'));
+            expect(rig.errors.single, isA<StateError>());
+            await record(store, answer(4));
+            final bAnswer = ids(await store.unpushedEvents()).single;
+
+            await rig.host.resume();
+
+            expect(ids(await store.allEvents()), [bAnswer]);
+            expect(ids(rig.remote('b').events), [bAnswer]);
+            expect(rig.asked, ['a']);
+            final kept = await store.meta('${kKeptRecordMetaPrefix}a');
+            if (choice == JpOwnerChoice.keepLocal) {
+              expect([
+                for (final a in decodeStudyExport(kept!).attempts) a.eventId
+              ], before);
+            } else {
+              expect(kept, isNull);
+            }
+          });
+        }
+      });
+
+      group('the day plans (Checkpoint 2026-11-21, ruling b)', () {
+        for (final choice in [
+          JpOwnerChoice.startFresh,
+          JpOwnerChoice.keepLocal
+        ]) {
+          test('$choice clears them, so the new account receives no old plan',
+              () async {
+            final rig = await phoneOfA(choice);
+            await rig.store.putDay(const DayRecord(
+                day: 5, plan: '{"entries":["a"]}', position: 1));
+
+            await rig.host.userChanged(_User('b'));
+
+            expect(await rig.store.lastDay(), isNull);
+            expect(await rig.store.day(5), isNull);
+            expect(await rig.remote('b').day(5), isNull);
+            expect(rig.errors, isEmpty);
+          });
+        }
+
+        test('upload keeps them: the record is the new account\'s', () async {
+          final rig = await phoneOfA(JpOwnerChoice.upload);
+          await rig.store.putDay(
+              const DayRecord(day: 5, plan: '{"entries":["a"]}', position: 1));
+
+          await rig.host.userChanged(_User('b'));
+
+          expect(await rig.store.lastDay(), 5);
+          expect((await rig.remote('b').day(5))?.plan, '{"entries":["a"]}');
+        });
+      });
+
       test(
           'a record holds something with any one of its parts, and nothing empty',
           () {
@@ -795,6 +1083,76 @@ void main() {
       expect(rig.host.uid, 'mark');
       expect(rig.errors.single, isA<StateError>());
     });
+
+    group('the web asks to sign out anyway (operator ruling c)', () {
+      Future<Rig> unopenable() async {
+        final rig = Rig(await webStore());
+        await rig.host.userChanged(_User('mark'));
+        await record(rig.store, answer(2));
+        rig.failOpen = true;
+        return rig;
+      }
+
+      test('"stay signed in" keeps the user signed in', () async {
+        final rig = await unopenable();
+        var asks = 0;
+
+        final signedOut = await rig.host.signOut(signOutWithoutStore: () async {
+          asks++;
+          return false;
+        });
+
+        expect(signedOut, isFalse);
+        expect(asks, 1);
+        expect(rig.host.uid, 'mark');
+      });
+
+      test(
+          '"sign out anyway" signs out and leaves the record for the next '
+          'sign-in', () async {
+        final rig = await unopenable();
+
+        final signedOut =
+            await rig.host.signOut(signOutWithoutStore: () async => true);
+
+        expect(signedOut, isTrue);
+        expect(rig.host.uid, isNull);
+        rig.failOpen = false;
+        // The auth sign-out that follows reports no user: nothing more happens.
+        await rig.host.userChanged(null);
+        expect(await rig.store.allEvents(), hasLength(1));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'mark');
+      });
+
+      test('another account\'s next sign-in wipes the record left behind',
+          () async {
+        final rig = await unopenable();
+        await rig.host.signOut(signOutWithoutStore: () async => true);
+        rig.failOpen = false;
+        await rig.host.userChanged(null);
+
+        await rig.host.userChanged(_User('other'));
+
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(rig.remote('other').events, isEmpty);
+      });
+
+      test('the phone never asks: it signs out because it wipes nothing',
+          () async {
+        final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
+        await rig.host.userChanged(_User('mark'));
+        rig.failOpen = true;
+        var asks = 0;
+
+        expect(
+            await rig.host.signOut(signOutWithoutStore: () async {
+              asks++;
+              return false;
+            }),
+            isTrue);
+        expect(asks, 0);
+      });
+    });
   });
 
   group('a web store with no wipe', () {
@@ -852,6 +1210,32 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(kUnsyncedTitle), findsOneWidget);
       await tester.tap(find.text(kUnsyncedWait));
+      await tester.pumpAndSettle();
+      expect(result, isFalse);
+
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(kUnsyncedSignOutAnyway));
+      await tester.pumpAndSettle();
+      expect(result, isTrue);
+    });
+
+    testWidgets(
+        'the store-unavailable sign-out dialog: stay signed in or sign out '
+        'anyway', (tester) async {
+      bool? result;
+      await tester.pumpWidget(MaterialApp(
+          home: Builder(
+              builder: (context) => TextButton(
+                  onPressed: () async =>
+                      result = await confirmStoreUnavailableSignOut(context),
+                  child: const Text('go')))));
+
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+      expect(find.text(kNoStoreTitle), findsOneWidget);
+      expect(find.text(kNoStoreBody), findsOneWidget);
+      await tester.tap(find.text(kNoStoreStay));
       await tester.pumpAndSettle();
       expect(result, isFalse);
 

@@ -141,6 +141,9 @@ class JpStoreMemory extends JpStore {
       _days.isEmpty ? null : _days.keys.reduce((a, b) => a > b ? a : b);
 
   @override
+  Future<void> clearDays() async => _days.clear();
+
+  @override
   Future<String?> meta(String key) async => _meta[key];
 
   @override

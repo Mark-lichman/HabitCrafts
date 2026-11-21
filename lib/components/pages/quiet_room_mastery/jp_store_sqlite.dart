@@ -607,6 +607,11 @@ class JpStoreSqlite extends JpStore {
     return rows.first['d'] as int?;
   }
 
+  @override
+  Future<void> clearDays() async {
+    await _db.delete('days');
+  }
+
   // --- bookkeeping -----------------------------------------------------------
 
   @override
