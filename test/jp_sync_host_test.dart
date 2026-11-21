@@ -1,9 +1,9 @@
 // The sync host and the sign-out wipe (plan 2026-11-19, Task 6, End state 7, D8, PIN-8).
 //
 // The host runs a sync after a non-anonymous sign-in and on app resume, and never for an
-// anonymous or signed-out user. On the web, sign-out (and losing the user, as account delete
-// does, when nothing is unsynced) empties this browser's study record through the store wipe,
-// which also clears the sync cursor and the replay flag. A browser record that belongs to another account is wiped before
+// anonymous or signed-out user. On the web, sign-out, account delete, and losing the user when
+// nothing is unsynced empty this browser's study record through the store wipe, which also
+// clears the sync cursor and the replay flag. A browser record that belongs to another account is wiped before
 // it can reach the new account. The profile page's "Signed-in devices" entry opens the
 // devices page.
 //
@@ -522,6 +522,73 @@ void main() {
 
         expect(rig.remote('other').events, isEmpty);
         expect(await rig.store.allEvents(), isEmpty);
+      });
+    });
+
+    group('account delete', () {
+      /// A browser signed in as mark, one answer unsynced, and a `jp.` key set.
+      Future<Rig> unsyncedAnswer() async {
+        SharedPreferences.setMockInitialValues({'jp.vocab.lastLesson': 4});
+        final rig = Rig(await webStore());
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        await record(rig.store, answer(2));
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        return rig;
+      }
+
+      Future<void> expectWiped(Rig rig) async {
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(await rig.store.unpushedEvents(), isEmpty);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), isNull);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getKeys().where((k) => k.startsWith('jp.')), isEmpty);
+        expect(rig.errors, isEmpty);
+      }
+
+      test(
+          'wipes a record with unsynced answers after the auth stream loses '
+          'the user', () async {
+        final rig = await unsyncedAnswer();
+        await rig.host.userChanged(null);
+        expect(await rig.store.unpushedEvents(), hasLength(1),
+            reason: 'losing the user alone keeps them (ruling d)');
+
+        await rig.host.forget();
+
+        await expectWiped(rig);
+      });
+
+      test('wipes them before the auth stream reports the loss too',
+          () async {
+        final rig = await unsyncedAnswer();
+
+        await rig.host.forget();
+        await rig.host.userChanged(null);
+
+        await expectWiped(rig);
+        expect(rig.host.uid, isNull);
+      });
+
+      test('the phone keeps its record', () async {
+        final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        await record(rig.store, answer(2));
+
+        await rig.host.forget();
+        await rig.host.userChanged(null);
+
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        expect(rig.errors, isEmpty);
+      });
+
+      test('a web store with no wipe is reported, never thrown', () async {
+        final rig = Rig(_NoWipeStore());
+
+        await rig.host.forget();
+
+        expect(rig.errors.single, isA<StateError>());
       });
     });
 

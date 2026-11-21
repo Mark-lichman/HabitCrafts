@@ -672,6 +672,9 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                           await currentUserReference!.delete();
                                           logFirebaseEvent('Button_auth');
                                           await authManager.deleteUser(context);
+                                          // The web forgets the deleted account's study
+                                          // record, unsynced answers too.
+                                          await JpSyncHost.instance.forget();
                                           logFirebaseEvent(
                                               'Button_navigate_to');
 

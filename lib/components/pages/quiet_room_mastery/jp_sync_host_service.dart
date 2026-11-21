@@ -25,9 +25,12 @@
 //     browser's `jp.` SharedPreferences keys, so no study data of the last account stays in
 //     this browser.
 //   * Losing the user from the auth stream without Log Out (a revoked session, another tab's
-//     sign-out, account delete) runs no last sync. On the web it wipes a record with no
-//     unsynced answer. A record with unsynced answers stays (ruling d, Checkpoint 2026-11-21):
-//     the same account's next sign-in pushes them, and another account's sign-in wipes them.
+//     sign-out) runs no last sync. On the web it wipes a record with no unsynced answer. A
+//     record with unsynced answers stays (ruling d, Checkpoint 2026-11-21): the same account's
+//     next sign-in pushes them, and another account's sign-in wipes them.
+//   * Account delete from the profile page ([JpSyncHost.forget]) wipes the web store, unsynced
+//     answers too: a deleted uid never signs in again, and the rules refuse its writes, so
+//     nothing could push them. The phone keeps its record for the owner ask (ruling b).
 //   * The store keeps the uid it syncs for ([kSyncOwnerMetaKey]). On the web, a record another
 //     account left behind (a tab closed before sign-out) is wiped before the first sync, so it
 //     never reaches the next account. A record with no owner yet (the phone's history before
@@ -308,8 +311,9 @@ class JpSyncHost with WidgetsBindingObserver {
     });
   }
 
-  /// The web lost [previous] without Log Out: a revoked session, another tab's sign-out, or
-  /// account delete. A record with no unsynced answer is wiped. One with unsynced answers stays
+  /// The web lost [previous] without Log Out: a revoked session or another tab's sign-out.
+  /// Account delete also reaches here, and [forget] then wipes what this step keeps. A record
+  /// with no unsynced answer is wiped. One with unsynced answers stays
   /// (operator ruling d, Checkpoint 2026-11-21): the same account's next sign-in pushes them,
   /// and any other account's sign-in wipes them ([_sync]). A kept record with no owner yet
   /// takes [previous] as owner, so the next account cannot claim it.
@@ -322,6 +326,14 @@ class JpSyncHost with WidgetsBindingObserver {
     if (owner == null || owner.isEmpty) {
       await store.putMeta(kSyncOwnerMetaKey, previous);
     }
+  }
+
+  /// Account delete, called after the Auth user is deleted. On the web it wipes the store,
+  /// unsynced answers too, because a deleted uid can never push them. The phone wipes nothing.
+  /// A failed wipe is reported to [onError], like every step.
+  Future<void> forget() {
+    if (!isWeb) return _tail;
+    return _step(() async => _wipe(await _openStore()));
   }
 
   /// An app resume: syncs when a non-anonymous user is signed in.
