@@ -279,9 +279,10 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
       fileName: fileName,
       bytes: utf8.encode(text),
     );
-    // On web saveFile starts the browser download and then always returns null, so a cancel
-    // is not visible here. The web store keeps the record in the browser (`sharedJpStore`), so
-    // that export holds the whole saved record.
+    // On web saveFile is the export download: it wraps the bytes in a Blob and clicks a
+    // `download` anchor, then always returns null, so a cancel is not visible here. The web
+    // store keeps the whole record in the browser (`sharedJpStore`), so the download holds all
+    // of it. test/save_file_test.dart runs this in Chrome (End state 11).
     return kIsWeb || path != null;
   }
 
