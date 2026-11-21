@@ -145,13 +145,16 @@ void main() {
         signInUser: _FakeUser('phone-uid', email: 'mark@example.com'),
       ));
 
-      final user = await h.manager.signInWithGoogle(ctx);
+      // Start the call without awaiting it. Nothing past the first await has
+      // run yet, so 'popup' is recorded only if the popup opens with no await
+      // ahead of it, which keeps it inside the user's tap.
+      final pending = h.manager.signInWithGoogle(ctx);
+      expect(h.auth.calls, ['popup']);
+      final user = await pending;
 
       expect(user?.uid, 'phone-uid');
       expect(user?.loggedIn, isTrue);
       expect(h.auth.popupProvider, isA<GoogleAuthProvider>());
-      // The popup opens first, so the browser still sees the user's tap.
-      expect(h.auth.calls.first, 'popup');
       // The account is the Google account's own uid, never a link onto the
       // anonymous speaking-drill user.
       expect(h.profiles, ['phone-uid']);
@@ -242,12 +245,15 @@ void main() {
       expect(h.auth.persistence, Persistence.INDEXED_DB);
     });
 
-    testWidgets('a reload restores the same signed-in user', (tester) async {
+    // This test does not prove a session survives a reload: a real reload
+    // needs a browser. The IndexedDB persistence test above is the guard for
+    // survival across a reload.
+    testWidgets('the signed-in user wraps as logged in with the same uid',
+        (tester) async {
       final ctx = await _context(tester);
       final auth = _FakeAuth(signInUser: _FakeUser('phone-uid'));
       await _Harness(auth).manager.signInWithEmail(ctx, 'a@b.c', 'pw');
 
-      // A reload builds a new manager over the same persisted auth state.
       final restored = HabitCraftFirebaseUser(auth.currentUser);
 
       expect(restored.uid, 'phone-uid');
