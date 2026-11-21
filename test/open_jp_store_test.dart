@@ -14,6 +14,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/scheduler.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/speak_lesson_events.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart';
 
 final t0 = DateTime.utc(2026, 3, 2, 12);
 
@@ -299,6 +301,29 @@ void main() {
       expect(await reloaded.deviceId(), device);
     });
 
+    test(
+        'keeps every migration flag, so old browser keys are never imported again',
+        () async {
+      // Operator ruling, Checkpoint 2026-11-20: the next account must not import this
+      // browser's old study keys a second time.
+      final storage = MemoryJpWebStorage();
+      final store = await withRecord(storage);
+      await store.putMeta(kV2MigrationFlag, '2026-11-01T00:00:00.000Z');
+      await store.putMeta(kSpeakLessonImportFlag, '2026-11-02T00:00:00.000Z');
+      await store.putMeta('migrationv2', 'not a migration flag');
+      await store.wipe();
+
+      for (final s in [store, await JpStoreWeb.open(storage: storage)]) {
+        await expectEmpty(s);
+        expect(await s.meta(kV2MigrationFlag), '2026-11-01T00:00:00.000Z');
+        expect(
+            await s.meta(kSpeakLessonImportFlag), '2026-11-02T00:00:00.000Z');
+        expect(await s.meta('migrationv2'), isNull);
+        expect(await s.meta(kSyncCursorMetaKey), isNull);
+        expect(await s.meta(kSyncReplayPendingMetaKey), isNull);
+      }
+    });
+
     test('another open tab never undoes it', () async {
       final storage = MemoryJpWebStorage();
       final a = await withRecord(storage);
@@ -325,12 +350,22 @@ void main() {
       final storage = MemoryJpWebStorage();
       final store = await withRecord(storage);
       final device = await store.deviceId();
+      // The cleared-storage path runs the same clearRecord as the wipe, so it keeps the
+      // migration flags too (operator ruling, Checkpoint 2026-11-20).
+      await store.putMeta(kV2MigrationFlag, '2026-11-01T00:00:00.000Z');
+      await store.putMeta(kSpeakLessonImportFlag, '2026-11-02T00:00:00.000Z');
+      await store.putMeta('migrationv2', 'not a migration flag');
       await storage.clear();
       await store.putMeta('flag', 'on');
 
       final reloaded = await JpStoreWeb.open(storage: storage);
       await expectEmpty(reloaded);
       expect(await reloaded.meta(kSyncCursorMetaKey), isNull);
+      expect(await reloaded.meta(kSyncReplayPendingMetaKey), isNull);
+      expect(await reloaded.meta(kV2MigrationFlag), '2026-11-01T00:00:00.000Z');
+      expect(await reloaded.meta(kSpeakLessonImportFlag),
+          '2026-11-02T00:00:00.000Z');
+      expect(await reloaded.meta('migrationv2'), isNull);
       expect(await reloaded.meta('flag'), 'on');
       expect(await reloaded.deviceId(), device);
     });

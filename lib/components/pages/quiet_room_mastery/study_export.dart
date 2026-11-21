@@ -29,7 +29,8 @@
 //     sentence it was. Say-it never counts toward mastery and never moves the schedule (D4).
 // It runs once per store: a flag in the store's meta records it, written last. A run the app
 // cut short before the flag runs again on the next launch: a Say-it attempt it already logged
-// (same point, probe, instant and source) is skipped, so the history is never logged twice.
+// (same point, probe, instant (to the millisecond) and source) is skipped, so the history is
+// never logged twice.
 // A `jp.speak.scores` blob this build cannot read counts as skipped and still sets the flag.
 
 import 'dart:convert';
@@ -464,9 +465,11 @@ Future<V2MigrationReport> migrateV2Keys(
       skipped: skipped);
 }
 
-/// The identity of one imported Say-it attempt: its point, probe and instant.
+/// The identity of one imported Say-it attempt: its point, probe and instant. The instant is
+/// cut to the millisecond ([legacyTime]), because the v3 migration cuts a logged attempt's
+/// time and the SharedPreferences entry keeps its microseconds on a phone.
 String _sayItKey(String itemId, String probeId, DateTime at) =>
-    '$itemId\u0000$probeId\u0000${at.toUtc().toIso8601String()}';
+    '$itemId\u0000$probeId\u0000${legacyTime(at).toIso8601String()}';
 
 /// The score log's entries, or null when the blob is not a string, not JSON or not a list.
 List<Object?>? _decodeList(Object raw) {

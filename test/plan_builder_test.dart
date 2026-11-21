@@ -106,6 +106,11 @@ Future<void> mastered(JpStore store, ItemDef item, int day, double r) async {
 Future<void> seed(JpStore store, ItemDef item, int dueDay) =>
     store.appendSeed(item.id, dueDay, atUtc: DateTime.utc(2026, 1, 1));
 
+/// Bumped by every [wrongOn] call, so each attempt it builds is one second after the last.
+var _answerTick = 0;
+
+/// A wrong at 08:00 on [day], plus one second per earlier call. Call order is event-time order,
+/// because the plan reads the log in canonical order (event time, then a random event id).
 Attempt wrongOn(ItemDef item, int day) {
   final p = item.scoredProbes.first;
   return Attempt(
@@ -114,7 +119,8 @@ Attempt wrongOn(ItemDef item, int day) {
     template: p.template,
     production: p.production,
     selfGraded: p.selfGraded,
-    atUtc: dayStart(day).add(const Duration(hours: 8)).toUtc(),
+    atUtc:
+        dayStart(day).add(Duration(hours: 8, seconds: _answerTick++)).toUtc(),
     localDay: day,
     grade: Grade.wrong,
     rating: fsrsRatingFor(Grade.wrong),
@@ -226,6 +232,29 @@ void main() {
           [words[3].id]);
       final ids = [for (final e in p.entries) e.itemId];
       expect(ids.toSet().length, ids.length, reason: 'one entry per item');
+      expectNoNew(p);
+    });
+
+    test(
+        'repairs follow first-wrong time, not store row order: a synced log appends pulled '
+        'attempts after local ones', () async {
+      final store = JpStoreMemory();
+      final words = wordsOf(3);
+      await seedEverything(store, tuesday);
+      // Yesterday's wrongs land in the store in reverse time order, as after a pull.
+      final morning = wrongOn(words[0], tuesday - 1);
+      Attempt at(ItemDef item, int hours) => Attempt.fromJson({
+            ...wrongOn(item, tuesday - 1).toJson(),
+            'atUtc':
+                morning.atUtc.add(Duration(hours: hours)).toIso8601String(),
+          });
+      await store.appendAttempt(at(words[2], 2));
+      await store.appendAttempt(at(words[1], 1));
+      await store.appendAttempt(at(words[0], 0));
+
+      final p = await plan(store, tuesday);
+      expect([for (final e in p.section(PlanSection.repair)) e.itemId],
+          [words[0].id, words[1].id, words[2].id]);
       expectNoNew(p);
     });
 
