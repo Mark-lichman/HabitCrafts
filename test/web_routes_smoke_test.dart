@@ -633,7 +633,8 @@ void main() {
       expect(_messaging.permissionRequests, before + 1);
     });
 
-    test('the Notifications row asks nothing of a browser with no Notification API',
+    test(
+        'the Notifications row asks nothing of a browser with no Notification API',
         () async {
       _messaging.supported = false;
       addTearDown(() => _messaging.supported = true);
