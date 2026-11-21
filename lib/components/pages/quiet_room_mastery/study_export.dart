@@ -29,7 +29,8 @@
 //     sentence it was. Say-it never counts toward mastery and never moves the schedule (D4).
 // It runs once per store: a flag in the store's meta records it, written last. A run the app
 // cut short before the flag runs again on the next launch: a Say-it attempt it already logged
-// (same point, probe, instant and source) is skipped, so the history is never logged twice.
+// (same point, probe, instant (to the millisecond) and source) is skipped, so the history is
+// never logged twice.
 // A `jp.speak.scores` blob this build cannot read counts as skipped and still sets the flag.
 
 import 'dart:convert';

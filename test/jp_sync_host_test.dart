@@ -100,8 +100,8 @@ Attempt answer(int minute) {
   );
 }
 
-Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
-    item: lookup(a.itemId), scheduler: scheduler);
+Future<void> record(JpStore store, Attempt a) =>
+    store.recordAnswer(a, item: lookup(a.itemId), scheduler: scheduler);
 
 /// A store that is not a `JpStoreMemory`, so it has no wipe. Only [meta] answers: any other
 /// call fails the test.
@@ -111,7 +111,8 @@ class _NoWipeStore implements JpStore {
   final String? owner;
 
   @override
-  Future<String?> meta(String key) async => key == kSyncOwnerMetaKey ? owner : null;
+  Future<String?> meta(String key) async =>
+      key == kSyncOwnerMetaKey ? owner : null;
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -188,7 +189,8 @@ void main() {
   });
 
   group('when it syncs', () {
-    test('a non-anonymous sign-in syncs: the answer reaches the remote', () async {
+    test('a non-anonymous sign-in syncs: the answer reaches the remote',
+        () async {
       final rig = Rig(await webStore());
       await record(rig.store, answer(0));
 
@@ -225,7 +227,8 @@ void main() {
       expect(await rig.store.unpushedEvents(), hasLength(1));
     });
 
-    test('app resume syncs again and pulls the other device\'s answer', () async {
+    test('app resume syncs again and pulls the other device\'s answer',
+        () async {
       final rig = Rig(await webStore());
       await rig.host.userChanged(_User('mark'));
       expect(await rig.store.allEvents(), isEmpty);
@@ -261,7 +264,8 @@ void main() {
       expect((await rig.remote('mark').devices()).single, first);
     });
 
-    test('an offline sync is reported, not thrown, and the next resume catches up',
+    test(
+        'an offline sync is reported, not thrown, and the next resume catches up',
         () async {
       final rig = Rig(await webStore());
       rig.remote('mark').online = false;
@@ -279,7 +283,8 @@ void main() {
   });
 
   group('sign-out on the web', () {
-    test('wipes the store, its sync cursor and its replay flag, and keeps the device id',
+    test(
+        'wipes the store, its sync cursor and its replay flag, and keeps the device id',
         () async {
       SharedPreferences.setMockInitialValues({
         'jp.selfcheck.g1': 'can_use_it',
@@ -388,7 +393,8 @@ void main() {
         expect(await rig.store.allEvents(), isEmpty);
       });
 
-      test('a record with no owner yet still asks: the sign-in sync failed early',
+      test(
+          'a record with no owner yet still asks: the sign-in sync failed early',
           () async {
         final rig = Rig(await webStore());
         rig.failOpen = true;
@@ -415,8 +421,8 @@ void main() {
         await record(rig.store, answer(2));
         rig.remote('mark').online = false;
 
-        expect(await rig.host.signOut(signOutAnyway: () async => false),
-            isFalse);
+        expect(
+            await rig.host.signOut(signOutAnyway: () async => false), isFalse);
         expect(await rig.store.unpushedEvents(), hasLength(1));
       });
     });
@@ -458,7 +464,8 @@ void main() {
       expect(await rig.store.allEvents(), isEmpty);
     });
 
-    test('a record another account left in this browser never reaches the next account',
+    test(
+        'a record another account left in this browser never reaches the next account',
         () async {
       final store = await webStore();
       // Account A studied here, then the tab closed before any sign-out.
@@ -569,7 +576,8 @@ void main() {
         expect(rig.errors, isEmpty);
       });
 
-      test('"keep it local" keeps A\'s record on the phone, unsent, and B syncs',
+      test(
+          '"keep it local" keeps A\'s record on the phone, unsent, and B syncs',
           () async {
         final rig = await phoneOfA(JpOwnerChoice.keepLocal);
         final before = await rig.store.exportLog();
@@ -600,7 +608,8 @@ void main() {
         ('the owner write', (kSyncOwnerMetaKey, 'b')),
         ('the replay flag write', (kSyncReplayPendingMetaKey, '0')),
       ]) {
-        test('"keep it local" cut short at $name keeps A\'s export on the retry',
+        test(
+            '"keep it local" cut short at $name keeps A\'s export on the retry',
             () async {
           final store = _FailOnceStore();
           final rig = await phoneOfA(JpOwnerChoice.keepLocal, store: store);
@@ -617,15 +626,16 @@ void main() {
 
           await rig.host.resume();
 
-          final log =
-              decodeStudyExport((await store.meta('${kKeptRecordMetaPrefix}a'))!);
+          final log = decodeStudyExport(
+              (await store.meta('${kKeptRecordMetaPrefix}a'))!);
           expect(log.attempts, hasLength(2));
           expect([for (final a in log.attempts) a.eventId],
               [for (final a in before.attempts) a.eventId]);
           expect(rig.asked, ['a']);
           expect(rig.errors, hasLength(1));
           expect(await store.meta(kSyncOwnerMetaKey), 'b');
-          expect(await store.allEvents(), hasLength(1), reason: 'only B\'s own');
+          expect(await store.allEvents(), hasLength(1),
+              reason: 'only B\'s own');
           expect(rig.remote('b').events, hasLength(1), reason: 'none of A\'s');
         });
       }
@@ -645,7 +655,8 @@ void main() {
         expect(rig.errors, isEmpty);
       });
 
-      test('a record holds something with any one of its parts, and nothing empty',
+      test(
+          'a record holds something with any one of its parts, and nothing empty',
           () {
         const item = 'mari.L26.1';
         expect(studyLogHoldsRecord(const StudyLog()), isFalse);
@@ -654,7 +665,8 @@ void main() {
             studyLogHoldsRecord(StudyLog(
                 seeds: [SeedEvent(itemId: item, dueDay: 1, atUtc: t0)])),
             isTrue);
-        expect(studyLogHoldsRecord(const StudyLog(notes: {item: 'ask'})), isTrue);
+        expect(
+            studyLogHoldsRecord(const StudyLog(notes: {item: 'ask'})), isTrue);
         expect(
             studyLogHoldsRecord(StudyLog(
                 discuss: {item: DiscussMark(itemId: item, atUtc: t0)})),
@@ -670,7 +682,8 @@ void main() {
             isTrue);
       });
 
-      test('asks once: a resume after the choice syncs without asking', () async {
+      test('asks once: a resume after the choice syncs without asking',
+          () async {
         final rig = await phoneOfA(JpOwnerChoice.upload);
         await rig.host.userChanged(_User('b'));
         await record(rig.store, answer(3));
@@ -694,7 +707,8 @@ void main() {
         expect(rig.remotes.containsKey('a'), isFalse);
       });
 
-      test('no answer changes nothing, syncs nothing, and does not ask again '
+      test(
+          'no answer changes nothing, syncs nothing, and does not ask again '
           'on resume', () async {
         final rig = await phoneOfA(null);
         var asks = 0;
@@ -752,7 +766,8 @@ void main() {
   });
 
   group('a study store that will not open at sign-out', () {
-    test('the phone reports it and signs out, because it wipes nothing', () async {
+    test('the phone reports it and signs out, because it wipes nothing',
+        () async {
       final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
       await rig.host.userChanged(_User('mark'));
       rig.failOpen = true;
@@ -770,7 +785,8 @@ void main() {
       expect(rig.errors.single, isA<StateError>());
     });
 
-    test('the web reports it and stops sign-out, because it cannot wipe', () async {
+    test('the web reports it and stops sign-out, because it cannot wipe',
+        () async {
       final rig = Rig(await webStore());
       await rig.host.userChanged(_User('mark'));
       rig.failOpen = true;
@@ -785,7 +801,8 @@ void main() {
     bool isNoWipe(Object e) =>
         e is StateError && e.message == 'jp web wipe: store has no wipe';
 
-    test('sign-out with nobody signed in stops and keeps the jp. keys', () async {
+    test('sign-out with nobody signed in stops and keeps the jp. keys',
+        () async {
       SharedPreferences.setMockInitialValues({'jp.vocab.lastLesson': 4});
       final rig = Rig(_NoWipeStore());
 
@@ -795,7 +812,8 @@ void main() {
       expect(prefs.getInt('jp.vocab.lastLesson'), 4);
     });
 
-    test('another account\'s record never syncs, and sign-out stops and keeps the uid',
+    test(
+        'another account\'s record never syncs, and sign-out stops and keeps the uid',
         () async {
       final rig = Rig(_NoWipeStore(owner: 'other'));
 
@@ -805,7 +823,8 @@ void main() {
 
       expect(await rig.host.signOut(), isFalse);
       expect(rig.host.uid, 'mark',
-          reason: 'the user stays signed in here, so the next resume syncs again');
+          reason:
+              'the user stays signed in here, so the next resume syncs again');
       expect(rig.errors, hasLength(2));
       expect(rig.errors.every(isNoWipe), isTrue);
     });
@@ -853,7 +872,8 @@ void main() {
         await tester.pumpWidget(MaterialApp(
             home: Builder(
                 builder: (context) => TextButton(
-                    onPressed: () async => result = await askOwnerChoice(context),
+                    onPressed: () async =>
+                        result = await askOwnerChoice(context),
                     child: const Text('go')))));
 
         await tester.tap(find.text('go'));
@@ -866,7 +886,8 @@ void main() {
       });
     }
 
-    testWidgets('the other-account dialog ignores the back button and names '
+    testWidgets(
+        'the other-account dialog ignores the back button and names '
         'what "start fresh" loses', (tester) async {
       var closed = false;
       JpOwnerChoice? result;

@@ -251,8 +251,9 @@ class JpSyncHost with WidgetsBindingObserver {
   /// wipes the web store. Returns when the steps it queued finish.
   Future<void> userChanged(BaseAuthUser? user) {
     final id = user?.uid;
-    final next =
-        user != null && user.loggedIn && id != null && id.isNotEmpty ? id : null;
+    final next = user != null && user.loggedIn && id != null && id.isNotEmpty
+        ? id
+        : null;
     if (next == _uid) return _tail;
     final previous = _uid;
     _setUid(next);
