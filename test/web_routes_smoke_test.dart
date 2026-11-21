@@ -28,6 +28,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:habit_craft/app_state.dart';
+import 'package:habit_craft/backend/push_notifications/push_notifications_handler.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_sqlite.dart'
     show debugSetSharedJpStore;
@@ -563,6 +564,8 @@ Future<void> _openRoute(WidgetTester tester, String path) async {
     child: MyApp(),
   ));
   await tester.pump(const Duration(milliseconds: 1100));
+  expect(AppStateNotifier.instance.loading, isFalse,
+      reason: 'the launch splash never ended, so no route screen was built');
 
   final query = _routeQueries[path];
   final location =
@@ -579,6 +582,11 @@ Future<void> _openRoute(WidgetTester tester, String path) async {
   final router = GoRouter.of(appNavigatorKey.currentContext!);
   expect(router.routerDelegate.currentConfiguration.uri.path, path,
       reason: '$path did not stay open');
+  // The notifier is shared by every test, so its flag can stay clear from an earlier test.
+  // The widget tree is this test's own proof: the route page wraps its screen in this
+  // handler, and the splash logo replaces both.
+  expect(find.byType(PushNotificationsHandler), findsWidgets,
+      reason: '$path showed the launch splash, not its screen');
 
   // Unmount the app so no screen's timer outlives the test.
   await tester.pumpWidget(const SizedBox());
