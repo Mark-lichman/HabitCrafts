@@ -1,35 +1,28 @@
 ---
 name: a-retried-pick-step-re-empties-the-record-and-loses-new-answers
-description: A keep-local or start-fresh pick that is retried after a failed owner write empties the record again
+description: A destructive pick step that a retry repeats must run once per pick, as the applied flag now does
 metadata:
   type: project
   keywords: [retry idempotence, _takeOver, _empty, keepLocal, startFresh, sync.owner, _choice, _applied, JpSyncHost, destructive step repeated, resume retry]
   provenance: code-verified
   slug: a-retried-pick-step-re-empties-the-record-and-loses-new-answers
-  phase: 3
-  tags: [jp-sync, task-6, audit-finding, unfixed, retry]
+  phase: 4
+  tags: [jp-sync, task-6, audit-finding, resolved, retry]
   created: 2026-11-21
 ---
 
-Task 6 landed with this Minor finding open. The final audit rated it `absorb` and no fix round ran.
+Resolved by phase 4. This note keeps the pattern and supersedes the phase 3 version, which said no `_applied` field existed.
 
-In `_takeOver`, the keepLocal and startFresh arms call `_empty` on every run.
+In `_takeOver`, the keepLocal and startFresh arms once called `_empty` on every run.
 The session field `_choice` survives a failed run, and `sync.owner` stays the old uid until the owner write lands.
-If the owner write or the replay-flag write throws, the next resume runs the arm again.
-Between the two runs the new account's answers sit in the emptied record, so the second `_empty` wipes them.
-On keepLocal the retry also exports those new answers over the first kept export, because the log now holds a record. That replaces the old owner's record.
+If the owner write threw, the next resume repeated the arm. Answers recorded in between were wiped by the second `_empty`.
+On keepLocal the retry could also overwrite the first kept export with the new answers.
 
-Round 4 guarded only the empty-record case (`studyLogHoldsRecord`). That fixed one instance of the class.
-The class is: a step a retry repeats must not destroy what its first run saved.
+At the landed tip a session flag `_applied` guards both arms: export and `_empty` run only while it is false, and it is set right after `_empty`.
+`_setUid` resets it. A retry repeats only the owner write.
 
-Odds are very low. The trigger is a local meta write failing, then answers, then a resume.
-A process restart drops `_choice`, and the ask repeats behind a modal dialog before any answer can be recorded.
-
-Suggested fix from the audit: add a session flag `_applied`, reset it in `_setUid`.
-Run the export and `_empty` only when it is false, and set it right after `_empty` returns. A retry then repeats only the owner write.
-Add two tests with a fail-once store: cut the owner write, record one answer, resume. For startFresh the answer stays and reaches the new remote. For keepLocal the kept export still holds both old attempts.
-
-Status: I read the arms at the integration tip and found no `_applied` field. The scenario was traced, not executed.
-Locate: `lib/components/pages/quiet_room_mastery/jp_sync_host_service.dart`, `_takeOver`. Verify still present before acting.
-Grounding: no worktree sat at the landed tip. The refinery worktree sat at `5f9c4abd`, the second parent of the landed merge.
-Related: [[web-sign-out-and-phone-account-switch-edges-await-an-operator-decision]].
+Rule: a step a retry repeats must not destroy what its first run saved.
+Still open and small: the keepLocal arm reads `exportLog` outside the store's write chain before `_empty`. An answer landing between the two is lost. This predates phase 4 and the audit left it.
+Locate: `_takeOver` in `lib/components/pages/quiet_room_mastery/jp_sync_host_service.dart` @ phase 4 landed tip dcd890e. Verify still present before acting.
+Grounding: read in the refinery worktree whose HEAD was the landed tip.
+Related: [[web-sign-out-and-phone-account-switch-edges-await-an-operator-decision]], [[a-join-of-two-records-must-read-and-write-on-the-store-write-chain]].

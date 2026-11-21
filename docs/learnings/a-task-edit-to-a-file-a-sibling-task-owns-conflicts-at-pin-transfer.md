@@ -25,5 +25,18 @@ The conflict came from the format re-wrap and the format commit, not from the st
 Rule: when a ruling makes a task touch a file a sibling owns, say so in the plan file map and sequence the sibling after it.
 Keep format-only commits off shared files, or run them after the siblings merge.
 
-Related: [[ci-runs-dart-format-check-that-no-worker-gate-runs]].
+Recurred in phase 4 on a shared register file.
+Task 14 inserted a row in `docs/architecture/adopted-files.md` right after the `profile_page_widget.dart` row that Task 16 rewrote.
+An auditor flagged this as a Nit and warned the second task to merge might need a rebase.
+Task 14 merged first, then Task 16's pin-transfer rebase conflicted on `docs/architecture/adopted-files.md`.
+The engine aborted the rebase and escalated Task 16 as `conflict`, so phase 4 held with `held:escalation`.
+The conflict file name is from the engine record.
+That adjacent hunks caused it is inferred from the audit note, not from reading the conflict.
+Task 16's own audit was clean, with one Nit about an ownerless record claimable by the next account.
+
+Rule addition: a plan's append-only register or index file is a shared file even when each task edits a different row.
+Sequence the tasks that add or rewrite rows in it, or let one task own all its rows.
+A Nit that says "may need a rebase" on such a file is a real warning.
+
+Related: [[ci-runs-dart-format-check-that-no-worker-gate-runs]], [[adopted-files-row-ordered-before-the-code-it-describes-reads-false-at-an-older-pin]].
 Absence note: root cause not confirmed by reading the conflict; the conflict file name is from the engine record.

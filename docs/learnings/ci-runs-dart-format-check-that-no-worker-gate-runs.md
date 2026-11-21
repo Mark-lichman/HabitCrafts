@@ -26,6 +26,18 @@ That audit read the history and found the three files already formatted by a Tas
 Nobody ran `dart format` at the landed tip, so the state there is grounded by history and blob reading only, not by a run.
 An empty late-fix diff is a valid no-op, not a failure.
 
+Recurred in phase 3, from audit text only.
+Task seed-2 had a test line 81 columns wide in `test/plan_builder_test.dart` (Minor), and its later pin had no finding.
+A Task 15 auditor said `test/speak_lesson_events_test.dart` already failed the check on the base, per the worker report, and asked for a phase-close format.
+Task seed-3 then dart-formatted three `expect` calls in that file, so it may be fixed.
+The auditors could not run the formatter either, and the tip state is not confirmed by a run.
+
+Recurred in phase 4 on Task 14's new `test/web_routes_smoke_test.dart`, from audit text only.
+Round 1 found six code lines wider than 80 columns, for example a 87 column `expect(paths.toSet().length, ...)`.
+Round 5 found a hand-written `test('...Notification API...',` line 84 columns wide, added by the previous fix round itself.
+The final round had no findings, so the file was probably formatted by then, but no one ran the formatter at the landed tip.
+A fix round that adds a long test name re-creates the drift, so the check must run after every fix commit.
+
 Rule: run `dart format --output=none --set-exit-if-changed .` before every commit, and add it to the worker gate list.
 A phase-close sweep should format the whole tree once as its own commit.
 Beware a stand-alone format commit on a file a sibling task also edits: see [[a-task-edit-to-a-file-a-sibling-task-owns-conflicts-at-pin-transfer]].
