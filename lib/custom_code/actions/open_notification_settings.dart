@@ -18,9 +18,11 @@ import 'package:flutter_open_app_settings/flutter_open_app_settings.dart';
 /// Opens the phone's notification settings for the app. A browser has no such settings
 /// page, so on the web this asks the browser for notification permission instead
 /// (plan 2026-11-19, Task 14). The browser shows its prompt once; after that it answers
-/// with the choice already made.
+/// with the choice already made. A browser with no Notification API, such as iOS Safari
+/// outside an installed web app, has nothing to ask, so the row does nothing there.
 Future openNotificationSettings() async {
   if (kIsWeb) {
+    if (!await FirebaseMessaging.instance.isSupported()) return;
     await FirebaseMessaging.instance.requestPermission();
     return;
   }
