@@ -91,7 +91,20 @@ class _MyAppState extends State<MyApp> {
     _router = createRouter(_appStateNotifier);
     // The study record syncs after a non-anonymous sign-in and on each app resume, and the
     // web forgets it when the user goes (plan 2026-11-19, Task 6, jp_sync_host_service.dart).
-    JpSyncHost.instance.attach();
+    // On the phone, another account signing in over a record with a different owner is
+    // asked once what to do with it (operator ruling b). A sign-in at launch can arrive
+    // before the navigator is built, so the ask waits a few frames for it.
+    JpSyncHost.instance
+      ..askOwner = (_) async {
+        var context = appNavigatorKey.currentContext;
+        for (var i = 0; context == null && i < 100; i++) {
+          await WidgetsBinding.instance.endOfFrame;
+          context = appNavigatorKey.currentContext;
+        }
+        if (context == null || !context.mounted) return null;
+        return askOwnerChoice(context);
+      }
+      ..attach();
     userStream = habitCraftFirebaseUserStream()
       ..listen((user) {
         _appStateNotifier.update(user);

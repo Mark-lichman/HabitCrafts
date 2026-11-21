@@ -542,8 +542,17 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                         logFirebaseEvent(
                                             'profileLineItem_auth');
                                         // Plan 2026-11-19, Task 6: push the answers not yet
-                                        // synced, then wipe this browser's study record.
-                                        await JpSyncHost.instance.signOut();
+                                        // synced, then wipe this browser's study record. If
+                                        // that push fails, the user picks wait (stay signed
+                                        // in, nothing wiped) or sign out anyway (ruling a).
+                                        final mayLeave =
+                                            await JpSyncHost.instance.signOut(
+                                                signOutAnyway: () =>
+                                                    confirmUnsyncedSignOut(
+                                                        context));
+                                        if (!mayLeave || !context.mounted) {
+                                          return;
+                                        }
                                         GoRouter.of(context).prepareAuthEvent();
                                         await authManager.signOut();
                                         GoRouter.of(context)

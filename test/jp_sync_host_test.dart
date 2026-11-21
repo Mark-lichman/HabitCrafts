@@ -4,8 +4,15 @@
 // anonymous or signed-out user. On the web, sign-out (and losing the user, as account delete
 // does) empties this browser's study record through the store wipe, which also clears the sync
 // cursor and the replay flag. A browser record that belongs to another account is wiped before
-// it can reach the new account. The phone never wipes. The profile page's "Signed-in devices"
-// entry opens the devices page.
+// it can reach the new account. The profile page's "Signed-in devices" entry opens the
+// devices page.
+//
+// The two operator rulings (Checkpoint 2026-11-20): (a) on the web, a failed last sync with
+// answers left to push stops sign-out until the user picks "wait" or "sign out anyway", and
+// nothing is wiped without that pick. (b) On the phone, another account signing in over a
+// record with a different (or deleted) owner is asked once: keep the record local, upload it
+// to the new account, or start fresh. Then the new account syncs. The phone never wipes on
+// sign-out.
 //
 // It runs in Chrome (the Done-when) and on the VM (the gate), so it imports no `dart:io`. The
 // web store runs over in-memory browser storage, the remote is `JpRemoteMemory`.
@@ -28,6 +35,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_web.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_sync_host_service.dart';
+import 'package:habit_craft/components/pages/quiet_room_mastery/study_export.dart'
+    show decodeStudyExport;
 
 /// An auth user with a fixed uid and sign-in state. An anonymous user has a uid but is not
 /// logged in (`HabitCraftFirebaseUser.loggedIn`).
@@ -95,7 +104,7 @@ Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
 
 /// One browser (or phone) under test: its store, the remote of each account, and its host.
 class Rig {
-  Rig(this.store, {this.isWeb = true, this.failures = const []}) {
+  Rig(this.store, {this.isWeb = true, this.ownerChoice}) {
     host = JpSyncHost(
       openStore: () async => store,
       remoteFor: (uid) => remotes.putIfAbsent(uid, JpRemoteMemory.new),
@@ -105,11 +114,22 @@ class Rig {
       clock: () => t0.add(const Duration(hours: 1)),
       onError: (e, _) => errors.add(e),
     );
+    if (ownerChoice != null) {
+      host.askOwner = (previous) async {
+        asked.add(previous);
+        return ownerChoice;
+      };
+    }
   }
 
   final JpStore store;
   final bool isWeb;
-  final List<Object> failures;
+
+  /// What the phone's user picks when it asks about another account's record.
+  final JpOwnerChoice? ownerChoice;
+
+  /// The previous owner of each ask, in order.
+  final List<String> asked = [];
   final Map<String, JpRemoteMemory> remotes = {};
   final List<Object> errors = [];
   late final JpSyncHost host;
@@ -254,10 +274,80 @@ void main() {
       await rig.host.userChanged(_User('mark'));
       await record(rig.store, answer(2));
 
-      await rig.host.signOut();
+      expect(await rig.host.signOut(), isTrue);
 
       expect(rig.remote('mark').events, hasLength(1));
       expect(await rig.store.allEvents(), isEmpty);
+    });
+
+    group('when the last sync fails (operator ruling a)', () {
+      Future<Rig> offlineWithAnAnswer() async {
+        final rig = Rig(await webStore());
+        await rig.host.userChanged(_User('mark'));
+        await record(rig.store, answer(2));
+        rig.remote('mark').online = false;
+        return rig;
+      }
+
+      test('sign-out stops and asks, and "wait" wipes nothing', () async {
+        final rig = await offlineWithAnAnswer();
+        var asks = 0;
+
+        final signedOut = await rig.host.signOut(signOutAnyway: () async {
+          asks++;
+          return false;
+        });
+
+        expect(signedOut, isFalse);
+        expect(asks, 1);
+        expect(await rig.store.allEvents(), hasLength(1));
+        expect(await rig.store.unpushedEvents(), hasLength(1));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'mark');
+        expect(rig.host.uid, 'mark', reason: 'still signed in, so it syncs on');
+
+        // Back online, the next resume pushes the answer.
+        rig.remote('mark').online = true;
+        await rig.host.resume();
+        expect(rig.remote('mark').events, hasLength(1));
+      });
+
+      test('no answer to the ask counts as "wait"', () async {
+        final rig = await offlineWithAnAnswer();
+
+        expect(await rig.host.signOut(), isFalse);
+
+        expect(await rig.store.allEvents(), hasLength(1));
+      });
+
+      test('"sign out anyway" wipes', () async {
+        final rig = await offlineWithAnAnswer();
+
+        final signedOut =
+            await rig.host.signOut(signOutAnyway: () async => true);
+
+        expect(signedOut, isTrue);
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(await rig.store.meta(kSyncCursorMetaKey), isNull);
+        expect(rig.host.uid, isNull);
+      });
+
+      test('a failed sync with nothing left to push signs out without asking',
+          () async {
+        final rig = Rig(await webStore());
+        await record(rig.store, answer(0));
+        await rig.host.userChanged(_User('mark'));
+        rig.remote('mark').online = false;
+        var asks = 0;
+
+        final signedOut = await rig.host.signOut(signOutAnyway: () async {
+          asks++;
+          return false;
+        });
+
+        expect(signedOut, isTrue);
+        expect(asks, 0);
+        expect(await rig.store.allEvents(), isEmpty);
+      });
     });
 
     test('losing the user from the auth stream (account delete) wipes too',
@@ -316,17 +406,238 @@ void main() {
       expect(await rig.store.meta(kSyncCursorMetaKey), isNotNull);
     });
 
-    test('a record owned by another account stays and does not sync', () async {
+    test('a failed last sync never stops sign-out, because nothing is wiped',
+        () async {
       final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
-      await rig.store.putMeta(kSyncOwnerMetaKey, 'a');
+      await rig.host.userChanged(_User('mark'));
       await record(rig.store, answer(0));
+      rig.remote('mark').online = false;
+      var asks = 0;
 
-      await rig.host.userChanged(_User('b'));
+      final signedOut = await rig.host.signOut(signOutAnyway: () async {
+        asks++;
+        return false;
+      });
 
-      expect(rig.remote('b').events, isEmpty);
-      expect(await rig.store.allEvents(), hasLength(1));
-      expect(await rig.store.meta(kSyncOwnerMetaKey), 'a');
+      expect(signedOut, isTrue);
+      expect(asks, 0);
+      expect(await rig.store.unpushedEvents(), hasLength(1));
     });
+
+    group('another account signs in (operator ruling b)', () {
+      /// A phone whose record account A synced, its answer on A's remote, then one more
+      /// answer A never pushed.
+      Future<Rig> phoneOfA(JpOwnerChoice? choice) async {
+        final rig =
+            Rig(JpStoreMemory(clock: () => t0), isWeb: false, ownerChoice: choice);
+        await record(rig.store, answer(0));
+        await rig.host.userChanged(_User('a'));
+        await rig.host.signOut();
+        await rig.host.userChanged(null);
+        await record(rig.store, answer(1));
+        expect(rig.remote('a').events, hasLength(1));
+        return rig;
+      }
+
+      /// Account B's own answer, synced from B's other device.
+      Future<void> bAnsweredElsewhere(Rig rig) async {
+        final other = JpStoreMemory(clock: () => t0);
+        await record(other, answer(9));
+        await JpSync(
+                store: other,
+                remote: rig.remote('b'),
+                lookup: lookup,
+                scheduler: scheduler,
+                deviceName: 'Web browser')
+            .run();
+      }
+
+      test('"upload" puts the whole record on the new account, then it syncs',
+          () async {
+        final rig = await phoneOfA(JpOwnerChoice.upload);
+        await bAnsweredElsewhere(rig);
+
+        await rig.host.userChanged(_User('b'));
+
+        expect(rig.asked, ['a']);
+        expect(rig.remote('b').events, hasLength(3),
+            reason: 'both of A\'s answers, the pushed one too, plus B\'s own');
+        expect(await rig.store.allEvents(), hasLength(3));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+        expect(rig.remote('a').events, hasLength(1), reason: 'A is untouched');
+        expect(rig.errors, isEmpty);
+      });
+
+      test('"start fresh" empties the record, then the new account syncs',
+          () async {
+        final rig = await phoneOfA(JpOwnerChoice.startFresh);
+        await bAnsweredElsewhere(rig);
+
+        await rig.host.userChanged(_User('b'));
+
+        expect(rig.asked, ['a']);
+        expect(rig.remote('b').events, hasLength(1), reason: 'only B\'s own');
+        final events = await rig.store.allEvents();
+        expect(events, hasLength(1));
+        expect(events.single.eventId, rig.remote('b').events.single.eventId);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+        expect(await rig.store.meta('${kKeptRecordMetaPrefix}a'), isNull);
+        expect(rig.errors, isEmpty);
+      });
+
+      test('"keep it local" keeps A\'s record on the phone, unsent, and B syncs',
+          () async {
+        final rig = await phoneOfA(JpOwnerChoice.keepLocal);
+        final before = await rig.store.exportLog();
+        await bAnsweredElsewhere(rig);
+
+        await rig.host.userChanged(_User('b'));
+
+        expect(rig.asked, ['a']);
+        expect(rig.remote('b').events, hasLength(1), reason: 'none of A\'s');
+        expect(rig.remote('a').events, hasLength(1),
+            reason: 'A\'s unpushed answer is not sent to A either');
+        expect(await rig.store.allEvents(), hasLength(1));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+
+        // A's whole record stays on the phone as a study export, both answers in it.
+        final kept = await rig.store.meta('${kKeptRecordMetaPrefix}a');
+        expect(kept, isNotNull);
+        final log = decodeStudyExport(kept!);
+        expect([for (final a in log.attempts) a.eventId],
+            [for (final a in before.attempts) a.eventId]);
+        expect(log.attempts, hasLength(2));
+        expect(rig.errors, isEmpty);
+      });
+
+      test('asks once: a resume after the choice syncs without asking', () async {
+        final rig = await phoneOfA(JpOwnerChoice.upload);
+        await rig.host.userChanged(_User('b'));
+        await record(rig.store, answer(3));
+
+        await rig.host.resume();
+
+        expect(rig.asked, ['a']);
+        expect(rig.remote('b').events, hasLength(3));
+      });
+
+      test('a deleted owner asks the same way', () async {
+        // Account A was deleted: its remote is gone, and its uid never signs in again.
+        final rig = await phoneOfA(JpOwnerChoice.startFresh);
+        rig.remotes.remove('a');
+
+        await rig.host.userChanged(_User('b'));
+
+        expect(rig.asked, ['a']);
+        expect(await rig.store.allEvents(), isEmpty);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+        expect(rig.remotes.containsKey('a'), isFalse);
+      });
+
+      test('no answer changes nothing, syncs nothing, and does not ask again '
+          'on resume', () async {
+        final rig = await phoneOfA(null);
+        var asks = 0;
+        rig.host.askOwner = (_) async {
+          asks++;
+          return null;
+        };
+
+        await rig.host.userChanged(_User('b'));
+        await rig.host.resume();
+
+        expect(asks, 1);
+        expect(rig.remotes.containsKey('b'), isFalse);
+        expect(await rig.store.allEvents(), hasLength(2));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'a');
+      });
+
+      test('the owner coming back syncs as before, with no ask', () async {
+        final rig = await phoneOfA(JpOwnerChoice.startFresh);
+
+        await rig.host.userChanged(_User('a'));
+
+        expect(rig.asked, isEmpty);
+        expect(rig.remote('a').events, hasLength(2));
+      });
+
+      test('an upload cut short by the network asks no more and finishes later',
+          () async {
+        final rig = await phoneOfA(JpOwnerChoice.upload);
+        rig.remote('b').online = false;
+
+        await rig.host.userChanged(_User('b'));
+        expect(rig.errors.single, isA<JpRemoteUnavailable>());
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'a',
+            reason: 'the record is not B\'s until the upload lands');
+
+        rig.remote('b').online = true;
+        await rig.host.resume();
+
+        expect(rig.asked, ['a']);
+        expect(rig.remote('b').events, hasLength(2));
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'b');
+      });
+
+      test('sign-out never uploads a record the phone did not take', () async {
+        final rig = await phoneOfA(null);
+
+        await rig.host.userChanged(_User('b'));
+        await rig.host.signOut();
+
+        expect(rig.remotes.containsKey('b'), isFalse);
+        expect(await rig.store.meta(kSyncOwnerMetaKey), 'a');
+      });
+    });
+  });
+
+  group('the dialogs', () {
+    testWidgets('the unsynced sign-out dialog: wait or sign out anyway',
+        (tester) async {
+      bool? result;
+      await tester.pumpWidget(MaterialApp(
+          home: Builder(
+              builder: (context) => TextButton(
+                  onPressed: () async =>
+                      result = await confirmUnsyncedSignOut(context),
+                  child: const Text('go')))));
+
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+      expect(find.text(kUnsyncedTitle), findsOneWidget);
+      await tester.tap(find.text(kUnsyncedWait));
+      await tester.pumpAndSettle();
+      expect(result, isFalse);
+
+      await tester.tap(find.text('go'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(kUnsyncedSignOutAnyway));
+      await tester.pumpAndSettle();
+      expect(result, isTrue);
+    });
+
+    for (final (label, choice) in [
+      (kOwnerKeepLocal, JpOwnerChoice.keepLocal),
+      (kOwnerUpload, JpOwnerChoice.upload),
+      (kOwnerStartFresh, JpOwnerChoice.startFresh),
+    ]) {
+      testWidgets('the other-account dialog returns $choice', (tester) async {
+        JpOwnerChoice? result;
+        await tester.pumpWidget(MaterialApp(
+            home: Builder(
+                builder: (context) => TextButton(
+                    onPressed: () async => result = await askOwnerChoice(context),
+                    child: const Text('go')))));
+
+        await tester.tap(find.text('go'));
+        await tester.pumpAndSettle();
+        expect(find.text(kOwnerTitle), findsOneWidget);
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+
+        expect(result, choice);
+      });
+    }
   });
 
   group('jpDeviceName', () {
