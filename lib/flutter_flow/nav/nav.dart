@@ -619,10 +619,18 @@ class FFRoute {
         pageBuilder: (context, state) {
           fixStatusBarOniOS16AndBelow(context);
           final ffParams = FFParameters(state, asyncParams);
+          // A document named in the URL loads before its screen builds. The phone passes
+          // documents in `extra`, but a web reload keeps only the URL, and these screens
+          // read their document with `!` (plan 2026-11-19, Task 14).
           final page = ffParams.hasFutures
               ? FutureBuilder(
                   future: ffParams.completeFutures(),
-                  builder: (context, _) => builder(context, ffParams),
+                  builder: (context, snapshot) =>
+                      snapshot.connectionState == ConnectionState.done
+                          ? builder(context, ffParams)
+                          : Container(
+                              color: FlutterFlowTheme.of(context)
+                                  .primaryBackground),
                 )
               : builder(context, ffParams);
           final child = appStateNotifier.loading
