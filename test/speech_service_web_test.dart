@@ -30,6 +30,8 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.da
 import 'package:habit_craft/components/pages/quiet_room_practice/speech_service.dart';
 
 import 'support/fake_pronunciation.dart';
+import 'support/fake_recognizer_stub.dart'
+    if (dart.library.js_interop) 'support/fake_recognizer_web.dart';
 
 // --- fakes -------------------------------------------------------------------
 
@@ -316,6 +318,38 @@ void main() {
       expect(s, kIsWeb ? SpeechSupport.noRecognizer : SpeechSupport.works);
     });
 
+    group('the real probe reads available() in Chrome', () {
+      const fake = 'habitCraftsFakeRecognizer';
+      Future<SpeechSupport> probe() =>
+          browserSpeechSupport(recognizerNames: const [fake]);
+      tearDown(() => removeFakeRecognizer(fake));
+
+      test('unavailable is no Japanese', () async {
+        installFakeRecognizer(fake, answer: 'unavailable');
+        expect(await probe(), SpeechSupport.noJapanese);
+      }, skip: !kIsWeb);
+
+      test('downloadable still works', () async {
+        installFakeRecognizer(fake, answer: 'downloadable');
+        expect(await probe(), SpeechSupport.works);
+      }, skip: !kIsWeb);
+
+      test('available still works', () async {
+        installFakeRecognizer(fake, answer: 'available');
+        expect(await probe(), SpeechSupport.works);
+      }, skip: !kIsWeb);
+
+      test('a rejected answer cannot rule Japanese out', () async {
+        installFakeRecognizer(fake, reject: true);
+        expect(await probe(), SpeechSupport.works);
+      }, skip: !kIsWeb);
+
+      test('a recognizer with no available() works', () async {
+        installFakeRecognizer(fake);
+        expect(await probe(), SpeechSupport.works);
+      }, skip: !kIsWeb);
+    });
+
     test('the real probe answers for this browser without throwing', () async {
       final s = await browserSpeechSupport();
       expect(SpeechSupport.values, contains(s));
@@ -354,6 +388,24 @@ void main() {
       expect(find.text('Say it'), findsNothing);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text(_noRecognizerLine), findsOneWidget);
+    });
+
+    testWidgets('the label asks to type, never to say, over the type-it form',
+        (tester) async {
+      await open(tester, _grammar, 'say.p1');
+      expect(find.text('Type the whole sentence'), findsOneWidget);
+      expect(find.text('Say the whole sentence'), findsNothing);
+      await open(tester, _word, kWordSayCardId,
+          support: SpeechSupport.noJapanese);
+      expect(find.text('Type the word'), findsOneWidget);
+      expect(find.text('Say the word'), findsNothing);
+    });
+
+    testWidgets('where speech works the label still asks to say',
+        (tester) async {
+      await open(tester, _grammar, 'say.p1', support: SpeechSupport.works);
+      expect(find.text('Say the whole sentence'), findsOneWidget);
+      expect(find.text('Type the whole sentence'), findsNothing);
     });
 
     testWidgets('a right typed answer is a clear on the type-it twin',

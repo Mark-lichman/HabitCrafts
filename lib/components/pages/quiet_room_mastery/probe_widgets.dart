@@ -1314,7 +1314,13 @@ class _SayCardProbeState extends State<SayCardProbe>
               height: 160,
               errorBuilder: (_, __, ___) => const SizedBox.shrink()),
         ),
-      _label(t, sayCardInstruction(widget.item, widget.probe)),
+      // Every sayCardInstruction branch starts with 'Say ', so the type-it form swaps that verb.
+      _label(
+          t,
+          typeOnly
+              ? sayCardInstruction(widget.item, widget.probe)
+                  .replaceFirst('Say ', 'Type ')
+              : sayCardInstruction(widget.item, widget.probe)),
       _prompt(t, widget.probe.text),
       if (widget.english != null) _quiet(t, widget.english!),
       if (typeOnly) ..._typeIt(t, g),
