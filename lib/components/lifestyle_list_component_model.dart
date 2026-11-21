@@ -15,14 +15,20 @@ class LifestyleListComponentModel
     extends FlutterFlowModel<LifestyleListComponentWidget> {
   ///  State fields for stateful widgets in this component.
 
-  // State field(s) for Expandable widget.
-  late ExpandableController expandableExpandableController;
+  // State field(s) for Expandable widget. The widget sets the controller in its initState,
+  // but a parent page creates and disposes this model even when the widget never builds
+  // (the progress page's second tab), so dispose must cope with no controller.
+  ExpandableController? _expandableController;
+  ExpandableController get expandableExpandableController =>
+      _expandableController!;
+  set expandableExpandableController(ExpandableController controller) =>
+      _expandableController = controller;
 
   @override
   void initState(BuildContext context) {}
 
   @override
   void dispose() {
-    expandableExpandableController.dispose();
+    _expandableController?.dispose();
   }
 }

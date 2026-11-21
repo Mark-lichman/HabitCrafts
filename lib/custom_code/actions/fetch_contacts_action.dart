@@ -11,11 +11,16 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_contacts/flutter_contacts.dart';
 
 Future<List<DocumentReference>> fetchContactsAction(
     List<DocumentReference> currentMembers) async {
   List<DocumentReference> result = [];
+
+  // A browser has no address book: flutter_contacts has no web side, so its permission
+  // call never answers and the caller's page init never finishes (plan 2026-11-19, Task 14).
+  if (kIsWeb) return result;
 
   // Request contact permission
   if (await FlutterContacts.requestPermission()) {
