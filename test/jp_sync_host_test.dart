@@ -106,7 +106,10 @@ Future<void> record(JpStore store, Attempt a) => store.recordAnswer(a,
 class Rig {
   Rig(this.store, {this.isWeb = true, this.ownerChoice}) {
     host = JpSyncHost(
-      openStore: () async => store,
+      openStore: () async {
+        if (failOpen) throw StateError('missing migration step');
+        return store;
+      },
       remoteFor: (uid) => remotes.putIfAbsent(uid, JpRemoteMemory.new),
       loadLookup: () async => lookup,
       isWeb: isWeb,
@@ -124,6 +127,9 @@ class Rig {
 
   final JpStore store;
   final bool isWeb;
+
+  /// Whether opening the store throws, as a store with a missing migration step does.
+  bool failOpen = false;
 
   /// What the phone's user picks when it asks about another account's record.
   final JpOwnerChoice? ownerChoice;
@@ -588,6 +594,36 @@ void main() {
         expect(rig.remotes.containsKey('b'), isFalse);
         expect(await rig.store.meta(kSyncOwnerMetaKey), 'a');
       });
+    });
+  });
+
+  group('a study store that will not open at sign-out', () {
+    test('the phone reports it and signs out, because it wipes nothing', () async {
+      final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false);
+      await rig.host.userChanged(_User('mark'));
+      rig.failOpen = true;
+
+      expect(await rig.host.signOut(), isTrue);
+      expect(rig.host.uid, isNull);
+      expect(rig.errors.single, isA<StateError>());
+    });
+
+    test('the phone signs out with nobody signed in too', () async {
+      final rig = Rig(JpStoreMemory(clock: () => t0), isWeb: false)
+        ..failOpen = true;
+
+      expect(await rig.host.signOut(), isTrue);
+      expect(rig.errors.single, isA<StateError>());
+    });
+
+    test('the web reports it and stops sign-out, because it cannot wipe', () async {
+      final rig = Rig(await webStore());
+      await rig.host.userChanged(_User('mark'));
+      rig.failOpen = true;
+
+      expect(await rig.host.signOut(), isFalse);
+      expect(rig.host.uid, 'mark');
+      expect(rig.errors.single, isA<StateError>());
     });
   });
 

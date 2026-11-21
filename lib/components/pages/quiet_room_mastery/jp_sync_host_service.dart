@@ -257,13 +257,24 @@ class JpSyncHost with WidgetsBindingObserver {
   /// On the web, a failed last sync that leaves answers unpushed calls [signOutAnyway]
   /// (operator ruling a). False, or no [signOutAnyway], stops sign-out: nothing is wiped and
   /// the user stays signed in here, so the next resume syncs again. The phone wipes nothing,
-  /// so a failed last sync never stops it.
+  /// so a failed last sync never stops it. A store that will not open is reported: the phone
+  /// signs out anyway, and the web stops sign-out because it cannot wipe.
   Future<bool> signOut({Future<bool> Function()? signOutAnyway}) {
     final id = _uid;
     final result = Completer<bool>();
     _step(() async {
       try {
-        final store = await _openStore();
+        final JpStore store;
+        try {
+          store = await _openStore();
+        } catch (e, s) {
+          onError(e, s);
+          if (!isWeb) {
+            if (_uid == id) _setUid(null);
+            result.complete(true);
+          }
+          return;
+        }
         if (id != null && await store.meta(kSyncOwnerMetaKey) == id) {
           try {
             await _run(id, store);
