@@ -142,6 +142,74 @@ void main() {
 
       expect(infos, isEmpty);
     });
+
+    test('a rejected token call logs its cause', () async {
+      final logs = <String?>[];
+      final saved = debugPrint;
+      debugPrint = (String? message, {int? wrapWidth}) => logs.add(message);
+      addTearDown(() => debugPrint = saved);
+      final messaging = _FakeMessaging(
+        permissionError: StateError('notifications blocked'),
+      );
+      final infos = await getFcmTokenStream(
+        userPath,
+        messaging: messaging,
+        isWeb: true,
+        vapidKey: 'config-key',
+      ).toList();
+
+      expect(infos, isEmpty);
+      expect(logs, hasLength(1));
+      expect(logs.single, startsWith('Web push token skipped: '));
+      expect(logs.single, contains('notifications blocked'));
+    });
+  });
+
+  group('getFcmTokenStream on the phone', () {
+    test('an Android phone gets a token without a web push key', () async {
+      final messaging = _FakeMessaging();
+      final infos = await getFcmTokenStream(
+        userPath,
+        messaging: messaging,
+        isWeb: false,
+        platform: TargetPlatform.android,
+        vapidKey: 'config-key',
+      ).toList();
+
+      expect(messaging.calls, ['requestPermission', 'getToken']);
+      expect(messaging.tokenVapidKey, isNull);
+      expect(infos, hasLength(1));
+      expect(infos.single.userPath, userPath);
+    });
+
+    test('an iOS phone gets a token without a web push key', () async {
+      final messaging = _FakeMessaging();
+      final infos = await getFcmTokenStream(
+        userPath,
+        messaging: messaging,
+        isWeb: false,
+        platform: TargetPlatform.iOS,
+        vapidKey: 'config-key',
+      ).toList();
+
+      expect(messaging.calls, ['requestPermission', 'getToken']);
+      expect(messaging.tokenVapidKey, isNull);
+      expect(infos, hasLength(1));
+    });
+
+    test('a desktop platform asks for no token', () async {
+      final messaging = _FakeMessaging();
+      final infos = await getFcmTokenStream(
+        userPath,
+        messaging: messaging,
+        isWeb: false,
+        platform: TargetPlatform.macOS,
+        vapidKey: 'config-key',
+      ).toList();
+
+      expect(infos, isEmpty);
+      expect(messaging.calls, isEmpty);
+    });
   });
 
   group('addFcmTokenData', () {

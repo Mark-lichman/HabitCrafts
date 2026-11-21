@@ -62,8 +62,14 @@ Stream<UserTokenInfo> getFcmTokenStream(
       .asyncMap<String?>(
         // A browser can reject the permission or service worker call, for
         // example when notifications are blocked. Web push then stays off
-        // and the app keeps running.
-        (_) => isWeb ? requestToken().catchError((_) => null) : requestToken(),
+        // and the app keeps running. The log names the cause for the
+        // in-browser check.
+        (_) => isWeb
+            ? requestToken().catchError((Object e) {
+                debugPrint('Web push token skipped: $e');
+                return null;
+              })
+            : requestToken(),
       )
       .switchMap(
           (fcmToken) => Stream.value(fcmToken).merge(client().onTokenRefresh))
