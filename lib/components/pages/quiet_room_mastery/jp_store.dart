@@ -49,8 +49,9 @@
 // the Not yet known and Due today sets from SrsState and seeds, not from MasteryStatus: the
 // schedule, not the badge, decides what is due.
 //
-// `rebuild` reads the log across several awaits before it writes, and `importLog` replaces the
-// whole record, so both run on the same chain as `recordAnswer` (`_serialized`): no answer reads
+// `rebuild` reads the log across several awaits before it writes, `importLog` replaces the
+// whole record, and `mergeImport` does both, so all of them run on the same chain as
+// `recordAnswer` (`_serialized`): no answer reads
 // its before-state on one side of a replay's write and commits on the other.
 
 import 'dart:convert';
@@ -437,6 +438,31 @@ class StudyLog {
   }
 }
 
+/// [a] and [b] joined, each event once: attempts, seeds and side events keyed by event id, an
+/// id-less row by its content. The notes and Discuss marks are the joined events resolved; an
+/// item no event names keeps its plain note or mark, [b]'s over [a]'s. Keeping a record for the
+/// same owner twice, and bringing a kept record back, both join (operator ruling a).
+StudyLog mergeStudyLogs(StudyLog a, StudyLog b) {
+  String rowKey(String? eventId, Map<String, dynamic> json) =>
+      eventId ?? 'row:${jsonEncode(json..remove('id'))}';
+  List<T> join<T>(List<T> x, List<T> y, String Function(T row) key) {
+    final seen = <String>{};
+    return [
+      for (final row in [...x, ...y])
+        if (seen.add(key(row))) row
+    ];
+  }
+
+  return StudyLog.resolved(
+    attempts:
+        join(a.attempts, b.attempts, (r) => rowKey(r.eventId, r.toJson())),
+    seeds: join(a.seeds, b.seeds, (r) => rowKey(r.eventId, r.toJson())),
+    legacyNotes: {...a.notes, ...b.notes},
+    legacyDiscuss: {...a.discuss, ...b.discuss},
+    events: join(a.events, b.events, (e) => e.eventId),
+  );
+}
+
 // --- events ----------------------------------------------------------------------
 
 /// The attempt as an event; a legacy attempt's has no device id. Throws a [StateError] for an
@@ -721,8 +747,8 @@ abstract class JpStore {
         record.deviceId ?? await deviceId(), record.builtAtUtc ?? _nowUtc());
   }
 
-  /// The tail of the write chain: each [recordAnswer], [rebuild] or [importLog] starts after
-  /// the one before it settles.
+  /// The tail of the write chain: each [recordAnswer], [rebuild], [importLog] or [mergeImport]
+  /// starts after the one before it settles.
   Future<void> _answers = Future.value();
 
   /// Runs [body] after every earlier chained write settles. A failed body does not break the
@@ -850,7 +876,8 @@ abstract class JpStore {
   /// derived states with [result], in one transaction: a write that fails leaves the old log,
   /// caches, notes and marks in place. The days and the flags stay. Each implementation runs
   /// [prepareLog] first, so every imported event has an id. An event already pushed from this
-  /// store stays pushed. [importLog] is its caller; [result] is [log]'s replay.
+  /// store stays pushed. [importLog] and [mergeImport] are its callers; [result] is [log]'s
+  /// replay.
   Future<void> replaceAll(StudyLog log, ReplayResult result);
 
   Future<void> close();
@@ -1085,8 +1112,8 @@ abstract class JpStore {
   /// written in one transaction (D14). [item] is null only for an id the catalog no longer
   /// knows; its mastery is then left alone.
   ///
-  /// Answers run one at a time, in call order, on the chain [rebuild] and [importLog] also
-  /// join: the reads before the write span several awaits, so two overlapping answers on one
+  /// Answers run one at a time, in call order, on the chain [rebuild], [importLog] and
+  /// [mergeImport] also join: the reads before the write span several awaits, so two overlapping answers on one
   /// item would both start from the same state and the second write would drop the first. A
   /// failed answer does not break the chain.
   Future<AnswerOutcome> recordAnswer(Attempt attempt,
@@ -1138,12 +1165,23 @@ abstract class JpStore {
   /// every server event the file lacks. An import cut short costs one redundant full pull.
   Future<ReplayResult> importLog(
           StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
-      _serialized(() async {
-        final result = replayLog(log, lookup, scheduler);
-        await putMeta(kSyncCursorMetaKey, '');
-        await replaceAll(log, result);
-        return result;
-      });
+      _serialized(() => _importLog(log, lookup, scheduler));
+
+  /// Joins [extra] into the record ([mergeStudyLogs]) and imports the join as [importLog]
+  /// does. The read of the working record and the write run in one step of the [recordAnswer]
+  /// chain, so an answer recorded while the merge runs is never dropped by its replace.
+  Future<ReplayResult> mergeImport(
+          StudyLog extra, ItemLookup lookup, Scheduler scheduler) =>
+      _serialized(() async => _importLog(
+          mergeStudyLogs(await exportLog(), extra), lookup, scheduler));
+
+  Future<ReplayResult> _importLog(
+      StudyLog log, ItemLookup lookup, Scheduler scheduler) async {
+    final result = replayLog(log, lookup, scheduler);
+    await putMeta(kSyncCursorMetaKey, '');
+    await replaceAll(log, result);
+    return result;
+  }
 }
 
 /// Throws when [mastery] belongs to another item than [attempt]. Both implementations call it

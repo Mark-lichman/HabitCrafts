@@ -59,7 +59,6 @@
 // phone keeps working offline (PIN-9), and the next sign-in or resume tries again.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -193,31 +192,6 @@ bool studyLogHoldsRecord(StudyLog log) =>
     log.events.isNotEmpty ||
     log.notes.isNotEmpty ||
     log.discuss.isNotEmpty;
-
-/// [a] and [b] joined, each event once: attempts, seeds and side events keyed by event id, an
-/// id-less row by its content. The notes and Discuss marks are the joined events resolved; an
-/// item no event names keeps its plain note or mark, [b]'s over [a]'s. Keeping a record for the
-/// same owner twice, and bringing a kept record back, both join (operator ruling a).
-StudyLog mergeStudyLogs(StudyLog a, StudyLog b) {
-  String rowKey(String? eventId, Map<String, dynamic> json) =>
-      eventId ?? 'row:${jsonEncode(json..remove('id'))}';
-  List<T> join<T>(List<T> x, List<T> y, String Function(T row) key) {
-    final seen = <String>{};
-    return [
-      for (final row in [...x, ...y])
-        if (seen.add(key(row))) row
-    ];
-  }
-
-  return StudyLog.resolved(
-    attempts:
-        join(a.attempts, b.attempts, (r) => rowKey(r.eventId, r.toJson())),
-    seeds: join(a.seeds, b.seeds, (r) => rowKey(r.eventId, r.toJson())),
-    legacyNotes: {...a.notes, ...b.notes},
-    legacyDiscuss: {...a.discuss, ...b.discuss},
-    events: join(a.events, b.events, (e) => e.eventId),
-  );
-}
 
 /// The plain name the devices page shows for this device.
 String jpDeviceName({bool isWeb = kIsWeb, TargetPlatform? platform}) {
@@ -454,14 +428,15 @@ class JpSyncHost with WidgetsBindingObserver {
   /// record again (operator ruling a, Checkpoint 2026-11-21). The kept record joins the working
   /// one, each event once, and replays. Its events the account lacks go out on the next push;
   /// the remote keeps the ones it holds as they are. The kept slot is then emptied. A restore
-  /// cut short repeats on the next sync, and the join adds nothing twice.
+  /// cut short repeats on the next sync, and the join adds nothing twice. The join reads the
+  /// working record on the store's write chain ([JpStore.mergeImport]), so no answer lands
+  /// between that read and the write.
   Future<void> _restoreKept(String id, JpStore store) async {
     final key = kKeptRecordMetaPrefix + id;
     final kept = await store.meta(key);
     if (kept == null || kept.isEmpty) return;
-    final merged =
-        mergeStudyLogs(await store.exportLog(), decodeStudyExport(kept));
-    await store.importLog(merged, await _loadLookup(), scheduler);
+    await store.mergeImport(
+        decodeStudyExport(kept), await _loadLookup(), scheduler);
     await store.putMeta(key, '');
   }
 

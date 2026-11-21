@@ -1327,6 +1327,54 @@ void main() {
       await store.close();
     });
 
+    // The kept-record restore (jp_sync_host_service.dart `_restoreKept`) joins a record into
+    // the working one: an answer recorded while it runs must survive its replace.
+    group('a merge import', () {
+      final extra = StudyLog(attempts: [answer(g, 0, Grade.clear)]);
+
+      Future<void> expectAll(JpStore store, List<Attempt> answered) async {
+        final events = {for (final a in await store.attempts()) a.eventId};
+        expect(events, hasLength(answered.length + 1),
+            reason: 'the joined attempt and every answer, each once');
+        for (final a in answered) {
+          expect(events, contains(a.eventId), reason: 'the answer survives');
+        }
+      }
+
+      test('keeps an answer recorded after the merge starts', () async {
+        final store = _Gated();
+        final first = await store.recordAnswer(answer(g, 1, Grade.clear),
+            item: g, scheduler: scheduler);
+        store.gate = Completer<void>();
+        final merging = store.mergeImport(extra, catalog.byId, scheduler);
+        final answering = store.recordAnswer(answer(g, 2, Grade.clear),
+            item: g, scheduler: scheduler);
+        await Future<void>.delayed(Duration.zero);
+        expect(await store.attempts(), [first.attempt],
+            reason: 'the answer waits for the merge');
+        store.gate!.complete();
+        await merging;
+        final second = await answering;
+        await expectAll(store, [first.attempt, second.attempt]);
+        expect(await store.srs(g.id), second.srs,
+            reason: 'the answer\'s write follows the merge\'s replay');
+        await store.close();
+      });
+
+      test('keeps an answer recorded before the merge starts', () async {
+        final store = JpStoreMemory();
+        final answering = store.recordAnswer(answer(g, 2, Grade.clear),
+            item: g, scheduler: scheduler);
+        final merging = store.mergeImport(extra, catalog.byId, scheduler);
+        final out = await answering;
+        final result = await merging;
+        await expectAll(store, [out.attempt]);
+        expect(result.srs[g.id]!.reps, 2,
+            reason: 'the merge replays the answer with the joined attempt');
+        await store.close();
+      });
+    });
+
     test('a failed rebuild does not break the chain for the next answer',
         () async {
       final store = JpStoreMemory();
