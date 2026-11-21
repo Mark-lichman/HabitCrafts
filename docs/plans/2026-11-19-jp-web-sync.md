@@ -180,7 +180,7 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 6: Sync host and sign-out wipe
 - Files: `lib/components/pages/quiet_room_mastery/jp_sync_host.dart`, `lib/main.dart`, `lib/components/pages/profile_page/profile_page_widget.dart`, `test/jp_sync_host_test.dart`
-- Plan slice: start sync after a non-anonymous sign-in and on app resume. Never sync an anonymous user. Sign-out clears the local study store on the web, through the store wipe that also clears the sync cursor and replay flag (Task 5). Add a "Signed-in devices" entry to the profile page that opens `DevicesPageWidget.routeName` (Task 7). Task 8 adds this file's adopted-files row.
+- Plan slice: start sync after a non-anonymous sign-in and on app resume. Never sync an anonymous user. Sign-out clears the local study store on the web, through the store wipe that also clears the sync cursor and replay flag (Task 5). Add a "Signed-in devices" entry to the profile page that opens `DevicesPageWidget.routeName` (Task 7). Task 8 adds this file's adopted-files row. Two operator rulings (Checkpoint 2026-11-20): (a) if the last sync before a web sign-out fails, sign-out stops and tells the user some answers are not synced yet, then the user chooses to wait or sign out anyway (nothing is wiped without that choice); (b) if a different account signs in on a phone whose record has another owner (or a deleted owner), the phone asks once: keep the record local, upload it to the new account, or start fresh, and then the new account syncs. Test both.
 - Done when: `/c/src/flutter/bin/flutter test --platform chrome test/jp_sync_host_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
