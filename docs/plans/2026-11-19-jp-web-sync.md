@@ -245,8 +245,17 @@ Phase 1 (record ready to sync) → Phase 2 (sync engine, delete, extra data) →
 
 ### Task 14: Web guards and the route smoke test
 - Files: `lib/custom_code/actions/fetch_contacts_action.dart`, `lib/custom_code/actions/open_notification_settings.dart`, `docs/architecture/adopted-files.md`, `pubspec.yaml`, `pubspec.lock`, `test/web_routes_smoke_test.dart`
-- Plan slice: on the web, skip the contacts fetch so the home page init finishes. Make the Notifications row ask for browser notification permission in place of the native settings call. Add adopted-files rows for these two files and `push_notifications_util.dart` (Task 11). A Chrome smoke test opens every route in `nav.dart` with Firebase faked, and fails on any uncaught error (PIN-15, A9).
+- Plan slice: on the web, skip the contacts fetch so the home page init finishes. Make the Notifications row ask for browser notification permission in place of the native settings call. Add adopted-files rows for these two files and `push_notifications_util.dart` (Task 11). A Chrome smoke test opens every route in `nav.dart` with Firebase faked, and fails on any uncaught error (PIN-15, A9). Also add the `nav.dart` adopted-files row for the `DevicesPage` route that Task 7 added (carried from Phase 3).
 - Done when: `/c/src/flutter/bin/flutter test --platform chrome test/web_routes_smoke_test.dart` (prints `All tests passed!`)
+- requiresTest: true
+- requiresPackaging: false
+- deps: []
+- target repo: superproject
+
+### Task 16: Account switch and web sign-out edges
+- Files: `lib/components/pages/quiet_room_mastery/jp_sync_host_service.dart`, `lib/components/pages/quiet_room_mastery/jp_store.dart`, `lib/components/pages/quiet_room_mastery/jp_store_memory.dart`, `lib/components/pages/quiet_room_mastery/jp_store_sqlite.dart`, `lib/components/pages/quiet_room_mastery/jp_store_web.dart`, `lib/components/pages/profile_page/profile_page_widget.dart`, `test/jp_sync_host_test.dart`, `test/jp_store_test.dart`
+- Plan slice: four operator rulings (Phase 3 Checkpoint 2026-11-21). (a) Keep it on this phone: when the old owner signs in again on that phone, restore the kept record, and a later keep for the same owner never overwrites an earlier kept record. (b) Start fresh and keep local also clear the saved day plans, through a new days-clear on `JpStore` (memory, web and SQLite), so the new account receives no old plan. (c) On the web, if the study store cannot open at Log Out, show a message with a "Sign out anyway" button; the browser record stays until the next sign-in wipes it as another account's record. (d) On the web, if the session ends without Log Out (revoked, or another tab), keep the record when it has unsynced answers: the same account's next sign-in pushes them, and a different account's sign-in wipes them. Test each ruling.
+- Done when: `/c/src/flutter/bin/flutter test --platform chrome test/jp_sync_host_test.dart` (prints `All tests passed!`) and `/c/src/flutter/bin/flutter test test/jp_store_test.dart` (prints `All tests passed!`)
 - requiresTest: true
 - requiresPackaging: false
 - deps: []
