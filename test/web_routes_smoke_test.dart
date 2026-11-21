@@ -290,7 +290,8 @@ class _FakeCollection extends CollectionReferencePlatform
   QueryPlatform startAfter(Iterable<dynamic> fields) => this;
 
   @override
-  QueryPlatform startAfterDocument(List<dynamic> orders, List<dynamic> values) =>
+  QueryPlatform startAfterDocument(
+          List<dynamic> orders, List<dynamic> values) =>
       this;
 
   @override
@@ -320,7 +321,8 @@ class _FakeCollection extends CollectionReferencePlatform
   AggregateQueryPlatform count() => _FakeCount(this);
 
   @override
-  Future<QuerySnapshotPlatform> get([GetOptions options = const GetOptions()]) async =>
+  Future<QuerySnapshotPlatform> get(
+          [GetOptions options = const GetOptions()]) async =>
       _emptyQuery();
 
   @override
@@ -330,13 +332,15 @@ class _FakeCollection extends CollectionReferencePlatform
       Stream.value(_emptyQuery());
 }
 
-class _FakeCount extends AggregateQueryPlatform with MockPlatformInterfaceMixin {
+class _FakeCount extends AggregateQueryPlatform
+    with MockPlatformInterfaceMixin {
   _FakeCount(super.query);
 
   @override
   Future<AggregateQuerySnapshotPlatform> get(
           {required AggregateSource source}) async =>
-      AggregateQuerySnapshotPlatform(count: 0, sum: const [], average: const []);
+      AggregateQuerySnapshotPlatform(
+          count: 0, sum: const [], average: const []);
 }
 
 class _FakeDoc extends DocumentReferencePlatform
@@ -405,7 +409,8 @@ class _FakeAnalytics extends FirebaseAnalyticsPlatform
       AnalyticsCallOptions? callOptions}) async {}
 
   @override
-  Future<void> setUserId({String? id, AnalyticsCallOptions? callOptions}) async {}
+  Future<void> setUserId(
+      {String? id, AnalyticsCallOptions? callOptions}) async {}
 
   @override
   Future<void> setCurrentScreen(
@@ -431,7 +436,6 @@ const _granted = NotificationSettings(
 
 class _FakeMessaging extends FirebaseMessagingPlatform
     with MockPlatformInterfaceMixin {
-
   /// How many times the app asked for notification permission.
   var permissionRequests = 0;
 
@@ -561,8 +565,8 @@ Future<void> _openRoute(WidgetTester tester, String path) async {
   await tester.pump(const Duration(milliseconds: 1100));
 
   final query = _routeQueries[path];
-  final location = Uri(
-      path: path, queryParameters: query?.isEmpty ?? true ? null : query);
+  final location =
+      Uri(path: path, queryParameters: query?.isEmpty ?? true ? null : query);
   GoRouter.of(appNavigatorKey.currentContext!).go(location.toString());
   // Real time passes too, because the browser decodes images and answers storage outside
   // the test's fake clock.
@@ -603,7 +607,8 @@ void main() {
 
     test('the router registers the app routes', () {
       expect(paths.length, greaterThanOrEqualTo(36));
-      expect(paths.toSet().length, paths.length, reason: 'a path is registered twice');
+      expect(paths.toSet().length, paths.length,
+          reason: 'a path is registered twice');
     });
 
     for (final path in paths) {
