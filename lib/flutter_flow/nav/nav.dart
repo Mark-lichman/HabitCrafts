@@ -20,6 +20,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 import '/index.dart';
+import '/components/pages/devices_page/devices_page_widget.dart';
 import '/components/pages/quiet_room_today/quiet_room_today_widget.dart';
 import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
@@ -280,6 +281,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             particleId: params.getParam('particle', ParamType.String),
             fromCard: _fromCard(params),
           ),
+        ),
+        // The signed-in devices list (plan 2026-11-19, Task 7), from the profile page. It reads
+        // the server itself and asks to sign in when nobody is, so a deep link lands safely.
+        FFRoute(
+          name: DevicesPageWidget.routeName,
+          path: DevicesPageWidget.routePath,
+          builder: (context, params) => const DevicesPageWidget(),
         ),
         FFRoute(
           name: WelcomeBackWidget.routeName,

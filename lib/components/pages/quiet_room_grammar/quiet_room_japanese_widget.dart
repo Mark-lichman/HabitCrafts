@@ -102,7 +102,11 @@ class KeptRate {
 }
 
 /// The kept rate over the [days] local days ending on [today], from the attempt log
-/// [attempts] (oldest first). Pure.
+/// [attempts]. Pure.
+///
+/// [attempts] may come in any order: the store returns row order, which after a sync is not
+/// time order. The fold uses the canonical replay order ([canonicalAttempts]), so two devices
+/// that hold the same attempts show the same rate.
 ///
 /// Each item's attempts are replayed through the mastery rule (`masteryAfter`), so an attempt
 /// counts exactly as the rule counts a kept review: a scored answer, not Say it and not early
@@ -113,7 +117,7 @@ KeptRate keptRateOf(List<Attempt> attempts, ItemLookup lookup, int today,
   final states = <String, MasteryState>{};
   final from = today - days + 1;
   var kept = 0, reviews = 0;
-  for (final a in attempts) {
+  for (final a in canonicalAttempts(attempts)) {
     final item = lookup(a.itemId);
     if (item == null) continue;
     final before = states[a.itemId] ?? MasteryState.initial(a.itemId);

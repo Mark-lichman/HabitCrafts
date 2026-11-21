@@ -227,7 +227,7 @@ class QuietRoomPracticeWidget extends StatefulWidget {
   final ValueChanged<PracticeResult>? onResult;
 
   /// Where the attempts go. Null writes to the app's one shared store (`sharedJpStore`).
-  /// SQLite on the phone, memory on web.
+  /// SQLite on the phone, browser storage on web.
   final JpStore? store;
 
   /// The item definitions the mastery rule needs. Null reads the item catalog.

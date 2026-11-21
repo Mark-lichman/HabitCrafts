@@ -182,9 +182,12 @@ When Azure's words do not line up with the sentence letter for letter, the drill
 words instead, so no scored letter is left uncolored. Words Azure heard that the sentence lacks
 show struck through.
 
-Each attempt's sentence, scores and verdict are kept on the device (`SpeakScoreLog`, under the
-`shared_preferences` key `jp.speak.scores`). The newest show under **Recent scores** at the foot of
-the drill, so the cutoffs can be tuned against real attempts.
+Each attempt's sentence, scores and verdict go to the study store as a `speak_score` event, so
+they sync with the account (`SpeakScoreLog`, speak_lesson_events.dart). The newest show under
+**Recent scores** at the foot of the drill, so the cutoffs can be tuned against real attempts. An
+older build kept the log on the device, under the `shared_preferences` key `jp.speak.scores`. The
+store reads that key only as the source of its one-time import (`importSpeakAndLessonPrefs`), and
+nothing writes it any more.
 
 Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, or at most
 `SpeechService.speakWait`, before it returns. Play and Speak stay disabled until then, so the
@@ -218,7 +221,8 @@ is a different card, and it counts (see "Say cards and spoken answers" below).
 The record is an append-only log of attempts and seed events, and it is the source of truth.
 The schedule and the mastery state are caches that `JpStore.rebuild` replays from the log
 (`jp_store.dart`). On the phone the store is SQLite (`jp_store_sqlite.dart`). On the web it is
-in memory (`jp_store_memory.dart`) and keeps nothing between loads. The Study record page
+`JpStoreWeb` (`jp_store_web.dart`), a memory store that saves its snapshot to the browser's
+IndexedDB after each write, so the record survives a reload. The Study record page
 exports the log as JSON Lines and imports it back (`study_export.dart`). An export is a backup
 and the input for fitting the scheduler offline.
 

@@ -183,6 +183,55 @@ service cloud.firestore {
     }
 
 
+    // The synced Japanese record (docs/plans/2026-11-19-jp-web-sync.md).
+    // Only the owner, signed in with a real account, may touch it, and only
+    // while users/{uid} exists: account delete removes the profile, so a
+    // device still signed in cannot write after the cleanup (PIN-13).
+    // The users rule still lets that device recreate users/{uid}, so the
+    // account-delete cleanup also writes deleted_accounts/{uid} first, and
+    // no request passes while that marker exists.
+    function jpOwner(uid) {
+      return signedIn()
+          && request.auth.uid == uid
+          && exists(/databases/$(database)/documents/users/$(uid))
+          && !exists(/databases/$(database)/documents/deleted_accounts/$(uid));
+    }
+
+    // Written only by the account-delete cleanup on the admin SDK, which
+    // skips rules. No client may read or write a marker.
+    match /deleted_accounts/{uid} {
+      allow read, write: if false;
+    }
+
+    // The event log is append-only (PIN-3): no update, no client delete.
+    // Account delete removes events with the admin SDK, which skips rules.
+    match /users/{uid}/jp_events/{eventId} {
+      allow read: if jpOwner(uid);
+      allow create: if jpOwner(uid);
+    }
+
+    // One local day's plan. The first plan to reach the server wins, so the
+    // document is created once. After that only position (forward) and
+    // completed (on, never off) may change (PIN-10).
+    match /users/{uid}/jp_days/{day} {
+      allow read: if jpOwner(uid);
+      allow create: if jpOwner(uid)
+          && request.resource.data.position is int
+          && request.resource.data.completed is bool;
+      allow update: if jpOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['position', 'completed'])
+          && request.resource.data.position is int
+          && request.resource.data.position >= resource.data.position
+          && request.resource.data.completed is bool
+          && (request.resource.data.completed || !resource.data.completed);
+    }
+
+    // Each device's last sync time, for the devices page.
+    match /users/{uid}/devices/{deviceId} {
+      allow read, write: if jpOwner(uid);
+    }
+
     match /ff_user_push_notifications/{id} {
       allow read, update, delete: if false;
       allow create: if signedIn() && /databases/$(database)/documents/users/$(request.auth.uid) == request.resource.data.sender;

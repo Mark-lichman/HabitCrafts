@@ -88,6 +88,9 @@ firestore-debug.log
 # Secrets / local env
 .env
 .env.*
+# Emulator-only params for the demo-habitcrafts project the rules tests run
+# on. It holds no secret, and a deploy to the real project never reads it.
+!firebase/speech_functions/.env.demo-habitcrafts
 *.pem
 *.p12
 serviceAccount*.json

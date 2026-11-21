@@ -891,6 +891,22 @@ void main() {
               .having((r) => r.kept, 'kept', 1));
     });
 
+    test(
+        'the log in reverse or mixed row order gives the counts of the time-ordered log: '
+        'a synced store returns row order, not time order', () {
+      // The literal counts are those of the time-ordered log in the cases above.
+      final mixed = [...log.skip(5), ...log.take(5)];
+      for (final rows in [log.reversed.toList(), mixed]) {
+        final r = keptRateOf(rows, lookup, 70);
+        expect(r.reviews, 3, reason: 'days 50, 60 and 68');
+        expect(r.kept, 1, reason: 'day 50');
+        final wide = keptRateOf(rows, lookup, 70, days: 100);
+        expect(wide.reviews, 4, reason: 'days 35, 50, 60 and 68; not day 32');
+        expect(wide.kept, 2);
+      }
+      expect(keptRateOf(const [], lookup, 70).rate, isNull);
+    });
+
     test('the line reads as a whole percent with its counts, or plainly', () {
       expect(keptRateLine(const KeptRate(kept: 23, reviews: 25)),
           'Kept rate 92% over 30 days · 23 of 25');

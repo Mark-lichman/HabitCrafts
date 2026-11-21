@@ -280,8 +280,8 @@ class PickerStudyRecordFiles implements StudyRecordFiles {
       bytes: utf8.encode(text),
     );
     // On web saveFile starts the browser download and then always returns null, so a cancel
-    // is not visible here. The web store is in memory (`sharedJpStore`), so that export holds
-    // only this app run's answers.
+    // is not visible here. The web store keeps the record in the browser (`sharedJpStore`), so
+    // that export holds the whole saved record.
     return kIsWeb || path != null;
   }
 
