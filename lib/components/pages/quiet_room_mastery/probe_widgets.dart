@@ -845,8 +845,8 @@ class _WordRecallProbeState extends State<WordRecallProbe>
   void _mark(bool gotIt) => _report(_awaiting!,
       _grade0(gotIt ? Outcome.none : Outcome.wrong, selfOverride: gotIt));
 
-  /// Skip goes on the spoken probe, or on the typed one where the browser cannot hear
-  /// Japanese, so a type-only card logs no spoken attempt.
+  /// Skip goes on the spoken probe, or on the typed one where the browser cannot record,
+  /// so a type-only card logs no spoken attempt.
   void _skip() {
     if (_listening || _grade != null) return;
     _report(_awaiting ?? _probeFor(typeOnly ? 'typed' : 'spoken'),
