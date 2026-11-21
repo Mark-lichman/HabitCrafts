@@ -550,13 +550,22 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                                 signOutAnyway: () =>
                                                     confirmUnsyncedSignOut(
                                                         context));
-                                        if (!mayLeave || !context.mounted) {
+                                        if (!mayLeave) {
                                           return;
                                         }
-                                        GoRouter.of(context).prepareAuthEvent();
+                                        // The store is wiped and the host has no uid
+                                        // now, so the auth sign-out runs even if the
+                                        // user left this page. Only the router calls
+                                        // need a mounted context.
+                                        final router = context.mounted
+                                            ? GoRouter.of(context)
+                                            : null;
+                                        router?.prepareAuthEvent();
                                         await authManager.signOut();
-                                        GoRouter.of(context)
-                                            .clearRedirectLocation();
+                                        if (!context.mounted) {
+                                          return;
+                                        }
+                                        router?.clearRedirectLocation();
 
                                         logFirebaseEvent(
                                             'profileLineItem_navigate_to');

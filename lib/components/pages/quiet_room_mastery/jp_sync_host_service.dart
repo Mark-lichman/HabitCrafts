@@ -32,8 +32,8 @@
 //     upload it to the new account, or start fresh. Then the new account syncs.
 //       - keep local: the whole record stays on the phone as a study export under
 //         [kKeptRecordMetaPrefix] plus the old owner's uid, and is never sent. The working
-//         record empties, so the new account's record replays alone. An import of that export
-//         (the study record page) brings it back.
+//         record empties, so the new account's record replays alone. The export stays in the
+//         store under that key. No screen reads it yet.
 //       - upload: every event goes to the new account, the ones the old owner already holds
 //         too, then the record is the new account's. The sync cursor (the old owner's server
 //         time) is cleared, so the first pull reads the new account's whole record.
