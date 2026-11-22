@@ -1259,7 +1259,9 @@ class _SayCardProbeState extends State<SayCardProbe>
   /// Only a match is scored by the matcher (operator ruling 2026-11-21). The say card's answer
   /// is the whole sentence and carries none of the twin's accepted forms, so a kana mismatch
   /// (a typo, or a form the twin accepts) asks Got it or Missed it, as an unjudged answer does,
-  /// and never writes wrong on the twin by itself.
+  /// and never writes wrong on the twin by itself. Where the twin is not a type-it card,
+  /// neither mark scores, so a kana mismatch or an unjudged answer goes out unscored at once
+  /// with the answer hidden, as an unscored card that comes back later must hide it.
   void _check() {
     if (_grade != null || _typedUnjudged != null) return;
     switch (checkTypedAnswer(_typed.text, {'answer': widget.probe.answer})) {
@@ -1267,6 +1269,9 @@ class _SayCardProbeState extends State<SayCardProbe>
         setState(() => _empty = true);
       case TypedVerdict.right:
         _reportTyped(Outcome.right);
+      case TypedVerdict.wrong || TypedVerdict.selfCheck
+          when _typedProbe == null:
+        _reportTyped(Outcome.wrong);
       case TypedVerdict.wrong:
         setState(() {
           _typedUnjudged = _typed.text;
