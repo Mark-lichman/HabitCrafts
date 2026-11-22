@@ -61,12 +61,12 @@ import '/components/pages/quiet_room_today/streak.dart' show recentDays;
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
 
-/// The route the Sign in to sync link opens: `LoginPageWidget.routeName`
-/// (login_page_widget.dart), the email and Apple sign-in page the app router registers.
-/// Named here, not imported, because that page pulls in
+/// The route the Sign in to sync link opens: `QuietRoomLoginWidget.routeName`
+/// (quiet_room_login_widget.dart), the Quiet Room sign-in with email, Google and, on iOS,
+/// Apple. Named here, not imported, because that page pulls in
 /// the auth and backend libraries, and an import from this home risks the web debug
 /// build's import-cycle load error. test/discuss_test.dart pins the two names equal.
-const kSignInRouteName = 'loginPage';
+const kSignInRouteName = 'quietRoomLogin';
 
 /// The Today card's queue line: each non-empty section with its count, in session order,
 /// then the stretch when the plan offers it, "Repair 3 · Due 42 · Keep-sharp 10 · New 8 ·
@@ -563,7 +563,10 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
                 _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
         link(discussLinkLabel(_record?.discuss ?? 0), _openDiscuss),
         link('Study record', _openRecord),
-        link('Sign in to sync', () => _open(kSignInRouteName)),
+        link(
+            'Sign in to sync',
+            () => _open(
+                kSignInRouteName, {'next': QuietRoomJapaneseWidget.routeName})),
       ]),
     );
   }

@@ -133,6 +133,20 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => QuietRoomLaunchWidget(),
         ),
         FFRoute(
+          // The Quiet Room sign-in. The Japanese home's Sign in to sync link opens it
+          // with `next` set, so sign-in returns to study.
+          name: QuietRoomLoginWidget.routeName,
+          path: QuietRoomLoginWidget.routePath,
+          builder: (context, params) => QuietRoomLoginWidget(
+            next: params.getParam('next', ParamType.String),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomForgotPasswordWidget.routeName,
+          path: QuietRoomForgotPasswordWidget.routePath,
+          builder: (context, params) => const QuietRoomForgotPasswordWidget(),
+        ),
+        FFRoute(
           name: ForgotPasswordWidget.routeName,
           path: ForgotPasswordWidget.routePath,
           builder: (context, params) => ForgotPasswordWidget(),

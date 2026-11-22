@@ -56,6 +56,50 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68894759253:android:e5c0b979c0ee2ccf4bf7dc",
+        "android_client_info": {
+          "package_name": "com.reddevinc.habitcrafts.quietroom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "68894759253-0k3lv8tonru61k1a7cffqg8a7ipramlv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reddevinc.habitcrafts.quietroom",
+            "certificate_hash": "81fd090a6818f9bc6f6e109965cf8ec28de8b7be"
+          }
+        },
+        {
+          "client_id": "68894759253-8s08s84aisik7ek48b2n6ubdoenvthdm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8LTjk10LmzqqfRIWS1GzX3cTxEXGSk_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "68894759253-8s08s84aisik7ek48b2n6ubdoenvthdm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "68894759253-ifuero6e51ekp6om0jf522gmb2k8qqoa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.reddevinc.habitcrafts"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

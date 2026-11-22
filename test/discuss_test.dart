@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
-import 'package:habit_craft/components/pages/login_page/login_page_widget.dart';
+import 'package:habit_craft/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/discuss_list_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
@@ -472,10 +472,13 @@ void main() {
     });
 
     test('the sign-in link names the sign-in route of the app', () {
-      expect(kSignInRouteName, LoginPageWidget.routeName);
+      expect(kSignInRouteName, QuietRoomLoginWidget.routeName);
       final router = createRouter(AppStateNotifier.instance);
       addTearDown(router.dispose);
-      expect(router.namedLocation(kSignInRouteName), LoginPageWidget.routePath);
+      expect(router.namedLocation(kSignInRouteName),
+          QuietRoomLoginWidget.routePath);
+      expect(router.namedLocation(QuietRoomForgotPasswordWidget.routeName),
+          QuietRoomForgotPasswordWidget.routePath);
     });
 
     test('the app router registers the list by name', () {
