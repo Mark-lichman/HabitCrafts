@@ -487,6 +487,7 @@ void main() {
         'Verb pairs',
         'Numbers and counters',
         'Study record',
+        'Sign in to sync',
       ]) {
         expect(find.widgetWithText(TextButton, link), findsOneWidget,
             reason: link);
