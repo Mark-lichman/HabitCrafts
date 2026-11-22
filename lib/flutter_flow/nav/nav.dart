@@ -159,7 +159,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: HomePageWidget.routeName,
           path: HomePageWidget.routePath,
-          builder: (context, params) => QuietRoomTodayWidget(),
+          // Signed out (or a guest), the habits query is refused by the rules and
+          // queryCollection swallows the error, so Today would spin forever. A visitor
+          // who opens /homePage directly gets the signed-out home instead, as at `/`.
+          builder: (context, params) => appStateNotifier.loggedIn
+              ? QuietRoomTodayWidget()
+              : QuietRoomJapaneseWidget(
+                  tab: homeTabOf(params.getParam('tab', ParamType.String))),
         ),
         FFRoute(
           name: LoginPageWidget.routeName,
