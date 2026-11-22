@@ -75,7 +75,6 @@ app.*.map.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Node / Firebase functions
 **/node_modules/
@@ -97,3 +96,6 @@ serviceAccount*.json
 
 # Session scratch tooling (variant apply/restore scripts, extractors). Not part of the app.
 /scratchpad/
+
+# Web build for Firebase Hosting (flutter build web --output firebase/public)
+firebase/public/

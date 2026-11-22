@@ -6,8 +6,11 @@
 # skips a manual run on any other branch, so only main ever reaches the site.
 #
 # Paths and hosting behavior live in firebase/firebase.json: it serves
-# build/web and rewrites every path to /index.html, so /homePage and every
-# other route resolve in the app's router. docs/web-app-runbook.md covers the
+# firebase/public and rewrites every path to /index.html, so /homePage and
+# every other route resolve in the app's router. The build writes straight
+# into firebase/public, because the Firebase CLI refuses a public folder
+# outside the folder that holds firebase.json (../build/web fails with
+# "is outside of project directory"). docs/web-app-runbook.md covers the
 # one-time setup this workflow cannot do: DNS, authorized domains, the Apple
 # Services ID, the FCM web key, the service account below, and the rules and
 # functions deploy that must land before the first deploy.
@@ -84,7 +87,7 @@ jobs:
       - name: Build web
         env:
           FCM_WEB_VAPID_KEY: ${{ vars.FCM_WEB_VAPID_KEY }}
-        run: flutter build web --release --dart-define=FCM_WEB_VAPID_KEY="$FCM_WEB_VAPID_KEY"
+        run: flutter build web --release --output "$GITHUB_WORKSPACE/firebase/public" --dart-define=FCM_WEB_VAPID_KEY="$FCM_WEB_VAPID_KEY"
 
       # The key file goes to the runner's temp dir, outside the checkout, and is
       # removed when the step ends.
