@@ -11,8 +11,9 @@
 //   * the mastered count, the kept rate over the last [kKeptRateDays] days, and the 14 dots
 //     over the days whose session completed;
 //   * quiet links: the conjugation, verb pair and number drills, the Discuss with Mari list
-//     (discuss_list_widget.dart, plan 2026-11-06, Task 4, PIN-6) with its count, and the
-//     study record page;
+//     (discuss_list_widget.dart, plan 2026-11-06, Task 4, PIN-6) with its count, the
+//     study record page, and Sign in to sync (the only way into sign-in from this
+//     signed-out home, so the phone can join the synced record of plan 2026-11-19);
 //   * a bottom nav of Today, Lessons (lessons_path_widget.dart) and Topics (topics_widget.dart).
 // Search and the By use set live in Topics. The lesson numbers live in Lessons, so the home
 // holds no number strip.
@@ -59,6 +60,13 @@ import '/components/pages/quiet_room_mastery/welcome_back_widget.dart';
 import '/components/pages/quiet_room_today/streak.dart' show recentDays;
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
+
+/// The route the Sign in to sync link opens: `LoginPageWidget.routeName`
+/// (login_page_widget.dart), the email and Apple sign-in page the app router registers.
+/// Named here, not imported, because that page pulls in
+/// the auth and backend libraries, and an import from this home risks the web debug
+/// build's import-cycle load error. test/discuss_test.dart pins the two names equal.
+const kSignInRouteName = 'loginPage';
 
 /// The Today card's queue line: each non-empty section with its count, in session order,
 /// then the stretch when the plan offers it, "Repair 3 · Due 42 · Keep-sharp 10 · New 8 ·
@@ -555,6 +563,7 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
                 _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
         link(discussLinkLabel(_record?.discuss ?? 0), _openDiscuss),
         link('Study record', _openRecord),
+        link('Sign in to sync', () => _open(kSignInRouteName)),
       ]),
     );
   }

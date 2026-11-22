@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:habit_craft/components/pages/quiet_room_grammar/quiet_room_japanese_widget.dart';
+import 'package:habit_craft/components/pages/login_page/login_page_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/attempt.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/discuss_list_widget.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/drill_recorder.dart';
@@ -325,6 +326,11 @@ void main() {
           path: MasteryDebugWidget.routePath,
           builder: (_, __) => const Text('the record'),
         ),
+        GoRoute(
+          name: kSignInRouteName,
+          path: '/sign-in',
+          builder: (_, __) => const Text('the sign-in page'),
+        ),
       ]);
       addTearDown(router.dispose);
       await pumpStudyScreen(tester, MaterialApp.router(routerConfig: router));
@@ -455,6 +461,21 @@ void main() {
       expect(find.text('the record'), findsNothing);
       expect(store.dayWrites[today + 1], 1,
           reason: 'one onLaunch run writes the new day, not one per caller');
+    });
+
+    testWidgets('Sign in to sync opens the sign-in page', (tester) async {
+      final store = await seeded();
+      await pumpToday(tester, store);
+      await tapText(tester, 'Sign in to sync');
+      await tester.pumpAndSettle();
+      expect(find.text('the sign-in page'), findsOneWidget);
+    });
+
+    test('the sign-in link names the sign-in route of the app', () {
+      expect(kSignInRouteName, LoginPageWidget.routeName);
+      final router = createRouter(AppStateNotifier.instance);
+      addTearDown(router.dispose);
+      expect(router.namedLocation(kSignInRouteName), LoginPageWidget.routePath);
     });
 
     test('the app router registers the list by name', () {
