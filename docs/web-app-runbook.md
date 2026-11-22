@@ -19,7 +19,8 @@ The Firebase project is `tiny-habits-jf61nl`, the only one. There is no staging 
 Do the steps in this order. Each later step assumes the earlier ones hold.
 
 1. Service account and web push key (so the first deploy can run).
-2. Rules and the `deleteAllUserData` function (so the first web sign-in can write).
+2. Rules, the `deleteAllUserData` function and the push sender functions (so the first
+   web sign-in can write and web pushes carry the icon and the click link).
 3. First deploy, then check the `web.app` URL.
 4. Custom domain in Firebase Hosting, then the Porkbun DNS change.
 5. Authorized domains.
@@ -55,8 +56,8 @@ without it.
    New repository variable. Name it `FCM_WEB_VAPID_KEY` and paste the key.
 
 It is a variable, not a secret, because the key is public by design: every browser that
-loads the app receives it. Never commit it to the repo. A test fails if it appears in the
-app source (`test/push_web_test.dart`).
+loads the app receives it. Never commit it to the repo. A test fails if the build
+constant carries a default value (`test/push_web_test.dart`).
 
 If you rotate the key pair, every existing web token stops working. Users get a new
 token the next time they open the app.
@@ -69,6 +70,13 @@ not live, the first web sign-in gets permission-denied on `jp_events`, `jp_days`
 
 1. Deploy the committed rules, as `docs/deploy.md` describes.
 2. Deploy the `deleteAllUserData` function, as `docs/deploy.md` describes.
+3. Deploy the push sender functions of the `functions` codebase:
+   `sendPushNotificationsTrigger`, `sendUserPushNotificationsTrigger` and
+   `sendScheduledPushNotifications`. Name each one in the `functions:<codebase>:<name>`
+   form that `docs/deploy.md` describes. Each sender bundles the shared helper that adds
+   the `webpush` block, so web pushes carry the icon and the click link to
+   `habitcraftapp.com` only after this step. Old senders still deliver to web tokens, so
+   backstop check 3 passes without this step and hides the gap.
 
 ## 3. First deploy
 
@@ -178,4 +186,5 @@ These are the deferred checks from the plan. Run them after sections 1 to 6.
    `firebase/firestore.rules`. If it differs, redo section 2.
 
 If check 3 fails, confirm `FCM_WEB_VAPID_KEY` is set and the deploy that ran used it.
-The workflow log shows the build step.
+The workflow log shows the build step. If a push arrives with no icon or no click link,
+redo step 3 of section 2: the push sender functions are not live.
