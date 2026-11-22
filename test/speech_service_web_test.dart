@@ -634,7 +634,8 @@ void main() {
       expect(a.grade, Grade.unscored);
     });
 
-    testWidgets('a kana mismatch on a choose twin is unscored at once, no marks',
+    testWidgets(
+        'a kana mismatch on a choose twin is unscored at once, no marks',
         (tester) async {
       await open(tester, _grammar, 'say.p0');
       await _type(tester, 'あした テストが あるです。');
@@ -647,7 +648,8 @@ void main() {
           reason: 'an unscored card keeps its answer hidden');
     });
 
-    testWidgets('an unjudged answer on a choose twin is unscored at once, no marks',
+    testWidgets(
+        'an unjudged answer on a choose twin is unscored at once, no marks',
         (tester) async {
       await open(tester, _grammar, 'say.p0');
       await _type(tester, '明日 テストが あるんです。');
