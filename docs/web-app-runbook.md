@@ -19,11 +19,12 @@ The Firebase project is `tiny-habits-jf61nl`, the only one. There is no staging 
 Do the steps in this order. Each later step assumes the earlier ones hold.
 
 1. Service account and web push key (so the first deploy can run).
-2. First deploy, then check the `web.app` URL.
-3. Custom domain in Firebase Hosting, then the Porkbun DNS change.
-4. Authorized domains.
-5. Apple Services ID.
-6. The backstop checks at the end.
+2. Rules and the `deleteAllUserData` function (so the first web sign-in can write).
+3. First deploy, then check the `web.app` URL.
+4. Custom domain in Firebase Hosting, then the Porkbun DNS change.
+5. Authorized domains.
+6. Apple Services ID.
+7. The backstop checks at the end.
 
 ## 1. Deploy credentials
 
@@ -60,16 +61,26 @@ app source (`test/push_web_test.dart`).
 If you rotate the key pair, every existing web token stops working. Users get a new
 token the next time they open the app.
 
-## 2. First deploy
+## 2. Rules and functions
 
-Run **Deploy web** from the GitHub Actions tab with **Run workflow** on `main`. Later
-deploys run on their own after CI passes on a merge to `main`.
+The web deploy never publishes Firestore rules or functions. If the committed rules are
+not live, the first web sign-in gets permission-denied on `jp_events`, `jp_days` and
+`devices`.
+
+1. Deploy the committed rules, as `docs/deploy.md` describes.
+2. Deploy the `deleteAllUserData` function, as `docs/deploy.md` describes.
+
+## 3. First deploy
+
+Run **Deploy web** from the GitHub Actions tab with **Run workflow** on `main`. A manual
+run on any other branch skips the deploy job. Later deploys run on their own after CI
+passes on a merge to `main`.
 
 Then open `https://tiny-habits-jf61nl.web.app/homePage`. It must show the app, not a
 404. If it shows a 404, the rewrite in `firebase/firebase.json` did not deploy. Check the
 workflow log before you go on.
 
-## 3. Custom domain and the Porkbun DNS change (PIN-7)
+## 4. Custom domain and the Porkbun DNS change (PIN-7)
 
 Today `habitcraftapp.com/homePage` still serves the old FlutterFlow publish from Google
 Cloud Storage (response header `x-goog-generation`, last modified 2025-06-05). DNS is at
@@ -81,11 +92,13 @@ Porkbun.
    then one or more A records. Copy the exact values from the console, because they
    differ per project.
 3. Porkbun, Domain Management, `habitcraftapp.com`, **DNS**.
-4. Write down every existing A, AAAA and CNAME record on the root (`@`) and on `www`.
+4. Write down every existing A, AAAA, ALIAS and CNAME record on the root (`@`) and on
+   `www`.
    That list is your rollback.
 5. Add the TXT record. Wait until the Firebase console shows the domain as verified.
-6. Delete the old A, AAAA or CNAME records on the root that point at Google Cloud
-   Storage. If they stay, browsers get both sites at random.
+6. Delete the old A, AAAA, ALIAS or CNAME records on the root that point at Google
+   Cloud Storage. If they stay, browsers get both sites at random, and Porkbun refuses
+   new A records beside a root ALIAS.
 7. Add the A records Firebase gave you.
 8. Optional: add `www.habitcraftapp.com` in Firebase as a redirect to
    `habitcraftapp.com`, and set the record Firebase shows for it at Porkbun.
@@ -97,7 +110,7 @@ not been deleted, so it comes back as DNS propagates.
 
 Do not delete the old Cloud Storage bucket until the backstop check at the end passes.
 
-## 4. Authorized domains
+## 5. Authorized domains
 
 Firebase Auth refuses a popup sign-in from a domain it does not know. Google and Apple
 sign-in on the web both use a popup.
@@ -105,7 +118,7 @@ sign-in on the web both use a popup.
 1. Firebase console, Authentication, Settings, **Authorized domains**.
 2. Confirm `tiny-habits-jf61nl.firebaseapp.com` and `tiny-habits-jf61nl.web.app` are
    listed. Firebase adds both by default.
-3. Add `habitcraftapp.com`. Add `www.habitcraftapp.com` if you set it up in step 3.
+3. Add `habitcraftapp.com`. Add `www.habitcraftapp.com` if you set it up in section 4.
 4. Leave `localhost` in place for local runs.
 
 Google sign-in needs nothing more. The app's web config sets
@@ -115,7 +128,7 @@ trusts that handler.
 Email sign-in and password reset need no domain change. The reset email links to the
 Firebase handler page.
 
-## 5. Apple Services ID
+## 6. Apple Services ID
 
 Apple sign-in on the web uses Firebase's `apple.com` provider in a popup. Apple only
 accepts it through a **Services ID**, which is separate from the iOS app's bundle ID.
@@ -145,14 +158,14 @@ for it.
 
 The Sign in with Apple key does not expire, but a revoked key breaks web sign-in at once.
 
-## 6. Backstop checks
+## 7. Backstop checks
 
-These are the deferred checks from the plan. Run them after steps 1 to 5.
+These are the deferred checks from the plan. Run them after sections 1 to 6.
 
 1. `curl -sI https://habitcraftapp.com/homePage` returns HTTP 200 with no
    `x-goog-generation` header. It should also carry the `Cache-Control` value set in
    `firebase/firebase.json`. A response that still carries `x-goog-generation` means
-   the old Cloud Storage site is still answering. Check step 3. (The local Hosting
+   the old Cloud Storage site is still answering. Check section 4. (The local Hosting
    emulator serves the rewrite but does not add custom headers, so only the live site
    proves the header.)
 2. Open `https://habitcraftapp.com/homePage` in Chrome. Sign in with Google, then sign
@@ -161,6 +174,8 @@ These are the deferred checks from the plan. Run them after steps 1 to 5.
    to the web token, and wait for one scheduled reminder. Both must arrive with the tab
    in the background.
 4. Reload the page. You must still be signed in.
+5. The Firestore Rules tab in the Firebase console shows the same text as
+   `firebase/firestore.rules`. If it differs, redo section 2.
 
 If check 3 fails, confirm `FCM_WEB_VAPID_KEY` is set and the deploy that ran used it.
 The workflow log shows the build step.
