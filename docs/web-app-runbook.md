@@ -177,7 +177,11 @@ These are the deferred checks from the plan. Run them after sections 1 to 6.
    emulator serves the rewrite but does not add custom headers, so only the live site
    proves the header.)
 2. Open `https://habitcraftapp.com/homePage` in Chrome. Sign in with Google, then sign
-   out and sign in with Apple. Both must land on the same account as the phone.
+   out and sign in with Apple. Both sign-ins must complete with no error. Then sign in
+   with the method the phone uses. That account must show the phone's study record.
+   Firebase gives each provider its own account unless the emails match. An Apple
+   account with a hidden email gets a relay address, so it is a separate account.
+   That is correct, not a failure.
 3. Allow notifications when the app asks. Send a test push from the Firebase console
    to the web token, and wait for one scheduled reminder. Both must arrive with the tab
    in the background.
