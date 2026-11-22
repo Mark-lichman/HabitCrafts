@@ -64,6 +64,48 @@ jobs:
           fi
           flutter test
 
+  # The web build and the browser tests (plan 2026-11-19, Task 12). The VM run in
+  # analyze-and-test skips the files marked @TestOn('browser') and runs the rest
+  # without a browser, so the web code paths are only proven here. ubuntu-latest
+  # ships Google Chrome, which `--platform chrome` finds on PATH.
+  #
+  # The release build catches web-only compile errors (a dart:io import on a web
+  # path, a JS interop type) that no VM test can see. It builds without the web
+  # push key: deploy-web.yml passes that, and the build does not need it.
+  #
+  # The file list is every test that targets the browser: the route smoke test,
+  # web auth, the web sync host, browser speech, file save and web push. A new
+  # web test file goes on this list.
+  web-build-and-chrome-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Chrome tests
+        run: |
+          flutter test --platform chrome \
+            test/web_routes_smoke_test.dart \
+            test/web_auth_test.dart \
+            test/jp_sync_host_test.dart \
+            test/speech_service_web_test.dart \
+            test/save_file_test.dart \
+            test/push_web_test.dart
+
   # Lesson pipeline evals (pipeline/jp/tests). The extractors need the source PDFs and
   # the tutor's sheet, which are not in the repo, so these run on committed fixtures:
   # the conjugation engine against Mari's 198 worked forms, the draft validator, the
