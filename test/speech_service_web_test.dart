@@ -142,7 +142,8 @@ final _grammar = ItemDef(
         id: sayCardId('p1'),
         template: kSayCardTemplate,
         text: _fill.text,
-        answer: 'なんです',
+        // As the catalog builds it (item_catalog.dart): the whole sentence, blank filled.
+        answer: wholeSentence(_fill.text, _fill.answer),
         production: true),
     const ProbeDef(
         id: 'ex0',
@@ -535,8 +536,9 @@ void main() {
 
     testWidgets('a right typed answer is a clear on the type-it twin',
         (tester) async {
+      expect(_probe(_grammar, 'say.p1').answer, 'きょうは しごとが やすみなんです。');
       await open(tester, _grammar, 'say.p1');
-      await _type(tester, 'なんです');
+      await _type(tester, 'きょうは しごとが やすみなんです。');
       await _tap(tester, 'Check');
       final a = answers.single;
       expect(a.probeId, 'p1');
@@ -546,12 +548,79 @@ void main() {
       expect(pron.checks, isEmpty, reason: 'nothing was recorded');
     });
 
-    testWidgets('a wrong typed answer is wrong on the twin', (tester) async {
+    testWidgets('a kana mismatch asks the learner, never writes wrong itself',
+        (tester) async {
       await open(tester, _grammar, 'say.p1');
-      await _type(tester, 'です');
+      await _type(tester, 'きょうは しごとが やすみです。');
       await _tap(tester, 'Check');
+      expect(answers, isEmpty, reason: 'a mismatch waits for the mark');
+      expect(find.text('Got it'), findsOneWidget);
+      await _tap(tester, 'Missed it');
       expect(answers.single.probeId, 'p1');
-      expect(answers.single.grade, Grade.wrong);
+      expect(answers.single.grade, Grade.wrong,
+          reason: 'only the learner marks it wrong');
+    });
+
+    testWidgets('an accepted variant of the fill twin never resets its clears',
+        (tester) async {
+      // A form the fill twin may accept; the say card knows only its own answer.
+      await open(tester, _grammar, 'say.p1');
+      await _type(tester, 'きょうは しごとが やすみなのです。');
+      await _tap(tester, 'Check');
+      expect(answers, isEmpty, reason: 'the variant is not graded wrong');
+      expect(find.text('Got it'), findsOneWidget);
+      await _tap(tester, 'Got it');
+      expect(answers.single.probeId, 'p1');
+      expect(answers.single.grade, Grade.self);
+    });
+
+    testWidgets('a real accepted form of the えきへ row asks, and Got it is self',
+        (tester) async {
+      // As assets/lessons/jp_grammar.json has the row: answer いったら, accepted いけば.
+      const rowMap = {
+        'answer': 'いったら',
+        'accepted': ['いけば'],
+      };
+      expect(checkTypedAnswer('いけば', rowMap), TypedVerdict.right);
+      const fill = ProbeDef(
+          id: 'p0',
+          template: 'fill',
+          text: 'えきへ いきたいんですが、どう ＿＿ いいですか。',
+          answer: 'いったら',
+          production: true);
+      final item = ItemDef(
+        id: 'mari.L26.2',
+        kind: ItemKind.grammar,
+        title: '〜んですが',
+        prereqLevel: 2,
+        lesson: 26,
+        probes: [
+          fill,
+          ProbeDef(
+              id: sayCardId('p0'),
+              template: kSayCardTemplate,
+              text: fill.text,
+              answer: wholeSentence(fill.text, fill.answer),
+              production: true),
+        ],
+      );
+      await open(tester, item, 'say.p0');
+      await _type(tester, 'えきへ いきたいんですが、どう いけば いいですか。');
+      await _tap(tester, 'Check');
+      expect(answers, isEmpty, reason: 'the accepted form is not graded wrong');
+      expect(find.text('Got it'), findsOneWidget);
+      await _tap(tester, 'Got it');
+      expect(answers.single.probeId, 'p0');
+      expect(answers.single.grade, Grade.self);
+    });
+
+    testWidgets('a typo in the long sentence asks too', (tester) async {
+      await open(tester, _grammar, 'say.p1');
+      await _type(tester, 'きょうわ しごとが やすみなんです。');
+      await _tap(tester, 'Check');
+      expect(answers, isEmpty);
+      await _tap(tester, 'Got it');
+      expect(answers.single.grade, Grade.self);
     });
 
     testWidgets('a twin that is not a type-it card is unscored, never a clear',
@@ -563,6 +632,29 @@ void main() {
       expect(a.probeId, 'p0');
       expect(a.template, 'choose');
       expect(a.grade, Grade.unscored);
+    });
+
+    testWidgets('a kana mismatch on a choose twin is unscored at once, no marks',
+        (tester) async {
+      await open(tester, _grammar, 'say.p0');
+      await _type(tester, 'あした テストが あるです。');
+      await _tap(tester, 'Check');
+      expect(answers.single.probeId, 'p0');
+      expect(answers.single.grade, Grade.unscored);
+      expect(find.text('Got it'), findsNothing);
+      expect(find.text('Missed it'), findsNothing);
+      expect(find.text('あした テストが あるんです。'), findsNothing,
+          reason: 'an unscored card keeps its answer hidden');
+    });
+
+    testWidgets('an unjudged answer on a choose twin is unscored at once, no marks',
+        (tester) async {
+      await open(tester, _grammar, 'say.p0');
+      await _type(tester, '明日 テストが あるんです。');
+      await _tap(tester, 'Check');
+      expect(answers.single.grade, Grade.unscored);
+      expect(find.text('Got it'), findsNothing);
+      expect(find.text('Missed it'), findsNothing);
     });
 
     testWidgets('a word say card goes on the typed probe', (tester) async {

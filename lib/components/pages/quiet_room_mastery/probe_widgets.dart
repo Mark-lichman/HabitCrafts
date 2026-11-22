@@ -63,9 +63,10 @@
 // Where it is not `works` they show the type-it form in place of Say it, and no answer goes out
 // on a spoken probe:
 //   * the word card keeps its typed form, and Skip goes on its `typed` probe;
-//   * a say card's typed answer goes on the probe it twins ([sayCardTypedProbe]), graded by
-//     `checkTypedAnswer` when that twin is a type-it card, else unscored, so typing never
-//     earns a see-it or say-it clear;
+//   * a say card's typed answer goes on the probe it twins ([sayCardTypedProbe]): when that
+//     twin is a type-it card a `checkTypedAnswer` match is clear and anything else asks Got it
+//     or Missed it (operator ruling 2026-11-21), else unscored, so typing never earns a see-it
+//     or say-it clear;
 //   * a Say-it sentence's typed answer is unscored, as Skip: the Say-it track never counts.
 // Say it waits, disabled, until the browser has answered. The phone is always `works`.
 //
@@ -1151,9 +1152,12 @@ String sayCardInstruction(ItemDef item, ProbeDef probe) => switch (item.kind) {
 /// session's source.
 ///
 /// Where the browser cannot record (plan 2026-11-19, Task 9, PIN-6) the card shows the
-/// type-it form instead, and its answer goes on [sayCardTypedProbe], never on the say card:
-/// graded by `checkTypedAnswer` when that probe is a type-it card (a typed answer the matcher
-/// cannot judge asks Got it, self, or Missed it, wrong), else unscored. Skip is unscored on it.
+/// type-it form instead, and its answer goes on [sayCardTypedProbe], never on the say card.
+/// Where that probe is a type-it card, a match from `checkTypedAnswer` is clear. Any other
+/// typed answer (a kana mismatch, or one the matcher cannot judge) asks Got it, self, or
+/// Missed it, wrong (operator ruling 2026-11-21): the say card's answer is the whole sentence
+/// without the twin's accepted forms, so a typo or an accepted form never resets the clears.
+/// Where the probe is not a type-it card the answer is unscored. Skip is unscored on it.
 class SayCardProbe extends StatefulWidget {
   const SayCardProbe({
     super.key,
@@ -1203,8 +1207,12 @@ class _SayCardProbeState extends State<SayCardProbe>
   final TextEditingController _typed = TextEditingController();
   bool _empty = false;
 
-  /// A typed answer the matcher could not judge, waiting for Got it or Missed it.
+  /// A typed answer the matcher did not match, waiting for Got it or Missed it.
   String? _typedUnjudged;
+
+  /// True when [_typedUnjudged] is plain kana that differs from the answer, false when the
+  /// matcher could not judge it at all (kanji, romaji).
+  bool _typedMismatch = false;
 
   /// What the learner typed, once a typed answer went out.
   String? _given;
@@ -1248,6 +1256,12 @@ class _SayCardProbeState extends State<SayCardProbe>
         selfGraded: false, answerShown: answerShown));
   }
 
+  /// Only a match is scored by the matcher (operator ruling 2026-11-21). The say card's answer
+  /// is the whole sentence and carries none of the twin's accepted forms, so a kana mismatch
+  /// (a typo, or a form the twin accepts) asks Got it or Missed it, as an unjudged answer does,
+  /// and never writes wrong on the twin by itself. Where the twin is not a type-it card,
+  /// neither mark scores, so a kana mismatch or an unjudged answer goes out unscored at once
+  /// with the answer hidden, as an unscored card that comes back later must hide it.
   void _check() {
     if (_grade != null || _typedUnjudged != null) return;
     switch (checkTypedAnswer(_typed.text, {'answer': widget.probe.answer})) {
@@ -1255,11 +1269,19 @@ class _SayCardProbeState extends State<SayCardProbe>
         setState(() => _empty = true);
       case TypedVerdict.right:
         _reportTyped(Outcome.right);
-      case TypedVerdict.wrong:
+      case TypedVerdict.wrong || TypedVerdict.selfCheck
+          when _typedProbe == null:
         _reportTyped(Outcome.wrong);
+      case TypedVerdict.wrong:
+        setState(() {
+          _typedUnjudged = _typed.text;
+          _typedMismatch = true;
+          _empty = false;
+        });
       case TypedVerdict.selfCheck:
         setState(() {
           _typedUnjudged = _typed.text;
+          _typedMismatch = false;
           _empty = false;
         });
     }
@@ -1363,7 +1385,11 @@ class _SayCardProbeState extends State<SayCardProbe>
           ]),
         ],
         if (_typedUnjudged != null) ...[
-          _quiet(t, 'You typed: $_typedUnjudged. This could not be checked.'),
+          _quiet(
+              t,
+              _typedMismatch
+                  ? 'You typed: $_typedUnjudged. It differs from this answer. Compare them.'
+                  : 'You typed: $_typedUnjudged. This could not be checked.'),
           _answerLine(t, widget.probe.answer),
           _marks(t, miss: 'Missed it', got: 'Got it', onMark: _mark),
         ],
