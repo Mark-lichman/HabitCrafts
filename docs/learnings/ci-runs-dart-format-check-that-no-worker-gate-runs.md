@@ -38,6 +38,11 @@ Round 5 found a hand-written `test('...Notification API...',` line 84 columns wi
 The final round had no findings, so the file was probably formatted by then, but no one ran the formatter at the landed tip.
 A fix round that adds a long test name re-creates the drift, so the check must run after every fix commit.
 
+Recurred in phase 5 on task seed-1, in `test/speech_service_web_test.dart` (Minor, one audit).
+Two new `testWidgets('long name', ...)` calls were 81 and 84 columns wide.
+The repo's formatted form for an overflowing name is the split-argument form: name on its own line, then `(tester) async {`.
+The landed tip has both calls in that split form, so the fix landed and the auditor never ran the formatter either.
+
 Rule: run `dart format --output=none --set-exit-if-changed .` before every commit, and add it to the worker gate list.
 A phase-close sweep should format the whole tree once as its own commit.
 Beware a stand-alone format commit on a file a sibling task also edits: see [[a-task-edit-to-a-file-a-sibling-task-owns-conflicts-at-pin-transfer]].
