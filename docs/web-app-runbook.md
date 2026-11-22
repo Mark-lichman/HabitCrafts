@@ -84,6 +84,12 @@ Run **Deploy web** from the GitHub Actions tab with **Run workflow** on `main`. 
 run on any other branch skips the deploy job. Later deploys run on their own after CI
 passes on a merge to `main`.
 
+The merge that adds `deploy-web.yml` to `main` also starts a deploy after CI passes. If
+section 1 is not done by then, that run fails at the **Check web push key** step or the
+**Deploy to Firebase Hosting** step. That is expected. If section 1 is done but section 2
+is not, that run publishes the app before the rules and functions land. Run **Deploy
+web** by hand after section 2 in either case.
+
 Then open `https://tiny-habits-jf61nl.web.app/homePage`. It must show the app, not a
 404. If it shows a 404, the rewrite in `firebase/firebase.json` did not deploy. Check the
 workflow log before you go on.
