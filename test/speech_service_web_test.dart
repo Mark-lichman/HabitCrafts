@@ -142,7 +142,8 @@ final _grammar = ItemDef(
         id: sayCardId('p1'),
         template: kSayCardTemplate,
         text: _fill.text,
-        answer: 'なんです',
+        // As the catalog builds it (item_catalog.dart): the whole sentence, blank filled.
+        answer: wholeSentence(_fill.text, _fill.answer),
         production: true),
     const ProbeDef(
         id: 'ex0',
@@ -535,8 +536,9 @@ void main() {
 
     testWidgets('a right typed answer is a clear on the type-it twin',
         (tester) async {
+      expect(_probe(_grammar, 'say.p1').answer, 'きょうは しごとが やすみなんです。');
       await open(tester, _grammar, 'say.p1');
-      await _type(tester, 'なんです');
+      await _type(tester, 'きょうは しごとが やすみなんです。');
       await _tap(tester, 'Check');
       final a = answers.single;
       expect(a.probeId, 'p1');
@@ -546,12 +548,39 @@ void main() {
       expect(pron.checks, isEmpty, reason: 'nothing was recorded');
     });
 
-    testWidgets('a wrong typed answer is wrong on the twin', (tester) async {
+    testWidgets('a kana mismatch asks the learner, never writes wrong itself',
+        (tester) async {
       await open(tester, _grammar, 'say.p1');
-      await _type(tester, 'です');
+      await _type(tester, 'きょうは しごとが やすみです。');
       await _tap(tester, 'Check');
+      expect(answers, isEmpty, reason: 'a mismatch waits for the mark');
+      expect(find.text('Got it'), findsOneWidget);
+      await _tap(tester, 'Missed it');
       expect(answers.single.probeId, 'p1');
-      expect(answers.single.grade, Grade.wrong);
+      expect(answers.single.grade, Grade.wrong,
+          reason: 'only the learner marks it wrong');
+    });
+
+    testWidgets('an accepted variant of the fill twin never resets its clears',
+        (tester) async {
+      // The fill twin would take this form; the say card knows only its own answer.
+      await open(tester, _grammar, 'say.p1');
+      await _type(tester, 'きょうは しごとが やすみなのです。');
+      await _tap(tester, 'Check');
+      expect(answers, isEmpty, reason: 'the variant is not graded wrong');
+      expect(find.text('Got it'), findsOneWidget);
+      await _tap(tester, 'Got it');
+      expect(answers.single.probeId, 'p1');
+      expect(answers.single.grade, Grade.self);
+    });
+
+    testWidgets('a typo in the long sentence asks too', (tester) async {
+      await open(tester, _grammar, 'say.p1');
+      await _type(tester, 'きょうわ しごとが やすみなんです。');
+      await _tap(tester, 'Check');
+      expect(answers, isEmpty);
+      await _tap(tester, 'Got it');
+      expect(answers.single.grade, Grade.self);
     });
 
     testWidgets('a twin that is not a type-it card is unscored, never a clear',
