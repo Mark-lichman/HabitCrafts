@@ -14,8 +14,8 @@
 // Any lesson can be unticked to skip it for now: its items stay New and arrive through the
 // daily intake (seed.dart). Beside each section heading a toggle reads Select all, or Clear
 // all once every lesson of that section is ticked; the ticked count and Confirm follow it.
-// Confirm with no lesson ticked is allowed: it seeds no lesson item, only the level-0 items
-// every seed holds. Confirm calls `seedFromLessons` with the ticked set, the device's
+// Confirm with no lesson ticked is allowed: it seeds nothing, not even the foundation items,
+// so study starts from the first lesson through the daily intake (seed.dart). Confirm calls `seedFromLessons` with the ticked set, the device's
 // `SharedPreferences` and the decoded `jp_grammar.json`, passed together so the v2 keys import
 // through the store's migration. The seed writes no attempt and no clear (PIN-7).
 
@@ -196,7 +196,7 @@ class _SeedConfirmWidgetState extends State<SeedConfirmWidget> {
           const SizedBox(height: 6),
           Text(
               'Untick a lesson to skip it for now. Its items arrive later, a few '
-              'new ones a day.',
+              'new ones a day. Clear all to start from the first lesson.',
               style: qrText(t, color: t.inkMuted)),
           const SizedBox(height: 20),
           _group(t, 'Vocabulary lessons', 'word', _wordLessons, _words),

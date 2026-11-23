@@ -147,8 +147,8 @@ void main() {
   }
 
   testWidgets(
-      'Confirm with no lesson ticked is allowed and seeds no lesson item, only the level-0 '
-      'items', (tester) async {
+      'Confirm with no lesson ticked is allowed and seeds nothing, so study starts from '
+      'the first lesson', (tester) async {
     final p = await pumpConfirm(tester);
     for (final key in ['word', 'grammar']) {
       if (p.toggleLabel(key) == kSeedSelectAll) await p.tapToggle(key);
@@ -164,12 +164,7 @@ void main() {
     await p.settle();
 
     expect(p.seeded, 1);
-    final seeds = await p.store.seeds();
-    expect(seeds, isNotEmpty);
-    for (final s in seeds) {
-      expect(catalog.byId(s.itemId)!.prereqLevel, 0,
-          reason: '${s.itemId} is a lesson item, but no lesson was ticked');
-    }
+    expect(await p.store.seeds(), isEmpty);
     expect(await p.store.attempts(), isEmpty, reason: 'PIN-7');
   });
 }

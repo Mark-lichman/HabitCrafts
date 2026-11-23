@@ -1,7 +1,8 @@
 // The first-launch seed (Task 15, D7, D21, D26, PIN-7, PIN-12). Every case seeds a memory
 // store from the shipped catalog: the default set re-counted from the catalog (A6), zero
 // attempts and no state, every seeded item unmastered with zero clears, the 20-day spread in
-// lesson order, an unticked lesson seeding nothing and arriving through the intake, the first
+// lesson order, an unticked lesson seeding nothing and arriving through the intake, Clear all seeding
+// nothing so study starts from the first lesson, the first
 // real clear on a seeded item as clear one of four, the seed running once, an item with a
 // schedule keeping it, the v2 keys coming in through the migration, and a rebuild restoring
 // the seeded due days.
@@ -261,15 +262,16 @@ void main() {
       expect(seeded, isNot(contains(particle('ばかり').id)));
     });
 
-    test('with no lesson ticked only the lesson-free particles are seeded',
+    test(
+        'with no lesson ticked nothing is seeded, not even the lesson-free particles',
         () async {
       final store = JpStoreMemory();
-      await seedDefault(store,
+      final report = await seedDefault(store,
           lessons: const SeedLessons(wordLessons: {}, grammarLessons: {}));
-      final seeded = {for (final s in await store.seeds()) s.itemId};
-      expect(seeded, contains(particle('によって').id));
-      expect(seeded, isNot(contains(particle('ながら').id)));
-      expect(seeded, isNot(contains(particle('ために').id)));
+      expect(await store.seeds(), isEmpty);
+      expect(report.seeded, 0);
+      // The seed still counts as run, so the confirmation is not asked again.
+      expect(await store.meta(kSeedFlag), isNotNull);
     });
 
     test('the intake brings it with its lesson, after the earlier lessons', () {
@@ -340,6 +342,30 @@ void main() {
         throwsArgumentError);
     expect(await store.seeds(), isEmpty);
     expect(await store.meta(kSeedFlag), isNull);
+  });
+
+  test(
+      'Clear all starts from the first lesson: the first plan holds no Due and its New '
+      'opens on the first word lesson (operator ask 2026-11-22)', () async {
+    final store = JpStoreMemory();
+    await seedDefault(store,
+        lessons: const SeedLessons(wordLessons: {}, grammarLessons: {}));
+    final plan = await buildPlan(
+        day: day,
+        store: store,
+        catalog: catalog,
+        clock: FixedClock(dayStart(day).add(const Duration(hours: 6))));
+    final firstWordLesson = catalog
+        .ofKind(ItemKind.word)
+        .map((w) => w.lesson!)
+        .reduce((a, b) => a < b ? a : b);
+    expect(
+        plan.entries.where((e) => e.section != PlanSection.newItems), isEmpty);
+    final words = plan.entries.where((e) => e.kind == ItemKind.word).toList();
+    expect(words, isNotEmpty);
+    expect(words.every((e) => e.lesson == firstWordLesson), isTrue);
+    expect(plan.entries.where((e) => e.kind == ItemKind.word).length,
+        greaterThanOrEqualTo(kNewPerDay - kFoundationNewPerDay));
   });
 
   test('a rebuild from the log restores every seeded due day (D26)', () async {
