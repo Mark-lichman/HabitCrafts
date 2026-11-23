@@ -28,12 +28,19 @@
 // 🚨 NEW INTAKE IS "NO SrsState AND NO SEED", NEVER MasteryStatus.neu (see the hazard in
 // jp_store.dart): an early hinted answer can make an item Learning with no schedule.
 //
+// The day's mix (operator ask 2026-11-22): the Due and Keep-sharp sections are shuffled with a
+// generator seeded by the local day (`dayShuffle`), so each day reads in a fresh order and a
+// rebuild on the same day gives the same order. Which items make the cut does not change: the
+// budget still picks by retrievability first. Warm-up, Repairs and New keep their order, so New
+// still walks the lessons in order and the early lessons arrive the same way every time.
+//
 // The gate is 1.5 times the target, measured on the backlog before the session (every due
 // item plus yesterday's wrongs). New is skipped when the backlog is above the gate, when two or
 // more days were missed, or when the target is already spent. `stretchOffer` and
 // `catchUpOffer` are the end card's two opt-in offers; neither adds anything on its own.
 
 import 'dart:convert';
+import 'dart:math' show Random;
 
 import 'attempt.dart';
 import 'fsrs.dart';
@@ -429,6 +436,11 @@ Future<bool> keepSharpRanThisWeek(JpStore store, int day) async {
   return false;
 }
 
+/// [entries] in a shuffled order seeded by the local [day] (and [salt], so two sections of
+/// one day differ). Pure: the same day gives the same order on every rebuild.
+List<T> dayShuffle<T>(List<T> entries, int day, {int salt = 0}) =>
+    [...entries]..shuffle(Random(day * 31 + salt));
+
 /// Keeps [ordered] in order where it can while no more than two entries in a row share a
 /// kind, or a lesson where the lesson is known. When every remaining entry would make a third
 /// in a row, the first one goes next.
@@ -700,7 +712,7 @@ Future<DayPlan> buildPlan({
       ri++;
     }
   }
-  final due = interleaveRuns(dueChosen);
+  final due = interleaveRuns(dayShuffle(dueChosen, today));
   final leftover = interleaveRuns([
     for (final item in ordered)
       if (!planned.contains(item.id)) entryFor(item, PlanSection.due)
@@ -759,8 +771,13 @@ Future<DayPlan> buildPlan({
   return DayPlan(
     day: today,
     builtAtUtc: clock.now().toUtc(),
-    entries: List.unmodifiable(
-        [...warmUp, ...repairs, ...due, ...keepSharp, ...newEntries]),
+    entries: List.unmodifiable([
+      ...warmUp,
+      ...repairs,
+      ...due,
+      ...dayShuffle(keepSharp, today, salt: 1),
+      ...newEntries
+    ]),
     daysMissed: daysMissed,
     backlogSeconds: backlogSeconds,
     targetSeconds: budget.targetSeconds,
