@@ -432,6 +432,16 @@ ticked grammar lesson teaches (its first `taught_in` lesson), and every foundati
 lesson names), a due day spread over `kSeedSpreadDays` days in lesson order. An unticked
 lesson's particle arrives through the daily intake with that lesson.
 
+**Clear all starts from the first lesson.** When no lesson is ticked, the seed writes nothing,
+not even the foundation items. The first plan is New only and opens on the first word lesson,
+and the foundation items arrive a few a day through the intake (`kFoundationNewPerDay`).
+
+**The day's mix.** The plan shuffles its Due and Keep-sharp sections with a generator seeded
+by the local day (`dayShuffle` in `plan_builder.dart`). Each day reads in a fresh order, and a
+rebuild on the same day gives the same order. The budget still picks items by retrievability,
+so the shuffle changes the order, never which items make the cut. Warm-up, Repairs and New keep
+their order, so New walks the lessons in order.
+
 🚨 **A seed is not an answer.** Each seeded item gets one seed event: an item id and a due day.
 The seed event writes no attempt, no schedule and no clear, so no seeded item is Mastered until
 it earns the full rule from real answers. The first real answer on it is review one and clear

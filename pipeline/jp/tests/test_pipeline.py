@@ -115,8 +115,10 @@ def test_catalog_types_and_uses():
         if e["type"] != "vocabulary":
             assert e["uses"], f"{e['id']} has no uses, so sort by use never finds it"
         by_type[e["type"]] = by_type.get(e["type"], 0) + 1
+    # One vocabulary entry per word lesson, measured from the file so a new lesson moves both.
+    word_lessons = len(json.loads((ASSETS / "jp_lessons.json").read_text(encoding="utf-8"))["lessons"])
     assert by_type == {"grammar_point": 89, "particle": 15, "reference_table": 4,
-                       "verb_pair": 35, "conjugation": 12, "vocabulary": 25}
+                       "verb_pair": 35, "conjugation": 12, "vocabulary": word_lessons}
 
 
 # ───────────── publishing ─────────────
