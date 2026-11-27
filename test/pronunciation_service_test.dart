@@ -211,6 +211,11 @@ class _Rig {
   }
 }
 
+/// A quiet stretch just past [PronunciationService.silenceAfterSpeech], so it ends a listen
+/// that has heard speech, whatever the constant is (#180).
+final int _endsListenMs =
+    PronunciationService.silenceAfterSpeech.inMilliseconds + 300;
+
 void main() {
   group('cutoffs (PIN-4, PIN-10)', () {
     test('are 80 and 60, as named constants', () {
@@ -225,6 +230,19 @@ void main() {
       expect(PronunciationService.verdictFor(60), Judgement.close);
       expect(PronunciationService.verdictFor(59.9), Judgement.wrong);
       expect(PronunciationService.verdictFor(0), Judgement.wrong);
+    });
+  });
+
+  group('listen timing (#180)', () {
+    test('a 3 s pause ends a listen, 20 s caps it, the call gives up at 30 s',
+        () {
+      expect(
+          PronunciationService.silenceAfterSpeech, const Duration(seconds: 3));
+      expect(PronunciationService.listenCap, const Duration(seconds: 20));
+      expect(PronunciationService.callTimeout, const Duration(seconds: 30));
+      expect(PronunciationService.callTimeout > PronunciationService.listenCap,
+          isTrue,
+          reason: 'the call outlasts the longest listen');
     });
   });
 
@@ -400,7 +418,7 @@ void main() {
       await _flush();
       expect(rig.recorder.startedAt, 16000);
       await rig.feed(_loud, 1000);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       final r = await f;
 
       expect(r.verdict, Judgement.correct);
@@ -424,7 +442,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.wrong);
     });
 
@@ -433,7 +451,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       final r = await f;
       expect(r.verdict, Judgement.unverified);
       expect(r.overall, isNull);
@@ -446,7 +464,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.unverified);
     });
 
@@ -455,7 +473,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.unverified);
     });
 
@@ -470,7 +488,9 @@ void main() {
         rig.recorder.ctl!.add(_pcm(_loud, 100));
         async.flushMicrotasks();
       }
-      for (var t = 0; t < 1500 && !rig.recorder.ctl!.isClosed; t += 100) {
+      for (var t = 0;
+          t < _endsListenMs && !rig.recorder.ctl!.isClosed;
+          t += 100) {
         rig.clock.advance(const Duration(milliseconds: 100));
         rig.recorder.ctl!.add(_pcm(_quiet, 100));
         async.flushMicrotasks();
@@ -539,7 +559,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.unverified);
     });
 
@@ -549,7 +569,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.unverified);
       expect(rig.events, ['signIn']);
     });
@@ -598,7 +618,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       await expectUnverifiedAndIdle(rig, f);
       expect(rig.recorder.stops, 1);
     });
@@ -610,7 +630,7 @@ void main() {
       final f = rig.service.check(_sentence);
       await _flush();
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       await expectUnverifiedAndIdle(rig, f);
       expect(rig.recorder.stops, 1,
           reason: 'a cancel that throws still releases the microphone');
@@ -669,7 +689,7 @@ void main() {
       await rig.feed(_quiet, 600);
       await rig.feed(_loud, 500);
       expect(done, isFalse);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       await f;
       expect(done, isTrue);
     });
@@ -683,7 +703,7 @@ void main() {
       expect(done, isFalse);
       expect(rig.recorder.stops, 0);
       await rig.feed(_loud, 800);
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       expect((await f).verdict, Judgement.correct);
     });
 
@@ -793,7 +813,7 @@ void main() {
       expect(rig.service.level.value, lessThan(0.1));
       await rig.feed(_loud, 300);
       expect(rig.service.level.value, greaterThan(0.5));
-      await rig.feed(_quiet, 1500);
+      await rig.feed(_quiet, _endsListenMs);
       await f;
       await _flush();
 
@@ -831,7 +851,7 @@ void main() {
     /// 800 ms of speech, then the silence that ends the listen.
     Future<void> speak() async {
       await _flush();
-      for (final (amp, ms) in [(_loud, 800), (_quiet, 1500)]) {
+      for (final (amp, ms) in [(_loud, 800), (_quiet, _endsListenMs)]) {
         for (var t = 0; t < ms; t += 100) {
           if (recorder.ctl == null || recorder.ctl!.isClosed) return;
           clock.advance(const Duration(milliseconds: 100));

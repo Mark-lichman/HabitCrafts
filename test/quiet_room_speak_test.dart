@@ -298,7 +298,7 @@ class Rig {
   /// Says a sentence and goes quiet. Nobody taps Stop.
   Future<void> sayAndGoQuiet(WidgetTester tester) async {
     await feed(tester, _loud, 800);
-    await feed(tester, _quiet, 1500);
+    await feed(tester, _quiet, _endsListenMs);
     await settle(tester);
   }
 
@@ -359,6 +359,11 @@ Future<List<Map<String, dynamic>>> savedAttemptsIn(JpStore store) async => [
       for (final a in await SpeakScoreLog.load(store))
         jsonDecode(jsonEncode(a.toJson())) as Map<String, dynamic>
     ];
+
+/// A quiet stretch just past [PronunciationService.silenceAfterSpeech], so it ends a listen
+/// that has heard speech, whatever the constant is (#180).
+final int _endsListenMs =
+    PronunciationService.silenceAfterSpeech.inMilliseconds + 300;
 
 void main() {
   group('rubySurface', () {
@@ -681,7 +686,7 @@ void main() {
       expect(rig.sent, isEmpty);
 
       // Quiet after speech ends the listen. Nobody taps Stop.
-      await rig.feed(tester, _quiet, 1500);
+      await rig.feed(tester, _quiet, _endsListenMs);
       await rig.settle(tester);
       expect(rig.mic.open, isFalse);
       expect(find.byType(ListeningBars), findsNothing);
@@ -698,7 +703,7 @@ void main() {
       await rig.feed(tester, _loud, 800);
       // Opening the drill and listening sign nobody in.
       expect(rig.auth.anonymousSignIns, 0);
-      await rig.feed(tester, _quiet, 1500);
+      await rig.feed(tester, _quiet, _endsListenMs);
       await rig.settle(tester);
       expect(rig.auth.anonymousSignIns, 1);
       expect(rig.sent, hasLength(1));
