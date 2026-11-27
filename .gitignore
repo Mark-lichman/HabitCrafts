@@ -75,7 +75,6 @@ app.*.map.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Node / Firebase functions
 **/node_modules/
@@ -88,9 +87,15 @@ firestore-debug.log
 # Secrets / local env
 .env
 .env.*
+# Emulator-only params for the demo-habitcrafts project the rules tests run
+# on. It holds no secret, and a deploy to the real project never reads it.
+!firebase/speech_functions/.env.demo-habitcrafts
 *.pem
 *.p12
 serviceAccount*.json
 
 # Session scratch tooling (variant apply/restore scripts, extractors). Not part of the app.
 /scratchpad/
+
+# Web build for Firebase Hosting (flutter build web --output firebase/public)
+firebase/public/

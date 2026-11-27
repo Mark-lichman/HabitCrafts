@@ -1,14 +1,15 @@
 {
  "course": "Minna no Nihongo",
  "note": "Vocabulary extracted from the Langoal word-list sheets. Kana and English only.",
- "lessonCount": 25,
- "itemCount": 620,
+ "lessonCount": 27,
+ "itemCount": 681,
  "missingLessons": [
   1,
   18,
   19,
   20,
-  21
+  21,
+  31
  ],
  "lessons": [
   {
@@ -5698,6 +5699,397 @@
      "kana": "ミュージカル",
      "gloss": "musical",
      "image": "assets/lessons/img/L30_34.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 32,
+   "source": "L32-roma.pdf",
+   "items": [
+    {
+     "id": "L32_00",
+     "kana": "うんどうします",
+     "gloss": "take exercise",
+     "image": "assets/lessons/img/L32_00.webp"
+    },
+    {
+     "id": "L32_01",
+     "kana": "せいこうします",
+     "gloss": "succeed",
+     "image": "assets/lessons/img/L32_01.webp"
+    },
+    {
+     "id": "L32_02",
+     "kana": "しっぱいします",
+     "gloss": "fail",
+     "image": "assets/lessons/img/L32_02.webp"
+    },
+    {
+     "id": "L32_03",
+     "kana": "しっぱいします",
+     "context": "〜に",
+     "gloss": "fail [an examination]",
+     "image": "assets/lessons/img/L32_03.webp"
+    },
+    {
+     "id": "L32_04",
+     "kana": "ごうかくします",
+     "context": "〜に",
+     "gloss": "pass [an examination]",
+     "image": "assets/lessons/img/L32_04.webp"
+    },
+    {
+     "id": "L32_05",
+     "kana": "もどります",
+     "gloss": "return",
+     "image": "assets/lessons/img/L32_05.webp"
+    },
+    {
+     "id": "L32_06",
+     "kana": "やみます",
+     "context": "あめが",
+     "gloss": "[rain] stop",
+     "image": "assets/lessons/img/L32_06.webp"
+    },
+    {
+     "id": "L32_07",
+     "kana": "はれます",
+     "gloss": "clear up",
+     "image": "assets/lessons/img/L32_07.webp"
+    },
+    {
+     "id": "L32_08",
+     "kana": "くもります",
+     "gloss": "get cloudy",
+     "image": "assets/lessons/img/L32_08.webp"
+    },
+    {
+     "id": "L32_09",
+     "kana": "ふきます",
+     "context": "かぜが",
+     "gloss": "[wind] blow",
+     "image": "assets/lessons/img/L32_09.webp"
+    },
+    {
+     "id": "L32_10",
+     "kana": "なおります",
+     "context": "びょうきが",
+     "gloss": "recover from [sickness], get well",
+     "image": "assets/lessons/img/L32_10.webp"
+    },
+    {
+     "id": "L32_11",
+     "kana": "なおります",
+     "context": "こしょうが",
+     "gloss": "be fixed, be repaired",
+     "image": "assets/lessons/img/L32_11.webp"
+    },
+    {
+     "id": "L32_12",
+     "kana": "つづきます",
+     "context": "ねつが",
+     "gloss": "[high temperature] continue",
+     "image": "assets/lessons/img/L32_12.webp"
+    },
+    {
+     "id": "L32_13",
+     "kana": "ひきます",
+     "context": "かぜを",
+     "gloss": "catch [a cold]",
+     "image": "assets/lessons/img/L32_13.webp"
+    },
+    {
+     "id": "L32_14",
+     "kana": "ひやします",
+     "gloss": "cool",
+     "image": "assets/lessons/img/L32_14.webp"
+    },
+    {
+     "id": "L32_15",
+     "kana": "しんぱい",
+     "context": "な",
+     "gloss": "worried",
+     "image": "assets/lessons/img/L32_15.webp"
+    },
+    {
+     "id": "L32_16",
+     "kana": "じゅうぶん",
+     "context": "な",
+     "gloss": "enough",
+     "image": "assets/lessons/img/L32_16.webp"
+    },
+    {
+     "id": "L32_17",
+     "kana": "おかしい",
+     "gloss": "strange, funny",
+     "image": "assets/lessons/img/L32_17.webp"
+    },
+    {
+     "id": "L32_18",
+     "kana": "うるさい",
+     "gloss": "noisy",
+     "image": "assets/lessons/img/L32_18.webp"
+    },
+    {
+     "id": "L32_19",
+     "kana": "やけど",
+     "gloss": "burning",
+     "image": "assets/lessons/img/L32_19.webp"
+    },
+    {
+     "id": "L32_20",
+     "kana": "けが",
+     "gloss": "injury",
+     "image": "assets/lessons/img/L32_20.webp"
+    },
+    {
+     "id": "L32_21",
+     "kana": "せき",
+     "gloss": "cough",
+     "image": "assets/lessons/img/L32_21.webp"
+    },
+    {
+     "id": "L32_22",
+     "kana": "たいよう",
+     "gloss": "sun",
+     "image": "assets/lessons/img/L32_22.webp"
+    },
+    {
+     "id": "L32_23",
+     "kana": "ほし",
+     "gloss": "star",
+     "image": "assets/lessons/img/L32_23.webp"
+    },
+    {
+     "id": "L32_24",
+     "kana": "つき",
+     "gloss": "moon",
+     "image": "assets/lessons/img/L32_24.webp"
+    },
+    {
+     "id": "L32_25",
+     "kana": "かぜ",
+     "gloss": "wind",
+     "image": "assets/lessons/img/L32_25.webp"
+    },
+    {
+     "id": "L32_26",
+     "kana": "きた",
+     "gloss": "north",
+     "image": "assets/lessons/img/L32_26.webp"
+    },
+    {
+     "id": "L32_27",
+     "kana": "みなみ",
+     "gloss": "south",
+     "image": "assets/lessons/img/L32_27.webp"
+    },
+    {
+     "id": "L32_28",
+     "kana": "にし",
+     "gloss": "west",
+     "image": "assets/lessons/img/L32_28.webp"
+    },
+    {
+     "id": "L32_29",
+     "kana": "ひがし",
+     "gloss": "east",
+     "image": "assets/lessons/img/L32_29.webp"
+    },
+    {
+     "id": "L32_30",
+     "kana": "すいどう",
+     "gloss": "water supply",
+     "image": "assets/lessons/img/L32_30.webp"
+    },
+    {
+     "id": "L32_31",
+     "kana": "い",
+     "gloss": "stomach",
+     "image": "assets/lessons/img/L32_31.webp"
+    },
+    {
+     "id": "L32_32",
+     "kana": "はたらきすぎ",
+     "gloss": "working too much",
+     "image": "assets/lessons/img/L32_32.webp"
+    },
+    {
+     "id": "L32_33",
+     "kana": "むりをします",
+     "gloss": "work more than one's capacity",
+     "image": "assets/lessons/img/L32_33.webp"
+    }
+   ]
+  },
+  {
+   "lesson": 33,
+   "source": "L33-roma.pdf",
+   "items": [
+    {
+     "id": "L33_00",
+     "kana": "にげます",
+     "gloss": "run away",
+     "image": "assets/lessons/img/L33_00.webp"
+    },
+    {
+     "id": "L33_01",
+     "kana": "さわぎます",
+     "gloss": "make a noise",
+     "image": "assets/lessons/img/L33_01.webp"
+    },
+    {
+     "id": "L33_02",
+     "kana": "あきらめます",
+     "gloss": "give up",
+     "image": "assets/lessons/img/L33_02.webp"
+    },
+    {
+     "id": "L33_03",
+     "kana": "なげます",
+     "gloss": "throw",
+     "image": "assets/lessons/img/L33_03.webp"
+    },
+    {
+     "id": "L33_04",
+     "kana": "まもります",
+     "gloss": "keep, follow",
+     "image": "assets/lessons/img/L33_04.webp"
+    },
+    {
+     "id": "L33_05",
+     "kana": "あげます",
+     "gloss": "raise",
+     "image": "assets/lessons/img/L33_05.webp"
+    },
+    {
+     "id": "L33_06",
+     "kana": "さげます",
+     "gloss": "lower",
+     "image": "assets/lessons/img/L33_06.webp"
+    },
+    {
+     "id": "L33_07",
+     "kana": "つたえます",
+     "gloss": "convey",
+     "image": "assets/lessons/img/L33_07.webp"
+    },
+    {
+     "id": "L33_08",
+     "kana": "ちゅういします",
+     "context": "くるまに",
+     "gloss": "be careful [of the cars]",
+     "image": "assets/lessons/img/L33_08.webp"
+    },
+    {
+     "id": "L33_09",
+     "kana": "はずします",
+     "context": "せきを",
+     "gloss": "be away [from one's desk]",
+     "image": "assets/lessons/img/L33_09.webp"
+    },
+    {
+     "id": "L33_10",
+     "kana": "だめ",
+     "context": "な",
+     "gloss": "not permitted",
+     "image": "assets/lessons/img/L33_10.webp"
+    },
+    {
+     "id": "L33_11",
+     "kana": "せき",
+     "gloss": "seat",
+     "image": "assets/lessons/img/L33_11.webp"
+    },
+    {
+     "id": "L33_12",
+     "kana": "マーク",
+     "gloss": "mark",
+     "image": "assets/lessons/img/L33_12.webp"
+    },
+    {
+     "id": "L33_13",
+     "kana": "ボール",
+     "gloss": "ball",
+     "image": "assets/lessons/img/L33_13.webp"
+    },
+    {
+     "id": "L33_14",
+     "kana": "せんたくき",
+     "gloss": "washing machine",
+     "image": "assets/lessons/img/L33_14.webp"
+    },
+    {
+     "id": "L33_15",
+     "kana": "きそく",
+     "gloss": "rule",
+     "image": "assets/lessons/img/L33_15.webp"
+    },
+    {
+     "id": "L33_16",
+     "kana": "しようきんし",
+     "gloss": "Do not use.",
+     "image": "assets/lessons/img/L33_16.webp"
+    },
+    {
+     "id": "L33_17",
+     "kana": "たちいりきんし",
+     "gloss": "Keep out.",
+     "image": "assets/lessons/img/L33_17.webp"
+    },
+    {
+     "id": "L33_18",
+     "kana": "いりぐち",
+     "gloss": "entrance",
+     "image": "assets/lessons/img/L33_18.webp"
+    },
+    {
+     "id": "L33_19",
+     "kana": "でぐち",
+     "gloss": "exit",
+     "image": "assets/lessons/img/L33_19.webp"
+    },
+    {
+     "id": "L33_20",
+     "kana": "ひじょうぐち",
+     "gloss": "emergency exit",
+     "image": "assets/lessons/img/L33_20.webp"
+    },
+    {
+     "id": "L33_21",
+     "kana": "ほんじつきゅうぎょう",
+     "gloss": "closed today",
+     "image": "assets/lessons/img/L33_21.webp"
+    },
+    {
+     "id": "L33_22",
+     "kana": "えいぎょうちゅう",
+     "gloss": "open for business",
+     "image": "assets/lessons/img/L33_22.webp"
+    },
+    {
+     "id": "L33_23",
+     "kana": "しようちゅう",
+     "gloss": "in use",
+     "image": "assets/lessons/img/L33_23.webp"
+    },
+    {
+     "id": "L33_24",
+     "kana": "ちゅうしゃいはん",
+     "gloss": "parking violation",
+     "image": "assets/lessons/img/L33_24.webp"
+    },
+    {
+     "id": "L33_25",
+     "kana": "けいさつ",
+     "gloss": "police station",
+     "image": "assets/lessons/img/L33_25.webp"
+    },
+    {
+     "id": "L33_26",
+     "kana": "ばっきん",
+     "gloss": "fine",
+     "image": "assets/lessons/img/L33_26.webp"
     }
    ]
   }

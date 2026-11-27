@@ -1,0 +1,110 @@
+# Publishes the Flutter web build to Firebase Hosting (plan 2026-11-19, Task 12).
+#
+# It runs after the CI workflow finishes green on a push to main, which is what a
+# merge to main produces. A red CI run ships nothing. workflow_dispatch is the
+# manual rerun, for the first deploy or a redeploy of the current main. The job
+# skips a manual run on any other branch, so only main ever reaches the site.
+#
+# Paths and hosting behavior live in firebase/firebase.json: it serves
+# firebase/public and rewrites every path to /index.html, so /homePage and
+# every other route resolve in the app's router. The build writes straight
+# into firebase/public, because the Firebase CLI refuses a public folder
+# outside the folder that holds firebase.json (../build/web fails with
+# "is outside of project directory"). docs/web-app-runbook.md covers the
+# one-time setup this workflow cannot do: DNS, authorized domains, the Apple
+# Services ID, the FCM web key, the service account below, and the rules and
+# functions deploy that must land before the first deploy.
+#
+# Needs:
+#   secrets.FIREBASE_SERVICE_ACCOUNT  JSON key of a service account with the
+#                                     Firebase Hosting Admin role on
+#                                     tiny-habits-jf61nl.
+#   vars.FCM_WEB_VAPID_KEY            the public web push key. It is public by
+#                                     design, so it is a variable, not a secret.
+#
+# The job deploys hosting ONLY. Rules and functions keep their manual,
+# per-target deploy in docs/deploy.md.
+name: Deploy web
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time, and never cancel one halfway through an upload.
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+env:
+  # Same pin as ci.yml, so the deployed build is the toolchain CI verified.
+  FLUTTER_VERSION: "3.44.8"
+  FIREBASE_PROJECT: tiny-habits-jf61nl
+
+jobs:
+  deploy:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      # The commit CI verified, not whatever main points at by now.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.13.0"
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      # Without the web push key the app runs, but no browser gets a push token.
+      # Fail loudly instead of shipping a build that silently drops reminders.
+      - name: Check web push key
+        env:
+          FCM_WEB_VAPID_KEY: ${{ vars.FCM_WEB_VAPID_KEY }}
+        run: |
+          if [ -z "$FCM_WEB_VAPID_KEY" ]; then
+            echo "::error title=No web push key::Set the repository variable FCM_WEB_VAPID_KEY (docs/web-app-runbook.md)."
+            exit 1
+          fi
+
+      - name: Build web
+        env:
+          FCM_WEB_VAPID_KEY: ${{ vars.FCM_WEB_VAPID_KEY }}
+        run: flutter build web --release --output "$GITHUB_WORKSPACE/firebase/public" --dart-define=FCM_WEB_VAPID_KEY="$FCM_WEB_VAPID_KEY"
+
+      # The key file goes to the runner's temp dir, outside the checkout, and is
+      # removed when the step ends.
+      - name: Deploy to Firebase Hosting
+        working-directory: firebase
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error title=No service account::Set the secret FIREBASE_SERVICE_ACCOUNT (docs/web-app-runbook.md)."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/firebase-sa.json"
+          trap 'rm -f "$key"' EXIT
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$key"
+          GOOGLE_APPLICATION_CREDENTIALS="$key" \
+            npx --yes firebase-tools@13.35.1 deploy --only hosting \
+            --project "$FIREBASE_PROJECT" --non-interactive \
+            --message "deploy-web ${DEPLOY_SHA::12}"

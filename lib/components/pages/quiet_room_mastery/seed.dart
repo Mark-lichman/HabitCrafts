@@ -6,8 +6,11 @@
 //     lesson (by default word lessons 2 to 30 and grammar lessons 26 to 31);
 //   * every particle a ticked grammar lesson teaches (its first `taught_in` lesson);
 //   * every foundation item (`ItemDef.isFoundation`): conjugation ideas, verb pairs, table rows
-//     and the particles no Mari lesson names.
-// An unticked lesson seeds nothing: its items stay New and arrive through the daily intake in
+//     and the particles no Mari lesson names, but only when at least one lesson is ticked.
+// An unticked lesson seeds nothing. With no lesson ticked the seed writes nothing at all, so the
+// learner starts from the first lesson: the daily intake brings the first lesson's words and a
+// few foundation items each day, exactly as for a learner new to the course. Seeding the
+// foundations there would put te-form, ta-form and the rest due on day one.: its items stay New and arrive through the daily intake in
 // lesson order (`newIntakeOrder` in plan_builder.dart takes every item with no state and no seed).
 //
 // 🚨 A SEED IS NOT AN ANSWER (PIN-7, D26). Each seeded item gets one `seed` event in the log: an
@@ -73,9 +76,12 @@ class SeedLessons {
         grammarLessons: {...grammarLessons}..remove(grammarLesson),
       );
 
-  /// Whether [item] is seeded under this set. Foundation items always are.
+  /// No lesson ticked: the learner starts from the first lesson.
+  bool get isEmpty => wordLessons.isEmpty && grammarLessons.isEmpty;
+
+  /// Whether [item] is seeded under this set. Foundation items are, unless no lesson is ticked.
   bool covers(ItemDef item) {
-    if (item.isFoundation) return true;
+    if (item.isFoundation) return !isEmpty;
     final lesson = item.lesson;
     if (lesson == null) return false;
     return switch (item.kind) {
@@ -110,12 +116,12 @@ class SeedReport {
 
 /// The items [lessons] seeds, in seed order: the lesson items in lesson order (each lesson's
 /// words, then its grammar points, each in catalog order), then the foundation items in catalog
-/// order. Pure.
+/// order (none when no lesson is ticked). Pure.
 ({List<ItemDef> lessonItems, List<ItemDef> foundations}) seedOrder(
     ItemCatalog catalog, SeedLessons lessons) {
   final foundations = [
     for (final i in catalog.items)
-      if (i.isFoundation) i
+      if (i.isFoundation && lessons.covers(i)) i
   ];
   final covered = [
     for (final i in catalog.items)

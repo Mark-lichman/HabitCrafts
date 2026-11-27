@@ -1,6 +1,9 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/empty_blocked_users_widget.dart';
+import '/components/pages/devices_page/devices_page_widget.dart'
+    show DevicesPageWidget, kDevicesTitle;
+import '/components/pages/quiet_room_mastery/jp_sync_host_service.dart';
 import '/components/profile_components/profile_goal_habit_list_item/profile_goal_habit_list_item_widget.dart';
 import '/components/profile_components/profile_image_component/profile_image_component_widget.dart';
 import '/components/profile_components/profile_line_item/profile_line_item_widget.dart';
@@ -22,6 +25,22 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'profile_page_model.dart';
 export 'profile_page_model.dart';
+
+/// The profile page's "Signed-in devices" row (plan 2026-11-19, Task 6, D8): it opens the
+/// devices page (Task 7). Hand-written, not FlutterFlow output.
+class ProfileDevicesEntry extends StatelessWidget {
+  const ProfileDevicesEntry({super.key});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        splashColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onTap: () => context.pushNamed(DevicesPageWidget.routeName),
+        child: ProfileLineItemWidget(title: kDevicesTitle, showArrow: true),
+      );
+}
 
 class ProfilePageWidget extends StatefulWidget {
   const ProfilePageWidget({super.key});
@@ -447,6 +466,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                         ),
                                       ),
                                     ),
+                                  const ProfileDevicesEntry(),
                                   InkWell(
                                     splashColor: Colors.transparent,
                                     focusColor: Colors.transparent,
@@ -521,10 +541,38 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                       if (confirmDialogResponse) {
                                         logFirebaseEvent(
                                             'profileLineItem_auth');
-                                        GoRouter.of(context).prepareAuthEvent();
+                                        // Plan 2026-11-19, Task 6: push the answers not yet
+                                        // synced, then wipe this browser's study record. If
+                                        // that push fails, the user picks wait (stay signed
+                                        // in, nothing wiped) or sign out anyway (ruling a).
+                                        // If the web study store will not open, the user
+                                        // stays signed in or signs out anyway, and the
+                                        // record waits for the next sign-in (ruling c,
+                                        // Checkpoint 2026-11-21).
+                                        final mayLeave =
+                                            await JpSyncHost.instance.signOut(
+                                                signOutAnyway: () =>
+                                                    confirmUnsyncedSignOut(
+                                                        context),
+                                                signOutWithoutStore: () =>
+                                                    confirmStoreUnavailableSignOut(
+                                                        context));
+                                        if (!mayLeave) {
+                                          return;
+                                        }
+                                        // The store is wiped and the host has no uid
+                                        // now, so the auth sign-out runs even if the
+                                        // user left this page. Only the router calls
+                                        // need a mounted context.
+                                        final router = context.mounted
+                                            ? GoRouter.of(context)
+                                            : null;
+                                        router?.prepareAuthEvent();
                                         await authManager.signOut();
-                                        GoRouter.of(context)
-                                            .clearRedirectLocation();
+                                        if (!context.mounted) {
+                                          return;
+                                        }
+                                        router?.clearRedirectLocation();
 
                                         logFirebaseEvent(
                                             'profileLineItem_navigate_to');
@@ -624,6 +672,9 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget>
                                           await currentUserReference!.delete();
                                           logFirebaseEvent('Button_auth');
                                           await authManager.deleteUser(context);
+                                          // The web forgets the deleted account's study
+                                          // record, unsynced answers too.
+                                          await JpSyncHost.instance.forget();
                                           logFirebaseEvent(
                                               'Button_navigate_to');
 

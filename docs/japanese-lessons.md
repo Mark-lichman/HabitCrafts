@@ -182,9 +182,12 @@ When Azure's words do not line up with the sentence letter for letter, the drill
 words instead, so no scored letter is left uncolored. Words Azure heard that the sentence lacks
 show struck through.
 
-Each attempt's sentence, scores and verdict are kept on the device (`SpeakScoreLog`, under the
-`shared_preferences` key `jp.speak.scores`). The newest show under **Recent scores** at the foot of
-the drill, so the cutoffs can be tuned against real attempts.
+Each attempt's sentence, scores and verdict go to the study store as a `speak_score` event, so
+they sync with the account (`SpeakScoreLog`, speak_lesson_events.dart). The newest show under
+**Recent scores** at the foot of the drill, so the cutoffs can be tuned against real attempts. An
+older build kept the log on the device, under the `shared_preferences` key `jp.speak.scores`. The
+store reads that key only as the source of its one-time import (`importSpeakAndLessonPrefs`), and
+nothing writes it any more.
 
 Play speaks the sentence. `SpeechService.speak` waits for the voice to finish, or at most
 `SpeechService.speakWait`, before it returns. Play and Speak stay disabled until then, so the
@@ -218,7 +221,8 @@ is a different card, and it counts (see "Say cards and spoken answers" below).
 The record is an append-only log of attempts and seed events, and it is the source of truth.
 The schedule and the mastery state are caches that `JpStore.rebuild` replays from the log
 (`jp_store.dart`). On the phone the store is SQLite (`jp_store_sqlite.dart`). On the web it is
-in memory (`jp_store_memory.dart`) and keeps nothing between loads. The Study record page
+`JpStoreWeb` (`jp_store_web.dart`), a memory store that saves its snapshot to the browser's
+IndexedDB after each write, so the record survives a reload. The Study record page
 exports the log as JSON Lines and imports it back (`study_export.dart`). An export is a backup
 and the input for fitting the scheduler offline.
 
@@ -427,6 +431,16 @@ ticked grammar lesson teaches (its first `taught_in` lesson), and every foundati
 (`ItemDef.isFoundation`: conjugation ideas, verb pairs, table rows and the particles no Mari
 lesson names), a due day spread over `kSeedSpreadDays` days in lesson order. An unticked
 lesson's particle arrives through the daily intake with that lesson.
+
+**Clear all starts from the first lesson.** When no lesson is ticked, the seed writes nothing,
+not even the foundation items. The first plan is New only and opens on the first word lesson,
+and the foundation items arrive a few a day through the intake (`kFoundationNewPerDay`).
+
+**The day's mix.** The plan shuffles its Due and Keep-sharp sections with a generator seeded
+by the local day (`dayShuffle` in `plan_builder.dart`). Each day reads in a fresh order, and a
+rebuild on the same day gives the same order. The budget still picks items by retrievability,
+so the shuffle changes the order, never which items make the cut. Warm-up, Repairs and New keep
+their order, so New walks the lessons in order.
 
 🚨 **A seed is not an answer.** Each seeded item gets one seed event: an item id and a due day.
 The seed event writes no attempt, no schedule and no clear, so no seeded item is Mastered until
@@ -672,6 +686,38 @@ Two decisions worth keeping:
 Failure stays honest: if the permission is refused or there is no input device, `start()` returns
 false, the level stays 0, and the indicator holds its still state. `cancel()` must tear the tap
 down as well as the recogniser, or the browser's recording indicator stays lit after Stop.
+
+### Type-it where the browser cannot record
+
+The say-it cards (the speak drill, the Say-it sentence, the say card and the word card) record
+the learner, and Azure scores the audio. So they gate on the recording path, not on Web Speech
+(plan 2026-11-19, Task 9, PIN-6; operator ruling 2026-11-21). `SpeechService.checkRecordingSupport`
+asks the page once per run, through `speech_support_web.dart` (`dart:js_interop`, no new
+dependency): `navigator.mediaDevices.getUserMedia` and a `MediaRecorder` global mean `works`, and
+either one missing means `noRecorder`. Firefox records and has no recogniser, so it keeps spoken
+say-it cards.
+
+Where the answer is not `works`, the say-it cards show the type-it form in place of Say it, and no
+answer goes out on a spoken probe. A say card's typed answer goes on the probe it twins, graded
+only where that twin is a type-it card, so typing never earns a say-it clear. There only a match of
+the say card's own answer (the whole sentence for a grammar card, after spacing, punctuation and
+katakana are folded) is a scored clear. Any other answer asks Got it or Missed it, because
+the say card does not carry the twin's accepted forms: a typo or an accepted form never writes
+wrong by itself, and only the learner's Missed it resets the typed clears (operator ruling
+2026-11-21). The phone always answers `works`.
+
+The Web Speech probe is kept, and no screen reads it yet. The Practice screen's `listenOnce` runs
+on the recogniser without consulting it, and a recogniser error there still downgrades it. A browser
+may have no `SpeechRecognition` at all (Firefox), or one that cannot take `ja-JP`.
+`speech_to_text` cannot tell: its web `locales()` returns only the recogniser's own `lang`, which
+is empty until set. So `SpeechService.checkSpeechSupport` asks the page once per run:
+
+- no `SpeechRecognition` or `webkitSpeechRecognition` global: `noRecognizer`;
+- the recogniser's static `available({langs: ['ja-JP']})`, where the browser has it, answering
+  `unavailable`: `noJapanese`;
+- anything else, a browser without `available()` included: `works`. A recogniser that then
+  reports `language-not-supported`, or will not start, downgrades the answer. That never changes
+  the recording answer.
 
 ### The listening indicator is a visualiser, and the genre lies by default
 

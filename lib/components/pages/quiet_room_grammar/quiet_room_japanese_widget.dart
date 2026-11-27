@@ -11,8 +11,9 @@
 //   * the mastered count, the kept rate over the last [kKeptRateDays] days, and the 14 dots
 //     over the days whose session completed;
 //   * quiet links: the conjugation, verb pair and number drills, the Discuss with Mari list
-//     (discuss_list_widget.dart, plan 2026-11-06, Task 4, PIN-6) with its count, and the
-//     study record page;
+//     (discuss_list_widget.dart, plan 2026-11-06, Task 4, PIN-6) with its count, the
+//     study record page, and Sign in to sync (the only way into sign-in from this
+//     signed-out home, so the phone can join the synced record of plan 2026-11-19);
 //   * a bottom nav of Today, Lessons (lessons_path_widget.dart) and Topics (topics_widget.dart).
 // Search and the By use set live in Topics. The lesson numbers live in Lessons, so the home
 // holds no number strip.
@@ -60,6 +61,13 @@ import '/components/pages/quiet_room_today/streak.dart' show recentDays;
 import 'jp_study_kit.dart';
 import 'quiet_room_drills_widget.dart';
 
+/// The route the Sign in to sync link opens: `QuietRoomLoginWidget.routeName`
+/// (quiet_room_login_widget.dart), the Quiet Room sign-in with email, Google and, on iOS,
+/// Apple. Named here, not imported, because that page pulls in
+/// the auth and backend libraries, and an import from this home risks the web debug
+/// build's import-cycle load error. test/discuss_test.dart pins the two names equal.
+const kSignInRouteName = 'quietRoomLogin';
+
 /// The Today card's queue line: each non-empty section with its count, in session order,
 /// then the stretch when the plan offers it, "Repair 3 · Due 42 · Keep-sharp 10 · New 8 ·
 /// +4 stretch". Empty when the plan holds nothing.
@@ -102,7 +110,11 @@ class KeptRate {
 }
 
 /// The kept rate over the [days] local days ending on [today], from the attempt log
-/// [attempts] (oldest first). Pure.
+/// [attempts]. Pure.
+///
+/// [attempts] may come in any order: the store returns row order, which after a sync is not
+/// time order. The fold uses the canonical replay order ([canonicalAttempts]), so two devices
+/// that hold the same attempts show the same rate.
 ///
 /// Each item's attempts are replayed through the mastery rule (`masteryAfter`), so an attempt
 /// counts exactly as the rule counts a kept review: a scored answer, not Say it and not early
@@ -113,7 +125,7 @@ KeptRate keptRateOf(List<Attempt> attempts, ItemLookup lookup, int today,
   final states = <String, MasteryState>{};
   final from = today - days + 1;
   var kept = 0, reviews = 0;
-  for (final a in attempts) {
+  for (final a in canonicalAttempts(attempts)) {
     final item = lookup(a.itemId);
     if (item == null) continue;
     final before = states[a.itemId] ?? MasteryState.initial(a.itemId);
@@ -551,6 +563,10 @@ class _QuietRoomJapaneseWidgetState extends State<QuietRoomJapaneseWidget>
                 _open(QuietRoomDrillsWidget.routeName, {'mode': 'reference'})),
         link(discussLinkLabel(_record?.discuss ?? 0), _openDiscuss),
         link('Study record', _openRecord),
+        link(
+            'Sign in to sync',
+            () => _open(
+                kSignInRouteName, {'next': QuietRoomJapaneseWidget.routeName})),
       ]),
     );
   }

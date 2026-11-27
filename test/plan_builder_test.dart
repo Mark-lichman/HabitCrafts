@@ -106,6 +106,11 @@ Future<void> mastered(JpStore store, ItemDef item, int day, double r) async {
 Future<void> seed(JpStore store, ItemDef item, int dueDay) =>
     store.appendSeed(item.id, dueDay, atUtc: DateTime.utc(2026, 1, 1));
 
+/// Bumped by every [wrongOn] call, so each attempt it builds is one second after the last.
+var _answerTick = 0;
+
+/// A wrong at 08:00 on [day], plus one second per earlier call. Call order is event-time order,
+/// because the plan reads the log in canonical order (event time, then a random event id).
 Attempt wrongOn(ItemDef item, int day) {
   final p = item.scoredProbes.first;
   return Attempt(
@@ -114,7 +119,8 @@ Attempt wrongOn(ItemDef item, int day) {
     template: p.template,
     production: p.production,
     selfGraded: p.selfGraded,
-    atUtc: dayStart(day).add(const Duration(hours: 8)).toUtc(),
+    atUtc:
+        dayStart(day).add(Duration(hours: 8, seconds: _answerTick++)).toUtc(),
     localDay: day,
     grade: Grade.wrong,
     rating: fsrsRatingFor(Grade.wrong),
@@ -226,6 +232,29 @@ void main() {
           [words[3].id]);
       final ids = [for (final e in p.entries) e.itemId];
       expect(ids.toSet().length, ids.length, reason: 'one entry per item');
+      expectNoNew(p);
+    });
+
+    test(
+        'repairs follow first-wrong time, not store row order: a synced log appends pulled '
+        'attempts after local ones', () async {
+      final store = JpStoreMemory();
+      final words = wordsOf(3);
+      await seedEverything(store, tuesday);
+      // Yesterday's wrongs land in the store in reverse time order, as after a pull.
+      final morning = wrongOn(words[0], tuesday - 1);
+      Attempt at(ItemDef item, int hours) => Attempt.fromJson({
+            ...wrongOn(item, tuesday - 1).toJson(),
+            'atUtc':
+                morning.atUtc.add(Duration(hours: hours)).toIso8601String(),
+          });
+      await store.appendAttempt(at(words[2], 2));
+      await store.appendAttempt(at(words[1], 1));
+      await store.appendAttempt(at(words[0], 0));
+
+      final p = await plan(store, tuesday);
+      expect([for (final e in p.section(PlanSection.repair)) e.itemId],
+          [words[0].id, words[1].id, words[2].id]);
       expectNoNew(p);
     });
 
@@ -475,9 +504,7 @@ void main() {
       await seed(store, row, tuesday - 2);
 
       final p = await plan(store, tuesday);
-      expect([
-        for (final e in p.section(PlanSection.due)) e.itemId
-      ], [
+      final priority = [
         particle.id,
         word.id,
         pair.id,
@@ -488,15 +515,25 @@ void main() {
         seedEarlyHigh.id,
         row.id,
         seedLate.id,
-      ]);
+      ];
       final dueEntries = p.section(PlanSection.due);
+      // The priority order is orderDue's; the session shows it as the day's mix.
+      final byId = {for (final e in dueEntries) e.itemId: e};
+      expect(byId.keys, unorderedEquals(priority));
+      expect([
+        for (final e in dueEntries) e.itemId
+      ], [
+        for (final e in interleaveRuns(
+            dayShuffle([for (final id in priority) byId[id]!], tuesday)))
+          e.itemId
+      ]);
       expect(
-          dueEntries
-              .take(6)
+          [for (final id in priority.take(6)) byId[id]!]
               .every((e) => !e.seeded && e.retrievability != null),
           isTrue);
       expect(
-          dueEntries.skip(6).every((e) => e.seeded && e.retrievability == null),
+          [for (final id in priority.skip(6)) byId[id]!]
+              .every((e) => e.seeded && e.retrievability == null),
           isTrue);
       expect(dueEntries.every((e) => e.wasDue && e.source == Source.review),
           isTrue);
@@ -520,7 +557,11 @@ void main() {
       final d = p.section(PlanSection.due);
       expect(d.length, 9);
       expectNoTripleRuns(d);
-      expect([for (final e in d) e.itemId].take(2), [words[0].id, words[1].id]);
+      expect(
+          [for (final e in d) e.itemId],
+          unorderedEquals([
+            for (final i in [...words, ...particles]) i.id
+          ]));
       expectNoNew(p);
     });
 
@@ -583,8 +624,11 @@ void main() {
       final p = await plan(store, monday);
       expect(p.keepSharpRan, isTrue);
       final keep = p.section(PlanSection.keepSharp);
+      final atRisk = [
+        for (final i in items.reversed.take(kKeepSharpCount)) i.id
+      ];
       expect([for (final e in keep) e.itemId],
-          [for (final i in items.reversed.take(kKeepSharpCount)) i.id]);
+          dayShuffle(atRisk, monday, salt: 1));
       expect(
           keep.every((e) => e.source == Source.keepSharp && !e.wasDue), isTrue);
       expect([for (final e in p.section(PlanSection.due)) e.itemId],
@@ -602,7 +646,7 @@ void main() {
       final p = await plan(store, monday, budget: budget);
       expect(p.keepSharpRan, isTrue);
       expect([for (final e in p.section(PlanSection.keepSharp)) e.itemId],
-          [for (final i in items.reversed.take(2)) i.id]);
+          unorderedEquals([for (final i in items.reversed.take(2)) i.id]));
       expect(p.plannedSeconds, lessThanOrEqualTo(budget.fillSeconds));
       expectNoNew(p);
     });
@@ -1293,6 +1337,24 @@ void main() {
       ]);
       expect(after, before);
       expect(await store.lastDay(), isNull);
+    });
+  });
+
+  group('the day mix (operator ask 2026-11-22)', () {
+    final items = [for (var i = 0; i < 40; i++) i];
+
+    test('the same day gives the same order, a different day a different one',
+        () {
+      expect(dayShuffle(items, 100), dayShuffle(items, 100));
+      expect(dayShuffle(items, 101), isNot(dayShuffle(items, 100)));
+      expect(dayShuffle(items, 100, salt: 1), isNot(dayShuffle(items, 100)));
+    });
+
+    test('it reorders and never adds or drops an entry', () {
+      final out = dayShuffle(items, 100);
+      expect(out, unorderedEquals(items));
+      expect(out, isNot(items));
+      expect(items, [for (var i = 0; i < 40; i++) i]); // the input is untouched
     });
   });
 }

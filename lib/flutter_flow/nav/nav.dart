@@ -20,6 +20,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 import '/index.dart';
+import '/components/pages/devices_page/devices_page_widget.dart';
 import '/components/pages/quiet_room_today/quiet_room_today_widget.dart';
 import '/components/pages/quiet_room_auth/quiet_room_login_widget.dart';
 import '/components/pages/quiet_room_library/quiet_room_library_widget.dart';
@@ -132,6 +133,20 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => QuietRoomLaunchWidget(),
         ),
         FFRoute(
+          // The Quiet Room sign-in. The Japanese home's Sign in to sync link opens it
+          // with `next` set, so sign-in returns to study.
+          name: QuietRoomLoginWidget.routeName,
+          path: QuietRoomLoginWidget.routePath,
+          builder: (context, params) => QuietRoomLoginWidget(
+            next: params.getParam('next', ParamType.String),
+          ),
+        ),
+        FFRoute(
+          name: QuietRoomForgotPasswordWidget.routeName,
+          path: QuietRoomForgotPasswordWidget.routePath,
+          builder: (context, params) => const QuietRoomForgotPasswordWidget(),
+        ),
+        FFRoute(
           name: ForgotPasswordWidget.routeName,
           path: ForgotPasswordWidget.routePath,
           builder: (context, params) => ForgotPasswordWidget(),
@@ -144,7 +159,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: HomePageWidget.routeName,
           path: HomePageWidget.routePath,
-          builder: (context, params) => QuietRoomTodayWidget(),
+          // Signed out (or a guest), the habits query is refused by the rules and
+          // queryCollection swallows the error, so Today would spin forever. A visitor
+          // who opens /homePage directly gets the signed-out home instead, as at `/`.
+          builder: (context, params) => appStateNotifier.loggedIn
+              ? QuietRoomTodayWidget()
+              : QuietRoomJapaneseWidget(
+                  tab: homeTabOf(params.getParam('tab', ParamType.String))),
         ),
         FFRoute(
           name: LoginPageWidget.routeName,
@@ -280,6 +301,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             particleId: params.getParam('particle', ParamType.String),
             fromCard: _fromCard(params),
           ),
+        ),
+        // The signed-in devices list (plan 2026-11-19, Task 7), from the profile page. It reads
+        // the server itself and asks to sign in when nobody is, so a deep link lands safely.
+        FFRoute(
+          name: DevicesPageWidget.routeName,
+          path: DevicesPageWidget.routePath,
+          builder: (context, params) => const DevicesPageWidget(),
         ),
         FFRoute(
           name: WelcomeBackWidget.routeName,
@@ -611,11 +639,13 @@ class FFRoute {
         pageBuilder: (context, state) {
           fixStatusBarOniOS16AndBelow(context);
           final ffParams = FFParameters(state, asyncParams);
+          // A document named in the URL loads before its screen builds. The phone passes
+          // documents in `extra`, but a web reload keeps only the URL, and these screens
+          // read their document with `!` (plan 2026-11-19, Task 14). go_router runs this
+          // pageBuilder again on every rebuild, so the load lives in a page-scoped state
+          // that starts it once and keeps the screen's own state.
           final page = ffParams.hasFutures
-              ? FutureBuilder(
-                  future: ffParams.completeFutures(),
-                  builder: (context, _) => builder(context, ffParams),
-                )
+              ? _AsyncParamsPage(params: ffParams, builder: builder)
               : builder(context, ffParams);
           final child = appStateNotifier.loading
               ? Container(
@@ -654,6 +684,74 @@ class FFRoute {
         },
         routes: routes,
       );
+}
+
+/// Loads a page's URL-named documents once and then builds the screen.
+///
+/// go_router calls every page's pageBuilder on each router rebuild, such as a push or a
+/// pop over this page, and each call makes a new [FFParameters]. A new load per call
+/// would show the placeholder again and rebuild the screen with its state lost. So
+/// [initState] starts [FFParameters.completeFutures] once, and each later build copies
+/// the loaded documents into that build's [FFParameters]. The placeholder shows only
+/// until the one load completes. A changed document id in the URL starts a new load.
+class _AsyncParamsPage extends StatefulWidget {
+  const _AsyncParamsPage({required this.params, required this.builder});
+
+  final FFParameters params;
+  final Widget Function(BuildContext, FFParameters) builder;
+
+  @override
+  State<_AsyncParamsPage> createState() => _AsyncParamsPageState();
+}
+
+class _AsyncParamsPageState extends State<_AsyncParamsPage> {
+  late FFParameters _loading;
+  Map<String, dynamic>? _loaded;
+  var _generation = 0;
+
+  static Map<String, dynamic> _asyncValues(FFParameters params) =>
+      Map.fromEntries(
+          params.state.allParams.entries.where(params.isAsyncParam));
+
+  void _load(FFParameters params) {
+    final generation = ++_generation;
+    _loading = params;
+    _loaded = null;
+    params.completeFutures().whenComplete(() {
+      if (mounted && generation == _generation) {
+        setState(() => _loaded = Map.of(params.futureParamValues));
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _load(widget.params);
+  }
+
+  @override
+  void didUpdateWidget(covariant _AsyncParamsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final before = _asyncValues(_loading);
+    final after = _asyncValues(widget.params);
+    final same = before.length == after.length &&
+        before.entries.every((e) => after[e.key] == e.value);
+    if (!same) {
+      _load(widget.params);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loaded = _loaded;
+    if (loaded == null) {
+      return Container(color: FlutterFlowTheme.of(context).primaryBackground);
+    }
+    final params = widget.params;
+    params.futureParamValues.addAll(loaded);
+    return widget.builder(context, params);
+  }
 }
 
 class TransitionInfo {

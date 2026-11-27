@@ -29,7 +29,6 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/quiet_room.dart';
 import '/components/pages/home_page/home_page_widget.dart';
 import '/components/pages/signup_page/signup_page_widget.dart';
-import '/components/pages/forgot_password/forgot_password_widget.dart';
 
 /// Prefills the login form in debug builds, so design review is not a typing exercise.
 ///
@@ -188,6 +187,51 @@ class _Field extends StatelessWidget {
   }
 }
 
+/// A quiet action beside the one loud button: surface fill and the control hairline, so
+/// it reads as available without competing with Log in.
+class _SecondaryButton extends StatelessWidget {
+  const _SecondaryButton(
+      {required this.label, required this.icon, required this.onPressed});
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return SizedBox(
+      width: double.infinity,
+      height: QuietRoomMetrics.targetMin,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 22, color: t.ink),
+        label: Text(label,
+            style: GoogleFonts.schibstedGrotesk(
+                fontSize: 15, fontWeight: FontWeight.w500, color: t.ink)),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: t.surface,
+          side: BorderSide(
+              color: t.borderControl, width: QuietRoomMetrics.strokeControl),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(QuietRoomMetrics.radiusSm)),
+        ),
+      ),
+    );
+  }
+}
+
+/// The hairline with "or" between the email form and the account buttons.
+Widget _orRule(QuietRoomTokens t) => Row(children: [
+      Expanded(child: Divider(color: t.border, height: 1)),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Text('or',
+            style:
+                GoogleFonts.schibstedGrotesk(fontSize: 13, color: t.inkMuted)),
+      ),
+      Expanded(child: Divider(color: t.border, height: 1)),
+    ]);
+
 // ---------------------------------------------------------------------------
 
 class QuietRoomLaunchWidget extends StatelessWidget {
@@ -275,10 +319,15 @@ class QuietRoomLaunchWidget extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class QuietRoomLoginWidget extends StatefulWidget {
-  const QuietRoomLoginWidget({super.key, this.autoSubmit = false});
+  const QuietRoomLoginWidget({super.key, this.autoSubmit = false, this.next});
 
   /// Debug only: sign in as soon as the screen mounts, so a design pass costs no typing.
   final bool autoSubmit;
+
+  /// The route name to go to after sign-in, from the `next` query parameter. The Japanese
+  /// home's Sign in to sync link passes its own name, so the learner lands back on study.
+  /// Absent, sign-in goes to `homePage`, as the generated page did.
+  final String? next;
 
   static String routeName = 'quietRoomLogin';
   static String routePath = '/quietRoomLogin';
@@ -342,12 +391,35 @@ class _QuietRoomLoginWidgetState extends State<QuietRoomLoginWidget> {
             );
       }
 
-      if (mounted) {
-        // The nav swap points the existing `homePage` ROUTE at QuietRoomTodayWidget;
-        // there is no separate 'quietRoomToday' route name to go to. Naming one that
-        // is not registered makes GoRouter throw and the button look inert.
-        context.goNamed(HomePageWidget.routeName);
-      }
+      _goOn();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Leaves the screen after a sign-in: to [QuietRoomLoginWidget.next] when the caller
+  /// named one, else `homePage`.
+  void _goOn() {
+    if (!mounted) return;
+    // The nav swap points the existing `homePage` ROUTE at QuietRoomTodayWidget;
+    // there is no separate 'quietRoomToday' route name to go to. Naming one that
+    // is not registered makes GoRouter throw and the button look inert.
+    final next = widget.next;
+    context.goNamed(
+        next != null && next.isNotEmpty ? next : HomePageWidget.routeName);
+  }
+
+  /// Google or Apple, as the generated login page ran them: prepare, sign in, go on.
+  /// authManager reports a failure itself and returns null.
+  Future<void> _social(
+      Future<BaseAuthUser?> Function(BuildContext) signIn) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      GoRouter.of(context).prepareAuthEvent();
+      final user = await signIn(context);
+      if (user == null) return;
+      _goOn();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -401,12 +473,139 @@ class _QuietRoomLoginWidgetState extends State<QuietRoomLoginWidget> {
             ),
             const SizedBox(height: 20),
             _PrimaryButton(label: 'Log in', busy: _busy, onPressed: _submit),
+            const SizedBox(height: 18),
+            _orRule(t),
+            const SizedBox(height: 18),
+            _SecondaryButton(
+              label: 'Continue with Google',
+              icon: Icons.g_mobiledata_rounded,
+              onPressed:
+                  _busy ? null : () => _social(authManager.signInWithGoogle),
+            ),
+            if (isiOS) ...[
+              const SizedBox(height: 10),
+              _SecondaryButton(
+                label: 'Continue with Apple',
+                icon: Icons.apple,
+                onPressed:
+                    _busy ? null : () => _social(authManager.signInWithApple),
+              ),
+            ],
             const SizedBox(height: 14),
             Center(
               child: TextButton(
                 onPressed: () =>
-                    context.pushNamed(ForgotPasswordWidget.routeName),
+                    context.pushNamed(QuietRoomForgotPasswordWidget.routeName),
                 child: Text('Forgot your password?',
+                    style: GoogleFonts.schibstedGrotesk(
+                        fontSize: 13.5, color: t.brand600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+/// The Quiet Room password reset: the generated ForgotPasswordWidget's flow (validate,
+/// authManager.resetPassword, which shows its own snack bar) in the sign-in screen's
+/// chrome, so the two screens read as one place.
+class QuietRoomForgotPasswordWidget extends StatefulWidget {
+  const QuietRoomForgotPasswordWidget({super.key});
+
+  static String routeName = 'quietRoomForgotPassword';
+  static String routePath = '/quietRoomForgotPassword';
+
+  @override
+  State<QuietRoomForgotPasswordWidget> createState() =>
+      _QuietRoomForgotPasswordWidgetState();
+}
+
+class _QuietRoomForgotPasswordWidgetState
+    extends State<QuietRoomForgotPasswordWidget> {
+  final _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  bool _busy = false;
+  bool _sent = false;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() => _busy = true);
+    try {
+      await authManager.resetPassword(
+          email: _email.text.trim(), context: context);
+      if (mounted) setState(() => _sent = true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = QuietRoomTokens.of(context);
+    return _Shell(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _mark(t),
+            const SizedBox(height: 26),
+            Text(
+              'Reset your password',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.fraunces(
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 26 * -0.015,
+                height: 1.15,
+                color: t.inkStrong,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _sent
+                  ? 'If an account uses that email, a reset link is on its way. '
+                      'Open it, set a password, then come back to log in.'
+                  : 'Enter the email on your account. We send a link to set a new password.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.schibstedGrotesk(
+                  fontSize: 14, height: 1.4, color: t.inkMuted),
+            ),
+            const SizedBox(height: 22),
+            _Field(
+              controller: _email,
+              label: 'Email',
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.done,
+              validator: (v) {
+                final s = (v ?? '').trim();
+                if (s.isEmpty) return 'Enter your email address.';
+                if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(s)) {
+                  return 'That does not look like an email address.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+            _PrimaryButton(
+                label: _sent ? 'Send again' : 'Send reset link',
+                busy: _busy,
+                onPressed: _send),
+            const SizedBox(height: 14),
+            Center(
+              child: TextButton(
+                onPressed: () => context.safePop(),
+                child: Text('Back to log in',
                     style: GoogleFonts.schibstedGrotesk(
                         fontSize: 13.5, color: t.brand600)),
               ),

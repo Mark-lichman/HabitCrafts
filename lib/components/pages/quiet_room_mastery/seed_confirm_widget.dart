@@ -5,7 +5,8 @@
 // lesson, word lessons and grammar lessons apart, and one Confirm.
 //
 // The default ticks (`defaultSeedLessons`): word lessons 2 to 30 and grammar lessons 26 to 31
-// (seed.dart's constants). `jp.grammar.lastLesson`, the grammar lesson last opened, extends
+// (seed.dart's constants). The grammar lesson last opened (the store's latest `last_lesson`
+// event, speak_lesson_events.dart), extends
 // the grammar ticks to it when it is past 31, so lessons studied beyond the plan's range come
 // in too. It never unticks one: a lesson reopened for review is no sign the later ones were
 // not studied.
@@ -13,8 +14,8 @@
 // Any lesson can be unticked to skip it for now: its items stay New and arrive through the
 // daily intake (seed.dart). Beside each section heading a toggle reads Select all, or Clear
 // all once every lesson of that section is ticked; the ticked count and Confirm follow it.
-// Confirm with no lesson ticked is allowed: it seeds no lesson item, only the level-0 items
-// every seed holds. Confirm calls `seedFromLessons` with the ticked set, the device's
+// Confirm with no lesson ticked is allowed: it seeds nothing, not even the foundation items,
+// so study starts from the first lesson through the daily intake (seed.dart). Confirm calls `seedFromLessons` with the ticked set, the device's
 // `SharedPreferences` and the decoded `jp_grammar.json`, passed together so the v2 keys import
 // through the store's migration. The seed writes no attempt and no clear (PIN-7).
 
@@ -31,9 +32,12 @@ import 'jp_store_sqlite.dart' show sharedJpStore;
 import 'local_day.dart';
 import 'review_page.dart' show QrLoudButton, qrLoadingOr;
 import 'seed.dart';
+import 'speak_lesson_events.dart' show readLastGrammarLesson;
 
-/// The `SharedPreferences` key of the grammar lesson last opened. The grammar screen writes
-/// it, and so does the lesson path when a 第26課 to 第50課 page opens (ASK-11).
+/// The `SharedPreferences` key an older build kept the grammar lesson last opened under. The
+/// lesson now lives in the study store as `last_lesson` events, which the grammar screen and
+/// the lesson path write (ASK-11, plan 2026-11-19, Task 13). The store's one-time import
+/// (`importSpeakAndLessonPrefs`) reads this key; nothing writes it any more.
 const String kLastGrammarLessonKey = 'jp.grammar.lastLesson';
 
 /// The toggle beside each section heading: Select all, or Clear all when every lesson of the
@@ -115,9 +119,8 @@ class _SeedConfirmWidgetState extends State<SeedConfirmWidget> {
     try {
       final store = _store ??= widget.store ?? await sharedJpStore();
       final catalog = _catalog ??= widget.catalog ?? await ItemCatalog.load();
-      final prefs = await SharedPreferences.getInstance();
       final ticks = defaultSeedLessons(catalog,
-          lastGrammarLesson: prefs.getInt(kLastGrammarLessonKey));
+          lastGrammarLesson: await readLastGrammarLesson(store));
       if (!mounted) return;
       setState(() {
         _store = store;
@@ -193,7 +196,7 @@ class _SeedConfirmWidgetState extends State<SeedConfirmWidget> {
           const SizedBox(height: 6),
           Text(
               'Untick a lesson to skip it for now. Its items arrive later, a few '
-              'new ones a day.',
+              'new ones a day. Clear all to start from the first lesson.',
               style: qrText(t, color: t.inkMuted)),
           const SizedBox(height: 20),
           _group(t, 'Vocabulary lessons', 'word', _wordLessons, _words),

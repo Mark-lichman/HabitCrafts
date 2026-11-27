@@ -22,7 +22,7 @@
 //   * Practice now, a one-item [PracticeSessionWidget].
 //
 // [itemDetailOf] is the pure read the page shows; the state is `masteryFromAttempts` over the
-// item's attempts, never the lesson number.
+// item's attempts in canonical replay order ([canonicalAttempts]), never the lesson number.
 //
 // [PracticeSessionWidget] asks each of its items once through the session's probe builder and
 // writes the answers through an [AttemptRecorder], so the due rule is the drills' (D23, PIN-14):
@@ -217,14 +217,18 @@ List<String> itemNotesOf(ItemDefLike item) => [
       if (item.templateCount == 1) kOneTemplateLine,
     ];
 
-/// The item page's read of [item] from its [attempts], oldest first (PIN-1). Pure.
+/// The item page's read of [item] from its [attempts] (PIN-1). Pure.
+///
+/// [attempts] may come in any order: the store returns row order, which after a sync is not
+/// time order. The fold and the history use the canonical replay order ([canonicalAttempts]),
+/// so two devices that hold the same attempts show the same state and the same history.
 ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
   final scored = {for (final p in item.scoredProbes) p.id};
   var state = MasteryState.initial(item.id);
   final rows = <HistoryRow>[];
   final seen = <String>{};
   var tries = 0, sayClear = 0;
-  for (final a in attempts) {
+  for (final a in canonicalAttempts(attempts)) {
     if (a.itemId != item.id) continue;
     final next = masteryAfter(state, a, item);
     final counted = next.clears.length > state.clears.length ||

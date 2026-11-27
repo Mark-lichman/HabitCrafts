@@ -1,8 +1,10 @@
-// The study record's store (D14, D26): one interface, two implementations.
+// The study record's store (D14, D26): one interface, three implementations.
 //
 // `JpStoreSqlite` (jp_store_sqlite.dart) keeps the record on the phone in SQLite. `JpStoreMemory`
-// (jp_store_memory.dart) keeps it in memory and is the store on web, which keeps nothing between
-// loads (A4). The same test suite runs against both (test/jp_store_test.dart).
+// (jp_store_memory.dart) keeps it in memory, for tests. `JpStoreWeb` (jp_store_web.dart) is the
+// store on web: a memory store that saves its snapshot in the browser after each write, so the
+// record survives a reload (A4). The same test suite runs against all three
+// (test/jp_store_test.dart).
 //
 // 🚨 THE LOG IS THE SOURCE OF TRUTH. Two event kinds are append-only:
 //   * an `Attempt` per answer (attempt.dart);
@@ -12,8 +14,24 @@
 // pure functions the live writer uses (`srsAfter`, `masteryAfter`) and must land on the same
 // states. A learner note (the v2 `can_use_it` pill) is kept beside the log and exported with it.
 // So is a Discuss mark (PIN-6): Mark's reminder to raise an item with Mari, with an optional
-// short note. A mark is never an event in the log and never reaches `replayLog`, so setting or
-// clearing one writes no attempt and moves no schedule and no mastery state.
+// short note. A mark never reaches `replayLog`, so setting or clearing one writes no attempt and
+// moves no schedule and no mastery state.
+//
+// 🚨 EVERY EVENT HAS A GLOBAL ID (plan 2026-11-19, Task 1, jp_event.dart). The store stamps each
+// new attempt and seed with an event id and this store's device id on append. A legacy row,
+// written before event ids, takes its legacy id and no device id, so every device derives the
+// same legacy event; dedup keys on the event id alone (operator ruling, Checkpoint 2026-11-19).
+// Its time is cut to the millisecond when it is built, so a phone time with microseconds and a
+// browser's read of it are the same bytes (operator ruling, Checkpoint 2026-11-20).
+// Replay, rebuild and import apply the log in one canonical order, event time then event id
+// (`replayLog`), whatever order the rows were appended in. A note, a Discuss
+// mark, a say-it score and the last lesson are side events: each change is a timestamped
+// `JpEvent`, and the note, the mark and the last lesson shown are the latest event by event time
+// (last write wins, PIN-12, PIN-16). A local change always lands after the subject's latest
+// event, so a clock behind an earlier event never hides the change just made. Every event starts
+// unpushed; `unpushedEvents`, `markPushed` and `appendRemoteEvents` are the sync seam. A remote
+// event is appended once, by id; the caller rebuilds after appending attempts or seeds. Day
+// records carry the device and the time that built them.
 //
 // The schedule rule per answer (`srsAfter`), the one place the store reads a grade:
 //   * unscored, and the Say-it track: no change (D4, D17);
@@ -31,16 +49,99 @@
 // the Not yet known and Due today sets from SrsState and seeds, not from MasteryStatus: the
 // schedule, not the badge, decides what is due.
 //
-// `rebuild` reads the log across several awaits before it writes, and `importLog` replaces the
-// whole record, so both run on the same chain as `recordAnswer` (`_serialized`): no answer reads
+// `rebuild` reads the log across several awaits before it writes, `importLog` replaces the
+// whole record, and `mergeImport` does both, so all of them run on the same chain as
+// `recordAnswer` (`_serialized`): no answer reads
 // its before-state on one side of a replay's write and commits on the other.
 
+import 'dart:convert';
+
 import 'attempt.dart';
+import 'jp_event.dart';
 import 'mastery_rule.dart';
 import 'scheduler.dart';
 
 /// The note the v2 grammar card's "I can use it" pill becomes (migration, Task 8).
 const String kNoteCanUseIt = 'can_use_it';
+
+/// The store flag that holds this store's device id, written once.
+const String kDeviceIdMetaKey = 'sync.deviceId';
+
+/// The store flag that holds the sync cursor: the latest server time pulled, UTC ISO 8601. An
+/// empty or missing value means no cursor: the next sync pulls every event ([JpStore.importLog]
+/// clears it).
+const String kSyncCursorMetaKey = 'sync.cursor';
+
+/// The event time of a note written before event ids, whose own time was never kept: the Unix
+/// epoch. A fixed time keeps a legacy note the same event on every device, and any later note
+/// change wins over it (PIN-12).
+final DateTime kLegacyNoteAtUtc = DateTime.utc(1970);
+
+/// The prefix of every one-time migration flag (`migration.v2`, `migration.speakLesson`). The
+/// web store's sign-out wipe keeps these flags, so a browser's old study keys are never
+/// imported again into the next account (operator ruling, Checkpoint 2026-11-20).
+const String kMigrationMetaPrefix = 'migration.';
+
+/// How far a local change moves past its subject's latest event when the clock is not after
+/// it. A millisecond, because a DateTime on some web runtimes keeps no finer time (#193).
+const Duration kLocalTieBump = Duration(milliseconds: 1);
+
+/// [t] in UTC, cut to the millisecond: a web DateTime keeps no finer time.
+DateTime legacyTime(DateTime t) =>
+    DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch, isUtc: true);
+
+/// [a] with its time cut to the millisecond ([legacyTime]). A legacy attempt is built with it,
+/// so the phone and the web derive the same event, body included (operator ruling,
+/// Checkpoint 2026-11-20).
+Attempt legacyAttempt(Attempt a) => Attempt.fromJson(
+    {...a.toJson(), 'atUtc': legacyTime(a.atUtc).toIso8601String()});
+
+/// [s] with its time cut to the millisecond, as [legacyAttempt].
+SeedEvent legacySeed(SeedEvent s) => SeedEvent(
+    id: s.id,
+    itemId: s.itemId,
+    dueDay: s.dueDay,
+    atUtc: legacyTime(s.atUtc),
+    eventId: s.eventId,
+    deviceId: s.deviceId);
+
+/// [m] with its time cut to the millisecond, as [legacyAttempt].
+DiscussMark legacyMark(DiscussMark m) =>
+    DiscussMark(itemId: m.itemId, note: m.note, atUtc: legacyTime(m.atUtc));
+
+/// Assigns legacy ids ([legacyEventId]) to rows written before event ids, in append order (the
+/// store's one-time migration and a pre-v3 import; operator ruling, Checkpoint 2026-11-19).
+///
+/// The key is the row's kind, time, item and session. A seed has no session; a note has no
+/// time, so its key is the item and the note text; a Discuss mark's adds its note. A row whose
+/// key repeats an earlier one takes the next occurrence, so two rows never share an id. Feed
+/// the rows of one log to one instance, each kind in append order: the same log then gets the
+/// same ids on every device.
+class LegacyEventIds {
+  final Map<String, int> _seen = {};
+
+  String _next(JpEventKind kind, List<Object?> fields) {
+    final key = jsonEncode([kind.wire, ...fields]);
+    final n = _seen[key] = (_seen[key] ?? -1) + 1;
+    return legacyEventId(kind, fields, occurrence: n);
+  }
+
+  /// The time cut to milliseconds ([legacyTime]): a web DateTime keeps no finer time, so a
+  /// phone row with microseconds keys the same on the web. The occurrence splits a tie.
+  static String _time(DateTime t) => legacyTime(t).toIso8601String();
+
+  String attempt(Attempt a) =>
+      _next(JpEventKind.attempt, [_time(a.atUtc), a.itemId, a.sessionId]);
+
+  String seed(SeedEvent s) =>
+      _next(JpEventKind.seed, [_time(s.atUtc), s.itemId, null]);
+
+  String note(String itemId, String note) =>
+      _next(JpEventKind.note, [null, itemId, null, note]);
+
+  String discuss(DiscussMark m) =>
+      _next(JpEventKind.discuss, [_time(m.atUtc), m.itemId, null, m.note]);
+}
 
 /// The item definitions the replay needs: the catalog's `byId`. Null for an id the catalog no
 /// longer knows; its attempts stay in the log and still move its schedule.
@@ -53,6 +154,8 @@ class SeedEvent {
     required this.itemId,
     required this.dueDay,
     required this.atUtc,
+    this.eventId,
+    this.deviceId,
   });
 
   /// The log's row id, assigned by the store; null before it is written.
@@ -61,14 +164,38 @@ class SeedEvent {
   final int dueDay;
   final DateTime atUtc;
 
-  SeedEvent withId(int id) =>
-      SeedEvent(id: id, itemId: itemId, dueDay: dueDay, atUtc: atUtc);
+  /// The global event id; the store assigns it on append when it is null.
+  final String? eventId;
 
+  /// The device that logged the seed; the store fills it on append when the seed has no
+  /// [eventId]. A legacy seed, logged before event ids, keeps none.
+  final String? deviceId;
+
+  SeedEvent withId(int id) => SeedEvent(
+      id: id,
+      itemId: itemId,
+      dueDay: dueDay,
+      atUtc: atUtc,
+      eventId: eventId,
+      deviceId: deviceId);
+
+  SeedEvent withEvent({required String eventId, required String? deviceId}) =>
+      SeedEvent(
+          id: id,
+          itemId: itemId,
+          dueDay: dueDay,
+          atUtc: atUtc,
+          eventId: eventId,
+          deviceId: deviceId);
+
+  /// The two event fields are written only when set, after every other field.
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         'itemId': itemId,
         'dueDay': dueDay,
         'atUtc': atUtc.toUtc().toIso8601String(),
+        if (eventId != null) 'eventId': eventId,
+        if (deviceId != null) 'deviceId': deviceId,
       };
 
   factory SeedEvent.fromJson(Map<String, dynamic> j) => SeedEvent(
@@ -76,8 +203,12 @@ class SeedEvent {
         itemId: j['itemId'] as String,
         dueDay: j['dueDay'] as int,
         atUtc: DateTime.parse(j['atUtc'] as String).toUtc(),
+        eventId: j['eventId'] as String?,
+        deviceId: j['deviceId'] as String?,
       );
 
+  /// Compares the seed and its row id; the event id and the device id are left out, like
+  /// [Attempt]'s.
   @override
   bool operator ==(Object other) =>
       other is SeedEvent &&
@@ -173,6 +304,8 @@ class DayRecord {
     required this.plan,
     this.position = 0,
     this.completed = false,
+    this.deviceId,
+    this.builtAtUtc,
   });
 
   final int day;
@@ -184,18 +317,42 @@ class DayRecord {
   final int position;
   final bool completed;
 
+  /// The device that built the plan. [JpStore.putDay] fills it when it is null; a day stored
+  /// before event ids carries the migrating device.
+  final String? deviceId;
+
+  /// When the plan was built. [JpStore.putDay] fills it when it is null on a new plan. Null on
+  /// a day stored before event ids, whose build time nobody recorded; a move through that
+  /// plan keeps it null, so no build time is invented (#191).
+  final DateTime? builtAtUtc;
+
   /// Whether the record shows an answer: a position above 0, or completed (operator rulings
   /// ASK-5 and ASK-7). A plan stored and never answered shows none.
   bool get answered => position > 0 || completed;
 
+  /// Keeps the builder and the build time: a move through the plan does not rebuild it.
   DayRecord copyWith({String? plan, int? position, bool? completed}) =>
       DayRecord(
         day: day,
         plan: plan ?? this.plan,
         position: position ?? this.position,
         completed: completed ?? this.completed,
+        deviceId: deviceId,
+        builtAtUtc: builtAtUtc,
       );
 
+  /// This record with its builder and build time set.
+  DayRecord withBuilder(String deviceId, DateTime? builtAtUtc) => DayRecord(
+        day: day,
+        plan: plan,
+        position: position,
+        completed: completed,
+        deviceId: deviceId,
+        builtAtUtc: builtAtUtc?.toUtc(),
+      );
+
+  /// Compares the day's content: the builder and the build time are left out, so a record
+  /// compares equal before and after the store stamps them.
   @override
   bool operator ==(Object other) =>
       other is DayRecord &&
@@ -212,20 +369,28 @@ class DayRecord {
       'DayRecord($day at $position${completed ? ', done' : ''})';
 }
 
-/// Everything export writes and import reads: the two event logs, the notes and the Discuss
-/// marks. The replay reads only the two logs.
+/// Everything export writes and import reads: the two event logs, the notes, the Discuss marks
+/// and the side events behind them. The replay reads only the two logs.
+///
+/// [events] holds every side event: note, Discuss, say-it score and last-lesson changes, oldest
+/// first. [notes] and [discuss] are what those events resolve to. A log from before event ids
+/// (an old export, or one built by hand) has notes and marks with no event; the store gives
+/// each one an event when it imports the log ([JpStore.prepareLog]).
 class StudyLog {
   const StudyLog({
     this.attempts = const [],
     this.seeds = const [],
     this.notes = const {},
     this.discuss = const {},
+    this.events = const [],
   });
 
-  /// Oldest first, in append order.
+  /// In row order: the order the store appended them. A sync appends pulled attempts after
+  /// the local ones, so row order is not time order; a fold sorts with [canonicalAttempts].
   final List<Attempt> attempts;
 
-  /// Oldest first, in append order.
+  /// In row order: the order the store appended them. A sync appends pulled seeds after the
+  /// local ones, so row order is not time order; a fold sorts with [canonicalOrder].
   final List<SeedEvent> seeds;
 
   /// Item id to note.
@@ -233,7 +398,173 @@ class StudyLog {
 
   /// Item id to Discuss mark (PIN-6).
   final Map<String, DiscussMark> discuss;
+
+  /// The side events, oldest first by [compareEvents].
+  final List<JpEvent> events;
+
+  /// A log whose notes and marks are [events] resolved, plus the [legacyNotes] and
+  /// [legacyDiscuss] of items no note or Discuss event names.
+  factory StudyLog.resolved({
+    List<Attempt> attempts = const [],
+    List<SeedEvent> seeds = const [],
+    Map<String, String> legacyNotes = const {},
+    Map<String, DiscussMark> legacyDiscuss = const {},
+    List<JpEvent> events = const [],
+  }) {
+    final sorted = [...events]..sort(compareEvents);
+    final noted = {
+      for (final e in sorted)
+        if (e.kind == JpEventKind.note) e.subject
+    };
+    final marked = {
+      for (final e in sorted)
+        if (e.kind == JpEventKind.discuss) e.subject
+    };
+    return StudyLog(
+      attempts: attempts,
+      seeds: seeds,
+      notes: {
+        for (final e in legacyNotes.entries)
+          if (!noted.contains(e.key)) e.key: e.value,
+        ...resolveNotes(sorted),
+      },
+      discuss: {
+        for (final e in legacyDiscuss.entries)
+          if (!marked.contains(e.key)) e.key: e.value,
+        ...resolveDiscuss(sorted),
+      },
+      events: sorted,
+    );
+  }
 }
+
+/// [a] and [b] joined, each event once: attempts, seeds and side events keyed by event id, an
+/// id-less row by its content. The notes and Discuss marks are the joined events resolved; an
+/// item no event names keeps its plain note or mark, [b]'s over [a]'s. Keeping a record for the
+/// same owner twice, and bringing a kept record back, both join (operator ruling a).
+StudyLog mergeStudyLogs(StudyLog a, StudyLog b) {
+  String rowKey(String? eventId, Map<String, dynamic> json) =>
+      eventId ?? 'row:${jsonEncode(json..remove('id'))}';
+  List<T> join<T>(List<T> x, List<T> y, String Function(T row) key) {
+    final seen = <String>{};
+    return [
+      for (final row in [...x, ...y])
+        if (seen.add(key(row))) row
+    ];
+  }
+
+  return StudyLog.resolved(
+    attempts:
+        join(a.attempts, b.attempts, (r) => rowKey(r.eventId, r.toJson())),
+    seeds: join(a.seeds, b.seeds, (r) => rowKey(r.eventId, r.toJson())),
+    legacyNotes: {...a.notes, ...b.notes},
+    legacyDiscuss: {...a.discuss, ...b.discuss},
+    events: join(a.events, b.events, (e) => e.eventId),
+  );
+}
+
+// --- events ----------------------------------------------------------------------
+
+/// The attempt as an event; a legacy attempt's has no device id. Throws a [StateError] for an
+/// attempt with no event id.
+JpEvent attemptEvent(Attempt attempt) {
+  final eventId = attempt.eventId;
+  if (eventId == null) {
+    throw StateError('attempt on ${attempt.itemId} has no event id');
+  }
+  return JpEvent(
+      eventId: eventId,
+      deviceId: attempt.deviceId,
+      atUtc: attempt.atUtc,
+      kind: JpEventKind.attempt,
+      body: attempt.toJson()
+        ..remove('id')
+        ..remove('eventId')
+        ..remove('deviceId'));
+}
+
+/// The seed as an event; a legacy seed's has no device id. Throws a [StateError] for a seed
+/// with no event id.
+JpEvent seedEvent(SeedEvent seed) {
+  final eventId = seed.eventId;
+  if (eventId == null) {
+    throw StateError('seed of ${seed.itemId} has no event id');
+  }
+  return JpEvent(
+      eventId: eventId,
+      deviceId: seed.deviceId,
+      atUtc: seed.atUtc,
+      kind: JpEventKind.seed,
+      body: seed.toJson()
+        ..remove('id')
+        ..remove('eventId')
+        ..remove('deviceId'));
+}
+
+/// The attempt an attempt event carries, with no row id.
+Attempt attemptOfEvent(JpEvent e) => Attempt.fromJson({
+      ...e.body,
+      'eventId': e.eventId,
+      if (e.deviceId != null) 'deviceId': e.deviceId
+    }..remove('id'));
+
+/// The seed a seed event carries, with no row id.
+SeedEvent seedOfEvent(JpEvent e) => SeedEvent.fromJson({
+      ...e.body,
+      'eventId': e.eventId,
+      if (e.deviceId != null) 'deviceId': e.deviceId
+    }..remove('id'));
+
+/// A note event: [note] set on [itemId], or cleared when null. A legacy note has no
+/// [deviceId].
+JpEvent noteEvent(String itemId, String? note,
+        {required String eventId,
+        required String? deviceId,
+        required DateTime atUtc}) =>
+    JpEvent(
+        eventId: eventId,
+        deviceId: deviceId,
+        atUtc: atUtc,
+        kind: JpEventKind.note,
+        body: {'itemId': itemId, 'note': note});
+
+/// A Discuss event: [mark] set, its time the event time; or, with [cleared], [itemId]'s mark
+/// cleared. A legacy mark has no [deviceId].
+JpEvent discussEvent(String itemId,
+    {String? note,
+    bool cleared = false,
+    required String eventId,
+    required String? deviceId,
+    required DateTime atUtc}) {
+  return JpEvent(
+      eventId: eventId,
+      deviceId: deviceId,
+      atUtc: atUtc,
+      kind: JpEventKind.discuss,
+      body: {
+        'itemId': itemId,
+        if (!cleared && note != null) 'note': note,
+        if (cleared) 'cleared': true,
+      });
+}
+
+/// Item id to note, by the latest note event per item (PIN-12). Pure.
+Map<String, String> resolveNotes(Iterable<JpEvent> events) => {
+      for (final e in latestBySubject(events, JpEventKind.note).entries)
+        if (e.value.body['note'] is String)
+          e.key: e.value.body['note'] as String
+    };
+
+/// Item id to Discuss mark, by the latest Discuss event per item (PIN-12). The mark's time is
+/// its event's. Pure.
+Map<String, DiscussMark> resolveDiscuss(Iterable<JpEvent> events) => {
+      for (final e in latestBySubject(events, JpEventKind.discuss).entries)
+        if (e.value.body['cleared'] != true)
+          e.key: DiscussMark(
+              itemId: e.key,
+              note: e.value.body['note'] as String?,
+              atUtc: e.value.atUtc)
+    };
 
 /// The states a replay of the log lands on.
 class ReplayResult {
@@ -296,9 +627,32 @@ void _bump(Map<int, int> load, int? day, int by) {
   }
 }
 
-/// Replays the log from nothing (D14, D26). Seeds and attempts are applied in time order, a
-/// seed before an attempt at the same instant, each kind in append order. A seed keeps the
-/// earliest due day per item. Pure.
+/// [rows] in the canonical replay order: event time to the millisecond ([eventMs]), then event
+/// id (operator ruling, Checkpoint 2026-11-19). A row with no event id (a log built by hand or
+/// read below the current schema) sorts before an id at the same time, and rows that tie on both
+/// keep their order. Pure; [rows] is not changed.
+List<T> canonicalOrder<T>(List<T> rows, DateTime Function(T row) atUtc,
+    String? Function(T row) eventId) {
+  final indexed = [for (var i = 0; i < rows.length; i++) (i, rows[i])];
+  indexed.sort((x, y) {
+    final byTime = eventMs(atUtc(x.$2)).compareTo(eventMs(atUtc(y.$2)));
+    if (byTime != 0) return byTime;
+    final byId = (eventId(x.$2) ?? '').compareTo(eventId(y.$2) ?? '');
+    return byId != 0 ? byId : x.$1.compareTo(y.$1);
+  });
+  return [for (final r in indexed) r.$2];
+}
+
+/// [attempts] in the canonical replay order ([canonicalOrder]). Every fold of `masteryAfter`
+/// over a store's attempts sorts with this first, because the store returns row order and two
+/// synced devices hold the same attempts in different row orders. Pure.
+List<Attempt> canonicalAttempts(List<Attempt> attempts) =>
+    canonicalOrder(attempts, (a) => a.atUtc, (a) => a.eventId);
+
+/// Replays the log from nothing (D14, D26). Seeds and attempts are applied in the canonical
+/// order ([canonicalOrder]: event time, then event id), a seed before an attempt at the same
+/// instant, so two devices that hold the same events in different row orders land on the same
+/// states. A seed keeps the earliest due day per item. Pure.
 ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   final srs = <String, SrsState>{};
   final mastery = <String, MasteryState>{};
@@ -306,13 +660,13 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
   final load = <int, int>{};
   int? dueOf(String id) => srs[id]?.dueDay ?? seedDue[id];
 
-  final seeds = [...log.seeds];
-  final attempts = [...log.attempts];
+  final seeds = canonicalOrder(log.seeds, (s) => s.atUtc, (s) => s.eventId);
+  final attempts = canonicalAttempts(log.attempts);
   var s = 0, a = 0;
   while (s < seeds.length || a < attempts.length) {
     final takeSeed = a >= attempts.length ||
         (s < seeds.length &&
-            !seeds[s].atUtc.toUtc().isAfter(attempts[a].atUtc.toUtc()));
+            eventMs(seeds[s].atUtc) <= eventMs(attempts[a].atUtc));
     if (takeSeed) {
       final seed = seeds[s++];
       final id = seed.itemId;
@@ -339,10 +693,62 @@ ReplayResult replayLog(StudyLog log, ItemLookup lookup, Scheduler scheduler) {
 
 /// The study record. Every method is asynchronous because the phone's store is SQLite.
 abstract class JpStore {
-  JpStore();
+  /// [clock] gives the time of a note change, a Discuss clear and a day plan's build; the
+  /// system clock by default.
+  JpStore({DateTime Function()? clock}) : clock = clock ?? DateTime.now;
 
-  /// The tail of the write chain: each [recordAnswer], [rebuild] or [importLog] starts after
-  /// the one before it settles.
+  final DateTime Function() clock;
+
+  DateTime _nowUtc() => clock().toUtc();
+
+  Future<String>? _deviceId;
+
+  /// This store's device id: read from [kDeviceIdMetaKey], or created there on first use and
+  /// kept. A failed read is not kept, so the next call tries again.
+  Future<String> deviceId() => _deviceId ??= () async {
+        final kept = await meta(kDeviceIdMetaKey);
+        if (kept != null) return kept;
+        final id = newEventId();
+        await putMeta(kDeviceIdMetaKey, id);
+        return id;
+      }()
+          .catchError((Object e) {
+        _deviceId = null;
+        throw e;
+      });
+
+  /// [attempt] with a new event id and this store's device id when it has no event id. An
+  /// attempt that has one (an import, a remote, a legacy row) is kept as it is. Each
+  /// implementation calls it before it writes an attempt.
+  Future<Attempt> stampAttempt(Attempt attempt) async => attempt.eventId != null
+      ? attempt
+      : attempt.withEvent(
+          eventId: newEventId(),
+          deviceId: attempt.deviceId ?? await deviceId());
+
+  /// [seed] with a new event id and this store's device id when it has no event id.
+  Future<SeedEvent> stampSeed(SeedEvent seed) async => seed.eventId != null
+      ? seed
+      : seed.withEvent(
+          eventId: newEventId(), deviceId: seed.deviceId ?? await deviceId());
+
+  /// [record] with its builder and build time. A record that leaves either out keeps the
+  /// stored record's when the plan is the same one (a position move), even a null build time
+  /// on a day stored before event ids (#191). A new plan is otherwise built now on this device.
+  Future<DayRecord> stampDay(DayRecord record) async {
+    if (record.deviceId != null && record.builtAtUtc != null) return record;
+    final old = await day(record.day);
+    if (old != null && old.plan == record.plan) {
+      return record.withBuilder(
+          record.deviceId ?? old.deviceId ?? await deviceId(),
+          record.builtAtUtc ?? old.builtAtUtc);
+    }
+    return record.withBuilder(
+        record.deviceId ?? await deviceId(), record.builtAtUtc ?? _nowUtc());
+  }
+
+  /// The tail of the write chain: each [recordAnswer], [rebuild], [importLog] or [mergeImport]
+  /// starts after the one before it settles.
   Future<void> _answers = Future.value();
 
   /// Runs [body] after every earlier chained write settles. A failed body does not break the
@@ -356,23 +762,27 @@ abstract class JpStore {
   // --- the log ---------------------------------------------------------------
 
   /// Appends [attempt] and, in the same transaction, writes the item's [srs] and [mastery]
-  /// when given (one transaction per answer, D14). Returns the attempt with its row id.
-  /// Throws an [ArgumentError], and writes nothing, when [mastery] names another item.
+  /// when given (one transaction per answer, D14). Returns the attempt with its row id, its
+  /// event id and its device id ([stampAttempt]); it starts unpushed. Throws an
+  /// [ArgumentError], and writes nothing, when [mastery] names another item.
   Future<Attempt> appendAttempt(Attempt attempt,
       {SrsState? srs, MasteryState? mastery});
 
-  /// Appends seed events in one transaction. Each item keeps its earliest seeded due day.
-  /// Writes no attempt, no schedule and no mastery (PIN-7).
+  /// Appends seed events in one transaction, each stamped ([stampSeed]) and unpushed. Each
+  /// item keeps its earliest seeded due day. Writes no attempt, no schedule and no mastery
+  /// (PIN-7).
   Future<void> appendSeeds(Iterable<SeedEvent> seeds);
 
   Future<void> appendSeed(String itemId, int dueDay,
           {required DateTime atUtc}) =>
       appendSeeds([SeedEvent(itemId: itemId, dueDay: dueDay, atUtc: atUtc)]);
 
-  /// The attempts, oldest first; only [itemId]'s when given.
+  /// The attempts in row order (the order they were appended); only [itemId]'s when given.
+  /// After a sync row order is not time order, so a fold sorts with [canonicalAttempts].
   Future<List<Attempt>> attempts({String? itemId});
 
-  /// The seed events, oldest first.
+  /// The seed events in row order (the order they were appended). After a sync row order is
+  /// not time order, so a fold sorts with [canonicalOrder].
   Future<List<SeedEvent>> seeds();
 
   // --- the derived states ----------------------------------------------------
@@ -388,8 +798,12 @@ abstract class JpStore {
   /// The item's seeded due day and note; null for an item never seeded or noted.
   Future<ItemRecord?> item(String itemId);
 
-  /// Sets or, with null, clears the item's note.
-  Future<void> setNote(String itemId, String? note);
+  /// Sets or, with null, clears the item's note, as a note event at the [clock]'s time
+  /// (PIN-12). Clearing an item with no note writes nothing.
+  Future<void> setNote(String itemId, String? note) async {
+    if (note == null && (await item(itemId))?.note == null) return;
+    await appendLocalEvent(JpEventKind.note, {'itemId': itemId, 'note': note});
+  }
 
   /// Every note, by item id.
   Future<Map<String, String>> notes();
@@ -403,11 +817,20 @@ abstract class JpStore {
           note: (note == null || note.trim().isEmpty) ? null : note.trim(),
           atUtc: atUtc.toUtc()));
 
-  /// Writes [mark] as given. [setDiscuss] is the caller; it normalises the note.
-  Future<void> putDiscuss(DiscussMark mark);
+  /// Writes [mark] as given, as a Discuss event at the mark's time (PIN-12). [setDiscuss] is
+  /// the caller; it normalises the note.
+  Future<void> putDiscuss(DiscussMark mark) => appendLocalEvent(
+      JpEventKind.discuss,
+      {'itemId': mark.itemId, if (mark.note != null) 'note': mark.note},
+      atUtc: mark.atUtc);
 
-  /// Clears the item's Discuss mark, if any. Writes nothing else.
-  Future<void> clearDiscuss(String itemId);
+  /// Clears the item's Discuss mark, if any, as a Discuss event at the [clock]'s time. Writes
+  /// nothing else, and nothing at all for an unmarked item.
+  Future<void> clearDiscuss(String itemId) async {
+    if (await discuss(itemId) == null) return;
+    await appendLocalEvent(
+        JpEventKind.discuss, {'itemId': itemId, 'cleared': true});
+  }
 
   /// The item's Discuss mark; null when it has none.
   Future<DiscussMark?> discuss(String itemId);
@@ -427,11 +850,17 @@ abstract class JpStore {
 
   Future<DayRecord?> day(int day);
 
-  /// Writes the day's record, replacing any earlier one for the same day.
+  /// Writes the day's record, replacing any earlier one for the same day. The record is
+  /// stamped first ([stampDay]), so it carries its builder and build time.
   Future<void> putDay(DayRecord record);
 
   /// The latest local day with a [DayRecord], or null before the first session.
   Future<int?> lastDay();
+
+  /// Removes every [DayRecord]. The log, the derived states and the flags stay. The phone's
+  /// account switch runs it when it empties the record (start fresh, keep local), so the new
+  /// account receives no plan of the old one (operator ruling b, Checkpoint 2026-11-21).
+  Future<void> clearDays();
 
   // --- bookkeeping -----------------------------------------------------------
 
@@ -443,13 +872,239 @@ abstract class JpStore {
   /// Notes, Discuss marks, the log, the days and the flags stay.
   Future<void> replaceDerived(ReplayResult result);
 
-  /// Replaces the log, the notes and the Discuss marks with [log] and the derived states with
-  /// [result], in one transaction: a write that fails leaves the old log, caches, notes and
-  /// marks in place. The days and the flags stay. [importLog] is its caller; [result] is
-  /// [log]'s replay.
+  /// Replaces the log, the side events, the notes and the Discuss marks with [log] and the
+  /// derived states with [result], in one transaction: a write that fails leaves the old log,
+  /// caches, notes and marks in place. The days and the flags stay. Each implementation runs
+  /// [prepareLog] first, so every imported event has an id. An event already pushed from this
+  /// store stays pushed. [importLog] and [mergeImport] are its callers; [result] is [log]'s
+  /// replay.
   Future<void> replaceAll(StudyLog log, ReplayResult result);
 
   Future<void> close();
+
+  // --- side events and sync ----------------------------------------------------
+
+  /// Every side event (note, Discuss, say-it score, last lesson), oldest first by
+  /// [compareEvents].
+  Future<List<JpEvent>> sideEvents();
+
+  /// The side events of [kind] alone, oldest first by [compareEvents]: empty for an attempt or
+  /// a seed, which are not side events. A read of one kind never decodes the others, so the
+  /// say-it scores, the one high-volume kind, cost nothing to a note or last-lesson read (#204).
+  Future<List<JpEvent>> eventsOfKind(JpEventKind kind);
+
+  /// Appends one side event, unpushed, and moves the note or Discuss mark it names to the
+  /// latest event for that item. Callers go through [appendLocalEvent].
+  Future<void> writeSideEvent(JpEvent event);
+
+  /// Appends a side event of [kind] written on this device, at [atUtc] or the [clock]'s time.
+  /// An event that replaces (a note, a mark, the last lesson) lands at least [kLocalTieBump]
+  /// after its subject's latest event, so a change made here always shows here. Returns it.
+  Future<JpEvent> appendLocalEvent(JpEventKind kind, Map<String, dynamic> body,
+      {DateTime? atUtc}) async {
+    var at = (atUtc ?? _nowUtc()).toUtc();
+    final draft = JpEvent(
+        eventId: newEventId(),
+        deviceId: await deviceId(),
+        atUtc: at,
+        kind: kind,
+        body: body);
+    final subject = draft.subject;
+    if (subject != null) {
+      final latest = latestBySubject(await eventsOfKind(kind), kind)[subject];
+      if (latest != null && eventMs(at) <= eventMs(latest.atUtc)) {
+        at = latest.atUtc.add(kLocalTieBump);
+      }
+    }
+    final event = JpEvent(
+        eventId: draft.eventId,
+        deviceId: draft.deviceId,
+        atUtc: at,
+        kind: kind,
+        body: draft.body);
+    await writeSideEvent(event);
+    return event;
+  }
+
+  /// Logs one say-it score (PIN-16). [score] is the score log's own entry; the store never
+  /// reads inside it.
+  Future<JpEvent> recordSpeakScore(Map<String, dynamic> score,
+          {required DateTime atUtc}) =>
+      appendLocalEvent(JpEventKind.speakScore, score, atUtc: atUtc);
+
+  /// The say-it score events, oldest first.
+  Future<List<JpEvent>> speakScores() => eventsOfKind(JpEventKind.speakScore);
+
+  /// Records [lessonId] as the last grammar lesson opened (PIN-16).
+  Future<JpEvent> setLastLesson(String lessonId, {required DateTime atUtc}) =>
+      appendLocalEvent(JpEventKind.lastLesson, {'lessonId': lessonId},
+          atUtc: atUtc);
+
+  /// The last grammar lesson opened, by the latest event time; null before the first.
+  Future<String?> lastLesson() async =>
+      resolveLastLesson(await eventsOfKind(JpEventKind.lastLesson));
+
+  /// Every event this store has not pushed yet, of every kind, oldest first by
+  /// [compareEvents].
+  Future<List<JpEvent>> unpushedEvents();
+
+  /// Marks the events with [eventIds] pushed. An id the store does not hold is ignored.
+  Future<void> markPushed(Iterable<String> eventIds);
+
+  /// Appends [events] from another device, each once: an event id the store already holds, or
+  /// one repeated in [events], is skipped. They land pushed. A note or Discuss event moves the
+  /// item's note or mark when it is the latest for that item. Attempts and seeds join the log
+  /// but leave the schedule and the mastery states as they were: the caller [rebuild]s. Runs
+  /// on the [recordAnswer] chain. Returns the events appended.
+  Future<List<JpEvent>> appendRemoteEvents(Iterable<JpEvent> events) {
+    final seen = <String>{};
+    final fresh = [
+      for (final e in events)
+        if (seen.add(e.eventId)) e
+    ];
+    return _serialized(() => writeRemoteEvents(fresh));
+  }
+
+  /// Appends [events], whose ids are distinct, skipping the ids the store holds, in one
+  /// transaction. [appendRemoteEvents] is its caller.
+  Future<List<JpEvent>> writeRemoteEvents(List<JpEvent> events);
+
+  /// Every event the store holds, of every kind, oldest first by [compareEvents]. An attempt
+  /// or seed with no event id (only in a file a test opens below the current schema) is left
+  /// out.
+  Future<List<JpEvent>> allEvents() async => [
+        for (final a in await attempts())
+          if (a.eventId != null) attemptEvent(a),
+        for (final s in await seeds())
+          if (s.eventId != null) seedEvent(s),
+        ...await sideEvents(),
+      ]..sort(compareEvents);
+
+  /// [log] with an event id on every attempt and seed, and an event for each note and Discuss
+  /// mark no event names. The notes and marks are then the events resolved.
+  ///
+  /// An id-less row (a pre-v3 import) first reuses the event this store holds for the same
+  /// row: an attempt or seed with the same content, a note event with the same item and text,
+  /// a Discuss event with the same item, note and time. An attempt or seed keeps that event's
+  /// id and device, and takes the time cut to the millisecond; a note or Discuss row is the
+  /// held event itself, its time included. Otherwise it takes its legacy id
+  /// ([LegacyEventIds]) and no device id; a note takes [kLegacyNoteAtUtc] and a mark its own
+  /// time. An id-less attempt, seed or mark has its time
+  /// cut to the millisecond first ([legacyAttempt]), body included, so the phone and a browser
+  /// read the same backup into the same events (operator ruling, Checkpoint 2026-11-20). So a
+  /// restored old backup maps onto the events this store or another device already holds,
+  /// byte for byte (operator ruling, Checkpoint 2026-11-19).
+  Future<StudyLog> prepareLog(StudyLog log) async {
+    final legacy = LegacyEventIds();
+    final heldAttempts = <String, List<Attempt>>{};
+    for (final a in await attempts()) {
+      if (a.eventId == null) continue;
+      heldAttempts.putIfAbsent(_attemptKey(a), () => []).add(a);
+    }
+    final heldSeeds = <String, List<SeedEvent>>{};
+    for (final s in await seeds()) {
+      if (s.eventId == null) continue;
+      heldSeeds.putIfAbsent(_seedKey(s), () => []).add(s);
+    }
+    final heldSide = [
+      ...await eventsOfKind(JpEventKind.note),
+      ...await eventsOfKind(JpEventKind.discuss),
+    ];
+    final used = <String>{};
+    JpEvent? heldSideEvent(bool Function(JpEvent e) match) {
+      JpEvent? best;
+      for (final e in heldSide) {
+        if (used.contains(e.eventId) || !match(e)) continue;
+        if (best == null || compareEvents(e, best) > 0) best = e;
+      }
+      if (best != null) used.add(best.eventId);
+      return best;
+    }
+
+    final events = [...log.events];
+    final noted = {
+      for (final e in events)
+        if (e.kind == JpEventKind.note) e.subject
+    };
+    final marked = {
+      for (final e in events)
+        if (e.kind == JpEventKind.discuss) e.subject
+    };
+    for (final n in log.notes.entries) {
+      if (noted.contains(n.key)) continue;
+      final id = legacy.note(n.key, n.value);
+      events.add(heldSideEvent((e) =>
+              e.kind == JpEventKind.note &&
+              e.subject == n.key &&
+              e.body['note'] == n.value) ??
+          noteEvent(n.key, n.value,
+              eventId: id, deviceId: null, atUtc: kLegacyNoteAtUtc));
+    }
+    for (final raw in log.discuss.values) {
+      if (marked.contains(raw.itemId)) continue;
+      final m = legacyMark(raw);
+      final id = legacy.discuss(m);
+      events.add(heldSideEvent((e) =>
+              e.kind == JpEventKind.discuss &&
+              e.subject == m.itemId &&
+              e.body['cleared'] != true &&
+              e.body['note'] == m.note &&
+              eventMs(e.atUtc) == eventMs(m.atUtc)) ??
+          discussEvent(m.itemId,
+              note: m.note, eventId: id, deviceId: null, atUtc: m.atUtc));
+    }
+    // A held row matches on the cut time, or on the row's own time for a row a store kept
+    // with microseconds; either way the imported row takes the cut time.
+    T? take<T>(Map<String, List<T>> held, String cutKey, String rawKey) {
+      for (final key in {cutKey, rawKey}) {
+        final queue = held[key];
+        if (queue != null && queue.isNotEmpty) return queue.removeAt(0);
+      }
+      return null;
+    }
+
+    return StudyLog.resolved(
+      attempts: [
+        for (final raw in log.attempts)
+          if (raw.eventId != null)
+            raw
+          else
+            () {
+              final a = legacyAttempt(raw);
+              final id = legacy.attempt(a);
+              final held = take(heldAttempts, _attemptKey(a), _attemptKey(raw));
+              return a.withEvent(
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
+            }()
+      ],
+      seeds: [
+        for (final raw in log.seeds)
+          if (raw.eventId != null)
+            raw
+          else
+            () {
+              final s = legacySeed(raw);
+              final id = legacy.seed(s);
+              final held = take(heldSeeds, _seedKey(s), _seedKey(raw));
+              return s.withEvent(
+                  eventId: held?.eventId ?? id, deviceId: held?.deviceId);
+            }()
+      ],
+      events: events,
+    );
+  }
+
+  /// An attempt's content, without its row id and event fields.
+  static String _attemptKey(Attempt a) => jsonEncode(a.toJson()
+    ..remove('id')
+    ..remove('eventId')
+    ..remove('deviceId'));
+
+  /// A seed's content, without its row id and event fields.
+  static String _seedKey(SeedEvent s) => jsonEncode(s.toJson()
+    ..remove('id')
+    ..remove('eventId')
+    ..remove('deviceId'));
 
   // --- composed operations -----------------------------------------------------
 
@@ -457,8 +1112,8 @@ abstract class JpStore {
   /// written in one transaction (D14). [item] is null only for an id the catalog no longer
   /// knows; its mastery is then left alone.
   ///
-  /// Answers run one at a time, in call order, on the chain [rebuild] and [importLog] also
-  /// join: the reads before the write span several awaits, so two overlapping answers on one
+  /// Answers run one at a time, in call order, on the chain [rebuild], [importLog] and
+  /// [mergeImport] also join: the reads before the write span several awaits, so two overlapping answers on one
   /// item would both start from the same state and the second write would drop the first. A
   /// failed answer does not break the chain.
   Future<AnswerOutcome> recordAnswer(Attempt attempt,
@@ -483,12 +1138,14 @@ abstract class JpStore {
     return AnswerOutcome(attempt: written, srs: nextSrs, mastery: nextMastery);
   }
 
-  /// The whole log, for export (study_export.dart).
+  /// The whole log, for export (study_export.dart): the two logs, the notes, the marks and
+  /// every side event.
   Future<StudyLog> exportLog() async => StudyLog(
       attempts: await attempts(),
       seeds: await seeds(),
       notes: await notes(),
-      discuss: await discussMarks());
+      discuss: await discussMarks(),
+      events: await sideEvents());
 
   /// Rebuilds the schedule, the mastery states and the seeded due days from the log and the
   /// seed events (D14, D26), and returns what it wrote. Runs on the [recordAnswer] chain, so
@@ -504,13 +1161,27 @@ abstract class JpStore {
   /// one transaction ([replaceAll]). The replay runs first, before any write: a log it cannot
   /// replay (such as an attempt whose rating no [SrsRating] has) throws here and the record
   /// stays as it was. Runs on the [recordAnswer] chain, so no answer lands during its write.
+  /// The sync cursor is cleared before the write ([kSyncCursorMetaKey]): the next sync pulls
+  /// every server event the file lacks. An import cut short costs one redundant full pull.
   Future<ReplayResult> importLog(
           StudyLog log, ItemLookup lookup, Scheduler scheduler) =>
-      _serialized(() async {
-        final result = replayLog(log, lookup, scheduler);
-        await replaceAll(log, result);
-        return result;
-      });
+      _serialized(() => _importLog(log, lookup, scheduler));
+
+  /// Joins [extra] into the record ([mergeStudyLogs]) and imports the join as [importLog]
+  /// does. The read of the working record and the write run in one step of the [recordAnswer]
+  /// chain, so an answer recorded while the merge runs is never dropped by its replace.
+  Future<ReplayResult> mergeImport(
+          StudyLog extra, ItemLookup lookup, Scheduler scheduler) =>
+      _serialized(() async => _importLog(
+          mergeStudyLogs(await exportLog(), extra), lookup, scheduler));
+
+  Future<ReplayResult> _importLog(
+      StudyLog log, ItemLookup lookup, Scheduler scheduler) async {
+    final result = replayLog(log, lookup, scheduler);
+    await putMeta(kSyncCursorMetaKey, '');
+    await replaceAll(log, result);
+    return result;
+  }
 }
 
 /// Throws when [mastery] belongs to another item than [attempt]. Both implementations call it

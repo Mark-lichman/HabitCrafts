@@ -1542,6 +1542,19 @@ void main() {
           'Say its intransitive partner');
     });
 
+    // SayCardProbe's type-it label swaps the leading 'Say ' for 'Type ', so every say card in
+    // the catalog must open with that verb.
+    test('every say card instruction opens with Say, over the whole catalog',
+        () {
+      for (final item in _catalog.items) {
+        for (final probe
+            in item.probes.where((p) => p.template == kSayCardTemplate)) {
+          expect(sayCardInstruction(item, probe), startsWith('Say '),
+              reason: '${item.id} ${probe.id}');
+        }
+      }
+    });
+
     testWidgets(
         'a particle choose card: one right option is clear, another particle is wrong',
         (tester) async {

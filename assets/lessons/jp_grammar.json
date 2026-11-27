@@ -5529,6 +5529,164 @@
    }
   },
   {
+   "id": "vocab.L32",
+   "type": "vocabulary",
+   "source": "L32-roma.pdf",
+   "lesson": 32,
+   "title": "第32課 words",
+   "summary": "34 words",
+   "uses": [],
+   "search": [
+    "take exercise",
+    "succeed",
+    "fail",
+    "fail [an examination]",
+    "pass [an examination]",
+    "return",
+    "[rain] stop",
+    "clear up",
+    "get cloudy",
+    "[wind] blow",
+    "recover from [sickness], get well",
+    "be fixed, be repaired",
+    "[high temperature] continue",
+    "catch [a cold]",
+    "cool",
+    "worried",
+    "enough",
+    "strange, funny",
+    "noisy",
+    "burning",
+    "injury",
+    "cough",
+    "sun",
+    "star",
+    "moon",
+    "wind",
+    "north",
+    "south",
+    "west",
+    "east",
+    "water supply",
+    "stomach",
+    "working too much",
+    "work more than one's capacity",
+    "うんどうします",
+    "せいこうします",
+    "しっぱいします",
+    "しっぱいします",
+    "ごうかくします",
+    "もどります",
+    "やみます",
+    "はれます",
+    "くもります",
+    "ふきます",
+    "なおります",
+    "なおります",
+    "つづきます",
+    "ひきます",
+    "ひやします",
+    "しんぱい",
+    "じゅうぶん",
+    "おかしい",
+    "うるさい",
+    "やけど",
+    "けが",
+    "せき",
+    "たいよう",
+    "ほし",
+    "つき",
+    "かぜ",
+    "きた",
+    "みなみ",
+    "にし",
+    "ひがし",
+    "すいどう",
+    "い",
+    "はたらきすぎ",
+    "むりをします"
+   ],
+   "from": [
+    "jp_lessons.json"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 32
+   }
+  },
+  {
+   "id": "vocab.L33",
+   "type": "vocabulary",
+   "source": "L33-roma.pdf",
+   "lesson": 33,
+   "title": "第33課 words",
+   "summary": "27 words",
+   "uses": [],
+   "search": [
+    "run away",
+    "make a noise",
+    "give up",
+    "throw",
+    "keep, follow",
+    "raise",
+    "lower",
+    "convey",
+    "be careful [of the cars]",
+    "be away [from one's desk]",
+    "not permitted",
+    "seat",
+    "mark",
+    "ball",
+    "washing machine",
+    "rule",
+    "Do not use.",
+    "Keep out.",
+    "entrance",
+    "exit",
+    "emergency exit",
+    "closed today",
+    "open for business",
+    "in use",
+    "parking violation",
+    "police station",
+    "fine",
+    "にげます",
+    "さわぎます",
+    "あきらめます",
+    "なげます",
+    "まもります",
+    "あげます",
+    "さげます",
+    "つたえます",
+    "ちゅういします",
+    "はずします",
+    "だめ",
+    "せき",
+    "マーク",
+    "ボール",
+    "せんたくき",
+    "きそく",
+    "しようきんし",
+    "たちいりきんし",
+    "いりぐち",
+    "でぐち",
+    "ひじょうぐち",
+    "ほんじつきゅうぎょう",
+    "えいぎょうちゅう",
+    "しようちゅう",
+    "ちゅうしゃいはん",
+    "けいさつ",
+    "ばっきん"
+   ],
+   "from": [
+    "jp_lessons.json"
+   ],
+   "open": {
+    "screen": "vocabulary",
+    "lesson": 33
+   }
+  },
+  {
    "id": "file.s01_number",
    "type": "source_file",
    "source": "number.pdf, a picture of a table with an OCR layer",
@@ -6557,7 +6715,7 @@
    "type": "source_file",
    "source": "Langoal word-list PDFs",
    "title": "jp_lessons.json",
-   "summary": "25 lessons, 620 words, 5 missing lessons. Vocabulary, lesson by lesson.",
+   "summary": "27 lessons, 681 words, 6 missing lessons. Vocabulary, lesson by lesson.",
    "uses": [],
    "search": [
     "assets/lessons/jp_lessons.json",
@@ -6568,9 +6726,9 @@
    "role": "vocabulary, lesson by lesson",
    "origin": "Langoal word-list PDFs",
    "counts": {
-    "lessons": 25,
-    "words": 620,
-    "missing lessons": 5
+    "lessons": 27,
+    "words": 681,
+    "missing lessons": 6
    },
    "from": [
     "jp_lessons.json"
@@ -20992,6 +21150,433 @@
    "reading": "ミュージカル",
    "gloss": "musical",
    "lesson": 30,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_00",
+   "reading": "うんどうします",
+   "gloss": "take exercise",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_01",
+   "reading": "せいこうします",
+   "gloss": "succeed",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_02",
+   "reading": "しっぱいします",
+   "gloss": "fail",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_03",
+   "reading": "しっぱいします",
+   "gloss": "fail [an examination]",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_04",
+   "reading": "ごうかくします",
+   "gloss": "pass [an examination]",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_05",
+   "reading": "もどります",
+   "gloss": "return",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_06",
+   "reading": "やみます",
+   "gloss": "[rain] stop",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_07",
+   "reading": "はれます",
+   "gloss": "clear up",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_08",
+   "reading": "くもります",
+   "gloss": "get cloudy",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_09",
+   "reading": "ふきます",
+   "gloss": "[wind] blow",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_10",
+   "reading": "なおります",
+   "gloss": "recover from [sickness], get well",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_11",
+   "reading": "なおります",
+   "gloss": "be fixed, be repaired",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_12",
+   "reading": "つづきます",
+   "gloss": "[high temperature] continue",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_13",
+   "reading": "ひきます",
+   "gloss": "catch [a cold]",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_14",
+   "reading": "ひやします",
+   "gloss": "cool",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_15",
+   "reading": "しんぱい",
+   "gloss": "worried",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_16",
+   "reading": "じゅうぶん",
+   "gloss": "enough",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_17",
+   "reading": "おかしい",
+   "gloss": "strange, funny",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_18",
+   "reading": "うるさい",
+   "gloss": "noisy",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_19",
+   "reading": "やけど",
+   "gloss": "burning",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_20",
+   "reading": "けが",
+   "gloss": "injury",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_21",
+   "reading": "せき",
+   "gloss": "cough",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_22",
+   "reading": "たいよう",
+   "gloss": "sun",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_23",
+   "reading": "ほし",
+   "gloss": "star",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_24",
+   "reading": "つき",
+   "gloss": "moon",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_25",
+   "reading": "かぜ",
+   "gloss": "wind",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_26",
+   "reading": "きた",
+   "gloss": "north",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_27",
+   "reading": "みなみ",
+   "gloss": "south",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_28",
+   "reading": "にし",
+   "gloss": "west",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_29",
+   "reading": "ひがし",
+   "gloss": "east",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_30",
+   "reading": "すいどう",
+   "gloss": "water supply",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_31",
+   "reading": "い",
+   "gloss": "stomach",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_32",
+   "reading": "はたらきすぎ",
+   "gloss": "working too much",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L32_33",
+   "reading": "むりをします",
+   "gloss": "work more than one's capacity",
+   "lesson": 32,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_00",
+   "reading": "にげます",
+   "gloss": "run away",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_01",
+   "reading": "さわぎます",
+   "gloss": "make a noise",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_02",
+   "reading": "あきらめます",
+   "gloss": "give up",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_03",
+   "reading": "なげます",
+   "gloss": "throw",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_04",
+   "reading": "まもります",
+   "gloss": "keep, follow",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_05",
+   "reading": "あげます",
+   "gloss": "raise",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_06",
+   "reading": "さげます",
+   "gloss": "lower",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_07",
+   "reading": "つたえます",
+   "gloss": "convey",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_08",
+   "reading": "ちゅういします",
+   "gloss": "be careful [of the cars]",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_09",
+   "reading": "はずします",
+   "gloss": "be away [from one's desk]",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_10",
+   "reading": "だめ",
+   "gloss": "not permitted",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_11",
+   "reading": "せき",
+   "gloss": "seat",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_12",
+   "reading": "マーク",
+   "gloss": "mark",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_13",
+   "reading": "ボール",
+   "gloss": "ball",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_14",
+   "reading": "せんたくき",
+   "gloss": "washing machine",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_15",
+   "reading": "きそく",
+   "gloss": "rule",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_16",
+   "reading": "しようきんし",
+   "gloss": "Do not use.",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_17",
+   "reading": "たちいりきんし",
+   "gloss": "Keep out.",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_18",
+   "reading": "いりぐち",
+   "gloss": "entrance",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_19",
+   "reading": "でぐち",
+   "gloss": "exit",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_20",
+   "reading": "ひじょうぐち",
+   "gloss": "emergency exit",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_21",
+   "reading": "ほんじつきゅうぎょう",
+   "gloss": "closed today",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_22",
+   "reading": "えいぎょうちゅう",
+   "gloss": "open for business",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_23",
+   "reading": "しようちゅう",
+   "gloss": "in use",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_24",
+   "reading": "ちゅうしゃいはん",
+   "gloss": "parking violation",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_25",
+   "reading": "けいさつ",
+   "gloss": "police station",
+   "lesson": 33,
+   "verbGroup": null
+  },
+  {
+   "id": "L33_26",
+   "reading": "ばっきん",
+   "gloss": "fine",
+   "lesson": 33,
    "verbGroup": null
   }
  ],

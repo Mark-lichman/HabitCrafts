@@ -6,6 +6,7 @@ const kFcmTokensCollection = "fcm_tokens";
 const kPushNotificationsCollection = "ff_push_notifications";
 const kUserPushNotificationsCollection = "ff_user_push_notifications";
 const kSchedulerIntervalMinutes = 1;
+const kWebAppOrigin = "https://habitcraftapp.com";
 const firestore = admin.firestore();
 
 const kPushNotificationRuntimeOpts = {
@@ -238,6 +239,9 @@ async function sendPushNotifications(snapshot) {
           },
         },
       },
+      // Web tokens (device_type "Web") get the same notification, shown by
+      // web/firebase-messaging-sw.js. A click opens the page on the web app.
+      webpush: webpushConfig(initialPageName, imageUrl),
       tokens: tokensBatch,
     };
     messageBatches.push(messages);
@@ -252,6 +256,25 @@ async function sendPushNotifications(snapshot) {
   );
 
   await snapshot.ref.update({ status: "succeeded", num_sent: numSent });
+}
+
+// The web push block for one message. FCM needs an absolute HTTPS link, so
+// the origin is the hosted web app unless WEB_APP_ORIGIN overrides it.
+function webpushConfig(initialPageName, imageUrl) {
+  const origin = (process.env.WEB_APP_ORIGIN || kWebAppOrigin).replace(
+    /\/+$/,
+    "",
+  );
+  const page = /^[A-Za-z0-9_]+$/.test(initialPageName) ? initialPageName : "";
+  return {
+    notification: {
+      icon: `${origin}/icons/Icon-192.png`,
+      ...(imageUrl && { image: imageUrl }),
+    },
+    fcmOptions: {
+      link: `${origin}/${page}`,
+    },
+  };
 }
 
 function getUserFcmTokensCollection(userDocPath) {

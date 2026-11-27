@@ -64,6 +64,48 @@ jobs:
           fi
           flutter test
 
+  # The web build and the browser tests (plan 2026-11-19, Task 12). The VM run in
+  # analyze-and-test skips the files marked @TestOn('browser') and runs the rest
+  # without a browser, so the web code paths are only proven here. ubuntu-latest
+  # ships Google Chrome, which `--platform chrome` finds on PATH.
+  #
+  # The release build catches web-only compile errors (a dart:io import on a web
+  # path, a JS interop type) that no VM test can see. It builds without the web
+  # push key: deploy-web.yml passes that, and the build does not need it.
+  #
+  # The file list is every test that targets the browser: the route smoke test,
+  # web auth, the web sync host, browser speech, file save and web push. A new
+  # web test file goes on this list.
+  web-build-and-chrome-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Chrome tests
+        run: |
+          flutter test --platform chrome \
+            test/web_routes_smoke_test.dart \
+            test/web_auth_test.dart \
+            test/jp_sync_host_test.dart \
+            test/speech_service_web_test.dart \
+            test/save_file_test.dart \
+            test/push_web_test.dart
+
   # Lesson pipeline evals (pipeline/jp/tests). The extractors need the source PDFs and
   # the tutor's sheet, which are not in the repo, so these run on committed fixtures:
   # the conjugation engine against Mari's 198 worked forms, the draft validator, the
@@ -100,3 +142,48 @@ jobs:
         run: |
           node --version
           node --test firebase/speech_functions/*.test.js
+
+  # Firestore rules tests (firebase/rules-tests) on the Auth, Functions and
+  # Firestore emulators, through `firebase emulators:exec` with the
+  # firebase-tools version pinned in that package. The Functions emulator loads
+  # every codebase in firebase/firebase.json, so each one gets its packages
+  # installed first. Those codebases carry no lockfile, hence `npm install`.
+  # Because that install resolves fresh transitive versions on every run, it
+  # runs with --ignore-scripts, so no package install script executes. The job
+  # holds a read-only token, and checkout does not persist it in git config.
+  #
+  # Java 21 because firebase-tools 14 and later refuse an older JDK, and the
+  # runner's default is 17. The pin is 13.35.1 for now, which runs on 17 or 21,
+  # because the dev machine has JDK 17; this job is ready for a bump. Node is
+  # pinned because @firebase/rules-unit-testing needs 24.12 or later. The suite
+  # prints TAP (`# fail 0` when green).
+  firestore-rules-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.13.0"
+
+      - name: Install function codebases
+        run: |
+          for dir in custom_cloud_functions functions speech_functions; do
+            npm install --prefix "firebase/$dir" --no-audit --no-fund --ignore-scripts
+          done
+
+      - name: Install rules tests
+        run: npm ci --prefix firebase/rules-tests --no-audit --no-fund
+
+      - name: Rules tests
+        run: npm --prefix firebase/rules-tests test
