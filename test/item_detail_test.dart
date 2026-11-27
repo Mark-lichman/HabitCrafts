@@ -298,7 +298,7 @@ void main() {
     test('a grammar say card names its sentence', () {
       final g = firstOf(ItemKind.grammar);
       final p0 = g.probes.firstWhere((p) => p.id == 'p0');
-      expect(probeLabel(g, sayCardId('p0')), 'Say it: ${p0.text}');
+      expect(probeLabel(g, sayCardId('p0')), 'Say: ${p0.text}');
     });
 
     test("a particle's choose card reads apart from its cloze", () {

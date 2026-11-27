@@ -252,7 +252,7 @@ ItemDetail itemDetailOf(ItemDef item, List<Attempt> attempts, {int? dueDay}) {
 }
 
 /// The learner-facing name of a probe: the question kind for a word; for another kind its
-/// text, prefixed 'Say it: ' on a say card or 'Choose: ' on a particle's choose card, and
+/// text, prefixed 'Say: ' on a say card or 'Choose: ' on a particle's choose card, and
 /// joined to the answer by an arrow on a pair direction.
 String probeLabel(ItemDef item, String probeId) {
   ProbeDef? probe;
@@ -266,7 +266,7 @@ String probeLabel(ItemDef item, String probeId) {
     'typed' => 'Type the reading',
     kSayCardTemplate when item.kind == ItemKind.word =>
       'Say it from the picture',
-    kSayCardTemplate => 'Say it: ${probe.text}',
+    kSayCardTemplate => 'Say: ${probe.text}',
     kPairToTransitive => '${probe.text} → ${probe.answer}',
     kPairToIntransitive => '${probe.text} → ${probe.answer}',
     // A particle's choose card shares its cloze's text, so it names its kind.

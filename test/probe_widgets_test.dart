@@ -40,6 +40,7 @@ import 'package:habit_craft/components/pages/quiet_room_mastery/item_catalog.dar
 import 'package:habit_craft/components/pages/quiet_room_mastery/jp_store_memory.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/mastery_rule.dart';
 import 'package:habit_craft/components/pages/quiet_room_mastery/probe_widgets.dart';
+import 'package:habit_craft/components/pages/quiet_room_practice/listening_bars.dart';
 import 'package:habit_craft/components/pages/quiet_room_practice/pronunciation_service.dart';
 
 import 'support/fake_pronunciation.dart';
@@ -1859,6 +1860,47 @@ void main() {
           ReviewLessonLink(item: _grammar, reviewed: true, onTap: () {}));
       expect(find.text(kReviewTheLesson), findsOneWidget);
       expect(find.text(kLessonReviewed), findsOneWidget);
+    });
+  });
+
+  group('listening bars (#180)', () {
+    testWidgets(
+        'each spoken card shows the bars while it listens, and only then',
+        (tester) async {
+      for (final make in <Widget Function(FakePronunciation)>[
+        (p) => WordRecallProbe(
+            item: _word,
+            probe: _probe(_word, 'spoken'),
+            state: const MasteryState.initial('L02_00'),
+            pronunciation: p,
+            onAnswer: (_) {}),
+        (p) => SayCardProbe(
+            item: _word,
+            probe: _sayWord,
+            state: const MasteryState.initial('L02_00'),
+            pronunciation: p,
+            onAnswer: (_) {}),
+        (p) => SayItProbe(
+            item: _grammar,
+            probe: _probe(_grammar, 'ex0'),
+            state: const MasteryState.initial('mari.L26.1'),
+            pronunciation: p,
+            onAnswer: (_) {}),
+      ]) {
+        final p = FakePronunciation();
+        final w = make(p);
+        await _pump(tester, w);
+        expect(find.byType(ListeningBars), findsNothing,
+            reason: '${w.runtimeType}: no bars before Say it');
+        await _tap(tester, 'Say it');
+        expect(find.byType(ListeningBars), findsOneWidget,
+            reason: '${w.runtimeType}: bars while listening');
+        p.answer(Judgement.correct);
+        await tester.pump();
+        await tester.pump();
+        expect(find.byType(ListeningBars), findsNothing,
+            reason: '${w.runtimeType}: bars end with the check');
+      }
     });
   });
 }
